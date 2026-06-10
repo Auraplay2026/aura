@@ -414,9 +414,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                           GitHub
                         </button>
                       </div>
-                      <div className="text-[10px] text-slate-500 text-center mt-1">
-                        ℹ️ Set <code className="bg-black/40 px-1 py-0.5 rounded text-slate-400 font-mono">NEXT_PUBLIC_GOOGLE_CLIENT_ID</code> in <code className="bg-black/40 px-1 py-0.5 rounded text-slate-400 font-mono">.env.local</code> to activate live Google Sign-In.
-                      </div>
+
                     </div>
                   )}
                 </div>
