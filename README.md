@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AuraPlay Premium | Next-Gen Crypto Casino & Cloud Gaming
 
-## Getting Started
+AuraPlay is a state-of-the-art iGaming ecosystem featuring a premium casino, live sportsbook, political predictions, and an innovative Cloud Gaming library. Built on Next.js 14 App Router, it offers a blazing fast, highly interactive, and visually stunning user experience.
 
-First, run the development server:
+![AuraPlay Banner](./public/logo.png)
+
+## 📁 Project Structure
+
+The codebase is organized cleanly to separate UI components, server logic, and database operations.
+
+```text
+├── app/                  # Next.js 14 App Router (Pages & Layouts)
+│   ├── (admin)/          # Admin Dashboard routes (protected)
+│   ├── (public)/         # Public routes (Casino, Sportsbook, etc.)
+│   ├── (user)/           # User Profile & Wallet routes
+│   └── api/              # Serverless API routes (Auth, Wagers, System)
+├── components/           # Reusable React UI Components
+│   ├── layout/           # Sidebar, Header, Footer
+│   ├── portfolio/        # Positions & Bet Slips
+│   ├── providers/        # Context Providers (Zustand)
+│   └── ui/               # Modals, Buttons, Inputs
+├── lib/                  # Core Business Logic & Databases
+│   ├── userDb.ts         # User authentication & balance logic
+│   ├── wagerDb.ts        # Betting and payout logic
+│   └── store.ts          # Zustand global state management
+├── public/               # Static Assets (Images, Logos)
+└── scripts/              # Background Workers & Bots
+    ├── generate_hype_bets.js  # Simulates live site activity & rentals
+    └── notification_worker.js # Background notification dispatcher
+```
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ installed
+
+### Installation
+1. Clone the repository
+2. Install dependencies:
+```bash
+npm install
+```
+
+### Running Locally
+To run both the Next.js development server AND the background bots simultaneously, use the concurrently start script:
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# OR for production build testing:
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🛠️ Architecture & Deployment
+This application utilizes a local JSON-based file system (`/data`) for storing users, balances, and wagers to provide lightning-fast read/writes during development.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Deployment Options
+* **Railway / Render:** Recommended. These platforms allow the Node.js background workers to run flawlessly alongside the web server. Ensure you attach a **Persistent Volume/Disk** to `/data` so user balances are saved across restarts.
+* **Vercel / Netlify:** Not recommended out-of-the-box. As serverless platforms, their disks are ephemeral (read-only), meaning the `/data` folder will not persist. If deploying to Vercel, the database layer (`lib/userDb.ts`) must first be migrated to a cloud database like Supabase or Firebase.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 🔐 Security
+- API routes are protected by Edge rate-limiting middleware (`proxy.ts`).
+- Secure JWT-based authentication flow.
+- Strict Content Security Policies (CSP) configured in `next.config.ts`.

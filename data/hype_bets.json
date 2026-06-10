@@ -1,6 +1,28 @@
 {
   "bets": [
     {
+      "user": "ApexPredator",
+      "bet": "10 hrs",
+      "mult": "\u20b959/hr",
+      "win": "\u20b9590",
+      "raw_bet": 59,
+      "raw_payout": 590,
+      "raw_mult": 10.0,
+      "game": "Cyberpunk 2077",
+      "color": "text-neon-purple animate-pulse"
+    },
+    {
+      "user": "GoaHighRoller",
+      "bet": "10 hrs",
+      "mult": "\u20b949/hr",
+      "win": "\u20b9490",
+      "raw_bet": 49,
+      "raw_payout": 490,
+      "raw_mult": 10.0,
+      "game": "Cyberpunk 2077",
+      "color": "text-neon-purple animate-pulse"
+    },
+    {
       "user": "LuckBox",
       "bet": "12 hrs",
       "mult": "\u20b929/hr",
@@ -32,33 +54,11 @@
       "raw_mult": 2.0,
       "game": "Hogwarts Legacy",
       "color": "text-slate-500"
-    },
-    {
-      "user": "SatoshiFan",
-      "bet": "5 hrs",
-      "mult": "\u20b949/hr",
-      "win": "\u20b9245",
-      "raw_bet": 49,
-      "raw_payout": 245,
-      "raw_mult": 5.0,
-      "game": "Grand Theft Auto V",
-      "color": "text-emerald-400"
-    },
-    {
-      "user": "ApexPredator",
-      "bet": "10 hrs",
-      "mult": "\u20b959/hr",
-      "win": "\u20b9590",
-      "raw_bet": 59,
-      "raw_payout": 590,
-      "raw_mult": 10.0,
-      "game": "Civilization VI",
-      "color": "text-neon-purple animate-pulse"
     }
   ],
   "stats": {
-    "totalWagered": "\u20b914976M",
+    "totalWagered": "\u20b914996M",
     "maxWin": "\u20b924M",
-    "activePlayers": "864"
+    "activePlayers": "822"
   }
 }
