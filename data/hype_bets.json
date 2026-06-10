@@ -1,0 +1,64 @@
+{
+  "bets": [
+    {
+      "user": "LuckBox",
+      "bet": "12 hrs",
+      "mult": "\u20b929/hr",
+      "win": "\u20b9348",
+      "raw_bet": 29,
+      "raw_payout": 348,
+      "raw_mult": 12.0,
+      "game": "Elden Ring",
+      "color": "text-neon-purple animate-pulse"
+    },
+    {
+      "user": "GoaHighRoller",
+      "bet": "2 hrs",
+      "mult": "\u20b949/hr",
+      "win": "\u20b998",
+      "raw_bet": 49,
+      "raw_payout": 98,
+      "raw_mult": 2.0,
+      "game": "Cyberpunk 2077",
+      "color": "text-slate-500"
+    },
+    {
+      "user": "DeltaWhale",
+      "bet": "2 hrs",
+      "mult": "\u20b969/hr",
+      "win": "\u20b9138",
+      "raw_bet": 69,
+      "raw_payout": 138,
+      "raw_mult": 2.0,
+      "game": "Hogwarts Legacy",
+      "color": "text-slate-500"
+    },
+    {
+      "user": "SatoshiFan",
+      "bet": "5 hrs",
+      "mult": "\u20b949/hr",
+      "win": "\u20b9245",
+      "raw_bet": 49,
+      "raw_payout": 245,
+      "raw_mult": 5.0,
+      "game": "Grand Theft Auto V",
+      "color": "text-emerald-400"
+    },
+    {
+      "user": "ApexPredator",
+      "bet": "10 hrs",
+      "mult": "\u20b959/hr",
+      "win": "\u20b9590",
+      "raw_bet": 59,
+      "raw_payout": 590,
+      "raw_mult": 10.0,
+      "game": "Civilization VI",
+      "color": "text-neon-purple animate-pulse"
+    }
+  ],
+  "stats": {
+    "totalWagered": "\u20b914976M",
+    "maxWin": "\u20b924M",
+    "activePlayers": "864"
+  }
+}

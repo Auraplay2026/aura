@@ -1,0 +1,678 @@
+[
+  {
+    "username": "DemoPlayer",
+    "email": "demo@aurabet.io",
+    "passwordHash": "password123",
+    "accountType": "demo",
+    "balance": 100000,
+    "positions": [],
+    "transactions": [],
+    "demoBalance": 100000,
+    "demoPositions": [],
+    "demoTransactions": [],
+    "realBalance": 0,
+    "realPositions": [],
+    "realTransactions": [],
+    "hasCompletedOnboarding": false,
+    "phoneNumber": "",
+    "gamingState": "",
+    "upiId": "",
+    "role": "user",
+    "kycStatus": "NONE",
+    "kycDocumentUrl": "",
+    "notifications": [
+      {
+        "id": "notif_1781121626853_8MUA",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121626853,
+        "read": false
+      },
+      {
+        "id": "notif_1781121581847_LAOM",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121581847,
+        "read": false
+      },
+      {
+        "id": "notif_1781121536839_T8MW",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121536839,
+        "read": false
+      },
+      {
+        "id": "notif_1781121491845_IL88",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121491845,
+        "read": false
+      },
+      {
+        "id": "notif_1781121446828_SR1T",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121446828,
+        "read": false
+      },
+      {
+        "id": "notif_1781121401819_B6NW",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121401819,
+        "read": false
+      },
+      {
+        "id": "notif_1781121356816_562B",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121356816,
+        "read": false
+      },
+      {
+        "id": "notif_1781121311800_NI9J",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121311800,
+        "read": false
+      },
+      {
+        "id": "notif_1781121266793_4Y97",
+        "title": "KYC Audit Scans Complete 🛡️",
+        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
+        "timestamp": 1781121266793,
+        "read": false
+      },
+      {
+        "id": "notif_1781121221787_LD6R",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121221787,
+        "read": false
+      },
+      {
+        "id": "notif_1781121176783_MA7U",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121176783,
+        "read": false
+      },
+      {
+        "id": "notif_1781121131759_1CAR",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121131760,
+        "read": false
+      },
+      {
+        "id": "notif_1781121086753_L1N6",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121086753,
+        "read": false
+      },
+      {
+        "id": "notif_1781121041743_0J6T",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781121041743,
+        "read": false
+      },
+      {
+        "id": "notif_1781120996736_QC91",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781120996736,
+        "read": false
+      },
+      {
+        "id": "notif_1781120951732_CSP1",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781120951732,
+        "read": false
+      },
+      {
+        "id": "notif_1781120906727_5HML",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120906727,
+        "read": false
+      },
+      {
+        "id": "notif_1781120861711_1SJU",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781120861711,
+        "read": false
+      },
+      {
+        "id": "notif_1781120816707_B8ZV",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120816707,
+        "read": false
+      },
+      {
+        "id": "notif_1781120771694_5XZS",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781120771694,
+        "read": false
+      }
+    ],
+    "adminNotes": "",
+    "affiliateCode": "DEMOPGKL",
+    "referredBy": "",
+    "referralCount": 0,
+    "affiliateEarnings": 0
+  },
+  {
+    "username": "Admin",
+    "email": "admin@aurabet.io",
+    "passwordHash": "admin123",
+    "accountType": "real",
+    "balance": 0,
+    "positions": [],
+    "transactions": [],
+    "demoBalance": 100000,
+    "demoPositions": [],
+    "demoTransactions": [],
+    "realBalance": 0,
+    "realPositions": [],
+    "realTransactions": [],
+    "hasCompletedOnboarding": true,
+    "phoneNumber": "9999999999",
+    "gamingState": "Maharashtra",
+    "upiId": "admin@okaxis",
+    "role": "admin",
+    "kycStatus": "NONE",
+    "kycDocumentUrl": "",
+    "notifications": [
+      {
+        "id": "notif_1781121626853_8MUA",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121626853,
+        "read": false
+      },
+      {
+        "id": "notif_1781121581847_LAOM",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121581847,
+        "read": false
+      },
+      {
+        "id": "notif_1781121536839_T8MW",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121536839,
+        "read": false
+      },
+      {
+        "id": "notif_1781121491845_IL88",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121491845,
+        "read": false
+      },
+      {
+        "id": "notif_1781121446828_SR1T",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121446828,
+        "read": false
+      },
+      {
+        "id": "notif_1781121401819_B6NW",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121401819,
+        "read": false
+      },
+      {
+        "id": "notif_1781121356816_562B",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121356816,
+        "read": false
+      },
+      {
+        "id": "notif_1781121311800_NI9J",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121311800,
+        "read": false
+      },
+      {
+        "id": "notif_1781121266793_4Y97",
+        "title": "KYC Audit Scans Complete 🛡️",
+        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
+        "timestamp": 1781121266793,
+        "read": false
+      },
+      {
+        "id": "notif_1781121221787_LD6R",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121221787,
+        "read": false
+      },
+      {
+        "id": "notif_1781121176783_MA7U",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121176783,
+        "read": false
+      },
+      {
+        "id": "notif_1781121131759_1CAR",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121131760,
+        "read": false
+      },
+      {
+        "id": "notif_1781121086753_L1N6",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121086753,
+        "read": false
+      },
+      {
+        "id": "notif_1781121041743_0J6T",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781121041743,
+        "read": false
+      },
+      {
+        "id": "notif_1781120996736_QC91",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781120996736,
+        "read": false
+      },
+      {
+        "id": "notif_1781120951732_CSP1",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781120951732,
+        "read": false
+      },
+      {
+        "id": "notif_1781120906727_5HML",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120906727,
+        "read": false
+      },
+      {
+        "id": "notif_1781120861711_1SJU",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781120861711,
+        "read": false
+      },
+      {
+        "id": "notif_1781120816707_B8ZV",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120816707,
+        "read": false
+      },
+      {
+        "id": "notif_1781120771694_5XZS",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781120771694,
+        "read": false
+      }
+    ],
+    "adminNotes": "",
+    "affiliateCode": "ADMILPQ8",
+    "referredBy": "",
+    "referralCount": 0,
+    "affiliateEarnings": 0
+  },
+  {
+    "username": "crackencall",
+    "email": "crackencall@gmail.com",
+    "passwordHash": "google-oauth-user",
+    "accountType": "demo",
+    "balance": 0,
+    "positions": [],
+    "transactions": [],
+    "demoBalance": 100000,
+    "demoPositions": [],
+    "demoTransactions": [],
+    "realBalance": 0,
+    "realPositions": [],
+    "realTransactions": [],
+    "hasCompletedOnboarding": true,
+    "phoneNumber": "",
+    "gamingState": "",
+    "upiId": "",
+    "role": "user",
+    "kycStatus": "NONE",
+    "kycDocumentUrl": "",
+    "notifications": [
+      {
+        "id": "notif_1781121626853_8MUA",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121626853,
+        "read": false
+      },
+      {
+        "id": "notif_1781121581847_LAOM",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121581847,
+        "read": false
+      },
+      {
+        "id": "notif_1781121536839_T8MW",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121536839,
+        "read": false
+      },
+      {
+        "id": "notif_1781121491845_IL88",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121491845,
+        "read": false
+      },
+      {
+        "id": "notif_1781121446828_SR1T",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121446828,
+        "read": false
+      },
+      {
+        "id": "notif_1781121401819_B6NW",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121401819,
+        "read": false
+      },
+      {
+        "id": "notif_1781121356816_562B",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121356816,
+        "read": false
+      },
+      {
+        "id": "notif_1781121311800_NI9J",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121311800,
+        "read": false
+      },
+      {
+        "id": "notif_1781121266793_4Y97",
+        "title": "KYC Audit Scans Complete 🛡️",
+        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
+        "timestamp": 1781121266793,
+        "read": false
+      },
+      {
+        "id": "notif_1781121221787_LD6R",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121221787,
+        "read": false
+      },
+      {
+        "id": "notif_1781121176783_MA7U",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121176783,
+        "read": false
+      },
+      {
+        "id": "notif_1781121131759_1CAR",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121131760,
+        "read": false
+      },
+      {
+        "id": "notif_1781121086753_L1N6",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121086753,
+        "read": false
+      },
+      {
+        "id": "notif_1781121041743_0J6T",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781121041743,
+        "read": false
+      },
+      {
+        "id": "notif_1781120996736_QC91",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781120996736,
+        "read": false
+      },
+      {
+        "id": "notif_1781120951732_CSP1",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781120951732,
+        "read": false
+      },
+      {
+        "id": "notif_1781120906727_5HML",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120906727,
+        "read": false
+      },
+      {
+        "id": "notif_1781120861711_1SJU",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781120861711,
+        "read": false
+      },
+      {
+        "id": "notif_1781120816707_B8ZV",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120816707,
+        "read": false
+      },
+      {
+        "id": "notif_1781120771694_5XZS",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781120771694,
+        "read": false
+      }
+    ],
+    "adminNotes": "",
+    "affiliateCode": "CRACLZX5",
+    "referredBy": "",
+    "referralCount": 0,
+    "affiliateEarnings": 0
+  },
+  {
+    "username": "V12QUATTROTWINTUBRO",
+    "email": "twintubrovquattro@gmail.com",
+    "passwordHash": "google-oauth-user",
+    "accountType": "demo",
+    "balance": 100000,
+    "positions": [],
+    "transactions": [],
+    "demoBalance": 100000,
+    "demoPositions": [],
+    "demoTransactions": [],
+    "realBalance": 0,
+    "realPositions": [],
+    "realTransactions": [],
+    "hasCompletedOnboarding": true,
+    "phoneNumber": "",
+    "gamingState": "",
+    "upiId": "",
+    "role": "user",
+    "kycStatus": "NONE",
+    "kycDocumentUrl": "",
+    "notifications": [
+      {
+        "id": "notif_1781121626853_8MUA",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121626853,
+        "read": false
+      },
+      {
+        "id": "notif_1781121581847_LAOM",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121581847,
+        "read": false
+      },
+      {
+        "id": "notif_1781121536839_T8MW",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121536839,
+        "read": false
+      },
+      {
+        "id": "notif_1781121491845_IL88",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121491845,
+        "read": false
+      },
+      {
+        "id": "notif_1781121446828_SR1T",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781121446828,
+        "read": false
+      },
+      {
+        "id": "notif_1781121401819_B6NW",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121401819,
+        "read": false
+      },
+      {
+        "id": "notif_1781121356816_562B",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781121356816,
+        "read": false
+      },
+      {
+        "id": "notif_1781121311800_NI9J",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121311800,
+        "read": false
+      },
+      {
+        "id": "notif_1781121266793_4Y97",
+        "title": "KYC Audit Scans Complete 🛡️",
+        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
+        "timestamp": 1781121266793,
+        "read": false
+      },
+      {
+        "id": "notif_1781121221787_LD6R",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121221787,
+        "read": false
+      },
+      {
+        "id": "notif_1781121176783_MA7U",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781121176783,
+        "read": false
+      },
+      {
+        "id": "notif_1781121131759_1CAR",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781121131760,
+        "read": false
+      },
+      {
+        "id": "notif_1781121086753_L1N6",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781121086753,
+        "read": false
+      },
+      {
+        "id": "notif_1781121041743_0J6T",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781121041743,
+        "read": false
+      },
+      {
+        "id": "notif_1781120996736_QC91",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781120996736,
+        "read": false
+      },
+      {
+        "id": "notif_1781120951732_CSP1",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781120951732,
+        "read": false
+      },
+      {
+        "id": "notif_1781120906727_5HML",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120906727,
+        "read": false
+      },
+      {
+        "id": "notif_1781120861711_1SJU",
+        "title": "RTP Pulse Alert 🔥",
+        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
+        "timestamp": 1781120861711,
+        "read": false
+      },
+      {
+        "id": "notif_1781120816707_B8ZV",
+        "title": "Live Match Synced 📡",
+        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
+        "timestamp": 1781120816707,
+        "read": false
+      },
+      {
+        "id": "notif_1781120771694_5XZS",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781120771694,
+        "read": false
+      }
+    ],
+    "adminNotes": "",
+    "affiliateCode": "V12QJK0Y",
+    "referredBy": "",
+    "referralCount": 0,
+    "affiliateEarnings": 0
+  }
+]

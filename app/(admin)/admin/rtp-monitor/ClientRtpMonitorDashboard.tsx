@@ -1,0 +1,290 @@
+"use client";
+
+import { useState } from "react";
+import { useTradingStore } from "@/lib/store";
+import { SystemConfig } from "@/lib/systemConfig";
+import { 
+  adminUpdateGameStatus, adminUpdatePaymentStatus, adminUpdateHouseEdge 
+} from "../actions";
+import { 
+  Shield, Sliders, CheckCircle, AlertTriangle, Activity, DollarSign, RefreshCw,
+  Dices, Bomb, HelpCircle, ArrowUpRight, Zap, Hash, Coins, Landmark
+} from "lucide-react";
+
+interface ClientRtpMonitorDashboardProps {
+  initialSystemConfig: SystemConfig;
+}
+
+interface ToastMessage {
+  id: string;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
+export default function ClientRtpMonitorDashboard({ initialSystemConfig }: ClientRtpMonitorDashboardProps) {
+  const currentUser = useTradingStore(state => state.currentUser);
+  const adminEmail = currentUser?.email || "admin@aurabet.io";
+
+  const [config, setConfig] = useState<SystemConfig>(initialSystemConfig);
+  const [houseEdge, setHouseEdge] = useState(initialSystemConfig.houseEdge);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4500);
+  };
+
+  // Game status toggle
+  const handleGameStatusToggle = async (gameId: string, currentDisabled: boolean) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    const targetStatus = !currentDisabled;
+    try {
+      const res = await adminUpdateGameStatus(gameId, targetStatus, adminEmail);
+      if (res.success && res.config) {
+        showToast(`Game '${res.config.games[gameId].name}' is now ${targetStatus ? 'Disabled' : 'Enabled'}`, "success");
+        setConfig(res.config);
+      } else {
+        showToast(res.error || "Failed to update game status", "error");
+      }
+    } catch {
+      showToast("Network error updating game status", "error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Payment method status toggle
+  const handlePaymentStatusToggle = async (methodId: string, currentDisabled: boolean) => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    const targetStatus = !currentDisabled;
+    try {
+      const res = await adminUpdatePaymentStatus(methodId, targetStatus, adminEmail);
+      if (res.success && res.config) {
+        showToast(`Payment Method '${res.config.paymentMethods[methodId].name}' is now ${targetStatus ? 'Disabled' : 'Enabled'}`, "success");
+        setConfig(res.config);
+      } else {
+        showToast(res.error || "Failed to update payment status", "error");
+      }
+    } catch {
+      showToast("Network error updating payment status", "error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // House edge submission
+  const handleHouseEdgeSubmit = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      const res = await adminUpdateHouseEdge(houseEdge, adminEmail);
+      if (res.success && res.config) {
+        showToast(`Successfully updated Global House Edge to ${houseEdge}%`, "success");
+        setConfig(res.config);
+      } else {
+        showToast(res.error || "Failed to update house edge", "error");
+        setHouseEdge(config.houseEdge);
+      }
+    } catch {
+      showToast("Network error updating house edge", "error");
+      setHouseEdge(config.houseEdge);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+
+  // Match game IDs to respective Lucide icons
+  const getGameIcon = (gameId: string) => {
+    switch (gameId) {
+      case 'dice': return <Dices className="w-4 h-4 text-indigo-400" />;
+      case 'mines': return <Bomb className="w-4 h-4 text-rose-400" />;
+      case 'plinko': return <HelpCircle className="w-4 h-4 text-emerald-400" />;
+      case 'limbo': return <ArrowUpRight className="w-4 h-4 text-cyan-400" />;
+      case 'crash': return <Zap className="w-4 h-4 text-amber-400" />;
+      case 'keno': return <Hash className="w-4 h-4 text-pink-400" />;
+      case 'coinflip': return <Coins className="w-4 h-4 text-teal-400" />;
+      case 'blackjack': return <Landmark className="w-4 h-4 text-purple-400" />;
+      default: return <Activity className="w-4 h-4 text-slate-400" />;
+    }
+  };
+
+  // Match payment channel IDs to icons
+  const getPaymentIcon = (methodId: string) => {
+    switch (methodId) {
+      case 'upi': return <ArrowUpRight className="w-4 h-4 text-emerald-400" />;
+      case 'bank': return <Landmark className="w-4 h-4 text-indigo-400" />;
+      case 'crypto': return <Coins className="w-4 h-4 text-amber-400" />;
+      default: return <DollarSign className="w-4 h-4 text-slate-400" />;
+    }
+  };
+
+  return (
+    <div className="min-h-screen p-8 relative overflow-hidden bg-[#030307] text-slate-100">
+      
+      {/* Toast Alert list */}
+      <div className="fixed top-6 right-6 z-50 flex flex-col gap-3">
+        {toasts.map(t => (
+          <div key={t.id} className={`flex items-center gap-2.5 px-5 py-3.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300 animate-slide-in ${
+            t.type === 'success' ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300' :
+            t.type === 'error' ? 'bg-rose-950/80 border-rose-500/30 text-rose-300' :
+            'bg-slate-900/80 border-slate-800 text-slate-300'
+          }`}>
+            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-400" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-400" />}
+            <span className="text-xs font-semibold">{t.message}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Header bar */}
+      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-4">
+        <div className="flex items-center gap-4">
+          <div className="relative group">
+            <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 opacity-60 blur-md" />
+            <div className="relative w-14 h-14 rounded-2xl bg-slate-950 border border-white/10 flex items-center justify-center">
+              <Sliders className="w-7 h-7 text-amber-500" />
+            </div>
+          </div>
+          <div>
+            <h1 className="text-2xl font-black text-white tracking-widest uppercase">System Controls (RTP)</h1>
+            <p className="text-xs text-slate-500 font-medium tracking-wide uppercase mt-1">Configure global house margins and toggle game runtime registries.</p>
+          </div>
+        </div>
+      </header>
+
+      {/* Grid workspace */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
+        
+        {/* House Edge Widget */}
+        <div className="lg:col-span-3 bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-4 mb-6 gap-3">
+            <div className="flex items-center gap-2">
+              <Sliders className="w-5 h-5 text-amber-500" />
+              <div>
+                <h3 className="text-sm font-black text-white uppercase tracking-widest">Global Margin Configuration</h3>
+                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Adjust mathematical advantage on casino engine simulations.</p>
+              </div>
+            </div>
+            <div className="bg-amber-500/15 border border-amber-500/30 px-4 py-2 rounded-xl text-center">
+              <span className="font-mono text-base font-black text-amber-400">{houseEdge.toFixed(1)}%</span>
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-4">
+            <div className="flex items-center gap-4">
+              <input
+                type="range"
+                min="0"
+                max="15"
+                step="0.1"
+                value={houseEdge}
+                onChange={(e) => setHouseEdge(parseFloat(e.target.value))}
+                onMouseUp={handleHouseEdgeSubmit}
+                onTouchEnd={handleHouseEdgeSubmit}
+                disabled={isProcessing}
+                className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-amber-500 focus:outline-none"
+              />
+              <span className="text-xs font-black text-slate-500 uppercase tracking-widest shrink-0">0% to 15%</span>
+            </div>
+            
+            <p className="text-[10px] text-slate-400 font-medium leading-relaxed max-w-2xl bg-white/[0.01] p-3 rounded-lg border border-white/[0.02]">
+              💡 <strong>System Note:</strong> The global house edge modifies the payout coefficient return values for casino games (Mines, Dice, Plinko, etc.) in real-time. Changes are applied instantly to player rounds without requiring game registry restarts.
+            </p>
+          </div>
+        </div>
+
+        {/* Game Switches Widget */}
+        <div className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
+          <div className="flex items-center gap-2.5 border-b border-white/5 pb-4 mb-4">
+            <Activity className="w-5 h-5 text-indigo-400" />
+            <div>
+              <h3 className="text-xs font-black text-white uppercase tracking-widest">Game Kill-Switches</h3>
+              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Toggle runtime modules for specific categories.</p>
+            </div>
+          </div>
+
+          <div className="space-y-3">
+            {Object.entries(config.games).map(([gameId, game]) => (
+              <div key={gameId} className="flex items-center justify-between p-3 bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 rounded-xl transition">
+                <div className="flex items-center gap-2.5">
+                  {getGameIcon(gameId)}
+                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">{game.name}</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`w-1.5 h-1.5 rounded-full ${!game.disabled ? 'bg-emerald-400 shadow-[0_0_6px_#10b981]' : 'bg-red-500 shadow-[0_0_6px_#ef4444]'}`} />
+                  <button
+                    onClick={() => handleGameStatusToggle(gameId, game.disabled)}
+                    disabled={isProcessing}
+                    className={`relative inline-flex h-5.5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      !game.disabled ? 'bg-indigo-500/80 hover:bg-indigo-500' : 'bg-slate-800'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-4.5 w-4.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        !game.disabled ? 'translate-x-4.5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Payment Channels Widget */}
+        <div className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl lg:col-span-2">
+          <div className="flex items-center gap-2.5 border-b border-white/5 pb-4 mb-4">
+            <DollarSign className="w-5 h-5 text-pink-400" />
+            <div>
+              <h3 className="text-xs font-black text-white uppercase tracking-widest">Payment Gateway Status</h3>
+              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Enable or disable incoming transaction routes.</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {Object.entries(config.paymentMethods).map(([methodId, method]) => (
+              <div key={methodId} className="flex items-center justify-between p-4 bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 rounded-xl transition">
+                <div className="flex items-center gap-3">
+                  <div className="w-9 h-9 bg-slate-900/50 rounded-lg flex items-center justify-center border border-white/5">
+                    {getPaymentIcon(methodId)}
+                  </div>
+                  <div>
+                    <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">{method.name}</span>
+                    <span className="text-[9px] text-slate-500 font-semibold uppercase block mt-0.5">{methodId === 'upi' ? 'UPI and QR Code' : methodId === 'bank' ? 'Bank Wire Transfer' : 'BTC/USDT Crypto Wallet'}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`w-1.5 h-1.5 rounded-full ${!method.disabled ? 'bg-emerald-400 shadow-[0_0_6px_#10b981]' : 'bg-red-500 shadow-[0_0_6px_#ef4444]'}`} />
+                  <button
+                    onClick={() => handlePaymentStatusToggle(methodId, method.disabled)}
+                    disabled={isProcessing}
+                    className={`relative inline-flex h-5.5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
+                      !method.disabled ? 'bg-pink-500/80 hover:bg-pink-500' : 'bg-slate-800'
+                    }`}
+                  >
+                    <span
+                      className={`pointer-events-none inline-block h-4.5 w-4.5 transform rounded-full bg-white shadow ring-0 transition duration-200 ease-in-out ${
+                        !method.disabled ? 'translate-x-4.5' : 'translate-x-0'
+                      }`}
+                    />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <p className="text-[10px] text-slate-500 font-medium leading-relaxed bg-white/[0.01] p-3 rounded-lg border border-white/[0.02] mt-6">
+            ⚠️ <strong>Admin Notice:</strong> Disabling a payment channel immediately blocks customers from initiating deposit requests or selecting the channel for withdrawals. Transactions currently under "Processing" status are unaffected and can be processed manually.
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}

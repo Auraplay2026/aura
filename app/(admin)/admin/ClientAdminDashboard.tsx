@@ -1,0 +1,471 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { UserProfile, Transaction } from "@/lib/userDb";
+import { useTradingStore } from "@/lib/store";
+import { 
+  Shield, Users, Coins, TrendingUp, Clock, ArrowUpRight, ArrowDownLeft, 
+  RefreshCw, Eye, AlertTriangle, CheckCircle, Activity, Bell, CreditCard, ArrowRight
+} from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { 
+  adminSimulateWagerAction, 
+  adminTriggerSportsSyncAction, 
+  adminClearActivityAction,
+  adminBroadcastNotificationAction
+} from "./actions";
+
+interface ExtendedTransaction extends Transaction {
+  email: string;
+  username: string;
+}
+
+interface ClientAdminDashboardProps {
+  initialUsers: UserProfile[];
+  globalTransactions: ExtendedTransaction[];
+}
+
+interface ToastMessage {
+  id: string;
+  message: string;
+  type: "success" | "error" | "info";
+}
+
+export default function ClientAdminDashboard({ initialUsers, globalTransactions }: ClientAdminDashboardProps) {
+  const currentUser = useTradingStore(state => state.currentUser);
+  
+  const [timeString, setTimeString] = useState("");
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [loading, setLoading] = useState(false);
+  
+  const [pendingDepositsCount, setPendingDepositsCount] = useState(0);
+  const [pendingWithdrawalsCount, setPendingWithdrawalsCount] = useState(0);
+
+  const handleSimulateWager = async () => {
+    if (!currentUser) return;
+    try {
+      setLoading(true);
+      const res = await adminSimulateWagerAction(currentUser.email);
+      if (res.success) {
+        showToast(`Success: Simulated ${res.details} for @${res.user}!`, "success");
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        showToast(`Error: ${res.error}`, "error");
+      }
+    } catch (err: any) {
+      showToast(`Simulation failed: ${err.message}`, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSportsSync = async () => {
+    if (!currentUser) return;
+    try {
+      setLoading(true);
+      const res = await adminTriggerSportsSyncAction(currentUser.email);
+      if (res.success) {
+        showToast(`Sync Done! Crawled ${res.cricketCount} Cricket & ${res.tennisCount} Tennis live fixtures.`, "success");
+      } else {
+        showToast(`Sync Error: ${res.error}`, "error");
+      }
+    } catch (err: any) {
+      showToast(`Sync failed: ${err.message}`, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleClearActivity = async () => {
+    if (!currentUser) return;
+    try {
+      setLoading(true);
+      const res = await adminClearActivityAction(currentUser.email);
+      if (res.success) {
+        showToast(`Success: Purged ${res.clearedCount} simulated transactions from ledger.`, "success");
+        setTimeout(() => window.location.reload(), 1500);
+      } else {
+        showToast(`Error: ${res.error}`, "error");
+      }
+    } catch (err: any) {
+      showToast(`Purge failed: ${err.message}`, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBroadcast = async () => {
+    if (!currentUser) return;
+    const msg = prompt("Enter the notification message to broadcast to ALL users:");
+    if (!msg) return;
+    try {
+      setLoading(true);
+      const res = await adminBroadcastNotificationAction(currentUser.email, msg);
+      if (res.success) {
+        showToast(`Success: Broadcasted message to ${res.sentCount} users.`, "success");
+      } else {
+        showToast(`Error: ${res.error}`, "error");
+      }
+    } catch (err: any) {
+      showToast(`Broadcast failed: ${err.message}`, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+
+  const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
+    const id = Math.random().toString(36).substring(2, 9);
+    setToasts((prev) => [...prev, { id, message, type }]);
+    setTimeout(() => {
+      setToasts((prev) => prev.filter((t) => t.id !== id));
+    }, 4000);
+  };
+
+  // Live clock
+  useEffect(() => {
+    setTimeString(new Date().toLocaleTimeString());
+    const interval = setInterval(() => {
+      setTimeString(new Date().toLocaleTimeString());
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Fetch queues summary details
+  const fetchOperationsSummary = async () => {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    try {
+      setLoading(true);
+      const res = await fetch(`/api/admin/deposits?email=${encodeURIComponent(currentUser.email)}`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        // Filter Deposits & Withdrawals count
+        const pendingDeps = (data.pending || []).filter((item: any) => item.transaction.type === 'deposit');
+        const pendingWiths = (data.pending || []).filter((item: any) => item.transaction.type === 'withdraw');
+        
+        setPendingDepositsCount(pendingDeps.length);
+        setPendingWithdrawalsCount(pendingWiths.length);
+      }
+    } catch (err) {
+      console.error("Failed to fetch operations summary:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOperationsSummary();
+  }, [currentUser]);
+
+  // Financial calculations
+  const totalUserBalances = initialUsers.reduce((sum, u) => sum + u.realBalance, 0);
+  
+  const totalDeposits = initialUsers.reduce((sum, u) => {
+    return sum + u.realTransactions
+      .filter((t) => t.type === "deposit" && t.status === "Completed")
+      .reduce((s, t) => s + t.amount, 0);
+  }, 0);
+
+  const totalWithdrawals = initialUsers.reduce((sum, u) => {
+    return sum + u.realTransactions
+      .filter((t) => t.type === "withdraw" && t.status === "Completed")
+      .reduce((s, t) => s + t.amount, 0);
+  }, 0);
+
+  const netProfit = totalDeposits - totalWithdrawals - totalUserBalances;
+
+  // Render Premium SVG Margin Area Chart
+  const renderAreaChart = () => {
+    const hourlyData = [0.05, 0.12, 0.08, 0.22, 0.18, 0.35, 0.42, 0.38, 0.55, 0.48, 0.72, 0.85];
+    const width = 500;
+    const height = 150;
+    const paddingX = 20;
+    const paddingY = 15;
+
+    const chartWidth = width - paddingX * 2;
+    const chartHeight = height - paddingY * 2;
+
+    const points = hourlyData.map((val, idx) => {
+      const x = paddingX + (idx / (hourlyData.length - 1)) * chartWidth;
+      const y = paddingY + chartHeight - val * chartHeight;
+      return { x, y };
+    });
+
+    let linePath = "";
+    let areaPath = "";
+
+    if (points.length > 0) {
+      linePath = `M ${points[0].x} ${points[0].y}`;
+      areaPath = `M ${points[0].x} ${height - paddingY} L ${points[0].x} ${points[0].y}`;
+      
+      for (let i = 1; i < points.length; i++) {
+        const prev = points[i - 1];
+        const curr = points[i];
+        const cpX = (prev.x + curr.x) / 2;
+        linePath += ` Q ${cpX} ${prev.y}, ${curr.x} ${curr.y}`;
+        areaPath += ` Q ${cpX} ${prev.y}, ${curr.x} ${curr.y}`;
+      }
+      areaPath += ` L ${points[points.length - 1].x} ${height - paddingY} Z`;
+    }
+
+    return (
+      <div className="relative w-full h-[150px] select-none mt-2">
+        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
+          <defs>
+            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25" />
+              <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
+            </linearGradient>
+            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="4" result="blur" />
+              <feMerge>
+                <feMergeNode in="blur" />
+                <feMergeNode in="SourceGraphic" />
+              </feMerge>
+            </filter>
+          </defs>
+          <line x1={paddingX} y1={paddingY} x2={width - paddingX} y2={paddingY} stroke="rgba(255,255,255,0.02)" strokeDasharray="3,3" />
+          <line x1={paddingX} y1={paddingY + chartHeight} x2={width - paddingX} y2={paddingY + chartHeight} stroke="rgba(255,255,255,0.05)" />
+          {areaPath && <path d={areaPath} fill="url(#areaGrad)" />}
+          {linePath && <path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="2.5" filter="url(#glow)" className="stroke-indigo-500" />}
+          <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#818cf8" />
+            <stop offset="100%" stopColor="#22d3ee" />
+          </linearGradient>
+          {points.map((p, idx) => (
+            <circle key={idx} cx={p.x} cy={p.y} r="2.5" className="fill-indigo-950 stroke-indigo-400 stroke-2 hover:r-4 transition-all" />
+          ))}
+        </svg>
+      </div>
+    );
+  };
+
+  return (
+    <div className="min-h-screen bg-[#030307] text-slate-100 p-6 flex flex-col gap-6 relative overflow-hidden">
+      
+      {/* Glow elements */}
+      <div className="absolute top-[5%] left-[10%] w-[320px] h-[320px] rounded-full bg-violet-600/5 blur-[110px] pointer-events-none" />
+      <div className="absolute bottom-[10%] right-[5%] w-[420px] h-[420px] rounded-full bg-indigo-600/5 blur-[130px] pointer-events-none" />
+
+      {/* Floating Toast System */}
+      <div className="fixed top-6 right-6 z-50 flex flex-col gap-3">
+        {toasts.map(t => (
+          <div key={t.id} className={`flex items-center gap-2.5 px-5 py-3.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300 animate-slide-in ${
+            t.type === 'success' ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300' :
+            t.type === 'error' ? 'bg-rose-950/80 border-rose-500/30 text-rose-300' :
+            'bg-slate-900/80 border-slate-800 text-slate-300'
+          }`}>
+            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-400" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-400" />}
+            <span className="text-xs font-semibold">{t.message}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Dashboard Top bar */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/30 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md relative z-10">
+        <div>
+          <div className="flex items-center gap-1.5 text-indigo-400 font-bold text-xs tracking-wider uppercase">
+            <Shield className="w-4 h-4" /> Command Center
+          </div>
+          <h1 className="text-2xl font-black text-white mt-1 tracking-tight">System Operations Hub</h1>
+          <p className="text-xs text-slate-400 mt-0.5">High-level financial summaries, platform ledger audits, and live user gameplay feeds.</p>
+        </div>
+        
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-slate-950/60 border border-slate-900 px-4 py-2.5 rounded-xl font-mono text-[10px] text-slate-400">
+            <Clock className="w-4 h-4 text-indigo-400" /> CLOCK: <span className="text-white font-bold">{timeString || "00:00:00"}</span>
+          </div>
+          <button 
+            onClick={fetchOperationsSummary}
+            className="p-2.5 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
+          >
+            <RefreshCw className={`w-4 h-4 ${loading && 'animate-spin'}`} />
+          </button>
+        </div>
+      </header>
+
+      {/* Financial Overviews Row */}
+      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+        {[
+          { label: "Net House Margin", val: netProfit, icon: Coins, color: "text-emerald-400", border: "border-emerald-500/20" },
+          { label: "Cumulative Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-400", border: "border-indigo-500/15" },
+          { label: "Cumulative Withdrawals", val: totalWithdrawals, icon: ArrowDownLeft, color: "text-pink-400", border: "border-pink-500/15" },
+          { label: "Platform Liabilities", val: totalUserBalances, icon: Users, color: "text-cyan-400", border: "border-cyan-500/15" },
+        ].map((card) => (
+          <div key={card.label} className={`bg-slate-950/60 border ${card.border} p-5 rounded-2xl backdrop-blur-md`}>
+            <div className="flex items-center justify-between text-slate-500 text-[10px] font-black uppercase tracking-widest">
+              <span>{card.label}</span>
+              <card.icon className={`w-4 h-4 ${card.color}`} />
+            </div>
+            <p className="text-2xl font-black font-mono text-white mt-3 tracking-tight">₹{card.val.toLocaleString('en-IN')}</p>
+          </div>
+        ))}
+      </section>
+
+      {/* Main Grid split */}
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-stretch relative z-10">
+        
+        {/* Left Side: Pending Task Summaries & Net Trend */}
+        <div className="xl:col-span-2 flex flex-col gap-6">
+          
+          {/* Action Tasks Summary Widget */}
+          <div className="bg-slate-950/45 border border-white/5 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4">
+            <h3 className="text-xs font-black text-white uppercase tracking-widest border-b border-white/5 pb-3">
+              📋 Operational Verification Backlog
+            </h3>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              
+              {/* Deposits backlog */}
+              <div className="bg-white/[0.01] border border-white/5 p-4 rounded-xl flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-center justify-center">
+                    <ArrowDownLeft className="w-5 h-5 text-emerald-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Manual Deposits</h4>
+                    <p className="text-xs font-black text-white mt-0.5">{pendingDepositsCount} Awaiting Review</p>
+                  </div>
+                </div>
+                <Link 
+                  href="/admin/deposits" 
+                  className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 p-2 rounded-lg transition"
+                  title="Open Deposits Queue"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+              {/* Withdrawals backlog */}
+              <div className="bg-white/[0.01] border border-white/5 p-4 rounded-xl flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 bg-pink-500/10 rounded-xl border border-pink-500/20 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-pink-400" />
+                  </div>
+                  <div>
+                    <h4 className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Withdrawals Portal</h4>
+                    <p className="text-xs font-black text-white mt-0.5">{pendingWithdrawalsCount} Awaiting Disbursement</p>
+                  </div>
+                </div>
+                <Link 
+                  href="/admin/withdrawals" 
+                  className="bg-pink-500/10 hover:bg-pink-500 text-pink-400 hover:text-white p-2 rounded-lg transition"
+                  title="Open Withdrawals Queue"
+                >
+                  <ArrowRight className="w-4 h-4" />
+                </Link>
+              </div>
+
+            </div>
+          </div>
+
+          {/* Platform System Controllers */}
+          <div className="bg-slate-950/45 border border-indigo-500/10 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4 shadow-[0_0_20px_rgba(99,102,241,0.02)]">
+            <h3 className="text-xs font-black text-indigo-400 uppercase tracking-widest border-b border-white/5 pb-3 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-indigo-400" />
+              Platform System Controllers & Tools
+            </h3>
+            
+            <p className="text-[11px] text-slate-400">
+              Trigger live backend scrapers, inject simulated wagers to test analytics calculations, or sanitize demo activity from wagers databases.
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+              
+              {/* Sync Live Matches */}
+              <button 
+                onClick={handleSportsSync}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600/20 to-transparent hover:from-cyan-600/30 border border-cyan-500/20 hover:border-cyan-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+              >
+                <Activity className="w-4 h-4 text-cyan-400" />
+                <span className="text-xs uppercase tracking-wider">Sync Live Sports</span>
+              </button>
+
+              {/* Inject Random Bet */}
+              <button 
+                onClick={handleSimulateWager}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600/20 to-transparent hover:from-violet-600/30 border border-violet-500/20 hover:border-violet-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+              >
+                <Bell className="w-4 h-4 text-violet-400" />
+                <span className="text-xs uppercase tracking-wider">Inject Test Bet</span>
+              </button>
+
+              {/* Purge Simulated Wagers */}
+              <button 
+                onClick={handleClearActivity}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600/20 to-transparent hover:from-rose-600/30 border border-rose-500/20 hover:border-rose-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+              >
+                <RefreshCw className="w-4 h-4 text-rose-400" />
+                <span className="text-xs uppercase tracking-wider">Purge Demo Bets</span>
+              </button>
+
+              {/* Broadcast Alert */}
+              <button 
+                onClick={handleBroadcast}
+                disabled={loading}
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600/20 to-transparent hover:from-emerald-600/30 border border-emerald-500/20 hover:border-emerald-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 sm:col-span-3"
+              >
+                <Bell className="w-4 h-4 text-emerald-400" />
+                <span className="text-xs uppercase tracking-wider">Broadcast Global Alert</span>
+              </button>
+
+            </div>
+          </div>
+
+          {/* Area Chart Card */}
+          <div className="bg-slate-950/45 border border-white/5 p-6 rounded-2xl backdrop-blur-md flex flex-col justify-between flex-grow">
+            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+              <div>
+                <h3 className="text-xs font-black text-white uppercase tracking-widest">Platform Net Volume Trend</h3>
+                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Calculated margin throughput over hours</p>
+              </div>
+              <span className="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-black tracking-widest uppercase">
+                Hourly Scanning
+              </span>
+            </div>
+            {renderAreaChart()}
+          </div>
+
+        </div>
+
+        {/* Right Side: Live Activity Feed */}
+        <div className="bg-slate-950/45 border border-white/5 p-6 rounded-2xl backdrop-blur-md flex flex-col h-full min-h-[400px]">
+          <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4 shrink-0">
+            <div className="flex items-center gap-2">
+              <Activity className="w-4 h-4 text-violet-400 animate-pulse" />
+              <h3 className="text-xs font-black text-white uppercase tracking-widest">Live Activity Feed</h3>
+            </div>
+            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
+          </div>
+
+          <div className="flex-grow overflow-y-auto custom-scrollbar space-y-2.5 pr-1 max-h-[360px]">
+            {globalTransactions.length === 0 ? (
+              <div className="h-full flex items-center justify-center text-slate-500 italic text-xs">No logs recorded yet.</div>
+            ) : (
+              globalTransactions.slice(0, 15).map(tx => {
+                const isGain = tx.type === 'deposit' || (tx.type === 'casino' && !tx.details.toLowerCase().includes('payout') && !tx.details.toLowerCase().includes('win'));
+                return (
+                  <div key={tx.id} className="bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 p-3 rounded-xl flex items-center justify-between gap-3 text-[10px] transition">
+                    <div className="min-w-0">
+                      <span className="font-bold text-white truncate block">{tx.username}</span>
+                      <span className="text-slate-500 font-mono truncate block max-w-[170px] mt-0.5">{tx.details}</span>
+                    </div>
+                    <span className={`font-mono font-black shrink-0 text-right ${isGain ? 'text-emerald-400' : 'text-pink-400'}`}>
+                      {isGain ? '+' : '-'}₹{tx.amount.toLocaleString()}
+                    </span>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}

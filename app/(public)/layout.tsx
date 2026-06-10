@@ -1,0 +1,47 @@
+import { Sidebar } from "@/components/layout/Sidebar";
+import { Header } from "@/components/layout/Header";
+import { LiveChat } from "@/components/LiveChat";
+import { Footer } from "@/components/layout/Footer";
+import { GlobalLoader } from "@/components/ui/GlobalLoader";
+import { CursorSpotlight } from "@/components/ui/CursorSpotlight";
+import { AIConcierge } from "@/components/AIConcierge";
+import { OnboardingModal } from "@/components/ui/OnboardingModal";
+import { RightSidebarWrapper } from "@/components/layout/RightSidebarWrapper";
+
+export default function PublicLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <div className="flex h-screen overflow-hidden w-full relative">
+      <GlobalLoader />
+      <CursorSpotlight />
+      <AIConcierge />
+      <OnboardingModal />
+
+      {/* Animated Aurora Background Mesh (Subtle) */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50">
+        <div className="absolute -top-[40%] -left-[10%] w-[70%] h-[70%] rounded-full bg-indigo-500/5 blur-[120px] mix-blend-screen" />
+        <div className="absolute top-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-purple-500/5 blur-[120px] mix-blend-screen" />
+      </div>
+
+      <Sidebar />
+      
+      <div className="flex-1 flex flex-col relative min-w-0 h-screen overflow-hidden z-10">
+        <Header />
+        
+        <main className="flex-1 overflow-y-auto custom-scrollbar relative">
+          {children}
+          <Footer />
+        </main>
+      </div>
+
+      <RightSidebarWrapper />
+      
+      <div className="lg:hidden">
+        <LiveChat isDocked={false} />
+      </div>
+    </div>
+  );
+}

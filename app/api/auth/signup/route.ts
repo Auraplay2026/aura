@@ -1,0 +1,56 @@
+import { NextResponse } from 'next/server';
+import { findUserByEmail, findUserByUsername, addUser, getUsers, updateUser, UserProfile } from '@/lib/userDb';
+
+export async function POST(request: Request) {
+  try {
+    const { username, email, password, accountType = 'demo', referralCode = '' } = await request.json();
+    
+    if (!username || !email || !password) {
+      return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
+    }
+    
+    if (findUserByUsername(username)) {
+      return NextResponse.json({ error: 'Username is already taken.' }, { status: 400 });
+    }
+    
+    if (findUserByEmail(email)) {
+      return NextResponse.json({ error: 'Email address is already registered.' }, { status: 400 });
+    }
+    
+    const newUser: UserProfile = {
+      username,
+      email,
+      passwordHash: password,
+      accountType: accountType === 'real' ? 'real' : 'demo',
+      balance: accountType === 'real' ? 0 : 100000,
+      positions: [],
+      transactions: [],
+      demoBalance: 100000,
+      demoPositions: [],
+      demoTransactions: [],
+      realBalance: 0,
+      realPositions: [],
+      realTransactions: [],
+      affiliateCode: username.substring(0, 4).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase(),
+      referredBy: referralCode,
+      referralCount: 0,
+      affiliateEarnings: 0
+    };
+    
+    addUser(newUser);
+
+    // If they were referred by someone, increment the referrer's count
+    if (referralCode) {
+      const allUsers = getUsers();
+      const referrer = allUsers.find(u => u.affiliateCode === referralCode);
+      if (referrer) {
+        updateUser(referrer.email, { referralCount: (referrer.referralCount || 0) + 1 });
+      }
+    }
+    
+    const { passwordHash, ...safeUser } = newUser;
+    return NextResponse.json({ success: true, user: safeUser }, { status: 201 });
+  } catch (err) {
+    return NextResponse.json({ error: 'Failed to process signup request.' }, { status: 500 });
+  }
+}
