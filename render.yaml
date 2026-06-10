@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: auraplay
+    env: node
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    disk:
+      name: data-storage
+      mountPath: /opt/render/project/src/data
+      sizeGB: 1
