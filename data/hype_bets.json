@@ -1,6 +1,18 @@
 {
   "bets": [
     {
+      "user": "HighStakeHustler",
+      "bet": "₹7,580",
+      "mult": "0x",
+      "win": "₹0",
+      "raw_bet": 7580,
+      "raw_payout": 0,
+      "raw_mult": 0,
+      "game": "Dice",
+      "color": "text-slate-500",
+      "type": "bet"
+    },
+    {
       "user": "GoldDigger",
       "bet": "₹32,508",
       "mult": "0x",
@@ -167,23 +179,11 @@
       "game": "Elden Ring",
       "color": "text-emerald-400",
       "type": "rental"
-    },
-    {
-      "user": "HighStakeHustler",
-      "bet": "6 hrs",
-      "mult": "₹499/hr",
-      "win": "₹2,994",
-      "raw_bet": 499,
-      "raw_payout": 2994,
-      "raw_mult": 6,
-      "game": "Spider-Man 2",
-      "color": "text-amber-400",
-      "type": "rental"
     }
   ],
   "stats": {
-    "totalWagered": "₹15255M",
+    "totalWagered": "₹15263M",
     "maxWin": "₹24M",
-    "activePlayers": "866"
+    "activePlayers": "895"
   }
 }
