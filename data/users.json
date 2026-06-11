@@ -22,6 +22,62 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781181588582_M7W2",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181588582,
+        "read": false
+      },
+      {
+        "id": "notif_1781181586047_ATLQ",
+        "title": "VIP Reward Processed 🏆",
+        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
+        "timestamp": 1781181586047,
+        "read": false
+      },
+      {
+        "id": "notif_1781181543573_MHEX",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181543573,
+        "read": false
+      },
+      {
+        "id": "notif_1781181541038_TL9H",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781181541038,
+        "read": false
+      },
+      {
+        "id": "notif_1781181498570_FP1X",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781181498570,
+        "read": false
+      },
+      {
+        "id": "notif_1781181496024_26AJ",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181496024,
+        "read": false
+      },
+      {
+        "id": "notif_1781181453556_NSFP",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181453556,
+        "read": false
+      },
+      {
+        "id": "notif_1781181451010_KCKB",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781181451010,
+        "read": false
+      },
+      {
         "id": "notif_1781181408554_37AR",
         "title": "Tennis Scraper Feed 🎾",
         "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
@@ -103,62 +159,6 @@
         "title": "Live Match Synced 📡",
         "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
         "timestamp": 1781181180973,
-        "read": false
-      },
-      {
-        "id": "notif_1781181138493_ITQW",
-        "title": "Bonus Drop Active! ⚡",
-        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
-        "timestamp": 1781181138493,
-        "read": false
-      },
-      {
-        "id": "notif_1781181135957_4PVF",
-        "title": "Instant Cashiers Live 🏦",
-        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
-        "timestamp": 1781181135957,
-        "read": false
-      },
-      {
-        "id": "notif_1781181093486_G1JN",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181093486,
-        "read": false
-      },
-      {
-        "id": "notif_1781181090950_OHG1",
-        "title": "Live Match Synced 📡",
-        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
-        "timestamp": 1781181090950,
-        "read": false
-      },
-      {
-        "id": "notif_1781181048475_UHV5",
-        "title": "VIP Club Level Up! ⭐",
-        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
-        "timestamp": 1781181048475,
-        "read": false
-      },
-      {
-        "id": "notif_1781181045943_RLL1",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181045943,
-        "read": false
-      },
-      {
-        "id": "notif_1781181003472_GS9I",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181003472,
-        "read": false
-      },
-      {
-        "id": "notif_1781181000943_R4CC",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181000943,
         "read": false
       }
     ],
@@ -787,6 +787,62 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781181588582_M7W2",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181588582,
+        "read": false
+      },
+      {
+        "id": "notif_1781181586047_ATLQ",
+        "title": "VIP Reward Processed 🏆",
+        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
+        "timestamp": 1781181586047,
+        "read": false
+      },
+      {
+        "id": "notif_1781181543573_MHEX",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181543573,
+        "read": false
+      },
+      {
+        "id": "notif_1781181541038_TL9H",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781181541038,
+        "read": false
+      },
+      {
+        "id": "notif_1781181498570_FP1X",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781181498570,
+        "read": false
+      },
+      {
+        "id": "notif_1781181496024_26AJ",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181496024,
+        "read": false
+      },
+      {
+        "id": "notif_1781181453556_NSFP",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181453556,
+        "read": false
+      },
+      {
+        "id": "notif_1781181451010_KCKB",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781181451010,
+        "read": false
+      },
+      {
         "id": "notif_1781181408554_37AR",
         "title": "Tennis Scraper Feed 🎾",
         "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
@@ -868,62 +924,6 @@
         "title": "Live Match Synced 📡",
         "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
         "timestamp": 1781181180973,
-        "read": false
-      },
-      {
-        "id": "notif_1781181138493_ITQW",
-        "title": "Bonus Drop Active! ⚡",
-        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
-        "timestamp": 1781181138493,
-        "read": false
-      },
-      {
-        "id": "notif_1781181135957_4PVF",
-        "title": "Instant Cashiers Live 🏦",
-        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
-        "timestamp": 1781181135957,
-        "read": false
-      },
-      {
-        "id": "notif_1781181093486_G1JN",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181093486,
-        "read": false
-      },
-      {
-        "id": "notif_1781181090950_OHG1",
-        "title": "Live Match Synced 📡",
-        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
-        "timestamp": 1781181090950,
-        "read": false
-      },
-      {
-        "id": "notif_1781181048475_UHV5",
-        "title": "VIP Club Level Up! ⭐",
-        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
-        "timestamp": 1781181048475,
-        "read": false
-      },
-      {
-        "id": "notif_1781181045943_RLL1",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181045943,
-        "read": false
-      },
-      {
-        "id": "notif_1781181003472_GS9I",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181003472,
-        "read": false
-      },
-      {
-        "id": "notif_1781181000943_R4CC",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181000943,
         "read": false
       }
     ],
@@ -956,6 +956,62 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781181588582_M7W2",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181588582,
+        "read": false
+      },
+      {
+        "id": "notif_1781181586047_ATLQ",
+        "title": "VIP Reward Processed 🏆",
+        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
+        "timestamp": 1781181586047,
+        "read": false
+      },
+      {
+        "id": "notif_1781181543573_MHEX",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181543573,
+        "read": false
+      },
+      {
+        "id": "notif_1781181541038_TL9H",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781181541038,
+        "read": false
+      },
+      {
+        "id": "notif_1781181498570_FP1X",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781181498570,
+        "read": false
+      },
+      {
+        "id": "notif_1781181496024_26AJ",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181496024,
+        "read": false
+      },
+      {
+        "id": "notif_1781181453556_NSFP",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181453556,
+        "read": false
+      },
+      {
+        "id": "notif_1781181451010_KCKB",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781181451010,
+        "read": false
+      },
+      {
         "id": "notif_1781181408554_37AR",
         "title": "Tennis Scraper Feed 🎾",
         "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
@@ -1037,62 +1093,6 @@
         "title": "Live Match Synced 📡",
         "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
         "timestamp": 1781181180973,
-        "read": false
-      },
-      {
-        "id": "notif_1781181138493_ITQW",
-        "title": "Bonus Drop Active! ⚡",
-        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
-        "timestamp": 1781181138493,
-        "read": false
-      },
-      {
-        "id": "notif_1781181135957_4PVF",
-        "title": "Instant Cashiers Live 🏦",
-        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
-        "timestamp": 1781181135957,
-        "read": false
-      },
-      {
-        "id": "notif_1781181093486_G1JN",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181093486,
-        "read": false
-      },
-      {
-        "id": "notif_1781181090950_OHG1",
-        "title": "Live Match Synced 📡",
-        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
-        "timestamp": 1781181090950,
-        "read": false
-      },
-      {
-        "id": "notif_1781181048475_UHV5",
-        "title": "VIP Club Level Up! ⭐",
-        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
-        "timestamp": 1781181048475,
-        "read": false
-      },
-      {
-        "id": "notif_1781181045943_RLL1",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181045943,
-        "read": false
-      },
-      {
-        "id": "notif_1781181003472_GS9I",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181003472,
-        "read": false
-      },
-      {
-        "id": "notif_1781181000943_R4CC",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181000943,
         "read": false
       }
     ],
@@ -1125,6 +1125,62 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781181588582_M7W2",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181588582,
+        "read": false
+      },
+      {
+        "id": "notif_1781181586047_ATLQ",
+        "title": "VIP Reward Processed 🏆",
+        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
+        "timestamp": 1781181586047,
+        "read": false
+      },
+      {
+        "id": "notif_1781181543573_MHEX",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781181543573,
+        "read": false
+      },
+      {
+        "id": "notif_1781181541038_TL9H",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781181541038,
+        "read": false
+      },
+      {
+        "id": "notif_1781181498570_FP1X",
+        "title": "VIP Club Level Up! ⭐",
+        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
+        "timestamp": 1781181498570,
+        "read": false
+      },
+      {
+        "id": "notif_1781181496024_26AJ",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181496024,
+        "read": false
+      },
+      {
+        "id": "notif_1781181453556_NSFP",
+        "title": "Bonus Drop Active! ⚡",
+        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
+        "timestamp": 1781181453556,
+        "read": false
+      },
+      {
+        "id": "notif_1781181451010_KCKB",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781181451010,
+        "read": false
+      },
+      {
         "id": "notif_1781181408554_37AR",
         "title": "Tennis Scraper Feed 🎾",
         "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
@@ -1206,62 +1262,6 @@
         "title": "Live Match Synced 📡",
         "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
         "timestamp": 1781181180973,
-        "read": false
-      },
-      {
-        "id": "notif_1781181138493_ITQW",
-        "title": "Bonus Drop Active! ⚡",
-        "message": "Use code IMPSRTGS to claim ₹250 free roll on all Aura Originals games. Limited claims left!",
-        "timestamp": 1781181138493,
-        "read": false
-      },
-      {
-        "id": "notif_1781181135957_4PVF",
-        "title": "Instant Cashiers Live 🏦",
-        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
-        "timestamp": 1781181135957,
-        "read": false
-      },
-      {
-        "id": "notif_1781181093486_G1JN",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181093486,
-        "read": false
-      },
-      {
-        "id": "notif_1781181090950_OHG1",
-        "title": "Live Match Synced 📡",
-        "message": "Live cricket match odds for India vs Australia are synced. Pulled from live crawlers.",
-        "timestamp": 1781181090950,
-        "read": false
-      },
-      {
-        "id": "notif_1781181048475_UHV5",
-        "title": "VIP Club Level Up! ⭐",
-        "message": "Your profile has been upgraded to VIP Platinum. Enjoy higher withdrawal limits and personal concierge.",
-        "timestamp": 1781181048475,
-        "read": false
-      },
-      {
-        "id": "notif_1781181045943_RLL1",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781181045943,
-        "read": false
-      },
-      {
-        "id": "notif_1781181003472_GS9I",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181003472,
-        "read": false
-      },
-      {
-        "id": "notif_1781181000943_R4CC",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781181000943,
         "read": false
       }
     ],

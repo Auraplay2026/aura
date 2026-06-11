@@ -1,6 +1,42 @@
 {
   "bets": [
     {
+      "user": "Anon_77",
+      "bet": "7 hrs",
+      "mult": "₹499/hr",
+      "win": "₹3,493",
+      "raw_bet": 499,
+      "raw_payout": 3493,
+      "raw_mult": 7,
+      "game": "Elden Ring",
+      "color": "text-neon-purple animate-pulse",
+      "type": "rental"
+    },
+    {
+      "user": "GigaChancer",
+      "bet": "6 hrs",
+      "mult": "₹199/hr",
+      "win": "₹1,194",
+      "raw_bet": 199,
+      "raw_payout": 1194,
+      "raw_mult": 6,
+      "game": "Baldur's Gate 3",
+      "color": "text-amber-400",
+      "type": "rental"
+    },
+    {
+      "user": "DelhiBull",
+      "bet": "₹8,846",
+      "mult": "0x",
+      "win": "₹0",
+      "raw_bet": 8846,
+      "raw_payout": 0,
+      "raw_mult": 0,
+      "game": "Gates of Olympus",
+      "color": "text-slate-500",
+      "type": "bet"
+    },
+    {
       "user": "AlphaVIP",
       "bet": "8 hrs",
       "mult": "₹399/hr",
@@ -143,47 +179,11 @@
       "game": "Plinko",
       "color": "text-slate-500",
       "type": "bet"
-    },
-    {
-      "user": "VIP_Diamond",
-      "bet": "5 hrs",
-      "mult": "₹799/hr",
-      "win": "₹3,995",
-      "raw_bet": 799,
-      "raw_payout": 3995,
-      "raw_mult": 5,
-      "game": "Red Dead Redemption 2",
-      "color": "text-amber-400",
-      "type": "rental"
-    },
-    {
-      "user": "SlotWizard",
-      "bet": "₹43,779",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 43779,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Limbo",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "DeltaWhale",
-      "bet": "3 hrs",
-      "mult": "₹299/hr",
-      "win": "₹897",
-      "raw_bet": 299,
-      "raw_payout": 897,
-      "raw_mult": 3,
-      "game": "Red Dead Redemption 2",
-      "color": "text-emerald-400",
-      "type": "rental"
     }
   ],
   "stats": {
-    "totalWagered": "₹14949M",
+    "totalWagered": "₹14971M",
     "maxWin": "₹24M",
-    "activePlayers": "885"
+    "activePlayers": "887"
   }
 }

@@ -50,16 +50,18 @@ export function OnboardingModal() {
   // Trigger modal if logged in but onboarding is not completed
   useEffect(() => {
     if (isLoggedIn && currentUser && !currentUser.hasCompletedOnboarding) {
-      setSelectedType(currentUser.accountType || 'demo');
-      setIsOpen(true);
-      setStep(0);
-      setPhone(currentUser.phoneNumber || "");
-      setStateName(currentUser.gamingState || "Maharashtra");
-      setUpiId(currentUser.upiId || "");
+      if (!isOpen) {
+        setSelectedType(currentUser.accountType || 'demo');
+        setIsOpen(true);
+        setStep(0);
+        setPhone(currentUser.phoneNumber || "");
+        setStateName(currentUser.gamingState || "Maharashtra");
+        setUpiId(currentUser.upiId || "");
+      }
     } else {
       setIsOpen(false);
     }
-  }, [isLoggedIn, currentUser]);
+  }, [isLoggedIn, currentUser, isOpen]);
 
   const INDIAN_STATES = [
     "Maharashtra", "Delhi", "Goa", "Karnataka", "Haryana", 
