@@ -1,7 +1,7 @@
 "use client";
 
 import { 
-  Home, Trophy, Gamepad2, Gift, Shield, Zap, Percent, Crown, HeadphonesIcon, Sword, BarChart3, LineChart
+  Home, Trophy, Gamepad2, Gift, Shield, Zap, Percent, Crown, HeadphonesIcon, Sword, BarChart3, LineChart, X
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
