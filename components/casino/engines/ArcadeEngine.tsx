@@ -616,12 +616,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                 icon={isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                 label={isFullscreen ? "Window" : "Full"}
                 onClick={toggleFullscreen}
-                <button
-                  onClick={toggleFullscreen}
-                  className={isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
-                  label={isFullscreen ? "Window" : "Full"}
-                  onClick={toggleFullscreen}
-                />
+              />
               </motion.div>
             )}
           </AnimatePresence>
