@@ -686,9 +686,15 @@ export default function GamePlayerPage() {
                                     <p className="text-slate-600 mb-8 font-medium text-lg">Your balance (₹{balance.toLocaleString()}) is insufficient for a ₹{betAmount.toLocaleString()} bet. Please deposit to continue.</p>
                                     <button 
                                       onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                      className={`w-full py-5 bg-gradient-to-r ${theme.buttonGradient} text-white font-black text-xl uppercase tracking-widest rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95`}
+                                      className={`w-full py-5 mb-3 bg-gradient-to-r ${theme.buttonGradient} text-white font-black text-xl uppercase tracking-widest rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95`}
                                     >
                                       Deposit to Continue
+                                    </button>
+                                    <button 
+                                      onClick={() => useTradingStore.getState().switchAccountType('demo')}
+                                      className={`w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm uppercase tracking-widest rounded-xl transition-all`}
+                                    >
+                                      Switch to Free Demo
                                     </button>
                                   </div>
                                 </motion.div>
@@ -797,6 +803,12 @@ export default function GamePlayerPage() {
                                     className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-300 hover:to-yellow-500 text-slate-950 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
                                   >
                                     Deposit Funds
+                                  </button>
+                                  <button
+                                    onClick={() => useTradingStore.getState().switchAccountType('demo')}
+                                    className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs tracking-wider transition-all"
+                                  >
+                                    Switch to Free Demo
                                   </button>
                                 </div>
                               ) : (

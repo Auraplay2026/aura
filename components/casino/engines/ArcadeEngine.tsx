@@ -616,10 +616,59 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                 icon={isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
                 label={isFullscreen ? "Window" : "Full"}
                 onClick={toggleFullscreen}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
+                <button
+                  onClick={toggleFullscreen}
+                  className={isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
+                  label={isFullscreen ? "Window" : "Full"}
+                  onClick={toggleFullscreen}
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* ── MOBILE VIRTUAL GAMEPAD (TOUCH OVERLAY) ── */}
+          <AnimatePresence>
+            {!isBooting && (
+              <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="md:hidden absolute bottom-4 left-0 right-0 z-40 flex justify-between px-4 pointer-events-none"
+              >
+                {/* D-Pad (Left) */}
+                <div className="w-32 h-32 relative pointer-events-auto opacity-60 hover:opacity-100 transition-opacity">
+                  <div className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-12 bg-white/20 backdrop-blur-md rounded-t-lg border border-white/30 flex items-center justify-center active:bg-white/40 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-b-[8px] border-l-transparent border-r-transparent border-b-white/80" />
+                  </div>
+                  <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-10 h-12 bg-white/20 backdrop-blur-md rounded-b-lg border border-white/30 flex items-center justify-center active:bg-white/40 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <div className="w-0 h-0 border-l-[6px] border-r-[6px] border-t-[8px] border-l-transparent border-r-transparent border-t-white/80" />
+                  </div>
+                  <div className="absolute left-0 top-1/2 -translate-y-1/2 w-12 h-10 bg-white/20 backdrop-blur-md rounded-l-lg border border-white/30 flex items-center justify-center active:bg-white/40 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <div className="w-0 h-0 border-y-[6px] border-r-[8px] border-y-transparent border-r-white/80" />
+                  </div>
+                  <div className="absolute right-0 top-1/2 -translate-y-1/2 w-12 h-10 bg-white/20 backdrop-blur-md rounded-r-lg border border-white/30 flex items-center justify-center active:bg-white/40 shadow-[0_0_15px_rgba(255,255,255,0.2)]">
+                    <div className="w-0 h-0 border-y-[6px] border-l-[8px] border-y-transparent border-l-white/80" />
+                  </div>
+                  <div className="absolute inset-0 m-auto w-10 h-10 bg-white/10 backdrop-blur-md rounded-full border border-white/20" />
+                </div>
+
+                {/* Action Buttons (Right) */}
+                <div className="w-32 h-32 relative pointer-events-auto opacity-60 hover:opacity-100 transition-opacity">
+                  <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 bg-blue-500/40 backdrop-blur-md rounded-full border border-blue-400/50 flex items-center justify-center active:bg-blue-500/60 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
+                    <span className="text-white font-black text-lg drop-shadow-md">Y</span>
+                  </div>
+                  <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 bg-green-500/40 backdrop-blur-md rounded-full border border-green-400/50 flex items-center justify-center active:bg-green-500/60 shadow-[0_0_20px_rgba(34,197,94,0.5)]">
+                    <span className="text-white font-black text-lg drop-shadow-md">A</span>
+                  </div>
+                  <div className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-cyan-500/40 backdrop-blur-md rounded-full border border-cyan-400/50 flex items-center justify-center active:bg-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.5)]">
+                    <span className="text-white font-black text-lg drop-shadow-md">X</span>
+                  </div>
+                  <div className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-red-500/40 backdrop-blur-md rounded-full border border-red-400/50 flex items-center justify-center active:bg-red-500/60 shadow-[0_0_20px_rgba(239,68,68,0.5)]">
+                    <span className="text-white font-black text-lg drop-shadow-md">B</span>
+                  </div>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
         {/* ── CONTROLS MODAL ── */}
         <AnimatePresence>
@@ -628,7 +677,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute inset-0 z-[60] bg-white/85 backdrop-blur-md flex items-center justify-center p-6"
+              className="absolute inset-0 z-[60] bg-white/95 backdrop-blur-md flex flex-col items-center justify-center p-8"
             >
               <div className="bg-slate-50 border border-slate-700/50 rounded-3xl p-8 max-w-md w-full relative shadow-[0_0_100px_rgba(0,0,0,0.8)]">
                 <button onClick={() => setShowControls(false)} className="absolute top-5 right-5 text-slate-500 hover:text-slate-900 transition-colors">
