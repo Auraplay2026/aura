@@ -1,6 +1,54 @@
 {
   "bets": [
     {
+      "user": "JackpotGuru",
+      "bet": "₹19,442",
+      "mult": "3.32x",
+      "win": "₹64,547",
+      "raw_bet": 19442,
+      "raw_payout": 64547,
+      "raw_mult": 3.32,
+      "game": "Gates of Olympus",
+      "color": "text-amber-400",
+      "type": "bet"
+    },
+    {
+      "user": "GoldDigger",
+      "bet": "6 hrs",
+      "mult": "₹299/hr",
+      "win": "₹1,794",
+      "raw_bet": 299,
+      "raw_payout": 1794,
+      "raw_mult": 6,
+      "game": "Spider-Man 2",
+      "color": "text-amber-400",
+      "type": "rental"
+    },
+    {
+      "user": "Anon_77",
+      "bet": "₹45,874",
+      "mult": "0x",
+      "win": "₹0",
+      "raw_bet": 45874,
+      "raw_payout": 0,
+      "raw_mult": 0,
+      "game": "Plinko",
+      "color": "text-slate-500",
+      "type": "bet"
+    },
+    {
+      "user": "DeltaWhale",
+      "bet": "7 hrs",
+      "mult": "₹299/hr",
+      "win": "₹2,093",
+      "raw_bet": 299,
+      "raw_payout": 2093,
+      "raw_mult": 7,
+      "game": "Elden Ring",
+      "color": "text-neon-purple animate-pulse",
+      "type": "rental"
+    },
+    {
       "user": "DeltaWhale",
       "bet": "7 hrs",
       "mult": "₹799/hr",
@@ -131,59 +179,11 @@
       "game": "Cyberpunk 2077",
       "color": "text-emerald-400",
       "type": "rental"
-    },
-    {
-      "user": "Anon_77",
-      "bet": "7 hrs",
-      "mult": "₹499/hr",
-      "win": "₹3,493",
-      "raw_bet": 499,
-      "raw_payout": 3493,
-      "raw_mult": 7,
-      "game": "Elden Ring",
-      "color": "text-neon-purple animate-pulse",
-      "type": "rental"
-    },
-    {
-      "user": "GigaChancer",
-      "bet": "6 hrs",
-      "mult": "₹199/hr",
-      "win": "₹1,194",
-      "raw_bet": 199,
-      "raw_payout": 1194,
-      "raw_mult": 6,
-      "game": "Baldur's Gate 3",
-      "color": "text-amber-400",
-      "type": "rental"
-    },
-    {
-      "user": "DelhiBull",
-      "bet": "₹8,846",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 8846,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Gates of Olympus",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "AlphaVIP",
-      "bet": "8 hrs",
-      "mult": "₹399/hr",
-      "win": "₹3,192",
-      "raw_bet": 399,
-      "raw_payout": 3192,
-      "raw_mult": 8,
-      "game": "Cyberpunk 2077",
-      "color": "text-neon-purple animate-pulse",
-      "type": "rental"
     }
   ],
   "stats": {
-    "totalWagered": "₹15065M",
+    "totalWagered": "₹15143M",
     "maxWin": "₹24M",
-    "activePlayers": "861"
+    "activePlayers": "829"
   }
 }
