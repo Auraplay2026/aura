@@ -1,6 +1,78 @@
 {
   "bets": [
     {
+      "user": "CryptoWhale",
+      "bet": "3 hrs",
+      "mult": "₹399/hr",
+      "win": "₹1,197",
+      "raw_bet": 399,
+      "raw_payout": 1197,
+      "raw_mult": 3,
+      "game": "Baldur's Gate 3",
+      "color": "text-emerald-400",
+      "type": "rental"
+    },
+    {
+      "user": "HighStakeHustler",
+      "bet": "₹18,703",
+      "mult": "0x",
+      "win": "₹0",
+      "raw_bet": 18703,
+      "raw_payout": 0,
+      "raw_mult": 0,
+      "game": "Plinko",
+      "color": "text-slate-500",
+      "type": "bet"
+    },
+    {
+      "user": "CrorepathiPro",
+      "bet": "₹15,059",
+      "mult": "0x",
+      "win": "₹0",
+      "raw_bet": 15059,
+      "raw_payout": 0,
+      "raw_mult": 0,
+      "game": "Sweet Bonanza",
+      "color": "text-slate-500",
+      "type": "bet"
+    },
+    {
+      "user": "LuckBox",
+      "bet": "₹27,859",
+      "mult": "7.39x",
+      "win": "₹205,878",
+      "raw_bet": 27859,
+      "raw_payout": 205878,
+      "raw_mult": 7.39,
+      "game": "Plinko",
+      "color": "text-amber-400",
+      "type": "bet"
+    },
+    {
+      "user": "DelhiBull",
+      "bet": "1 hrs",
+      "mult": "₹799/hr",
+      "win": "₹799",
+      "raw_bet": 799,
+      "raw_payout": 799,
+      "raw_mult": 1,
+      "game": "Civilization VI",
+      "color": "text-emerald-400",
+      "type": "rental"
+    },
+    {
+      "user": "TokenLord",
+      "bet": "2 hrs",
+      "mult": "₹499/hr",
+      "win": "₹998",
+      "raw_bet": 499,
+      "raw_payout": 998,
+      "raw_mult": 2,
+      "game": "Cyberpunk 2077",
+      "color": "text-emerald-400",
+      "type": "rental"
+    },
+    {
       "user": "Anon_77",
       "bet": "7 hrs",
       "mult": "₹499/hr",
@@ -107,83 +179,11 @@
       "game": "Red Dead Redemption 2",
       "color": "text-emerald-400",
       "type": "rental"
-    },
-    {
-      "user": "GoldDigger",
-      "bet": "3 hrs",
-      "mult": "₹299/hr",
-      "win": "₹897",
-      "raw_bet": 299,
-      "raw_payout": 897,
-      "raw_mult": 3,
-      "game": "Black Myth: Wukong",
-      "color": "text-emerald-400",
-      "type": "rental"
-    },
-    {
-      "user": "RajaBetting",
-      "bet": "₹45,955",
-      "mult": "3.54x",
-      "win": "₹162,681",
-      "raw_bet": 45955,
-      "raw_payout": 162681,
-      "raw_mult": 3.54,
-      "game": "Crash",
-      "color": "text-amber-400",
-      "type": "bet"
-    },
-    {
-      "user": "LuckBox",
-      "bet": "5 hrs",
-      "mult": "₹599/hr",
-      "win": "₹2,995",
-      "raw_bet": 599,
-      "raw_payout": 2995,
-      "raw_mult": 5,
-      "game": "Hogwarts Legacy",
-      "color": "text-amber-400",
-      "type": "rental"
-    },
-    {
-      "user": "CrorepathiPro",
-      "bet": "4 hrs",
-      "mult": "₹299/hr",
-      "win": "₹1,196",
-      "raw_bet": 299,
-      "raw_payout": 1196,
-      "raw_mult": 4,
-      "game": "Grand Theft Auto V",
-      "color": "text-amber-400",
-      "type": "rental"
-    },
-    {
-      "user": "HighStakeHustler",
-      "bet": "₹19,752",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 19752,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Dice",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "LuckBox",
-      "bet": "₹48,253",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 48253,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Plinko",
-      "color": "text-slate-500",
-      "type": "bet"
     }
   ],
   "stats": {
-    "totalWagered": "₹14971M",
+    "totalWagered": "₹15039M",
     "maxWin": "₹24M",
-    "activePlayers": "887"
+    "activePlayers": "838"
   }
 }
