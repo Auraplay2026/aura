@@ -62,11 +62,20 @@ export function Header() {
         </button>
       </div>
 
-      {/* Search Area */}
-      <div className="flex-1 flex items-center">
+      {/* Mobile Logo & Search Area */}
+      <div className="flex-1 flex items-center gap-4">
+        {/* Mobile Logo (Only visible when sidebar is hidden) */}
+        <div className="lg:hidden flex items-center gap-2">
+          <div className="w-6 h-6 bg-exchange-text rounded-sm flex items-center justify-center">
+            <span className="text-slate-900 font-black text-[10px]">AP</span>
+          </div>
+          <span className="text-exchange-text font-black tracking-widest uppercase text-xs hidden sm:block">AuraPlay</span>
+        </div>
+
+        {/* Desktop Search Bar */}
         <div 
           className={cn(
-            "relative flex items-center rounded-sm overflow-hidden transition-all duration-200 border bg-slate-50",
+            "relative hidden md:flex items-center rounded-sm overflow-hidden transition-all duration-200 border bg-slate-50",
             isSearchFocused ? "border-blue-500 w-64" : "border-exchange-border w-48 hover:border-slate-300"
           )}
         >
