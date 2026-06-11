@@ -22,6 +22,41 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781182621206_GLRR",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781182621206,
+        "read": false
+      },
+      {
+        "id": "notif_1781182578787_DP3E",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182578787,
+        "read": false
+      },
+      {
+        "id": "notif_1781182576198_NGAT",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781182576198,
+        "read": false
+      },
+      {
+        "id": "notif_1781182533785_H17C",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781182533785,
+        "read": false
+      },
+      {
+        "id": "notif_1781182531193_E95L",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182531193,
+        "read": false
+      },
+      {
         "id": "notif_1781182488783_S5K1",
         "title": "Aviator Propeller High ✈️",
         "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
@@ -125,41 +160,6 @@
         "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
         "timestamp": 1781182173711,
         "read": false
-      },
-      {
-        "id": "notif_1781182171136_70JY",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182171136,
-        "read": false
-      },
-      {
-        "id": "notif_1781182128704_XD7R",
-        "title": "VIP Reward Processed 🏆",
-        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
-        "timestamp": 1781182128704,
-        "read": false
-      },
-      {
-        "id": "notif_1781182126134_MYBX",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781182126134,
-        "read": false
-      },
-      {
-        "id": "notif_1781182083689_UDJ0",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781182083689,
-        "read": false
-      },
-      {
-        "id": "notif_1781182081129_4DJN",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182081129,
-        "read": false
       }
     ],
     "adminNotes": "",
@@ -173,9 +173,45 @@
     "email": "admin@aurabet.io",
     "passwordHash": "admin123",
     "accountType": "demo",
-    "balance": 100500,
+    "balance": 111500,
     "positions": [],
     "transactions": [
+      {
+        "id": "TX-3620L0",
+        "type": "casino",
+        "amount": 4000,
+        "balanceAfter": 111500,
+        "timestamp": 1781182611304,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹5000)",
+        "status": "Completed"
+      },
+      {
+        "id": "TX-7NZB82",
+        "type": "casino",
+        "amount": 4000,
+        "balanceAfter": 107500,
+        "timestamp": 1781182608800,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹5000)",
+        "status": "Completed"
+      },
+      {
+        "id": "TX-KKUU32",
+        "type": "casino",
+        "amount": 1000,
+        "balanceAfter": 103500,
+        "timestamp": 1781182606189,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹0)",
+        "status": "Completed"
+      },
+      {
+        "id": "TX-0DSNQR",
+        "type": "casino",
+        "amount": 4000,
+        "balanceAfter": 104500,
+        "timestamp": 1781182593605,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹5000)",
+        "status": "Completed"
+      },
       {
         "id": "TX-HIB89O",
         "type": "casino",
@@ -474,9 +510,45 @@
         "status": "Completed"
       }
     ],
-    "demoBalance": 100500,
+    "demoBalance": 111500,
     "demoPositions": [],
     "demoTransactions": [
+      {
+        "id": "TX-3620L0",
+        "type": "casino",
+        "amount": 4000,
+        "balanceAfter": 111500,
+        "timestamp": 1781182611304,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹5000)",
+        "status": "Completed"
+      },
+      {
+        "id": "TX-7NZB82",
+        "type": "casino",
+        "amount": 4000,
+        "balanceAfter": 107500,
+        "timestamp": 1781182608800,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹5000)",
+        "status": "Completed"
+      },
+      {
+        "id": "TX-KKUU32",
+        "type": "casino",
+        "amount": 1000,
+        "balanceAfter": 103500,
+        "timestamp": 1781182606189,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹0)",
+        "status": "Completed"
+      },
+      {
+        "id": "TX-0DSNQR",
+        "type": "casino",
+        "amount": 4000,
+        "balanceAfter": 104500,
+        "timestamp": 1781182593605,
+        "details": "Played Sweet Bonanza 1000 (Wager: ₹1000, Payout: ₹5000)",
+        "status": "Completed"
+      },
       {
         "id": "TX-HIB89O",
         "type": "casino",
@@ -787,6 +859,41 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781182621206_GLRR",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781182621206,
+        "read": false
+      },
+      {
+        "id": "notif_1781182578787_DP3E",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182578787,
+        "read": false
+      },
+      {
+        "id": "notif_1781182576198_NGAT",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781182576198,
+        "read": false
+      },
+      {
+        "id": "notif_1781182533785_H17C",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781182533785,
+        "read": false
+      },
+      {
+        "id": "notif_1781182531193_E95L",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182531193,
+        "read": false
+      },
+      {
         "id": "notif_1781182488783_S5K1",
         "title": "Aviator Propeller High ✈️",
         "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
@@ -889,41 +996,6 @@
         "title": "KYC Audit Scans Complete 🛡️",
         "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
         "timestamp": 1781182173711,
-        "read": false
-      },
-      {
-        "id": "notif_1781182171136_70JY",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182171136,
-        "read": false
-      },
-      {
-        "id": "notif_1781182128704_XD7R",
-        "title": "VIP Reward Processed 🏆",
-        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
-        "timestamp": 1781182128704,
-        "read": false
-      },
-      {
-        "id": "notif_1781182126134_MYBX",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781182126134,
-        "read": false
-      },
-      {
-        "id": "notif_1781182083689_UDJ0",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781182083689,
-        "read": false
-      },
-      {
-        "id": "notif_1781182081129_4DJN",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182081129,
         "read": false
       }
     ],
@@ -956,6 +1028,41 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781182621206_GLRR",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781182621206,
+        "read": false
+      },
+      {
+        "id": "notif_1781182578787_DP3E",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182578787,
+        "read": false
+      },
+      {
+        "id": "notif_1781182576198_NGAT",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781182576198,
+        "read": false
+      },
+      {
+        "id": "notif_1781182533785_H17C",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781182533785,
+        "read": false
+      },
+      {
+        "id": "notif_1781182531193_E95L",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182531193,
+        "read": false
+      },
+      {
         "id": "notif_1781182488783_S5K1",
         "title": "Aviator Propeller High ✈️",
         "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
@@ -1058,41 +1165,6 @@
         "title": "KYC Audit Scans Complete 🛡️",
         "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
         "timestamp": 1781182173711,
-        "read": false
-      },
-      {
-        "id": "notif_1781182171136_70JY",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182171136,
-        "read": false
-      },
-      {
-        "id": "notif_1781182128704_XD7R",
-        "title": "VIP Reward Processed 🏆",
-        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
-        "timestamp": 1781182128704,
-        "read": false
-      },
-      {
-        "id": "notif_1781182126134_MYBX",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781182126134,
-        "read": false
-      },
-      {
-        "id": "notif_1781182083689_UDJ0",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781182083689,
-        "read": false
-      },
-      {
-        "id": "notif_1781182081129_4DJN",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182081129,
         "read": false
       }
     ],
@@ -1125,6 +1197,41 @@
     "kycDocumentUrl": "",
     "notifications": [
       {
+        "id": "notif_1781182621206_GLRR",
+        "title": "Instant Cashiers Live 🏦",
+        "message": "IMPS, RTGS, and UPI bank transfers are now live with 0% processing fees. Withdrawals processed in under 2 hours.",
+        "timestamp": 1781182621206,
+        "read": false
+      },
+      {
+        "id": "notif_1781182578787_DP3E",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182578787,
+        "read": false
+      },
+      {
+        "id": "notif_1781182576198_NGAT",
+        "title": "Tennis Scraper Feed 🎾",
+        "message": "BBC Tennis RSS feeds updated. Active match odds computed for Sinner vs Alcaraz.",
+        "timestamp": 1781182576198,
+        "read": false
+      },
+      {
+        "id": "notif_1781182533785_H17C",
+        "title": "Mega Jackpot Win! 💰",
+        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
+        "timestamp": 1781182533785,
+        "read": false
+      },
+      {
+        "id": "notif_1781182531193_E95L",
+        "title": "Aviator Propeller High ✈️",
+        "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
+        "timestamp": 1781182531193,
+        "read": false
+      },
+      {
         "id": "notif_1781182488783_S5K1",
         "title": "Aviator Propeller High ✈️",
         "message": "Aviator reached a multiplier of 85.4x! Tap to view recent multiplayer multipliers.",
@@ -1227,41 +1334,6 @@
         "title": "KYC Audit Scans Complete 🛡️",
         "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
         "timestamp": 1781182173711,
-        "read": false
-      },
-      {
-        "id": "notif_1781182171136_70JY",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182171136,
-        "read": false
-      },
-      {
-        "id": "notif_1781182128704_XD7R",
-        "title": "VIP Reward Processed 🏆",
-        "message": "Congratulations! Your weekly cashback bonus of ₹500 has been credited to your real account.",
-        "timestamp": 1781182128704,
-        "read": false
-      },
-      {
-        "id": "notif_1781182126134_MYBX",
-        "title": "KYC Audit Scans Complete 🛡️",
-        "message": "Platform KYC checks have completed. Thank you for helping keep AuraPlay safe and secure.",
-        "timestamp": 1781182126134,
-        "read": false
-      },
-      {
-        "id": "notif_1781182083689_UDJ0",
-        "title": "Mega Jackpot Win! 💰",
-        "message": "Player @CryptoWhale just hit a massive 1200x payout of ₹4,80,000 on Sweet Bonanza!",
-        "timestamp": 1781182083689,
-        "read": false
-      },
-      {
-        "id": "notif_1781182081129_4DJN",
-        "title": "RTP Pulse Alert 🔥",
-        "message": "Aura Original Limbo is running hot! The average return to player (RTP) has reached 99.4% in the last hour.",
-        "timestamp": 1781182081129,
         "read": false
       }
     ],

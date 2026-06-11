@@ -1,6 +1,30 @@
 {
   "bets": [
     {
+      "user": "Ruler777",
+      "bet": "7 hrs",
+      "mult": "₹199/hr",
+      "win": "₹1,393",
+      "raw_bet": 199,
+      "raw_payout": 1393,
+      "raw_mult": 7,
+      "game": "Black Myth: Wukong",
+      "color": "text-neon-purple animate-pulse",
+      "type": "rental"
+    },
+    {
+      "user": "DeltaWhale",
+      "bet": "₹14,207",
+      "mult": "6.26x",
+      "win": "₹88,936",
+      "raw_bet": 14207,
+      "raw_payout": 88936,
+      "raw_mult": 6.26,
+      "game": "Dice",
+      "color": "text-amber-400",
+      "type": "bet"
+    },
+    {
       "user": "JackpotGuru",
       "bet": "₹19,442",
       "mult": "3.32x",
@@ -155,35 +179,11 @@
       "game": "Plinko",
       "color": "text-amber-400",
       "type": "bet"
-    },
-    {
-      "user": "DelhiBull",
-      "bet": "1 hrs",
-      "mult": "₹799/hr",
-      "win": "₹799",
-      "raw_bet": 799,
-      "raw_payout": 799,
-      "raw_mult": 1,
-      "game": "Civilization VI",
-      "color": "text-emerald-400",
-      "type": "rental"
-    },
-    {
-      "user": "TokenLord",
-      "bet": "2 hrs",
-      "mult": "₹499/hr",
-      "win": "₹998",
-      "raw_bet": 499,
-      "raw_payout": 998,
-      "raw_mult": 2,
-      "game": "Cyberpunk 2077",
-      "color": "text-emerald-400",
-      "type": "rental"
     }
   ],
   "stats": {
-    "totalWagered": "₹15143M",
+    "totalWagered": "₹15164M",
     "maxWin": "₹24M",
-    "activePlayers": "829"
+    "activePlayers": "882"
   }
 }
