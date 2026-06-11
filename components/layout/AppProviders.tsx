@@ -6,15 +6,20 @@ import { useTradingStore } from "@/lib/store";
 interface SidebarContextType {
   isChatOpen: boolean;
   setIsChatOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (v: boolean | ((prev: boolean) => boolean)) => void;
 }
 
 const SidebarContext = createContext<SidebarContextType>({
   isChatOpen: true,
   setIsChatOpen: () => {},
+  isMobileMenuOpen: false,
+  setIsMobileMenuOpen: () => {},
 });
 
 export function AppProviders({ children }: { children: ReactNode }) {
   const [isChatOpen, setIsChatOpen] = useState(true);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Global State Repair & Auto Sync
   useEffect(() => {
@@ -34,7 +39,7 @@ export function AppProviders({ children }: { children: ReactNode }) {
   }, []);
 
   return (
-    <SidebarContext.Provider value={{ isChatOpen, setIsChatOpen }}>
+    <SidebarContext.Provider value={{ isChatOpen, setIsChatOpen, isMobileMenuOpen, setIsMobileMenuOpen }}>
       {children}
     </SidebarContext.Provider>
   );

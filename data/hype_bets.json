@@ -1,64 +1,64 @@
 {
   "bets": [
     {
-      "user": "CryptoWhale",
-      "bet": "3 hrs",
-      "mult": "\u20b949/hr",
-      "win": "\u20b9147",
-      "raw_bet": 49,
-      "raw_payout": 147,
-      "raw_mult": 3.0,
-      "game": "Civilization VI",
-      "color": "text-emerald-400"
-    },
-    {
-      "user": "HighStakeHustler",
-      "bet": "3 hrs",
-      "mult": "\u20b939/hr",
-      "win": "\u20b9117",
-      "raw_bet": 39,
-      "raw_payout": 117,
-      "raw_mult": 3.0,
-      "game": "Forza Horizon 5",
-      "color": "text-emerald-400"
-    },
-    {
       "user": "AlphaVIP",
-      "bet": "2 hrs",
-      "mult": "\u20b919/hr",
-      "win": "\u20b938",
-      "raw_bet": 19,
-      "raw_payout": 38,
-      "raw_mult": 2.0,
-      "game": "Baldur's Gate 3",
+      "bet": "5 hrs",
+      "mult": "\u20b939/hr",
+      "win": "\u20b9195",
+      "raw_bet": 39,
+      "raw_payout": 195,
+      "raw_mult": 5.0,
+      "game": "Black Myth: Wukong",
+      "color": "text-emerald-400"
+    },
+    {
+      "user": "LuckBox",
+      "bet": "12 hrs",
+      "mult": "\u20b949/hr",
+      "win": "\u20b9588",
+      "raw_bet": 49,
+      "raw_payout": 588,
+      "raw_mult": 12.0,
+      "game": "Red Dead Redemption 2",
+      "color": "text-neon-purple animate-pulse"
+    },
+    {
+      "user": "TokenLord",
+      "bet": "1 hrs",
+      "mult": "\u20b939/hr",
+      "win": "\u20b939",
+      "raw_bet": 39,
+      "raw_payout": 39,
+      "raw_mult": 1.0,
+      "game": "Black Myth: Wukong",
       "color": "text-slate-500"
     },
     {
-      "user": "DeltaWhale",
-      "bet": "4 hrs",
-      "mult": "\u20b969/hr",
-      "win": "\u20b9276",
-      "raw_bet": 69,
-      "raw_payout": 276,
-      "raw_mult": 4.0,
-      "game": "Red Dead Redemption 2",
+      "user": "CryptoWhale",
+      "bet": "3 hrs",
+      "mult": "\u20b929/hr",
+      "win": "\u20b987",
+      "raw_bet": 29,
+      "raw_payout": 87,
+      "raw_mult": 3.0,
+      "game": "Valorant",
       "color": "text-emerald-400"
     },
     {
-      "user": "CrorepathiPro",
+      "user": "RajaBetting",
       "bet": "3 hrs",
       "mult": "\u20b969/hr",
       "win": "\u20b9207",
       "raw_bet": 69,
       "raw_payout": 207,
       "raw_mult": 3.0,
-      "game": "Red Dead Redemption 2",
+      "game": "It Takes Two",
       "color": "text-emerald-400"
     }
   ],
   "stats": {
-    "totalWagered": "\u20b915873M",
+    "totalWagered": "\u20b916083M",
     "maxWin": "\u20b924M",
-    "activePlayers": "895"
+    "activePlayers": "832"
   }
 }

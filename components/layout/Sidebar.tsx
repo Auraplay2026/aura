@@ -7,6 +7,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { useSidebarContext } from "@/components/layout/AppProviders";
 
 const NAV_SECTIONS = [
   {
@@ -64,18 +65,35 @@ const NAV_SECTIONS = [
 
 export function Sidebar() {
   const pathname = usePathname();
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useSidebarContext();
 
   return (
-    <aside className="hidden lg:flex flex-col w-[260px] bg-exchange-surface border-r border-exchange-border h-screen sticky top-0 shrink-0 z-40">
-      {/* Expanded Header / Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-exchange-border shrink-0 bg-transparent">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
-          <div className="w-6 h-6 bg-exchange-text rounded-sm flex items-center justify-center">
-            <span className="text-slate-900 font-black text-xs">AP</span>
-          </div>
-          <span className="text-exchange-text font-black tracking-widest uppercase text-sm">AuraPlay<span className="text-slate-600 font-normal ml-1">EX</span></span>
-        </Link>
-      </div>
+    <>
+      {/* Mobile Overlay */}
+      {isMobileMenuOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden" 
+          onClick={() => setIsMobileMenuOpen(false)} 
+        />
+      )}
+
+      <aside className={cn(
+        "flex flex-col w-[260px] bg-exchange-surface border-r border-exchange-border h-screen sticky top-0 shrink-0 z-50 transition-transform duration-300",
+        "fixed inset-y-0 left-0 lg:relative lg:translate-x-0",
+        isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
+      )}>
+        {/* Expanded Header / Logo */}
+        <div className="h-14 lg:h-16 flex items-center justify-between px-6 border-b border-exchange-border shrink-0 bg-transparent">
+          <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>
+            <div className="w-6 h-6 bg-exchange-text rounded-sm flex items-center justify-center">
+              <span className="text-slate-900 font-black text-xs">AP</span>
+            </div>
+            <span className="text-exchange-text font-black tracking-widest uppercase text-sm">AuraPlay<span className="text-slate-600 font-normal ml-1">EX</span></span>
+          </Link>
+          <button className="lg:hidden text-exchange-muted hover:text-exchange-text" onClick={() => setIsMobileMenuOpen(false)}>
+            <X className="w-5 h-5" />
+          </button>
+        </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-8 pb-24">
         
@@ -139,5 +157,6 @@ export function Sidebar() {
 
       </div>
     </aside>
+    </>
   );
 }

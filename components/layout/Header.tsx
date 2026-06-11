@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Search, Bell, Briefcase, Settings, Settings2 } from "lucide-react";
+import { Search, Bell, Briefcase, Settings, Settings2, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CashierModal } from "@/components/ui/CashierModal";
 import { UserMenu } from "@/components/UserMenu";
@@ -21,6 +21,7 @@ export function Header() {
 
   const { balance, positions, isLoggedIn, currentUser } = useTradingStore();
   const syncFromServer = useTradingStore(state => state.syncFromServer);
+  const { isMobileMenuOpen, setIsMobileMenuOpen } = useSidebarContext();
   
   const [isClient, setIsClient] = useState(false);
   
@@ -54,6 +55,13 @@ export function Header() {
   return (
     <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-exchange-surface border-b border-exchange-border flex items-center justify-between px-4 sm:px-6">
       
+      {/* Mobile Menu Toggle */}
+      <div className="flex items-center lg:hidden mr-3">
+        <button onClick={() => setIsMobileMenuOpen(true)} className="p-1 text-exchange-muted hover:text-exchange-text transition-colors">
+          <Menu className="w-6 h-6" />
+        </button>
+      </div>
+
       {/* Search Area */}
       <div className="flex-1 flex items-center">
         <div 
