@@ -1,6 +1,66 @@
 {
   "bets": [
     {
+      "user": "GoldDigger",
+      "bet": "₹32,508",
+      "mult": "0x",
+      "win": "₹0",
+      "raw_bet": 32508,
+      "raw_payout": 0,
+      "raw_mult": 0,
+      "game": "Crazy Time",
+      "color": "text-slate-500",
+      "type": "bet"
+    },
+    {
+      "user": "Anon_77",
+      "bet": "₹39,998",
+      "mult": "0x",
+      "win": "₹0",
+      "raw_bet": 39998,
+      "raw_payout": 0,
+      "raw_mult": 0,
+      "game": "Chicken Game",
+      "color": "text-slate-500",
+      "type": "bet"
+    },
+    {
+      "user": "GoldDigger",
+      "bet": "2 hrs",
+      "mult": "₹799/hr",
+      "win": "₹1,598",
+      "raw_bet": 799,
+      "raw_payout": 1598,
+      "raw_mult": 2,
+      "game": "Forza Horizon 5",
+      "color": "text-emerald-400",
+      "type": "rental"
+    },
+    {
+      "user": "DeltaWhale",
+      "bet": "8 hrs",
+      "mult": "₹399/hr",
+      "win": "₹3,192",
+      "raw_bet": 399,
+      "raw_payout": 3192,
+      "raw_mult": 8,
+      "game": "Baldur's Gate 3",
+      "color": "text-neon-purple animate-pulse",
+      "type": "rental"
+    },
+    {
+      "user": "ApexPredator",
+      "bet": "8 hrs",
+      "mult": "₹199/hr",
+      "win": "₹1,592",
+      "raw_bet": 199,
+      "raw_payout": 1592,
+      "raw_mult": 8,
+      "game": "Baldur's Gate 3",
+      "color": "text-neon-purple animate-pulse",
+      "type": "rental"
+    },
+    {
       "user": "Ruler777",
       "bet": "7 hrs",
       "mult": "₹199/hr",
@@ -119,71 +179,11 @@
       "game": "Spider-Man 2",
       "color": "text-amber-400",
       "type": "rental"
-    },
-    {
-      "user": "VIP_Diamond",
-      "bet": "4 hrs",
-      "mult": "₹199/hr",
-      "win": "₹796",
-      "raw_bet": 199,
-      "raw_payout": 796,
-      "raw_mult": 4,
-      "game": "Baldur's Gate 3",
-      "color": "text-amber-400",
-      "type": "rental"
-    },
-    {
-      "user": "CryptoWhale",
-      "bet": "3 hrs",
-      "mult": "₹399/hr",
-      "win": "₹1,197",
-      "raw_bet": 399,
-      "raw_payout": 1197,
-      "raw_mult": 3,
-      "game": "Baldur's Gate 3",
-      "color": "text-emerald-400",
-      "type": "rental"
-    },
-    {
-      "user": "HighStakeHustler",
-      "bet": "₹18,703",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 18703,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Plinko",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "CrorepathiPro",
-      "bet": "₹15,059",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 15059,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Sweet Bonanza",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "LuckBox",
-      "bet": "₹27,859",
-      "mult": "7.39x",
-      "win": "₹205,878",
-      "raw_bet": 27859,
-      "raw_payout": 205878,
-      "raw_mult": 7.39,
-      "game": "Plinko",
-      "color": "text-amber-400",
-      "type": "bet"
     }
   ],
   "stats": {
-    "totalWagered": "₹15164M",
+    "totalWagered": "₹15255M",
     "maxWin": "₹24M",
-    "activePlayers": "882"
+    "activePlayers": "866"
   }
 }

@@ -219,6 +219,8 @@ function RollingCounter({ target }: { target: number }) {
   return <>{current.toFixed(2)}</>;
 }
 
+const STAKE_PRESETS = [10, 50, 100, 500, 1000];
+
 export default function GamePlayerPage() {
   const params = useParams();
   const router = useRouter();
@@ -904,8 +906,8 @@ export default function GamePlayerPage() {
                                       {STAKE_PRESETS.map((amount) => (
                                         <button
                                           key={amount}
-                                          onClick={() => setStake(amount)}
-                                          className={`flex-1 min-w-[60px] py-2 md:py-3 rounded-xl flex items-center justify-center font-black text-xs transition-all ${stake === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md scale-[1.02]` : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
+                                          onClick={() => setBetAmount(amount)}
+                                          className={`flex-1 min-w-[60px] py-2 md:py-3 rounded-xl flex items-center justify-center font-black text-xs transition-all ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md scale-[1.02]` : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
                                         >
                                           ₹{amount}
                                         </button>
@@ -918,8 +920,8 @@ export default function GamePlayerPage() {
                                           <span className="text-slate-400 font-bold text-lg">₹</span>
                                           <input 
                                             type="number" 
-                                            value={stake} 
-                                            onChange={(e) => setStake(Number(e.target.value))}
+                                            value={betAmount} 
+                                            onChange={(e) => setBetAmount(Number(e.target.value))}
                                             className="bg-transparent border-none text-slate-900 font-black text-xl w-24 focus:outline-none focus:ring-0 p-0"
                                           />
                                         </div>
