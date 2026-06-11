@@ -53,31 +53,31 @@ export function Dice() {
   const isWin = lastResult !== null && lastResult < rollUnder;
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full h-[600px] bg-[#0f172a] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="flex flex-col lg:flex-row gap-6 w-full h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
       {/* Betting Controller */}
-      <div className="w-full lg:w-80 bg-slate-900/50 p-6 flex flex-col gap-6 border-r border-slate-800 shrink-0 overflow-y-auto custom-scrollbar">
+      <div className="w-full lg:w-80 bg-slate-50/50 p-6 flex flex-col gap-6 border-r border-slate-200 shrink-0 overflow-y-auto custom-scrollbar">
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 flex justify-between">
+          <label className="text-sm font-bold text-slate-600 mb-2 flex justify-between">
             <span>Bet Amount</span>
             <span className="text-slate-500">₹</span>
           </label>
-          <div className="flex bg-slate-950 rounded-xl border border-slate-800 p-1">
+          <div className="flex bg-white rounded-xl border border-slate-200 p-1">
             <input 
               type="number" 
               value={betAmount} 
               onChange={(e) => setBetAmount(Number(e.target.value))}
-              className="w-full bg-transparent text-white font-bold px-3 focus:outline-none"
+              className="w-full bg-transparent text-slate-900 font-bold px-3 focus:outline-none"
             />
-            <button onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-colors">1/2</button>
-            <div className="w-[1px] bg-slate-800 mx-1"></div>
-            <button onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold transition-colors">2x</button>
+            <button onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold transition-colors">1/2</button>
+            <div className="w-[1px] bg-slate-100 mx-1"></div>
+            <button onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold transition-colors">2x</button>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 bg-slate-950/50 p-4 rounded-xl border border-slate-800/50">
+        <div className="grid grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-200/50">
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Multiplier</span>
-            <div className="text-lg font-black text-white">{multiplier}x</div>
+            <div className="text-lg font-black text-slate-900">{multiplier}x</div>
           </div>
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Roll Under</span>
@@ -90,7 +90,7 @@ export function Dice() {
             onClick={handleRoll}
             disabled={isRolling}
             className={`w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg ${
-              isRolling ? "bg-slate-800 text-slate-500 cursor-not-allowed" : "bg-neon-green hover:bg-green-400 text-slate-950 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
+              isRolling ? "bg-slate-100 text-slate-500 cursor-not-allowed" : "bg-neon-green hover:bg-green-400 text-slate-950 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
             }`}
           >
             {isRolling ? "Rolling..." : "Roll Dice"}
@@ -132,7 +132,7 @@ export function Dice() {
             <span>100</span>
           </div>
 
-          <div className="relative h-4 bg-slate-900 rounded-full border border-slate-800">
+          <div className="relative h-4 bg-slate-50 rounded-full border border-slate-200">
             {/* Win zone (Green) */}
             <div 
               className="absolute left-0 top-0 bottom-0 bg-green-500/20 border-t border-b border-l border-green-500/50 rounded-l-full"
@@ -158,7 +158,7 @@ export function Dice() {
               className="absolute top-1/2 -translate-y-1/2 w-6 h-8 bg-white rounded shadow-lg pointer-events-none z-10 border-2 border-slate-300"
               style={{ left: `calc(${rollUnder}% - 12px)` }}
             >
-              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-800 text-white text-xs font-bold px-2 py-1 rounded">
+              <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 bg-slate-100 text-slate-900 text-xs font-bold px-2 py-1 rounded">
                 {rollUnder}
               </div>
             </div>

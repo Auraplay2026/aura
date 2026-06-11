@@ -180,37 +180,37 @@ export function Blackjack() {
   const dValue = calculateHandValue(dealerHand);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-[#0f172a] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
       {/* Betting Controller */}
-      <div className="w-full lg:w-80 bg-slate-900/50 p-6 flex flex-col gap-6 border-r border-slate-800 shrink-0">
+      <div className="w-full lg:w-80 bg-slate-50/50 p-6 flex flex-col gap-6 border-r border-slate-200 shrink-0">
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 flex justify-between">
+          <label className="text-sm font-bold text-slate-600 mb-2 flex justify-between">
             <span>Bet Amount</span>
             <span className="text-slate-500">₹</span>
           </label>
-          <div className="flex bg-slate-950 rounded-xl border border-slate-800 p-1">
+          <div className="flex bg-white rounded-xl border border-slate-200 p-1">
             <input 
               type="number" 
               value={betAmount} 
               disabled={gameState !== "betting" && gameState !== "resolved"}
               onChange={(e) => setBetAmount(Number(e.target.value))}
-              className="w-full bg-transparent text-white font-bold px-3 focus:outline-none disabled:opacity-50"
+              className="w-full bg-transparent text-slate-900 font-bold px-3 focus:outline-none disabled:opacity-50"
             />
-            <button disabled={gameState !== "betting" && gameState !== "resolved"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
-            <div className="w-[1px] bg-slate-800 mx-1"></div>
-            <button disabled={gameState !== "betting" && gameState !== "resolved"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
+            <button disabled={gameState !== "betting" && gameState !== "resolved"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
+            <div className="w-[1px] bg-slate-100 mx-1"></div>
+            <button disabled={gameState !== "betting" && gameState !== "resolved"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
           </div>
         </div>
 
         <div className="flex-1 flex flex-col gap-2 justify-center">
           {gameState === "playing" && (
             <>
-              <button onClick={hit} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors">Hit</button>
-              <button onClick={stand} className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors">Stand</button>
+              <button onClick={hit} className="w-full py-3 bg-slate-100 hover:bg-slate-700 text-slate-900 rounded-xl font-bold transition-colors">Hit</button>
+              <button onClick={stand} className="w-full py-3 bg-slate-100 hover:bg-slate-700 text-slate-900 rounded-xl font-bold transition-colors">Stand</button>
               <button 
                 onClick={doubleDown} 
                 disabled={playerHand.length !== 2}
-                className="w-full py-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl font-bold transition-colors disabled:opacity-50"
+                className="w-full py-3 bg-slate-100 hover:bg-slate-700 text-slate-900 rounded-xl font-bold transition-colors disabled:opacity-50"
               >
                 Double Down
               </button>
@@ -231,11 +231,11 @@ export function Blackjack() {
       </div>
 
       {/* Interactive Game Canvas (Felt Table) */}
-      <div className="flex-1 relative flex flex-col items-center justify-between p-8 bg-[#0a3821] overflow-hidden border-l-8 border-[#072b19]">
+      <div className="flex-1 relative flex flex-col items-center justify-between p-8 bg-slate-50 overflow-hidden border-l-8 border-[#072b19]">
         
         {/* Dealer Area */}
         <div className="w-full flex flex-col items-center">
-          <div className="text-white/50 font-bold uppercase tracking-widest text-sm mb-4">Dealer {gameState === "resolved" || gameState === "dealerTurn" ? `(${dValue})` : ""}</div>
+          <div className="text-slate-900/50 font-bold uppercase tracking-widest text-sm mb-4">Dealer {gameState === "resolved" || gameState === "dealerTurn" ? `(${dValue})` : ""}</div>
           <div className="flex gap-[-20px]">
             <AnimatePresence>
               {dealerHand.map((card, i) => {
@@ -272,9 +272,9 @@ export function Blackjack() {
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 className={`px-8 py-4 rounded-2xl font-black text-3xl sm:text-5xl uppercase tracking-widest backdrop-blur-md border shadow-2xl ${
-                  payout > betAmount ? "bg-green-500/90 text-white border-green-400" : 
-                  payout === betAmount ? "bg-slate-500/90 text-white border-slate-400" : 
-                  "bg-red-500/90 text-white border-red-400"
+                  payout > betAmount ? "bg-green-500/90 text-slate-900 border-green-400" : 
+                  payout === betAmount ? "bg-slate-500/90 text-slate-900 border-slate-400" : 
+                  "bg-red-500/90 text-slate-900 border-red-400"
                 }`}
               >
                 {resultMessage}
@@ -286,7 +286,7 @@ export function Blackjack() {
         {/* Table text markings */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 opacity-20 pointer-events-none text-center">
           <div className="w-64 h-32 rounded-full border-4 border-white flex items-center justify-center">
-            <span className="font-bold text-white text-xl uppercase tracking-widest">Insurance Pays 2:1</span>
+            <span className="font-bold text-slate-900 text-xl uppercase tracking-widest">Insurance Pays 2:1</span>
           </div>
         </div>
 
@@ -310,7 +310,7 @@ export function Blackjack() {
               ))}
             </AnimatePresence>
           </div>
-          <div className="text-white/50 font-bold uppercase tracking-widest text-sm mt-4">Player {gameState !== "betting" ? `(${pValue})` : ""}</div>
+          <div className="text-slate-900/50 font-bold uppercase tracking-widest text-sm mt-4">Player {gameState !== "betting" ? `(${pValue})` : ""}</div>
         </div>
 
       </div>

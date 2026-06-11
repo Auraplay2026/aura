@@ -53,14 +53,14 @@ export function VIPProgressBar() {
 
   return (
     <div className="hidden lg:flex items-center gap-3 w-48 xl:w-64 relative">
-      <div className="w-8 h-8 rounded-full bg-[#0a0a0f] border border-yellow-500/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.3)] relative z-10">
+      <div className="w-8 h-8 rounded-full bg-white border border-yellow-500/30 flex items-center justify-center shrink-0 shadow-[0_0_15px_rgba(234,179,8,0.3)] relative z-10">
         <Star className="w-4 h-4 text-neon-yellow fill-neon-yellow" />
       </div>
       
       <div className="flex-1 flex flex-col gap-1">
         <div className="flex justify-between items-end">
-          <span className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.1em]">
-            VIP <span className="text-white">{currentTier.name}</span>
+          <span className="text-[9px] text-slate-600 font-bold uppercase tracking-[0.1em]">
+            VIP <span className="text-slate-900">{currentTier.name}</span>
           </span>
           <span className="text-[10px] text-neon-yellow font-black font-mono tracking-tighter">
             {progress.toFixed(0)}%
@@ -68,7 +68,7 @@ export function VIPProgressBar() {
         </div>
         
         {/* Progress Bar Container */}
-        <div className="h-1.5 w-full bg-black rounded-full overflow-hidden border border-white/10 relative">
+        <div className="h-1.5 w-full bg-white rounded-full overflow-hidden border border-slate-200 relative">
           <motion.div 
             className="absolute top-0 bottom-0 left-0 bg-gradient-to-r from-yellow-600 via-neon-yellow to-amber-500 shadow-[0_0_10px_rgba(234,179,8,0.8)]"
             initial={{ width: "0%" }}

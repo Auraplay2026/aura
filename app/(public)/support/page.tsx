@@ -241,7 +241,7 @@ export default function SupportPage() {
     <div className="w-full max-w-[1400px] mx-auto p-4 sm:p-6 lg:p-8 space-y-8">
       
       {/* Top Banner section */}
-      <div className="relative rounded-3xl overflow-hidden border border-white/10 bg-[#050914]/80 p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+      <div className="relative rounded-3xl overflow-hidden border border-slate-200 bg-white/80 p-8 md:p-12 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         <div className="absolute -top-24 -right-24 w-60 h-60 bg-neon-purple/20 blur-[80px] rounded-full pointer-events-none" />
         <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-neon-cyan/20 blur-[80px] rounded-full pointer-events-none" />
         
@@ -249,8 +249,8 @@ export default function SupportPage() {
           <div className="w-16 h-16 bg-neon-purple/20 rounded-2xl flex items-center justify-center border border-neon-purple/30 mb-2">
             <Headset className="w-8 h-8 text-neon-purple animate-pulse" />
           </div>
-          <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-wider">AuraPlay Concierge Desk</h1>
-          <p className="text-slate-400 text-sm md:text-base font-medium">
+          <h1 className="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-wider">AuraPlay Concierge Desk</h1>
+          <p className="text-slate-600 text-sm md:text-base font-medium">
             Welcome to luxury 24/7 VIP assistance. Browse FAQs or initiate a secure support session with our brand AI and live customer support representatives.
           </p>
         </div>
@@ -267,18 +267,18 @@ export default function SupportPage() {
               <div 
                 key={cat.id}
                 onClick={() => setSearchQuery(cat.title)}
-                className="bg-slate-900/30 border border-slate-800/50 rounded-2xl p-5 hover:border-neon-purple/40 hover:bg-slate-900/60 transition-all cursor-pointer group shadow-sm"
+                className="bg-slate-50/30 border border-slate-200/50 rounded-2xl p-5 hover:border-neon-purple/40 hover:bg-slate-50/60 transition-all cursor-pointer group shadow-sm"
               >
-                <h3 className="text-white font-bold text-sm tracking-wide group-hover:text-neon-purple transition-colors">{cat.title}</h3>
+                <h3 className="text-slate-900 font-bold text-sm tracking-wide group-hover:text-neon-purple transition-colors">{cat.title}</h3>
                 <p className="text-slate-500 text-xs mt-1 font-medium">{cat.desc}</p>
               </div>
             ))}
           </div>
 
           {/* Search bar & FAQ Accordion */}
-          <div className="bg-slate-900/30 border border-slate-800/50 rounded-3xl p-6 space-y-6">
-            <div className="flex justify-between items-center pb-3 border-b border-slate-850">
-              <h2 className="text-base font-black text-white uppercase tracking-wider flex items-center gap-2">
+          <div className="bg-slate-50/30 border border-slate-200/50 rounded-3xl p-6 space-y-6">
+            <div className="flex justify-between items-center pb-3 border-b border-slate-200">
+              <h2 className="text-base font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-neon-cyan" /> Frequently Asked Inquiries
               </h2>
               <div className="relative w-48 sm:w-64">
@@ -288,7 +288,7 @@ export default function SupportPage() {
                   placeholder="Filter FAQs..."
                   value={searchQuery}
                   onChange={e => setSearchQuery(e.target.value)}
-                  className="w-full bg-slate-950/60 border border-white/5 rounded-xl py-1.5 pl-8 pr-3 text-[11px] text-white focus:outline-none focus:border-neon-cyan"
+                  className="w-full bg-white/60 border border-slate-200 rounded-xl py-1.5 pl-8 pr-3 text-[11px] text-slate-900 focus:outline-none focus:border-neon-cyan"
                 />
               </div>
             </div>
@@ -300,11 +300,11 @@ export default function SupportPage() {
                   return (
                     <div 
                       key={i}
-                      className="border border-slate-850 rounded-xl overflow-hidden bg-slate-950/40 hover:bg-slate-950/70 transition-colors"
+                      className="border border-slate-200 rounded-xl overflow-hidden bg-white/40 hover:bg-white/70 transition-colors"
                     >
                       <button
                         onClick={() => setExpandedFaq(isExpanded ? null : i)}
-                        className="w-full p-4 flex justify-between items-center text-left text-xs font-bold text-slate-200"
+                        className="w-full p-4 flex justify-between items-center text-left text-xs font-bold text-slate-800"
                       >
                         <span>{faq.q}</span>
                         <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform ${isExpanded ? 'rotate-180' : ''}`} />
@@ -316,9 +316,9 @@ export default function SupportPage() {
                             animate={{ height: "auto" }}
                             exit={{ height: 0 }}
                             transition={{ duration: 0.2 }}
-                            className="overflow-hidden border-t border-slate-900"
+                            className="overflow-hidden border-t border-slate-200"
                           >
-                            <p className="p-4 text-[11px] text-slate-400 leading-relaxed font-medium bg-slate-900/10">
+                            <p className="p-4 text-[11px] text-slate-600 leading-relaxed font-medium bg-slate-50/10">
                               {faq.a}
                             </p>
                           </motion.div>
@@ -337,14 +337,14 @@ export default function SupportPage() {
         </div>
 
         {/* Right Side: Interactive Live AI & Agent Concierge chat console */}
-        <div className="w-full lg:w-[420px] bg-[#050914]/85 border border-white/10 rounded-3xl p-5 shadow-2xl flex flex-col h-[520px] relative overflow-hidden shrink-0">
+        <div className="w-full lg:w-[420px] bg-white/85 border border-slate-200 rounded-3xl p-5 shadow-2xl flex flex-col h-[520px] relative overflow-hidden shrink-0">
           
           {!isConnected ? (
             /* CONNECT CHAT SCREEN */
             <div className="flex-1 flex flex-col items-center justify-center p-4">
               <MessageSquare className="w-12 h-12 text-neon-purple mb-4 drop-shadow-[0_0_15px_rgba(168,85,247,0.3)] animate-pulse" />
               <div className="text-center mb-6">
-                <h3 className="text-sm font-black text-white uppercase tracking-wider">Start VIP Chat Session</h3>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Start VIP Chat Session</h3>
                 <p className="text-[11px] text-slate-500 mt-1 max-w-[280px] font-medium leading-relaxed">
                   Start an instant concierge thread handled by our AI, ready to connect you with live support if requested.
                 </p>
@@ -360,7 +360,7 @@ export default function SupportPage() {
                     value={chatEmail}
                     onChange={e => setChatEmail(e.target.value)}
                     disabled={currentUser !== null}
-                    className="w-full bg-slate-950 border border-white/10 rounded-xl py-2.5 px-4 text-xs text-white placeholder:text-slate-700 focus:outline-none focus:border-neon-purple disabled:opacity-60 font-mono"
+                    className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-4 text-xs text-slate-900 placeholder:text-slate-700 focus:outline-none focus:border-neon-purple disabled:opacity-60 font-mono"
                   />
                 </div>
                 <div className="space-y-1">
@@ -372,7 +372,7 @@ export default function SupportPage() {
                     value={chatName}
                     onChange={e => setChatName(e.target.value)}
                     disabled={currentUser !== null}
-                    className="w-full bg-slate-950 border border-white/10 rounded-xl py-2.5 px-4 text-xs text-white placeholder:text-slate-700 focus:outline-none focus:border-neon-purple disabled:opacity-60"
+                    className="w-full bg-white border border-slate-200 rounded-xl py-2.5 px-4 text-xs text-slate-900 placeholder:text-slate-700 focus:outline-none focus:border-neon-purple disabled:opacity-60"
                   />
                 </div>
 
@@ -390,16 +390,16 @@ export default function SupportPage() {
             <div className="flex-1 flex flex-col h-full overflow-hidden">
               
               {/* Connected Chat Header */}
-              <div className="flex justify-between items-center border-b border-white/10 pb-3 shrink-0">
+              <div className="flex justify-between items-center border-b border-slate-200 pb-3 shrink-0">
                 <div className="flex items-center gap-2.5">
                   <div className="relative">
-                    <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center text-xs font-black text-slate-300">
+                    <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-xs font-black text-slate-700">
                       {chatName.substring(0,2).toUpperCase()}
                     </div>
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-950 absolute -bottom-0.5 -right-0.5 animate-pulse" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-slate-300 absolute -bottom-0.5 -right-0.5 animate-pulse" />
                   </div>
                   <div>
-                    <h4 className="text-xs font-black text-white">{chatName}</h4>
+                    <h4 className="text-xs font-black text-slate-900">{chatName}</h4>
                     <p className="text-[9px] text-slate-500 font-mono">Channel active</p>
                   </div>
                 </div>
@@ -407,7 +407,7 @@ export default function SupportPage() {
                 {/* Status tags */}
                 <div className="flex items-center gap-1.5">
                   {chatStatus === 'bot' && (
-                    <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center gap-1">
+                    <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-purple-500/10 text-purple-600 border border-purple-500/20 flex items-center gap-1">
                       <Sparkles className="w-2.5 h-2.5 animate-pulse" /> AI Chat
                     </span>
                   )}
@@ -417,7 +417,7 @@ export default function SupportPage() {
                     </span>
                   )}
                   {chatStatus === 'active' && (
-                    <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
+                    <span className="text-[8px] font-black uppercase px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 flex items-center gap-1">
                       <CheckCircle2 className="w-2.5 h-2.5" /> Live Agent
                     </span>
                   )}
@@ -427,10 +427,10 @@ export default function SupportPage() {
               {/* Chat transfer notice drawer if bot */}
               {chatStatus === 'bot' && (
                 <div className="my-2 p-2.5 bg-purple-500/5 border border-purple-500/10 rounded-xl flex justify-between items-center shrink-0">
-                  <span className="text-[9px] text-slate-400 font-medium pl-1">Need a human helper instead?</span>
+                  <span className="text-[9px] text-slate-600 font-medium pl-1">Need a human helper instead?</span>
                   <button 
                     onClick={handleRequestAgent}
-                    className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-300 border border-purple-500/20 rounded-lg text-[8px] font-bold uppercase transition-all"
+                    className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 border border-purple-500/20 rounded-lg text-[8px] font-bold uppercase transition-all"
                   >
                     Request Agent
                   </button>
@@ -447,7 +447,7 @@ export default function SupportPage() {
                   if (isSystemAlert) {
                     return (
                       <div key={i} className="flex justify-center my-1.5">
-                        <span className="bg-slate-950 border border-white/5 text-[9px] text-slate-500 px-3 py-0.5 rounded-full font-bold uppercase tracking-wider">
+                        <span className="bg-white border border-slate-200 text-[9px] text-slate-500 px-3 py-0.5 rounded-full font-bold uppercase tracking-wider">
                           {msg.text.replace("System Alert:", "").trim()}
                         </span>
                       </div>
@@ -461,10 +461,10 @@ export default function SupportPage() {
                     >
                       <div className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 border text-[10px] font-bold ${
                         isUser 
-                          ? 'bg-slate-950 border-white/10 text-slate-400' 
+                          ? 'bg-white border-slate-200 text-slate-600' 
                           : isBot 
-                          ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' 
-                          : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
+                          ? 'bg-purple-500/10 border-purple-500/20 text-purple-600' 
+                          : 'bg-emerald-500/10 border-emerald-500/20 text-emerald-600'
                       }`}>
                         {isUser ? <User className="w-3 h-3" /> : isBot ? <Bot className="w-3 h-3" /> : <Headset className="w-3 h-3" />}
                       </div>
@@ -474,10 +474,10 @@ export default function SupportPage() {
                         </span>
                         <div className={`p-3 rounded-2xl text-[11px] font-medium leading-relaxed ${
                           isUser 
-                            ? 'bg-slate-950 border border-white/5 rounded-tr-none text-slate-200' 
+                            ? 'bg-white border border-slate-200 rounded-tr-none text-slate-800' 
                             : isBot
-                            ? 'bg-purple-950/20 border border-purple-900/30 rounded-tl-none text-purple-300'
-                            : 'bg-emerald-950/30 border border-emerald-900/30 rounded-tl-none text-emerald-200 shadow-lg shadow-emerald-950/10'
+                            ? 'bg-purple-100 border border-purple-300 rounded-tl-none text-purple-700'
+                            : 'bg-emerald-100 border border-emerald-300 rounded-tl-none text-emerald-200 shadow-lg shadow-emerald-950/10'
                         }`}>
                           {msg.text}
                         </div>
@@ -489,12 +489,12 @@ export default function SupportPage() {
                 {/* AI Concierge typing state loader */}
                 {isTyping && (
                   <div className="flex gap-2.5 mr-auto max-w-[85%]">
-                    <div className="w-7 h-7 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center shrink-0">
+                    <div className="w-7 h-7 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-600 flex items-center justify-center shrink-0">
                       <Bot className="w-3 h-3" />
                     </div>
                     <div className="flex flex-col gap-1">
                       <span className="text-[8px] font-bold text-slate-500 uppercase">Concierge</span>
-                      <div className="p-3 bg-purple-950/20 border border-purple-900/30 rounded-2xl rounded-tl-none text-purple-400 flex items-center gap-1">
+                      <div className="p-3 bg-purple-100 border border-purple-300 rounded-2xl rounded-tl-none text-purple-600 flex items-center gap-1">
                         <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-[bounce_1.4s_infinite_0.2s]" />
                         <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-[bounce_1.4s_infinite_0.4s]" />
                         <span className="w-1.5 h-1.5 rounded-full bg-purple-400 animate-[bounce_1.4s_infinite_0.6s]" />
@@ -515,20 +515,20 @@ export default function SupportPage() {
 
               {/* Active human agent warning banner */}
               {chatStatus === 'active' && (
-                <div className="bg-emerald-500/5 border border-emerald-500/10 p-2.5 rounded-xl flex items-center gap-2 mb-2 text-[10px] text-emerald-400 font-medium shrink-0">
+                <div className="bg-emerald-500/5 border border-emerald-500/10 p-2.5 rounded-xl flex items-center gap-2 mb-2 text-[10px] text-emerald-600 font-medium shrink-0">
                   <CheckCircle2 className="w-4 h-4 shrink-0" />
                   <span>Elite Support Representative is connected to this thread.</span>
                 </div>
               )}
 
               {/* Chat Input controls */}
-              <div className="border-t border-white/10 pt-3.5 shrink-0">
+              <div className="border-t border-slate-200 pt-3.5 shrink-0">
                 {chatStatus === 'closed' ? (
-                  <div className="text-center p-3.5 bg-slate-950 border border-white/5 rounded-2xl text-[10px] font-bold text-slate-500">
+                  <div className="text-center p-3.5 bg-white border border-slate-200 rounded-2xl text-[10px] font-bold text-slate-500">
                     This support session is closed. Click here to <button onClick={() => { setIsConnected(false); setMessages([]); }} className="text-neon-purple underline font-black uppercase tracking-wider">reopen channel</button>.
                   </div>
                 ) : (
-                  <div className="flex items-center bg-slate-950 border border-white/10 rounded-2xl px-3.5 py-1.5 focus-within:border-neon-purple/50 transition-colors">
+                  <div className="flex items-center bg-white border border-slate-200 rounded-2xl px-3.5 py-1.5 focus-within:border-neon-purple/50 transition-colors">
                     <input 
                       type="text" 
                       value={userInput}
@@ -539,12 +539,12 @@ export default function SupportPage() {
                           ? "Queueing... message history is synced." 
                           : "Type your query here..."
                       }
-                      className="flex-1 bg-transparent border-none text-[11px] text-white placeholder:text-slate-650 focus:outline-none focus:ring-0 px-2 py-2"
+                      className="flex-1 bg-transparent border-none text-[11px] text-slate-900 placeholder:text-slate-650 focus:outline-none focus:ring-0 px-2 py-2"
                     />
                     <button 
                       onClick={handleSendMessage}
                       disabled={!userInput.trim()}
-                      className="p-1.5 text-neon-purple hover:text-white hover:bg-neon-purple rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-neon-purple cursor-pointer"
+                      className="p-1.5 text-neon-purple hover:text-slate-900 hover:bg-neon-purple rounded-lg transition-colors disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-neon-purple cursor-pointer"
                     >
                       <Send className="w-3.5 h-3.5" />
                     </button>

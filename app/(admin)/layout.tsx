@@ -152,31 +152,31 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   // While redirecting, show loading or dark shell
   if (isLoggedIn && currentUser && currentUser.role !== 'admin') {
-    return <div className="min-h-screen bg-[#030307]" />;
+    return <div className="min-h-screen bg-slate-50" />;
   }
 
   return (
-    <div className="flex h-screen overflow-hidden bg-[#030307] w-full text-slate-200 font-sans antialiased selection:bg-indigo-500/30 selection:text-white">
+    <div className="flex h-screen overflow-hidden bg-slate-50 w-full text-slate-800 font-sans antialiased selection:bg-indigo-500/30 selection:text-slate-900">
       {/* Background cyber grid and radial ambient lights */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.08),rgba(255,255,255,0))]" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
       
       {/* Premium Sidebar */}
-      <aside className="w-68 border-r border-white/5 bg-slate-950/45 flex flex-col shrink-0 relative overflow-hidden backdrop-blur-2xl z-20">
+      <aside className="w-68 border-r border-slate-200 bg-white/45 flex flex-col shrink-0 relative overflow-hidden backdrop-blur-2xl z-20">
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
         
         {/* Admin Sidebar Branding */}
-        <div className="h-20 border-b border-white/5 flex items-center justify-between px-6 relative z-10 w-full">
+        <div className="h-20 border-b border-slate-200 flex items-center justify-between px-6 relative z-10 w-full">
           <div className="flex items-center">
             <div className="relative group">
               <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 opacity-60 blur-md group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
-              <div className="relative w-10 h-10 rounded-xl bg-slate-950 border border-white/10 flex items-center justify-center shadow-lg">
-                <Shield className="w-5 h-5 text-indigo-400 group-hover:text-white transition-colors duration-300" />
+              <div className="relative w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center shadow-lg">
+                <Shield className="w-5 h-5 text-indigo-600 group-hover:text-slate-900 transition-colors duration-300" />
               </div>
             </div>
             <div className="ml-4">
               <span className="font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 uppercase text-sm block">Aura Core</span>
-              <span className="text-[9px] text-indigo-400 font-extrabold tracking-widest uppercase flex items-center gap-1.5 mt-0.5">
+              <span className="text-[9px] text-indigo-600 font-extrabold tracking-widest uppercase flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse-glow" />
                 L5 CLEARANCE
               </span>
@@ -185,8 +185,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
           {/* Admin Alerts Bell */}
           <div className="relative group cursor-pointer" title={`${pendingCount} Pending Requests Pending Review`}>
-            <div className="w-8 h-8 rounded-lg bg-slate-900 border border-white/5 hover:border-white/15 flex items-center justify-center text-slate-400 hover:text-white transition-all duration-300">
-              <Bell className={`w-4 h-4 ${pendingCount > 0 && 'text-yellow-400 animate-bounce'}`} />
+            <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 hover:border-white/15 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all duration-300">
+              <Bell className={`w-4 h-4 ${pendingCount > 0 && 'text-yellow-600 animate-bounce'}`} />
             </div>
             {pendingCount > 0 && (
               <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-red-500 text-[8px] font-black text-white flex items-center justify-center shadow-[0_0_8px_#ef4444]">
@@ -205,22 +205,22 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 {isActive && (
                   <motion.div
                     layoutId="active-nav-indicator"
-                    className="absolute inset-0 rounded-xl bg-white/[0.03] border border-white/10 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]"
+                    className="absolute inset-0 rounded-xl bg-white/[0.03] border border-slate-200 shadow-[inset_0_0_20px_rgba(255,255,255,0.02)]"
                     transition={{ type: "spring", stiffness: 380, damping: 30 }}
                   />
                 )}
                 <div
                   className={`flex items-center gap-3.5 px-4 py-3.5 rounded-xl font-bold tracking-wider text-xs uppercase transition-all duration-300 relative ${
                     isActive
-                      ? "text-white"
-                      : "text-slate-400 hover:text-white hover:bg-white/[0.02]"
+                      ? "text-slate-900"
+                      : "text-slate-600 hover:text-slate-900 hover:bg-white/[0.02]"
                   }`}
                 >
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 ${
                       isActive
                         ? `bg-gradient-to-br ${item.color} text-white shadow-[0_0_12px_${item.glowColor}]`
-                        : "bg-white/5 text-slate-400 group-hover:bg-white/10 group-hover:text-white"
+                        : "bg-slate-900/5 text-slate-600 group-hover:bg-slate-900/10 group-hover:text-slate-900"
                     }`}
                   >
                     <item.icon className="w-4 h-4" />
@@ -239,9 +239,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Bottom Panel */}
-        <div className="p-4 z-10 relative border-t border-white/5">
-          <Link href="/" className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 font-bold tracking-widest text-xs uppercase transition-all duration-300 border border-transparent hover:border-rose-500/10">
-            <div className="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-400">
+        <div className="p-4 z-10 relative border-t border-slate-200">
+          <Link href="/" className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 font-bold tracking-widest text-xs uppercase transition-all duration-300 border border-transparent hover:border-rose-500/10">
+            <div className="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600">
               <LogOut className="w-4 h-4" />
             </div>
             <span>Exit Admin</span>
@@ -250,7 +250,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Container */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar relative z-10 bg-[#040409]/60">
+      <main className="flex-1 overflow-y-auto custom-scrollbar relative z-10 bg-slate-100/60">
         {children}
       </main>
     </div>

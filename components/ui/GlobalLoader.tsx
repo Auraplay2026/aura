@@ -2,12 +2,13 @@
 
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
+import { Sparkles } from "lucide-react";
 
 export function GlobalLoader() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Hide the loader after the app has mounted (simulating the Roobet hydration)
+    // Hide the loader after the app has mounted (simulating hydration)
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1200);
@@ -20,39 +21,60 @@ export function GlobalLoader() {
         <motion.div 
           initial={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }}
+          transition={{ duration: 0.6, ease: "easeInOut" }}
           id="loader" 
           role="alert" 
           aria-busy="true" 
           aria-label="Loading..." 
-          data-track-id="spinner" 
-          style={{
-            background: '#151623',
-            position: 'fixed',
-            inset: 0,
-            zIndex: 9999,
-            display: 'grid',
-            placeItems: 'center'
-          }}
+          className="fixed inset-0 z-[9999] bg-slate-50 flex flex-col items-center justify-center overflow-hidden"
         >
-          <style>{`@keyframes roo-spinner{to{transform:rotate(1turn)}}`}</style>
-          
-          {/* Kangaroo / Logo Icon inside spinner */}
-          <svg fill="none" height="27" viewBox="0 0 30 27" width="30" xmlns="http://www.w3.org/2000/svg" style={{position:'absolute',width:'40px',height:'50px'}}>
-            <path d="m18.0595 26.0215 1.7629-.4968c.2289-.0637.4423-.1734.6273-.3224s.3377-.3342.4487-.5442.178-.4405.1969-.6772c.0189-.2368-.0106-.475-.0869-.7-.1763-.5288-.3526-1.0577-.5449-1.6026.9084.0978 1.8267-.0377 2.6681-.3939.8413-.3562 1.5779-.9212 2.1399-1.6415.7074-.8437 1.479-1.6313 2.3078-2.356.8486-.88 1.4079-1.9984 1.6027-3.2053.0461-.1787.0453-.3662-.0022-.5445s-.1401-.3414-.269-.4735c-.1288-.132-.2895-.2287-.4666-.2806s-.3646-.0572-.5443-.0156c-.3196.0353-.6421.0353-.9616 0-1.3509-.1198-2.681-.4106-3.9586-.8654-.25-.0896-.4639-.2585-.609-.4808 0-.0641 0-.0641 0-.1282-.4996-1.2656-1.4705-2.28825-2.7086-2.8528-.4487-.28848-.641-.46477-.609-.99365.0076-.10136.0076-.20314 0-.30451.008-.10134.008-.20316 0-.30451 0 0 0-.11219 0-.17629v-.88147c.0013-1.05383-.2343-2.09447-.6891-3.04507l-.0962-.1763-.0961-.17629v-.09616c.0057-.04255.0057-.08567 0-.12821l-.1283-.22438v-.11219l-.3846-.27245-.1122-.14424-.0961-.12821-.1763-.16027-.1443-.128213-.1923-.128217h-.2244c-.0692-.007421-.1391-.007421-.2083 0h-.2404c-.593 0-1.2822 1.23405-1.6027 2.05142 0 .09616 0 .19232-.1122.30451.0069.08534.0069.17109 0 .25643-.1602.51285-.3205 1.02571-.4487 1.60267v.12821l-.1282.46477c.0055.10678.0055.21377 0 .32054 0 .17629 0 .33656-.1122.49683 0 .16027 0 .3045-.1122.46477s-.1282.64107-.2084.97763v.14424.09616.19232.09616h-.3205-.2083l-.3045-.14424h-.1283-.0961l-.2084-.11218h-.0801l-.2564-.14424-.2404-.11219-.2565-.12822-1.1859.14424-.73727-.28848h-.11218l-.22438-.08013h-.20834-.11219-.14424-.09616-.11219-.14423-.14425-.12821-.16027-.19232-.16027c-.47125-.09943-.94735-.17432-1.42637-.22437h-.36861-.35259-1.82705c-.57696 0-1.15393 0-1.74691 0-.977633.08013-1.185973.52888-.881466 1.49048l.096156.22437v.12822.17629.09616l.09616.19232v.08013.11219l.09617.16032.09615.1442v.0961l.09616.1283.09617.0961v.0802l.08012.0801c.03967.0234.07275.0565.09616.0962l.09617.0961.14423.1122c.9185.7925 2.02022 1.3434 3.20534 1.6027.80134.1923 1.60268.3365 2.48415.4808l.80134.1442c-.14425.7052-.28849 1.3463-.4167 2.0033-.17583.5503-.23011 1.1321-.15909 1.7054.07101.5732.26564 1.1242.57042 1.6149.30477.4907.71244.9094 1.19484 1.2271.48235.3178 1.02805.527 1.59915.6133.7945.12 1.5397.4598 2.1513.9809.6117.521 1.0656 1.2027 1.3105 1.968l.4968 1.6026c.0441.3084.1692.5995.3624.8439.1932.2443.4477.4331.7376.5471s.6048.1491.9127.1019c.3079-.0473.5977-.1753.8401-.371z" style={{fill:'var(--roo-spin-color, #eab308)',transition:'color 0.3s ease-in-out'}}></path>
-          </svg>
-          
-          {/* Animated Dashed Spinner Ring */}
-          <div style={{
-            width:'70px',
-            height:'70px',
-            borderRadius:'50%',
-            background:'conic-gradient(#0000 1%, var(--roo-spin-color, #eab308)) content-box',
-            WebkitMask:'repeating-conic-gradient(#0000 0deg, #000 1deg 39deg, #0000 40deg 45deg), radial-gradient(farthest-side, #0000 calc(100% - 9px), #000 calc(100% - 9px))',
-            WebkitMaskComposite:'destination-in',
-            maskComposite:'intersect',
-            animation:'roo-spinner 1s infinite steps(8)'
-          }}></div>
+          {/* Ambient Background Glows */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-amber-500/10 rounded-full blur-[100px] animate-pulse" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[300px] h-[300px] bg-violet-600/10 rounded-full blur-[80px] animate-pulse" style={{ animationDelay: '1s' }} />
+
+          <div className="relative flex flex-col items-center justify-center">
+            {/* Outer Rotating Ring */}
+            <motion.div 
+              animate={{ rotate: 360 }}
+              transition={{ repeat: Infinity, duration: 4, ease: "linear" }}
+              className="absolute w-32 h-32 rounded-full border-[1px] border-dashed border-amber-500/30"
+            />
+            
+            {/* Inner Fast Rotating Gradient Ring */}
+            <motion.div 
+              animate={{ rotate: -360 }}
+              transition={{ repeat: Infinity, duration: 2, ease: "linear" }}
+              className="absolute w-24 h-24 rounded-full border-2 border-transparent border-t-amber-500 border-r-violet-600"
+            />
+
+            {/* Central Brand Icon */}
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: [0.8, 1.05, 0.8], opacity: 1 }}
+              transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+              className="relative z-10 w-16 h-16 bg-white rounded-2xl shadow-[0_0_30px_rgba(245,158,11,0.2)] flex items-center justify-center border border-slate-100"
+            >
+              <Sparkles className="w-8 h-8 text-amber-500" />
+            </motion.div>
+          </div>
+
+          {/* Typography */}
+          <motion.div 
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.2 }}
+            className="mt-14 flex flex-col items-center gap-3 relative z-10"
+          >
+            <h2 className="text-slate-900 font-black text-2xl tracking-[0.2em] uppercase">
+              AuraPlay <span className="text-amber-500">Exchange</span>
+            </h2>
+            <div className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0s' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0.15s' }} />
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-bounce" style={{ animationDelay: '0.3s' }} />
+            </div>
+          </motion.div>
+
         </motion.div>
       )}
     </AnimatePresence>

@@ -21,15 +21,15 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
       
       {/* Secondary Dashboard Navigation */}
       <div className="w-full md:w-64 shrink-0">
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-4 backdrop-blur-2xl sticky top-24 shadow-2xl">
+        <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-4 backdrop-blur-2xl sticky top-24 shadow-2xl">
           <div className="flex items-center gap-4 mb-6 p-2">
             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-neon-purple to-neon-green p-0.5 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
-              <div className="w-full h-full bg-slate-950 rounded-full flex items-center justify-center">
-                <User className="w-6 h-6 text-slate-300" />
+              <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+                <User className="w-6 h-6 text-slate-700" />
               </div>
             </div>
             <div>
-              <h2 className="font-black text-white tracking-tight">PlayerOne</h2>
+              <h2 className="font-black text-slate-900 tracking-tight">PlayerOne</h2>
               <span className="text-xs font-bold text-neon-yellow uppercase tracking-widest flex items-center gap-1">
                 VIP Gold
               </span>
@@ -44,16 +44,16 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
                 className={cn(
                   "flex items-center gap-3 px-4 py-3 rounded-xl font-bold transition-all group relative overflow-hidden",
                   pathname === item.href 
-                    ? "text-white" 
-                    : "text-slate-400 hover:text-slate-200 hover:bg-slate-800/50"
+                    ? "text-slate-900" 
+                    : "text-slate-600 hover:text-slate-800 hover:bg-slate-100/50"
                 )}
               >
                 {pathname === item.href && (
-                  <motion.div layoutId="user-nav-active" className="absolute inset-0 bg-slate-800 border border-slate-700 rounded-xl -z-10" />
+                  <motion.div layoutId="user-nav-active" className="absolute inset-0 bg-slate-100 border border-slate-700 rounded-xl -z-10" />
                 )}
                 <item.icon className={cn(
                   "w-5 h-5 transition-colors", 
-                  pathname === item.href ? "text-neon-purple drop-shadow-[0_0_5px_rgba(168,85,247,0.8)]" : "text-slate-500 group-hover:text-slate-300"
+                  pathname === item.href ? "text-neon-purple drop-shadow-[0_0_5px_rgba(168,85,247,0.8)]" : "text-slate-500 group-hover:text-slate-700"
                 )} />
                 {item.name}
               </Link>

@@ -125,30 +125,30 @@ export function Keno() {
   const payoutAmount = (betAmount * finalMultiplier).toFixed(2);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-[#0f172a] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
       {/* Betting Controller */}
-      <div className="w-full lg:w-80 bg-slate-900/50 p-6 flex flex-col gap-6 border-r border-slate-800 shrink-0 overflow-y-auto custom-scrollbar">
+      <div className="w-full lg:w-80 bg-slate-50/50 p-6 flex flex-col gap-6 border-r border-slate-200 shrink-0 overflow-y-auto custom-scrollbar">
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 flex justify-between">
+          <label className="text-sm font-bold text-slate-600 mb-2 flex justify-between">
             <span>Bet Amount</span>
             <span className="text-slate-500">₹</span>
           </label>
-          <div className="flex bg-slate-950 rounded-xl border border-slate-800 p-1">
+          <div className="flex bg-white rounded-xl border border-slate-200 p-1">
             <input 
               type="number" 
               value={betAmount} 
               disabled={gameState === "playing"}
               onChange={(e) => setBetAmount(Number(e.target.value))}
-              className="w-full bg-transparent text-white font-bold px-3 focus:outline-none disabled:opacity-50"
+              className="w-full bg-transparent text-slate-900 font-bold px-3 focus:outline-none disabled:opacity-50"
             />
-            <button disabled={gameState === "playing"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
-            <div className="w-[1px] bg-slate-800 mx-1"></div>
-            <button disabled={gameState === "playing"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
+            <button disabled={gameState === "playing"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
+            <div className="w-[1px] bg-slate-100 mx-1"></div>
+            <button disabled={gameState === "playing"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 block">Risk</label>
+          <label className="text-sm font-bold text-slate-600 mb-2 block">Risk</label>
           <div className="grid grid-cols-2 gap-2">
             {(["classic", "low", "medium", "high"] as RiskLevel[]).map(r => (
               <button 
@@ -156,7 +156,7 @@ export function Keno() {
                 disabled={gameState === "playing"}
                 onClick={() => setRiskLevel(r)}
                 className={`py-2 rounded-lg font-bold text-sm capitalize transition-colors ${
-                  riskLevel === r ? "bg-slate-700 text-white" : "bg-slate-950 border border-slate-800 text-slate-400 hover:bg-slate-800 disabled:opacity-50"
+                  riskLevel === r ? "bg-slate-700 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                 }`}
               >
                 {r}
@@ -169,14 +169,14 @@ export function Keno() {
           <button 
             onClick={autoPick} 
             disabled={gameState === "playing"}
-            className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold text-white transition-colors disabled:opacity-50"
+            className="flex-1 py-2 bg-slate-100 hover:bg-slate-700 rounded-lg text-sm font-bold text-slate-900 transition-colors disabled:opacity-50"
           >
             Auto Pick
           </button>
           <button 
             onClick={clearPicks} 
             disabled={gameState === "playing"}
-            className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 rounded-lg text-sm font-bold text-white transition-colors disabled:opacity-50"
+            className="flex-1 py-2 bg-slate-100 hover:bg-slate-700 rounded-lg text-sm font-bold text-slate-900 transition-colors disabled:opacity-50"
           >
             Clear
           </button>
@@ -187,8 +187,8 @@ export function Keno() {
             onClick={startGame}
             disabled={gameState === "playing" || selectedNumbers.length === 0}
             className={`w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg ${
-              gameState === "playing" ? "bg-slate-800 text-slate-500 cursor-not-allowed" :
-              selectedNumbers.length === 0 ? "bg-slate-800 text-slate-500 cursor-not-allowed" :
+              gameState === "playing" ? "bg-slate-100 text-slate-500 cursor-not-allowed" :
+              selectedNumbers.length === 0 ? "bg-slate-100 text-slate-500 cursor-not-allowed" :
               "bg-neon-green hover:bg-green-400 text-slate-950 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
             }`}
           >
@@ -198,7 +198,7 @@ export function Keno() {
       </div>
 
       {/* Interactive Game Canvas */}
-      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-slate-900 overflow-hidden">
+      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-slate-50 overflow-hidden">
         
         {gameState === "finished" && finalMultiplier > 0 && (
           <motion.div 
@@ -225,10 +225,10 @@ export function Keno() {
                 whileHover={gameState !== "playing" ? { scale: 1.05 } : {}}
                 whileTap={gameState !== "playing" ? { scale: 0.95 } : {}}
                 className={`relative w-full aspect-square rounded-lg flex items-center justify-center font-bold text-sm sm:text-base border transition-colors ${
-                  isHit ? "bg-neon-purple border-purple-400 text-white shadow-[0_0_15px_rgba(168,85,247,0.6)] z-10" :
-                  isSelected ? "bg-slate-700 border-slate-500 text-white" :
-                  isMiss ? "bg-slate-800 border-slate-700 text-slate-500 opacity-50" :
-                  "bg-slate-950 border-slate-800 text-slate-400 hover:bg-slate-800"
+                  isHit ? "bg-neon-purple border-purple-400 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.6)] z-10" :
+                  isSelected ? "bg-slate-700 border-slate-500 text-slate-900" :
+                  isMiss ? "bg-slate-100 border-slate-700 text-slate-500 opacity-50" :
+                  "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 {num}
@@ -238,7 +238,7 @@ export function Keno() {
         </div>
 
         <div className="mt-8 text-slate-500 font-bold tracking-widest text-sm uppercase">
-          Selected: <span className="text-white">{selectedNumbers.length}/10</span> | Hits: <span className="text-neon-purple">{hits}</span>
+          Selected: <span className="text-slate-900">{selectedNumbers.length}/10</span> | Hits: <span className="text-neon-purple">{hits}</span>
         </div>
 
       </div>

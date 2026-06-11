@@ -116,15 +116,15 @@ export function GlobalAlerts() {
               className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
             />
             
-            <div className="flex items-center gap-3 text-yellow-400 font-black tracking-widest uppercase text-xs sm:text-sm">
+            <div className="flex items-center gap-3 text-yellow-600 font-black tracking-widest uppercase text-xs sm:text-sm">
               <Sparkles className="w-5 h-5 animate-pulse" />
               Mega Jackpot Triggered
               <Sparkles className="w-5 h-5 animate-pulse" />
             </div>
 
             <div className="text-center mt-2 relative z-10">
-              <p className="text-slate-300 text-sm sm:text-base font-bold mb-1">
-                <span className="text-white">{currentAlert.user}</span> just hit <span className="text-neon-purple font-black">{currentAlert.multi}x</span> on {currentAlert.game}!
+              <p className="text-slate-700 text-sm sm:text-base font-bold mb-1">
+                <span className="text-slate-900">{currentAlert.user}</span> just hit <span className="text-neon-purple font-black">{currentAlert.multi}x</span> on {currentAlert.game}!
               </p>
               <div className="flex items-center justify-center gap-1">
                 <span className="text-2xl sm:text-4xl text-neon-green font-black font-mono drop-shadow-[0_0_20px_rgba(34,197,94,0.8)]">
@@ -141,15 +141,15 @@ export function GlobalAlerts() {
             initial={{ y: -50, opacity: 0, scale: 0.9 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             exit={{ y: -50, opacity: 0, scale: 0.9 }}
-            className="bg-black/90 backdrop-blur-xl border border-yellow-500/30 px-6 py-3 rounded-full flex items-center gap-4 shadow-[0_0_50px_rgba(234,179,8,0.4)]"
+            className="bg-white/90 backdrop-blur-xl border border-yellow-500/30 px-6 py-3 rounded-full flex items-center gap-4 shadow-[0_0_50px_rgba(234,179,8,0.4)]"
           >
             <div className="bg-yellow-500/20 p-2 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.5)]">
               <Trophy className="w-4 h-4 text-neon-yellow" />
             </div>
-            <p className="text-white font-bold text-xs sm:text-sm tracking-wide">
+            <p className="text-slate-900 font-bold text-xs sm:text-sm tracking-wide">
               <span className="text-neon-yellow">{currentAlert.user}</span> won{" "}
-              <span className="text-green-400 font-black tracking-widest font-mono">₹{currentAlert.amount.toLocaleString()}</span> on{" "}
-              <span className="text-slate-300">{currentAlert.game}</span>
+              <span className="text-green-600 font-black tracking-widest font-mono">₹{currentAlert.amount.toLocaleString()}</span> on{" "}
+              <span className="text-slate-700">{currentAlert.game}</span>
             </p>
           </motion.div>
         )}

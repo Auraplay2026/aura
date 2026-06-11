@@ -66,8 +66,8 @@ export async function GET() {
         const duration = round.multiplier || 1; 
         const hourly_rate = round.wager / duration;
         if (duration > 6) color = "text-neon-purple animate-pulse";
-        else if (duration > 3) color = "text-amber-400";
-        else color = "text-emerald-400";
+        else if (duration > 3) color = "text-amber-600";
+        else color = "text-emerald-600";
 
         return {
           user: maskedName,
@@ -86,8 +86,8 @@ export async function GET() {
       } else {
         const multiplier = round.multiplier;
         if (multiplier > 10.0) color = "text-neon-purple animate-pulse";
-        else if (multiplier > 3.0) color = "text-amber-400";
-        else if (multiplier > 0.0) color = "text-emerald-400";
+        else if (multiplier > 3.0) color = "text-amber-600";
+        else if (multiplier > 0.0) color = "text-emerald-600";
 
         return {
           user: maskedName,

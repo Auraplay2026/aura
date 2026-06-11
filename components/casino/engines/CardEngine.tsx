@@ -132,7 +132,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
           <div className="flex flex-col md:flex-row gap-12 w-full justify-center">
             {/* Dealer Hand (or Banker) */}
             <div className="flex flex-col items-center gap-2">
-              <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider">
+              <span className="text-[10px] text-slate-600 font-black uppercase tracking-wider">
                 {isBaccarat ? "Banker Hand" : "Dealer Hand"}
               </span>
               <div className="flex gap-2">
@@ -149,7 +149,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 ))}
               </div>
               {dealerHand.length > 0 && (
-                <span className="text-white font-mono font-bold text-xs bg-black/60 px-3 py-1 rounded-full border border-white/10">
+                <span className="text-slate-900 font-mono font-bold text-xs bg-white/60 px-3 py-1 rounded-full border border-slate-200">
                   Score: {dealerScore}
                 </span>
               )}
@@ -157,7 +157,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
 
             {/* Player Hand */}
             <div className="flex flex-col items-center gap-2">
-              <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Player Hand</span>
+              <span className="text-[10px] text-slate-600 font-black uppercase tracking-wider">Player Hand</span>
               <div className="flex gap-2">
                 {playerHand.map((card, idx) => (
                   <motion.div
@@ -172,7 +172,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 ))}
               </div>
               {playerHand.length > 0 && (
-                <span className="text-white font-mono font-bold text-xs bg-black/60 px-3 py-1 rounded-full border border-white/10">
+                <span className="text-slate-900 font-mono font-bold text-xs bg-white/60 px-3 py-1 rounded-full border border-slate-200">
                   Score: {playerScore}
                 </span>
               )}
@@ -181,7 +181,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
         ) : (
           /* Poker 5-card layout */
           <div className="flex flex-col items-center gap-3">
-            <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider">Player Poker Hand</span>
+            <span className="text-[10px] text-slate-600 font-black uppercase tracking-wider">Player Poker Hand</span>
             <div className="flex gap-3 justify-center">
               {playerHand.map((card, idx) => (
                 <motion.div
@@ -195,13 +195,13 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 </motion.div>
               ))}
               {Array.from({ length: Math.max(0, 5 - playerHand.length) }).map((_, i) => (
-                <div key={i} className="w-20 h-28 md:w-24 md:h-36 border border-white/10 bg-black/30 rounded-lg flex items-center justify-center text-white/10 font-bold">
+                <div key={i} className="w-20 h-28 md:w-24 md:h-36 border border-slate-200 bg-slate-900/30 rounded-lg flex items-center justify-center text-slate-900/10 font-bold">
                   ?
                 </div>
               ))}
             </div>
             {playerHand.length === 5 && (
-              <span className="text-neon-yellow font-black uppercase tracking-widest text-xs mt-2 bg-slate-950 px-4 py-1.5 rounded-full border border-yellow-500/20 shadow-lg">
+              <span className="text-neon-yellow font-black uppercase tracking-widest text-xs mt-2 bg-white px-4 py-1.5 rounded-full border border-yellow-500/20 shadow-lg">
                 Hand Rank: {playerScore > 40 ? "Three of a Kind" : "Pair of Kings"}
               </span>
             )}

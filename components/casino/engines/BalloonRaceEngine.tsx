@@ -57,20 +57,20 @@ export function BalloonRaceEngine({ isPlaying, onComplete }: BalloonRaceEnginePr
       {/* Moving Cloud Overlays */}
       <div className="absolute inset-0 pointer-events-none opacity-30">
         <motion.div animate={{ x: [-100, 600] }} transition={{ repeat: Infinity, duration: 25, ease: "linear" }} className="absolute top-12 left-10">
-          <Cloud className="w-20 h-10 text-white fill-white" />
+          <Cloud className="w-20 h-10 text-slate-900 fill-white" />
         </motion.div>
         <motion.div animate={{ x: [600, -100] }} transition={{ repeat: Infinity, duration: 35, ease: "linear" }} className="absolute bottom-20 right-10">
-          <Cloud className="w-24 h-12 text-white fill-white" />
+          <Cloud className="w-24 h-12 text-slate-900 fill-white" />
         </motion.div>
       </div>
 
       <div className="absolute top-8 text-center z-25">
-        <span className="text-white font-black text-xs uppercase tracking-[0.3em] drop-shadow-md">BALLOON ESCALATION RACE</span>
+        <span className="text-slate-900 font-black text-xs uppercase tracking-[0.3em] drop-shadow-md">BALLOON ESCALATION RACE</span>
       </div>
 
       {/* Numerical display */}
       <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20">
-        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter text-white drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]`}>
+        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter text-slate-900 drop-shadow-[0_4px_12px_rgba(0,0,0,0.4)]`}>
           {multiplier.toFixed(2)}x
         </h1>
         {popped && (
@@ -95,7 +95,7 @@ export function BalloonRaceEngine({ isPlaying, onComplete }: BalloonRaceEnginePr
             >
               🎈
             </motion.span>
-            <div className="w-6 h-6 bg-amber-800 rounded-sm border border-amber-950 mt-1 shadow-inner" />
+            <div className="w-6 h-6 bg-amber-800 rounded-sm border border-amber-300 mt-1 shadow-inner" />
           </motion.div>
         )}
       </div>

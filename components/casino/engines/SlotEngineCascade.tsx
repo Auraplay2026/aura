@@ -56,11 +56,11 @@ export function SlotEngineCascade({ isPlaying, theme, onComplete }: SlotEngineCa
   }, [isPlaying, theme]);
 
   return (
-    <div className={`w-full bg-slate-950/90 border-4 border-fuchsia-500/40 rounded-3xl p-6 shadow-[0_0_80px_rgba(217,70,239,0.2)] relative flex flex-col items-center justify-center`}>
+    <div className={`w-full bg-white/90 border-4 border-fuchsia-500/40 rounded-3xl p-6 shadow-[0_0_80px_rgba(217,70,239,0.2)] relative flex flex-col items-center justify-center`}>
       
       {/* Header Info */}
       <div className="text-center mb-4">
-        <span className="text-fuchsia-400 font-mono text-xs font-black tracking-widest uppercase">CLUSTER CASCADE MATRIX</span>
+        <span className="text-fuchsia-600 font-mono text-xs font-black tracking-widest uppercase">CLUSTER CASCADE MATRIX</span>
       </div>
 
       <div className="grid gap-2 w-full h-80 relative" style={{ gridTemplateColumns: `repeat(${theme.cols}, minmax(0, 1fr))` }}>
@@ -77,7 +77,7 @@ export function SlotEngineCascade({ isPlaying, theme, onComplete }: SlotEngineCa
                   className={`h-12 md:h-16 rounded-xl flex items-center justify-center text-3xl md:text-4xl shadow-inner relative border
                     ${isMatch 
                       ? "bg-fuchsia-500/30 border-fuchsia-400 animate-pulse shadow-[0_0_20px_rgba(217,70,239,0.5)] scale-110" 
-                      : "bg-slate-900/60 border-white/5"
+                      : "bg-slate-50/60 border-slate-200"
                     }`}
                 >
                   {sym}

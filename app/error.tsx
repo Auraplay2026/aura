@@ -20,14 +20,14 @@ export default function GlobalError({
     <div className="min-h-[80vh] flex flex-col items-center justify-center p-6 text-center relative z-10">
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(220,38,38,0.1),transparent_70%)] pointer-events-none -z-10" />
       
-      <div className="w-24 h-24 bg-slate-900 border border-red-900/50 rounded-3xl flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(220,38,38,0.2)]">
+      <div className="w-24 h-24 bg-slate-50 border border-red-300 rounded-3xl flex items-center justify-center mb-8 shadow-[0_0_30px_rgba(220,38,38,0.2)]">
         <ShieldAlert className="w-12 h-12 text-red-500" />
       </div>
       
-      <h1 className="text-4xl md:text-5xl font-black text-white tracking-tighter mb-4">
+      <h1 className="text-4xl md:text-5xl font-black text-slate-900 tracking-tighter mb-4">
         System Breach
       </h1>
-      <h2 className="text-xl font-bold text-slate-300 mb-6 uppercase tracking-widest text-red-400">
+      <h2 className="text-xl font-bold text-slate-700 mb-6 uppercase tracking-widest text-red-600">
         Fatal Exception Handled
       </h2>
       
@@ -45,7 +45,7 @@ export default function GlobalError({
         </button>
         <Link 
           href="/"
-          className="bg-slate-800 hover:bg-slate-700 text-white font-black px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-all border border-slate-700 hover:border-slate-600 flex items-center justify-center gap-2"
+          className="bg-slate-100 hover:bg-slate-700 text-slate-900 font-black px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-all border border-slate-700 hover:border-slate-600 flex items-center justify-center gap-2"
         >
           <Home className="w-4 h-4" />
           Return to Lobby

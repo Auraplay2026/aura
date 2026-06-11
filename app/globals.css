@@ -1,40 +1,45 @@
 @import "tailwindcss";
 
 @theme {
-  --color-neon-purple: #a855f7;
-  --color-neon-green: #22c55e;
-  --color-neon-yellow: #eab308;
-  --color-neon-cyan: #06b6d4;
+  --color-exchange-bg: #f8f9fa;
+  --color-exchange-surface: #ffffff;
+  --color-exchange-text: #1e293b;
+  --color-exchange-muted: #64748B;
+  --color-exchange-border: #e4e7eb;
+  
+  --color-back-bg: #e0f2fe;
+  --color-back-text: #0369a1;
+  --color-lay-bg: #fce7f3;
+  --color-lay-text: #b91c1c;
+
+  --color-neon-purple: #8b5cf6;
+  --color-neon-green: #10b981;
+  --color-neon-yellow: #f59e0b;
+  --color-neon-cyan: #0ea5e9;
   --color-neon-pink: #ec4899;
   
   --animate-shimmer: shimmer 2s linear infinite;
-  --animate-float: float 6s ease-in-out infinite;
-  --animate-glare: glare 1.5s ease-in-out infinite;
-  --animate-pulse-glow: pulse-glow 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  --animate-flash-green: flash-green 0.5s ease-out;
+  --animate-flash-red: flash-red 0.5s ease-out;
   
   @keyframes shimmer {
     from { background-position: 0 0; }
     to { background-position: 40px 40px; }
   }
-  @keyframes float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-10px); }
+  @keyframes flash-green {
+    0% { background-color: #dcfce7; color: #15803d; }
+    100% { background-color: inherit; color: inherit; }
   }
-  @keyframes glare {
-    0% { left: -100%; opacity: 0; }
-    50% { opacity: 0.5; }
-    100% { left: 200%; opacity: 0; }
-  }
-  @keyframes pulse-glow {
-    0%, 100% { opacity: 1; filter: drop-shadow(0 0 10px currentColor); }
-    50% { opacity: .5; filter: drop-shadow(0 0 2px currentColor); }
+  @keyframes flash-red {
+    0% { background-color: #fee2e2; color: #b91c1c; }
+    100% { background-color: inherit; color: inherit; }
   }
 }
 
 :root {
-  --background: #020617; /* slate-950 */
-  --foreground: #f8fafc; /* slate-50 */
-  color-scheme: dark;
+  --background: #f8f9fa;
+  --foreground: #1e293b;
+  color-scheme: light;
 }
 
 body {
@@ -42,23 +47,22 @@ body {
   color: var(--foreground);
 }
 
-/* Premium Custom Scrollbar */
+/* Premium Custom Scrollbar - Light Theme */
 .custom-scrollbar {
   scrollbar-width: thin;
-  scrollbar-color: rgba(51, 65, 85, 0.5) transparent;
+  scrollbar-color: #cbd5e1 transparent;
 }
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
 .custom-scrollbar::-webkit-scrollbar-track {
-  background: rgba(2, 6, 23, 0.8);
+  background: #f1f5f9;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb {
-  background: linear-gradient(to bottom, #334155, #1e293b);
+  background: #cbd5e1;
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.05);
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(to bottom, #475569, #334155);
+  background: #94a3b8;
 }

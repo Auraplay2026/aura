@@ -373,8 +373,8 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
       : `${String(m).padStart(2, "0")}:${String(sec).padStart(2, "0")}`;
   };
 
-  const pingColor = ping < 20 ? "text-neon-green" : ping < 30 ? "text-yellow-400" : "text-red-400";
-  const fpsColor = fps >= 59 ? "text-neon-green" : fps >= 55 ? "text-yellow-400" : "text-red-400";
+  const pingColor = ping < 20 ? "text-neon-green" : ping < 30 ? "text-yellow-600" : "text-red-600";
+  const fpsColor = fps >= 59 ? "text-neon-green" : fps >= 55 ? "text-yellow-600" : "text-red-600";
 
   return (
     <div className="flex flex-col w-full h-full gap-2 relative z-20">
@@ -383,7 +383,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
         {cinemaMode && !isFullscreen && (
           <motion.div
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/95 z-40 pointer-events-none"
+            className="fixed inset-0 bg-white/95 z-40 pointer-events-none"
           />
         )}
       </AnimatePresence>
@@ -391,8 +391,8 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
       {/* Main Container */}
       <div
         ref={containerRef}
-        className={`w-full flex-1 min-h-0 flex flex-col bg-black relative transition-all duration-500 ease-in-out z-50 overflow-hidden group ${
-          isFullscreen ? "h-screen border-0 rounded-none" : "rounded-2xl border border-slate-800"
+        className={`w-full flex-1 min-h-0 flex flex-col bg-white relative transition-all duration-500 ease-in-out z-50 overflow-hidden group ${
+          isFullscreen ? "h-screen border-0 rounded-none" : "rounded-2xl border border-slate-200"
         }`}
         style={{ boxShadow: isFullscreen ? "none" : `0 0 80px ${glowColor}` }}
       >
@@ -403,7 +403,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
             <motion.div
               initial={{ opacity: 1 }} exit={{ opacity: 0, scale: 1.02 }}
               transition={{ duration: 0.8 }}
-              className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-[#02040a] overflow-hidden"
+              className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-slate-50 overflow-hidden"
             >
               {/* Background: game cover art blur */}
               {gameInfo?.image && (
@@ -434,26 +434,26 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                     </motion.div>
                   )}
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-400 mb-1">
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em] text-cyan-600 mb-1">
                       ⚡ Aura Cloud Gaming
                     </span>
-                    <h2 className="text-2xl font-black text-white tracking-tight leading-tight">{gameTitle}</h2>
-                    <span className="text-xs text-slate-400 font-medium mt-0.5">{gameProvider}</span>
+                    <h2 className="text-2xl font-black text-slate-900 tracking-tight leading-tight">{gameTitle}</h2>
+                    <span className="text-xs text-slate-600 font-medium mt-0.5">{gameProvider}</span>
                   </div>
                 </div>
 
                 {/* Server node info */}
                 <div className="flex items-center gap-6 text-[11px] font-black uppercase tracking-widest">
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <Server className="w-3 h-3 text-cyan-400" />
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <Server className="w-3 h-3 text-cyan-600" />
                     <span>{serverNode}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <Cpu className="w-3 h-3 text-purple-400" />
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <Cpu className="w-3 h-3 text-purple-600" />
                     <span>{gpuTier}</span>
                   </div>
-                  <div className="flex items-center gap-1.5 text-slate-400">
-                    <Gauge className="w-3 h-3 text-emerald-400" />
+                  <div className="flex items-center gap-1.5 text-slate-600">
+                    <Gauge className="w-3 h-3 text-emerald-600" />
                     <span>{resolution}</span>
                   </div>
                 </div>
@@ -467,16 +467,16 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                         initial={{ opacity: 0, x: -10 }}
                         animate={{ opacity: 1, x: 0 }}
                         exit={{ opacity: 0, x: 10 }}
-                        className="text-cyan-400 uppercase tracking-widest"
+                        className="text-cyan-600 uppercase tracking-widest"
                       >
                         {BOOT_STEPS[bootStep]?.label || "Launching..."}
                       </motion.span>
                     </AnimatePresence>
-                    <span className="text-white font-black tabular-nums">{bootPct}%</span>
+                    <span className="text-slate-900 font-black tabular-nums">{bootPct}%</span>
                   </div>
 
                   {/* Progress bar */}
-                  <div className="w-full h-1.5 bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                  <div className="w-full h-1.5 bg-slate-50 rounded-full overflow-hidden border border-slate-200">
                     <motion.div
                       className="h-full rounded-full"
                       style={{
@@ -494,7 +494,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                       <div
                         key={i}
                         className={`h-0.5 rounded-full transition-all duration-500 ${
-                          i <= bootStep ? "bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "bg-slate-800"
+                          i <= bootStep ? "bg-cyan-400 shadow-[0_0_6px_rgba(6,182,212,0.8)]" : "bg-slate-100"
                         }`}
                         style={{ width: i <= bootStep ? "28px" : "10px" }}
                       />
@@ -520,35 +520,35 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
               className="absolute top-3 right-3 z-30 flex flex-col gap-1.5 pointer-events-none"
             >
               {/* Main HUD pill */}
-              <div className="flex items-center gap-3 bg-black/70 backdrop-blur-md border border-white/10 rounded-xl px-3 py-2 shadow-lg">
+              <div className="flex items-center gap-3 bg-white/70 backdrop-blur-md border border-slate-200 rounded-xl px-3 py-2 shadow-lg">
                 {/* FPS */}
                 <div className="flex items-center gap-1">
                   <Activity className={`w-3 h-3 ${fpsColor}`} />
                   <span className={`font-mono font-black text-[11px] tabular-nums ${fpsColor}`}>{fps}</span>
                   <span className="text-slate-600 text-[9px] font-bold">FPS</span>
                 </div>
-                <div className="w-px h-3 bg-white/10" />
+                <div className="w-px h-3 bg-slate-900/10" />
                 {/* Ping */}
                 <div className="flex items-center gap-1">
                   <Wifi className={`w-3 h-3 ${pingColor}`} />
                   <span className={`font-mono font-black text-[11px] tabular-nums ${pingColor}`}>{ping}</span>
                   <span className="text-slate-600 text-[9px] font-bold">MS</span>
                 </div>
-                <div className="w-px h-3 bg-white/10" />
+                <div className="w-px h-3 bg-slate-900/10" />
                 {/* Bitrate */}
                 <div className="flex items-center gap-1">
-                  <Download className="w-3 h-3 text-blue-400" />
-                  <span className="font-mono font-black text-[11px] text-blue-400 tabular-nums">{bitrate}</span>
+                  <Download className="w-3 h-3 text-blue-600" />
+                  <span className="font-mono font-black text-[11px] text-blue-600 tabular-nums">{bitrate}</span>
                   <span className="text-slate-600 text-[9px] font-bold">Mbps</span>
                 </div>
               </div>
 
               {/* Session info */}
-              <div className="flex items-center gap-2 bg-black/50 border border-white/5 rounded-lg px-3 py-1">
+              <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-200 rounded-lg px-3 py-1">
                 <Radio className="w-2.5 h-2.5 text-red-500 animate-pulse" />
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest">LIVE</span>
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">LIVE</span>
                 <span className="text-[9px] font-mono text-slate-500 tabular-nums">{formatTime(sessionTime)}</span>
-                <div className="w-px h-2.5 bg-white/10 mx-0.5" />
+                <div className="w-px h-2.5 bg-slate-900/10 mx-0.5" />
                 <span className="text-[9px] text-slate-600 font-bold">{nodeCity}</span>
               </div>
             </motion.div>
@@ -556,7 +556,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
         </AnimatePresence>
 
         {/* ── GAME IFRAME ── */}
-        <div className="flex-1 w-full relative bg-black overflow-hidden">
+        <div className="flex-1 w-full relative bg-white overflow-hidden">
           {!isBooting && (
             <motion.iframe
               key={engineKey}
@@ -579,7 +579,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
             <motion.div
               initial={{ y: 80, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 px-3 py-2.5 bg-black/75 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] opacity-0 group-hover:opacity-100 transition-all duration-300"
+              className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 flex items-center gap-1 px-3 py-2.5 bg-white/75 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.6)] opacity-0 group-hover:opacity-100 transition-all duration-300"
             >
               {/* Home */}
               <DockButton icon={<Home className="w-4 h-4" />} label="Home" onClick={() => router.push("/")} />
@@ -590,7 +590,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
               <DockButton icon={<RefreshCw className="w-4 h-4" />} label="Restart" onClick={() => setEngineKey(p => p + 1)} />
               {/* Mute */}
               <DockButton
-                icon={isMuted ? <VolumeX className="w-4 h-4 text-red-400" /> : <Volume2 className="w-4 h-4" />}
+                icon={isMuted ? <VolumeX className="w-4 h-4 text-red-600" /> : <Volume2 className="w-4 h-4" />}
                 label="Audio"
                 onClick={() => setIsMuted(p => !p)}
               />
@@ -628,20 +628,20 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               exit={{ opacity: 0, scale: 0.95 }}
-              className="absolute inset-0 z-[60] bg-black/85 backdrop-blur-md flex items-center justify-center p-6"
+              className="absolute inset-0 z-[60] bg-white/85 backdrop-blur-md flex items-center justify-center p-6"
             >
-              <div className="bg-[#0a0f1a] border border-slate-700/50 rounded-3xl p-8 max-w-md w-full relative shadow-[0_0_100px_rgba(0,0,0,0.8)]">
-                <button onClick={() => setShowControls(false)} className="absolute top-5 right-5 text-slate-500 hover:text-white transition-colors">
+              <div className="bg-slate-50 border border-slate-700/50 rounded-3xl p-8 max-w-md w-full relative shadow-[0_0_100px_rgba(0,0,0,0.8)]">
+                <button onClick={() => setShowControls(false)} className="absolute top-5 right-5 text-slate-500 hover:text-slate-900 transition-colors">
                   <X className="w-5 h-5" />
                 </button>
 
                 {/* Header */}
                 <div className="flex items-center gap-3 mb-6">
                   <div className="w-10 h-10 rounded-xl bg-cyan-500/10 border border-cyan-500/20 flex items-center justify-center">
-                    <Gamepad2 className="w-5 h-5 text-cyan-400" />
+                    <Gamepad2 className="w-5 h-5 text-cyan-600" />
                   </div>
                   <div>
-                    <h3 className="text-lg font-black text-white uppercase tracking-widest">{gameTitle}</h3>
+                    <h3 className="text-lg font-black text-slate-900 uppercase tracking-widest">{gameTitle}</h3>
                     <p className="text-xs text-slate-500 font-bold">{manifest?.genre || "Game"} Controls</p>
                   </div>
                 </div>
@@ -649,11 +649,11 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                 {/* Stream stats */}
                 <div className="grid grid-cols-3 gap-2 mb-6">
                   {[
-                    { label: "Server", value: nodeCity, color: "text-cyan-400" },
-                    { label: "GPU", value: gpuTier, color: "text-purple-400" },
-                    { label: "Quality", value: resolution.split("×")[1] + "p", color: "text-emerald-400" },
+                    { label: "Server", value: nodeCity, color: "text-cyan-600" },
+                    { label: "GPU", value: gpuTier, color: "text-purple-600" },
+                    { label: "Quality", value: resolution.split("×")[1] + "p", color: "text-emerald-600" },
                   ].map(s => (
-                    <div key={s.label} className="bg-black/50 rounded-xl p-3 border border-white/5 text-center">
+                    <div key={s.label} className="bg-slate-900/50 rounded-xl p-3 border border-slate-200 text-center">
                       <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">{s.label}</p>
                       <p className={`text-xs font-black mt-0.5 ${s.color}`}>{s.value}</p>
                     </div>
@@ -665,9 +665,9 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                   {controls.map((ctrl, i) => {
                     const [key, ...descParts] = ctrl.split("—");
                     return (
-                      <div key={i} className="flex items-center justify-between bg-black/40 px-4 py-3 rounded-xl border border-white/5">
-                        <span className="text-slate-300 text-sm font-bold">{descParts.join("—").trim()}</span>
-                        <kbd className="bg-slate-800 text-white px-2.5 py-1 rounded-lg font-mono font-black text-xs border border-slate-600 shadow-sm whitespace-nowrap">
+                      <div key={i} className="flex items-center justify-between bg-white/40 px-4 py-3 rounded-xl border border-slate-200">
+                        <span className="text-slate-700 text-sm font-bold">{descParts.join("—").trim()}</span>
+                        <kbd className="bg-slate-100 text-slate-900 px-2.5 py-1 rounded-lg font-mono font-black text-xs border border-slate-600 shadow-sm whitespace-nowrap">
                           {key.trim()}
                         </kbd>
                       </div>
@@ -679,7 +679,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                 <div className="flex items-center gap-2 text-[10px] text-slate-600 font-bold mb-6 flex-wrap">
                   {[["F", "Fullscreen"], ["C", "Cinema"], ["R", "Restart"], ["H", "Hide HUD"]].map(([k, v]) => (
                     <span key={k} className="flex items-center gap-1">
-                      <kbd className="bg-slate-900 border border-slate-700 text-slate-400 px-1.5 py-0.5 rounded text-[10px] font-mono">{k}</kbd>
+                      <kbd className="bg-slate-50 border border-slate-700 text-slate-600 px-1.5 py-0.5 rounded text-[10px] font-mono">{k}</kbd>
                       {v}
                     </span>
                   ))}
@@ -707,16 +707,16 @@ function DockButton({
   icon: React.ReactNode; label: string; onClick: () => void; active?: boolean; color?: string;
 }) {
   const activeColors: Record<string, string> = {
-    cyan: "bg-cyan-500/20 text-cyan-400",
-    purple: "bg-purple-500/20 text-purple-400",
-    emerald: "bg-emerald-500/20 text-emerald-400",
-    default: "bg-white/10 text-white",
+    cyan: "bg-cyan-500/20 text-cyan-600",
+    purple: "bg-purple-500/20 text-purple-600",
+    emerald: "bg-emerald-500/20 text-emerald-600",
+    default: "bg-slate-900/10 text-slate-900",
   };
   return (
     <button
       onClick={onClick}
       className={`flex flex-col items-center justify-center w-11 h-11 rounded-xl transition-all group/btn ${
-        active ? activeColors[color] || activeColors.default : "text-slate-400 hover:text-white hover:bg-white/10"
+        active ? activeColors[color] || activeColors.default : "text-slate-600 hover:text-slate-900 hover:bg-slate-900/10"
       }`}
     >
       <span className="group-hover/btn:scale-110 transition-transform">{icon}</span>
@@ -726,5 +726,5 @@ function DockButton({
 }
 
 function DockDivider() {
-  return <div className="w-px h-8 bg-white/10 mx-0.5" />;
+  return <div className="w-px h-8 bg-slate-900/10 mx-0.5" />;
 }

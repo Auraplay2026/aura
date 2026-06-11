@@ -80,9 +80,9 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
       </div>
 
       {/* Target multiplier selector */}
-      <div className="relative z-10 flex items-center gap-4 bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl px-6 py-3">
-        <Target className="w-5 h-5 text-cyan-400" />
-        <span className="text-slate-400 text-sm font-bold uppercase tracking-widest">Target</span>
+      <div className="relative z-10 flex items-center gap-4 bg-slate-900/5 backdrop-blur-md border border-slate-200 rounded-2xl px-6 py-3">
+        <Target className="w-5 h-5 text-cyan-600" />
+        <span className="text-slate-600 text-sm font-bold uppercase tracking-widest">Target</span>
         <input
           type="number"
           step="0.01"
@@ -90,9 +90,9 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
           value={targetMultiplier}
           onChange={(e) => setTargetMultiplier(Math.max(1.01, parseFloat(e.target.value) || 1.01))}
           disabled={isPlaying}
-          className="w-24 bg-transparent text-white font-black text-lg text-right focus:outline-none disabled:opacity-50"
+          className="w-24 bg-transparent text-slate-900 font-black text-lg text-right focus:outline-none disabled:opacity-50"
         />
-        <span className="text-cyan-400 font-black text-lg">x</span>
+        <span className="text-cyan-600 font-black text-lg">x</span>
         <span className="text-slate-500 text-xs font-bold ml-2">{winChance}% chance</span>
       </div>
 
@@ -110,23 +110,23 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
           transition={{ duration: 0.5 }}
           className={`text-[6rem] md:text-[9rem] font-black font-mono tabular-nums tracking-tighter leading-none transition-colors duration-300 ${
             phase === "idle" ? "text-slate-600" :
-            phase === "counting" ? "text-white" :
+            phase === "counting" ? "text-slate-900" :
             isWin ? "text-neon-green" : "text-red-500"
           }`}
         >
           {(phase === "idle" ? 1.00 : liveCounter).toFixed(2)}
-          <span className="text-3xl md:text-5xl text-cyan-400 ml-2">x</span>
+          <span className="text-3xl md:text-5xl text-cyan-600 ml-2">x</span>
         </motion.div>
 
         {/* Target indicator line */}
         <div className="flex items-center gap-3">
           <div className={`h-0.5 w-16 rounded-full transition-colors duration-300 ${
             phase === "reveal" && isWin ? "bg-neon-green shadow-[0_0_10px_rgba(34,197,94,0.8)]" :
-            phase === "reveal" ? "bg-red-500" : "bg-white/20"
+            phase === "reveal" ? "bg-red-500" : "bg-slate-900/20"
           }`} />
           <span className={`text-sm font-black uppercase tracking-widest transition-colors duration-300 ${
             phase === "reveal" && isWin ? "text-neon-green" :
-            phase === "reveal" ? "text-red-400" : "text-slate-500"
+            phase === "reveal" ? "text-red-600" : "text-slate-500"
           }`}>
             {phase === "idle" ? "Awaiting roll..." :
              phase === "counting" ? "Calculating..." :
@@ -134,7 +134,7 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
           </span>
           <div className={`h-0.5 w-16 rounded-full transition-colors duration-300 ${
             phase === "reveal" && isWin ? "bg-neon-green shadow-[0_0_10px_rgba(34,197,94,0.8)]" :
-            phase === "reveal" ? "bg-red-500" : "bg-white/20"
+            phase === "reveal" ? "bg-red-500" : "bg-slate-900/20"
           }`} />
         </div>
       </div>
@@ -145,7 +145,7 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
         {[...Array(8)].map((_, i) => (
           <div
             key={i}
-            className={`w-2 h-2 rounded-full ${i === 7 && phase === "reveal" ? (isWin ? "bg-neon-green shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500") : "bg-slate-800"}`}
+            className={`w-2 h-2 rounded-full ${i === 7 && phase === "reveal" ? (isWin ? "bg-neon-green shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500") : "bg-slate-100"}`}
           />
         ))}
         <Zap className="w-4 h-4 text-slate-600" />

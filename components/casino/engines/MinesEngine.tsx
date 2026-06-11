@@ -99,15 +99,15 @@ export function MinesEngine({ isPlaying, onComplete }: MinesEngineProps) {
       {/* Top controls */}
       <div className="relative z-10 flex items-center gap-3 flex-wrap">
         {/* Mines count */}
-        <div className="flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl px-3 py-2">
-          <Bomb className="w-4 h-4 text-red-400" />
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Mines:</span>
+        <div className="flex items-center gap-2 bg-white/40 border border-slate-200 rounded-xl px-3 py-2">
+          <Bomb className="w-4 h-4 text-red-600" />
+          <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Mines:</span>
           {[1, 3, 5, 10, 24].map(n => (
             <button
               key={n}
               disabled={gameState === "playing"}
               onClick={() => { setMinesCount(n); reset(); }}
-              className={`w-7 h-7 rounded-lg text-xs font-black transition-all ${minesCount === n ? "bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]" : "bg-white/5 text-slate-400 hover:bg-white/10 disabled:opacity-30"}`}
+              className={`w-7 h-7 rounded-lg text-xs font-black transition-all ${minesCount === n ? "bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]" : "bg-slate-900/5 text-slate-600 hover:bg-slate-900/10 disabled:opacity-30"}`}
             >
               {n}
             </button>
@@ -115,8 +115,8 @@ export function MinesEngine({ isPlaying, onComplete }: MinesEngineProps) {
         </div>
 
         {/* Multiplier display */}
-        <div className="ml-auto flex items-center gap-2 bg-black/40 border border-white/10 rounded-xl px-4 py-2">
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Multiplier:</span>
+        <div className="ml-auto flex items-center gap-2 bg-white/40 border border-slate-200 rounded-xl px-4 py-2">
+          <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Multiplier:</span>
           <span className={`font-black text-lg tabular-nums ${gameState === "playing" ? "text-neon-green" : "text-slate-500"}`}>
             {activeMultiplier.toFixed(2)}x
           </span>
@@ -136,7 +136,7 @@ export function MinesEngine({ isPlaying, onComplete }: MinesEngineProps) {
         {(gameState === "busted" || gameState === "cashed_out" || gameState === "idle") && (
           <button
             onClick={() => { reset(); if (isPlaying) setTimeout(startGame, 100); }}
-            className="px-4 py-2 bg-white/10 text-white font-black text-sm rounded-xl hover:bg-white/20 transition-all active:scale-95"
+            className="px-4 py-2 bg-slate-900/10 text-slate-900 font-black text-sm rounded-xl hover:bg-slate-900/20 transition-all active:scale-95"
           >
             {gameState === "idle" ? "Start" : "Play Again"}
           </button>
@@ -148,7 +148,7 @@ export function MinesEngine({ isPlaying, onComplete }: MinesEngineProps) {
         {gameState === "busted" && (
           <motion.div
             initial={{ y: -20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ opacity: 0 }}
-            className="relative z-20 flex items-center justify-center gap-2 bg-red-500/20 border border-red-500/40 text-red-400 rounded-xl py-2 font-black tracking-widest uppercase text-sm"
+            className="relative z-20 flex items-center justify-center gap-2 bg-red-500/20 border border-red-500/40 text-red-600 rounded-xl py-2 font-black tracking-widest uppercase text-sm"
           >
             <ShieldAlert className="w-4 h-4" /> MINE HIT — GAME OVER
           </motion.div>
@@ -199,13 +199,13 @@ export function MinesEngine({ isPlaying, onComplete }: MinesEngineProps) {
                   <div
                     className={`absolute inset-0 rounded-xl flex items-center justify-center border shadow-inner ${
                       isBustMine ? "bg-red-500 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.6)]" :
-                      isMine && isRevealed ? "bg-slate-900 border-slate-700" :
+                      isMine && isRevealed ? "bg-slate-50 border-slate-700" :
                       "bg-gradient-to-br from-emerald-900/60 to-slate-900 border-emerald-700/50 shadow-[inset_0_0_15px_rgba(16,185,129,0.15)]"
                     }`}
                     style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
                   >
                     {isMine ? (
-                      <Bomb className={`w-6 h-6 md:w-8 md:h-8 ${isBustMine ? "text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" : "text-slate-600"}`} />
+                      <Bomb className={`w-6 h-6 md:w-8 md:h-8 ${isBustMine ? "text-slate-900 drop-shadow-[0_0_10px_rgba(255,255,255,0.8)]" : "text-slate-600"}`} />
                     ) : (
                       <CircleDollarSign className="w-6 h-6 md:w-8 md:h-8 text-neon-green drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]" />
                     )}

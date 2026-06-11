@@ -107,17 +107,17 @@ export default function AffiliatePage() {
   if (!isLoggedIn) {
     return (
       <div className="flex min-h-[80vh] w-full items-center justify-center p-4 sm:p-6 lg:p-8">
-        <div className="max-w-2xl w-full bg-slate-950/80 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-2xl relative overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.1)] flex flex-col items-center text-center">
+        <div className="max-w-2xl w-full bg-white/80 border border-slate-200/80 rounded-3xl p-8 backdrop-blur-2xl relative overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.1)] flex flex-col items-center text-center">
           {/* Glowing background shapes */}
           <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-neon-purple/10 blur-[100px] rounded-full pointer-events-none" />
           <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
           
-          <div className="w-20 h-20 bg-slate-900 border border-slate-800 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(168,85,247,0.25)] mb-6">
+          <div className="w-20 h-20 bg-slate-50 border border-slate-200 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(168,85,247,0.25)] mb-6">
             <Lock className="w-10 h-10 text-neon-purple" />
           </div>
 
-          <h1 className="text-3xl sm:text-5xl font-black text-white mb-4 uppercase tracking-tight">Partner Dashboard</h1>
-          <p className="text-slate-400 text-lg mb-8 max-w-lg">
+          <h1 className="text-3xl sm:text-5xl font-black text-slate-900 mb-4 uppercase tracking-tight">Partner Dashboard</h1>
+          <p className="text-slate-600 text-lg mb-8 max-w-lg">
             Access the AuraBet B2B portal. Log in to your player account to track your referrals, monitor real-time commissions, and create custom tracking URLs.
           </p>
 
@@ -130,7 +130,7 @@ export default function AffiliatePage() {
             </button>
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-              className="bg-slate-900 hover:bg-slate-800 border border-slate-700/80 text-white font-bold px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-colors"
+              className="bg-slate-50 hover:bg-slate-100 border border-slate-700/80 text-slate-900 font-bold px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-colors"
             >
               Create Account
             </button>
@@ -142,21 +142,21 @@ export default function AffiliatePage() {
 
   // Render Logged In Affiliate Portal
   return (
-    <div className="flex min-h-full w-full max-w-[1400px] mx-auto text-slate-200 p-4 sm:p-6 lg:p-8 flex-col space-y-8">
+    <div className="flex min-h-full w-full max-w-[1400px] mx-auto text-slate-800 p-4 sm:p-6 lg:p-8 flex-col space-y-8">
       
       {/* Header */}
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden shrink-0">
+      <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden shrink-0">
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
           <BarChart3 className="w-48 h-48" />
         </div>
         
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div>
-            <h1 className="text-3xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight mb-2">
+            <h1 className="text-3xl md:text-5xl font-black text-slate-900 flex items-center gap-4 tracking-tight mb-2">
               <span className="w-2 h-10 bg-neon-purple rounded-full shadow-[0_0_15px_rgba(168,85,247,0.6)]"></span>
               Affiliate Partner Lobby
             </h1>
-            <p className="text-slate-400 max-w-xl text-lg">Your B2B portal. Track your referrals, analyze your campaign performance, and withdraw commissions.</p>
+            <p className="text-slate-600 max-w-xl text-lg">Your B2B portal. Track your referrals, analyze your campaign performance, and withdraw commissions.</p>
           </div>
         </div>
       </div>
@@ -174,17 +174,17 @@ export default function AffiliatePage() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: i * 0.1 }}
-            className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md relative overflow-hidden"
+            className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-6 backdrop-blur-md relative overflow-hidden"
           >
             <div className="absolute -right-4 -top-4 opacity-5">
               <stat.icon className="w-24 h-24" />
             </div>
             <div className="relative z-10">
-              <div className="w-12 h-12 rounded-xl bg-slate-950 flex items-center justify-center border border-slate-800 mb-4">
+              <div className="w-12 h-12 rounded-xl bg-white flex items-center justify-center border border-slate-200 mb-4">
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
               </div>
               <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">{stat.label}</p>
-              <h3 className="text-3xl font-black text-white">{stat.value}</h3>
+              <h3 className="text-3xl font-black text-slate-900">{stat.value}</h3>
             </div>
           </motion.div>
         ))}
@@ -197,8 +197,8 @@ export default function AffiliatePage() {
         <div className="lg:col-span-2 space-y-8 flex flex-col">
           
           {/* Campaign Generator Form */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md">
-            <h3 className="text-lg font-black text-white mb-6 uppercase tracking-wider flex items-center gap-2">
+          <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-6 backdrop-blur-md">
+            <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-wider flex items-center gap-2">
               <Sparkles className="w-5 h-5 text-neon-yellow" /> Create Campaign Link
             </h3>
             <form onSubmit={handleCreateCampaign} className="grid grid-cols-1 sm:grid-cols-3 gap-4">
@@ -209,7 +209,7 @@ export default function AffiliatePage() {
                   value={customCode}
                   onChange={(e) => setCustomCode(e.target.value)}
                   placeholder="e.g. BLOGPOST"
-                  className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-neon-purple transition-all font-mono uppercase"
+                  className="bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-neon-purple transition-all font-mono uppercase"
                 />
               </div>
               
@@ -218,7 +218,7 @@ export default function AffiliatePage() {
                 <select 
                   value={commissionType}
                   onChange={(e) => setCommissionType(e.target.value)}
-                  className="bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-neon-purple transition-all"
+                  className="bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-neon-purple transition-all"
                 >
                   <option value="revshare">Revenue Share (35%)</option>
                   <option value="cpa">CPA (₹1,500 / Signup)</option>
@@ -238,15 +238,15 @@ export default function AffiliatePage() {
           </div>
 
           {/* Active Campaigns Table */}
-          <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md flex-1">
-            <h3 className="text-lg font-black text-white mb-6 uppercase tracking-wider flex items-center gap-2">
+          <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-6 backdrop-blur-md flex-1">
+            <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-wider flex items-center gap-2">
               <Link2 className="w-5 h-5 text-neon-purple" /> Active Campaigns
             </h3>
             
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="border-b border-slate-800 text-[10px] font-black text-slate-500 uppercase tracking-widest">
+                  <tr className="border-b border-slate-200 text-[10px] font-black text-slate-500 uppercase tracking-widest">
                     <th className="pb-3 pl-2">Campaign</th>
                     <th className="pb-3">Type</th>
                     <th className="pb-3 text-right">Clicks</th>
@@ -258,18 +258,18 @@ export default function AffiliatePage() {
                 <tbody className="divide-y divide-slate-800/50 text-sm">
                   {campaigns.map((camp) => (
                     <tr key={camp.code} className="hover:bg-white/[0.01]">
-                      <td className="py-4 pl-2 font-mono font-bold text-white flex items-center gap-2">
+                      <td className="py-4 pl-2 font-mono font-bold text-slate-900 flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
                         {camp.code}
                       </td>
-                      <td className="py-4 text-slate-400 font-medium">{camp.type}</td>
-                      <td className="py-4 text-right font-mono font-bold text-slate-300">{camp.clicks.toLocaleString()}</td>
-                      <td className="py-4 text-right font-mono font-bold text-slate-300">{camp.signups}</td>
-                      <td className="py-4 text-right font-mono font-black text-emerald-400">₹{camp.earnings.toLocaleString()}</td>
+                      <td className="py-4 text-slate-600 font-medium">{camp.type}</td>
+                      <td className="py-4 text-right font-mono font-bold text-slate-700">{camp.clicks.toLocaleString()}</td>
+                      <td className="py-4 text-right font-mono font-bold text-slate-700">{camp.signups}</td>
+                      <td className="py-4 text-right font-mono font-black text-emerald-600">₹{camp.earnings.toLocaleString()}</td>
                       <td className="py-4 pr-2 text-right">
                         <button 
                           onClick={() => handleCopy(camp.link)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ml-auto border ${copiedLink === camp.link ? 'bg-emerald-950 border-emerald-500 text-emerald-400 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-slate-950 border-slate-800 text-slate-400 hover:text-white hover:border-slate-600'}`}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ml-auto border ${copiedLink === camp.link ? 'bg-emerald-100 border-emerald-500 text-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white border-slate-200 text-slate-600 hover:text-white hover:border-slate-600'}`}
                         >
                           {copiedLink === camp.link ? (
                             <>
@@ -292,13 +292,13 @@ export default function AffiliatePage() {
         </div>
 
         {/* Analytics chart and payments */}
-        <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-6 backdrop-blur-md flex flex-col space-y-6">
-          <h3 className="text-lg font-black text-white uppercase tracking-wider flex items-center gap-2">
+        <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-6 backdrop-blur-md flex flex-col space-y-6">
+          <h3 className="text-lg font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
             <BarChart3 className="w-5 h-5 text-neon-green" /> Weekly Commission Trend
           </h3>
           
           {/* Glassmorphic SVG Area Chart */}
-          <div className="h-56 relative w-full bg-slate-950 border border-slate-800 rounded-2xl p-4 flex flex-col justify-between overflow-hidden shadow-inner">
+          <div className="h-56 relative w-full bg-white border border-slate-200 rounded-2xl p-4 flex flex-col justify-between overflow-hidden shadow-inner">
             {/* Ambient Background Glow */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-neon-purple/10 blur-[50px] rounded-full pointer-events-none" />
             
@@ -350,7 +350,7 @@ export default function AffiliatePage() {
             </div>
             
             {/* Axis X Values */}
-            <div className="flex justify-between text-[8px] font-mono text-slate-500 pt-2 border-t border-slate-900 z-20 pointer-events-none">
+            <div className="flex justify-between text-[8px] font-mono text-slate-500 pt-2 border-t border-slate-200 z-20 pointer-events-none">
               <span>Wed</span>
               <span>Thu</span>
               <span>Fri</span>
@@ -369,12 +369,12 @@ export default function AffiliatePage() {
                 { date: "June 01, 2026", amount: "₹3,10,000", method: "Bank Transfer", status: "Paid" },
                 { date: "May 01, 2026", amount: "₹1,40,000", method: "Crypto BTC", status: "Paid" }
               ].map((payout, i) => (
-                <div key={i} className="flex justify-between items-center bg-slate-950 p-4 rounded-xl border border-slate-900">
+                <div key={i} className="flex justify-between items-center bg-white p-4 rounded-xl border border-slate-200">
                   <div>
-                    <p className="text-sm font-bold text-white">{payout.amount}</p>
+                    <p className="text-sm font-bold text-slate-900">{payout.amount}</p>
                     <p className="text-[10px] text-slate-500 font-bold uppercase mt-0.5">{payout.date} • {payout.method}</p>
                   </div>
-                  <span className="text-[9px] font-black tracking-widest text-[#22c55e] bg-[#22c55e]/10 px-2 py-0.5 rounded uppercase">
+                  <span className="text-[9px] font-black tracking-widest text-[#22c55e] bg-slate-50/10 px-2 py-0.5 rounded uppercase">
                     {payout.status}
                   </span>
                 </div>

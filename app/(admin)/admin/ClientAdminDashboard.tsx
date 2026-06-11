@@ -242,7 +242,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   };
 
   return (
-    <div className="min-h-screen bg-[#030307] text-slate-100 p-6 flex flex-col gap-6 relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 text-slate-900 p-6 flex flex-col gap-6 relative overflow-hidden">
       
       {/* Glow elements */}
       <div className="absolute top-[5%] left-[10%] w-[320px] h-[320px] rounded-full bg-violet-600/5 blur-[110px] pointer-events-none" />
@@ -252,33 +252,33 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
       <div className="fixed top-6 right-6 z-50 flex flex-col gap-3">
         {toasts.map(t => (
           <div key={t.id} className={`flex items-center gap-2.5 px-5 py-3.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300 animate-slide-in ${
-            t.type === 'success' ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300' :
-            t.type === 'error' ? 'bg-rose-950/80 border-rose-500/30 text-rose-300' :
-            'bg-slate-900/80 border-slate-800 text-slate-300'
+            t.type === 'success' ? 'bg-emerald-100 border-emerald-500/30 text-emerald-700' :
+            t.type === 'error' ? 'bg-rose-100 border-rose-500/30 text-rose-700' :
+            'bg-slate-50/80 border-slate-200 text-slate-700'
           }`}>
-            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-400" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-400" />}
+            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-600" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-600" />}
             <span className="text-xs font-semibold">{t.message}</span>
           </div>
         ))}
       </div>
 
       {/* Dashboard Top bar */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/30 border border-slate-800/80 rounded-2xl p-6 backdrop-blur-md relative z-10">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/30 border border-slate-200/80 rounded-2xl p-6 backdrop-blur-md relative z-10">
         <div>
-          <div className="flex items-center gap-1.5 text-indigo-400 font-bold text-xs tracking-wider uppercase">
+          <div className="flex items-center gap-1.5 text-indigo-600 font-bold text-xs tracking-wider uppercase">
             <Shield className="w-4 h-4" /> Command Center
           </div>
-          <h1 className="text-2xl font-black text-white mt-1 tracking-tight">System Operations Hub</h1>
-          <p className="text-xs text-slate-400 mt-0.5">High-level financial summaries, platform ledger audits, and live user gameplay feeds.</p>
+          <h1 className="text-2xl font-black text-slate-900 mt-1 tracking-tight">System Operations Hub</h1>
+          <p className="text-xs text-slate-600 mt-0.5">High-level financial summaries, platform ledger audits, and live user gameplay feeds.</p>
         </div>
         
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-slate-950/60 border border-slate-900 px-4 py-2.5 rounded-xl font-mono text-[10px] text-slate-400">
-            <Clock className="w-4 h-4 text-indigo-400" /> CLOCK: <span className="text-white font-bold">{timeString || "00:00:00"}</span>
+          <div className="flex items-center gap-2 bg-white/60 border border-slate-200 px-4 py-2.5 rounded-xl font-mono text-[10px] text-slate-600">
+            <Clock className="w-4 h-4 text-indigo-600" /> CLOCK: <span className="text-slate-900 font-bold">{timeString || "00:00:00"}</span>
           </div>
           <button 
             onClick={fetchOperationsSummary}
-            className="p-2.5 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition cursor-pointer"
+            className="p-2.5 rounded-xl bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-700 text-slate-700 hover:text-slate-900 transition cursor-pointer"
           >
             <RefreshCw className={`w-4 h-4 ${loading && 'animate-spin'}`} />
           </button>
@@ -288,17 +288,17 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
       {/* Financial Overviews Row */}
       <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
         {[
-          { label: "Net House Margin", val: netProfit, icon: Coins, color: "text-emerald-400", border: "border-emerald-500/20" },
-          { label: "Cumulative Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-400", border: "border-indigo-500/15" },
-          { label: "Cumulative Withdrawals", val: totalWithdrawals, icon: ArrowDownLeft, color: "text-pink-400", border: "border-pink-500/15" },
-          { label: "Platform Liabilities", val: totalUserBalances, icon: Users, color: "text-cyan-400", border: "border-cyan-500/15" },
+          { label: "Net House Margin", val: netProfit, icon: Coins, color: "text-emerald-600", border: "border-emerald-500/20" },
+          { label: "Cumulative Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-600", border: "border-indigo-500/15" },
+          { label: "Cumulative Withdrawals", val: totalWithdrawals, icon: ArrowDownLeft, color: "text-pink-600", border: "border-pink-500/15" },
+          { label: "Platform Liabilities", val: totalUserBalances, icon: Users, color: "text-cyan-600", border: "border-cyan-500/15" },
         ].map((card) => (
-          <div key={card.label} className={`bg-slate-950/60 border ${card.border} p-5 rounded-2xl backdrop-blur-md`}>
-            <div className="flex items-center justify-between text-slate-500 text-[10px] font-black uppercase tracking-widest">
+          <div key={card.label} className={`bg-white/60 border ${card.border} p-5 rounded-2xl backdrop-blur-md`}>
+            <div className="flex items-center justify-between text-slate-600 text-[10px] font-black uppercase tracking-widest">
               <span>{card.label}</span>
               <card.icon className={`w-4 h-4 ${card.color}`} />
             </div>
-            <p className="text-2xl font-black font-mono text-white mt-3 tracking-tight">₹{card.val.toLocaleString('en-IN')}</p>
+            <p className="text-2xl font-black font-mono text-slate-900 mt-3 tracking-tight">₹{card.val.toLocaleString('en-IN')}</p>
           </div>
         ))}
       </section>
@@ -310,27 +310,27 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         <div className="xl:col-span-2 flex flex-col gap-6">
           
           {/* Action Tasks Summary Widget */}
-          <div className="bg-slate-950/45 border border-white/5 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4">
-            <h3 className="text-xs font-black text-white uppercase tracking-widest border-b border-white/5 pb-3">
+          <div className="bg-white/45 border border-slate-200 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4">
+            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3">
               📋 Operational Verification Backlog
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
               {/* Deposits backlog */}
-              <div className="bg-white/[0.01] border border-white/5 p-4 rounded-xl flex items-center justify-between gap-4">
+              <div className="bg-white/[0.01] border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-center justify-center">
-                    <ArrowDownLeft className="w-5 h-5 text-emerald-400" />
+                    <ArrowDownLeft className="w-5 h-5 text-emerald-600" />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Manual Deposits</h4>
-                    <p className="text-xs font-black text-white mt-0.5">{pendingDepositsCount} Awaiting Review</p>
+                    <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Manual Deposits</h4>
+                    <p className="text-xs font-black text-slate-900 mt-0.5">{pendingDepositsCount} Awaiting Review</p>
                   </div>
                 </div>
                 <Link 
                   href="/admin/deposits" 
-                  className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-slate-950 p-2 rounded-lg transition"
+                  className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-600 hover:text-slate-950 p-2 rounded-lg transition"
                   title="Open Deposits Queue"
                 >
                   <ArrowRight className="w-4 h-4" />
@@ -338,19 +338,19 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               </div>
 
               {/* Withdrawals backlog */}
-              <div className="bg-white/[0.01] border border-white/5 p-4 rounded-xl flex items-center justify-between gap-4">
+              <div className="bg-white/[0.01] border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-pink-500/10 rounded-xl border border-pink-500/20 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-pink-400" />
+                    <CreditCard className="w-5 h-5 text-pink-600" />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-bold text-slate-300 uppercase tracking-wider">Withdrawals Portal</h4>
-                    <p className="text-xs font-black text-white mt-0.5">{pendingWithdrawalsCount} Awaiting Disbursement</p>
+                    <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Withdrawals Portal</h4>
+                    <p className="text-xs font-black text-slate-900 mt-0.5">{pendingWithdrawalsCount} Awaiting Disbursement</p>
                   </div>
                 </div>
                 <Link 
                   href="/admin/withdrawals" 
-                  className="bg-pink-500/10 hover:bg-pink-500 text-pink-400 hover:text-white p-2 rounded-lg transition"
+                  className="bg-pink-500/10 hover:bg-pink-500 text-pink-600 hover:text-slate-900 p-2 rounded-lg transition"
                   title="Open Withdrawals Queue"
                 >
                   <ArrowRight className="w-4 h-4" />
@@ -361,13 +361,13 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
           </div>
 
           {/* Platform System Controllers */}
-          <div className="bg-slate-950/45 border border-indigo-500/10 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4 shadow-[0_0_20px_rgba(99,102,241,0.02)]">
-            <h3 className="text-xs font-black text-indigo-400 uppercase tracking-widest border-b border-white/5 pb-3 flex items-center gap-2">
-              <Shield className="w-4 h-4 text-indigo-400" />
+          <div className="bg-white/45 border border-indigo-500/10 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4 shadow-[0_0_20px_rgba(99,102,241,0.02)]">
+            <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest border-b border-slate-200 pb-3 flex items-center gap-2">
+              <Shield className="w-4 h-4 text-indigo-600" />
               Platform System Controllers & Tools
             </h3>
             
-            <p className="text-[11px] text-slate-400">
+            <p className="text-[11px] text-slate-600">
               Trigger live backend scrapers, inject simulated wagers to test analytics calculations, or sanitize demo activity from wagers databases.
             </p>
 
@@ -377,9 +377,9 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleSportsSync}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600/20 to-transparent hover:from-cyan-600/30 border border-cyan-500/20 hover:border-cyan-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600/20 to-transparent hover:from-cyan-600/30 border border-cyan-500/20 hover:border-cyan-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
               >
-                <Activity className="w-4 h-4 text-cyan-400" />
+                <Activity className="w-4 h-4 text-cyan-600" />
                 <span className="text-xs uppercase tracking-wider">Sync Live Sports</span>
               </button>
 
@@ -387,9 +387,9 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleSimulateWager}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600/20 to-transparent hover:from-violet-600/30 border border-violet-500/20 hover:border-violet-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600/20 to-transparent hover:from-violet-600/30 border border-violet-500/20 hover:border-violet-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
               >
-                <Bell className="w-4 h-4 text-violet-400" />
+                <Bell className="w-4 h-4 text-violet-600" />
                 <span className="text-xs uppercase tracking-wider">Inject Test Bet</span>
               </button>
 
@@ -397,9 +397,9 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleClearActivity}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600/20 to-transparent hover:from-rose-600/30 border border-rose-500/20 hover:border-rose-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600/20 to-transparent hover:from-rose-600/30 border border-rose-500/20 hover:border-rose-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
               >
-                <RefreshCw className="w-4 h-4 text-rose-400" />
+                <RefreshCw className="w-4 h-4 text-rose-600" />
                 <span className="text-xs uppercase tracking-wider">Purge Demo Bets</span>
               </button>
 
@@ -407,9 +407,9 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleBroadcast}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600/20 to-transparent hover:from-emerald-600/30 border border-emerald-500/20 hover:border-emerald-500/40 px-5 py-4 rounded-xl text-slate-300 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 sm:col-span-3"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600/20 to-transparent hover:from-emerald-600/30 border border-emerald-500/20 hover:border-emerald-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 sm:col-span-3"
               >
-                <Bell className="w-4 h-4 text-emerald-400" />
+                <Bell className="w-4 h-4 text-emerald-600" />
                 <span className="text-xs uppercase tracking-wider">Broadcast Global Alert</span>
               </button>
 
@@ -417,13 +417,13 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
           </div>
 
           {/* Area Chart Card */}
-          <div className="bg-slate-950/45 border border-white/5 p-6 rounded-2xl backdrop-blur-md flex flex-col justify-between flex-grow">
-            <div className="flex items-center justify-between border-b border-white/5 pb-3">
+          <div className="bg-white/45 border border-slate-200 p-6 rounded-2xl backdrop-blur-md flex flex-col justify-between flex-grow">
+            <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
-                <h3 className="text-xs font-black text-white uppercase tracking-widest">Platform Net Volume Trend</h3>
-                <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Calculated margin throughput over hours</p>
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Platform Net Volume Trend</h3>
+                <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Calculated margin throughput over hours</p>
               </div>
-              <span className="text-[9px] text-indigo-400 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-black tracking-widest uppercase">
+              <span className="text-[9px] text-indigo-600 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-black tracking-widest uppercase">
                 Hourly Scanning
               </span>
             </div>
@@ -433,28 +433,28 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         </div>
 
         {/* Right Side: Live Activity Feed */}
-        <div className="bg-slate-950/45 border border-white/5 p-6 rounded-2xl backdrop-blur-md flex flex-col h-full min-h-[400px]">
-          <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4 shrink-0">
+        <div className="bg-white/45 border border-slate-200 p-6 rounded-2xl backdrop-blur-md flex flex-col h-full min-h-[400px]">
+          <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4 shrink-0">
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-violet-400 animate-pulse" />
-              <h3 className="text-xs font-black text-white uppercase tracking-widest">Live Activity Feed</h3>
+              <Activity className="w-4 h-4 text-violet-600 animate-pulse" />
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Live Activity Feed</h3>
             </div>
             <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
           </div>
 
           <div className="flex-grow overflow-y-auto custom-scrollbar space-y-2.5 pr-1 max-h-[360px]">
             {globalTransactions.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-slate-500 italic text-xs">No logs recorded yet.</div>
+              <div className="h-full flex items-center justify-center text-slate-600 italic text-xs">No logs recorded yet.</div>
             ) : (
               globalTransactions.slice(0, 15).map(tx => {
                 const isGain = tx.type === 'deposit' || (tx.type === 'casino' && !tx.details.toLowerCase().includes('payout') && !tx.details.toLowerCase().includes('win'));
                 return (
-                  <div key={tx.id} className="bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 p-3 rounded-xl flex items-center justify-between gap-3 text-[10px] transition">
+                  <div key={tx.id} className="bg-white/[0.01] hover:bg-white/[0.02] border border-slate-200 p-3 rounded-xl flex items-center justify-between gap-3 text-[10px] transition">
                     <div className="min-w-0">
-                      <span className="font-bold text-white truncate block">{tx.username}</span>
-                      <span className="text-slate-500 font-mono truncate block max-w-[170px] mt-0.5">{tx.details}</span>
+                      <span className="font-bold text-slate-900 truncate block">{tx.username}</span>
+                      <span className="text-slate-600 font-mono truncate block max-w-[170px] mt-0.5">{tx.details}</span>
                     </div>
-                    <span className={`font-mono font-black shrink-0 text-right ${isGain ? 'text-emerald-400' : 'text-pink-400'}`}>
+                    <span className={`font-mono font-black shrink-0 text-right ${isGain ? 'text-emerald-600' : 'text-pink-600'}`}>
                       {isGain ? '+' : '-'}₹{tx.amount.toLocaleString()}
                     </span>
                   </div>

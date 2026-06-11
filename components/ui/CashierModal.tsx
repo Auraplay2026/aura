@@ -310,27 +310,27 @@ interface PaymentSettingsState {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/80 z-[9990] backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 bg-white/80 z-[9990] backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
           >
             <motion.div
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-slate-950 w-full max-w-xl rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-slate-800 flex flex-col max-h-[90vh] ring-1 ring-white/5"
+              className="bg-white w-full max-w-xl rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-slate-200 flex flex-col max-h-[90vh] ring-1 ring-white/5"
             >
               {/* Header & Tabs */}
-              <div className="bg-slate-900 border-b border-slate-800 shrink-0">
+              <div className="bg-slate-50 border-b border-slate-200 shrink-0">
                 <div className="flex items-center justify-between p-4 pb-2.5">
                   <div className="flex items-center gap-1.5 text-[#22c55e]">
                     <ShieldCheck className="w-5 h-5" />
-                    <h2 className="text-base font-black text-white tracking-tight">
+                    <h2 className="text-base font-black text-slate-900 tracking-tight">
                       {currentUser?.accountType === 'real' ? "Secure Real Cashier" : "Practice Cashier"}
                     </h2>
                   </div>
                   <button 
                     onClick={handleClose}
-                    className="w-7 h-7 bg-slate-800 rounded-full flex items-center justify-center text-slate-400 hover:text-white transition-colors"
+                    className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -346,7 +346,7 @@ interface PaymentSettingsState {
                         handleReset();
                       }}
                       className={`pb-2 px-3 font-bold text-xs whitespace-nowrap transition-colors relative flex items-center gap-1.5 ${
-                        activeTab === tab.id ? "text-white" : "text-slate-500 hover:text-slate-300"
+                        activeTab === tab.id ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
                       }`}
                     >
                       <tab.icon className="w-3.5 h-3.5" />
@@ -354,7 +354,7 @@ interface PaymentSettingsState {
                       {activeTab === tab.id && (
                         <motion.div 
                           layoutId="activeTab"
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#22c55e] rounded-t-full shadow-[0_-2px_10px_rgba(34,197,94,0.5)]"
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-50 rounded-t-full shadow-[0_-2px_10px_rgba(34,197,94,0.5)]"
                         />
                       )}
                     </button>
@@ -373,10 +373,10 @@ interface PaymentSettingsState {
                     className="p-5 bg-gradient-to-r from-yellow-500/10 to-amber-500/15 border border-yellow-500/30 text-yellow-500 rounded-3xl space-y-4 shadow-lg"
                   >
                     <div className="flex items-start gap-3">
-                      <AlertTriangle className="w-5 h-5 shrink-0 text-yellow-400 mt-0.5" />
+                      <AlertTriangle className="w-5 h-5 shrink-0 text-yellow-600 mt-0.5" />
                       <div>
-                        <h4 className="text-sm font-black uppercase tracking-wider text-white font-sans">Trial Limit Reached (3 of 3)</h4>
-                        <p className="text-xs text-slate-300 mt-1 leading-relaxed font-sans font-medium">
+                        <h4 className="text-sm font-black uppercase tracking-wider text-slate-900 font-sans">Trial Limit Reached (3 of 3)</h4>
+                        <p className="text-xs text-slate-700 mt-1 leading-relaxed font-sans font-medium">
                           You have used all 3 free trials in Demo mode. To continue playing premium cloud rentals or betting custom amounts, please switch to your Real Account and deposit funds.
                         </p>
                       </div>
@@ -400,7 +400,7 @@ interface PaymentSettingsState {
                   <motion.div 
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-red-500/15 border border-red-500/30 text-red-400 rounded-2xl text-xs font-semibold flex items-center gap-2"
+                    className="p-4 bg-red-500/15 border border-red-500/30 text-red-600 rounded-2xl text-xs font-semibold flex items-center gap-2"
                   >
                     <AlertTriangle className="w-4 h-4 shrink-0" />
                     {verificationError}
@@ -412,10 +412,10 @@ interface PaymentSettingsState {
                   <>
                     {/* Sleek Step Indicator */}
                     {currentUser?.accountType === 'real' && (
-                      <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-4 mb-2">
+                      <div className="bg-slate-50/40 border border-slate-200 rounded-2xl p-4 mb-2">
                         <div className="flex items-center justify-between relative">
                           {/* Background Line */}
-                          <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-800/80 -z-10" />
+                          <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-100/80 -z-10" />
                           {/* Active Fill Line */}
                           <div 
                             className="absolute top-4 left-6 right-6 h-0.5 bg-gradient-to-r from-emerald-500 via-indigo-500 to-amber-500 origin-left transition-all duration-500 -z-10" 
@@ -429,12 +429,12 @@ interface PaymentSettingsState {
                             <div className={cn(
                               "w-8 h-8 rounded-full flex items-center justify-center border font-black text-xs transition-all duration-300",
                               depositStep === 'amount' 
-                                ? "bg-slate-950 border-emerald-500 text-emerald-400 shadow-[0_0_12px_rgba(16,185,129,0.3)] ring-2 ring-emerald-500/10" 
+                                ? "bg-white border-emerald-500 text-emerald-600 shadow-[0_0_12px_rgba(16,185,129,0.3)] ring-2 ring-emerald-500/10" 
                                 : "bg-emerald-500 border-emerald-500 text-slate-950"
                             )}>
                               {depositStep === 'amount' ? "1" : <Check className="w-4 h-4 stroke-[3]" />}
                             </div>
-                            <span className={cn("text-[9px] font-bold uppercase tracking-wider transition-colors", depositStep === 'amount' ? "text-white" : "text-slate-500")}>1. Setup</span>
+                            <span className={cn("text-[9px] font-bold uppercase tracking-wider transition-colors", depositStep === 'amount' ? "text-slate-900" : "text-slate-500")}>1. Setup</span>
                           </div>
 
                           {/* Step 2 */}
@@ -442,14 +442,14 @@ interface PaymentSettingsState {
                             <div className={cn(
                               "w-8 h-8 rounded-full flex items-center justify-center border font-black text-xs transition-all duration-300",
                               depositStep === 'amount' 
-                                ? "bg-slate-950 border-slate-800 text-slate-500" 
+                                ? "bg-white border-slate-200 text-slate-500" 
                                 : depositStep === 'transfer'
-                                ? "bg-slate-950 border-indigo-500 text-indigo-400 shadow-[0_0_12px_rgba(99,102,241,0.3)] ring-2 ring-indigo-500/10" 
+                                ? "bg-white border-indigo-500 text-indigo-600 shadow-[0_0_12px_rgba(99,102,241,0.3)] ring-2 ring-indigo-500/10" 
                                 : "bg-indigo-500 border-indigo-500 text-white"
                             )}>
                               {depositStep === 'verify' ? <Check className="w-4 h-4 stroke-[3]" /> : "2"}
                             </div>
-                            <span className={cn("text-[9px] font-bold uppercase tracking-wider transition-colors", depositStep === 'transfer' ? "text-white" : "text-slate-500")}>2. Pay</span>
+                            <span className={cn("text-[9px] font-bold uppercase tracking-wider transition-colors", depositStep === 'transfer' ? "text-slate-900" : "text-slate-500")}>2. Pay</span>
                           </div>
 
                           {/* Step 3 */}
@@ -457,12 +457,12 @@ interface PaymentSettingsState {
                             <div className={cn(
                               "w-8 h-8 rounded-full flex items-center justify-center border font-black text-xs transition-all duration-300",
                               depositStep === 'verify' 
-                                ? "bg-slate-950 border-amber-500 text-amber-400 shadow-[0_0_12px_rgba(245,158,11,0.3)] ring-2 ring-amber-500/10" 
-                                : "bg-slate-950 border-slate-800 text-slate-500"
+                                ? "bg-white border-amber-500 text-amber-600 shadow-[0_0_12px_rgba(245,158,11,0.3)] ring-2 ring-amber-500/10" 
+                                : "bg-white border-slate-200 text-slate-500"
                             )}>
                               3
                             </div>
-                            <span className={cn("text-[9px] font-bold uppercase tracking-wider transition-colors", depositStep === 'verify' ? "text-white" : "text-slate-500")}>3. Confirm</span>
+                            <span className={cn("text-[9px] font-bold uppercase tracking-wider transition-colors", depositStep === 'verify' ? "text-slate-900" : "text-slate-500")}>3. Confirm</span>
                           </div>
                         </div>
                       </div>
@@ -479,13 +479,13 @@ interface PaymentSettingsState {
                         {selectedMethod === "upi" && (
                           <>
                             <div className="text-center space-y-1">
-                              <h3 className="text-sm font-black text-white uppercase tracking-wider">Scan & Pay via UPI</h3>
-                              <p className="text-[11px] text-slate-400">Scan this QR or copy UPI ID using GPay, PhonePe, or Paytm.</p>
+                              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Scan & Pay via UPI</h3>
+                              <p className="text-[11px] text-slate-600">Scan this QR or copy UPI ID using GPay, PhonePe, or Paytm.</p>
                             </div>
 
                             {/* QR Code and Copy UPI Box */}
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 bg-slate-900/60 p-5 border border-slate-900 rounded-2xl shadow-inner">
-                              <div className="bg-white p-2.5 rounded-2xl shrink-0 flex items-center justify-center shadow-lg border border-white/5 w-36 h-36 overflow-hidden">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 bg-slate-50/60 p-5 border border-slate-200 rounded-2xl shadow-inner">
+                              <div className="bg-white p-2.5 rounded-2xl shrink-0 flex items-center justify-center shadow-lg border border-slate-200 w-36 h-36 overflow-hidden">
                                 {paymentSettings.upiQrType === 'custom' && paymentSettings.upiQrImageUrl ? (
                                   <img 
                                     src={paymentSettings.upiQrImageUrl}
@@ -508,20 +508,20 @@ interface PaymentSettingsState {
                                 <div className="space-y-1.5">
                                   <div>
                                     <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">Default UPI ID</p>
-                                    <div className="flex items-center justify-between bg-black/40 border border-slate-850 px-2.5 py-1.5 rounded-xl gap-2 mt-0.5">
-                                      <span className="font-mono text-xs text-emerald-400 font-bold truncate">{paymentSettings.upiId}</span>
+                                    <div className="flex items-center justify-between bg-white/40 border border-slate-200 px-2.5 py-1.5 rounded-xl gap-2 mt-0.5">
+                                      <span className="font-mono text-xs text-emerald-600 font-bold truncate">{paymentSettings.upiId}</span>
                                       <button 
                                         onClick={() => handleCopyText(paymentSettings.upiId, 'upiId')}
-                                        className="flex items-center gap-1 text-[9px] font-black uppercase text-white hover:text-emerald-400 transition-colors shrink-0 cursor-pointer"
+                                        className="flex items-center gap-1 text-[9px] font-black uppercase text-slate-900 hover:text-emerald-600 transition-colors shrink-0 cursor-pointer"
                                       >
                                         {copiedField === 'upiId' ? (
                                           <>
-                                            <Check className="w-3 h-3 text-emerald-400" />
-                                            <span className="text-emerald-400">Copied</span>
+                                            <Check className="w-3 h-3 text-emerald-600" />
+                                            <span className="text-emerald-600">Copied</span>
                                           </>
                                         ) : (
                                           <>
-                                            <Copy className="w-2.5 h-2.5 text-slate-400" />
+                                            <Copy className="w-2.5 h-2.5 text-slate-600" />
                                             <span>Copy</span>
                                           </>
                                         )}
@@ -531,11 +531,11 @@ interface PaymentSettingsState {
                                   <div className="grid grid-cols-2 gap-2">
                                     <div>
                                       <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">GPay UPI</p>
-                                      <div className="flex items-center justify-between bg-black/40 border border-slate-850 px-2 py-1 rounded-lg gap-1.5 mt-0.5">
-                                        <span className="font-mono text-[9px] text-slate-300 font-bold truncate">{paymentSettings.gpayId}</span>
+                                      <div className="flex items-center justify-between bg-white/40 border border-slate-200 px-2 py-1 rounded-lg gap-1.5 mt-0.5">
+                                        <span className="font-mono text-[9px] text-slate-700 font-bold truncate">{paymentSettings.gpayId}</span>
                                         <button 
                                           onClick={() => handleCopyText(paymentSettings.gpayId, 'gpayId')}
-                                          className="text-[8px] font-black uppercase text-white hover:text-emerald-400 transition-colors shrink-0 cursor-pointer"
+                                          className="text-[8px] font-black uppercase text-slate-900 hover:text-emerald-600 transition-colors shrink-0 cursor-pointer"
                                         >
                                           {copiedField === 'gpayId' ? 'Copied' : 'Copy'}
                                         </button>
@@ -543,11 +543,11 @@ interface PaymentSettingsState {
                                     </div>
                                     <div>
                                       <p className="text-[8px] font-bold text-slate-500 uppercase tracking-widest">PhonePe UPI</p>
-                                      <div className="flex items-center justify-between bg-black/40 border border-slate-850 px-2 py-1 rounded-lg gap-1.5 mt-0.5">
-                                        <span className="font-mono text-[9px] text-slate-300 font-bold truncate">{paymentSettings.phonepeId}</span>
+                                      <div className="flex items-center justify-between bg-white/40 border border-slate-200 px-2 py-1 rounded-lg gap-1.5 mt-0.5">
+                                        <span className="font-mono text-[9px] text-slate-700 font-bold truncate">{paymentSettings.phonepeId}</span>
                                         <button 
                                           onClick={() => handleCopyText(paymentSettings.phonepeId, 'phonepeId')}
-                                          className="text-[8px] font-black uppercase text-white hover:text-emerald-400 transition-colors shrink-0 cursor-pointer"
+                                          className="text-[8px] font-black uppercase text-slate-900 hover:text-emerald-600 transition-colors shrink-0 cursor-pointer"
                                         >
                                           {copiedField === 'phonepeId' ? 'Copied' : 'Copy'}
                                         </button>
@@ -559,23 +559,23 @@ interface PaymentSettingsState {
                             </div>
 
                             {/* Instruction Card */}
-                            <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-4 space-y-2.5">
-                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                                <Info className="w-3.5 h-3.5 text-emerald-400" />
+                            <div className="bg-slate-50/40 border border-slate-200 rounded-2xl p-4 space-y-2.5">
+                              <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
+                                <Info className="w-3.5 h-3.5 text-emerald-600" />
                                 UPI Transfer Instructions
                               </h4>
-                              <ol className="space-y-1.5 text-[11px] text-slate-400 font-medium">
+                              <ol className="space-y-1.5 text-[11px] text-slate-600 font-medium">
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
+                                  <span className="w-4 h-4 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
                                   <span>Open GPay, PhonePe, Paytm, or your mobile banking application.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
+                                  <span className="w-4 h-4 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
                                   <span>Scan the QR code, or copy one of the UPI IDs listed above.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
-                                  <span>Transfer exactly <strong className="text-white font-mono">₹{amount.toLocaleString()}</strong>. Next, keep the window open to confirm verification.</span>
+                                  <span className="w-4 h-4 bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
+                                  <span>Transfer exactly <strong className="text-slate-900 font-mono">₹{amount.toLocaleString()}</strong>. Next, keep the window open to confirm verification.</span>
                                 </li>
                               </ol>
                             </div>
@@ -585,13 +585,13 @@ interface PaymentSettingsState {
                         {selectedMethod === "crypto" && (
                           <>
                             <div className="text-center space-y-1">
-                              <h3 className="text-sm font-black text-white uppercase tracking-wider">Bitcoin Wallet Deposit</h3>
-                              <p className="text-[11px] text-slate-400">Scan this QR or copy BTC address to send equivalent funds.</p>
+                              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Bitcoin Wallet Deposit</h3>
+                              <p className="text-[11px] text-slate-600">Scan this QR or copy BTC address to send equivalent funds.</p>
                             </div>
 
                             {/* BTC QR Code and Copy Box */}
-                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 bg-slate-900/60 p-5 border border-slate-900 rounded-2xl shadow-inner">
-                              <div className="bg-white p-2.5 rounded-2xl shrink-0 flex items-center justify-center shadow-lg border border-white/5 w-36 h-36 overflow-hidden">
+                            <div className="flex flex-col sm:flex-row items-center justify-center gap-5 bg-slate-50/60 p-5 border border-slate-200 rounded-2xl shadow-inner">
+                              <div className="bg-white p-2.5 rounded-2xl shrink-0 flex items-center justify-center shadow-lg border border-slate-200 w-36 h-36 overflow-hidden">
                                 {activeBtcAddress.qrImageUrl ? (
                                   <img 
                                     src={activeBtcAddress.qrImageUrl}
@@ -613,20 +613,20 @@ interface PaymentSettingsState {
                                 </div>
                                 <div className="space-y-1">
                                   <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">BTC Wallet ({activeBtcAddress.label || "Active"})</p>
-                                  <div className="flex items-center gap-2 bg-black/40 border border-slate-850 px-2.5 py-1.5 rounded-xl mt-0.5">
-                                    <span className="font-mono text-[10px] text-amber-400 font-bold truncate">{activeBtcAddress.address}</span>
+                                  <div className="flex items-center gap-2 bg-white/40 border border-slate-200 px-2.5 py-1.5 rounded-xl mt-0.5">
+                                    <span className="font-mono text-[10px] text-amber-600 font-bold truncate">{activeBtcAddress.address}</span>
                                     <button 
                                       onClick={() => handleCopyText(activeBtcAddress.address, 'btcAddress')}
-                                      className="flex items-center gap-1 text-[9px] font-black uppercase text-white hover:text-amber-400 transition-colors shrink-0 cursor-pointer"
+                                      className="flex items-center gap-1 text-[9px] font-black uppercase text-slate-900 hover:text-amber-600 transition-colors shrink-0 cursor-pointer"
                                     >
                                       {copiedField === 'btcAddress' ? (
                                         <>
-                                          <Check className="w-3.5 h-3.5 text-amber-400" />
-                                          <span className="text-amber-400">Copied</span>
+                                          <Check className="w-3.5 h-3.5 text-amber-600" />
+                                          <span className="text-amber-600">Copied</span>
                                         </>
                                       ) : (
                                         <>
-                                          <Copy className="w-2.5 h-2.5 text-slate-400" />
+                                          <Copy className="w-2.5 h-2.5 text-slate-600" />
                                           <span>Copy</span>
                                         </>
                                       )}
@@ -637,22 +637,22 @@ interface PaymentSettingsState {
                             </div>
 
                             {/* Instruction Card */}
-                            <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-4 space-y-2.5">
-                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                                <Info className="w-3.5 h-3.5 text-amber-400" />
+                            <div className="bg-slate-50/40 border border-slate-200 rounded-2xl p-4 space-y-2.5">
+                              <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
+                                <Info className="w-3.5 h-3.5 text-amber-600" />
                                 Bitcoin Transfer Instructions
                               </h4>
-                              <ol className="space-y-1.5 text-[11px] text-slate-400 font-medium">
+                              <ol className="space-y-1.5 text-[11px] text-slate-600 font-medium">
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
+                                  <span className="w-4 h-4 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
                                   <span>Open your personal crypto exchange or wallet app.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
+                                  <span className="w-4 h-4 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
                                   <span>Scan the QR code, or copy the active wallet address.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-amber-500/10 text-amber-400 border border-amber-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
+                                  <span className="w-4 h-4 bg-amber-500/10 text-amber-600 border border-amber-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
                                   <span>Transfer equivalent BTC funds. Verification will occur after 1 network confirmation.</span>
                                 </li>
                               </ol>
@@ -663,27 +663,27 @@ interface PaymentSettingsState {
                         {selectedMethod === "card" && (
                           <>
                             <div className="text-center space-y-1">
-                              <h3 className="text-sm font-black text-white uppercase tracking-wider">Direct Bank Transfer</h3>
-                              <p className="text-[11px] text-slate-400">Transfer funds to the bank account listed below via IMPS / NEFT.</p>
+                              <h3 className="text-sm font-black text-slate-900 uppercase tracking-wider">Direct Bank Transfer</h3>
+                              <p className="text-[11px] text-slate-600">Transfer funds to the bank account listed below via IMPS / NEFT.</p>
                             </div>
 
                             {/* Bank Details Table Box */}
-                            <div className="bg-slate-900/60 border border-slate-900 rounded-2xl p-4.5 space-y-2.5 text-xs font-mono shadow-inner">
-                              <div className="flex justify-between items-center pb-2.5 border-b border-slate-850">
+                            <div className="bg-slate-50/60 border border-slate-200 rounded-2xl p-4.5 space-y-2.5 text-xs font-mono shadow-inner">
+                              <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
                                 <span className="text-slate-500 text-[9px] uppercase font-bold">Bank Name</span>
-                                <span className="text-slate-200 font-bold">{paymentSettings.bankName}</span>
+                                <span className="text-slate-800 font-bold">{paymentSettings.bankName}</span>
                               </div>
-                              <div className="flex justify-between items-center pb-2.5 border-b border-slate-850">
+                              <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
                                 <span className="text-slate-500 text-[9px] uppercase font-bold">Account Holder</span>
-                                <span className="text-slate-200 font-bold">{paymentSettings.bankHolderName}</span>
+                                <span className="text-slate-800 font-bold">{paymentSettings.bankHolderName}</span>
                               </div>
-                              <div className="flex justify-between items-center pb-2.5 border-b border-slate-850">
+                              <div className="flex justify-between items-center pb-2.5 border-b border-slate-200">
                                 <span className="text-slate-500 text-[9px] uppercase font-bold">Account Number</span>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-white font-bold">{paymentSettings.bankAccountNo}</span>
+                                  <span className="text-slate-900 font-bold">{paymentSettings.bankAccountNo}</span>
                                   <button 
                                     onClick={() => handleCopyText(paymentSettings.bankAccountNo, 'bankAccount')} 
-                                    className="text-[9px] font-black uppercase text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                                    className="text-[9px] font-black uppercase text-indigo-600 hover:text-indigo-700 cursor-pointer"
                                   >
                                     {copiedField === 'bankAccount' ? 'Copied' : 'Copy'}
                                   </button>
@@ -692,10 +692,10 @@ interface PaymentSettingsState {
                               <div className="flex justify-between items-center">
                                 <span className="text-slate-500 text-[9px] uppercase font-bold">IFSC Code</span>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-white font-bold">{paymentSettings.bankIfsc}</span>
+                                  <span className="text-slate-900 font-bold">{paymentSettings.bankIfsc}</span>
                                   <button 
                                     onClick={() => handleCopyText(paymentSettings.bankIfsc, 'bankIfsc')} 
-                                    className="text-[9px] font-black uppercase text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                                    className="text-[9px] font-black uppercase text-indigo-600 hover:text-indigo-700 cursor-pointer"
                                   >
                                     {copiedField === 'bankIfsc' ? 'Copied' : 'Copy'}
                                   </button>
@@ -704,22 +704,22 @@ interface PaymentSettingsState {
                             </div>
 
                             {/* Instruction Card */}
-                            <div className="bg-slate-900/40 border border-slate-900 rounded-2xl p-4 space-y-2.5">
-                              <h4 className="text-[10px] font-black text-slate-400 uppercase tracking-widest flex items-center gap-1.5">
-                                <Info className="w-3.5 h-3.5 text-indigo-400" />
+                            <div className="bg-slate-50/40 border border-slate-200 rounded-2xl p-4 space-y-2.5">
+                              <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
+                                <Info className="w-3.5 h-3.5 text-indigo-600" />
                                 Bank Wire Instructions
                               </h4>
-                              <ol className="space-y-1.5 text-[11px] text-slate-400 font-medium">
+                              <ol className="space-y-1.5 text-[11px] text-slate-600 font-medium">
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
+                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
                                   <span>Log in to your banking app or internet portal.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
-                                  <span>Transfer exactly <strong className="text-white font-mono">₹{amount.toLocaleString()}</strong> using IMPS/NEFT.</span>
+                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
+                                  <span>Transfer exactly <strong className="text-slate-900 font-mono">₹{amount.toLocaleString()}</strong> using IMPS/NEFT.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
+                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
                                   <span>Save the official bank transaction receipt image. Proceed to verify details next.</span>
                                 </li>
                               </ol>
@@ -737,7 +737,7 @@ interface PaymentSettingsState {
                       >
                         {/* KYC Declaration Details */}
                         <div className="space-y-4">
-                          <h4 className="text-xs font-bold text-slate-400 uppercase tracking-widest border-b border-slate-900 pb-2">Verification Declaration</h4>
+                          <h4 className="text-xs font-bold text-slate-600 uppercase tracking-widest border-b border-slate-200 pb-2">Verification Declaration</h4>
                           
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             {/* Account/ID used to Pay */}
@@ -750,7 +750,7 @@ interface PaymentSettingsState {
                                 value={senderUpi}
                                 onChange={e => setSenderUpi(e.target.value)}
                                 placeholder={selectedMethod === "crypto" ? "e.g. bc1q..." : selectedMethod === "card" ? "e.g. John Doe / Bank Acc" : "sender@upi"}
-                                className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
                               />
                             </div>
 
@@ -770,7 +770,7 @@ interface PaymentSettingsState {
                                   }
                                 }}
                                 placeholder={selectedMethod === "upi" ? "12-digit number" : "Transaction Reference ID"}
-                                className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
                               />
                             </div>
                           </div>
@@ -779,8 +779,8 @@ interface PaymentSettingsState {
                           <div>
                             <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">Payment Receipt Screenshot</label>
                             {screenshot ? (
-                              <div className="flex items-center gap-4 bg-slate-900 border border-slate-850 rounded-2xl p-3 shadow-inner relative group/image">
-                                <div className="w-14 h-14 rounded-xl bg-black overflow-hidden border border-slate-800 shrink-0 relative">
+                              <div className="flex items-center gap-4 bg-slate-50 border border-slate-200 rounded-2xl p-3 shadow-inner relative group/image">
+                                <div className="w-14 h-14 rounded-xl bg-white overflow-hidden border border-slate-200 shrink-0 relative">
                                   <img 
                                     src={screenshot} 
                                     alt="Receipt thumbnail" 
@@ -788,10 +788,10 @@ interface PaymentSettingsState {
                                   />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <p className="text-xs font-bold text-slate-200 truncate">{screenshotName || "receipt_screenshot.png"}</p>
+                                  <p className="text-xs font-bold text-slate-800 truncate">{screenshotName || "receipt_screenshot.png"}</p>
                                   <div className="flex items-center gap-1.5 mt-1">
                                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                                    <span className="text-[10px] font-bold text-emerald-400 uppercase tracking-wider">Ready to Verify</span>
+                                    <span className="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Ready to Verify</span>
                                   </div>
                                 </div>
                                 <button 
@@ -799,22 +799,22 @@ interface PaymentSettingsState {
                                     setScreenshot(null);
                                     setScreenshotName(null);
                                   }}
-                                  className="w-8 h-8 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-400 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                                  className="w-8 h-8 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
                                   title="Remove image"
                                 >
                                   <Trash2 className="w-4 h-4" />
                                 </button>
                               </div>
                             ) : (
-                              <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-emerald-500/40 rounded-2xl py-6 px-4 bg-slate-900/10 hover:bg-slate-900/30 transition-all cursor-pointer group">
+                              <label className="flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-emerald-500/40 rounded-2xl py-6 px-4 bg-slate-50/10 hover:bg-slate-50/30 transition-all cursor-pointer group">
                                 <input 
                                   type="file"
                                   accept="image/*"
                                   onChange={handleFileChange}
                                   className="hidden"
                                 />
-                                <Upload className="w-6 h-6 text-slate-500 group-hover:text-emerald-400 transition-colors mb-2" />
-                                <span className="text-xs text-slate-400 group-hover:text-slate-300 font-bold">Click to upload image receipt</span>
+                                <Upload className="w-6 h-6 text-slate-500 group-hover:text-emerald-600 transition-colors mb-2" />
+                                <span className="text-xs text-slate-600 group-hover:text-slate-700 font-bold">Click to upload image receipt</span>
                                 <span className="text-[9px] text-slate-600 mt-1 uppercase font-bold tracking-wider">PNG, JPG up to 3MB</span>
                               </label>
                             )}
@@ -837,7 +837,7 @@ interface PaymentSettingsState {
                       >
                         <section>
                           <div className="flex justify-between items-center mb-2.5">
-                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Amount to Deposit</h3>
+                            <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Amount to Deposit</h3>
                             <span className="text-[10px] font-bold text-slate-500 flex items-center gap-1">
                               <Wallet className="w-3 h-3"/> Bal: ₹{balance.toLocaleString()}
                             </span>
@@ -849,7 +849,7 @@ interface PaymentSettingsState {
                               type="number" 
                               value={amount}
                               onChange={(e) => setAmount(Number(e.target.value))}
-                              className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all" 
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono text-slate-900 outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 transition-all" 
                             />
                           </div>
 
@@ -868,7 +868,7 @@ interface PaymentSettingsState {
                                   "font-bold py-2 rounded-xl transition-all font-mono text-xs cursor-pointer",
                                   isOneClickEnabled && currentUser?.accountType !== 'real' 
                                     ? 'bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 border border-amber-500/50' 
-                                    : 'bg-slate-800 hover:bg-slate-700 text-slate-300'
+                                    : 'bg-slate-100 hover:bg-slate-700 text-slate-700'
                                 )}
                               >
                                 +₹{(amt/1000)}k {isOneClickEnabled && currentUser?.accountType !== 'real' && <Zap className="w-3.5 h-3.5 inline-block ml-1" />}
@@ -878,10 +878,10 @@ interface PaymentSettingsState {
                           
                           {/* 1-Click Toggle (Practice Mode Only) */}
                           {currentUser?.accountType !== 'real' && (
-                            <div className="mt-3 flex items-center justify-between bg-slate-900/50 border border-slate-850 p-2.5 rounded-xl">
+                            <div className="mt-3 flex items-center justify-between bg-slate-50/50 border border-slate-200 p-2.5 rounded-xl">
                               <div className="flex items-center gap-2">
                                 <Zap className={`w-3.5 h-3.5 ${isOneClickEnabled ? 'text-amber-500' : 'text-slate-500'}`} />
-                                <span className="text-xs font-bold text-slate-300">1-Click Fast Deposit</span>
+                                <span className="text-xs font-bold text-slate-700">1-Click Fast Deposit</span>
                               </div>
                               <button 
                                 onClick={() => setIsOneClickEnabled(!isOneClickEnabled)}
@@ -894,21 +894,21 @@ interface PaymentSettingsState {
                         </section>
 
                         <section>
-                          <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-3">Payment Method</h3>
+                          <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-3">Payment Method</h3>
                           <div className="grid grid-cols-3 gap-3">
                             <button 
                               onClick={() => setSelectedMethod("upi")} 
                               className={cn(
                                 "p-3 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all duration-300 relative group cursor-pointer",
                                 selectedMethod === "upi" 
-                                  ? "bg-emerald-500/10 border-emerald-500/50 text-white shadow-[0_0_20px_rgba(16,185,129,0.15)] scale-[1.03]" 
-                                  : "bg-slate-900/60 border-slate-850 text-slate-400 hover:border-slate-700 hover:text-slate-300 hover:scale-[1.01]"
+                                  ? "bg-emerald-500/10 border-emerald-500/50 text-slate-900 shadow-[0_0_20px_rgba(16,185,129,0.15)] scale-[1.03]" 
+                                  : "bg-slate-50/60 border-slate-200 text-slate-600 hover:border-slate-700 hover:text-slate-700 hover:scale-[1.01]"
                               )}
                             >
-                              <Smartphone className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "upi" ? "text-emerald-400" : "text-slate-500")} />
+                              <Smartphone className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "upi" ? "text-emerald-600" : "text-slate-500")} />
                               <span className="text-xs font-black uppercase tracking-wider">UPI</span>
                               {selectedMethod === "upi" && (
-                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] border border-slate-950" />
+                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)] border border-slate-300" />
                               )}
                             </button>
                             
@@ -917,14 +917,14 @@ interface PaymentSettingsState {
                               className={cn(
                                 "p-3 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all duration-300 relative group cursor-pointer",
                                 selectedMethod === "card" 
-                                  ? "bg-indigo-500/10 border-indigo-500/50 text-white shadow-[0_0_20px_rgba(99,102,241,0.15)] scale-[1.03]" 
-                                  : "bg-slate-900/60 border-slate-850 text-slate-400 hover:border-slate-700 hover:text-slate-300 hover:scale-[1.01]"
+                                  ? "bg-indigo-500/10 border-indigo-500/50 text-slate-900 shadow-[0_0_20px_rgba(99,102,241,0.15)] scale-[1.03]" 
+                                  : "bg-slate-50/60 border-slate-200 text-slate-600 hover:border-slate-700 hover:text-slate-700 hover:scale-[1.01]"
                               )}
                             >
-                              <Landmark className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "card" ? "text-indigo-400" : "text-slate-500")} />
+                              <Landmark className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "card" ? "text-indigo-600" : "text-slate-500")} />
                               <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-center leading-tight">IMPS<br className="sm:hidden"/>/RTGS</span>
                               {selectedMethod === "card" && (
-                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] border border-slate-950" />
+                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] border border-slate-300" />
                               )}
                             </button>
 
@@ -933,14 +933,14 @@ interface PaymentSettingsState {
                               className={cn(
                                 "p-3 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all duration-300 relative group cursor-pointer",
                                 selectedMethod === "crypto" 
-                                  ? "bg-amber-500/10 border-amber-500/50 text-white shadow-[0_0_20px_rgba(245,158,11,0.15)] scale-[1.03]" 
-                                  : "bg-slate-900/60 border-slate-850 text-slate-400 hover:border-slate-700 hover:text-slate-300 hover:scale-[1.01]"
+                                  ? "bg-amber-500/10 border-amber-500/50 text-slate-900 shadow-[0_0_20px_rgba(245,158,11,0.15)] scale-[1.03]" 
+                                  : "bg-slate-50/60 border-slate-200 text-slate-600 hover:border-slate-700 hover:text-slate-700 hover:scale-[1.01]"
                               )}
                             >
-                              <Bitcoin className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "crypto" ? "text-amber-400" : "text-slate-500")} />
+                              <Bitcoin className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "crypto" ? "text-amber-600" : "text-slate-500")} />
                               <span className="text-xs font-black uppercase tracking-wider">Crypto</span>
                               {selectedMethod === "crypto" && (
-                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)] border border-slate-950" />
+                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-amber-500 shadow-[0_0_8px_rgba(245,158,11,0.8)] border border-slate-300" />
                               )}
                             </button>
                           </div>
@@ -954,14 +954,14 @@ interface PaymentSettingsState {
                 {activeTab === "withdraw" && !isSuccess && (
                   <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
                     <section>
-                      <div className="bg-slate-900 border border-slate-800 rounded-xl p-4 flex flex-col items-center justify-center mb-4">
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-1">Available Balance</p>
-                        <p className="text-3xl font-black text-white font-mono tracking-tight">₹{balance.toLocaleString()}</p>
+                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center mb-4">
+                        <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Available Balance</p>
+                        <p className="text-3xl font-black text-slate-900 font-mono tracking-tight">₹{balance.toLocaleString()}</p>
                       </div>
                       
                       <div className="flex justify-between items-center mb-2.5">
-                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest">Amount to Withdraw</h3>
-                        <button onClick={() => setAmount(balance)} className="text-[10px] font-black text-[#22c55e] bg-[#22c55e]/10 px-2 py-0.5 rounded hover:bg-[#22c55e]/20 transition-colors uppercase">Max</button>
+                        <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Amount to Withdraw</h3>
+                        <button onClick={() => setAmount(balance)} className="text-[10px] font-black text-[#22c55e] bg-slate-50/10 px-2 py-0.5 rounded hover:bg-slate-50/20 transition-colors uppercase">Max</button>
                       </div>
                       <div className="relative mb-3">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-slate-500">₹</span>
@@ -969,7 +969,7 @@ interface PaymentSettingsState {
                           type="number" 
                           value={amount}
                           onChange={(e) => setAmount(Number(e.target.value))}
-                          className={`w-full bg-slate-900 border rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono outline-none transition-all ${amount > balance ? 'border-red-500 text-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-slate-800 text-white focus:border-neon-purple focus:ring-1 focus:ring-neon-purple'}`} 
+                          className={`w-full bg-slate-50 border rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono outline-none transition-all ${amount > balance ? 'border-red-500 text-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-slate-200 text-slate-900 focus:border-neon-purple focus:ring-1 focus:ring-neon-purple'}`} 
                         />
                       </div>
                       {amount > balance && (
@@ -977,14 +977,14 @@ interface PaymentSettingsState {
                       )}
 
                       {currentUser?.accountType === 'real' && (
-                        <div className="mt-6 pt-6 border-t border-slate-800">
+                        <div className="mt-6 pt-6 border-t border-slate-200">
                           <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">Receiving UPI ID</label>
                           <input 
                             type="text"
                             value={senderUpi}
                             onChange={e => setSenderUpi(e.target.value)}
                             placeholder="yourname@bank"
-                            className="w-full bg-slate-900 border border-slate-800 rounded-xl py-3 px-4 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-neon-purple transition-colors"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-neon-purple transition-colors"
                           />
                         </div>
                       )}
@@ -995,15 +995,15 @@ interface PaymentSettingsState {
                 {/* Success State Screen */}
                 {isSuccess && (
                   <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center justify-center py-12 text-center">
-                    <div className="w-20 h-20 rounded-full bg-[#22c55e]/20 flex items-center justify-center mb-6 relative">
-                      <div className="absolute inset-0 bg-[#22c55e]/20 rounded-full animate-ping" />
+                    <div className="w-20 h-20 rounded-full bg-slate-50/20 flex items-center justify-center mb-6 relative">
+                      <div className="absolute inset-0 bg-slate-50/20 rounded-full animate-ping" />
                       <CheckCircle2 className="w-10 h-10 text-[#22c55e] relative z-10" />
                     </div>
                     
                     {currentUser?.accountType === 'real' ? (
                       <>
-                        <h3 className="text-2xl font-black text-white mb-2">{activeTab === 'deposit' ? 'Deposit Request Received!' : 'Withdrawal Request Submitted!'}</h3>
-                        <p className="text-slate-400 font-medium max-w-sm mx-auto leading-relaxed text-xs">
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">{activeTab === 'deposit' ? 'Deposit Request Received!' : 'Withdrawal Request Submitted!'}</h3>
+                        <p className="text-slate-600 font-medium max-w-sm mx-auto leading-relaxed text-xs">
                           {activeTab === 'deposit' 
                             ? 'Your deposit request has been submitted to our audit logs. Admin will verify your UTR and credit your balance within 5-15 minutes.'
                             : 'Your withdrawal request has been received. Our admins will verify and transfer funds to your UPI ID within 24 hours.'}
@@ -1011,8 +1011,8 @@ interface PaymentSettingsState {
                       </>
                     ) : (
                       <>
-                        <h3 className="text-2xl font-black text-white mb-2">Transaction Successful!</h3>
-                        <p className="text-slate-400 font-medium">Your balance has been updated.</p>
+                        <h3 className="text-2xl font-black text-slate-900 mb-2">Transaction Successful!</h3>
+                        <p className="text-slate-600 font-medium">Your balance has been updated.</p>
                       </>
                     )}
                   </motion.div>
@@ -1029,7 +1029,7 @@ interface PaymentSettingsState {
 
               {/* Actions Footer */}
               {!isSuccess && (
-                <div className="p-4 border-t border-slate-800 bg-slate-900/80 shrink-0 backdrop-blur-xl flex gap-2.5">
+                <div className="p-4 border-t border-slate-200 bg-slate-50/80 shrink-0 backdrop-blur-xl flex gap-2.5">
                   {currentUser?.accountType === 'real' && activeTab === 'deposit' ? (
                     /* Real account deposit stepper buttons */
                     <>
@@ -1053,7 +1053,7 @@ interface PaymentSettingsState {
                         <>
                           <button
                             onClick={() => setDepositStep('amount')}
-                            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-3 px-5 rounded-xl text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                            className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-3 px-5 rounded-xl text-xs uppercase tracking-wider transition-colors cursor-pointer"
                           >
                             Back
                           </button>
@@ -1077,7 +1077,7 @@ interface PaymentSettingsState {
                         <>
                           <button
                             onClick={() => setDepositStep('transfer')}
-                            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-3 px-5 rounded-xl text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                            className="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-3 px-5 rounded-xl text-xs uppercase tracking-wider transition-colors cursor-pointer"
                           >
                             Back
                           </button>
@@ -1087,7 +1087,7 @@ interface PaymentSettingsState {
                             className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-850 text-slate-950 disabled:text-slate-500 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider cursor-pointer"
                           >
                             {isProcessing ? (
-                              <div className="w-5 h-5 border-2 border-slate-950 border-t-transparent rounded-full animate-spin" />
+                              <div className="w-5 h-5 border-2 border-slate-300 border-t-transparent rounded-full animate-spin" />
                             ) : (
                               <>
                                 Submit Deposit Verification <ArrowRight className="w-4 h-4" />
@@ -1108,14 +1108,14 @@ interface PaymentSettingsState {
                         }
                       }}
                       disabled={isProcessing || amount <= 0 || (activeTab === "withdraw" && amount > balance) || (currentUser?.accountType === 'real' && activeTab === 'withdraw' && !senderUpi)}
-                      className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${activeTab === 'withdraw' ? 'bg-neon-purple hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]' : 'bg-[#22c55e] hover:bg-green-500 text-slate-950'}`}
+                      className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${activeTab === 'withdraw' ? 'bg-neon-purple hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]' : 'bg-slate-50 hover:bg-green-500 text-slate-950'}`}
                     >
-                      <div className="absolute inset-0 bg-white/20 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
+                      <div className="absolute inset-0 bg-slate-900/20 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
                       {isProcessing ? (
                         <motion.div
                           animate={{ rotate: 360 }}
                           transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                          className={`w-4 h-4 border-2 border-t-transparent rounded-full ${activeTab === 'withdraw' ? 'border-white' : 'border-slate-950'}`}
+                          className={`w-4 h-4 border-2 border-t-transparent rounded-full ${activeTab === 'withdraw' ? 'border-white' : 'border-slate-300'}`}
                         />
                       ) : (
                         <>

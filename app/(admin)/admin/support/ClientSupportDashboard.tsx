@@ -251,23 +251,23 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
   }).sort((a, b) => b.updatedAt - a.updatedAt);
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 text-white min-h-[85vh]">
+    <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 space-y-6 text-slate-900 min-h-[85vh]">
       
       {/* Top dashboard summary header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-black uppercase tracking-wider flex items-center gap-2">
-            <Sparkles className="w-6 h-6 text-yellow-400" /> Support Desk Admin Center
+            <Sparkles className="w-6 h-6 text-yellow-600" /> Support Desk Admin Center
           </h1>
-          <p className="text-xs text-slate-400 font-medium mt-1">Monitor, configure, and takeover chat threads for premium luxury concierge help.</p>
+          <p className="text-xs text-slate-600 font-medium mt-1">Monitor, configure, and takeover chat threads for premium luxury concierge help.</p>
         </div>
         <div className="flex items-center gap-2.5">
           <button 
             onClick={() => setIsConfigOpen(!isConfigOpen)}
             className={`px-4 py-2 rounded-xl text-xs font-bold uppercase transition-all flex items-center gap-2 border ${
               isConfigOpen 
-                ? "bg-slate-900 border-yellow-500 text-yellow-500" 
-                : "bg-slate-950 border-white/10 text-slate-300 hover:border-slate-700"
+                ? "bg-slate-50 border-yellow-500 text-yellow-500" 
+                : "bg-white border-slate-200 text-slate-700 hover:border-slate-700"
             }`}
           >
             <Settings className="w-3.5 h-3.5" />
@@ -277,8 +277,8 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
             onClick={() => setIsPolling(!isPolling)}
             className={`p-2 rounded-xl border text-xs transition-all flex items-center justify-center ${
               isPolling 
-                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-                : "bg-slate-950 border-white/5 text-slate-500 hover:text-white"
+                ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600" 
+                : "bg-white border-slate-200 text-slate-600 hover:text-slate-900"
             }`}
             title={isPolling ? "Auto Refreshing Live" : "Auto Refresh Paused"}
           >
@@ -289,54 +289,54 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-[#050914]/85 border border-white/10 rounded-2xl p-4.5 flex flex-col justify-between">
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Awaiting Agent</span>
+        <div className="bg-white/85 border border-slate-200 rounded-2xl p-4.5 flex flex-col justify-between">
+          <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Awaiting Agent</span>
           <span className="text-3xl font-black text-yellow-500 mt-2 font-mono flex items-baseline gap-1.5">
             {stats.waiting}
             <span className="w-2.5 h-2.5 rounded-full bg-yellow-500 animate-ping inline-block" />
           </span>
         </div>
-        <div className="bg-[#050914]/85 border border-white/10 rounded-2xl p-4.5 flex flex-col justify-between">
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Chats</span>
-          <span className="text-3xl font-black text-cyan-400 mt-2 font-mono">{stats.inConversation}</span>
+        <div className="bg-white/85 border border-slate-200 rounded-2xl p-4.5 flex flex-col justify-between">
+          <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Active Chats</span>
+          <span className="text-3xl font-black text-cyan-600 mt-2 font-mono">{stats.inConversation}</span>
         </div>
-        <div className="bg-[#050914]/85 border border-white/10 rounded-2xl p-4.5 flex flex-col justify-between">
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">AI Concierge</span>
-          <span className="text-3xl font-black text-purple-400 mt-2 font-mono">{stats.botHandled}</span>
+        <div className="bg-white/85 border border-slate-200 rounded-2xl p-4.5 flex flex-col justify-between">
+          <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">AI Concierge</span>
+          <span className="text-3xl font-black text-purple-600 mt-2 font-mono">{stats.botHandled}</span>
         </div>
-        <div className="bg-[#050914]/85 border border-white/10 rounded-2xl p-4.5 flex flex-col justify-between">
-          <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Channels</span>
-          <span className="text-3xl font-black text-emerald-400 mt-2 font-mono">{stats.totalActive}</span>
+        <div className="bg-white/85 border border-slate-200 rounded-2xl p-4.5 flex flex-col justify-between">
+          <span className="text-[10px] text-slate-600 font-bold uppercase tracking-widest">Active Channels</span>
+          <span className="text-3xl font-black text-emerald-600 mt-2 font-mono">{stats.totalActive}</span>
         </div>
       </div>
 
       <div className="flex flex-col lg:flex-row gap-6">
         
         {/* Left Side: Session lists & queues */}
-        <div className="w-full lg:w-[380px] bg-[#050914]/85 border border-white/10 rounded-3xl p-5 flex flex-col gap-4.5 shadow-2xl shrink-0 h-[650px]">
+        <div className="w-full lg:w-[380px] bg-white/85 border border-slate-200 rounded-3xl p-5 flex flex-col gap-4.5 shadow-2xl shrink-0 h-[650px]">
           <div className="space-y-3">
             {/* Search */}
             <div className="relative">
-              <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-4 h-4 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
               <input 
                 type="text"
                 placeholder="Search by name or email..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-950/60 border border-white/15 rounded-xl py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:border-yellow-500 transition-colors"
+                className="w-full bg-white/60 border border-white/15 rounded-xl py-2.5 pl-10 pr-4 text-xs focus:outline-none focus:border-yellow-500 transition-colors"
               />
             </div>
             
             {/* Filter Tabs */}
-            <div className="grid grid-cols-4 bg-slate-950 p-1 rounded-xl border border-white/5 text-[10px] font-bold text-center">
+            <div className="grid grid-cols-4 bg-white p-1 rounded-xl border border-slate-200 text-[10px] font-bold text-center">
               {(['all', 'waiting', 'active', 'bot'] as const).map(tab => (
                 <button
                   key={tab}
                   onClick={() => setStatusFilter(tab)}
                   className={`py-1.5 rounded-lg capitalize transition-colors ${
                     statusFilter === tab 
-                      ? "bg-slate-800 text-white shadow-sm" 
-                      : "text-slate-500 hover:text-slate-300"
+                      ? "bg-slate-100 text-slate-900 shadow-sm" 
+                      : "text-slate-600 hover:text-slate-700"
                   }`}
                 >
                   {tab === 'waiting' ? 'Queued' : tab === 'active' ? 'Live' : tab}
@@ -358,14 +358,14 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                     onClick={() => setSelectedChatEmail(session.email)}
                     className={`w-full text-left p-3.5 rounded-2xl border transition-all flex flex-col gap-1.5 ${
                       isSelected
-                        ? "bg-slate-900 border-yellow-500/50 shadow-md"
-                        : "bg-slate-950/40 border-white/5 hover:border-slate-850 hover:bg-slate-950/80"
+                        ? "bg-slate-50 border-yellow-500/50 shadow-md"
+                        : "bg-white/40 border-slate-200 hover:border-slate-200 hover:bg-white/80"
                     }`}
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex flex-col min-w-0">
-                        <span className="text-xs font-bold text-white truncate">{session.username}</span>
-                        <span className="text-[10px] text-slate-500 truncate mt-0.5">{session.email}</span>
+                        <span className="text-xs font-bold text-slate-900 truncate">{session.username}</span>
+                        <span className="text-[10px] text-slate-600 truncate mt-0.5">{session.email}</span>
                       </div>
                       
                       {/* Status Badges */}
@@ -373,23 +373,23 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                         session.status === 'waiting'
                           ? "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20 animate-pulse"
                           : session.status === 'active'
-                          ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                          ? "bg-cyan-500/10 text-cyan-600 border border-cyan-500/20"
                           : session.status === 'bot'
-                          ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                          : "bg-slate-900 text-slate-600 border border-white/5"
+                          ? "bg-purple-500/10 text-purple-600 border border-purple-500/20"
+                          : "bg-slate-50 text-slate-600 border border-slate-200"
                       }`}>
                         {session.status === 'waiting' ? 'Awaiting' : session.status}
                       </span>
                     </div>
 
                     {lastMsg && (
-                      <p className="text-[10px] text-slate-400 font-medium truncate italic pl-0.5">
+                      <p className="text-[10px] text-slate-600 font-medium truncate italic pl-0.5">
                         {lastMsg.sender === 'user' ? '👤 ' : lastMsg.sender === 'admin' ? '💼 ' : '🤖 '}
                         {lastMsg.text}
                       </p>
                     )}
 
-                    <div className="flex justify-between items-center text-[9px] text-slate-600 font-medium pl-0.5 mt-0.5 border-t border-white/5 pt-1.5">
+                    <div className="flex justify-between items-center text-[9px] text-slate-600 font-medium pl-0.5 mt-0.5 border-t border-slate-200 pt-1.5">
                       <span>{session.messages.length} messages</span>
                       <span>{formatRelativeTime(session.updatedAt)}</span>
                     </div>
@@ -397,7 +397,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                 );
               })
             ) : (
-              <div className="h-full flex flex-col items-center justify-center text-slate-600 p-8 border border-dashed border-white/5 rounded-2xl">
+              <div className="h-full flex flex-col items-center justify-center text-slate-600 p-8 border border-dashed border-slate-200 rounded-2xl">
                 <Clock className="w-8 h-8 mb-2 opacity-50" />
                 <span className="text-xs font-bold">No sessions found</span>
               </div>
@@ -406,7 +406,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
         </div>
 
         {/* Right Side: Chat interaction pane & AI configuration overlay */}
-        <div className="flex-1 bg-[#050914]/85 border border-white/10 rounded-3xl p-5 flex flex-col shadow-2xl h-[650px] relative overflow-hidden">
+        <div className="flex-1 bg-white/85 border border-slate-200 rounded-3xl p-5 flex flex-col shadow-2xl h-[650px] relative overflow-hidden">
           
           <AnimatePresence>
             {isConfigOpen && (
@@ -415,7 +415,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                 initial={{ opacity: 0, y: -20 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
-                className="absolute inset-x-0 top-0 bg-slate-950/95 backdrop-blur-2xl z-30 border-b border-white/10 p-6 space-y-4 shadow-2xl"
+                className="absolute inset-x-0 top-0 bg-white/95 backdrop-blur-2xl z-30 border-b border-slate-200 p-6 space-y-4 shadow-2xl"
               >
                 <div className="flex justify-between items-center">
                   <h3 className="text-sm font-black uppercase tracking-wider text-yellow-500 flex items-center gap-2">
@@ -423,7 +423,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                   </h3>
                   <button 
                     onClick={() => setIsConfigOpen(false)}
-                    className="w-7 h-7 bg-slate-900 rounded-full flex items-center justify-center text-slate-400 hover:text-white"
+                    className="w-7 h-7 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 hover:text-slate-900"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -432,42 +432,42 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* API Key */}
                   <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-0.5">OpenRouter API Key</label>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-0.5">OpenRouter API Key</label>
                     <input 
                       type="password"
                       placeholder={config.openRouterApiKey ? "••••••••••••••••••••••••" : "sk-or-v1-..."}
                       value={apiKeyInput}
                       onChange={e => setApiKeyInput(e.target.value)}
-                      className="w-full bg-slate-900 border border-white/10 rounded-xl py-2.5 px-4 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-yellow-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500"
                     />
                   </div>
 
                   {/* AI Model */}
                   <div className="space-y-1.5">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-0.5">Model Slug</label>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-0.5">Model Slug</label>
                     <input 
                       type="text"
                       placeholder="e.g. google/gemini-2.5-flash"
                       value={modelInput}
                       onChange={e => setModelInput(e.target.value)}
-                      className="w-full bg-slate-900 border border-white/10 rounded-xl py-2.5 px-4 text-xs font-mono text-white placeholder:text-slate-600 focus:outline-none focus:border-yellow-500"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500"
                     />
                   </div>
 
                   {/* System Prompt */}
                   <div className="space-y-1.5 md:col-span-2">
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pl-0.5">System Prompt / Brand Rules</label>
+                    <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-0.5">System Prompt / Brand Rules</label>
                     <textarea 
                       rows={3}
                       value={promptInput}
                       onChange={e => setPromptInput(e.target.value)}
-                      className="w-full bg-slate-900 border border-white/10 rounded-xl py-2.5 px-4 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 font-sans leading-relaxed"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 px-4 text-xs text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 font-sans leading-relaxed"
                     />
                   </div>
                 </div>
 
                 {configSuccessMsg && (
-                  <div className="text-xs text-emerald-400 font-bold bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl flex items-center gap-2">
+                  <div className="text-xs text-emerald-600 font-bold bg-emerald-500/10 border border-emerald-500/20 px-4 py-2 rounded-xl flex items-center gap-2">
                     <Check className="w-4 h-4" /> {configSuccessMsg}
                   </div>
                 )}
@@ -475,7 +475,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                 <div className="flex justify-end gap-2.5 pt-2">
                   <button 
                     onClick={() => setIsConfigOpen(false)}
-                    className="px-4 py-2 text-xs font-bold uppercase text-slate-400 hover:text-white"
+                    className="px-4 py-2 text-xs font-bold uppercase text-slate-600 hover:text-slate-900"
                   >
                     Cancel
                   </button>
@@ -496,14 +496,14 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
             <div className="flex-1 flex flex-col h-full overflow-hidden">
               
               {/* Active Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4 shrink-0">
+              <div className="flex items-center justify-between border-b border-slate-200 pb-4 shrink-0">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center text-sm font-black text-slate-300 border border-white/5">
+                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center text-sm font-black text-slate-700 border border-slate-200">
                     {activeChat.username.substring(0,2).toUpperCase()}
                   </div>
                   <div>
-                    <h3 className="text-sm font-black text-white">{activeChat.username}</h3>
-                    <p className="text-[10px] text-slate-400 font-medium">{activeChat.email}</p>
+                    <h3 className="text-sm font-black text-slate-900">{activeChat.username}</h3>
+                    <p className="text-[10px] text-slate-600 font-medium">{activeChat.email}</p>
                   </div>
                 </div>
 
@@ -513,10 +513,10 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                     activeChat.status === 'waiting'
                       ? "bg-yellow-500/10 text-yellow-500 border border-yellow-500/20"
                       : activeChat.status === 'active'
-                      ? "bg-cyan-500/10 text-cyan-400 border border-cyan-500/20"
+                      ? "bg-cyan-500/10 text-cyan-600 border border-cyan-500/20"
                       : activeChat.status === 'bot'
-                      ? "bg-purple-500/10 text-purple-400 border border-purple-500/20"
-                      : "bg-slate-950 text-slate-500 border border-white/5"
+                      ? "bg-purple-500/10 text-purple-600 border border-purple-500/20"
+                      : "bg-white text-slate-600 border border-slate-200"
                   }`}>
                     {activeChat.status === 'waiting' ? 'Queued' : activeChat.status}
                   </span>
@@ -525,7 +525,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                   {activeChat.status !== 'closed' && (
                     <button
                       onClick={handleCloseSession}
-                      className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-[10px] font-bold uppercase text-red-400 transition-colors"
+                      className="px-3 py-1 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl text-[10px] font-bold uppercase text-red-600 transition-colors"
                     >
                       Resolve & Close
                     </button>
@@ -538,7 +538,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                 <div className="my-3 p-3.5 bg-yellow-500/5 border border-yellow-500/15 rounded-2xl flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 shrink-0">
                   <div className="flex gap-2">
                     <ShieldAlert className="w-4 h-4 text-yellow-500 shrink-0 mt-0.5 animate-pulse" />
-                    <p className="text-[11px] text-slate-300 font-medium">
+                    <p className="text-[11px] text-slate-700 font-medium">
                       {activeChat.status === 'waiting' 
                         ? "User has explicitly requested to speak with a human support agent." 
                         : "AI chatbot is currently handling the user's queries."}
@@ -565,7 +565,7 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                     if (isSystemAlert) {
                       return (
                         <div key={i} className="flex justify-center my-2">
-                          <span className="bg-slate-950 border border-white/5 text-slate-500 text-[10px] px-3.5 py-1 rounded-full font-bold uppercase tracking-wider">
+                          <span className="bg-white border border-slate-200 text-slate-600 text-[10px] px-3.5 py-1 rounded-full font-bold uppercase tracking-wider">
                             {msg.text.replace("System Alert:", "").trim()}
                           </span>
                         </div>
@@ -581,16 +581,16 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                       >
                         <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 border text-xs font-bold ${
                           isUser 
-                            ? 'bg-slate-950 border-white/10 text-slate-400' 
+                            ? 'bg-white border-slate-200 text-slate-600' 
                             : isBot 
-                            ? 'bg-purple-500/10 border-purple-500/20 text-purple-400' 
+                            ? 'bg-purple-500/10 border-purple-500/20 text-purple-600' 
                             : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-500'
                         }`}>
                           {isUser ? <User className="w-3.5 h-3.5" /> : isBot ? <Bot className="w-3.5 h-3.5" /> : <Sparkles className="w-3.5 h-3.5" />}
                         </div>
                         <div className="flex flex-col gap-1.5">
                           <div className={`flex items-baseline gap-2 ${isUser ? '' : 'justify-end'}`}>
-                            <span className="text-[10px] font-bold text-slate-500 uppercase">
+                            <span className="text-[10px] font-bold text-slate-600 uppercase">
                               {isUser ? activeChat.username : isBot ? 'AI Concierge' : 'Support Specialist'}
                             </span>
                             <span className="text-[9px] text-slate-600 font-mono">
@@ -599,9 +599,9 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                           </div>
                           <div className={`p-3.5 rounded-3xl text-xs font-medium leading-relaxed ${
                             isUser 
-                              ? 'bg-slate-950/60 border border-white/5 rounded-tl-none text-slate-200' 
+                              ? 'bg-white/60 border border-slate-200 rounded-tl-none text-slate-800' 
                               : isBot
-                              ? 'bg-purple-950/20 border border-purple-900/30 rounded-tr-none text-purple-300'
+                              ? 'bg-purple-100 border border-purple-300 rounded-tr-none text-purple-700'
                               : 'bg-yellow-500/10 border border-yellow-500/20 rounded-tr-none text-yellow-100 shadow-[0_4px_15px_rgba(234,179,8,0.05)]'
                           }`}>
                             {msg.text}
@@ -619,13 +619,13 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
               </div>
 
               {/* Chat Input Bar */}
-              <div className="border-t border-white/10 pt-4 shrink-0">
+              <div className="border-t border-slate-200 pt-4 shrink-0">
                 {activeChat.status === 'closed' ? (
-                  <div className="bg-slate-950 border border-white/5 p-4 rounded-2xl text-center text-xs text-slate-500 font-bold">
+                  <div className="bg-white border border-slate-200 p-4 rounded-2xl text-center text-xs text-slate-600 font-bold">
                     This chat session is closed. Select another chat or wait for the user to reopen it.
                   </div>
                 ) : (
-                  <div className="flex items-center bg-slate-950 border border-white/10 rounded-2xl px-4 py-2.5 focus-within:border-yellow-500/50 transition-colors">
+                  <div className="flex items-center bg-white border border-slate-200 rounded-2xl px-4 py-2.5 focus-within:border-yellow-500/50 transition-colors">
                     <input 
                       type="text" 
                       value={replyText}
@@ -637,12 +637,12 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
                           : "Type a response as customer support..."
                       }
                       disabled={activeChat.status !== 'active'}
-                      className="flex-1 bg-transparent border-none text-xs text-white placeholder:text-slate-600 focus:outline-none focus:ring-0 px-2 py-2 disabled:cursor-not-allowed"
+                      className="flex-1 bg-transparent border-none text-xs text-slate-900 placeholder:text-slate-600 focus:outline-none focus:ring-0 px-2 py-2 disabled:cursor-not-allowed"
                     />
                     <button 
                       onClick={handleSendReply}
                       disabled={activeChat.status !== 'active' || !replyText.trim()}
-                      className="p-2 bg-yellow-500 hover:bg-yellow-400 disabled:bg-slate-900 disabled:text-slate-600 text-slate-950 rounded-xl transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer disabled:scale-100"
+                      className="p-2 bg-yellow-500 hover:bg-yellow-400 disabled:bg-slate-50 disabled:text-slate-600 text-slate-950 rounded-xl transition-all shadow-md hover:scale-105 active:scale-95 cursor-pointer disabled:scale-100"
                     >
                       <Send className="w-3.5 h-3.5" />
                     </button>
@@ -654,12 +654,12 @@ export default function ClientSupportDashboard({ initialSessions, initialConfig 
           ) : (
             /* EMPTY VIEW */
             <div className="flex-1 flex flex-col items-center justify-center text-slate-600 space-y-4">
-              <div className="w-16 h-16 bg-slate-950/80 rounded-full border border-white/5 flex items-center justify-center">
+              <div className="w-16 h-16 bg-white/80 rounded-full border border-slate-200 flex items-center justify-center">
                 <MessageSquare className="w-8 h-8 opacity-50" />
               </div>
               <div className="text-center">
-                <h3 className="text-sm font-bold text-white uppercase tracking-wider">No Chat Selected</h3>
-                <p className="text-xs text-slate-500 mt-1">Select an active user chat from the queue queue to view messages or configure LLM parameters.</p>
+                <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider">No Chat Selected</h3>
+                <p className="text-xs text-slate-600 mt-1">Select an active user chat from the queue queue to view messages or configure LLM parameters.</p>
               </div>
             </div>
           )}

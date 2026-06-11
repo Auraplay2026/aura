@@ -132,41 +132,41 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
   const totalUsers = userReports.length;
 
   return (
-    <div className="min-h-screen p-8 relative overflow-hidden bg-[#030307] text-slate-100">
+    <div className="min-h-screen p-8 relative overflow-hidden bg-slate-50 text-slate-900">
       
       {/* Visual cyber gradients */}
       <div className="absolute top-[5%] right-[10%] w-[380px] h-[380px] rounded-full bg-amber-500/5 blur-[120px] pointer-events-none" />
       <div className="absolute bottom-[10%] left-[5%] w-[400px] h-[400px] rounded-full bg-red-500/5 blur-[130px] pointer-events-none" />
 
       {/* HEADER BAR */}
-      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-8 relative z-10">
+      <header className="mb-10 flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-8 relative z-10">
         <div className="flex items-center gap-5">
           <div className="relative group">
             <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 opacity-60 blur-md animate-pulse" />
-            <div className="relative w-14 h-14 rounded-2xl bg-slate-950 border border-white/10 flex items-center justify-center shadow-2xl">
+            <div className="relative w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center shadow-2xl">
               <ShieldAlert className="w-7 h-7 text-red-500" />
             </div>
           </div>
           <div>
             <div className="flex items-center gap-3">
-              <h1 className="text-2xl font-black text-white tracking-widest uppercase bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">
+              <h1 className="text-2xl font-black text-slate-900 tracking-widest uppercase bg-clip-text bg-gradient-to-r from-white via-slate-100 to-slate-400">
                 Security & Audit Hub
               </h1>
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-black text-red-400 bg-red-500/10 px-2.5 py-1 rounded-full border border-red-500/20 tracking-widest uppercase">
+              <span className="hidden sm:inline-flex items-center gap-1.5 text-[10px] font-black text-red-600 bg-red-500/10 px-2.5 py-1 rounded-full border border-red-500/20 tracking-widest uppercase">
                 <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" />
                 AUDITING ENGINE
               </span>
             </div>
-            <p className="text-slate-500 font-bold tracking-widest text-[10px] uppercase mt-1.5 flex items-center gap-2">
+            <p className="text-slate-600 font-bold tracking-widest text-[10px] uppercase mt-1.5 flex items-center gap-2">
               <Activity className="w-3.5 h-3.5 text-red-500/80" />
-              INTEGRITY STATUS: <span className="font-mono text-emerald-400 font-bold">ACTIVE SCANNING</span>
+              INTEGRITY STATUS: <span className="font-mono text-emerald-600 font-bold">ACTIVE SCANNING</span>
             </p>
           </div>
         </div>
 
         <button 
           onClick={() => window.location.reload()}
-          className="mt-6 md:mt-0 px-4 py-2.5 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-white/5 hover:border-white/10 text-slate-300 hover:text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2"
+          className="mt-6 md:mt-0 px-4 py-2.5 rounded-xl bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-200 text-slate-700 hover:text-slate-900 font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2"
         >
           <RefreshCw className="w-4 h-4" />
           Re-Scan Database
@@ -179,14 +179,14 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
         {/* Vault Integrity Status */}
         <div className="lg:col-span-2 relative group">
           <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 opacity-10 group-hover:opacity-20 blur-md transition duration-500" />
-          <div className="relative bg-slate-950/60 border border-white/5 p-6 rounded-2xl backdrop-blur-md overflow-hidden flex flex-col justify-between h-full">
+          <div className="relative bg-white/60 border border-slate-200 p-6 rounded-2xl backdrop-blur-md overflow-hidden flex flex-col justify-between h-full">
             <div>
-              <div className="flex items-center justify-between border-b border-white/5 pb-3 mb-4">
-                <span className="text-[10px] font-extrabold text-red-400 uppercase tracking-widest">Platform Vault Reconciliation</span>
+              <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+                <span className="text-[10px] font-extrabold text-red-600 uppercase tracking-widest">Platform Vault Reconciliation</span>
                 <span className={`text-[9px] font-black px-2.5 py-0.5 rounded-full border uppercase tracking-wider ${
                   Math.abs(vaultStats.reconciliationVaultGap) < 1 
-                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" 
-                    : "bg-red-500/10 border-red-500/20 text-red-400 animate-pulse"
+                    ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600" 
+                    : "bg-red-500/10 border-red-500/20 text-red-600 animate-pulse"
                 }`}>
                   {Math.abs(vaultStats.reconciliationVaultGap) < 1 ? "Reconciled" : "Variance Detected"}
                 </span>
@@ -194,30 +194,30 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
               
               <div className="grid grid-cols-3 gap-4">
                 <div>
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Platform Deposits</p>
-                  <p className="text-lg font-black font-mono text-white mt-1">₹{vaultStats.platformTotalDeposits.toLocaleString()}</p>
+                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Platform Deposits</p>
+                  <p className="text-lg font-black font-mono text-slate-900 mt-1">₹{vaultStats.platformTotalDeposits.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Platform Payouts</p>
-                  <p className="text-lg font-black font-mono text-white mt-1">₹{vaultStats.platformTotalWithdrawals.toLocaleString()}</p>
+                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">Platform Payouts</p>
+                  <p className="text-lg font-black font-mono text-slate-900 mt-1">₹{vaultStats.platformTotalWithdrawals.toLocaleString()}</p>
                 </div>
                 <div>
-                  <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">User Liabilities</p>
-                  <p className="text-lg font-black font-mono text-white mt-1">₹{vaultStats.platformTotalBalance.toLocaleString()}</p>
+                  <p className="text-[9px] font-bold text-slate-600 uppercase tracking-widest">User Liabilities</p>
+                  <p className="text-lg font-black font-mono text-slate-900 mt-1">₹{vaultStats.platformTotalBalance.toLocaleString()}</p>
                 </div>
               </div>
             </div>
 
-            <div className="border-t border-white/5 pt-4 mt-6 flex items-center justify-between">
+            <div className="border-t border-slate-200 pt-4 mt-6 flex items-center justify-between">
               <div>
-                <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">System Injected Variance</p>
+                <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">System Injected Variance</p>
                 <p className={`text-md font-black font-mono mt-0.5 ${
-                  Math.abs(vaultStats.reconciliationVaultGap) < 1 ? "text-slate-400" : "text-red-400"
+                  Math.abs(vaultStats.reconciliationVaultGap) < 1 ? "text-slate-600" : "text-red-600"
                 }`}>
                   ₹{vaultStats.reconciliationVaultGap.toLocaleString()}
                 </p>
               </div>
-              <p className="text-[9px] text-slate-500 leading-normal max-w-[200px] text-right font-medium">
+              <p className="text-[9px] text-slate-600 leading-normal max-w-[200px] text-right font-medium">
                 Variance represents discrepancy between deposits, payouts, and player liabilities.
               </p>
             </div>
@@ -227,15 +227,15 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
         {/* Security Alerts Counter */}
         <div className="relative group">
           <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 opacity-10 group-hover:opacity-20 blur-md transition duration-500" />
-          <div className="relative bg-slate-950/60 border border-red-500/20 p-6 rounded-2xl backdrop-blur-md overflow-hidden flex flex-col justify-between h-full">
+          <div className="relative bg-white/60 border border-red-500/20 p-6 rounded-2xl backdrop-blur-md overflow-hidden flex flex-col justify-between h-full">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold text-red-400 uppercase tracking-widest">Critical Anomalies</span>
-              <AlertTriangle className="w-4 h-4 text-red-400" />
+              <span className="text-[10px] font-extrabold text-red-600 uppercase tracking-widest">Critical Anomalies</span>
+              <AlertTriangle className="w-4 h-4 text-red-600" />
             </div>
-            <p className="text-4xl font-black font-mono text-white mt-4 tracking-tight">
+            <p className="text-4xl font-black font-mono text-slate-900 mt-4 tracking-tight">
               {anomalies.filter(a => a.severity === 'CRITICAL').length}
             </p>
-            <span className="text-[9px] font-bold text-slate-400 tracking-wider mt-2.5">
+            <span className="text-[9px] font-bold text-slate-600 tracking-wider mt-2.5">
               Requires immediate supervisor review
             </span>
           </div>
@@ -244,15 +244,15 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
         {/* Multi Accounting profile alerts count */}
         <div className="relative group">
           <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-purple-500 to-pink-500 opacity-10 group-hover:opacity-20 blur-md transition duration-500" />
-          <div className="relative bg-slate-950/60 border border-purple-500/15 p-6 rounded-2xl backdrop-blur-md overflow-hidden flex flex-col justify-between h-full">
+          <div className="relative bg-white/60 border border-purple-500/15 p-6 rounded-2xl backdrop-blur-md overflow-hidden flex flex-col justify-between h-full">
             <div className="flex items-center justify-between">
-              <span className="text-[10px] font-extrabold text-purple-400 uppercase tracking-widest">Shared Profiles</span>
-              <Users className="w-4 h-4 text-purple-400" />
+              <span className="text-[10px] font-extrabold text-purple-600 uppercase tracking-widest">Shared Profiles</span>
+              <Users className="w-4 h-4 text-purple-600" />
             </div>
-            <p className="text-4xl font-black font-mono text-white mt-4 tracking-tight">
+            <p className="text-4xl font-black font-mono text-slate-900 mt-4 tracking-tight">
               {anomalies.filter(a => a.type === 'SHARED_PAYMENT').length}
             </p>
-            <span className="text-[9px] font-bold text-slate-400 tracking-wider mt-2.5">
+            <span className="text-[9px] font-bold text-slate-600 tracking-wider mt-2.5">
               Potential multi-accounting fraud alerts
             </span>
           </div>
@@ -266,23 +266,23 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
         {/* SECURITY INTEGRITY ALERTS LOGS (Col-span 2) */}
         <div className="lg:col-span-2 relative">
           <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-red-500/10 to-transparent opacity-30" />
-          <div className="relative bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl h-[420px] flex flex-col">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-white/5 pb-4 mb-4 gap-3">
+          <div className="relative bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl h-[420px] flex flex-col">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-200 pb-4 mb-4 gap-3">
               <div className="flex items-center gap-2.5">
-                <AlertCircle className="w-4 h-4 text-red-400 animate-pulse" />
-                <h2 className="text-sm font-extrabold text-white uppercase tracking-wider">Security Alerts Feed</h2>
+                <AlertCircle className="w-4 h-4 text-red-600 animate-pulse" />
+                <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Security Alerts Feed</h2>
               </div>
               
               {/* Severity filter */}
-              <div className="flex gap-1 bg-slate-900/50 p-1 border border-white/5 rounded-xl">
+              <div className="flex gap-1 bg-slate-50/50 p-1 border border-slate-200 rounded-xl">
                 {(["ALL", "CRITICAL", "WARNING", "INFO"] as const).map((sev) => (
                   <button
                     key={sev}
                     onClick={() => setAnomalySeverityFilter(sev)}
                     className={`text-[8px] font-black tracking-widest uppercase px-2 py-1 rounded-lg transition-all duration-200 ${
                       anomalySeverityFilter === sev
-                        ? "bg-red-500/10 text-red-400 border border-red-500/20"
-                        : "bg-transparent text-slate-500 border-transparent hover:text-slate-300"
+                        ? "bg-red-500/10 text-red-600 border border-red-500/20"
+                        : "bg-transparent text-slate-600 border-transparent hover:text-slate-700"
                     }`}
                   >
                     {sev}
@@ -295,7 +295,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
             <div className="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">
               {filteredAnomalies.length === 0 ? (
                 <div className="h-full flex flex-col items-center justify-center text-slate-600 gap-1">
-                  <CheckCircle2 className="w-6 h-6 text-emerald-400 opacity-60" />
+                  <CheckCircle2 className="w-6 h-6 text-emerald-600 opacity-60" />
                   <p className="text-[10px] font-bold uppercase tracking-widest mt-1">No security warnings logged</p>
                 </div>
               ) : (
@@ -307,15 +307,15 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                   const getAnomalyIcon = (type: AuditAnomaly["type"]) => {
                     switch (type) {
                       case "RECONCILIATION_GAP":
-                        return <Coins className="w-4 h-4 text-red-400" />;
+                        return <Coins className="w-4 h-4 text-red-600" />;
                       case "SHARED_PAYMENT":
-                        return <Users className="w-4 h-4 text-purple-400" />;
+                        return <Users className="w-4 h-4 text-purple-600" />;
                       case "EXPLOIT_WINRATE":
                         return <AlertTriangle className="w-4 h-4 text-amber-500" />;
                       case "HIGH_ROLLER":
-                        return <TrendingUp className="w-4 h-4 text-indigo-400" />;
+                        return <TrendingUp className="w-4 h-4 text-indigo-600" />;
                       default:
-                        return <AlertCircle className="w-4 h-4 text-slate-400" />;
+                        return <AlertCircle className="w-4 h-4 text-slate-600" />;
                     }
                   };
 
@@ -325,7 +325,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       key={anom.id}
-                      className={`bg-slate-900/20 border p-3 rounded-xl flex flex-col sm:flex-row sm:items-start justify-between gap-3 ${
+                      className={`bg-slate-50/20 border p-3 rounded-xl flex flex-col sm:flex-row sm:items-start justify-between gap-3 ${
                         anom.severity === "CRITICAL"
                           ? "border-red-500/20"
                           : anom.severity === "WARNING"
@@ -334,24 +334,24 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                       }`}
                     >
                       <div className="flex items-start gap-3 text-left min-w-0">
-                        <div className="mt-0.5 shrink-0 p-1.5 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center">
+                        <div className="mt-0.5 shrink-0 p-1.5 rounded-lg bg-slate-900/5 border border-slate-200 flex items-center justify-center">
                           {getAnomalyIcon(anom.type)}
                         </div>
                         <div className="min-w-0">
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className={`text-[8px] font-black px-2 py-0.5 rounded uppercase tracking-widest ${
                               anom.severity === "CRITICAL"
-                                ? "bg-red-500/15 text-red-400"
+                                ? "bg-red-500/15 text-red-600"
                                 : anom.severity === "WARNING"
-                                ? "bg-amber-500/15 text-amber-400"
-                                : "bg-indigo-500/15 text-indigo-400"
+                                ? "bg-amber-500/15 text-amber-600"
+                                : "bg-indigo-500/15 text-indigo-600"
                             }`}>
                               {anom.severity}
                             </span>
-                            <span className="text-[10px] font-bold text-white uppercase tracking-wider">{anom.username}</span>
-                            <span className="text-[8px] text-slate-500 font-mono truncate">{anom.userEmail}</span>
+                            <span className="text-[10px] font-bold text-slate-900 uppercase tracking-wider">{anom.username}</span>
+                            <span className="text-[8px] text-slate-600 font-mono truncate">{anom.userEmail}</span>
                           </div>
-                          <p className="text-[10px] text-slate-400 font-medium leading-relaxed mt-1.5">{anom.description}</p>
+                          <p className="text-[10px] text-slate-600 font-medium leading-relaxed mt-1.5">{anom.description}</p>
                         </div>
                       </div>
 
@@ -360,7 +360,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                         {anom.type === "RECONCILIATION_GAP" && (
                           <button
                             onClick={() => setActiveReconcileUser({ email: anom.userEmail, username: anom.username, gap: anom.meta?.discrepancy || 0 })}
-                            className="text-[9px] font-extrabold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-400 px-2.5 py-1.5 rounded-lg uppercase tracking-wider transition-all duration-300"
+                            className="text-[9px] font-extrabold bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/20 text-emerald-600 px-2.5 py-1.5 rounded-lg uppercase tracking-wider transition-all duration-300"
                           >
                             Correct Ledger
                           </button>
@@ -369,8 +369,8 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                           onClick={() => setActiveFreezeUser({ email: anom.userEmail, username: anom.username, isBanned: !!isSuspended })}
                           className={`text-[9px] font-extrabold px-2.5 py-1.5 rounded-lg uppercase tracking-wider transition-all duration-300 border ${
                             isSuspended
-                              ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 text-emerald-400"
-                              : "bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-400"
+                              ? "bg-emerald-500/10 hover:bg-emerald-500/20 border-emerald-500/20 text-emerald-600"
+                              : "bg-red-500/10 hover:bg-red-500/20 border-red-500/20 text-red-600"
                           }`}
                         >
                           {isSuspended ? "Pardon" : "Freeze"}
@@ -387,11 +387,11 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
         {/* GEOGRAPHIC ACTIVE USER CLUSTERS */}
         <div className="relative">
           <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-amber-500/10 to-transparent opacity-30" />
-          <div className="relative bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl h-[420px] flex flex-col justify-between">
+          <div className="relative bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl h-[420px] flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2.5 border-b border-white/5 pb-4 mb-4">
-                <Globe className="w-4 h-4 text-amber-400" />
-                <h2 className="text-sm font-extrabold text-white uppercase tracking-wider">Geographic Clusters</h2>
+              <div className="flex items-center gap-2.5 border-b border-slate-200 pb-4 mb-4">
+                <Globe className="w-4 h-4 text-amber-600" />
+                <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Geographic Clusters</h2>
               </div>
 
               {/* State-wise active clusters breakdown */}
@@ -401,10 +401,10 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                   return (
                     <div key={state} className="space-y-1.5">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
-                        <span className="text-white">{state}</span>
-                        <span className="text-slate-400">{count} Active ({percentage.toFixed(0)}%)</span>
+                        <span className="text-slate-900">{state}</span>
+                        <span className="text-slate-600">{count} Active ({percentage.toFixed(0)}%)</span>
                       </div>
-                      <div className="relative w-full h-2 bg-slate-900 rounded-full overflow-hidden border border-white/[0.02]">
+                      <div className="relative w-full h-2 bg-slate-50 rounded-full overflow-hidden border border-white/[0.02]">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${percentage}%` }}
@@ -418,7 +418,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
               </div>
             </div>
 
-            <div className="border-t border-white/5 pt-4 text-[9px] text-slate-500 uppercase tracking-widest font-extrabold text-left leading-normal">
+            <div className="border-t border-slate-200 pt-4 text-[9px] text-slate-600 uppercase tracking-widest font-extrabold text-left leading-normal">
               State activity metrics are aggregated from player compliance onboarding profiles.
             </div>
           </div>
@@ -429,46 +429,46 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
       {/* DETAILED USER INTEGRITY LEDGER */}
       <section className="relative z-10">
         <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-indigo-500/5 to-transparent opacity-30" />
-        <div className="relative bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
+        <div className="relative bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl">
           
           {/* Header toolbar */}
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-6 mb-6">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6 mb-6">
             <div className="flex items-center gap-3">
-              <FileText className="w-5 h-5 text-indigo-400" />
+              <FileText className="w-5 h-5 text-indigo-600" />
               <div>
-                <h2 className="text-sm font-extrabold text-white uppercase tracking-wider">User Integrity Registry</h2>
-                <p className="text-[9px] text-slate-500 tracking-widest uppercase">Granular audit breakdown of individual wallet wagers vs deposits</p>
+                <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">User Integrity Registry</h2>
+                <p className="text-[9px] text-slate-600 tracking-widest uppercase">Granular audit breakdown of individual wallet wagers vs deposits</p>
               </div>
             </div>
 
             <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               {/* Search user */}
               <div className="relative">
-                <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-4 h-4 text-slate-600 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 <input
                   type="text"
                   placeholder="Search profile..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="bg-slate-900/50 border border-white/5 rounded-xl pl-10 pr-4 py-2 w-full sm:w-[200px] text-xs font-medium text-slate-200 placeholder-slate-500 focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/30 transition-all duration-300"
+                  className="bg-slate-50/50 border border-slate-200 rounded-xl pl-10 pr-4 py-2 w-full sm:w-[200px] text-xs font-medium text-slate-800 placeholder-slate-500 focus:outline-none focus:border-amber-500/40 focus:ring-1 focus:ring-amber-500/30 transition-all duration-300"
                 />
                 {searchTerm && (
-                  <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500">
+                  <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-600">
                     <X className="w-3 h-3" />
                   </button>
                 )}
               </div>
 
               {/* Filters */}
-              <div className="flex items-center bg-slate-900/50 border border-white/5 p-1 rounded-xl">
+              <div className="flex items-center bg-slate-50/50 border border-slate-200 p-1 rounded-xl">
                 {(["ALL", "DISCREPANCIES", "HIGH_ROLLERS"] as const).map((tab) => (
                   <button
                     key={tab}
                     onClick={() => setLedgerFilter(tab)}
                     className={`text-[8px] font-black tracking-widest uppercase px-3 py-1.5 rounded-lg transition-all duration-200 ${
                       ledgerFilter === tab
-                        ? "bg-amber-500/10 text-amber-400 border border-amber-500/20"
-                        : "bg-transparent text-slate-500 border-transparent hover:text-slate-300"
+                        ? "bg-amber-500/10 text-amber-600 border border-amber-500/20"
+                        : "bg-transparent text-slate-600 border-transparent hover:text-slate-700"
                     }`}
                   >
                     {tab.replace("_", " ")}
@@ -482,15 +482,15 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-white/5 bg-slate-950/20">
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest">Username</th>
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Deposits</th>
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Payouts</th>
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Casino Wagers</th>
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Casino Winnings</th>
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Expected balance</th>
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Actual balance</th>
-                  <th className="p-4 text-[9px] font-extrabold text-slate-500 uppercase tracking-widest text-right">Variance</th>
+                <tr className="border-b border-slate-200 bg-slate-900/20">
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Username</th>
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Deposits</th>
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Payouts</th>
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Casino Wagers</th>
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Casino Winnings</th>
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Expected balance</th>
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Actual balance</th>
+                  <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Variance</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/[0.02] text-xs font-mono">
@@ -508,20 +508,20 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                     const hasDiscrepancy = Math.abs(rep.discrepancy) > 0.05;
                     return (
                       <tr key={rep.email} className="group hover:bg-white/[0.01] transition-all duration-300">
-                        <td className="p-4 font-sans font-bold text-white flex flex-col">
+                        <td className="p-4 font-sans font-bold text-slate-900 flex flex-col">
                           <span className="text-xs">{rep.username}</span>
-                          <span className="text-[8px] text-slate-500 font-mono mt-0.5">{rep.email}</span>
+                          <span className="text-[8px] text-slate-600 font-mono mt-0.5">{rep.email}</span>
                         </td>
-                        <td className="p-4 text-right text-slate-400">₹{rep.deposits.toLocaleString()}</td>
-                        <td className="p-4 text-right text-slate-400">₹{rep.withdrawals.toLocaleString()}</td>
-                        <td className="p-4 text-right text-slate-400">₹{rep.casinoWagers.toLocaleString()}</td>
-                        <td className="p-4 text-right text-slate-400">₹{rep.casinoPayouts.toLocaleString()}</td>
-                        <td className="p-4 text-right text-slate-400">₹{rep.expectedBalance.toLocaleString()}</td>
-                        <td className="p-4 text-right text-white font-bold">₹{rep.realBalance.toLocaleString()}</td>
+                        <td className="p-4 text-right text-slate-600">₹{rep.deposits.toLocaleString()}</td>
+                        <td className="p-4 text-right text-slate-600">₹{rep.withdrawals.toLocaleString()}</td>
+                        <td className="p-4 text-right text-slate-600">₹{rep.casinoWagers.toLocaleString()}</td>
+                        <td className="p-4 text-right text-slate-600">₹{rep.casinoPayouts.toLocaleString()}</td>
+                        <td className="p-4 text-right text-slate-600">₹{rep.expectedBalance.toLocaleString()}</td>
+                        <td className="p-4 text-right text-slate-900 font-bold">₹{rep.realBalance.toLocaleString()}</td>
                         <td className={`p-4 text-right font-black ${
                           hasDiscrepancy 
-                            ? "text-red-400 bg-red-500/5 animate-pulse" 
-                            : "text-slate-500"
+                            ? "text-red-600 bg-red-500/5 animate-pulse" 
+                            : "text-slate-600"
                         }`}>
                           {rep.discrepancy > 0 ? "+" : ""}₹{rep.discrepancy.toLocaleString()}
                         </td>
@@ -548,19 +548,19 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
               key={toast.id}
               className={`p-4 rounded-xl border backdrop-blur-xl shadow-2xl flex items-start gap-3 pointer-events-auto ${
                 toast.type === "success"
-                  ? "bg-slate-950/90 border-emerald-500/30 text-emerald-300"
+                  ? "bg-white/90 border-emerald-500/30 text-emerald-700"
                   : toast.type === "error"
-                  ? "bg-slate-950/90 border-red-500/30 text-red-300"
-                  : "bg-slate-950/90 border-amber-500/30 text-amber-300"
+                  ? "bg-white/90 border-red-500/30 text-red-700"
+                  : "bg-white/90 border-amber-500/30 text-amber-700"
               }`}
             >
               <div className="shrink-0 mt-0.5">
                 {toast.type === "success" ? (
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600" />
                 ) : toast.type === "error" ? (
-                  <AlertCircle className="w-4 h-4 text-red-400" />
+                  <AlertCircle className="w-4 h-4 text-red-600" />
                 ) : (
-                  <AlertTriangle className="w-4 h-4 text-amber-400" />
+                  <AlertTriangle className="w-4 h-4 text-amber-600" />
                 )}
               </div>
               <div className="flex-1 text-xs font-extrabold tracking-wide uppercase leading-normal">
@@ -568,7 +568,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
               </div>
               <button 
                 onClick={() => setToasts((prev) => prev.filter((t) => t.id !== toast.id))}
-                className="text-slate-500 hover:text-white shrink-0 mt-0.5"
+                className="text-slate-600 hover:text-slate-900 shrink-0 mt-0.5"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
@@ -588,57 +588,57 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setActiveReconcileUser(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="absolute inset-0 bg-white/80 backdrop-blur-md"
             />
 
             <motion.div
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              className="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden z-10"
+              className="relative w-full max-w-md bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-2xl overflow-hidden z-10"
             >
               <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-emerald-500 to-transparent" />
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
-                  <Coins className="w-5 h-5 text-emerald-400" />
-                  <h3 className="text-sm font-black text-white uppercase tracking-widest">Execute Wallet Correction</h3>
+                  <Coins className="w-5 h-5 text-emerald-600" />
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Execute Wallet Correction</h3>
                 </div>
-                <button onClick={() => setActiveReconcileUser(null)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-slate-400">
+                <button onClick={() => setActiveReconcileUser(null)} className="w-7 h-7 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div className="bg-emerald-500/5 border border-emerald-500/10 p-4 rounded-xl flex items-start gap-3 text-left">
-                  <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
-                  <div className="text-[10px] text-emerald-300 font-bold uppercase tracking-wide leading-normal">
+                  <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0 mt-0.5" />
+                  <div className="text-[10px] text-emerald-700 font-bold uppercase tracking-wide leading-normal">
                     This action will automatically inject a ledger correction transaction of **₹{Math.abs(activeReconcileUser.gap).toLocaleString()}** into the user's audit logs. This brings the transaction logs into perfect reconciliation with their current wallet balance.
                   </div>
                 </div>
 
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Target Account Profile</p>
-                  <p className="text-xs font-extrabold text-white mt-1 uppercase tracking-wider">{activeReconcileUser.username}</p>
-                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">{activeReconcileUser.email}</p>
+                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Target Account Profile</p>
+                  <p className="text-xs font-extrabold text-slate-900 mt-1 uppercase tracking-wider">{activeReconcileUser.username}</p>
+                  <p className="text-[10px] text-slate-600 font-mono mt-0.5">{activeReconcileUser.email}</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4 bg-slate-950 p-4 rounded-xl border border-white/5">
+                <div className="grid grid-cols-2 gap-4 bg-white p-4 rounded-xl border border-slate-200">
                   <div>
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Reconciliation Gap</p>
-                    <p className="text-xs font-black text-red-400 mt-1 font-mono">₹{activeReconcileUser.gap.toLocaleString()}</p>
+                    <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Reconciliation Gap</p>
+                    <p className="text-xs font-black text-red-600 mt-1 font-mono">₹{activeReconcileUser.gap.toLocaleString()}</p>
                   </div>
                   <div>
-                    <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Correction Type</p>
-                    <p className="text-xs font-black text-emerald-400 mt-1 uppercase tracking-wider">
+                    <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Correction Type</p>
+                    <p className="text-xs font-black text-emerald-600 mt-1 uppercase tracking-wider">
                       {activeReconcileUser.gap > 0 ? "Deposit Log" : "Withdraw Log"}
                     </p>
                   </div>
                 </div>
 
-                <div className="flex gap-3 pt-3 border-t border-white/5">
+                <div className="flex gap-3 pt-3 border-t border-slate-200">
                   <button
                     onClick={() => setActiveReconcileUser(null)}
-                    className="flex-1 bg-transparent hover:bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-black uppercase text-slate-400 hover:text-white transition-all"
+                    className="flex-1 bg-transparent hover:bg-slate-900/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 transition-all"
                     disabled={isProcessing}
                   >
                     Cancel
@@ -664,32 +664,32 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setActiveFreezeUser(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="absolute inset-0 bg-white/80 backdrop-blur-md"
             />
 
             <motion.div
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              className="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden z-10"
+              className="relative w-full max-w-md bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-2xl overflow-hidden z-10"
             >
               <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-red-500 to-transparent" />
               <div className="flex items-center justify-between mb-6">
                 <div className="flex items-center gap-2">
                   <AlertTriangle className="w-5 h-5 text-red-500" />
-                  <h3 className="text-sm font-black text-white uppercase tracking-widest">
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">
                     {activeFreezeUser.isBanned ? "Pardon Suspended Account" : "Lock Suspicious Account"}
                   </h3>
                 </div>
-                <button onClick={() => setActiveFreezeUser(null)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-slate-400">
+                <button onClick={() => setActiveFreezeUser(null)} className="w-7 h-7 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div className="bg-red-500/5 border border-red-500/10 p-4 rounded-xl flex items-start gap-3 text-left">
-                  <AlertCircle className="w-5 h-5 text-red-400 shrink-0 mt-0.5" />
-                  <div className="text-[10px] text-red-300 font-bold uppercase tracking-wide leading-normal">
+                  <AlertCircle className="w-5 h-5 text-red-600 shrink-0 mt-0.5" />
+                  <div className="text-[10px] text-red-700 font-bold uppercase tracking-wide leading-normal">
                     {activeFreezeUser.isBanned 
                       ? "Restores full player permissions. The user will immediately be allowed to wager, buy/sell predictions, and make balance withdrawals."
                       : "Suspends the account instantly. This restricts bets, wagers, and deposits, locking current wallet balances from outgoing requests."}
@@ -697,15 +697,15 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                 </div>
 
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Target User</p>
-                  <p className="text-xs font-extrabold text-white mt-1 uppercase tracking-wider">{activeFreezeUser.username}</p>
-                  <p className="text-[10px] text-slate-400 font-mono mt-0.5">{activeFreezeUser.email}</p>
+                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Target User</p>
+                  <p className="text-xs font-extrabold text-slate-900 mt-1 uppercase tracking-wider">{activeFreezeUser.username}</p>
+                  <p className="text-[10px] text-slate-600 font-mono mt-0.5">{activeFreezeUser.email}</p>
                 </div>
 
-                <div className="flex gap-3 pt-3 border-t border-white/5">
+                <div className="flex gap-3 pt-3 border-t border-slate-200">
                   <button
                     onClick={() => setActiveFreezeUser(null)}
-                    className="flex-1 bg-transparent hover:bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-black uppercase text-slate-400 hover:text-white transition-all"
+                    className="flex-1 bg-transparent hover:bg-slate-900/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 transition-all"
                     disabled={isProcessing}
                   >
                     Cancel

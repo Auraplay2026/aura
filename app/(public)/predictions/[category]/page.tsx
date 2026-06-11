@@ -71,7 +71,7 @@ function PremiumMarketCard({ market, onTrade }: { market: any, onTrade: (market:
       onMouseMove={handleMouseMove}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
-      className="group relative rounded-3xl border border-slate-800 bg-slate-900/60 overflow-hidden backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] cursor-pointer"
+      className="group relative rounded-3xl border border-slate-200 bg-slate-50/60 overflow-hidden backdrop-blur-xl transition-all duration-500 hover:scale-[1.02] cursor-pointer"
       style={{ boxShadow: `0 0 40px ${glowTheme}` }}
     >
       <motion.div
@@ -83,19 +83,19 @@ function PremiumMarketCard({ market, onTrade }: { market: any, onTrade: (market:
       <div className="relative z-10 p-6 flex flex-col h-full">
         <div className="flex justify-between items-start mb-6">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-slate-950 border border-slate-800 flex items-center justify-center shadow-inner">
+            <div className="w-10 h-10 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-inner">
               <Star className="w-5 h-5 text-yellow-500 drop-shadow-[0_0_10px_rgba(234,179,8,0.8)]" />
             </div>
-            <span className="flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-slate-400 bg-slate-950/80 px-3 py-1.5 rounded-full border border-slate-800/80">
+            <span className="flex items-center gap-1.5 text-xs font-black uppercase tracking-widest text-slate-600 bg-white/80 px-3 py-1.5 rounded-full border border-slate-200/80">
               <DollarSign className="w-3 h-3 text-neon-yellow" /> {market.volume} Vol
             </span>
           </div>
-          <div className="flex items-center gap-1 text-xs font-bold text-slate-500 px-3 py-1.5 rounded-full border border-slate-800/50 bg-slate-950/40">
+          <div className="flex items-center gap-1 text-xs font-bold text-slate-500 px-3 py-1.5 rounded-full border border-slate-200/50 bg-white/40">
             <Activity className="w-3 h-3" /> LIVE
           </div>
         </div>
 
-        <h3 className="text-2xl font-black text-white leading-tight mb-8 pr-4 drop-shadow-md">{market.title}</h3>
+        <h3 className="text-2xl font-black text-slate-900 leading-tight mb-8 pr-4 drop-shadow-md">{market.title}</h3>
 
         <div className="mb-6 relative">
           <div className="absolute -inset-4 bg-gradient-to-r from-transparent via-slate-800/20 to-transparent z-0 blur-sm" />
@@ -109,7 +109,7 @@ function PremiumMarketCard({ market, onTrade }: { market: any, onTrade: (market:
           </div>
         </div>
 
-        <div className="w-full h-3 bg-slate-950 rounded-full overflow-hidden flex mb-6 relative border border-slate-800/80 shadow-inner">
+        <div className="w-full h-3 bg-white rounded-full overflow-hidden flex mb-6 relative border border-slate-200/80 shadow-inner">
           <motion.div initial={{ width: 0 }} animate={{ width: `${market.yes}%` }} transition={{ duration: 1, type: "spring" }} className="h-full bg-gradient-to-r from-green-500 to-neon-green shadow-[0_0_15px_rgba(34,197,94,0.8)] relative overflow-hidden">
             <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.3)_50%,transparent_75%)] bg-[length:15px_15px] animate-[shimmer_1s_linear_infinite]" />
           </motion.div>
@@ -117,20 +117,20 @@ function PremiumMarketCard({ market, onTrade }: { market: any, onTrade: (market:
         </div>
 
         <div className="grid grid-cols-2 gap-4 mt-auto">
-          <button onClick={() => onTrade(market, 'yes')} className="relative group/btn overflow-hidden rounded-2xl bg-slate-950 border border-green-500/30 hover:border-green-500 transition-all duration-300">
+          <button onClick={() => onTrade(market, 'yes')} className="relative group/btn overflow-hidden rounded-2xl bg-white border border-green-500/30 hover:border-green-500 transition-all duration-300">
             <div className="absolute inset-0 bg-green-500/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
             <div className="relative z-10 py-4 px-6 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-black text-green-500/80 uppercase tracking-widest mb-1 group-hover/btn:text-green-400 transition-colors">Trade Yes</span>
-              <span className="text-3xl font-black text-white group-hover/btn:text-neon-green transition-colors font-mono">{market.yes}¢</span>
+              <span className="text-[10px] font-black text-green-500/80 uppercase tracking-widest mb-1 group-hover/btn:text-green-600 transition-colors">Trade Yes</span>
+              <span className="text-3xl font-black text-slate-900 group-hover/btn:text-neon-green transition-colors font-mono">{market.yes}¢</span>
             </div>
             <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-green-500 to-transparent opacity-50 group-hover/btn:opacity-100 transition-opacity" />
           </button>
 
-          <button onClick={() => onTrade(market, 'no')} className="relative group/btn overflow-hidden rounded-2xl bg-slate-950 border border-red-500/30 hover:border-red-500 transition-all duration-300">
+          <button onClick={() => onTrade(market, 'no')} className="relative group/btn overflow-hidden rounded-2xl bg-white border border-red-500/30 hover:border-red-500 transition-all duration-300">
             <div className="absolute inset-0 bg-red-500/10 opacity-0 group-hover/btn:opacity-100 transition-opacity" />
             <div className="relative z-10 py-4 px-6 flex flex-col items-center justify-center">
-              <span className="text-[10px] font-black text-red-500/80 uppercase tracking-widest mb-1 group-hover/btn:text-red-400 transition-colors">Trade No</span>
-              <span className="text-3xl font-black text-white group-hover/btn:text-red-500 transition-colors font-mono">{market.no}¢</span>
+              <span className="text-[10px] font-black text-red-500/80 uppercase tracking-widest mb-1 group-hover/btn:text-red-600 transition-colors">Trade No</span>
+              <span className="text-3xl font-black text-slate-900 group-hover/btn:text-red-500 transition-colors font-mono">{market.no}¢</span>
             </div>
             <div className="absolute bottom-0 left-0 h-[2px] w-full bg-gradient-to-r from-transparent via-red-500 to-transparent opacity-50 group-hover/btn:opacity-100 transition-opacity" />
           </button>

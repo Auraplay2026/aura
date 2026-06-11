@@ -68,30 +68,30 @@ export function Wheel() {
   const payout = resultMultiplier !== null ? (betAmount * resultMultiplier).toFixed(2) : "0.00";
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-[#0f172a] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
       {/* Betting Controller */}
-      <div className="w-full lg:w-80 bg-slate-900/50 p-6 flex flex-col gap-6 border-r border-slate-800 shrink-0">
+      <div className="w-full lg:w-80 bg-slate-50/50 p-6 flex flex-col gap-6 border-r border-slate-200 shrink-0">
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 flex justify-between">
+          <label className="text-sm font-bold text-slate-600 mb-2 flex justify-between">
             <span>Bet Amount</span>
             <span className="text-slate-500">₹</span>
           </label>
-          <div className="flex bg-slate-950 rounded-xl border border-slate-800 p-1">
+          <div className="flex bg-white rounded-xl border border-slate-200 p-1">
             <input 
               type="number" 
               value={betAmount} 
               disabled={isSpinning}
               onChange={(e) => setBetAmount(Number(e.target.value))}
-              className="w-full bg-transparent text-white font-bold px-3 focus:outline-none disabled:opacity-50"
+              className="w-full bg-transparent text-slate-900 font-bold px-3 focus:outline-none disabled:opacity-50"
             />
-            <button disabled={isSpinning} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
-            <div className="w-[1px] bg-slate-800 mx-1"></div>
-            <button disabled={isSpinning} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
+            <button disabled={isSpinning} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
+            <div className="w-[1px] bg-slate-100 mx-1"></div>
+            <button disabled={isSpinning} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 block">Risk Level</label>
+          <label className="text-sm font-bold text-slate-600 mb-2 block">Risk Level</label>
           <div className="grid grid-cols-3 gap-2">
             {(["low", "medium", "high"] as Risk[]).map(r => (
               <button 
@@ -99,7 +99,7 @@ export function Wheel() {
                 disabled={isSpinning}
                 onClick={() => setRisk(r)}
                 className={`py-2 rounded-lg font-bold text-sm capitalize transition-colors ${
-                  risk === r ? "bg-slate-700 text-white shadow-lg" : "bg-slate-950 border border-slate-800 text-slate-400 hover:bg-slate-800 disabled:opacity-50"
+                  risk === r ? "bg-slate-700 text-slate-900 shadow-lg" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                 }`}
               >
                 {r}
@@ -113,7 +113,7 @@ export function Wheel() {
             onClick={handleSpin}
             disabled={isSpinning}
             className={`w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg ${
-              isSpinning ? "bg-slate-800 text-slate-500 cursor-not-allowed" :
+              isSpinning ? "bg-slate-100 text-slate-500 cursor-not-allowed" :
               "bg-neon-green hover:bg-green-400 text-slate-950 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
             }`}
           >
@@ -123,7 +123,7 @@ export function Wheel() {
       </div>
 
       {/* Interactive Game Canvas */}
-      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-slate-950 overflow-hidden">
+      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-white overflow-hidden">
         
         {/* The Wheel */}
         <div className="relative w-80 h-80 sm:w-96 sm:h-96 drop-shadow-[0_0_40px_rgba(16,185,129,0.1)]">
@@ -133,7 +133,7 @@ export function Wheel() {
           <motion.div
             animate={{ rotate: rotation }}
             transition={{ duration: 4, ease: [0.1, 0.9, 0.2, 1] }} // smooth deceleration curve
-            className="w-full h-full rounded-full border-8 border-slate-800 relative overflow-hidden bg-slate-900"
+            className="w-full h-full rounded-full border-8 border-slate-200 relative overflow-hidden bg-slate-50"
           >
             {segments.map((mult, i) => {
               const rotationDeg = i * 36;
@@ -156,7 +156,7 @@ export function Wheel() {
               );
             })}
             {/* Center Hub */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-slate-800 rounded-full border-4 border-slate-700 shadow-inner z-10" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 bg-slate-100 rounded-full border-4 border-slate-700 shadow-inner z-10" />
           </motion.div>
         </div>
 

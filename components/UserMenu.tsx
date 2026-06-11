@@ -27,17 +27,17 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
   };
 
   const MENU_ITEMS = [
-    { label: "Cashier", icon: Wallet, action: onOpenCashier, color: "text-[#22c55e]" },
+    { label: "Cashier", icon: Wallet, action: onOpenCashier, color: "text-green-600" },
     ...(currentUser?.role === 'admin' ? [
-      { label: "Admin Deposits", icon: Settings, href: "/admin/deposits", color: "text-yellow-500 font-black" },
-      { label: "RTP Live Monitor", icon: Shield, href: "/admin/rtp-monitor", color: "text-yellow-500 font-black" },
-      { label: "AI Support Desk", icon: MessageSquare, href: "/admin/support", color: "text-yellow-500 font-black" }
+      { label: "Admin Deposits", icon: Settings, href: "/admin/deposits", color: "text-yellow-600 font-black" },
+      { label: "RTP Live Monitor", icon: Shield, href: "/admin/rtp-monitor", color: "text-yellow-600 font-black" },
+      { label: "AI Support Desk", icon: MessageSquare, href: "/admin/support", color: "text-yellow-600 font-black" }
     ] : []),
-    { label: "Top 1% Portfolios", icon: Crown, href: "/vip/top-portfolios", color: "text-amber-400 font-black drop-shadow-[0_0_5px_rgba(251,191,36,0.8)]" },
+    { label: "Top 1% Portfolios", icon: Crown, href: "/vip/top-portfolios", color: "text-amber-500 font-black shadow-sm" },
     { label: "Account Settings", icon: Settings, href: "/account" },
     { label: "History", icon: History, href: "/history" },
     { label: "Refer & Earn", icon: Gift, href: "/refer" },
-    { label: "VIP Club", icon: Crown, href: "/vip", color: "text-[#eab308]" },
+    { label: "VIP Club", icon: Crown, href: "/vip", color: "text-yellow-600" },
     { label: "Help Center", icon: HelpCircle, href: "/support" },
   ];
 
@@ -45,9 +45,9 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-10 h-10 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700 hover:border-slate-500 transition-colors focus:outline-none overflow-hidden"
+        className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center border border-slate-200 hover:border-slate-300 transition-colors focus:outline-none overflow-hidden"
       >
-        <span className="font-black text-slate-300 text-sm">
+        <span className="font-black text-slate-700 text-sm">
           {currentUser ? getInitials(currentUser.username) : "P1"}
         </span>
       </button>
@@ -61,29 +61,29 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
               animate={{ opacity: 1, y: 0, scale: 1 }}
               exit={{ opacity: 0, y: 10, scale: 0.95 }}
               transition={{ duration: 0.2, ease: "easeOut" }}
-              className="absolute right-0 mt-3 w-64 bg-slate-950/90 backdrop-blur-2xl shadow-[0_0_40px_rgba(0,0,0,0.5)] rounded-2xl z-50 py-2 border border-slate-800/80 transform origin-top-right ring-1 ring-white/5"
+              className="absolute right-0 mt-3 w-64 bg-white/95 backdrop-blur-2xl shadow-xl rounded-2xl z-50 py-2 border border-slate-200 transform origin-top-right"
             >
-              <div className="px-4 py-3 border-b border-slate-800/50">
-                <p className="text-sm font-bold text-white tracking-wide truncate">
+              <div className="px-4 py-3 border-b border-slate-100">
+                <p className="text-sm font-bold text-slate-900 tracking-wide truncate">
                   {currentUser?.username || "PlayerOne"}
                 </p>
-                <p className="text-[10px] text-slate-400 font-medium truncate mt-0.5">
+                <p className="text-[10px] text-slate-500 font-medium truncate mt-0.5">
                   {currentUser?.email || "demo@aurabet.io"}
                 </p>
-                <p className="text-xs text-[#a855f7] font-semibold mt-1">VIP Gold Tier</p>
+                <p className="text-xs text-blue-600 font-semibold mt-1">VIP Gold Tier</p>
               </div>
 
               {currentUser && (
-                <div className="px-4 py-2.5 border-b border-slate-800/50 flex flex-col gap-2 bg-black/10">
+                <div className="px-4 py-2.5 border-b border-slate-100 flex flex-col gap-2 bg-slate-50">
                   <p className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Account Mode</p>
-                  <div className="bg-black/60 p-1 rounded-xl flex border border-white/5 relative">
+                  <div className="bg-white p-1 rounded-xl flex border border-slate-200 relative">
                     <button
                       onClick={() => switchAccountType('demo')}
                       className={cn(
                         "flex-1 py-1 text-center text-xs font-black rounded-lg transition-all",
                         currentUser.accountType === 'demo'
-                          ? "bg-purple-600 text-white shadow-[0_0_10px_rgba(168,85,247,0.3)]"
-                          : "text-slate-400 hover:text-white"
+                          ? "bg-blue-600 text-white shadow-md"
+                          : "text-slate-500 hover:text-slate-900"
                       )}
                     >
                       Demo
@@ -93,8 +93,8 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                       className={cn(
                         "flex-1 py-1 text-center text-xs font-black rounded-lg transition-all",
                         currentUser.accountType === 'real'
-                          ? "bg-emerald-500 text-slate-950 shadow-[0_0_10px_rgba(34,197,94,0.3)]"
-                          : "text-slate-400 hover:text-white"
+                          ? "bg-green-500 text-white shadow-md"
+                          : "text-slate-500 hover:text-slate-900"
                       )}
                     >
                       Real
@@ -110,9 +110,9 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                       key={item.label}
                       href={item.href} 
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors group"
+                      className="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors group"
                     >
-                      <item.icon className={`w-4 h-4 ${item.color || "text-slate-500 group-hover:text-slate-300 transition-colors"}`} /> 
+                      <item.icon className={`w-4 h-4 ${item.color || "text-slate-600 group-hover:text-slate-600 transition-colors"}`} /> 
                       {item.label}
                     </Link>
                   ) : (
@@ -122,22 +122,22 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                         setIsOpen(false);
                         item.action?.();
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 transition-colors group"
+                      className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors group"
                     >
-                      <item.icon className={`w-4 h-4 ${item.color || "text-slate-500 group-hover:text-slate-300 transition-colors"}`} /> 
+                      <item.icon className={`w-4 h-4 ${item.color || "text-slate-600 group-hover:text-slate-600 transition-colors"}`} /> 
                       {item.label}
                     </button>
                   )
                 ))}
               </div>
 
-              <div className="mt-2 pt-2 border-t border-slate-800/50">
+              <div className="mt-2 pt-2 border-t border-slate-100">
                 <button 
                   onClick={() => {
                     setIsOpen(false);
                     logout();
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-400 hover:text-red-300 hover:bg-red-950/20 transition-colors"
+                  className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors"
                 >
                   <LogOut className="w-4 h-4" /> Sign Out
                 </button>

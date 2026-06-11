@@ -71,10 +71,10 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
   }, [isPlaying, isTurbo, theme]);
 
   return (
-    <div className={`w-full bg-black/80 backdrop-blur-2xl border-4 ${theme.borderClass} rounded-3xl p-4 md:p-6 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden`}>
+    <div className={`w-full bg-white/80 backdrop-blur-2xl border-4 ${theme.borderClass} rounded-3xl p-4 md:p-6 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden`}>
       <div className="grid gap-2 h-64 md:h-96 relative" style={{ gridTemplateColumns: `repeat(${theme.cols}, minmax(0, 1fr))` }}>
         {reels.map((col, cIdx) => (
-          <div key={cIdx} className={`${theme.slotBg} rounded-xl overflow-hidden relative border border-white/10 shadow-inner flex justify-center`}>
+          <div key={cIdx} className={`${theme.slotBg} rounded-xl overflow-hidden relative border border-slate-200 shadow-inner flex justify-center`}>
             <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80 z-10 pointer-events-none" />
             
             <motion.div 
@@ -87,7 +87,7 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
             >
               {col.map((sym, rIdx) => (
                 <div key={rIdx} className={`text-5xl md:text-7xl lg:text-8xl flex items-center justify-center w-full h-full relative ${!spinStops[cIdx] ? (theme.animationType === "tumble" ? "blur-[2px]" : "blur-[8px] opacity-70 scale-125") : "scale-100"}`}>
-                  <div className="absolute inset-0 bg-white/5 backdrop-blur-[1px] rounded-2xl opacity-50 m-2 border border-white/10" />
+                  <div className="absolute inset-0 bg-slate-900/5 backdrop-blur-[1px] rounded-2xl opacity-50 m-2 border border-slate-200" />
                   <span className="relative z-10 drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] filter transition-all duration-300 group-hover:drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">
                     {sym}
                   </span>

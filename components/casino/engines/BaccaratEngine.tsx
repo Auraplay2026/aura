@@ -71,13 +71,13 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
 
       <div className="absolute top-10 text-center opacity-30 select-none">
         <h2 className="text-yellow-600 font-black text-2xl md:text-3xl tracking-[0.4em] uppercase">ROYAL BACCARAT TABLE</h2>
-        <span className="text-white text-[9px] font-bold tracking-widest mt-1 block">TIE PAYS 8 TO 1</span>
+        <span className="text-slate-900 text-[9px] font-bold tracking-widest mt-1 block">TIE PAYS 8 TO 1</span>
       </div>
 
       <div className="relative z-10 w-full flex flex-col md:flex-row gap-12 justify-center mt-12 px-6">
         {/* Banker */}
         <div className="flex flex-col items-center gap-2">
-          <span className="text-[10px] text-blue-400 font-black uppercase tracking-wider">Banker Hand</span>
+          <span className="text-[10px] text-blue-600 font-black uppercase tracking-wider">Banker Hand</span>
           <div className="flex gap-2 min-h-[112px]">
             {bankerHand.map((card, idx) => (
               <motion.div
@@ -92,7 +92,7 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
             ))}
           </div>
           {bankerHand.length > 0 && (
-            <span className="text-white font-mono font-bold text-xs bg-slate-900 border border-white/5 px-4 py-1 rounded-full shadow-inner">
+            <span className="text-slate-900 font-mono font-bold text-xs bg-slate-50 border border-slate-200 px-4 py-1 rounded-full shadow-inner">
               Banker: {bankerScore}
             </span>
           )}
@@ -100,7 +100,7 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
 
         {/* Player */}
         <div className="flex flex-col items-center gap-2">
-          <span className="text-[10px] text-blue-400 font-black uppercase tracking-wider">Player Hand</span>
+          <span className="text-[10px] text-blue-600 font-black uppercase tracking-wider">Player Hand</span>
           <div className="flex gap-2 min-h-[112px]">
             {playerHand.map((card, idx) => (
               <motion.div
@@ -115,7 +115,7 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
             ))}
           </div>
           {playerHand.length > 0 && (
-            <span className="text-white font-mono font-bold text-xs bg-slate-900 border border-white/5 px-4 py-1 rounded-full shadow-inner">
+            <span className="text-slate-900 font-mono font-bold text-xs bg-slate-50 border border-slate-200 px-4 py-1 rounded-full shadow-inner">
               Player: {playerScore}
             </span>
           )}

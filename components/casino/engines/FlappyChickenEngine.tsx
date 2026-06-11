@@ -256,13 +256,13 @@ export function FlappyChickenEngine({ isPlaying, onComplete }: FlappyChickenEngi
     <div className="relative w-full h-full flex flex-col items-center justify-center select-none" onClick={jump}>
       {/* Top HUD */}
       <div className="absolute top-6 left-6 right-6 flex justify-between items-start z-10 pointer-events-none">
-        <div className="bg-black/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-white/10">
-          <p className="text-slate-400 text-xs font-bold uppercase tracking-widest mb-1">Score</p>
-          <p className="text-3xl font-black text-white font-mono">{score}</p>
+        <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-200">
+          <p className="text-slate-600 text-xs font-bold uppercase tracking-widest mb-1">Score</p>
+          <p className="text-3xl font-black text-slate-900 font-mono">{score}</p>
         </div>
-        <div className="bg-black/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-neon-purple/30 shadow-[0_0_20px_rgba(168,85,247,0.2)] text-right">
+        <div className="bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-neon-purple/30 shadow-[0_0_20px_rgba(168,85,247,0.2)] text-right">
           <p className="text-neon-purple text-xs font-bold uppercase tracking-widest mb-1">Current Multi</p>
-          <p className="text-3xl font-black text-white font-mono">{multiplier.toFixed(2)}x</p>
+          <p className="text-3xl font-black text-slate-900 font-mono">{multiplier.toFixed(2)}x</p>
         </div>
       </div>
 
@@ -270,7 +270,7 @@ export function FlappyChickenEngine({ isPlaying, onComplete }: FlappyChickenEngi
         ref={canvasRef}
         width={800}
         height={600}
-        className="w-full h-full object-contain bg-[#050914] cursor-pointer"
+        className="w-full h-full object-contain bg-white cursor-pointer"
       />
 
       {/* Game Over Overlay */}
@@ -280,13 +280,13 @@ export function FlappyChickenEngine({ isPlaying, onComplete }: FlappyChickenEngi
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 backdrop-blur-sm pointer-events-none"
+            className="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-sm pointer-events-none"
           >
-            <div className="bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center shadow-2xl max-w-sm">
-              <h2 className="text-3xl font-black text-white mb-2 uppercase tracking-tight">Crashed!</h2>
-              <p className="text-slate-400 font-medium mb-6">You successfully navigated {score} pipes.</p>
+            <div className="bg-slate-50 border border-slate-200 p-8 rounded-3xl text-center shadow-2xl max-w-sm">
+              <h2 className="text-3xl font-black text-slate-900 mb-2 uppercase tracking-tight">Crashed!</h2>
+              <p className="text-slate-600 font-medium mb-6">You successfully navigated {score} pipes.</p>
               
-              <div className="bg-black/50 rounded-2xl p-4 border border-white/5 mb-6">
+              <div className="bg-slate-900/50 rounded-2xl p-4 border border-slate-200 mb-6">
                 <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-1">Final Multiplier</p>
                 <p className={score > 0 ? "text-4xl font-black text-neon-green font-mono drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "text-4xl font-black text-red-500 font-mono"}>
                   {score > 0 ? multiplier.toFixed(2) : "0.00"}x
@@ -302,7 +302,7 @@ export function FlappyChickenEngine({ isPlaying, onComplete }: FlappyChickenEngi
         
         {!isPlaying && !gameOver && (
            <div className="absolute inset-0 z-20 flex items-center justify-center pointer-events-none">
-             <div className="bg-black/80 backdrop-blur-md border border-white/10 px-8 py-4 rounded-full text-white font-black tracking-widest uppercase animate-pulse shadow-[0_0_30px_rgba(255,255,255,0.1)]">
+             <div className="bg-white/80 backdrop-blur-md border border-slate-200 px-8 py-4 rounded-full text-slate-900 font-black tracking-widest uppercase animate-pulse shadow-[0_0_30px_rgba(255,255,255,0.1)]">
                Press Play or Space to Start
              </div>
            </div>

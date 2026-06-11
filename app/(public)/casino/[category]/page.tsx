@@ -1,259 +1,234 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { Gamepad2, Search, Filter, Star, ChevronDown, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { Gamepad2, Search, Filter, Star, ChevronDown, X, Heart, ShieldAlert, BadgeInfo, Play } from "lucide-react";
+import Link from "next/link";
 import { useState, use, useMemo } from "react";
 import { GameCard } from "@/components/casino/GameCard";
-import { LiveActionFeed } from "@/components/casino/LiveActionFeed";
-
+import { useTradingStore } from "@/lib/store";
 import { GAMES, getGamesByCategory, CategoryId } from "@/lib/games";
 
-const PROVIDERS = ["All", "Originals", "Pragmatic Play", "Play'n GO", "Evolution", "Spribe", "Pragmatic Play Live", "BetRadar", "1X2 Gaming", "NetEnt", "Push Gaming", "Relax Gaming", "BGaming"];
+const PROVIDERS = ["All", "Originals", "Pragmatic Play", "Evolution", "Spribe", "NetEnt"];
+const TOKENS = [20, 50, 100, 200, 500];
 
-// Using React.use() to unwrap params in Next.js 15+
 export default function CasinoCategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const unwrappedParams = use(params);
   const categorySlug = unwrappedParams.category.toLowerCase();
   const categoryName = categorySlug.replace(/-/g, " ");
+  
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvider, setSelectedProvider] = useState("All");
   const [showProviderDropdown, setShowProviderDropdown] = useState(false);
   const [sortPopular, setSortPopular] = useState(false);
 
-  // Category metadata for hero banner
-  const CATEGORY_META: Record<string, { emoji: string; label: string; desc: string; accent: string; image: string }> = {
-    aaa:        { emoji: "⚡", label: "AAA Cloud Gaming",      desc: "Stream the world's biggest titles from our cloud nodes.",           accent: "from-purple-600 to-indigo-900", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg" },
-    fps:        { emoji: "🔫", label: "FPS & Shooters",        desc: "High-adrenaline first-person shooters streamed at 60FPS.",          accent: "from-red-700 to-slate-900",    image: "/games/krunker_1780932718197.png" },
-    driving:    { emoji: "🏎️", label: "Racing & Simulators",   desc: "Feel every corner — cloud-rendered racing at 2K60.",               accent: "from-green-700 to-slate-900",  image: "/games/evo_race-track-3-R_1h--SOL.jpeg" },
-    action:     { emoji: "⚔️", label: "RPG & Adventure",       desc: "Open worlds, epic RPGs and action-adventures on demand.",           accent: "from-blue-700 to-slate-900",  image: "/games/gamingcorps_AztecRitual-hiQjxsUxE.jpeg" },
-    puzzle:     { emoji: "🧩", label: "Strategy & Co-op",      desc: "Brain-bending strategy and cooperative multiplayer.",              accent: "from-cyan-700 to-slate-900",  image: "/games/roobetlabs_trex-arcade-bomb-defuse-5X6Y9LtAg.jpeg" },
-    boring:     { emoji: "🌾", label: "Cozy & Chill",          desc: "Relaxing simulation and life games to unwind.",                    accent: "from-emerald-700 to-slate-900",image: "/games/hub88_hyh_cooked-DHUjfSTnh.jpeg" },
-    slots:      { emoji: "🎰", label: "Premium Slots",          desc: "Thousands of slots with live Drops & Wins jackpots.",              accent: "from-yellow-600 to-orange-900",image: "/games/pragmatic_vs20sugarrushx.jpg" },
-    originals:  { emoji: "🎲", label: "Originals & Crash",     desc: "Exclusive in-house games. Provably fair, always on.",              accent: "from-rose-700 to-slate-900",  image: "/games/housegames_crash-aBwlW8Ez2.jpeg" },
-    crash:      { emoji: "🚀", label: "Crash Games",            desc: "Cash out before it crashes — heart-pounding multipliers.",        accent: "from-red-600 to-slate-900",   image: "/games/spribe_aviator-7zuT5hj-B.jpeg" },
-    live:       { emoji: "🔴", label: "Live Dealer Shows",      desc: "Real dealers, real time — broadcast from our studios.",           accent: "from-pink-700 to-slate-900",  image: "/games/live_cover_crazy.png" },
-    roulette:   { emoji: "🎡", label: "Roulette",               desc: "Classic and modern roulette across premium live tables.",          accent: "from-emerald-600 to-slate-900",image: "/games/live_cover_roulette.png" },
-    blackjack:  { emoji: "🃏", label: "Blackjack VIP",          desc: "Unlimited-player Blackjack — Free Bet, VIP Diamond and more.",    accent: "from-slate-600 to-black",    image: "/games/live_cover_blackjack.png" },
-    poker:      { emoji: "♠️", label: "Poker & Card Games",    desc: "Texas Hold'em, Triple Card, Video Poker and more.",               accent: "from-indigo-600 to-slate-900",image: "/games/evo_blackjack-vip-19-eUcYAImJF.jpeg" },
-    casual:     { emoji: "😎", label: "Casual Games",           desc: "Jump-in, jump-out fun with no learning curve.",                   accent: "from-amber-600 to-slate-900", image: "/games/funny_thumbnail_1780932135777.png" },
-    funny:      { emoji: "😂", label: "Funny & Weird",          desc: "Silly physics and unexpected chaos — for a good laugh.",          accent: "from-pink-600 to-slate-900",  image: "/games/funny_thumbnail_1780932135777.png" },
+  // Casino State
+  const [activeToken, setActiveToken] = useState<number>(100);
+  const [bets, setBets] = useState<Record<string, number>>({});
+  const { balance } = useTradingStore();
+
+  const handleBetDrop = (zone: string) => {
+    setBets(prev => ({
+      ...prev,
+      [zone]: (prev[zone] || 0) + activeToken
+    }));
   };
 
-  const meta = CATEGORY_META[categorySlug] || {
-    emoji: "🎮", label: categoryName, desc: `Explore all ${categoryName} games on AuraPlay.`,
-    accent: "from-slate-700 to-slate-900", image: "/games/pragmatic_vswaysmadame.jpg"
-  };
+  const clearBets = () => setBets({});
+  const repeatBets = () => { /* No-op for demo */ };
+  const submitBets = () => { alert("Bets submitted!"); setBets({}); };
 
-  const categoryMap: Record<string, CategoryId> = {
-    // Casino games
-    "slots": "slots",
-    "live": "live",
-    "shows": "shows",
-    "table": "table",
-    "originals": "originals",
-    "crash": "crash",
-    "poker": "poker",
-    "esports": "esports",
-    "roulette": "roulette",
-    "blackjack": "blackjack",
-    "baccarat": "baccarat",
-    "dice": "table",
-    "mines": "puzzle",
-    // Cloud gaming
-    "aaa": "aaa",
-    "fps": "fps",
-    "driving": "driving",
-    "action": "action",
-    "puzzle": "puzzle",
-    "boring": "boring",
-    "casual": "casual",
-    "funny": "funny",
-    "adventure": "adventure",
-    "racing": "racing",
-    "open-world": "open-world",
-    "3d": "3d",
-    // Aliases
-    "racing-sims": "driving",
-    "shooters": "fps",
-    "cloud": "aaa",
-  };
-
-  
-  const mappedCategory = categoryMap[categorySlug];
-  
-  const games = useMemo(() => {
-    let result = mappedCategory ? getGamesByCategory(mappedCategory) : 
-                  (categorySlug === "popular" || categorySlug === "favorites") ? 
-                  GAMES.slice(0).sort((a,b) => (b.players || 0) - (a.players || 0)) : 
-                  GAMES.slice(0, 20);
-
-    // Search filter
-    if (searchQuery.trim()) {
-      result = result.filter(game => game.title.toLowerCase().includes(searchQuery.toLowerCase()));
-    }
-
-    // Provider filter
-    if (selectedProvider !== "All") {
-      result = result.filter(game => game.provider === selectedProvider);
-    }
-
-    // Popular sort
-    if (sortPopular) {
-      result = [...result].sort((a, b) => (b.players || 0) - (a.players || 0));
-    }
-
-    return result;
-  }, [mappedCategory, unwrappedParams.category, searchQuery, selectedProvider, sortPopular]);
-
-  return (
-    <div className="flex min-h-full w-full max-w-[1600px] mx-auto text-slate-200 p-4 sm:p-6 lg:p-8 flex-col space-y-8">
-      
-      {/* Dynamic Hero Banner */}
-      <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full h-48 md:h-64 rounded-3xl overflow-hidden relative group shrink-0"
-      >
-        <div className={`absolute inset-0 bg-gradient-to-r ${meta.accent} opacity-90 z-10`} />
-        <img 
-          src={meta.image}
-          alt={meta.label}
-          className="absolute inset-0 w-full h-full object-cover opacity-30 group-hover:scale-105 transition-transform duration-700 mix-blend-overlay"
-        />
-        <div className="relative z-20 h-full flex flex-col justify-center px-8 md:px-12">
-          <span className="text-white/60 font-bold uppercase tracking-widest text-xs mb-2 flex items-center gap-2">
-            <Gamepad2 className="w-4 h-4" /> AuraPlay
-          </span>
-          <h1 className="text-4xl md:text-6xl font-black text-white drop-shadow-lg tracking-tight flex items-center gap-4">
-            <span className="text-4xl md:text-5xl">{meta.emoji}</span>
-            {meta.label}
-          </h1>
-          <p className="text-white/70 mt-2 max-w-md font-medium">{meta.desc}</p>
-          <div className="mt-3 inline-flex items-center gap-2 bg-white/10 rounded-full px-4 py-1.5 w-fit">
-            <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-            <span className="text-white/80 text-xs font-bold">{games.length} games available</span>
-          </div>
-        </div>
-      </motion.div>
-
-      {/* Controls */}
-      <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-900/40 p-4 rounded-2xl border border-slate-800/80 backdrop-blur-xl">
-        <div className="relative w-full sm:w-64">
-          <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-          <input 
-            type="text" 
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search games..." 
-            className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-9 pr-9 py-2.5 text-sm focus:outline-none focus:border-neon-purple transition-colors shadow-inner"
-          />
-          {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-white">
-              <X className="w-4 h-4" />
-            </button>
-          )}
-        </div>
-        <div className="flex gap-2 w-full sm:w-auto">
-          {/* Provider Dropdown */}
-          <div className="relative flex-1 sm:flex-none">
-            <button 
-              onClick={() => setShowProviderDropdown(!showProviderDropdown)}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-slate-950 border border-slate-800 rounded-xl text-sm font-bold text-slate-300 hover:text-white hover:border-neon-purple/50 transition-colors"
-            >
-              <Filter className="w-4 h-4" /> 
-              {selectedProvider === "All" ? "Providers" : selectedProvider}
-              <ChevronDown className={`w-3 h-3 transition-transform ${showProviderDropdown ? 'rotate-180' : ''}`} />
-            </button>
-            {showProviderDropdown && (
-              <div className="absolute top-full mt-2 left-0 w-56 bg-slate-950 border border-slate-800 rounded-xl overflow-hidden z-50 shadow-2xl">
-                {PROVIDERS.map(p => (
-                  <button 
-                    key={p} 
-                    onClick={() => { setSelectedProvider(p); setShowProviderDropdown(false); }}
-                    className={`w-full text-left px-4 py-2.5 text-sm font-bold transition-colors ${p === selectedProvider ? 'bg-neon-purple text-white' : 'text-slate-300 hover:bg-slate-800'}`}
-                  >
-                    {p}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
-          {/* Popular Sort Toggle */}
+  const TokenCarousel = () => (
+    <div className="flex flex-col items-center gap-4 mt-8 w-full max-w-2xl mx-auto">
+      <div className="flex items-center justify-center gap-3 w-full border border-exchange-border rounded-sm bg-slate-50 p-3">
+        {TOKENS.map(token => (
           <button 
-            onClick={() => setSortPopular(!sortPopular)}
-            className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-4 py-2.5 border rounded-xl text-sm font-bold transition-all ${
-              sortPopular 
-                ? 'bg-neon-yellow/10 border-neon-yellow/50 text-neon-yellow shadow-[0_0_15px_rgba(234,179,8,0.15)]' 
-                : 'bg-slate-950 border-slate-800 text-slate-300 hover:text-white'
+            key={token}
+            onClick={() => setActiveToken(token)}
+            className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all ${
+              activeToken === token 
+                ? "bg-blue-600 text-white shadow-lg scale-110 border-4 border-blue-200" 
+                : "bg-white text-exchange-text border-2 border-exchange-border hover:bg-slate-100"
             }`}
           >
-            <Star className="w-4 h-4" /> Popular
+            ${token}
           </button>
+        ))}
+      </div>
+      <div className="flex items-center gap-6">
+        <button onClick={clearBets} className="text-exchange-muted hover:text-exchange-text font-bold uppercase tracking-widest text-xs transition-colors">Cancel</button>
+        <button onClick={repeatBets} className="text-exchange-muted hover:text-exchange-text font-bold uppercase tracking-widest text-xs transition-colors">Repeat</button>
+        <button onClick={submitBets} className="text-blue-600 hover:text-blue-800 font-black uppercase tracking-widest text-xs transition-colors">Submit</button>
+      </div>
+    </div>
+  );
+
+  // Specific Nodes
+  if (categorySlug === "blackjack") {
+    return (
+      <div className="flex flex-col h-[calc(100vh-56px)] w-full bg-exchange-bg p-6 overflow-y-auto">
+        <div className="max-w-4xl mx-auto w-full flex flex-col items-center">
+          <h1 className="text-2xl font-black text-exchange-text uppercase tracking-widest mb-2">Blackjack Node</h1>
+          <p className="text-sm text-exchange-muted font-medium mb-12">Place tokens on primary or side-bet zones</p>
+
+          <div className="relative w-full aspect-[2/1] max-w-3xl bg-slate-100 border border-exchange-border rounded-t-full flex flex-col items-center justify-end pb-12 shadow-inner">
+            <div className="absolute top-1/4 text-center text-slate-700 font-black text-4xl uppercase tracking-[0.5em] select-none pointer-events-none">
+              Dealer Must Draw to 16
+            </div>
+            
+            <div className="flex gap-12 relative z-10">
+              {/* Perfect Pairs */}
+              <button 
+                onClick={() => handleBetDrop("perfect-pairs")}
+                className="w-24 h-24 rounded-full border-2 border-dashed border-exchange-border flex flex-col items-center justify-center bg-slate-900/50 hover:bg-blue-50 transition-colors relative"
+              >
+                <span className="text-[10px] font-bold text-exchange-muted uppercase">Pairs</span>
+                {bets["perfect-pairs"] && (
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-blue-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
+                    ${bets["perfect-pairs"]}
+                  </div>
+                )}
+              </button>
+
+              {/* Main Hand */}
+              <button 
+                onClick={() => handleBetDrop("main")}
+                className="w-32 h-32 rounded-full border-4 border-exchange-border flex flex-col items-center justify-center bg-white hover:bg-blue-50 transition-colors relative shadow-sm"
+              >
+                <span className="text-xs font-black text-exchange-text uppercase">Main Hand</span>
+                {bets["main"] && (
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-lg">
+                    ${bets["main"]}
+                  </div>
+                )}
+              </button>
+
+              {/* Bonus */}
+              <button 
+                onClick={() => handleBetDrop("bonus")}
+                className="w-24 h-24 rounded-full border-2 border-dashed border-exchange-border flex flex-col items-center justify-center bg-slate-900/50 hover:bg-blue-50 transition-colors relative"
+              >
+                <span className="text-[10px] font-bold text-exchange-muted uppercase">Bonus</span>
+                {bets["bonus"] && (
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-blue-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
+                    ${bets["bonus"]}
+                  </div>
+                )}
+              </button>
+            </div>
+          </div>
+
+          <TokenCarousel />
         </div>
       </div>
+    );
+  }
 
-      {/* Active Filters */}
-      {(selectedProvider !== "All" || sortPopular || searchQuery) && (
-        <div className="flex flex-wrap gap-2 items-center">
-          <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Active Filters:</span>
-          {selectedProvider !== "All" && (
-            <button onClick={() => setSelectedProvider("All")} className="flex items-center gap-1.5 bg-neon-purple/10 border border-neon-purple/30 text-neon-purple text-xs font-bold px-3 py-1.5 rounded-full hover:bg-neon-purple/20 transition-colors">
-              {selectedProvider} <X className="w-3 h-3" />
-            </button>
-          )}
-          {sortPopular && (
-            <button onClick={() => setSortPopular(false)} className="flex items-center gap-1.5 bg-neon-yellow/10 border border-neon-yellow/30 text-neon-yellow text-xs font-bold px-3 py-1.5 rounded-full hover:bg-neon-yellow/20 transition-colors">
-              Popular <X className="w-3 h-3" />
-            </button>
-          )}
-          {searchQuery && (
-            <button onClick={() => setSearchQuery("")} className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/30 text-blue-400 text-xs font-bold px-3 py-1.5 rounded-full hover:bg-blue-500/20 transition-colors">
-              &quot;{searchQuery}&quot; <X className="w-3 h-3" />
-            </button>
-          )}
-          <button onClick={() => { setSelectedProvider("All"); setSortPopular(false); setSearchQuery(""); }} className="text-xs font-bold text-slate-500 hover:text-white transition-colors underline underline-offset-2 ml-2">
-            Clear All
-          </button>
+  if (categorySlug === "poker") {
+    return (
+      <div className="flex flex-col h-[calc(100vh-56px)] w-full bg-exchange-bg p-6 overflow-y-auto">
+        <div className="max-w-5xl mx-auto w-full flex flex-col">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-2xl font-black text-exchange-text uppercase tracking-widest">Human Poker Node</h1>
+            <div className="flex items-center gap-3 bg-white px-4 py-2 border border-exchange-border rounded-sm">
+              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="text-xs font-bold text-exchange-text tracking-widest uppercase">Live Feed Active</span>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            
+            <div className="lg:col-span-2 bg-slate-50 border border-exchange-border rounded-sm p-6 flex flex-col items-center justify-center min-h-[400px] relative">
+              {/* Community Cards */}
+              <div className="flex gap-3 mb-16">
+                {["A♠", "K♥", "Q♣", "J♦", "10♠"].map((card, i) => (
+                  <div key={i} className="w-16 h-24 bg-white border border-slate-300 rounded-md shadow-sm flex items-center justify-center text-xl font-black text-slate-800">
+                    {card}
+                  </div>
+                ))}
+              </div>
+
+              {/* Player Cards */}
+              <div className="flex gap-4 relative">
+                {/* Hand Strength Badge */}
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-blue-100 text-blue-800 border border-blue-200 px-3 py-1 rounded-sm text-xs font-bold tracking-widest uppercase whitespace-nowrap shadow-sm">
+                  Strength: 92% (Straight)
+                </div>
+                <div className="w-20 h-28 bg-white border border-slate-300 rounded-md shadow-md flex items-center justify-center text-2xl font-black text-slate-800 rotate-[-5deg]">
+                  A♣
+                </div>
+                <div className="w-20 h-28 bg-white border border-slate-300 rounded-md shadow-md flex items-center justify-center text-2xl font-black text-red-600 rotate-[5deg]">
+                  K♦
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-4">
+              <div className="bg-slate-50 border border-exchange-border rounded-sm p-6 flex-1 flex flex-col justify-center gap-6">
+                <span className="text-xs font-bold text-exchange-muted uppercase tracking-widest text-center">Action Required</span>
+                <div className="grid grid-cols-2 gap-4">
+                  <button className="text-center text-exchange-muted hover:text-exchange-text font-black text-xl uppercase tracking-widest transition-colors py-4">Fold</button>
+                  <button className="text-center text-exchange-muted hover:text-exchange-text font-black text-xl uppercase tracking-widest transition-colors py-4">Check</button>
+                  <button className="text-center text-blue-600 hover:text-blue-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Call $500</button>
+                  <button className="text-center text-pink-600 hover:text-pink-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Raise</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
         </div>
-      )}
+      </div>
+    );
+  }
 
-      {/* Game Grid */}
-      {games.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-5 pb-12">
+  // Generic List Layout
+  const mappedCategory = categorySlug as CategoryId;
+  const games = getGamesByCategory(mappedCategory) || GAMES.slice(0, 20);
+
+  return (
+    <div className="flex flex-col h-[calc(100vh-56px)] w-full bg-exchange-bg p-6 overflow-y-auto">
+      <div className="max-w-[1600px] mx-auto w-full space-y-6">
+        
+        <div className="flex flex-col sm:flex-row justify-between items-center gap-4 bg-white p-4 border border-exchange-border rounded-sm">
+          <div className="relative w-full sm:w-64">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-exchange-muted" />
+            <input 
+              type="text" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search nodes..." 
+              className="w-full bg-slate-50 border border-exchange-border rounded-sm pl-9 pr-9 py-2 text-xs font-medium text-exchange-text focus:outline-none focus:border-blue-500"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-exchange-muted hover:text-exchange-text">
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+          <div className="text-sm font-bold text-exchange-text uppercase tracking-widest">
+            {categoryName}
+          </div>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-12">
           {games.map((game, i) => (
-            <motion.div
-              key={game.id}
-              initial={{ opacity: 0, scale: 0.9 }}
-              animate={{ opacity: 1, scale: 1 }}
-              transition={{ delay: i * 0.03 }}
-            >
-              <GameCard {...game} />
-            </motion.div>
+            <Link href={`/casino/game/${game.id}`} key={game.id} className="bg-white border border-exchange-border rounded-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer block">
+              <div className="aspect-[4/3] bg-slate-100 relative">
+                <img src={game.image} alt={game.title} className="w-full h-full object-cover" />
+                <div className="absolute inset-0 bg-white/0 group-hover:bg-slate-900/20 transition-colors flex items-center justify-center">
+                  <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white rounded-full p-3 shadow-lg transform scale-90 group-hover:scale-100">
+                    <Play className="w-5 h-5 fill-current" />
+                  </div>
+                </div>
+              </div>
+              <div className="p-3">
+                <h3 className="font-bold text-xs text-exchange-text truncate mb-1">{game.title}</h3>
+                <span className="text-[10px] text-exchange-muted uppercase">{game.provider}</span>
+              </div>
+            </Link>
           ))}
         </div>
-      ) : (
-        <div className="py-20 text-center">
-          <p className="text-slate-500 font-bold text-lg mb-4">No games found {searchQuery ? `matching "${searchQuery}"` : 'for these filters'}</p>
-          <button 
-            onClick={() => { setSearchQuery(""); setSelectedProvider("All"); setSortPopular(false); }}
-            className="bg-neon-purple/20 border border-neon-purple/30 text-neon-purple px-6 py-2.5 rounded-xl text-sm font-bold hover:bg-neon-purple/30 transition-colors"
-          >
-            Reset Filters
-          </button>
-        </div>
-      )}
 
-      {/* Results count */}
-      <div className="text-center text-xs font-bold text-slate-600">
-        Showing {games.length} game{games.length !== 1 ? 's' : ''} 
-        {selectedProvider !== "All" && ` by ${selectedProvider}`}
       </div>
-
-      {/* Live Bets Footer Feed */}
-      <div className="pt-8">
-        <LiveActionFeed />
-      </div>
-
     </div>
   );
 }

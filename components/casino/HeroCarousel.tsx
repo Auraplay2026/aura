@@ -57,7 +57,7 @@ export function HeroCarousel() {
   const slide = SLIDES[currentSlide];
 
   return (
-    <div className="relative w-full min-h-[400px] sm:min-h-[450px] lg:min-h-[500px] rounded-3xl overflow-hidden border border-slate-800 shadow-2xl group flex">
+    <div className="relative w-full min-h-[400px] sm:min-h-[450px] lg:min-h-[500px] rounded-3xl overflow-hidden border border-slate-200 shadow-2xl group flex">
       <AnimatePresence mode="wait">
         <motion.div
           key={slide.id}
@@ -83,7 +83,7 @@ export function HeroCarousel() {
           <div className="relative z-10 px-6 sm:px-12 md:px-16 w-full md:w-2/3 space-y-4 py-8">
             <motion.span 
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="inline-block px-4 py-1.5 bg-white/10 text-white text-[10px] font-black rounded-full border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)] uppercase tracking-widest backdrop-blur-md"
+              className="inline-block px-4 py-1.5 bg-slate-900/10 text-slate-900 text-[10px] font-black rounded-full border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)] uppercase tracking-widest backdrop-blur-md"
             >
               <span className="mr-2 inline-block w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
               {slide.badge}
@@ -91,7 +91,7 @@ export function HeroCarousel() {
             
             <motion.h1 
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}
-              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-white leading-[1.1] tracking-tighter drop-shadow-2xl"
+              className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tighter drop-shadow-2xl"
             >
               {slide.title} <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-500 filter drop-shadow-lg">
@@ -101,7 +101,7 @@ export function HeroCarousel() {
             
             <motion.p 
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}
-              className="text-slate-300 text-base sm:text-lg max-w-lg font-medium leading-relaxed drop-shadow-md"
+              className="text-slate-700 text-base sm:text-lg max-w-lg font-medium leading-relaxed drop-shadow-md"
             >
               {slide.desc}
             </motion.p>
@@ -129,7 +129,7 @@ export function HeroCarousel() {
             key={idx}
             onClick={() => setCurrentSlide(idx)}
             className={`w-2.5 h-2.5 rounded-full transition-all ${
-              idx === currentSlide ? "bg-white w-8" : "bg-white/30 hover:bg-white/50"
+              idx === currentSlide ? "bg-white w-8" : "bg-slate-900/30 hover:bg-slate-900/50"
             }`}
           />
         ))}

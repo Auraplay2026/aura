@@ -25,36 +25,36 @@ export function Coinflip() {
   const payout = isWin ? (betAmount * 1.98).toFixed(2) : "0.00";
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full h-[600px] bg-[#0f172a] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="flex flex-col lg:flex-row gap-6 w-full h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
       {/* Betting Controller */}
-      <div className="w-full lg:w-80 bg-slate-900/50 p-6 flex flex-col gap-6 border-r border-slate-800 shrink-0">
+      <div className="w-full lg:w-80 bg-slate-50/50 p-6 flex flex-col gap-6 border-r border-slate-200 shrink-0">
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 flex justify-between">
+          <label className="text-sm font-bold text-slate-600 mb-2 flex justify-between">
             <span>Bet Amount</span>
             <span className="text-slate-500">₹</span>
           </label>
-          <div className="flex bg-slate-950 rounded-xl border border-slate-800 p-1">
+          <div className="flex bg-white rounded-xl border border-slate-200 p-1">
             <input 
               type="number" 
               value={betAmount} 
               disabled={gameState === "flipping"}
               onChange={(e) => setBetAmount(Number(e.target.value))}
-              className="w-full bg-transparent text-white font-bold px-3 focus:outline-none disabled:opacity-50"
+              className="w-full bg-transparent text-slate-900 font-bold px-3 focus:outline-none disabled:opacity-50"
             />
-            <button disabled={gameState === "flipping"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
-            <div className="w-[1px] bg-slate-800 mx-1"></div>
-            <button disabled={gameState === "flipping"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
+            <button disabled={gameState === "flipping"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
+            <div className="w-[1px] bg-slate-100 mx-1"></div>
+            <button disabled={gameState === "flipping"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 block">Select Side</label>
+          <label className="text-sm font-bold text-slate-600 mb-2 block">Select Side</label>
           <div className="flex gap-2">
             <button 
               disabled={gameState === "flipping"}
               onClick={() => setSelectedSide("heads")}
               className={`flex-1 py-4 rounded-xl font-black text-lg transition-all border-2 ${
-                selectedSide === "heads" ? "bg-yellow-500/20 border-yellow-500 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]" : "bg-slate-950 border-slate-800 text-slate-500 hover:bg-slate-900"
+                selectedSide === "heads" ? "bg-yellow-500/20 border-yellow-500 text-yellow-500 shadow-[0_0_15px_rgba(234,179,8,0.3)]" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
               }`}
             >
               HEADS
@@ -63,7 +63,7 @@ export function Coinflip() {
               disabled={gameState === "flipping"}
               onClick={() => setSelectedSide("tails")}
               className={`flex-1 py-4 rounded-xl font-black text-lg transition-all border-2 ${
-                selectedSide === "tails" ? "bg-blue-500/20 border-blue-500 text-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.3)]" : "bg-slate-950 border-slate-800 text-slate-500 hover:bg-slate-900"
+                selectedSide === "tails" ? "bg-blue-500/20 border-blue-500 text-blue-600 shadow-[0_0_15px_rgba(59,130,246,0.3)]" : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
               }`}
             >
               TAILS
@@ -76,8 +76,8 @@ export function Coinflip() {
             onClick={handleFlip}
             disabled={gameState === "flipping" || !selectedSide}
             className={`w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg ${
-              gameState === "flipping" ? "bg-slate-800 text-slate-500" :
-              !selectedSide ? "bg-slate-800 text-slate-500 cursor-not-allowed" :
+              gameState === "flipping" ? "bg-slate-100 text-slate-500" :
+              !selectedSide ? "bg-slate-100 text-slate-500 cursor-not-allowed" :
               "bg-neon-green hover:bg-green-400 text-slate-950 shadow-[0_0_20px_rgba(34,197,94,0.3)]"
             }`}
           >
@@ -87,7 +87,7 @@ export function Coinflip() {
       </div>
 
       {/* Interactive Game Canvas */}
-      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-slate-950 overflow-hidden perspective-1000">
+      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-white overflow-hidden perspective-1000">
         
         {/* Dynamic mesh gradient background */}
         <div className={`absolute inset-0 opacity-20 transition-all duration-1000 ${

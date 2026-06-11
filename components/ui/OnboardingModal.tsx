@@ -127,7 +127,7 @@ export function OnboardingModal() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 backdrop-blur-md z-[98]"
+            className="fixed inset-0 bg-white/90 backdrop-blur-md z-[98]"
           />
 
           {/* Modal Container */}
@@ -137,7 +137,7 @@ export function OnboardingModal() {
             exit={{ opacity: 0, scale: 0.95, y: 30 }}
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-lg z-[99] p-4"
           >
-            <div className="bg-[#0b0c16] border border-slate-800/80 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden relative p-8">
+            <div className="bg-slate-50 border border-slate-200/80 rounded-3xl shadow-[0_0_50px_rgba(0,0,0,0.8)] overflow-hidden relative p-8">
               
               {/* Dynamic Glow Background responsive to step/mode selection */}
               <div className={cn(
@@ -160,7 +160,7 @@ export function OnboardingModal() {
                         "w-2.5 h-1 rounded-full transition-all duration-300",
                         i === step 
                           ? "w-6 bg-yellow-500" 
-                          : (i < step ? "bg-emerald-500" : "bg-slate-800")
+                          : (i < step ? "bg-emerald-500" : "bg-slate-100")
                       )}
                     />
                   ))}
@@ -172,7 +172,7 @@ export function OnboardingModal() {
                 <motion.div
                   initial={{ opacity: 0, y: -10 }}
                   animate={{ opacity: 1, y: 0 }}
-                  className="mb-6 p-4 bg-red-500/15 border border-red-500/30 text-red-400 rounded-2xl text-xs font-semibold flex items-center gap-2 relative z-10"
+                  className="mb-6 p-4 bg-red-500/15 border border-red-500/30 text-red-600 rounded-2xl text-xs font-semibold flex items-center gap-2 relative z-10"
                 >
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   {formError}
@@ -194,21 +194,21 @@ export function OnboardingModal() {
                       <Sparkles className="w-8 h-8 text-[#a855f7] animate-pulse" />
                     </div>
                     <div className="space-y-2">
-                      <h1 className="text-2xl font-black text-white tracking-tight uppercase">Initialize Trading Engine</h1>
-                      <p className="text-sm text-slate-400 max-w-sm mx-auto leading-relaxed">
+                      <h1 className="text-2xl font-black text-slate-900 tracking-tight uppercase">Initialize Trading Engine</h1>
+                      <p className="text-sm text-slate-600 max-w-sm mx-auto leading-relaxed">
                         Welcome to AuraPlay Premium. Let's configure your account portfolios and guide you through standard setups.
                       </p>
                     </div>
                     
                     <div className="w-full grid grid-cols-2 gap-3 text-left">
-                      <div className="p-3.5 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
-                        <TrendingUp className="w-4 h-4 text-purple-400 mb-1" />
-                        <h3 className="text-xs font-bold text-white uppercase">Predictions</h3>
+                      <div className="p-3.5 bg-slate-50/40 border border-slate-200/60 rounded-2xl">
+                        <TrendingUp className="w-4 h-4 text-purple-600 mb-1" />
+                        <h3 className="text-xs font-bold text-slate-900 uppercase">Predictions</h3>
                         <p className="text-[10px] text-slate-500 mt-0.5">Trade on Yes/No options in news & events.</p>
                       </div>
-                      <div className="p-3.5 bg-slate-900/40 border border-slate-800/60 rounded-2xl">
+                      <div className="p-3.5 bg-slate-50/40 border border-slate-200/60 rounded-2xl">
                         <Trophy className="w-4 h-4 text-yellow-500 mb-1" />
-                        <h3 className="text-xs font-bold text-white uppercase">Live iGaming</h3>
+                        <h3 className="text-xs font-bold text-slate-900 uppercase">Live iGaming</h3>
                         <p className="text-[10px] text-slate-500 mt-0.5">Originals, Sportsbook, and casino slots.</p>
                       </div>
                     </div>
@@ -224,8 +224,8 @@ export function OnboardingModal() {
                     className="space-y-6 flex flex-col items-center"
                   >
                     <div className="text-center space-y-2">
-                      <h2 className="text-xl font-black text-white uppercase tracking-wide">Choose Account Type</h2>
-                      <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+                      <h2 className="text-xl font-black text-slate-900 uppercase tracking-wide">Choose Account Type</h2>
+                      <p className="text-xs text-slate-600 max-w-sm leading-relaxed">
                         Select your initial trading environment. You can switch wallets instantly in your profile.
                       </p>
                     </div>
@@ -238,19 +238,19 @@ export function OnboardingModal() {
                         className={cn(
                           "p-5 rounded-2xl border text-left flex flex-col gap-2 transition-all cursor-pointer relative overflow-hidden group",
                           selectedType === 'demo'
-                            ? "bg-purple-950/20 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)]"
-                            : "bg-slate-900/20 border-slate-800 hover:border-slate-700"
+                            ? "bg-purple-100 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)]"
+                            : "bg-slate-50/20 border-slate-200 hover:border-slate-700"
                         )}
                       >
                         <span className={cn(
                           "text-[9px] font-black uppercase px-2 py-0.5 rounded-full tracking-wider w-fit select-none",
-                          selectedType === 'demo' ? "bg-purple-500/20 text-[#a855f7]" : "bg-slate-800 text-slate-400"
+                          selectedType === 'demo' ? "bg-purple-500/20 text-[#a855f7]" : "bg-slate-100 text-slate-600"
                         )}>
                           Practice Mode
                         </span>
                         <div>
-                          <h3 className="text-sm font-black text-white uppercase">Demo Wallet</h3>
-                          <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                          <h3 className="text-sm font-black text-slate-900 uppercase">Demo Wallet</h3>
+                          <p className="text-[10px] text-slate-600 mt-1 leading-relaxed">
                             Loaded with ₹100,000 practice power. Perfect to learn, simulate, and test strategies.
                           </p>
                         </div>
@@ -263,19 +263,19 @@ export function OnboardingModal() {
                         className={cn(
                           "p-5 rounded-2xl border text-left flex flex-col gap-2 transition-all cursor-pointer relative overflow-hidden group",
                           selectedType === 'real'
-                            ? "bg-emerald-950/20 border-emerald-500 shadow-[0_0_20px_rgba(34,197,94,0.15)]"
-                            : "bg-slate-900/20 border-slate-800 hover:border-slate-700"
+                            ? "bg-emerald-100 border-emerald-500 shadow-[0_0_20px_rgba(34,197,94,0.15)]"
+                            : "bg-slate-50/20 border-slate-200 hover:border-slate-700"
                         )}
                       >
                         <span className={cn(
                           "text-[9px] font-black uppercase px-2 py-0.5 rounded-full tracking-wider w-fit select-none",
-                          selectedType === 'real' ? "bg-emerald-500/20 text-emerald-400" : "bg-slate-800 text-slate-400"
+                          selectedType === 'real' ? "bg-emerald-500/20 text-emerald-600" : "bg-slate-100 text-slate-600"
                         )}>
                           Live Mode
                         </span>
                         <div>
-                          <h3 className="text-sm font-black text-white uppercase">Real Wallet</h3>
-                          <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                          <h3 className="text-sm font-black text-slate-900 uppercase">Real Wallet</h3>
+                          <p className="text-[10px] text-slate-600 mt-1 leading-relaxed">
                             Funded at ₹0 starting. Connect your UPI, make deposits, and play for withdrawable profit.
                           </p>
                         </div>
@@ -296,39 +296,39 @@ export function OnboardingModal() {
                       /* Demo Setup Details */
                       <div className="space-y-4">
                         <div className="text-center space-y-1">
-                          <h2 className="text-lg font-black text-white uppercase tracking-wide">Demo Account Configuration</h2>
-                          <p className="text-xs text-slate-400">Initialize your ₹100,000 virtual balance.</p>
+                          <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">Demo Account Configuration</h2>
+                          <p className="text-xs text-slate-600">Initialize your ₹100,000 virtual balance.</p>
                         </div>
                         
-                        <div className="bg-slate-900/30 border border-slate-800/80 rounded-2xl p-5 space-y-3">
+                        <div className="bg-slate-50/30 border border-slate-200/80 rounded-2xl p-5 space-y-3">
                           <div className="flex items-center gap-3">
                             <span className="w-5 h-5 rounded-full bg-purple-500/15 flex items-center justify-center shrink-0">
                               <Check className="w-3 h-3 text-[#a855f7]" />
                             </span>
-                            <span className="text-xs text-slate-200">Simulated wallet isolate active.</span>
+                            <span className="text-xs text-slate-800">Simulated wallet isolate active.</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="w-5 h-5 rounded-full bg-purple-500/15 flex items-center justify-center shrink-0">
                               <Check className="w-3 h-3 text-[#a855f7]" />
                             </span>
-                            <span className="text-xs text-slate-200">Real-time live feeds and game results enabled.</span>
+                            <span className="text-xs text-slate-800">Real-time live feeds and game results enabled.</span>
                           </div>
                           <div className="flex items-center gap-3">
                             <span className="w-5 h-5 rounded-full bg-purple-500/15 flex items-center justify-center shrink-0">
                               <Check className="w-3 h-3 text-[#a855f7]" />
                             </span>
-                            <span className="text-xs text-slate-200">Restore or recharge practice power at any time.</span>
+                            <span className="text-xs text-slate-800">Restore or recharge practice power at any time.</span>
                           </div>
                         </div>
 
-                        <label className="flex items-start gap-3 p-3 bg-purple-950/10 border border-purple-500/20 rounded-xl cursor-pointer">
+                        <label className="flex items-start gap-3 p-3 bg-purple-100 border border-purple-500/20 rounded-xl cursor-pointer">
                           <input 
                             type="checkbox"
                             checked={agreedDemo}
                             onChange={(e) => setAgreedDemo(e.target.checked)}
-                            className="mt-0.5 rounded border-slate-700 bg-black text-[#a855f7] focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                            className="mt-0.5 rounded border-slate-700 bg-white text-[#a855f7] focus:ring-0 focus:ring-offset-0 cursor-pointer"
                           />
-                          <span className="text-[11px] text-slate-300 leading-tight">
+                          <span className="text-[11px] text-slate-700 leading-tight">
                             I understand that all funds inside my Demo Wallet are mock virtual credits and cannot be withdrawn as real money.
                           </span>
                         </label>
@@ -337,8 +337,8 @@ export function OnboardingModal() {
                       /* Real Account KYC Setup Details */
                       <div className="space-y-4">
                         <div className="text-center space-y-1">
-                          <h2 className="text-lg font-black text-white uppercase tracking-wide">Real Wallet Setup</h2>
-                          <p className="text-xs text-slate-400">Complete mock KYC compliance to enable live deposits.</p>
+                          <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">Real Wallet Setup</h2>
+                          <p className="text-xs text-slate-600">Complete mock KYC compliance to enable live deposits.</p>
                         </div>
 
                         <div className="space-y-3">
@@ -354,7 +354,7 @@ export function OnboardingModal() {
                                 value={phone}
                                 onChange={e => setPhone(e.target.value.replace(/\D/g, '').substring(0, 10))}
                                 placeholder="9876543210"
-                                className="w-full bg-black border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
+                                className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
                               />
                             </div>
                           </div>
@@ -369,7 +369,7 @@ export function OnboardingModal() {
                               <select
                                 value={stateName}
                                 onChange={e => setStateName(e.target.value)}
-                                className="w-full bg-black border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer appearance-none"
+                                className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer appearance-none"
                               >
                                 {INDIAN_STATES.map(st => (
                                   <option key={st} value={st}>{st}</option>
@@ -390,20 +390,20 @@ export function OnboardingModal() {
                                 value={upiId}
                                 onChange={e => setUpiId(e.target.value)}
                                 placeholder="name@upi"
-                                className="w-full bg-black border border-slate-800 rounded-xl py-2.5 pl-10 pr-4 text-xs text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
+                                className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500 transition-colors font-mono"
                               />
                             </div>
                           </div>
                         </div>
 
-                        <label className="flex items-start gap-3 p-3 bg-emerald-950/15 border border-emerald-500/20 rounded-xl cursor-pointer">
+                        <label className="flex items-start gap-3 p-3 bg-emerald-100 border border-emerald-500/20 rounded-xl cursor-pointer">
                           <input 
                             type="checkbox"
                             checked={agreedToTerms}
                             onChange={(e) => setAgreedToTerms(e.target.checked)}
-                            className="mt-0.5 rounded border-slate-700 bg-black text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                            className="mt-0.5 rounded border-slate-700 bg-white text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
                           />
-                          <span className="text-[10px] text-slate-300 leading-tight">
+                          <span className="text-[10px] text-slate-700 leading-tight">
                             I certify that I am 18+ years of age, residing in an eligible state, and accept the compliance terms.
                           </span>
                         </label>
@@ -421,30 +421,30 @@ export function OnboardingModal() {
                     className="space-y-4"
                   >
                     <div className="text-center space-y-1">
-                      <h2 className="text-lg font-black text-white uppercase tracking-wide">Interface Walkthrough</h2>
-                      <p className="text-xs text-slate-400">Learn how to manage your wallets on the platform.</p>
+                      <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">Interface Walkthrough</h2>
+                      <p className="text-xs text-slate-600">Learn how to manage your wallets on the platform.</p>
                     </div>
 
                     <div className="space-y-3">
-                      <div className="p-4 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex gap-3.5 items-start">
+                      <div className="p-4 bg-slate-50/40 border border-slate-200/80 rounded-2xl flex gap-3.5 items-start">
                         <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center shrink-0 mt-0.5">
                           <ShieldCheck className="w-4 h-4 text-yellow-500" />
                         </div>
                         <div>
-                          <h4 className="text-xs font-bold text-white uppercase">Top Balance Display</h4>
-                          <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
-                            Your active balance shows in the website header. Next to it, a tag indicates <span className="text-[#a855f7] font-bold">DEMO</span> or <span className="text-emerald-400 font-bold">REAL</span> mode.
+                          <h4 className="text-xs font-bold text-slate-900 uppercase">Top Balance Display</h4>
+                          <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
+                            Your active balance shows in the website header. Next to it, a tag indicates <span className="text-[#a855f7] font-bold">DEMO</span> or <span className="text-emerald-600 font-bold">REAL</span> mode.
                           </p>
                         </div>
                       </div>
 
-                      <div className="p-4 bg-slate-900/40 border border-slate-800/80 rounded-2xl flex gap-3.5 items-start">
+                      <div className="p-4 bg-slate-50/40 border border-slate-200/80 rounded-2xl flex gap-3.5 items-start">
                         <div className="w-8 h-8 rounded-full bg-yellow-500/10 flex items-center justify-center shrink-0 mt-0.5">
                           <HelpCircle className="w-4 h-4 text-yellow-500" />
                         </div>
                         <div>
-                          <h4 className="text-xs font-bold text-white uppercase">Instant Wallet Toggle</h4>
-                          <p className="text-[11px] text-slate-400 mt-1 leading-relaxed">
+                          <h4 className="text-xs font-bold text-slate-900 uppercase">Instant Wallet Toggle</h4>
+                          <p className="text-[11px] text-slate-600 mt-1 leading-relaxed">
                             Click your profile picture in the upper-right corner. Use the sliding selector to toggle between Demo (Practice) and Real (Live) accounts instantly.
                           </p>
                         </div>
@@ -466,9 +466,9 @@ export function OnboardingModal() {
                     </div>
                     
                     <div className="space-y-1">
-                      <h2 className="text-xl font-black text-white uppercase tracking-tight">Onboarding Completed!</h2>
-                      <p className="text-xs text-slate-400 max-w-sm mx-auto leading-relaxed">
-                        Your setup is fully synced with the backend in <span className={cn("font-bold capitalize", selectedType === 'real' ? "text-emerald-400" : "text-[#a855f7]")}>{selectedType}</span> mode.
+                      <h2 className="text-xl font-black text-slate-900 uppercase tracking-tight">Onboarding Completed!</h2>
+                      <p className="text-xs text-slate-600 max-w-sm mx-auto leading-relaxed">
+                        Your setup is fully synced with the backend in <span className={cn("font-bold capitalize", selectedType === 'real' ? "text-emerald-600" : "text-[#a855f7]")}>{selectedType}</span> mode.
                       </p>
                     </div>
 
@@ -477,10 +477,10 @@ export function OnboardingModal() {
                       <div className="absolute right-0 top-0 w-24 h-24 bg-[#a855f7]/5 blur-xl rounded-full" />
                       <div className="text-left">
                         <p className="text-[8px] font-black text-[#a855f7] tracking-widest uppercase">Welcome Reward</p>
-                        <h4 className="text-sm font-black text-white uppercase mt-0.5">
+                        <h4 className="text-sm font-black text-slate-900 uppercase mt-0.5">
                           {selectedType === 'real' ? "100% Deposit Match Activated" : "VIP Practice Medal Granted"}
                         </h4>
-                        <p className="text-[10px] text-slate-400 mt-1 leading-relaxed">
+                        <p className="text-[10px] text-slate-600 mt-1 leading-relaxed">
                           {selectedType === 'real' ? "Make your first deposit to get up to ₹10,000 extra balance match." : "Enjoy risk-free trading simulator mode with zero limits."}
                         </p>
                       </div>
@@ -494,11 +494,11 @@ export function OnboardingModal() {
               </div>
 
               {/* Actions Footer */}
-              <div className="flex gap-3 mt-8 pt-6 border-t border-slate-900/60 relative z-10">
+              <div className="flex gap-3 mt-8 pt-6 border-t border-slate-200/60 relative z-10">
                 {step > 0 && step < 4 && (
                   <button
                     onClick={handleBack}
-                    className="flex-1 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-300 font-bold py-3 rounded-xl transition-colors cursor-pointer text-xs uppercase tracking-wider"
+                    className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors cursor-pointer text-xs uppercase tracking-wider"
                   >
                     Back
                   </button>

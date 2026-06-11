@@ -107,10 +107,10 @@ export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
 
       {/* Header stats */}
       <div className="relative z-10 flex items-center justify-between">
-        <div className="flex items-center gap-2 bg-black/40 border border-purple-500/20 rounded-xl px-4 py-2">
-          <Ticket className="w-4 h-4 text-purple-400" />
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Selected:</span>
-          <span className="text-white font-black text-sm">{selectedNumbers.length}/10</span>
+        <div className="flex items-center gap-2 bg-white/40 border border-purple-500/20 rounded-xl px-4 py-2">
+          <Ticket className="w-4 h-4 text-purple-600" />
+          <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Selected:</span>
+          <span className="text-slate-900 font-black text-sm">{selectedNumbers.length}/10</span>
         </div>
 
         <AnimatePresence>
@@ -122,7 +122,7 @@ export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
               className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-black text-sm ${
                 hits >= 3
                   ? "bg-neon-green/10 border-neon-green/40 text-neon-green"
-                  : "bg-red-500/10 border-red-500/40 text-red-400"
+                  : "bg-red-500/10 border-red-500/40 text-red-600"
               }`}
             >
               <Star className="w-4 h-4" />
@@ -131,10 +131,10 @@ export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
           )}
         </AnimatePresence>
 
-        <div className="flex items-center gap-2 bg-black/40 border border-purple-500/20 rounded-xl px-4 py-2">
-          <Hash className="w-4 h-4 text-fuchsia-400" />
-          <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Drawn:</span>
-          <span className="text-white font-black text-sm">{drawnNumbers.length}/10</span>
+        <div className="flex items-center gap-2 bg-white/40 border border-purple-500/20 rounded-xl px-4 py-2">
+          <Hash className="w-4 h-4 text-fuchsia-600" />
+          <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Drawn:</span>
+          <span className="text-slate-900 font-black text-sm">{drawnNumbers.length}/10</span>
         </div>
       </div>
 
@@ -152,7 +152,7 @@ export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
                 className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black border-2 ${
                   isHit
                     ? "bg-purple-500 border-purple-300 text-white shadow-[0_0_15px_rgba(168,85,247,0.7)]"
-                    : "bg-slate-800 border-slate-600 text-slate-300"
+                    : "bg-slate-100 border-slate-600 text-slate-700"
                 }`}
               >
                 {n}
@@ -184,9 +184,9 @@ export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
                 whileTap={gameState !== "drawing" ? { scale: 0.9 } : {}}
                 className={`aspect-square rounded-lg flex items-center justify-center text-xs md:text-sm font-black border transition-all duration-200 ${
                   isHit ? "bg-purple-500 border-purple-300 text-white shadow-[0_0_12px_rgba(168,85,247,0.6)]" :
-                  isSelected ? "bg-indigo-600/80 border-indigo-400 text-white" :
-                  isMiss ? "bg-slate-800/50 border-slate-700/50 text-slate-600" :
-                  "bg-white/5 border-white/10 text-slate-400 hover:bg-purple-900/30 hover:border-purple-500/40 hover:text-white"
+                  isSelected ? "bg-indigo-600/80 border-indigo-400 text-slate-900" :
+                  isMiss ? "bg-slate-100/50 border-slate-700/50 text-slate-600" :
+                  "bg-slate-900/5 border-slate-200 text-slate-600 hover:bg-purple-100 hover:border-purple-500/40 hover:text-slate-900"
                 }`}
               >
                 {num}

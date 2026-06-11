@@ -102,57 +102,57 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
   // Match game IDs to respective Lucide icons
   const getGameIcon = (gameId: string) => {
     switch (gameId) {
-      case 'dice': return <Dices className="w-4 h-4 text-indigo-400" />;
-      case 'mines': return <Bomb className="w-4 h-4 text-rose-400" />;
-      case 'plinko': return <HelpCircle className="w-4 h-4 text-emerald-400" />;
-      case 'limbo': return <ArrowUpRight className="w-4 h-4 text-cyan-400" />;
-      case 'crash': return <Zap className="w-4 h-4 text-amber-400" />;
-      case 'keno': return <Hash className="w-4 h-4 text-pink-400" />;
-      case 'coinflip': return <Coins className="w-4 h-4 text-teal-400" />;
-      case 'blackjack': return <Landmark className="w-4 h-4 text-purple-400" />;
-      default: return <Activity className="w-4 h-4 text-slate-400" />;
+      case 'dice': return <Dices className="w-4 h-4 text-indigo-600" />;
+      case 'mines': return <Bomb className="w-4 h-4 text-rose-600" />;
+      case 'plinko': return <HelpCircle className="w-4 h-4 text-emerald-600" />;
+      case 'limbo': return <ArrowUpRight className="w-4 h-4 text-cyan-600" />;
+      case 'crash': return <Zap className="w-4 h-4 text-amber-600" />;
+      case 'keno': return <Hash className="w-4 h-4 text-pink-600" />;
+      case 'coinflip': return <Coins className="w-4 h-4 text-teal-600" />;
+      case 'blackjack': return <Landmark className="w-4 h-4 text-purple-600" />;
+      default: return <Activity className="w-4 h-4 text-slate-600" />;
     }
   };
 
   // Match payment channel IDs to icons
   const getPaymentIcon = (methodId: string) => {
     switch (methodId) {
-      case 'upi': return <ArrowUpRight className="w-4 h-4 text-emerald-400" />;
-      case 'bank': return <Landmark className="w-4 h-4 text-indigo-400" />;
-      case 'crypto': return <Coins className="w-4 h-4 text-amber-400" />;
-      default: return <DollarSign className="w-4 h-4 text-slate-400" />;
+      case 'upi': return <ArrowUpRight className="w-4 h-4 text-emerald-600" />;
+      case 'bank': return <Landmark className="w-4 h-4 text-indigo-600" />;
+      case 'crypto': return <Coins className="w-4 h-4 text-amber-600" />;
+      default: return <DollarSign className="w-4 h-4 text-slate-600" />;
     }
   };
 
   return (
-    <div className="min-h-screen p-8 relative overflow-hidden bg-[#030307] text-slate-100">
+    <div className="min-h-screen p-8 relative overflow-hidden bg-slate-50 text-slate-900">
       
       {/* Toast Alert list */}
       <div className="fixed top-6 right-6 z-50 flex flex-col gap-3">
         {toasts.map(t => (
           <div key={t.id} className={`flex items-center gap-2.5 px-5 py-3.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300 animate-slide-in ${
-            t.type === 'success' ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300' :
-            t.type === 'error' ? 'bg-rose-950/80 border-rose-500/30 text-rose-300' :
-            'bg-slate-900/80 border-slate-800 text-slate-300'
+            t.type === 'success' ? 'bg-emerald-100 border-emerald-500/30 text-emerald-700' :
+            t.type === 'error' ? 'bg-rose-100 border-rose-500/30 text-rose-700' :
+            'bg-slate-50/80 border-slate-200 text-slate-700'
           }`}>
-            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-400" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-400" />}
+            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-600" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-600" />}
             <span className="text-xs font-semibold">{t.message}</span>
           </div>
         ))}
       </div>
 
       {/* Header bar */}
-      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-4">
+      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-6 gap-4">
         <div className="flex items-center gap-4">
           <div className="relative group">
             <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 opacity-60 blur-md" />
-            <div className="relative w-14 h-14 rounded-2xl bg-slate-950 border border-white/10 flex items-center justify-center">
+            <div className="relative w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center">
               <Sliders className="w-7 h-7 text-amber-500" />
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white tracking-widest uppercase">System Controls (RTP)</h1>
-            <p className="text-xs text-slate-500 font-medium tracking-wide uppercase mt-1">Configure global house margins and toggle game runtime registries.</p>
+            <h1 className="text-2xl font-black text-slate-900 tracking-widest uppercase">System Controls (RTP)</h1>
+            <p className="text-xs text-slate-600 font-medium tracking-wide uppercase mt-1">Configure global house margins and toggle game runtime registries.</p>
           </div>
         </div>
       </header>
@@ -161,17 +161,17 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
         
         {/* House Edge Widget */}
-        <div className="lg:col-span-3 bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
-          <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-4 mb-6 gap-3">
+        <div className="lg:col-span-3 bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl">
+          <div className="flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-4 mb-6 gap-3">
             <div className="flex items-center gap-2">
               <Sliders className="w-5 h-5 text-amber-500" />
               <div>
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">Global Margin Configuration</h3>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Adjust mathematical advantage on casino engine simulations.</p>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Global Margin Configuration</h3>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Adjust mathematical advantage on casino engine simulations.</p>
               </div>
             </div>
             <div className="bg-amber-500/15 border border-amber-500/30 px-4 py-2 rounded-xl text-center">
-              <span className="font-mono text-base font-black text-amber-400">{houseEdge.toFixed(1)}%</span>
+              <span className="font-mono text-base font-black text-amber-600">{houseEdge.toFixed(1)}%</span>
             </div>
           </div>
 
@@ -187,33 +187,33 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
                 onMouseUp={handleHouseEdgeSubmit}
                 onTouchEnd={handleHouseEdgeSubmit}
                 disabled={isProcessing}
-                className="w-full h-1.5 bg-slate-900 rounded-lg appearance-none cursor-pointer accent-amber-500 focus:outline-none"
+                className="w-full h-1.5 bg-slate-50 rounded-lg appearance-none cursor-pointer accent-amber-500 focus:outline-none"
               />
-              <span className="text-xs font-black text-slate-500 uppercase tracking-widest shrink-0">0% to 15%</span>
+              <span className="text-xs font-black text-slate-600 uppercase tracking-widest shrink-0">0% to 15%</span>
             </div>
             
-            <p className="text-[10px] text-slate-400 font-medium leading-relaxed max-w-2xl bg-white/[0.01] p-3 rounded-lg border border-white/[0.02]">
+            <p className="text-[10px] text-slate-600 font-medium leading-relaxed max-w-2xl bg-white/[0.01] p-3 rounded-lg border border-white/[0.02]">
               💡 <strong>System Note:</strong> The global house edge modifies the payout coefficient return values for casino games (Mines, Dice, Plinko, etc.) in real-time. Changes are applied instantly to player rounds without requiring game registry restarts.
             </p>
           </div>
         </div>
 
         {/* Game Switches Widget */}
-        <div className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl">
-          <div className="flex items-center gap-2.5 border-b border-white/5 pb-4 mb-4">
-            <Activity className="w-5 h-5 text-indigo-400" />
+        <div className="bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl">
+          <div className="flex items-center gap-2.5 border-b border-slate-200 pb-4 mb-4">
+            <Activity className="w-5 h-5 text-indigo-600" />
             <div>
-              <h3 className="text-xs font-black text-white uppercase tracking-widest">Game Kill-Switches</h3>
-              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Toggle runtime modules for specific categories.</p>
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Game Kill-Switches</h3>
+              <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Toggle runtime modules for specific categories.</p>
             </div>
           </div>
 
           <div className="space-y-3">
             {Object.entries(config.games).map(([gameId, game]) => (
-              <div key={gameId} className="flex items-center justify-between p-3 bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 rounded-xl transition">
+              <div key={gameId} className="flex items-center justify-between p-3 bg-white/[0.01] hover:bg-white/[0.02] border border-slate-200 rounded-xl transition">
                 <div className="flex items-center gap-2.5">
                   {getGameIcon(gameId)}
-                  <span className="text-xs font-bold text-slate-300 uppercase tracking-wider">{game.name}</span>
+                  <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">{game.name}</span>
                 </div>
                 <div className="flex items-center gap-3">
                   <span className={`w-1.5 h-1.5 rounded-full ${!game.disabled ? 'bg-emerald-400 shadow-[0_0_6px_#10b981]' : 'bg-red-500 shadow-[0_0_6px_#ef4444]'}`} />
@@ -221,7 +221,7 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
                     onClick={() => handleGameStatusToggle(gameId, game.disabled)}
                     disabled={isProcessing}
                     className={`relative inline-flex h-5.5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      !game.disabled ? 'bg-indigo-500/80 hover:bg-indigo-500' : 'bg-slate-800'
+                      !game.disabled ? 'bg-indigo-500/80 hover:bg-indigo-500' : 'bg-slate-100'
                     }`}
                   >
                     <span
@@ -237,25 +237,25 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
         </div>
 
         {/* Payment Channels Widget */}
-        <div className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl lg:col-span-2">
-          <div className="flex items-center gap-2.5 border-b border-white/5 pb-4 mb-4">
-            <DollarSign className="w-5 h-5 text-pink-400" />
+        <div className="bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl lg:col-span-2">
+          <div className="flex items-center gap-2.5 border-b border-slate-200 pb-4 mb-4">
+            <DollarSign className="w-5 h-5 text-pink-600" />
             <div>
-              <h3 className="text-xs font-black text-white uppercase tracking-widest">Payment Gateway Status</h3>
-              <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Enable or disable incoming transaction routes.</p>
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Payment Gateway Status</h3>
+              <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Enable or disable incoming transaction routes.</p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(config.paymentMethods).map(([methodId, method]) => (
-              <div key={methodId} className="flex items-center justify-between p-4 bg-white/[0.01] hover:bg-white/[0.02] border border-white/5 rounded-xl transition">
+              <div key={methodId} className="flex items-center justify-between p-4 bg-white/[0.01] hover:bg-white/[0.02] border border-slate-200 rounded-xl transition">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 bg-slate-900/50 rounded-lg flex items-center justify-center border border-white/5">
+                  <div className="w-9 h-9 bg-slate-50/50 rounded-lg flex items-center justify-center border border-slate-200">
                     {getPaymentIcon(methodId)}
                   </div>
                   <div>
-                    <span className="text-xs font-bold text-slate-300 uppercase tracking-wider block">{method.name}</span>
-                    <span className="text-[9px] text-slate-500 font-semibold uppercase block mt-0.5">{methodId === 'upi' ? 'UPI and QR Code' : methodId === 'bank' ? 'Bank Wire Transfer' : 'BTC/USDT Crypto Wallet'}</span>
+                    <span className="text-xs font-bold text-slate-700 uppercase tracking-wider block">{method.name}</span>
+                    <span className="text-[9px] text-slate-600 font-semibold uppercase block mt-0.5">{methodId === 'upi' ? 'UPI and QR Code' : methodId === 'bank' ? 'Bank Wire Transfer' : 'BTC/USDT Crypto Wallet'}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-3">
@@ -264,7 +264,7 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
                     onClick={() => handlePaymentStatusToggle(methodId, method.disabled)}
                     disabled={isProcessing}
                     className={`relative inline-flex h-5.5 w-10 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out focus:outline-none ${
-                      !method.disabled ? 'bg-pink-500/80 hover:bg-pink-500' : 'bg-slate-800'
+                      !method.disabled ? 'bg-pink-500/80 hover:bg-pink-500' : 'bg-slate-100'
                     }`}
                   >
                     <span
@@ -278,7 +278,7 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
             ))}
           </div>
 
-          <p className="text-[10px] text-slate-500 font-medium leading-relaxed bg-white/[0.01] p-3 rounded-lg border border-white/[0.02] mt-6">
+          <p className="text-[10px] text-slate-600 font-medium leading-relaxed bg-white/[0.01] p-3 rounded-lg border border-white/[0.02] mt-6">
             ⚠️ <strong>Admin Notice:</strong> Disabling a payment channel immediately blocks customers from initiating deposit requests or selecting the channel for withdrawals. Transactions currently under "Processing" status are unaffected and can be processed manually.
           </p>
         </div>

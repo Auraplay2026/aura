@@ -182,16 +182,16 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
   const activeBtcAddress = formData.btcAddresses.find(addr => addr.isActive) || formData.btcAddresses[0];
 
   return (
-    <div className="min-h-screen p-8 relative overflow-hidden bg-[#030307] text-slate-100">
+    <div className="min-h-screen p-8 relative overflow-hidden bg-slate-50 text-slate-900">
       
       {/* Toast Alert list */}
       <div className="fixed top-6 right-6 z-50 flex flex-col gap-3">
         {toasts.map(t => (
           <div key={t.id} className={`flex items-center gap-2.5 px-5 py-3.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300 animate-slide-in ${
-            t.type === 'success' ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300' :
-            'bg-rose-950/80 border-rose-500/30 text-rose-300'
+            t.type === 'success' ? 'bg-emerald-100 border-emerald-500/30 text-emerald-700' :
+            'bg-rose-100 border-rose-500/30 text-rose-700'
           }`}>
-            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-400" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-400" />}
+            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-600" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-600" />}
             <span className="text-xs font-semibold">{t.message}</span>
           </div>
         ))}
@@ -202,26 +202,26 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
       <div className="absolute bottom-[20%] right-[10%] w-[380px] h-[380px] rounded-full bg-emerald-500/5 blur-[130px] pointer-events-none" />
 
       {/* Header bar */}
-      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-4">
+      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-6 gap-4">
         <div className="flex items-center gap-4">
           <div className="relative group">
             <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-teal-500 to-emerald-500 opacity-60 blur-md" />
-            <div className="relative w-14 h-14 rounded-2xl bg-slate-950 border border-white/10 flex items-center justify-center">
-              <Coins className="w-7 h-7 text-teal-400" />
+            <div className="relative w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center">
+              <Coins className="w-7 h-7 text-teal-600" />
             </div>
           </div>
           <div>
             <div className="flex items-center gap-2.5">
-              <h1 className="text-2xl font-black text-white tracking-widest uppercase">Gateway Settings</h1>
-              <span className="text-[9px] font-black text-teal-400 bg-teal-500/10 px-2.5 py-0.5 rounded-full border border-teal-500/20 tracking-widest uppercase">Billion Dollar Setup</span>
+              <h1 className="text-2xl font-black text-slate-900 tracking-widest uppercase">Gateway Settings</h1>
+              <span className="text-[9px] font-black text-teal-600 bg-teal-500/10 px-2.5 py-0.5 rounded-full border border-teal-500/20 tracking-widest uppercase">Billion Dollar Setup</span>
             </div>
-            <p className="text-xs text-slate-500 font-medium tracking-wide uppercase mt-1">Configure active deposit QR codes, UPI IDs, Crypto addresses, and bank wire information.</p>
+            <p className="text-xs text-slate-600 font-medium tracking-wide uppercase mt-1">Configure active deposit QR codes, UPI IDs, Crypto addresses, and bank wire information.</p>
           </div>
         </div>
 
         <Link 
           href="/admin"
-          className="px-4 py-2.5 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-white/5 hover:border-white/10 text-slate-300 hover:text-white font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2"
+          className="px-4 py-2.5 rounded-xl bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-200 text-slate-700 hover:text-slate-900 font-bold text-xs uppercase tracking-wider transition-all duration-300 flex items-center gap-2"
         >
           <ArrowLeft className="w-4 h-4" />
           Dashboard
@@ -235,19 +235,19 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
         <form onSubmit={handleSubmit} className="lg:col-span-7 space-y-6">
           
           {/* UPI Gateway Card */}
-          <div className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-2.5 border-b border-white/5 pb-4">
-              <Smartphone className="w-5 h-5 text-teal-400" />
+          <div className="bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-2.5 border-b border-slate-200 pb-4">
+              <Smartphone className="w-5 h-5 text-teal-600" />
               <div>
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">UPI Gateway & custom QR Code</h3>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Toggle dynamic QR generator vs static uploaded QR codes.</p>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">UPI Gateway & custom QR Code</h3>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Toggle dynamic QR generator vs static uploaded QR codes.</p>
               </div>
             </div>
 
             <div className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">General UPI ID</label>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">General UPI ID</label>
                   <input
                     type="text"
                     name="upiId"
@@ -255,16 +255,16 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                     onChange={handleInputChange}
                     placeholder="e.g. aurabet@okaxis"
                     required
-                    className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-teal-500/80 transition-colors"
+                    className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-800 focus:outline-none focus:border-teal-500/80 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">UPI QR Display Mode</label>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">UPI QR Display Mode</label>
                   <select
                     name="upiQrType"
                     value={formData.upiQrType}
                     onChange={handleInputChange}
-                    className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs text-slate-200 focus:outline-none focus:border-teal-500/80 transition-colors cursor-pointer"
+                    className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-teal-500/80 transition-colors cursor-pointer"
                   >
                     <option value="dynamic">Dynamic QR Generator (Default)</option>
                     <option value="custom">Custom Uploaded QR Image</option>
@@ -273,10 +273,10 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
               </div>
 
               {formData.upiQrType === 'custom' && (
-                <div className="p-4 bg-slate-900/40 border border-white/5 rounded-xl space-y-3">
-                  <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">Upload Custom UPI QR Image</span>
+                <div className="p-4 bg-slate-50/40 border border-slate-200 rounded-xl space-y-3">
+                  <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block">Upload Custom UPI QR Image</span>
                   <div className="flex flex-col sm:flex-row items-center gap-4">
-                    <label className="flex-1 w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-800 hover:border-teal-500/40 rounded-xl py-6 px-4 bg-[#05060b] hover:bg-slate-900/30 transition-all cursor-pointer group text-center">
+                    <label className="flex-1 w-full flex flex-col items-center justify-center border-2 border-dashed border-slate-200 hover:border-teal-500/40 rounded-xl py-6 px-4 bg-slate-50 hover:bg-slate-50/30 transition-all cursor-pointer group text-center">
                       <input
                         type="file"
                         accept="image/*"
@@ -284,16 +284,16 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                         className="hidden"
                       />
                       {isUploading === 'upi' ? (
-                        <RefreshCw className="w-5 h-5 text-teal-400 animate-spin mb-1.5" />
+                        <RefreshCw className="w-5 h-5 text-teal-600 animate-spin mb-1.5" />
                       ) : (
-                        <Upload className="w-5 h-5 text-slate-500 group-hover:text-teal-400 transition-colors mb-1.5" />
+                        <Upload className="w-5 h-5 text-slate-600 group-hover:text-teal-600 transition-colors mb-1.5" />
                       )}
-                      <span className="text-[10px] text-slate-400 group-hover:text-slate-300 font-medium">Click to upload custom QR Code</span>
+                      <span className="text-[10px] text-slate-600 group-hover:text-slate-700 font-medium">Click to upload custom QR Code</span>
                       <span className="text-[8px] text-slate-600 mt-0.5">PNG or JPG up to 3MB</span>
                     </label>
                     
                     {formData.upiQrImageUrl ? (
-                      <div className="relative w-24 h-24 bg-white p-1 rounded-xl shrink-0 flex items-center justify-center border border-white/10 group">
+                      <div className="relative w-24 h-24 bg-white p-1 rounded-xl shrink-0 flex items-center justify-center border border-slate-200 group">
                         <img 
                           src={formData.upiQrImageUrl} 
                           alt="Custom UPI QR" 
@@ -308,7 +308,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                         </button>
                       </div>
                     ) : (
-                      <div className="w-24 h-24 bg-[#05060b] border border-slate-800/80 rounded-xl flex items-center justify-center text-slate-600 text-[10px] font-bold uppercase shrink-0">
+                      <div className="w-24 h-24 bg-slate-50 border border-slate-200/80 rounded-xl flex items-center justify-center text-slate-600 text-[10px] font-bold uppercase shrink-0">
                         No Image
                       </div>
                     )}
@@ -318,25 +318,25 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">GPay UPI ID</label>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">GPay UPI ID</label>
                   <input
                     type="text"
                     name="gpayId"
                     value={formData.gpayId}
                     onChange={handleInputChange}
                     placeholder="e.g. gpay@UPI"
-                    className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-teal-500/80 transition-colors"
+                    className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-800 focus:outline-none focus:border-teal-500/80 transition-colors"
                   />
                 </div>
                 <div>
-                  <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">PhonePe UPI ID</label>
+                  <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">PhonePe UPI ID</label>
                   <input
                     type="text"
                     name="phonepeId"
                     value={formData.phonepeId}
                     onChange={handleInputChange}
                     placeholder="e.g. phonepe@UPI"
-                    className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-teal-500/80 transition-colors"
+                    className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-800 focus:outline-none focus:border-teal-500/80 transition-colors"
                   />
                 </div>
               </div>
@@ -344,30 +344,30 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
           </div>
 
           {/* Bitcoin Wallet Manager Card */}
-          <div className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-2.5 border-b border-white/5 pb-4">
+          <div className="bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-2.5 border-b border-slate-200 pb-4">
               <Bitcoin className="w-5 h-5 text-amber-500" />
               <div>
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">Multi-Bitcoin Address registry</h3>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Configure cold storage rotation list and upload custom QR codes.</p>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Multi-Bitcoin Address registry</h3>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Configure cold storage rotation list and upload custom QR codes.</p>
               </div>
             </div>
 
             {/* List of configured addresses */}
             <div className="space-y-3">
-              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block pl-1">Configured Receivers</span>
+              <span className="text-[10px] font-bold text-slate-600 uppercase tracking-wider block pl-1">Configured Receivers</span>
               {formData.btcAddresses.length === 0 ? (
-                <div className="text-center py-4 bg-[#05060b] border border-slate-850 rounded-xl text-xs text-slate-500">
+                <div className="text-center py-4 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-600">
                   No Bitcoin addresses configured yet.
                 </div>
               ) : (
                 formData.btcAddresses.map((addr) => (
-                  <div key={addr.id} className="p-4 bg-[#05060b] border border-slate-850 rounded-xl space-y-3">
+                  <div key={addr.id} className="p-4 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <span className="text-xs font-bold text-white uppercase tracking-wide">{addr.label}</span>
+                        <span className="text-xs font-bold text-slate-900 uppercase tracking-wide">{addr.label}</span>
                         {addr.isActive && (
-                          <span className="text-[8px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded uppercase font-black tracking-widest animate-pulse-glow">
+                          <span className="text-[8px] bg-emerald-500/10 text-emerald-600 border border-emerald-500/20 px-2 py-0.5 rounded uppercase font-black tracking-widest animate-pulse-glow">
                             Active
                           </span>
                         )}
@@ -377,15 +377,15 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                         <button
                           type="button"
                           onClick={() => handleToggleBtcActive(addr.id)}
-                          className="text-[10px] font-black uppercase text-slate-400 hover:text-white flex items-center gap-1 cursor-pointer"
+                          className="text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 flex items-center gap-1 cursor-pointer"
                         >
-                          {addr.isActive ? <ToggleRight className="w-5 h-5 text-emerald-400" /> : <ToggleLeft className="w-5 h-5 text-slate-500" />}
+                          {addr.isActive ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-600" />}
                         </button>
                         
                         <button
                           type="button"
                           onClick={() => handleDeleteBtcAddress(addr.id)}
-                          className="text-slate-500 hover:text-red-400 transition-colors cursor-pointer"
+                          className="text-slate-600 hover:text-red-600 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
@@ -393,13 +393,13 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                     </div>
 
                     <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4 mt-2">
-                      <div className="flex-1 bg-black/40 border border-slate-900 rounded-lg px-3 py-2 text-[10px] font-mono text-amber-500 font-bold truncate">
+                      <div className="flex-1 bg-white/40 border border-slate-200 rounded-lg px-3 py-2 text-[10px] font-mono text-amber-500 font-bold truncate">
                         {addr.address}
                       </div>
 
                       {/* Custom QR code for individual BTC address */}
                       <div className="flex items-center gap-3 shrink-0">
-                        <label className="bg-slate-900 hover:bg-slate-850 border border-slate-800 text-slate-300 hover:text-white px-2.5 py-1.5 rounded-lg text-[9px] uppercase font-bold tracking-wider cursor-pointer flex items-center gap-1">
+                        <label className="bg-slate-50 hover:bg-slate-850 border border-slate-200 text-slate-700 hover:text-slate-900 px-2.5 py-1.5 rounded-lg text-[9px] uppercase font-bold tracking-wider cursor-pointer flex items-center gap-1">
                           <input
                             type="file"
                             accept="image/*"
@@ -411,7 +411,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                         </label>
 
                         {addr.qrImageUrl ? (
-                          <div className="relative w-9 h-9 bg-white p-0.5 rounded border border-white/10 shrink-0">
+                          <div className="relative w-9 h-9 bg-white p-0.5 rounded border border-slate-200 shrink-0">
                             <img src={addr.qrImageUrl} alt="Btc QR" className="w-full h-full object-contain" />
                             <button
                               type="button"
@@ -427,7 +427,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                             </button>
                           </div>
                         ) : (
-                          <span className="text-[8px] text-slate-500 uppercase font-black tracking-widest bg-slate-900/60 border border-slate-900 px-2 py-2 rounded shrink-0">
+                          <span className="text-[8px] text-slate-600 uppercase font-black tracking-widest bg-slate-50/60 border border-slate-200 px-2 py-2 rounded shrink-0">
                             Auto QR
                           </span>
                         )}
@@ -439,8 +439,8 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
             </div>
 
             {/* Form to add a new address */}
-            <div className="p-4 bg-slate-900/20 border border-slate-800/80 rounded-xl space-y-4">
-              <span className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1"><Plus className="w-4 h-4 text-amber-400" /> Registry New Receiver Wallet</span>
+            <div className="p-4 bg-slate-50/20 border border-slate-200/80 rounded-xl space-y-4">
+              <span className="text-[10px] font-bold text-slate-700 uppercase tracking-wider flex items-center gap-1"><Plus className="w-4 h-4 text-amber-600" /> Registry New Receiver Wallet</span>
               
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>
@@ -449,7 +449,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                     placeholder="Private Wallet Label (e.g. VIP Vault)"
                     value={newBtcLabel}
                     onChange={(e) => setNewBtcLabel(e.target.value)}
-                    className="w-full bg-slate-950/80 border border-slate-850 rounded-lg py-2 px-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500/60"
+                    className="w-full bg-white/80 border border-slate-200 rounded-lg py-2 px-3 text-xs text-slate-800 focus:outline-none focus:border-amber-500/60"
                   />
                 </div>
                 <div>
@@ -458,7 +458,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                     placeholder="BTC Wallet Address"
                     value={newBtcAddress}
                     onChange={(e) => setNewBtcAddress(e.target.value)}
-                    className="w-full bg-slate-950/80 border border-slate-850 rounded-lg py-2 px-3 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-500/60"
+                    className="w-full bg-white/80 border border-slate-200 rounded-lg py-2 px-3 text-xs font-mono text-slate-800 focus:outline-none focus:border-amber-500/60"
                   />
                 </div>
               </div>
@@ -466,22 +466,22 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
               <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-1">
                 {/* Optional Custom QR image upload for the new BTC Address */}
                 <div className="flex items-center gap-2">
-                  <label className="bg-slate-950/60 border border-slate-850 hover:border-slate-800 text-slate-400 hover:text-white px-3 py-2 rounded-lg text-[9px] uppercase font-bold tracking-wider cursor-pointer flex items-center gap-1.5 transition">
+                  <label className="bg-white/60 border border-slate-200 hover:border-slate-200 text-slate-600 hover:text-slate-900 px-3 py-2 rounded-lg text-[9px] uppercase font-bold tracking-wider cursor-pointer flex items-center gap-1.5 transition">
                     <input
                       type="file"
                       accept="image/*"
                       onChange={(e) => handleImageUpload(e, 'new-btc')}
                       className="hidden"
                     />
-                    <Upload className="w-3.5 h-3.5 text-slate-500" />
+                    <Upload className="w-3.5 h-3.5 text-slate-600" />
                     Upload QR Image
                   </label>
                   
                   {newBtcQrUrl && (
-                    <div className="flex items-center gap-1.5 text-[9px] text-emerald-400 font-bold">
+                    <div className="flex items-center gap-1.5 text-[9px] text-emerald-600 font-bold">
                       <Check className="w-3.5 h-3.5" />
                       QR Staged
-                      <button type="button" onClick={() => setNewBtcQrUrl("")} className="text-slate-500 hover:text-red-400"><X className="w-3 h-3" /></button>
+                      <button type="button" onClick={() => setNewBtcQrUrl("")} className="text-slate-600 hover:text-red-600"><X className="w-3 h-3" /></button>
                     </div>
                   )}
                 </div>
@@ -499,18 +499,18 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
           </div>
 
           {/* Bank Wire Details Card */}
-          <div className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl space-y-5">
-            <div className="flex items-center gap-2.5 border-b border-white/5 pb-4">
-              <CreditCard className="w-5 h-5 text-indigo-400" />
+          <div className="bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl space-y-5">
+            <div className="flex items-center gap-2.5 border-b border-slate-200 pb-4">
+              <CreditCard className="w-5 h-5 text-indigo-600" />
               <div>
-                <h3 className="text-sm font-black text-white uppercase tracking-widest">IMPS / Bank Details</h3>
-                <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Bank transfer instructions for card/wire selections.</p>
+                <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">IMPS / Bank Details</h3>
+                <p className="text-[10px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Bank transfer instructions for card/wire selections.</p>
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Bank Name</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">Bank Name</label>
                 <input
                   type="text"
                   name="bankName"
@@ -518,11 +518,11 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                   onChange={handleInputChange}
                   placeholder="e.g. State Bank of India"
                   required
-                  className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs text-slate-200 focus:outline-none focus:border-indigo-500/80 transition-colors"
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-indigo-500/80 transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Account Holder Name</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">Account Holder Name</label>
                 <input
                   type="text"
                   name="bankHolderName"
@@ -530,11 +530,11 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                   onChange={handleInputChange}
                   placeholder="e.g. AuraBet Operations Pvt Ltd"
                   required
-                  className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs text-slate-200 focus:outline-none focus:border-indigo-500/80 transition-colors"
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-800 focus:outline-none focus:border-indigo-500/80 transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Account Number</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">Account Number</label>
                 <input
                   type="text"
                   name="bankAccountNo"
@@ -542,11 +542,11 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                   onChange={handleInputChange}
                   placeholder="e.g. 999888777666"
                   required
-                  className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500/80 transition-colors"
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-800 focus:outline-none focus:border-indigo-500/80 transition-colors"
                 />
               </div>
               <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1.5 ml-1">IFSC Code</label>
+                <label className="block text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1.5 ml-1">IFSC Code</label>
                 <input
                   type="text"
                   name="bankIfsc"
@@ -554,7 +554,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                   onChange={handleInputChange}
                   placeholder="e.g. SBIN0001234"
                   required
-                  className="w-full bg-slate-900/50 border border-white/5 rounded-xl py-3 px-4 text-xs font-mono text-slate-200 focus:outline-none focus:border-indigo-500/80 transition-colors"
+                  className="w-full bg-slate-50/50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-800 focus:outline-none focus:border-indigo-500/80 transition-colors"
                 />
               </div>
             </div>
@@ -581,27 +581,27 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
 
         {/* Right Side: Visual Live Mockup Preview (col-span 5) */}
         <div className="lg:col-span-5 space-y-6">
-          <div className="bg-slate-950/60 border border-slate-800 rounded-2xl p-6 backdrop-blur-xl relative overflow-hidden">
+          <div className="bg-white/60 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 opacity-5">
-              <Eye className="w-16 h-16 text-white" />
+              <Eye className="w-16 h-16 text-slate-900" />
             </div>
 
-            <div className="flex items-center gap-2 border-b border-white/5 pb-4 mb-6">
-              <Eye className="w-4 h-4 text-teal-400" />
-              <h3 className="text-xs font-black text-slate-400 uppercase tracking-widest">Live Client Preview Mockup</h3>
+            <div className="flex items-center gap-2 border-b border-slate-200 pb-4 mb-6">
+              <Eye className="w-4 h-4 text-teal-600" />
+              <h3 className="text-xs font-black text-slate-600 uppercase tracking-widest">Live Client Preview Mockup</h3>
             </div>
 
-            <p className="text-[10px] text-slate-500 leading-normal mb-6 uppercase tracking-wider font-semibold">
+            <p className="text-[10px] text-slate-600 leading-normal mb-6 uppercase tracking-wider font-semibold">
               This preview shows how payment details are loaded inside the player's secure Cashier modal when choosing payment methods.
             </p>
 
-            <div className="space-y-6 bg-slate-900/60 border border-slate-850 p-5 rounded-2xl">
+            <div className="space-y-6 bg-slate-50/60 border border-slate-200 p-5 rounded-2xl">
               
               {/* UPI Preview Box */}
               <div className="space-y-2.5">
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">UPI / QR SCAN METHOD</span>
-                <div className="bg-[#05060b] border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-                  <div className="bg-white p-1 rounded-lg shrink-0 w-16 h-16 flex items-center justify-center overflow-hidden border border-white/5">
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">UPI / QR SCAN METHOD</span>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center gap-3">
+                  <div className="bg-white p-1 rounded-lg shrink-0 w-16 h-16 flex items-center justify-center overflow-hidden border border-slate-200">
                     {formData.upiQrType === 'custom' && formData.upiQrImageUrl ? (
                       <img 
                         src={formData.upiQrImageUrl} 
@@ -617,9 +617,9 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                     )}
                   </div>
                   <div className="text-left space-y-1 min-w-0 flex-1">
-                    <span className="text-[9px] text-slate-400 font-bold block">Dynamic Address:</span>
-                    <span className="font-mono text-xs text-emerald-400 font-bold block truncate">{formData.upiId}</span>
-                    <div className="flex gap-2.5 text-[8px] text-slate-500 font-bold mt-1">
+                    <span className="text-[9px] text-slate-600 font-bold block">Dynamic Address:</span>
+                    <span className="font-mono text-xs text-emerald-600 font-bold block truncate">{formData.upiId}</span>
+                    <div className="flex gap-2.5 text-[8px] text-slate-600 font-bold mt-1">
                       <span>GPay: {formData.gpayId.split('@')[0]}</span>
                       <span>PhonePe: {formData.phonepeId.split('@')[0]}</span>
                     </div>
@@ -629,10 +629,10 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
 
               {/* Bitcoin Address Preview */}
               <div className="space-y-2.5">
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">BITCOIN WALLET ADDRESS (ACTIVE)</span>
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">BITCOIN WALLET ADDRESS (ACTIVE)</span>
                 {activeBtcAddress ? (
-                  <div className="bg-[#05060b] border border-slate-800 rounded-xl p-3.5 flex items-center gap-3">
-                    <div className="bg-white p-1 rounded-lg shrink-0 w-16 h-16 flex items-center justify-center overflow-hidden border border-white/5">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 flex items-center gap-3">
+                    <div className="bg-white p-1 rounded-lg shrink-0 w-16 h-16 flex items-center justify-center overflow-hidden border border-slate-200">
                       {activeBtcAddress.qrImageUrl ? (
                         <img 
                           src={activeBtcAddress.qrImageUrl} 
@@ -648,13 +648,13 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                       )}
                     </div>
                     <div className="text-left space-y-1 min-w-0 flex-1">
-                      <span className="text-[9px] text-slate-400 font-bold block">{activeBtcAddress.label}:</span>
+                      <span className="text-[9px] text-slate-600 font-bold block">{activeBtcAddress.label}:</span>
                       <span className="font-mono text-[10px] text-amber-500 font-bold block truncate">{activeBtcAddress.address}</span>
-                      <span className="text-[8px] text-slate-500 block">Auto QR generator will fall back if custom QR is unassigned.</span>
+                      <span className="text-[8px] text-slate-600 block">Auto QR generator will fall back if custom QR is unassigned.</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-[#05060b] border border-slate-800 rounded-xl p-3.5 text-center text-xs text-slate-600 font-bold italic">
+                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-center text-xs text-slate-600 font-bold italic">
                     No active Bitcoin addresses configured.
                   </div>
                 )}
@@ -662,23 +662,23 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
 
               {/* Bank Transfer Details Preview */}
               <div className="space-y-2.5">
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-wider">BANK WIRE METHOD</span>
-                <div className="bg-[#05060b] border border-slate-800 rounded-xl p-3.5 text-left text-xs font-mono space-y-1.5">
+                <span className="text-[9px] font-black text-slate-600 uppercase tracking-wider">BANK WIRE METHOD</span>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-left text-xs font-mono space-y-1.5">
                   <div className="flex justify-between">
-                    <span className="text-slate-500 text-[9px] uppercase">Bank:</span>
-                    <span className="text-slate-300 font-bold">{formData.bankName}</span>
+                    <span className="text-slate-600 text-[9px] uppercase">Bank:</span>
+                    <span className="text-slate-700 font-bold">{formData.bankName}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 text-[9px] uppercase">Account:</span>
-                    <span className="text-slate-200 font-bold">{formData.bankAccountNo}</span>
+                    <span className="text-slate-600 text-[9px] uppercase">Account:</span>
+                    <span className="text-slate-800 font-bold">{formData.bankAccountNo}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 text-[9px] uppercase">IFSC:</span>
-                    <span className="text-slate-200 font-bold">{formData.bankIfsc}</span>
+                    <span className="text-slate-600 text-[9px] uppercase">IFSC:</span>
+                    <span className="text-slate-800 font-bold">{formData.bankIfsc}</span>
                   </div>
                   <div className="flex justify-between">
-                    <span className="text-slate-500 text-[9px] uppercase">Holder:</span>
-                    <span className="text-slate-300 font-bold">{formData.bankHolderName}</span>
+                    <span className="text-slate-600 text-[9px] uppercase">Holder:</span>
+                    <span className="text-slate-700 font-bold">{formData.bankHolderName}</span>
                   </div>
                 </div>
               </div>

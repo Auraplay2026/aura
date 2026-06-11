@@ -62,30 +62,30 @@ export function Mines() {
   const payout = (betAmount * activeMultiplier).toFixed(2);
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-[#0f172a] rounded-2xl overflow-hidden border border-slate-800 shadow-2xl">
+    <div className="flex flex-col lg:flex-row gap-6 w-full max-w-6xl mx-auto h-[600px] bg-slate-50 rounded-2xl overflow-hidden border border-slate-200 shadow-2xl">
       {/* Betting Controller */}
-      <div className="w-full lg:w-80 bg-slate-900/50 p-6 flex flex-col gap-6 border-r border-slate-800 shrink-0 overflow-y-auto custom-scrollbar">
+      <div className="w-full lg:w-80 bg-slate-50/50 p-6 flex flex-col gap-6 border-r border-slate-200 shrink-0 overflow-y-auto custom-scrollbar">
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 flex justify-between">
+          <label className="text-sm font-bold text-slate-600 mb-2 flex justify-between">
             <span>Bet Amount</span>
             <span className="text-slate-500">₹</span>
           </label>
-          <div className="flex bg-slate-950 rounded-xl border border-slate-800 p-1">
+          <div className="flex bg-white rounded-xl border border-slate-200 p-1">
             <input 
               type="number" 
               value={betAmount} 
               disabled={gameState === "playing"}
               onChange={(e) => setBetAmount(Number(e.target.value))}
-              className="w-full bg-transparent text-white font-bold px-3 focus:outline-none disabled:opacity-50"
+              className="w-full bg-transparent text-slate-900 font-bold px-3 focus:outline-none disabled:opacity-50"
             />
-            <button disabled={gameState === "playing"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
-            <div className="w-[1px] bg-slate-800 mx-1"></div>
-            <button disabled={gameState === "playing"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-900 hover:bg-slate-800 text-slate-300 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
+            <button disabled={gameState === "playing"} onClick={() => setBetAmount(Math.max(1, betAmount / 2))} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">1/2</button>
+            <div className="w-[1px] bg-slate-100 mx-1"></div>
+            <button disabled={gameState === "playing"} onClick={() => setBetAmount(betAmount * 2)} className="px-3 py-2 bg-slate-50 hover:bg-slate-100 text-slate-700 rounded-lg text-xs font-bold disabled:opacity-50">2x</button>
           </div>
         </div>
 
         <div>
-          <label className="text-sm font-bold text-slate-400 mb-2 block">Mines</label>
+          <label className="text-sm font-bold text-slate-600 mb-2 block">Mines</label>
           <div className="grid grid-cols-5 gap-2">
             {[1, 3, 5, 10, 24].map(n => (
               <button 
@@ -93,7 +93,7 @@ export function Mines() {
                 disabled={gameState === "playing"}
                 onClick={() => setMinesCount(n)}
                 className={`py-2 rounded-lg font-bold text-sm transition-colors ${
-                  minesCount === n ? "bg-slate-700 text-white" : "bg-slate-950 border border-slate-800 text-slate-400 hover:bg-slate-800 disabled:opacity-50"
+                  minesCount === n ? "bg-slate-700 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                 }`}
               >
                 {n}
@@ -122,7 +122,7 @@ export function Mines() {
       </div>
 
       {/* Interactive Game Canvas */}
-      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-slate-900 overflow-hidden">
+      <div className="flex-1 relative flex flex-col items-center justify-center p-8 bg-slate-50 overflow-hidden">
         
         {gameState === "cashed_out" && (
           <motion.div 
@@ -166,13 +166,13 @@ export function Mines() {
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   {/* Front (Hidden state) */}
-                  <div className="absolute inset-0 bg-slate-800 hover:bg-slate-700 rounded-xl border border-slate-700 shadow-md flex items-center justify-center backface-hidden" style={{ backfaceVisibility: "hidden" }} />
+                  <div className="absolute inset-0 bg-slate-100 hover:bg-slate-700 rounded-xl border border-slate-700 shadow-md flex items-center justify-center backface-hidden" style={{ backfaceVisibility: "hidden" }} />
                   
                   {/* Back (Revealed state) */}
                   <div 
                     className={`absolute inset-0 rounded-xl border shadow-inner flex items-center justify-center backface-hidden ${
                       isBustMine ? "bg-red-500 border-red-400 z-20" :
-                      isMine ? "bg-slate-800 border-slate-700 opacity-60" :
+                      isMine ? "bg-slate-100 border-slate-700 opacity-60" :
                       "bg-slate-700 border-slate-600"
                     }`} 
                     style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}

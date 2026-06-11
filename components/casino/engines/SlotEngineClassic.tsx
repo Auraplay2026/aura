@@ -68,14 +68,14 @@ export function SlotEngineClassic({ isPlaying, theme, onComplete }: SlotEngineCl
     <div className="w-full max-w-lg bg-gradient-to-b from-yellow-700 via-amber-900 to-yellow-950 border-8 border-yellow-500 rounded-[3rem] p-6 relative flex flex-col items-center justify-center shadow-[0_20px_50px_rgba(0,0,0,0.8)] select-none">
       
       {/* Golden Cabinet Arch Header */}
-      <div className="absolute top-4 text-center border border-yellow-400 bg-slate-950/90 px-6 py-1 rounded-full shadow-inner z-10">
-        <span className="text-yellow-400 text-xs font-black tracking-[0.3em] uppercase">VINTAGE CABINET</span>
+      <div className="absolute top-4 text-center border border-yellow-400 bg-white/90 px-6 py-1 rounded-full shadow-inner z-10">
+        <span className="text-yellow-600 text-xs font-black tracking-[0.3em] uppercase">VINTAGE CABINET</span>
       </div>
 
       <div className="flex w-full items-center justify-center gap-6 mt-6">
         
         {/* Main Reels Viewport */}
-        <div className="flex-1 bg-black rounded-2xl p-4 border-4 border-yellow-600 shadow-inner grid grid-cols-3 gap-3 relative h-64 overflow-hidden">
+        <div className="flex-1 bg-white rounded-2xl p-4 border-4 border-yellow-600 shadow-inner grid grid-cols-3 gap-3 relative h-64 overflow-hidden">
           <div className="absolute inset-x-0 top-0 h-10 bg-gradient-to-b from-black to-transparent z-10" />
           <div className="absolute inset-x-0 bottom-0 h-10 bg-gradient-to-t from-black to-transparent z-10" />
           <div className="absolute inset-y-0 left-1/3 w-px bg-yellow-600/30" />
@@ -113,7 +113,7 @@ export function SlotEngineClassic({ isPlaying, theme, onComplete }: SlotEngineCl
             className="absolute top-10 w-10 h-10 rounded-full bg-red-600 border-2 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.7)] flex items-center justify-center cursor-pointer"
           />
           {/* Base */}
-          <div className="w-8 h-8 rounded-t-full bg-slate-900 border border-slate-700" />
+          <div className="w-8 h-8 rounded-t-full bg-slate-50 border border-slate-700" />
         </div>
 
       </div>

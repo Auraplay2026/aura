@@ -119,7 +119,7 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
               className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition-all ${
                 risk === r
                   ? "bg-blue-500 text-white shadow-[0_0_12px_rgba(59,130,246,0.5)]"
-                  : "bg-white/5 border border-white/10 text-slate-400 hover:text-white hover:border-blue-500/30"
+                  : "bg-slate-900/5 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-blue-500/30"
               }`}
             >
               {r}
@@ -135,7 +135,7 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0 }}
               className={`px-3 py-1.5 rounded-lg text-xs font-black ${
-                lastResult.won ? "bg-neon-green/10 text-neon-green border border-neon-green/30" : "bg-red-500/10 text-red-400 border border-red-500/30"
+                lastResult.won ? "bg-neon-green/10 text-neon-green border border-neon-green/30" : "bg-red-500/10 text-red-600 border border-red-500/30"
               }`}
             >
               Last: {lastResult.mult}x
@@ -184,7 +184,7 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
           {MULTIPLIERS[risk].map((mult, i) => (
             <div
               key={i}
-              className={`flex-1 h-7 rounded-md flex items-center justify-center text-[10px] font-black text-white bg-gradient-to-b ${multColor(mult)}`}
+              className={`flex-1 h-7 rounded-md flex items-center justify-center text-[10px] font-black text-slate-900 bg-gradient-to-b ${multColor(mult)}`}
             >
               {mult >= 10 ? `${mult}x` : `${mult}x`}
             </div>

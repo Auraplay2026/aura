@@ -206,7 +206,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-black/85 backdrop-blur-sm z-[9998]"
+            className="fixed inset-0 bg-white/85 backdrop-blur-sm z-[9998]"
           />
           <motion.div
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
@@ -214,18 +214,18 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-[9999] p-4"
           >
-            <div className="bg-[#1a1b2a] border border-[#25273c] rounded-2xl shadow-2xl overflow-hidden relative">
+            <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden relative">
               {/* Glow effects */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-yellow-500/10 blur-[60px] rounded-full pointer-events-none" />
               
-              <div className="flex justify-between items-center p-6 border-b border-[#25273c]">
-                <h2 className="text-xl font-black text-white flex items-center gap-2">
+              <div className="flex justify-between items-center p-6 border-b border-slate-200">
+                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-yellow-500" />
                   {view === 'login' ? 'Welcome Back' : 'Create Account'}
                 </h2>
                 <button
                   onClick={onClose}
-                  className="text-slate-400 hover:text-white bg-white/5 hover:bg-white/10 p-2 rounded-full transition-colors"
+                  className="text-slate-600 hover:text-slate-900 bg-slate-900/5 hover:bg-slate-900/10 p-2 rounded-full transition-colors"
                 >
                   <X className="w-4 h-4" />
                 </button>
@@ -236,7 +236,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
                     animate={{ opacity: 1, y: 0 }}
-                    className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-400 rounded-xl text-xs font-semibold flex items-center gap-2"
+                    className="mb-4 p-3 bg-red-500/10 border border-red-500/20 text-red-600 rounded-xl text-xs font-semibold flex items-center gap-2"
                   >
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500 shrink-0" />
                     {error}
@@ -250,7 +250,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                 <form onSubmit={handleSubmit} className="space-y-4">
                   {view === 'signup' && (
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 mb-1.5 ml-1">Username</label>
+                      <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Username</label>
                       <div className="relative">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                           <User className="w-4 h-4" />
@@ -261,14 +261,14 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                           value={username}
                           onChange={e => setUsername(e.target.value)}
                           placeholder="johndoe123"
-                          className="w-full bg-black border border-[#31334b] rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
                         />
                       </div>
                     </div>
                   )}
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5 ml-1">Email Address</label>
+                    <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Email Address</label>
                     <div className="relative">
                       <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                         <Mail className="w-4 h-4" />
@@ -279,13 +279,13 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                         value={email}
                         onChange={e => setEmail(e.target.value)}
                         placeholder={view === 'login' ? "Username or email" : "john@example.com"}
-                        className="w-full bg-black border border-[#31334b] rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                        className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
                       />
                     </div>
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-400 mb-1.5 ml-1 flex justify-between">
+                    <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1 flex justify-between">
                       Password
                       {view === 'login' && <span className="text-yellow-500 hover:underline cursor-pointer">Forgot?</span>}
                     </label>
@@ -299,14 +299,14 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                         value={password}
                         onChange={e => setPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full bg-black border border-[#31334b] rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                        className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
                       />
                     </div>
                   </div>
 
                   {view === 'signup' && (
                     <div>
-                      <label className="block text-xs font-bold text-slate-400 mb-1.5 ml-1">Referral Code (Optional)</label>
+                      <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Referral Code (Optional)</label>
                       <div className="relative">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
                           <Sparkles className="w-4 h-4" />
@@ -316,7 +316,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                           value={referralCode}
                           onChange={e => setReferralCode(e.target.value)}
                           placeholder="e.g. VIP2024"
-                          className="w-full bg-black border border-[#31334b] rounded-xl py-3 pl-10 pr-4 text-white placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors uppercase"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors uppercase"
                         />
                       </div>
                     </div>
@@ -324,7 +324,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
 
                   {view === 'signup' && (
                     <div className="space-y-2">
-                      <label className="block text-xs font-bold text-slate-400 mb-1 ml-1">Account Mode</label>
+                      <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">Account Mode</label>
                       <div className="grid grid-cols-2 gap-3">
                         <button
                           type="button"
@@ -332,8 +332,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                           className={cn(
                             "py-3.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer",
                             accountType === 'demo'
-                              ? "bg-purple-600/15 border-purple-500 text-purple-400 shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-                              : "bg-black border-[#31334b] text-slate-400 hover:border-slate-700"
+                              ? "bg-purple-600/15 border-purple-500 text-purple-600 shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+                              : "bg-white border-slate-300 text-slate-600 hover:border-slate-700"
                           )}
                         >
                           <span className="text-xs font-black">DEMO WALLET</span>
@@ -345,8 +345,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                           className={cn(
                             "py-3.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer",
                             accountType === 'real'
-                              ? "bg-emerald-500/15 border-emerald-500 text-emerald-400 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
-                              : "bg-black border-[#31334b] text-slate-400 hover:border-slate-700"
+                              ? "bg-emerald-500/15 border-emerald-500 text-emerald-600 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+                              : "bg-white border-slate-300 text-slate-600 hover:border-slate-700"
                           )}
                         >
                           <span className="text-xs font-black">REAL WALLET</span>
@@ -362,7 +362,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                     className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-3.5 rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:scale-[1.02] flex justify-center items-center gap-2 disabled:opacity-70 disabled:hover:scale-100 mt-2"
                   >
                     {isLoading ? (
-                      <span className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
+                      <span className="w-5 h-5 border-2 border-slate-200/30 border-t-slate-900 rounded-full animate-spin" />
                     ) : (
                       view === 'login' ? 'Sign In' : 'Create Account'
                     )}
@@ -370,9 +370,9 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                 </form>
 
                 <div className="mt-6 flex items-center gap-4">
-                  <div className="h-px bg-[#31334b] flex-1"></div>
+                  <div className="h-px bg-slate-200 flex-1"></div>
                   <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Or</span>
-                  <div className="h-px bg-[#31334b] flex-1"></div>
+                  <div className="h-px bg-slate-200 flex-1"></div>
                 </div>
 
                 <div className="mt-4 flex flex-col items-center gap-3">
@@ -392,7 +392,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                           type="button"
                           onClick={handleSocialLoginFallback}
                           disabled={isLoading}
-                          className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
+                          className="flex-1 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 text-slate-900 font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
                         >
                           <svg className="w-4 h-4" viewBox="0 0 24 24">
                             <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
@@ -406,7 +406,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                           type="button"
                           onClick={handleSocialLoginFallback}
                           disabled={isLoading}
-                          className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
+                          className="flex-1 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 text-slate-900 font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
                         >
                           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
                             <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
@@ -419,7 +419,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                   )}
                 </div>
 
-                <p className="mt-8 text-center text-sm text-slate-400">
+                <p className="mt-8 text-center text-sm text-slate-600">
                   {view === 'login' ? "Don't have an account? " : "Already have an account? "}
                   <button 
                     onClick={() => {

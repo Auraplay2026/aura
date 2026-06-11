@@ -60,17 +60,17 @@ export function ClassicCrashEngine({ isPlaying, onComplete }: ClassicCrashEngine
   }, [isPlaying]);
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[500px] bg-[#05050a] rounded-3xl border border-slate-900 relative flex flex-col items-center justify-center overflow-hidden shadow-inner">
+    <div ref={containerRef} className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-inner">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(234,179,8,0.05)_0%,_transparent_100%)] pointer-events-none" />
 
       {/* Numerical HUD */}
       <div className="absolute top-10 flex flex-col items-center z-20">
         <span className="text-[10px] text-yellow-500/60 tracking-[0.3em] font-black uppercase mb-1">STAKE MULTIPLIER</span>
-        <h1 className={`text-7xl md:text-9xl font-black font-mono tracking-tighter ${crashed ? "text-red-500" : "text-white"}`}>
+        <h1 className={`text-7xl md:text-9xl font-black font-mono tracking-tighter ${crashed ? "text-red-500" : "text-slate-900"}`}>
           {multiplier.toFixed(2)}x
         </h1>
         {crashed && (
-          <div className="mt-2 bg-red-950/60 border border-red-500/20 px-4 py-1 rounded-full text-red-500 font-bold text-xs uppercase tracking-wider animate-pulse">
+          <div className="mt-2 bg-red-100 border border-red-500/20 px-4 py-1 rounded-full text-red-500 font-bold text-xs uppercase tracking-wider animate-pulse">
             💥 crashed @ {multiplier.toFixed(2)}x
           </div>
         )}

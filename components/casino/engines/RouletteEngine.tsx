@@ -10,41 +10,41 @@ interface RouletteEngineProps {
 const NUMBERS = [
   { n: 0, color: "bg-green-500", label: "Green" },
   { n: 32, color: "bg-red-500", label: "Red" },
-  { n: 15, color: "bg-slate-900", label: "Black" },
+  { n: 15, color: "bg-slate-50", label: "Black" },
   { n: 19, color: "bg-red-500", label: "Red" },
-  { n: 4, color: "bg-slate-900", label: "Black" },
+  { n: 4, color: "bg-slate-50", label: "Black" },
   { n: 21, color: "bg-red-500", label: "Red" },
-  { n: 2, color: "bg-slate-900", label: "Black" },
+  { n: 2, color: "bg-slate-50", label: "Black" },
   { n: 25, color: "bg-red-500", label: "Red" },
-  { n: 17, color: "bg-slate-900", label: "Black" },
+  { n: 17, color: "bg-slate-50", label: "Black" },
   { n: 34, color: "bg-red-500", label: "Red" },
-  { n: 6, color: "bg-slate-900", label: "Black" },
+  { n: 6, color: "bg-slate-50", label: "Black" },
   { n: 27, color: "bg-red-500", label: "Red" },
-  { n: 13, color: "bg-slate-900", label: "Black" },
+  { n: 13, color: "bg-slate-50", label: "Black" },
   { n: 36, color: "bg-red-500", label: "Red" },
-  { n: 11, color: "bg-slate-900", label: "Black" },
+  { n: 11, color: "bg-slate-50", label: "Black" },
   { n: 30, color: "bg-red-500", label: "Red" },
-  { n: 8, color: "bg-slate-900", label: "Black" },
+  { n: 8, color: "bg-slate-50", label: "Black" },
   { n: 23, color: "bg-red-500", label: "Red" },
-  { n: 10, color: "bg-slate-900", label: "Black" },
+  { n: 10, color: "bg-slate-50", label: "Black" },
   { n: 5, color: "bg-red-500", label: "Red" },
-  { n: 24, color: "bg-slate-900", label: "Black" },
+  { n: 24, color: "bg-slate-50", label: "Black" },
   { n: 16, color: "bg-red-500", label: "Red" },
-  { n: 33, color: "bg-slate-900", label: "Black" },
+  { n: 33, color: "bg-slate-50", label: "Black" },
   { n: 1, color: "bg-red-500", label: "Red" },
-  { n: 20, color: "bg-slate-900", label: "Black" },
+  { n: 20, color: "bg-slate-50", label: "Black" },
   { n: 14, color: "bg-red-500", label: "Red" },
-  { n: 31, color: "bg-slate-900", label: "Black" },
+  { n: 31, color: "bg-slate-50", label: "Black" },
   { n: 9, color: "bg-red-500", label: "Red" },
-  { n: 22, color: "bg-slate-900", label: "Black" },
+  { n: 22, color: "bg-slate-50", label: "Black" },
   { n: 18, color: "bg-red-500", label: "Red" },
-  { n: 29, color: "bg-slate-900", label: "Black" },
+  { n: 29, color: "bg-slate-50", label: "Black" },
   { n: 7, color: "bg-red-500", label: "Red" },
-  { n: 28, color: "bg-slate-900", label: "Black" },
+  { n: 28, color: "bg-slate-50", label: "Black" },
   { n: 12, color: "bg-red-500", label: "Red" },
-  { n: 35, color: "bg-slate-900", label: "Black" },
+  { n: 35, color: "bg-slate-50", label: "Black" },
   { n: 3, color: "bg-red-500", label: "Red" },
-  { n: 26, color: "bg-slate-900", label: "Black" }
+  { n: 26, color: "bg-slate-50", label: "Black" }
 ];
 
 export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
@@ -89,12 +89,12 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-emerald-950 via-slate-900 to-black rounded-3xl border border-slate-800 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
+    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-emerald-950 via-slate-900 to-black rounded-3xl border border-slate-200 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
       {/* Table Felt Background Details */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_transparent_40%,_rgba(0,0,0,0.9)_100%)] pointer-events-none" />
 
       {/* Wheel Area */}
-      <div className="relative w-80 h-80 md:w-96 md:h-96 rounded-full border-8 border-amber-950 bg-slate-950 flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.8)] select-none">
+      <div className="relative w-80 h-80 md:w-96 md:h-96 rounded-full border-8 border-amber-300 bg-white flex items-center justify-center shadow-[0_0_50px_rgba(0,0,0,0.8)] select-none">
         
         {/* Outer Gold Ring */}
         <div className="absolute inset-2 rounded-full border-4 border-yellow-600/30" />
@@ -111,10 +111,10 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
             return (
               <div
                 key={i}
-                className="absolute top-0 left-1/2 w-8 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-3 pb-2 text-[8px] font-black text-white font-mono"
+                className="absolute top-0 left-1/2 w-8 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-3 pb-2 text-[8px] font-black text-slate-900 font-mono"
                 style={{ transform: `rotate(${angle}deg)` }}
               >
-                <span className={`px-1 rounded-sm ${num.color} shadow-sm border border-white/10`}>
+                <span className={`px-1 rounded-sm ${num.color} shadow-sm border border-slate-200`}>
                   {num.n}
                 </span>
                 <div className="w-0.5 h-6 bg-yellow-600/20 mt-1 origin-top" />
@@ -125,7 +125,7 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
 
         {/* Center Golden Turret */}
         <div className="absolute w-24 h-24 rounded-full bg-gradient-to-br from-yellow-500 via-amber-700 to-yellow-600 border border-yellow-400 shadow-2xl flex items-center justify-center z-25">
-          <div className="w-16 h-16 rounded-full bg-slate-950 border border-yellow-600/40 flex items-center justify-center">
+          <div className="w-16 h-16 rounded-full bg-white border border-yellow-600/40 flex items-center justify-center">
             <span className="text-yellow-500 text-xs font-black tracking-widest uppercase">AURA</span>
           </div>
         </div>
@@ -149,13 +149,13 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm z-30 flex flex-col items-center justify-center"
+            className="absolute inset-0 bg-white/60 backdrop-blur-sm z-30 flex flex-col items-center justify-center"
           >
-            <span className="text-slate-400 text-xs font-black uppercase tracking-widest mb-2">Winning Slot</span>
+            <span className="text-slate-600 text-xs font-black uppercase tracking-widest mb-2">Winning Slot</span>
             <div className={`w-32 h-32 rounded-3xl ${winningNumber.color} border-4 border-white/20 flex items-center justify-center shadow-2xl`}>
-              <span className="text-white text-6xl font-black font-mono">{winningNumber.n}</span>
+              <span className="text-slate-900 text-6xl font-black font-mono">{winningNumber.n}</span>
             </div>
-            <span className="text-white font-bold text-sm mt-3 uppercase tracking-wider">{winningNumber.label} Winning Spin</span>
+            <span className="text-slate-900 font-bold text-sm mt-3 uppercase tracking-wider">{winningNumber.label} Winning Spin</span>
           </motion.div>
         )}
       </AnimatePresence>

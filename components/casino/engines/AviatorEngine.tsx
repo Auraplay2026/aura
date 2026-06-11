@@ -61,7 +61,7 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-[#0c0c0e] rounded-3xl border-4 border-[#e11d48]/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]">
+    <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border-4 border-[#e11d48]/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]">
       
       {/* Aviator Grid Background */}
       <div 
@@ -81,7 +81,7 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
 
       {/* Big Multiplier */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20">
-        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter ${fled ? "text-slate-600" : "text-white"}`}>
+        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter ${fled ? "text-slate-600" : "text-slate-900"}`}>
           {multiplier.toFixed(2)}x
         </h1>
         {fled && (

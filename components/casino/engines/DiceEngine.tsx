@@ -61,11 +61,11 @@ export function DiceEngine({ isPlaying, onComplete }: DiceEngineProps) {
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-indigo-950 via-slate-900 to-black rounded-3xl border border-slate-800 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
+    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-indigo-950 via-slate-900 to-black rounded-3xl border border-slate-200 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
       
       <div className="text-center mb-8 z-10">
-        <h3 className="text-white font-black text-xl uppercase tracking-widest">Neon Over-Under Dice</h3>
-        <p className="text-indigo-400 text-xs font-bold uppercase tracking-wider mt-1">Roll 8 or Higher to Double Your Bet</p>
+        <h3 className="text-slate-900 font-black text-xl uppercase tracking-widest">Neon Over-Under Dice</h3>
+        <p className="text-indigo-600 text-xs font-bold uppercase tracking-wider mt-1">Roll 8 or Higher to Double Your Bet</p>
       </div>
 
       <div className="flex gap-12 items-center justify-center relative z-10 h-48">
@@ -102,10 +102,10 @@ export function DiceEngine({ isPlaying, onComplete }: DiceEngineProps) {
           <motion.div 
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-8 bg-black/60 border border-white/10 px-8 py-3 rounded-2xl text-center"
+            className="mt-8 bg-white/60 border border-slate-200 px-8 py-3 rounded-2xl text-center"
           >
             <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Dice Sum Total</span>
-            <p className="text-3xl font-black text-white font-mono mt-0.5">{die1 + die2 + 2}</p>
+            <p className="text-3xl font-black text-slate-900 font-mono mt-0.5">{die1 + die2 + 2}</p>
           </motion.div>
         )}
       </AnimatePresence>

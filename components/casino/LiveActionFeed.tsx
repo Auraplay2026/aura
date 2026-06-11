@@ -34,52 +34,6 @@ interface FeedData {
   won?: boolean;
 }
 
-function generateMockFeed(count: number): FeedData[] {
-  return Array.from({ length: count }).map((_, i) => createRandomFeedItem(i.toString()));
-}
-
-function createRandomFeedItem(id: string): FeedData {
-  const isRental = Math.random() > 0.5;
-  const user = USERS[Math.floor(Math.random() * USERS.length)];
-  
-  if (isRental) {
-    const game = CLOUD_GAMES[Math.floor(Math.random() * CLOUD_GAMES.length)];
-    const rates = [199, 299, 399, 499, 599, 799];
-    const amount = rates[Math.floor(Math.random() * rates.length)];
-    const duration = Math.floor(Math.random() * 8) + 1; // 1 to 8 hours
-    const payout = amount * duration;
-    
-    return {
-      id,
-      type: 'rental',
-      game,
-      user,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      amount,
-      multi: duration,
-      payout
-    };
-  } else {
-    const game = CASINO_GAMES[Math.floor(Math.random() * CASINO_GAMES.length)];
-    const amount = Math.floor(Math.random() * 49900) + 100; // custom wager amounts
-    const won = Math.random() < 0.45;
-    const multi = won ? parseFloat((Math.random() * 15 + 1.2).toFixed(2)) : 0.0;
-    const payout = won ? Math.round(amount * multi) : 0;
-    
-    return {
-      id,
-      type: 'bet',
-      game,
-      user,
-      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-      amount,
-      multi,
-      payout,
-      won
-    };
-  }
-}
-
 export function LiveActionFeed() {
   const [activeTab, setActiveTab] = useState(TABS[0]);
   const [feedItems, setFeedItems] = useState<FeedData[]>([]);
@@ -122,21 +76,21 @@ export function LiveActionFeed() {
   return (
     <div className="w-full space-y-4 relative">
       {/* Tab Navigation */}
-      <div className="flex items-center gap-6 border-b border-slate-800 pb-2 overflow-x-auto custom-scrollbar">
+      <div className="flex items-center gap-6 border-b border-slate-200 pb-2 overflow-x-auto custom-scrollbar">
         {TABS.map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
             className={cn(
               "relative pb-2 text-sm md:text-base font-bold transition-colors whitespace-nowrap",
-              activeTab === tab ? "text-white" : "text-slate-500 hover:text-slate-300"
+              activeTab === tab ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
             )}
           >
             {tab}
             {activeTab === tab && (
               <motion.div
-                layoutId="activeTab"
-                className="absolute bottom-0 left-0 right-0 h-0.5 bg-neon-purple shadow-[0_0_10px_rgba(168,85,247,0.8)]"
+                layoutId="activeTabFeed"
+                className="absolute bottom-0 left-0 right-0 h-0.5 bg-blue-600 shadow-sm"
               />
             )}
           </button>
@@ -144,10 +98,10 @@ export function LiveActionFeed() {
       </div>
 
       {/* Data Table */}
-      <div className="w-full overflow-x-auto custom-scrollbar overflow-hidden rounded-xl border border-slate-800/50">
-        <table className="w-full text-left border-collapse min-w-[850px] bg-slate-950/30">
-          <thead className="bg-slate-900/50">
-            <tr className="text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 border-b border-slate-800/50">
+      <div className="w-full overflow-x-auto custom-scrollbar overflow-hidden rounded-xl border border-slate-200 shadow-sm">
+        <table className="w-full text-left border-collapse min-w-[850px] bg-white">
+          <thead className="bg-slate-50">
+            <tr className="text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 border-b border-slate-200">
               <th className="py-4 font-semibold px-4">Type</th>
               <th className="py-4 font-semibold px-4">Game / Session</th>
               <th className="py-4 font-semibold px-4">User</th>
@@ -172,39 +126,39 @@ export function LiveActionFeed() {
                     return (
                       <motion.tr
                         key={tx.id}
-                        initial={{ opacity: 0, y: -20, backgroundColor: "rgba(234, 179, 8, 0.2)" }}
+                        initial={{ opacity: 0, y: -20, backgroundColor: "rgba(234, 179, 8, 0.1)" }}
                         animate={{ opacity: 1, y: 0, backgroundColor: "transparent" }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.4 }}
-                        className="border-b border-slate-800/30 hover:bg-slate-900/60 transition-colors group text-sm sm:text-base"
+                        className="border-b border-slate-100 hover:bg-slate-50 transition-colors group text-sm sm:text-base"
                       >
                         <td className="py-3 px-4 font-bold text-xs uppercase tracking-widest">
                           {tx.type === 'casino' ? (isRental ? (
-                            <span className="text-cyan-400 bg-cyan-400/10 px-2 py-0.5 rounded border border-cyan-400/20">Rental</span>
+                            <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Rental</span>
                           ) : (
-                            <span className="text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20">Bet</span>
+                            <span className="text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded border border-yellow-200">Bet</span>
                           )) : (
-                            <span className="text-slate-400 bg-slate-400/10 px-2 py-0.5 rounded border border-slate-400/20">{tx.type}</span>
+                            <span className="text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">{tx.type}</span>
                           )}
                         </td>
-                        <td className="py-3 px-4 font-medium text-slate-300 max-w-[200px] truncate" title={tx.details}>
+                        <td className="py-3 px-4 font-medium text-slate-800 max-w-[200px] truncate" title={tx.details}>
                           {tx.details.split('(')[0].replace('Played ', '')}
                         </td>
                         <td className="py-3 px-4">
-                          <span className="text-slate-400 flex items-center gap-2 text-sm font-semibold">
+                          <span className="text-slate-600 flex items-center gap-2 text-sm font-semibold">
                             <User className="w-3 h-3" /> You
                           </span>
                         </td>
                         <td className="py-3 px-4 text-slate-500 text-xs font-mono">{new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
-                        <td className="py-3 px-4 text-right text-slate-300 font-medium font-mono">
+                        <td className="py-3 px-4 text-right text-slate-800 font-medium font-mono">
                           ₹{tx.amount.toLocaleString()}
                         </td>
-                        <td className="py-3 px-4 text-right font-black drop-shadow-md text-slate-400 font-mono">
+                        <td className="py-3 px-4 text-right font-black text-slate-500 font-mono">
                           {tx.details.includes('Wager:') ? '-' : '-'}
                         </td>
                         <td className={cn(
                           "py-3 px-4 text-right font-black font-mono",
-                          tx.status === 'Completed' ? 'text-neon-green' : 'text-yellow-500'
+                          tx.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'
                         )}>
                           {tx.type === 'casino' ? `₹${tx.amount.toLocaleString()}` : tx.status}
                         </td>
@@ -223,31 +177,31 @@ export function LiveActionFeed() {
                   .map((row) => (
                     <motion.tr
                       key={row.id}
-                      initial={{ opacity: 0, y: -20, backgroundColor: row.type === 'rental' ? "rgba(6, 182, 212, 0.15)" : "rgba(234, 179, 8, 0.15)" }}
+                      initial={{ opacity: 0, y: -20, backgroundColor: row.type === 'rental' ? "rgba(59, 130, 246, 0.05)" : "rgba(234, 179, 8, 0.05)" }}
                       animate={{ opacity: 1, y: 0, backgroundColor: "transparent" }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="border-b border-slate-800/30 hover:bg-slate-900/60 transition-colors group text-sm sm:text-base"
+                      className="border-b border-slate-100 hover:bg-slate-50 transition-colors group text-sm sm:text-base"
                     >
                       {/* Column 1: Type Badge */}
                       <td className="py-3 px-4 font-bold text-xs uppercase tracking-widest font-mono">
                         {row.type === 'rental' ? (
-                          <span className="flex items-center gap-1 w-max text-cyan-400 bg-cyan-400/10 px-2 py-0.5 rounded border border-cyan-400/20">
+                          <span className="flex items-center gap-1 w-max text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                             <PlayCircle className="w-3.5 h-3.5" /> Rent
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1 w-max text-yellow-500 bg-yellow-500/10 px-2 py-0.5 rounded border border-yellow-500/20">
+                          <span className="flex items-center gap-1 w-max text-yellow-600 bg-yellow-50 px-2 py-0.5 rounded border border-yellow-200">
                             <Coins className="w-3.5 h-3.5" /> Bet
                           </span>
                         )}
                       </td>
                       {/* Column 2: Game */}
-                      <td className="py-3 px-4 font-medium text-slate-300">{row.game}</td>
+                      <td className="py-3 px-4 font-medium text-slate-800">{row.game}</td>
                       {/* Column 3: User */}
                       <td className="py-3 px-4">
                         <button 
                           onClick={() => setSelectedUser(row.user)}
-                          className="text-slate-400 hover:text-white transition-colors flex items-center gap-2 group-hover:text-neon-purple font-medium"
+                          className="text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2 group-hover:text-blue-600 font-medium"
                         >
                           <User className="w-3 h-3" />
                           {row.user}
@@ -256,24 +210,24 @@ export function LiveActionFeed() {
                       {/* Column 4: Time */}
                       <td className="py-3 px-4 text-slate-500 text-xs font-mono">{row.time}</td>
                       {/* Column 5: Rate or Wager */}
-                      <td className="py-3 px-4 text-right text-slate-300 font-medium font-mono">
+                      <td className="py-3 px-4 text-right text-slate-800 font-medium font-mono">
                         {row.type === 'rental' ? `₹${row.amount}/hr` : `₹${row.amount.toLocaleString()}`}
                       </td>
                       {/* Column 6: Duration or Multiplier */}
                       <td className={cn(
-                        "py-3 px-4 text-right font-black drop-shadow-md font-mono",
+                        "py-3 px-4 text-right font-black font-mono",
                         row.type === 'rental' 
-                          ? (row.multi >= 8 ? 'text-neon-purple animate-pulse' : row.multi >= 4 ? 'text-neon-yellow' : 'text-slate-400')
-                          : (row.won ? 'text-neon-yellow' : 'text-slate-500')
+                          ? (row.multi >= 8 ? 'text-blue-600 animate-pulse' : row.multi >= 4 ? 'text-yellow-600' : 'text-slate-500')
+                          : (row.won ? 'text-yellow-600' : 'text-slate-600')
                       )}>
                         {row.type === 'rental' ? `${row.multi} hrs` : (row.won ? `${row.multi}x` : '0.00x')}
                       </td>
                       {/* Column 7: Total Cost or Payout */}
                       <td className={cn(
-                        "py-3 px-4 text-right font-black font-mono drop-shadow-[0_0_5px_rgba(34,197,94,0.2)]",
+                        "py-3 px-4 text-right font-black font-mono",
                         row.type === 'rental' 
-                          ? 'text-cyan-400' 
-                          : (row.won ? 'text-neon-green' : 'text-slate-500')
+                          ? 'text-blue-600' 
+                          : (row.won ? 'text-green-600' : 'text-slate-600')
                       )}>
                         ₹{row.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                       </td>
@@ -292,49 +246,49 @@ export function LiveActionFeed() {
             initial={{ opacity: 0, scale: 0.9, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm bg-slate-900/95 backdrop-blur-3xl border border-slate-700 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_1px_0_rgba(255,255,255,0.1)] overflow-hidden"
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-sm bg-white backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl overflow-hidden"
           >
             {/* Header BG */}
-            <div className="h-24 bg-gradient-to-br from-neon-purple/40 to-blue-500/20 relative">
-              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-20" />
+            <div className="h-24 bg-gradient-to-br from-blue-100 to-slate-50 relative border-b border-slate-200">
+              <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10" />
             </div>
             
-            <button onClick={() => setSelectedUser(null)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-black/50 hover:bg-black text-white flex items-center justify-center backdrop-blur-md transition-colors z-10">
+            <button onClick={() => setSelectedUser(null)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-slate-50/10 hover:bg-slate-50/20 text-slate-900 flex items-center justify-center backdrop-blur-md transition-colors z-10">
               <X className="w-4 h-4" />
             </button>
 
             {/* Profile Content */}
             <div className="px-6 pb-6 relative">
               {/* Avatar */}
-              <div className="w-20 h-20 rounded-2xl bg-slate-800 border-4 border-slate-900 absolute -top-10 left-6 flex items-center justify-center shadow-xl overflow-hidden">
-                <div className="absolute inset-0 bg-gradient-to-tr from-neon-purple to-cyan-500 opacity-50" />
-                <User className="w-10 h-10 text-white relative z-10" />
+              <div className="w-20 h-20 rounded-2xl bg-white border-4 border-slate-50 absolute -top-10 left-6 flex items-center justify-center shadow-lg overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-100 to-cyan-50 opacity-50" />
+                <User className="w-10 h-10 text-blue-600 relative z-10" />
               </div>
 
               <div className="mt-12">
                 <div className="flex items-center gap-2 mb-1">
-                  <h3 className="text-2xl font-black text-white">{selectedUser}</h3>
-                  <div className="px-2 py-0.5 rounded bg-yellow-500/20 border border-yellow-500/50 text-yellow-500 text-[10px] font-black uppercase tracking-widest">Aura VIP</div>
+                  <h3 className="text-2xl font-black text-slate-900">{selectedUser}</h3>
+                  <div className="px-2 py-0.5 rounded bg-yellow-100 border border-yellow-200 text-yellow-700 text-[10px] font-black uppercase tracking-widest">Aura VIP</div>
                 </div>
-                <p className="text-sm text-slate-400 font-medium flex items-center gap-2">
+                <p className="text-sm text-slate-500 font-medium flex items-center gap-2">
                   <Activity className="w-4 h-4 text-green-500" /> Active in Lobby
                 </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4 mt-6">
-                <div className="bg-slate-950 rounded-xl p-4 border border-slate-800/80 shadow-inner">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 shadow-sm">
                   <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Total Playtime</p>
-                  <p className="text-lg font-black text-white font-mono">{Math.floor(Math.random() * 120 + 20)} hrs</p>
+                  <p className="text-lg font-black text-slate-900 font-mono">{Math.floor(Math.random() * 120 + 20)} hrs</p>
                 </div>
-                <div className="bg-slate-950 rounded-xl p-4 border border-slate-800/80 shadow-inner">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-200 shadow-sm">
                   <p className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Biggest Multiplier</p>
-                  <p className="text-lg font-black text-neon-green font-mono flex items-center gap-1">
+                  <p className="text-lg font-black text-green-600 font-mono flex items-center gap-1">
                     <Trophy className="w-4 h-4 text-yellow-500" /> {Math.floor(Math.random() * 250 + 25)}x
                   </p>
                 </div>
               </div>
 
-              <button className="w-full mt-6 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-white font-bold text-sm transition-colors">
+              <button className="w-full mt-6 py-3 rounded-xl bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 font-bold text-sm transition-colors">
                 Add Friend
               </button>
             </div>
@@ -350,7 +304,7 @@ export function LiveActionFeed() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setSelectedUser(null)}
-            className="absolute inset-0 bg-black/40 backdrop-blur-[2px] z-40 rounded-xl"
+            className="absolute inset-0 bg-slate-50/20 backdrop-blur-[2px] z-40 rounded-xl"
           />
         )}
       </AnimatePresence>

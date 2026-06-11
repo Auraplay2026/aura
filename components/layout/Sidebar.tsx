@@ -1,7 +1,7 @@
 "use client";
 
 import { 
-  Home, Trophy, Gamepad2, Gift, Shield, Zap, Percent, Crown, HeadphonesIcon, Sword
+  Home, Trophy, Gamepad2, Gift, Shield, Zap, Percent, Crown, HeadphonesIcon, Sword, BarChart3, LineChart
 } from "lucide-react";
 import Link from "next/link";
 import { motion } from "framer-motion";
@@ -10,21 +10,18 @@ import { cn } from "@/lib/utils";
 
 const NAV_SECTIONS = [
   {
-    title: "Cloud Game Library",
+    title: "Exchange Markets",
     items: [
-      { name: "Home Lobby", href: "/", icon: Home, color: "text-white", badge: "" },
-      { name: "AAA Cloud Gaming", href: "/casino/aaa", emoji: "⚡", isSub: true },
-      { name: "RPG & Adventure", href: "/casino/action", emoji: "⚔️", isSub: true },
-      { name: "FPS & Shooters", href: "/casino/fps", emoji: "🔫", isSub: true },
-      { name: "Racing & Simulators", href: "/casino/driving", emoji: "🏎️", isSub: true },
-      { name: "Strategy & Coop", href: "/casino/puzzle", emoji: "🧩", isSub: true },
-      { name: "Cozy & Chill", href: "/casino/boring", emoji: "🌾", isSub: true },
+      { name: "Sportsbook Exchange", href: "/sportsbook", icon: LineChart, color: "text-exchange-text", badge: "" },
+      { name: "Cricket (In-Play)", href: "/sportsbook?sport=cricket", emoji: "🏏", isSub: true },
+      { name: "Tennis (Sets)", href: "/sportsbook?sport=tennis", emoji: "🎾", isSub: true },
+      { name: "Soccer (1X2)", href: "/sportsbook?sport=soccer", emoji: "⚽", isSub: true },
     ]
   },
   {
-    title: "Casino & Betting",
+    title: "Casino Nodes",
     items: [
-      { name: "Casino Lobby", href: "/casino", icon: Gamepad2, color: "text-yellow-500", badge: "HOT" },
+      { name: "Casino Lobby", href: "/casino", icon: Gamepad2, color: "text-exchange-text", badge: "HOT" },
       { name: "Slots & Drops", href: "/casino/slots", emoji: "🎰", isSub: true },
       { name: "Live Dealers", href: "/casino/live", emoji: "🔴", isSub: true },
       { name: "Crash Games", href: "/casino/crash", emoji: "🚀", isSub: true },
@@ -35,11 +32,14 @@ const NAV_SECTIONS = [
     ]
   },
   {
-    title: "Sports & Markets",
+    title: "Cloud Hub",
     items: [
-      { name: "Sportsbook", href: "/sportsbook", icon: Trophy, color: "text-purple-500", badge: "" },
-      { name: "Cricket (IPL)", href: "/sportsbook?sport=cricket", emoji: "🏏", isSub: true },
-      { name: "Predictions Hub", href: "/predictions", icon: Zap, color: "text-indigo-400", badge: "" },
+      { name: "Game Library", href: "/casino/aaa", icon: Home, color: "text-exchange-text", badge: "" },
+      { name: "RPG & Adventure", href: "/casino/action", emoji: "⚔️", isSub: true },
+      { name: "FPS & Shooters", href: "/casino/fps", emoji: "🔫", isSub: true },
+      { name: "Racing & Simulators", href: "/casino/driving", emoji: "🏎️", isSub: true },
+      { name: "Strategy & Coop", href: "/casino/puzzle", emoji: "🧩", isSub: true },
+      { name: "Cozy & Chill", href: "/casino/boring", emoji: "🌾", isSub: true },
     ]
   },
   {
@@ -52,11 +52,12 @@ const NAV_SECTIONS = [
     ]
   },
   {
-    title: "Personal",
+    title: "Account & Data",
     items: [
-      { name: "My Profile", href: "/account", icon: Zap, color: "text-blue-400" },
+      { name: "My Profile", href: "/account", icon: Zap, color: "text-exchange-muted" },
       { name: "Safe Play", href: "/rg", icon: Shield, color: "text-slate-400" },
-      { name: "Support Desk", href: "/support", icon: HeadphonesIcon, color: "text-slate-400" },
+      { name: "Statements", href: "/account/statements", icon: BarChart3, color: "text-exchange-muted" },
+      { name: "Support Desk", href: "/support", icon: HeadphonesIcon, color: "text-exchange-muted" },
     ]
   }
 ];
@@ -65,85 +66,74 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex flex-col w-[260px] bg-[#05050a]/90 backdrop-blur-3xl border-r border-white/5 h-screen sticky top-0 shrink-0 z-40 shadow-[4px_0_24px_rgba(0,0,0,0.5)]">
+    <aside className="hidden lg:flex flex-col w-[260px] bg-exchange-surface border-r border-exchange-border h-screen sticky top-0 shrink-0 z-40">
       {/* Expanded Header / Logo */}
-      <div className="h-16 flex items-center px-6 border-b border-white/5 shrink-0 bg-transparent">
-        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity group">
-          <img src="/logo.png" alt="AuraPlay Logo" className="w-8 h-8 rounded-lg shadow-[0_0_15px_rgba(168,85,247,0.4)] group-hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] transition-shadow" />
-          <span className="text-white font-black tracking-widest uppercase text-lg">Aura<span className="text-neon-purple">Play</span></span>
+      <div className="h-16 flex items-center px-6 border-b border-exchange-border shrink-0 bg-transparent">
+        <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity">
+          <div className="w-6 h-6 bg-exchange-text rounded-sm flex items-center justify-center">
+            <span className="text-slate-900 font-black text-xs">AP</span>
+          </div>
+          <span className="text-exchange-text font-black tracking-widest uppercase text-sm">AuraPlay<span className="text-slate-600 font-normal ml-1">EX</span></span>
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-6 pb-24">
+      <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-8 pb-24">
         
         {NAV_SECTIONS.map((section, idx) => (
           <motion.div 
             key={idx} 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: idx * 0.1, duration: 0.4, ease: "easeOut" }}
-            className="flex flex-col gap-1 w-full"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: idx * 0.05, duration: 0.3, ease: "easeOut" }}
+            className="flex flex-col w-full"
           >
-            <p className="px-4 text-[10px] font-black text-slate-500 uppercase tracking-widest mb-2 select-none">{section.title}</p>
-            {section.items.map((item: any) => {
-              const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
-              
-              if (item.isSub) {
+            <p className="px-4 text-[10px] font-bold text-exchange-muted uppercase tracking-widest mb-3 select-none">
+              {section.title}
+            </p>
+            <div className="flex flex-col gap-0.5">
+              {section.items.map((item: any) => {
+                const isActive = pathname === item.href || (item.href !== "/" && pathname.startsWith(item.href));
+                
+                if (item.isSub) {
+                  return (
+                    <Link 
+                      key={item.name} 
+                      href={item.href}
+                      className={cn(
+                        "flex items-center justify-between pl-8 pr-3 py-2 rounded-md transition-colors relative group",
+                        isActive ? "bg-slate-100 text-exchange-text font-bold" : "text-exchange-muted hover:bg-slate-50 hover:text-exchange-text"
+                      )}
+                    >
+                      <div className="flex items-center gap-3">
+                        <span className="text-sm leading-none opacity-80">{item.emoji}</span>
+                        <span className="text-xs font-medium">{item.name}</span>
+                      </div>
+                    </Link>
+                  );
+                }
+
                 return (
                   <Link 
-                    key={item.name} 
+                    key={item.name}
                     href={item.href}
                     className={cn(
-                      "flex items-center justify-between pl-8 pr-3 py-2.5 rounded-xl transition-all duration-300 relative group",
-                      isActive ? "bg-white/10 text-white font-bold shadow-inner" : "text-slate-400 hover:bg-white/5 hover:text-white hover:translate-x-1"
+                      "flex items-center justify-between p-2.5 rounded-md transition-colors relative group",
+                      isActive ? "bg-slate-100 text-exchange-text font-bold" : "hover:bg-slate-50 text-exchange-muted hover:text-exchange-text"
                     )}
                   >
-                    <div className={cn(
-                      "absolute left-4 top-1/2 -translate-y-1/2 w-1.5 h-1.5 rounded-full transition-all duration-300",
-                      isActive ? "bg-yellow-400 shadow-[0_0_10px_rgba(250,204,21,0.8)] scale-125" : "bg-slate-700 group-hover:bg-yellow-500/50"
-                    )} />
                     <div className="flex items-center gap-3">
-                      <span className="text-lg leading-none filter drop-shadow-md">{item.emoji}</span>
-                      <span className="text-sm font-medium tracking-wide">{item.name}</span>
+                      <item.icon className={cn("w-4 h-4", isActive ? "text-exchange-text" : "text-exchange-muted")} />
+                      <span className="text-sm font-semibold">{item.name}</span>
                     </div>
                     {item.badge && (
-                      <span className="text-[9px] font-black tracking-widest text-slate-950 bg-gradient-to-r from-yellow-400 to-yellow-600 px-1.5 py-0.5 rounded uppercase shadow-[0_0_8px_rgba(234,179,8,0.4)]">
+                      <span className="text-[9px] font-bold tracking-wider text-slate-900 bg-blue-600 px-1.5 py-0.5 rounded-sm uppercase">
                         {item.badge}
                       </span>
                     )}
                   </Link>
                 );
-              }
-
-              return (
-                <Link 
-                  key={item.name}
-                  href={item.href}
-                  className={cn(
-                    "flex items-center justify-between p-3 rounded-xl transition-all duration-300 relative overflow-hidden group",
-                    isActive ? "bg-slate-800/80 border border-white/10 text-white shadow-[0_8px_20px_rgba(0,0,0,0.4)]" : "hover:bg-white/5 border border-transparent text-slate-300 hover:translate-x-1"
-                  )}
-                >
-                  {isActive && <div className="absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-yellow-400 to-yellow-600 shadow-[0_0_10px_rgba(250,204,21,0.5)]" />}
-                  
-                  <div className="flex items-center gap-3 relative z-10">
-                    <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center bg-black/40 transition-transform duration-300 group-hover:scale-110 group-hover:rotate-3 shadow-inner", 
-                      item.color,
-                      isActive && "bg-black/60 drop-shadow-[0_0_8px_currentColor]"
-                    )}>
-                      <item.icon className="w-4 h-4" />
-                    </div>
-                    <span className="font-bold tracking-wide">{item.name}</span>
-                  </div>
-                  {item.badge && (
-                    <span className="relative z-10 text-[9px] font-black tracking-widest text-slate-950 bg-gradient-to-r from-yellow-400 to-yellow-600 px-1.5 py-0.5 rounded uppercase shadow-[0_0_8px_rgba(234,179,8,0.4)]">
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+              })}
+            </div>
           </motion.div>
         ))}
 

@@ -21,19 +21,19 @@ export function UltraHubTabs({ categories }: UltraHubTabsProps) {
   const activeCategory = categories.find(c => c.id === activeTab);
 
   return (
-    <section className="space-y-6 pt-6 relative">
-      <div className="absolute inset-0 bg-indigo-500/5 blur-[100px] rounded-full pointer-events-none -z-10" />
+    <section className="space-y-6 pt-6 relative bg-white">
+      <div className="absolute inset-0 bg-blue-50/50 blur-[100px] rounded-full pointer-events-none -z-10" />
       
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 px-1">
-        <h2 className="text-2xl md:text-3xl font-black text-white flex items-center gap-3 tracking-wider uppercase">
-          <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center shadow-[0_0_20px_rgba(168,85,247,0.4)] border border-purple-500/50">
+        <h2 className="text-2xl md:text-3xl font-black text-slate-900 flex items-center gap-3 tracking-wider uppercase">
+          <span className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shadow-sm border border-blue-200/50 text-blue-600">
             🌌
           </span>
           The Ultra Hub
         </h2>
-        <Link href={`/casino/${activeTab}`} className="text-sm font-bold text-slate-300 hover:text-white transition-colors flex items-center gap-1 group bg-slate-900/50 hover:bg-slate-800 px-5 py-2 rounded-full border border-slate-700 shadow-lg shrink-0">
+        <Link href={`/casino/${activeTab}`} className="text-sm font-bold text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-1 group bg-slate-50 hover:bg-slate-100 px-5 py-2 rounded-full border border-slate-200 shadow-sm shrink-0">
           Explore Hub 
-          <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+          <ChevronRight className="w-4 h-4 group-hover:translate-x-1 transition-transform text-slate-600" />
         </Link>
       </div>
 
@@ -45,8 +45,8 @@ export function UltraHubTabs({ categories }: UltraHubTabsProps) {
             onClick={() => setActiveTab(cat.id)}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap font-bold text-sm transition-all border snap-start ${
               activeTab === cat.id 
-                ? "bg-white text-black border-white shadow-[0_0_20px_rgba(255,255,255,0.4)] scale-105" 
-                : "bg-black text-slate-400 border-white/10 hover:border-white/30 hover:text-white hover:bg-white/5"
+                ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105" 
+                : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50"
             }`}
           >
             {cat.icon}
@@ -75,8 +75,8 @@ export function UltraHubTabs({ categories }: UltraHubTabsProps) {
         </AnimatePresence>
         
         {/* Fade masks */}
-        <div className="absolute top-0 bottom-6 right-0 w-24 bg-gradient-to-l from-[#020205] to-transparent pointer-events-none" />
-        <div className="absolute top-0 bottom-6 left-0 w-8 bg-gradient-to-r from-[#020205] to-transparent pointer-events-none" />
+        <div className="absolute top-0 bottom-6 right-0 w-24 bg-gradient-to-l from-white to-transparent pointer-events-none" />
+        <div className="absolute top-0 bottom-6 left-0 w-8 bg-gradient-to-r from-white to-transparent pointer-events-none" />
       </div>
     </section>
   );

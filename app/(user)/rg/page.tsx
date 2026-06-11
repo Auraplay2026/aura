@@ -40,10 +40,10 @@ export default function ResponsibleGamingPage() {
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-2xl bg-slate-900/40 backdrop-blur-2xl border border-slate-800/80 rounded-3xl overflow-hidden shadow-2xl relative"
+        className="w-full max-w-2xl bg-slate-50/40 backdrop-blur-2xl border border-slate-200/80 rounded-3xl overflow-hidden shadow-2xl relative"
       >
         {/* Header */}
-        <div className="p-6 md:p-8 border-b border-slate-800/50 bg-slate-900/60 relative overflow-hidden">
+        <div className="p-6 md:p-8 border-b border-slate-200/50 bg-slate-50/60 relative overflow-hidden">
           <div className="absolute top-0 right-0 p-8 opacity-5">
             <Shield className="w-32 h-32" />
           </div>
@@ -52,8 +52,8 @@ export default function ResponsibleGamingPage() {
               <Shield className="w-6 h-6 text-neon-yellow" />
             </div>
             <div>
-              <h1 className="text-2xl font-black text-white tracking-tight">Play Safely</h1>
-              <p className="text-sm text-slate-400 mt-1">Configure your personal betting limits.</p>
+              <h1 className="text-2xl font-black text-slate-900 tracking-tight">Play Safely</h1>
+              <p className="text-sm text-slate-600 mt-1">Configure your personal betting limits.</p>
             </div>
           </div>
         </div>
@@ -62,12 +62,12 @@ export default function ResponsibleGamingPage() {
         <div className="p-6 md:p-8 space-y-8">
           
           {/* Custom Tabs */}
-          <div className="flex p-1 bg-slate-950/50 border border-slate-800 rounded-xl relative">
+          <div className="flex p-1 bg-slate-900/50 border border-slate-200 rounded-xl relative">
             <button
               onClick={() => setActiveTab("Wager")}
               className={cn(
                 "flex-1 py-3 text-sm font-bold rounded-lg transition-colors relative z-10",
-                activeTab === "Wager" ? "text-white" : "text-slate-500 hover:text-slate-300"
+                activeTab === "Wager" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
               )}
             >
               Wager Limits
@@ -76,7 +76,7 @@ export default function ResponsibleGamingPage() {
               onClick={() => setActiveTab("Loss")}
               className={cn(
                 "flex-1 py-3 text-sm font-bold rounded-lg transition-colors relative z-10",
-                activeTab === "Loss" ? "text-white" : "text-slate-500 hover:text-slate-300"
+                activeTab === "Loss" ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
               )}
             >
               Loss Limits
@@ -85,7 +85,7 @@ export default function ResponsibleGamingPage() {
             {/* Sliding Tab Indicator */}
             <motion.div
               layoutId="rg-tab-indicator"
-              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-slate-800 rounded-lg shadow-sm border border-slate-700"
+              className="absolute top-1 bottom-1 w-[calc(50%-4px)] bg-slate-100 rounded-lg shadow-sm border border-slate-700"
               initial={false}
               animate={{
                 left: activeTab === "Wager" ? "4px" : "calc(50% + 0px)",
@@ -94,8 +94,8 @@ export default function ResponsibleGamingPage() {
             />
           </div>
 
-          <div className="bg-blue-950/20 border border-blue-900/30 rounded-xl p-4 flex items-start gap-3">
-            <Info className="w-5 h-5 text-blue-400 shrink-0 mt-0.5" />
+          <div className="bg-blue-100 border border-blue-300 rounded-xl p-4 flex items-start gap-3">
+            <Info className="w-5 h-5 text-blue-600 shrink-0 mt-0.5" />
             <p className="text-sm text-blue-200/70 leading-relaxed">
               {activeTab === "Wager" 
                 ? "Wager limits restrict the total amount you can bet within a specific timeframe, regardless of your wins or losses. Once reached, you will not be able to place new bets until the period resets."
@@ -107,7 +107,7 @@ export default function ResponsibleGamingPage() {
           <div className="space-y-6">
             {(["Daily", "Weekly", "Monthly"] as Timeframe[]).map((timeframe) => (
               <div key={timeframe} className="space-y-2">
-                <label className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center justify-between">
+                <label className="text-xs font-bold text-slate-600 uppercase tracking-widest flex items-center justify-between">
                   {timeframe} Limit
                   {limits[activeTab][timeframe] && (
                     <span className="text-[10px] text-neon-green flex items-center gap-1">
@@ -116,13 +116,13 @@ export default function ResponsibleGamingPage() {
                   )}
                 </label>
                 <div className="relative group">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold group-focus-within:text-white transition-colors">₹</span>
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-500 font-bold group-focus-within:text-slate-900 transition-colors">₹</span>
                   <input
                     type="number"
                     placeholder="No limit set"
                     value={limits[activeTab][timeframe]}
                     onChange={(e) => handleInputChange(timeframe, e.target.value)}
-                    className="w-full bg-slate-950/80 border border-slate-800 rounded-xl pl-9 pr-4 py-3.5 text-white font-bold focus:outline-none focus:border-neon-purple focus:ring-1 focus:ring-neon-purple transition-all shadow-inner placeholder:font-normal placeholder:text-slate-600"
+                    className="w-full bg-white/80 border border-slate-200 rounded-xl pl-9 pr-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple focus:ring-1 focus:ring-neon-purple transition-all shadow-inner placeholder:font-normal placeholder:text-slate-600"
                   />
                 </div>
               </div>
@@ -132,7 +132,7 @@ export default function ResponsibleGamingPage() {
         </div>
 
         {/* Footer Actions */}
-        <div className="p-6 md:p-8 border-t border-slate-800/50 bg-slate-900/30 flex items-center justify-between">
+        <div className="p-6 md:p-8 border-t border-slate-200/50 bg-slate-50/30 flex items-center justify-between">
           <div className="flex-1">
             <AnimatePresence>
               {savedStatus && (

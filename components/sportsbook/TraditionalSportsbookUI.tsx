@@ -72,19 +72,19 @@ export function TraditionalSportsbookUI() {
   };
 
   return (
-    <div className="flex flex-col w-full min-h-full bg-[#0a0b10] text-slate-300 font-sans">
+    <div className="flex flex-col w-full min-h-full bg-slate-50 text-slate-700 font-sans">
       
       {/* Top Main Nav */}
-      <div className="flex items-center gap-6 px-6 pt-6 border-b border-slate-800">
+      <div className="flex items-center gap-6 px-6 pt-6 border-b border-slate-200">
         {['Featured', 'In-Play', 'All Sports', 'My Bets'].map(tab => (
           <button 
             key={tab} 
             onClick={() => setActiveTopNav(tab)}
-            className={`pb-4 text-sm font-bold border-b-2 transition-colors relative ${activeTopNav === tab ? 'border-[#FFD700] text-white' : 'border-transparent text-slate-500 hover:text-slate-300'}`}
+            className={`pb-4 text-sm font-bold border-b-2 transition-colors relative ${activeTopNav === tab ? 'border-[#FFD700] text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
           >
             {tab}
             {tab === 'My Bets' && positions.length > 0 && (
-              <span className="absolute top-0 -right-4 w-4 h-4 bg-[#22c55e] text-black text-[10px] rounded-full flex items-center justify-center">{positions.length}</span>
+              <span className="absolute top-0 -right-4 w-4 h-4 bg-slate-50 text-black text-[10px] rounded-full flex items-center justify-center">{positions.length}</span>
             )}
           </button>
         ))}
@@ -92,8 +92,8 @@ export function TraditionalSportsbookUI() {
 
       {activeTopNav === 'My Bets' ? (
         <div className="p-6">
-          <div className="bg-[#1a1b2a] rounded-xl border border-slate-800 p-6">
-            <h3 className="text-xl font-black text-white mb-4">Active Bets</h3>
+          <div className="bg-white rounded-xl border border-slate-200 p-6">
+            <h3 className="text-xl font-black text-slate-900 mb-4">Active Bets</h3>
             {positions.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-12 text-slate-500">
                 <AlertCircle className="w-12 h-12 mb-4 opacity-50" />
@@ -103,13 +103,13 @@ export function TraditionalSportsbookUI() {
             ) : (
               <div className="space-y-3">
                 {positions.map(p => (
-                  <div key={p.id} className="bg-[#26283b] p-4 rounded-lg flex justify-between items-center border border-slate-700">
+                  <div key={p.id} className="bg-slate-50 p-4 rounded-lg flex justify-between items-center border border-slate-700">
                     <div>
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest">{p.marketTitle}</p>
-                      <p className="text-white font-black text-lg">Picked {p.side.toUpperCase()}</p>
+                      <p className="text-xs text-slate-600 font-bold uppercase tracking-widest">{p.marketTitle}</p>
+                      <p className="text-slate-900 font-black text-lg">Picked {p.side.toUpperCase()}</p>
                     </div>
                     <div className="text-right">
-                      <p className="text-xs text-slate-400 font-bold uppercase tracking-widest mb-1">Stake</p>
+                      <p className="text-xs text-slate-600 font-bold uppercase tracking-widest mb-1">Stake</p>
                       <p className="text-neon-green font-black">₹{p.investment.toLocaleString()}</p>
                     </div>
                   </div>
@@ -121,34 +121,34 @@ export function TraditionalSportsbookUI() {
       ) : (
         <>
           {/* Secondary Sports Icons Nav */}
-          <div className="flex items-center gap-6 px-6 py-4 overflow-x-auto custom-scrollbar bg-[#11121c] border-b border-slate-800 shrink-0">
+          <div className="flex items-center gap-6 px-6 py-4 overflow-x-auto custom-scrollbar bg-slate-50 border-b border-slate-200 shrink-0">
             {SPORTS_NAV.map(sport => (
               <button 
                 key={sport.id}
                 onClick={() => setActiveSport(sport.id)}
-                className={`flex flex-col items-center gap-3 min-w-[80px] transition-all duration-300 group ${activeSport === sport.id ? 'text-[#FFD700]' : 'text-slate-500 hover:text-slate-300'}`}
+                className={`flex flex-col items-center gap-3 min-w-[80px] transition-all duration-300 group ${activeSport === sport.id ? 'text-[#FFD700]' : 'text-slate-500 hover:text-slate-700'}`}
               >
                 <div className={`w-8 h-8 flex items-center justify-center transition-all duration-300 ${activeSport === sport.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]' : 'opacity-50 grayscale group-hover:opacity-80 group-hover:grayscale-0'}`}>
                   <img src={sport.iconUrl} alt={sport.label} className="w-full h-full object-contain filter invert" style={{ filter: activeSport === sport.id ? 'invert(75%) sepia(85%) saturate(735%) hue-rotate(352deg) brightness(101%) contrast(105%)' : 'invert(100%)' }} />
                 </div>
-                <span className={`text-[10px] font-black uppercase tracking-wider ${activeSport === sport.id ? 'text-white' : ''}`}>{sport.label}</span>
+                <span className={`text-[10px] font-black uppercase tracking-wider ${activeSport === sport.id ? 'text-slate-900' : ''}`}>{sport.label}</span>
               </button>
             ))}
           </div>
 
           {/* Search & Turbo Toggle */}
-          <div className="bg-[#1a1b2a] border-b border-slate-800 p-4 sticky top-0 z-10 flex gap-4">
+          <div className="bg-white border-b border-slate-200 p-4 sticky top-0 z-10 flex gap-4">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input 
                 type="text"
                 placeholder="Search events, teams, leagues..."
-                className="w-full bg-[#050914] border border-slate-800 rounded-lg py-2.5 pl-10 pr-4 text-sm text-white placeholder:text-slate-500 focus:border-slate-600 outline-none transition-colors"
+                className="w-full bg-white border border-slate-200 rounded-lg py-2.5 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-500 focus:border-slate-600 outline-none transition-colors"
               />
             </div>
             <button 
               onClick={() => setIsTurboBetEnabled(!isTurboBetEnabled)}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${isTurboBetEnabled ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'bg-[#050914] border border-slate-800 text-slate-500 hover:text-slate-300'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg font-bold text-sm transition-all ${isTurboBetEnabled ? 'bg-amber-500/20 text-amber-500 border border-amber-500/50 shadow-[0_0_15px_rgba(245,158,11,0.2)]' : 'bg-white border border-slate-200 text-slate-500 hover:text-slate-700'}`}
             >
               <Zap className="w-4 h-4" /> 
               {isTurboBetEnabled ? 'Turbo Bet ON (₹1K)' : 'Turbo Bet OFF'}
@@ -157,33 +157,33 @@ export function TraditionalSportsbookUI() {
 
           {/* Filter Pills */}
           <div className="p-6 flex items-center gap-3 overflow-x-auto custom-scrollbar shrink-0">
-            <button onClick={() => setActiveFilter('all')} className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 border transition-all ${activeFilter === 'all' ? 'bg-[#26283b] text-white border-slate-600' : 'bg-[#1a1b2a] text-slate-400 border-slate-800 hover:bg-[#26283b]'}`}>
+            <button onClick={() => setActiveFilter('all')} className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 border transition-all ${activeFilter === 'all' ? 'bg-slate-50 text-slate-900 border-slate-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
               All <span className="bg-slate-700 px-1.5 rounded text-[10px]">{filteredMarkets.length}</span>
             </button>
-            <button onClick={() => setActiveFilter('popular')} className={`px-4 py-2 rounded-full text-xs font-bold border transition-all ${activeFilter === 'popular' ? 'bg-[#5a4fcf] text-white border-[#5a4fcf] shadow-[0_0_10px_rgba(90,79,207,0.3)]' : 'bg-[#1a1b2a] text-slate-400 border-slate-800 hover:bg-[#26283b]'}`}>
+            <button onClick={() => setActiveFilter('popular')} className={`px-4 py-2 rounded-full text-xs font-bold border transition-all ${activeFilter === 'popular' ? 'bg-[#5a4fcf] text-slate-900 border-[#5a4fcf] shadow-[0_0_10px_rgba(90,79,207,0.3)]' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
               Popular
             </button>
-            <button onClick={() => setActiveFilter('tournament')} className={`px-4 py-2 rounded-full text-xs font-bold border transition-all flex items-center gap-2 ${activeFilter === 'tournament' ? 'bg-[#26283b] text-white border-slate-600' : 'bg-[#1a1b2a] text-slate-400 border-slate-800 hover:bg-[#26283b]'}`}>
+            <button onClick={() => setActiveFilter('tournament')} className={`px-4 py-2 rounded-full text-xs font-bold border transition-all flex items-center gap-2 ${activeFilter === 'tournament' ? 'bg-slate-50 text-slate-900 border-slate-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
               <Trophy className="w-3 h-3 text-[#FFD700]" /> {SPORTS_NAV.find(s => s.id === activeSport)?.label} Global League
             </button>
           </div>
 
           {/* Matches / Outrights Toggle */}
           <div className="px-6 flex items-center gap-2 mb-6">
-            <div className="bg-[#1a1b2a] rounded-lg p-1 flex border border-slate-800 relative">
-              <div className={`absolute top-1 bottom-1 w-1/2 bg-[#26283b] rounded shadow-sm transition-transform duration-300 ${activeType === 'outrights' ? 'translate-x-full' : 'translate-x-0'}`} />
-              <button onClick={() => setActiveType('matches')} className={`px-6 py-1.5 rounded text-xs font-bold relative z-10 transition-colors w-[90px] ${activeType === 'matches' ? 'text-white' : 'text-slate-500 hover:text-slate-300'}`}>Matches</button>
-              <button onClick={() => setActiveType('outrights')} className={`px-6 py-1.5 rounded text-xs font-bold relative z-10 transition-colors w-[90px] ${activeType === 'outrights' ? 'text-white' : 'text-slate-500 hover:text-slate-300'}`}>Outrights</button>
+            <div className="bg-white rounded-lg p-1 flex border border-slate-200 relative">
+              <div className={`absolute top-1 bottom-1 w-1/2 bg-slate-50 rounded shadow-sm transition-transform duration-300 ${activeType === 'outrights' ? 'translate-x-full' : 'translate-x-0'}`} />
+              <button onClick={() => setActiveType('matches')} className={`px-6 py-1.5 rounded text-xs font-bold relative z-10 transition-colors w-[90px] ${activeType === 'matches' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}>Matches</button>
+              <button onClick={() => setActiveType('outrights')} className={`px-6 py-1.5 rounded text-xs font-bold relative z-10 transition-colors w-[90px] ${activeType === 'outrights' ? 'text-slate-900' : 'text-slate-500 hover:text-slate-700'}`}>Outrights</button>
             </div>
           </div>
 
           {/* Match Table Header */}
           <div className="px-6 mt-6 mb-4 flex items-center justify-between">
-            <div className="flex items-center gap-3 text-white font-black text-lg uppercase tracking-widest">
-              <Trophy className="w-5 h-5 text-slate-300" /> 
+            <div className="flex items-center gap-3 text-slate-900 font-black text-lg uppercase tracking-widest">
+              <Trophy className="w-5 h-5 text-slate-700" /> 
               {activeFilter === 'live' ? 'LIVE OVERVIEW' : 'GLOBAL LEAGUE'} {SPORTS_NAV.find(s => s.id === activeSport)?.label.replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, '') /* strip emoji for header */}
             </div>
-            <div className="bg-[#1a1c24] text-slate-400 text-xs font-bold px-4 py-1.5 rounded-full border border-slate-800">
+            <div className="bg-slate-50 text-slate-600 text-xs font-bold px-4 py-1.5 rounded-full border border-slate-200">
               {filteredMarkets.length} Matches Found
             </div>
           </div>
@@ -191,9 +191,9 @@ export function TraditionalSportsbookUI() {
           {/* Matches Container */}
           <div className="px-6 space-y-3 pb-32">
             {filteredMarkets.length === 0 ? (
-              <div className="bg-[#1e202a] border border-slate-800/50 rounded-xl p-12 flex flex-col items-center justify-center text-center">
+              <div className="bg-slate-50 border border-slate-200/50 rounded-xl p-12 flex flex-col items-center justify-center text-center">
                 <Trophy className="w-12 h-12 text-slate-700 mb-4" />
-                <p className="text-white font-bold text-lg mb-1">No Matches Found</p>
+                <p className="text-slate-900 font-bold text-lg mb-1">No Matches Found</p>
                 <p className="text-slate-500 text-sm">There are no matches available for this category right now.</p>
               </div>
             ) : (
@@ -210,28 +210,28 @@ export function TraditionalSportsbookUI() {
                       const team2Name = market.title.split(' vs ')[1] || "Away";
 
                       return (
-                        <div key={market.id} className="bg-[#1e202a] border border-transparent hover:border-slate-700 rounded-xl transition-colors">
+                        <div key={market.id} className="bg-slate-50 border border-transparent hover:border-slate-700 rounded-xl transition-colors">
                           <div className="flex flex-col md:flex-row items-center p-4">
                             
                             {/* Left: Status & Score */}
-                            <div className="flex flex-col items-center justify-center w-28 shrink-0 md:border-r border-white/5 pr-4 mb-4 md:mb-0">
+                            <div className="flex flex-col items-center justify-center w-28 shrink-0 md:border-r border-slate-200 pr-4 mb-4 md:mb-0">
                               <div className="text-[10px] font-bold text-red-500 border border-red-500/30 bg-red-500/10 px-3 py-0.5 rounded-full mb-1">
                                 LIVE
                               </div>
-                              <div className="text-xs font-bold text-white mb-0.5">0 - 0</div>
-                              <div className="text-[10px] text-slate-400">(21')</div>
+                              <div className="text-xs font-bold text-slate-900 mb-0.5">0 - 0</div>
+                              <div className="text-[10px] text-slate-600">(21')</div>
                             </div>
 
                             {/* Middle: Teams */}
                             <div className="flex-1 px-6 flex flex-col gap-3 w-full">
-                              <div className="flex items-center gap-3 text-white font-bold text-sm">
-                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-800 flex items-center justify-center">
+                              <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
                                   {market.team1Logo ? <img src={market.team1Logo} alt={team1Name} className="w-full h-full object-cover" /> : <span className="text-[10px]">T1</span>}
                                 </div>
                                 <span className="truncate">{team1Name}</span>
                               </div>
-                              <div className="flex items-center gap-3 text-white font-bold text-sm">
-                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-800 flex items-center justify-center">
+                              <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
                                   {market.team2Logo ? <img src={market.team2Logo} alt={team2Name} className="w-full h-full object-cover" /> : <span className="text-[10px]">T2</span>}
                                 </div>
                                 <span className="truncate">{team2Name}</span>
@@ -242,22 +242,22 @@ export function TraditionalSportsbookUI() {
                             <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
                               <button 
                                 onClick={() => handleOddsClick(market, 'yes')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#2a2c38] hover:bg-[#323442] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-[#FFD700]' : 'border-transparent'}`}
                               >
-                                <span className="text-slate-400 text-xs font-bold">1</span>
+                                <span className="text-slate-600 text-xs font-bold">1</span>
                                 <div className="flex items-center gap-1">
-                                  <span className="text-sm font-bold text-white">{yesOdds}</span>
+                                  <span className="text-sm font-bold text-slate-900">{yesOdds}</span>
                                   {isYesTrendingUp ? <TrendingUp className="w-3 h-3 text-green-500" /> : <TrendingDown className="w-3 h-3 text-red-500" />}
                                 </div>
                               </button>
                               
                               <button 
                                 onClick={() => handleOddsClick(market, 'no')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#2a2c38] hover:bg-[#323442] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-[#FFD700]' : 'border-transparent'}`}
                               >
-                                <span className="text-slate-400 text-xs font-bold">2</span>
+                                <span className="text-slate-600 text-xs font-bold">2</span>
                                 <div className="flex items-center gap-1">
-                                  <span className="text-sm font-bold text-white">{noOdds}</span>
+                                  <span className="text-sm font-bold text-slate-900">{noOdds}</span>
                                   {isNoTrendingUp ? <TrendingUp className="w-3 h-3 text-green-500" /> : <TrendingDown className="w-3 h-3 text-red-500" />}
                                 </div>
                               </button>
@@ -273,7 +273,7 @@ export function TraditionalSportsbookUI() {
                 {/* Upcoming Matches Section */}
                 {upcomingMatches.length > 0 && (
                   <div className="space-y-2">
-                    <h3 className="text-slate-400 font-bold text-sm uppercase tracking-widest mt-8 mb-4">
+                    <h3 className="text-slate-600 font-bold text-sm uppercase tracking-widest mt-8 mb-4">
                       UPCOMING
                     </h3>
                     {upcomingMatches.map((market) => {
@@ -283,26 +283,26 @@ export function TraditionalSportsbookUI() {
                       const team2Name = market.title.split(' vs ')[1] || "Away";
       
                       return (
-                        <div key={market.id} className="bg-[#1e202a] border border-transparent hover:border-slate-700 rounded-xl transition-colors opacity-80 hover:opacity-100">
+                        <div key={market.id} className="bg-slate-50 border border-transparent hover:border-slate-700 rounded-xl transition-colors opacity-80 hover:opacity-100">
                           <div className="flex flex-col md:flex-row items-center p-4">
                             
                             {/* Left: Status & Score */}
-                            <div className="flex flex-col items-center justify-center w-28 shrink-0 md:border-r border-white/5 pr-4 mb-4 md:mb-0">
-                              <div className="text-[10px] font-bold text-slate-400 mb-1">
+                            <div className="flex flex-col items-center justify-center w-28 shrink-0 md:border-r border-slate-200 pr-4 mb-4 md:mb-0">
+                              <div className="text-[10px] font-bold text-slate-600 mb-1">
                                 {market.startTime}
                               </div>
                             </div>
 
                             {/* Middle: Teams */}
                             <div className="flex-1 px-6 flex flex-col gap-3 w-full">
-                              <div className="flex items-center gap-3 text-white font-bold text-sm">
-                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-800 flex items-center justify-center">
+                              <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
                                   {market.team1Logo ? <img src={market.team1Logo} alt={team1Name} className="w-full h-full object-cover grayscale" /> : <span className="text-[10px]">T1</span>}
                                 </div>
                                 <span className="truncate">{team1Name}</span>
                               </div>
-                              <div className="flex items-center gap-3 text-white font-bold text-sm">
-                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-800 flex items-center justify-center">
+                              <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
                                   {market.team2Logo ? <img src={market.team2Logo} alt={team2Name} className="w-full h-full object-cover grayscale" /> : <span className="text-[10px]">T2</span>}
                                 </div>
                                 <span className="truncate">{team2Name}</span>
@@ -313,18 +313,18 @@ export function TraditionalSportsbookUI() {
                             <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
                               <button 
                                 onClick={() => handleOddsClick(market, 'yes')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#2a2c38] hover:bg-[#323442] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-[#FFD700]' : 'border-transparent'}`}
                               >
-                                <span className="text-slate-400 text-xs font-bold">1</span>
-                                <span className="text-sm font-bold text-white">{yesOdds}</span>
+                                <span className="text-slate-600 text-xs font-bold">1</span>
+                                <span className="text-sm font-bold text-slate-900">{yesOdds}</span>
                               </button>
                               
                               <button 
                                 onClick={() => handleOddsClick(market, 'no')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#2a2c38] hover:bg-[#323442] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-[#FFD700]' : 'border-transparent'}`}
                               >
-                                <span className="text-slate-400 text-xs font-bold">2</span>
-                                <span className="text-sm font-bold text-white">{noOdds}</span>
+                                <span className="text-slate-600 text-xs font-bold">2</span>
+                                <span className="text-sm font-bold text-slate-900">{noOdds}</span>
                               </button>
                             </div>
 

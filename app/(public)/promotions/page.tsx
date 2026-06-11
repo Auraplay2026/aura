@@ -122,11 +122,11 @@ export default function PromotionsPage() {
     : PROMOTIONS.filter(p => p.category === activeCategory || p.category === "All");
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#121420] text-slate-200 font-sans p-4 sm:p-6 lg:p-8 pb-32">
+    <div className="flex flex-col min-h-screen bg-slate-50 text-slate-800 font-sans p-4 sm:p-6 lg:p-8 pb-32">
       <div className="max-w-[1400px] mx-auto w-full flex flex-col gap-10">
 
         {/* Hero Section / Main Hook */}
-        <div className="relative w-full h-[400px] sm:h-[500px] rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/10 group cursor-pointer">
+        <div className="relative w-full h-[400px] sm:h-[500px] rounded-3xl overflow-hidden shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-slate-200 group cursor-pointer">
           {/* Background Image */}
           <div 
             className="absolute inset-0 bg-cover bg-center transition-transform duration-1000 group-hover:scale-105"
@@ -137,16 +137,16 @@ export default function PromotionsPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
           
           <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-3xl z-10">
-            <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 w-max shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+            <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/50 text-red-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 w-max shadow-[0_0_15px_rgba(239,68,68,0.3)]">
               <Flame className="w-4 h-4" /> Global Event Live
             </div>
             
-            <h1 className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tight mb-4 drop-shadow-2xl">
+            <h1 className="text-5xl sm:text-7xl font-black text-slate-900 leading-none tracking-tight mb-4 drop-shadow-2xl">
               Win a Custom <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">Lamborghini</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-slate-300 font-medium mb-8 max-w-xl text-shadow-sm">
+            <p className="text-lg sm:text-xl text-slate-700 font-medium mb-8 max-w-xl text-shadow-sm">
               Wager on any AuraPlay Originals to earn tickets. 1 Ticket = 1 Entry. The biggest giveaway in crypto casino history ends soon.
             </p>
             
@@ -164,7 +164,7 @@ export default function PromotionsPage() {
                 className={cn(
                   "font-black text-lg px-8 py-4 rounded-xl hover:scale-105 transition-all flex items-center gap-2",
                   heroOptedIn 
-                    ? "bg-green-500 hover:bg-green-400 text-white shadow-[0_0_30px_rgba(34,197,94,0.4)]" 
+                    ? "bg-green-500 hover:bg-green-400 text-slate-900 shadow-[0_0_30px_rgba(34,197,94,0.4)]" 
                     : "bg-yellow-500 hover:bg-yellow-400 text-slate-950 shadow-[0_0_30px_rgba(234,179,8,0.4)]"
                 )}
               >
@@ -172,7 +172,7 @@ export default function PromotionsPage() {
               </button>
               
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Event Ends In</span>
+                <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Event Ends In</span>
                 <div className="flex gap-2">
                   {[
                     { label: "D", val: timeLeft.days },
@@ -180,8 +180,8 @@ export default function PromotionsPage() {
                     { label: "M", val: timeLeft.mins },
                     { label: "S", val: timeLeft.secs }
                   ].map((unit, i) => (
-                    <div key={i} className="flex flex-col items-center justify-center bg-black/60 backdrop-blur-md border border-white/10 rounded-lg w-12 h-12">
-                      <span className="text-lg font-black text-white leading-none font-mono">{unit.val.toString().padStart(2, '0')}</span>
+                    <div key={i} className="flex flex-col items-center justify-center bg-white/60 backdrop-blur-md border border-slate-200 rounded-lg w-12 h-12">
+                      <span className="text-lg font-black text-slate-900 leading-none font-mono">{unit.val.toString().padStart(2, '0')}</span>
                       <span className="text-[10px] text-slate-500 font-bold">{unit.label}</span>
                     </div>
                   ))}
@@ -192,7 +192,7 @@ export default function PromotionsPage() {
         </div>
 
         {/* Categories Navbar */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-16 z-20 bg-[#121420]/80 backdrop-blur-xl py-4 -mx-4 px-4 sm:mx-0 sm:px-0 border-b border-white/5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-16 z-20 bg-slate-50/80 backdrop-blur-xl py-4 -mx-4 px-4 sm:mx-0 sm:px-0 border-b border-slate-200">
           <div className="flex items-center gap-2 overflow-x-auto w-full custom-scrollbar pb-2 sm:pb-0">
             {CATEGORIES.map(cat => (
               <button
@@ -202,7 +202,7 @@ export default function PromotionsPage() {
                   "px-6 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 border",
                   activeCategory === cat 
                     ? "bg-white text-slate-950 border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" 
-                    : "bg-[#1a1b2a] text-slate-400 border-white/5 hover:bg-[#272b40] hover:text-white"
+                    : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
                 {cat}
@@ -222,7 +222,7 @@ export default function PromotionsPage() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.9, y: 20 }}
                 transition={{ duration: 0.4, delay: idx * 0.05 }}
-                className="group bg-[#1a1b2a] rounded-3xl overflow-hidden border border-white/5 shadow-xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:-translate-y-2 transition-all duration-500 flex flex-col cursor-pointer"
+                className="group bg-white rounded-3xl overflow-hidden border border-slate-200 shadow-xl hover:shadow-[0_20px_50px_rgba(0,0,0,0.5)] hover:-translate-y-2 transition-all duration-500 flex flex-col cursor-pointer"
               >
                 {/* Promo Image Header */}
                 <div className="relative h-48 w-full overflow-hidden">
@@ -234,10 +234,10 @@ export default function PromotionsPage() {
                     {promo.tags.map((tag, i) => (
                       <span key={i} className={cn(
                         "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg",
-                        tag === "Hot" ? "bg-red-500 text-white" : 
-                        tag === "Crypto" ? "bg-cyan-500 text-white" :
-                        tag === "Ending Soon" ? "bg-orange-500 text-white" :
-                        "bg-white/20 backdrop-blur-md text-white border border-white/20"
+                        tag === "Hot" ? "bg-red-500 text-slate-900" : 
+                        tag === "Crypto" ? "bg-cyan-500 text-slate-900" :
+                        tag === "Ending Soon" ? "bg-orange-500 text-slate-900" :
+                        "bg-slate-900/20 backdrop-blur-md text-slate-900 border border-white/20"
                       )}>
                         {tag}
                       </span>
@@ -245,7 +245,7 @@ export default function PromotionsPage() {
                   </div>
 
                   {/* Category Pill */}
-                  <div className="absolute top-4 right-4 z-20 bg-black/60 backdrop-blur-md border border-white/10 px-3 py-1 rounded-full text-[10px] font-bold text-slate-300">
+                  <div className="absolute top-4 right-4 z-20 bg-white/60 backdrop-blur-md border border-slate-200 px-3 py-1 rounded-full text-[10px] font-bold text-slate-700">
                     {promo.category}
                   </div>
                 </div>
@@ -259,17 +259,17 @@ export default function PromotionsPage() {
                     <span className="text-xs font-black text-yellow-500 tracking-wide">{promo.prizePool}</span>
                   </div>
 
-                  <h3 className="text-xl sm:text-2xl font-black text-white leading-tight mb-2 group-hover:text-yellow-500 transition-colors">
+                  <h3 className="text-xl sm:text-2xl font-black text-slate-900 leading-tight mb-2 group-hover:text-yellow-500 transition-colors">
                     {promo.title}
                   </h3>
-                  <p className="text-slate-400 text-sm font-medium mb-6 line-clamp-2">
+                  <p className="text-slate-600 text-sm font-medium mb-6 line-clamp-2">
                     {promo.description}
                   </p>
 
-                  <div className="mt-auto pt-4 border-t border-white/5 flex items-center justify-between">
+                  <div className="mt-auto pt-4 border-t border-slate-200 flex items-center justify-between">
                     <button 
                       onClick={() => setShowTerms(showTerms === promo.id ? null : promo.id)}
-                      className="text-xs font-bold text-slate-500 flex items-center gap-1 group-hover:text-white transition-colors hover:underline"
+                      className="text-xs font-bold text-slate-500 flex items-center gap-1 group-hover:text-slate-900 transition-colors hover:underline"
                     >
                       <Clock className="w-3.5 h-3.5" /> {showTerms === promo.id ? 'Hide Terms' : 'Read Terms'}
                     </button>
@@ -284,8 +284,8 @@ export default function PromotionsPage() {
                       className={cn(
                         "font-bold text-sm px-5 py-2 rounded-xl transition-all shadow-sm",
                         optedIn[promo.id]
-                          ? "bg-green-500/20 border border-green-500/30 text-green-400 cursor-default"
-                          : "bg-[#272b40] group-hover:bg-white text-slate-300 group-hover:text-black hover:scale-105"
+                          ? "bg-green-500/20 border border-green-500/30 text-green-600 cursor-default"
+                          : "bg-slate-50 group-hover:bg-white text-slate-700 group-hover:text-black hover:scale-105"
                       )}
                     >
                       {optedIn[promo.id] ? (<span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Joined</span>) : "Opt In"}
@@ -301,7 +301,7 @@ export default function PromotionsPage() {
                         exit={{ height: 0, opacity: 0 }}
                         className="overflow-hidden"
                       >
-                        <div className="pt-4 mt-4 border-t border-white/5 text-xs text-slate-500 leading-relaxed space-y-2">
+                        <div className="pt-4 mt-4 border-t border-slate-200 text-xs text-slate-500 leading-relaxed space-y-2">
                           <p>• Minimum wager of ₹100 required per qualifying bet.</p>
                           <p>• This promotion cannot be combined with other active bonuses.</p>
                           <p>• AuraPlay reserves the right to modify or cancel this promotion at any time.</p>
@@ -326,10 +326,10 @@ export default function PromotionsPage() {
             initial={{ opacity: 0, y: 50, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 50, scale: 0.9 }}
-            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-[#1a1d29] border border-[#7148ff]/50 text-white font-bold text-sm px-8 py-4 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(113,72,255,0.2)] flex items-center gap-3"
+            className="fixed bottom-8 left-1/2 -translate-x-1/2 z-[100] bg-slate-50 border border-[#7148ff]/50 text-slate-900 font-bold text-sm px-8 py-4 rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8),0_0_30px_rgba(113,72,255,0.2)] flex items-center gap-3"
           >
             {toast}
-            <button onClick={() => setToast(null)} className="text-slate-400 hover:text-white ml-2">
+            <button onClick={() => setToast(null)} className="text-slate-600 hover:text-slate-900 ml-2">
               <X className="w-4 h-4" />
             </button>
           </motion.div>

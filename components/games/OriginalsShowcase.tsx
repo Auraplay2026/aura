@@ -50,20 +50,20 @@ export function OriginalsShowcase() {
   ];
 
   return (
-    <div className="flex flex-col w-full text-slate-200 space-y-8">
+    <div className="flex flex-col w-full text-slate-800 space-y-8">
       
       {/* Header */}
-      <div className="bg-slate-900/40 border border-slate-800/80 rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden shrink-0">
+      <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-8 backdrop-blur-xl relative overflow-hidden shrink-0">
         <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
           <Gamepad2 className="w-48 h-48" />
         </div>
         
         <div className="relative z-10 flex flex-col gap-2">
-          <h1 className="text-3xl md:text-5xl font-black text-white flex items-center gap-4 tracking-tight">
+          <h1 className="text-3xl md:text-5xl font-black text-slate-900 flex items-center gap-4 tracking-tight">
             <span className="w-2 h-10 bg-neon-purple rounded-full shadow-[0_0_15px_rgba(168,85,247,0.6)]"></span>
             AuraPlay Originals
           </h1>
-          <p className="text-slate-400 max-w-2xl text-lg">
+          <p className="text-slate-600 max-w-2xl text-lg">
             Experience our exclusive, provably fair in-house games. Fully playable mathematical simulations demonstrating our industry-leading house edge.
           </p>
         </div>
@@ -77,8 +77,8 @@ export function OriginalsShowcase() {
             onClick={() => setActiveGame(game.id)}
             className={`px-6 py-3 rounded-xl font-bold text-sm transition-colors ${
               activeGame === game.id 
-                ? "bg-slate-700 text-white shadow-lg" 
-                : "bg-slate-950 border border-slate-800 text-slate-400 hover:bg-slate-800"
+                ? "bg-slate-700 text-slate-900 shadow-lg" 
+                : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
             }`}
           >
             {game.name}

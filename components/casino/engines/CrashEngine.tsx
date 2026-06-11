@@ -56,7 +56,7 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-[#020205] rounded-3xl border border-slate-800 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,1)]">
+    <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,1)]">
       
       {/* Photorealistic Deep Space Nebula Background */}
       <div 
@@ -85,7 +85,7 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
       />
 
       {/* Axis Labels */}
-      <div className="absolute left-4 top-4 bottom-4 w-12 border-r border-emerald-900/50 flex flex-col justify-between py-10 z-0 opacity-50 font-mono text-[10px] text-emerald-500">
+      <div className="absolute left-4 top-4 bottom-4 w-12 border-r border-emerald-300 flex flex-col justify-between py-10 z-0 opacity-50 font-mono text-[10px] text-emerald-500">
         <span>100x</span>
         <span>50x</span>
         <span>10x</span>
@@ -100,13 +100,13 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
         className="z-20 relative flex flex-col items-center"
       >
         <motion.h1 
-          className={`text-8xl md:text-[120px] font-black font-mono tracking-tighter drop-shadow-2xl ${crashed ? "text-red-500" : "text-white"}`}
+          className={`text-8xl md:text-[120px] font-black font-mono tracking-tighter drop-shadow-2xl ${crashed ? "text-red-500" : "text-slate-900"}`}
           style={{ textShadow: crashed ? "0 0 40px rgba(239, 68, 68, 0.8)" : "0 0 40px rgba(255, 255, 255, 0.5)" }}
         >
           {multiplier.toFixed(2)}<span className="text-4xl md:text-6xl text-emerald-500 ml-2">x</span>
         </motion.h1>
         
-        <div className={`mt-2 px-6 py-2 rounded-full border border-white/10 backdrop-blur-md flex items-center gap-2 ${crashed ? "bg-red-950/50 text-red-500" : "bg-emerald-950/50 text-emerald-400"}`}>
+        <div className={`mt-2 px-6 py-2 rounded-full border border-slate-200 backdrop-blur-md flex items-center gap-2 ${crashed ? "bg-red-100 text-red-500" : "bg-emerald-100 text-emerald-600"}`}>
           {crashed ? <AlertTriangle className="w-5 h-5" /> : <Crosshair className="w-5 h-5 animate-spin-slow" />}
           <span className="font-mono text-sm tracking-widest uppercase font-bold">
             {crashed ? "COMMS LOST - CRASHED" : "ORBITAL CLIMB ACTIVE"}

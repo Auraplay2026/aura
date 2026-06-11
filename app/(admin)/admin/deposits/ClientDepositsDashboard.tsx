@@ -154,40 +154,40 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
   );
 
   return (
-    <div className="min-h-screen p-8 relative overflow-hidden bg-[#030307] text-slate-100">
+    <div className="min-h-screen p-8 relative overflow-hidden bg-slate-50 text-slate-900">
       
       {/* Toast System */}
       <div className="fixed top-6 right-6 z-50 flex flex-col gap-3">
         {toasts.map(t => (
           <div key={t.id} className={`flex items-center gap-2.5 px-5 py-3.5 rounded-xl border backdrop-blur-xl shadow-2xl transition-all duration-300 animate-slide-in ${
-            t.type === 'success' ? 'bg-emerald-950/80 border-emerald-500/30 text-emerald-300' :
-            t.type === 'error' ? 'bg-rose-950/80 border-rose-500/30 text-rose-300' :
-            'bg-slate-900/80 border-slate-800 text-slate-300'
+            t.type === 'success' ? 'bg-emerald-100 border-emerald-500/30 text-emerald-700' :
+            t.type === 'error' ? 'bg-rose-100 border-rose-500/30 text-rose-700' :
+            'bg-slate-50/80 border-slate-200 text-slate-700'
           }`}>
-            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-400" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-400" />}
+            {t.type === 'success' ? <CheckCircle className="w-4.5 h-4.5 text-emerald-600" /> : <AlertTriangle className="w-4.5 h-4.5 text-rose-600" />}
             <span className="text-xs font-semibold">{t.message}</span>
           </div>
         ))}
       </div>
 
       {/* Header bar */}
-      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-white/5 pb-6 gap-4">
+      <header className="mb-8 flex flex-col md:flex-row md:items-center justify-between border-b border-slate-200 pb-6 gap-4">
         <div className="flex items-center gap-4">
           <div className="relative group">
             <div className="absolute -inset-1.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 opacity-60 blur-md" />
-            <div className="relative w-14 h-14 rounded-2xl bg-slate-950 border border-white/10 flex items-center justify-center">
-              <ArrowDownLeft className="w-7 h-7 text-emerald-400" />
+            <div className="relative w-14 h-14 rounded-2xl bg-white border border-slate-200 flex items-center justify-center">
+              <ArrowDownLeft className="w-7 h-7 text-emerald-600" />
             </div>
           </div>
           <div>
-            <h1 className="text-2xl font-black text-white tracking-widest uppercase">Manual Deposit Verification</h1>
-            <p className="text-xs text-slate-500 font-medium tracking-wide uppercase mt-1">Review uploaded transaction proofs and credit balances.</p>
+            <h1 className="text-2xl font-black text-slate-900 tracking-widest uppercase">Manual Deposit Verification</h1>
+            <p className="text-xs text-slate-600 font-medium tracking-wide uppercase mt-1">Review uploaded transaction proofs and credit balances.</p>
           </div>
         </div>
 
         <button 
           onClick={fetchDepositsQueue}
-          className="px-4 py-2 rounded-xl bg-slate-900/50 hover:bg-slate-900 border border-slate-800 hover:border-slate-700 text-slate-300 hover:text-white transition duration-300 flex items-center gap-2 text-xs uppercase font-bold tracking-wider"
+          className="px-4 py-2 rounded-xl bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-700 text-slate-700 hover:text-slate-900 transition duration-300 flex items-center gap-2 text-xs uppercase font-bold tracking-wider"
         >
           <RefreshCw className={`w-4 h-4 ${loading && 'animate-spin'}`} />
           Refresh Queue
@@ -195,19 +195,19 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
       </header>
 
       {/* Main Table card */}
-      <section className="bg-slate-950/45 border border-white/5 rounded-2xl p-6 backdrop-blur-xl min-h-[500px] flex flex-col gap-6">
+      <section className="bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl min-h-[500px] flex flex-col gap-6">
         
         {/* Controls Toolbar */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/5 pb-4">
-          <div className="flex bg-slate-900/40 p-1 border border-white/5 rounded-xl">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-4">
+          <div className="flex bg-slate-50/40 p-1 border border-slate-200 rounded-xl">
             {(['pending', 'completed', 'rejected'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setDepositsTab(tab)}
                 className={`text-[10px] font-black tracking-widest uppercase px-4 py-2 rounded-lg transition-all duration-300 ${
                   depositsTab === tab
-                    ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
-                    : 'bg-transparent text-slate-500 border-transparent hover:text-slate-300'
+                    ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20'
+                    : 'bg-transparent text-slate-600 border-transparent hover:text-slate-700'
                 }`}
               >
                 {tab} ({tab === 'pending' ? pendingDeposits.length : tab === 'completed' ? completedDeposits.length : rejectedDeposits.length})
@@ -217,13 +217,13 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
 
           {/* Search box */}
           <div className="relative">
-            <Search className="w-4 h-4 text-slate-500 absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-600 absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               placeholder="Search by name, email, UTR..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="bg-slate-900/50 border border-white/5 rounded-xl pl-9 pr-4 py-2 w-full md:w-[260px] text-xs font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500/40 transition duration-300"
+              className="bg-slate-50/50 border border-slate-200 rounded-xl pl-9 pr-4 py-2 w-full md:w-[260px] text-xs font-semibold placeholder-slate-500 focus:outline-none focus:border-emerald-500/40 transition duration-300"
             />
           </div>
         </div>
@@ -231,14 +231,14 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
         {/* Table representation */}
         {loading ? (
           <div className="flex-1 flex flex-col items-center justify-center py-20 gap-3">
-            <RefreshCw className="w-8 h-8 text-emerald-400 animate-spin" />
-            <p className="text-[10px] font-black uppercase text-slate-500 tracking-widest">Polling deposits database...</p>
+            <RefreshCw className="w-8 h-8 text-emerald-600 animate-spin" />
+            <p className="text-[10px] font-black uppercase text-slate-600 tracking-widest">Polling deposits database...</p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
-                <tr className="border-b border-white/5 text-slate-500 font-extrabold uppercase tracking-widest">
+                <tr className="border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-widest">
                   <th className="py-3 px-4">Date & Time</th>
                   <th className="py-3 px-4">Player Details</th>
                   <th className="py-3 px-4">UTR Reference</th>
@@ -247,10 +247,10 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
                   <th className="py-3 px-4 text-right">Review Status</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-white/[0.02] font-semibold text-slate-300">
+              <tbody className="divide-y divide-white/[0.02] font-semibold text-slate-700">
                 {currentList.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="text-center py-16 text-slate-500 italic">No deposit requests recorded in this category.</td>
+                    <td colSpan={6} className="text-center py-16 text-slate-600 italic">No deposit requests recorded in this category.</td>
                   </tr>
                 ) : (
                   currentList.map(item => {
@@ -259,18 +259,18 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
                     });
                     return (
                       <tr key={item.transaction.id} className="hover:bg-white/[0.01] transition duration-200">
-                        <td className="py-3.5 px-4 font-mono text-[11px] text-slate-400">{dateStr}</td>
+                        <td className="py-3.5 px-4 font-mono text-[11px] text-slate-600">{dateStr}</td>
                         <td className="py-3.5 px-4">
-                          <span className="font-bold text-white block">{item.user.username}</span>
-                          <span className="text-[9px] text-slate-500 font-mono block mt-0.5">{item.user.email}</span>
+                          <span className="font-bold text-slate-900 block">{item.user.username}</span>
+                          <span className="text-[9px] text-slate-600 font-mono block mt-0.5">{item.user.email}</span>
                         </td>
-                        <td className="py-3.5 px-4 font-mono font-bold text-slate-300">{item.transaction.utr || "N/A"}</td>
-                        <td className="py-3.5 px-4 text-right font-mono font-black text-emerald-400">₹{item.transaction.amount.toLocaleString()}</td>
+                        <td className="py-3.5 px-4 font-mono font-bold text-slate-700">{item.transaction.utr || "N/A"}</td>
+                        <td className="py-3.5 px-4 text-right font-mono font-black text-emerald-600">₹{item.transaction.amount.toLocaleString()}</td>
                         <td className="py-3.5 px-4 text-center">
                           {item.transaction.screenshotUrl ? (
                             <button
                               onClick={() => setZoomedScreenshot(item.transaction.screenshotUrl)}
-                              className="bg-emerald-500/10 hover:bg-emerald-500 border border-emerald-500/20 text-emerald-400 hover:text-slate-950 px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1 mx-auto cursor-pointer"
+                              className="bg-emerald-500/10 hover:bg-emerald-500 border border-emerald-500/20 text-emerald-600 hover:text-slate-950 px-2.5 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition flex items-center gap-1 mx-auto cursor-pointer"
                             >
                               <Eye className="w-3.5 h-3.5" /> View Proof
                             </button>
@@ -289,14 +289,14 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
                               </button>
                               <button
                                 onClick={() => setDeclineDepositModal({ email: item.user.email, transactionId: item.transaction.id, username: item.user.username, amount: item.transaction.amount })}
-                                className="bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 text-rose-400 hover:text-white px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
+                                className="bg-rose-500/10 hover:bg-rose-600 border border-rose-500/20 text-rose-600 hover:text-slate-900 px-3 py-1.5 rounded-lg text-[10px] font-black uppercase tracking-wider transition cursor-pointer"
                               >
                                 Decline
                               </button>
                             </>
                           ) : (
                             <span className={`text-[10px] font-black uppercase tracking-widest ${
-                              item.transaction.status === 'Completed' ? 'text-emerald-400' : 'text-rose-400'
+                              item.transaction.status === 'Completed' ? 'text-emerald-600' : 'text-rose-600'
                             }`}>
                               {item.transaction.status === 'Completed' ? 'VERIFIED' : 'REJECTED'}
                             </span>
@@ -320,10 +320,10 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-[9999] bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
+            className="fixed inset-0 z-[9999] bg-white/95 backdrop-blur-md flex items-center justify-center p-4"
             onClick={() => setZoomedScreenshot(null)}
           >
-            <button className="absolute top-6 right-6 w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 flex items-center justify-center text-white transition">
+            <button className="absolute top-6 right-6 w-10 h-10 rounded-xl bg-slate-900/5 hover:bg-slate-900/10 flex items-center justify-center text-slate-900 transition">
               <X className="w-5 h-5" />
             </button>
             <motion.img 
@@ -332,7 +332,7 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
               exit={{ scale: 0.95 }}
               src={zoomedScreenshot} 
               alt="Payment receipt proof screenshot" 
-              className="max-w-full max-h-[85vh] rounded-xl border border-white/10 shadow-2xl object-contain"
+              className="max-w-full max-h-[85vh] rounded-xl border border-slate-200 shadow-2xl object-contain"
               onClick={(e) => e.stopPropagation()}
             />
           </motion.div>
@@ -348,52 +348,52 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setDeclineDepositModal(null)}
-              className="absolute inset-0 bg-slate-950/80 backdrop-blur-md"
+              className="absolute inset-0 bg-white/80 backdrop-blur-md"
             />
             
             <motion.div
               initial={{ scale: 0.95, y: 20, opacity: 0 }}
               animate={{ scale: 1, y: 0, opacity: 1 }}
               exit={{ scale: 0.95, y: 20, opacity: 0 }}
-              className="relative w-full max-w-md bg-slate-900 border border-white/10 rounded-2xl p-6 shadow-2xl overflow-hidden z-10"
+              className="relative w-full max-w-md bg-slate-50 border border-slate-200 rounded-2xl p-6 shadow-2xl overflow-hidden z-10"
             >
               <div className="absolute top-0 left-0 right-0 h-[1.5px] bg-gradient-to-r from-transparent via-rose-500 to-transparent" />
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-2">
                   <AlertCircle className="w-5 h-5 text-rose-500 animate-pulse" />
-                  <h3 className="text-sm font-black text-white uppercase tracking-widest">Decline Request</h3>
+                  <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Decline Request</h3>
                 </div>
-                <button onClick={() => setDeclineDepositModal(null)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-slate-400">
+                <button onClick={() => setDeclineDepositModal(null)} className="w-7 h-7 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               <div className="space-y-4">
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">User Profile</p>
-                  <p className="text-xs font-bold text-white mt-1">{declineDepositModal.username}</p>
-                  <p className="text-[10px] font-mono text-slate-400">{declineDepositModal.email}</p>
+                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">User Profile</p>
+                  <p className="text-xs font-bold text-slate-900 mt-1">{declineDepositModal.username}</p>
+                  <p className="text-[10px] font-mono text-slate-600">{declineDepositModal.email}</p>
                 </div>
                 
                 <div>
-                  <p className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Deposit Amount</p>
-                  <p className="text-xs font-black text-emerald-400 font-mono mt-1">₹{declineDepositModal.amount.toLocaleString()}</p>
+                  <p className="text-[8px] font-black text-slate-600 uppercase tracking-widest">Deposit Amount</p>
+                  <p className="text-xs font-black text-emerald-600 font-mono mt-1">₹{declineDepositModal.amount.toLocaleString()}</p>
                 </div>
 
                 <div className="flex flex-col gap-1.5">
-                  <label className="text-[9px] font-black text-slate-400 uppercase tracking-wider">Reason for declining deposit</label>
+                  <label className="text-[9px] font-black text-slate-600 uppercase tracking-wider">Reason for declining deposit</label>
                   <textarea
                     placeholder="e.g. UTR is invalid, Screenshot blurry, Transaction matches a previously approved record..."
                     value={declineReason}
                     onChange={(e) => setDeclineReason(e.target.value)}
-                    className="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs focus:outline-none focus:border-rose-500/80 transition text-slate-200 resize-none h-[90px]"
+                    className="w-full bg-white border border-slate-200 rounded-xl p-3 text-xs focus:outline-none focus:border-rose-500/80 transition text-slate-800 resize-none h-[90px]"
                   />
                 </div>
 
-                <div className="flex gap-3 pt-3 border-t border-white/5">
+                <div className="flex gap-3 pt-3 border-t border-slate-200">
                   <button
                     onClick={() => setDeclineDepositModal(null)}
-                    className="flex-1 bg-transparent hover:bg-white/5 border border-white/10 py-3 rounded-xl text-[10px] font-black uppercase text-slate-400 transition"
+                    className="flex-1 bg-transparent hover:bg-slate-900/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 transition"
                   >
                     Cancel
                   </button>

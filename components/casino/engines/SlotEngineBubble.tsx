@@ -50,11 +50,11 @@ export function SlotEngineBubble({ isPlaying, theme, onComplete }: SlotEngineBub
       {/* Moving bubble backgrounds */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-25">
         <motion.div animate={{ y: [-100, 600] }} transition={{ repeat: Infinity, duration: 8, ease: "linear" }} className="absolute left-1/4 w-3 h-3 rounded-full bg-white/40" />
-        <motion.div animate={{ y: [-50, 650] }} transition={{ repeat: Infinity, duration: 12, ease: "linear" }} className="absolute right-1/4 w-5 h-5 rounded-full bg-white/30" />
+        <motion.div animate={{ y: [-50, 650] }} transition={{ repeat: Infinity, duration: 12, ease: "linear" }} className="absolute right-1/4 w-5 h-5 rounded-full bg-slate-900/30" />
       </div>
 
       <div className="text-center mb-6 z-10">
-        <span className="text-teal-400 font-mono text-xs font-black tracking-widest uppercase">UNDERSEA BUBBLE RISE</span>
+        <span className="text-teal-600 font-mono text-xs font-black tracking-widest uppercase">UNDERSEA BUBBLE RISE</span>
       </div>
 
       <div className="grid gap-4 w-full h-64 md:h-80 relative z-10" style={{ gridTemplateColumns: `repeat(${theme.cols}, minmax(0, 1fr))` }}>

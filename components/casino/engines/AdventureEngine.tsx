@@ -33,7 +33,7 @@ export function AdventureEngine({ gameId, isPlaying, onComplete }: AdventureEngi
   }
 
   return (
-    <div className="w-full h-full min-h-[600px] md:min-h-[800px] bg-black rounded-3xl border border-slate-800 relative overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,1)] group">
+    <div className="w-full h-full min-h-[600px] md:min-h-[800px] bg-white rounded-3xl border border-slate-200 relative overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,1)] group">
       
       {/* Interactive WebGL 3D Game Feed */}
       <iframe
@@ -49,7 +49,7 @@ export function AdventureEngine({ gameId, isPlaying, onComplete }: AdventureEngi
           <motion.div 
             initial={{ opacity: 0, y: -50 }}
             animate={{ opacity: 1, y: 0 }}
-            className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-black/80 backdrop-blur-md border border-yellow-500/50 px-6 py-2 rounded-full pointer-events-none shadow-[0_0_20px_rgba(234,179,8,0.3)]"
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-40 bg-white/80 backdrop-blur-md border border-yellow-500/50 px-6 py-2 rounded-full pointer-events-none shadow-[0_0_20px_rgba(234,179,8,0.3)]"
           >
              <span className="text-yellow-500 font-mono text-sm font-bold tracking-widest uppercase flex items-center gap-2">
                <span className="w-2 h-2 bg-yellow-500 rounded-full animate-ping" />

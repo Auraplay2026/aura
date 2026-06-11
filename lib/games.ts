@@ -13,7 +13,9 @@ export interface Game {
   players?: number; // active streams/players
 }
 
-export const GAMES: Game[] = [
+import generatedGamesData from "./generatedGames.json";
+
+export const FEATURED_GAMES: Game[] = [
   // --- AAA CLOUD RENTALS (Premium High Price Tier) ---
   { id: "aaa-1", title: "Cyberpunk 2077", provider: "CD Projekt Red", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg", categories: ["aaa", "open-world", "3d"], isNew: true, hourlyRate: 399, players: 4500 },
   { id: "aaa-2", title: "Elden Ring", provider: "FromSoftware", image: "/games/gamingcorps_NorthVsGiant-TsvdHyYnO.jpeg", categories: ["aaa", "action", "3d"], isNew: true, hourlyRate: 499, players: 6800 },
@@ -120,6 +122,8 @@ export const GAMES: Game[] = [
   { id: "puzzle-3", title: "Mind Solver", provider: "Originals", image: "/games/puzzle_thumbnail_1780932148588.png", categories: ["puzzle"], rtp: 99.0, players: 4300 },
   { id: "casual-1", title: "Wacky World", provider: "Originals", image: "/games/funny_thumbnail_1780932135777.png", categories: ["casual", "funny"], rtp: 98.8, players: 26000 }
 ];
+
+export const GAMES: Game[] = [...FEATURED_GAMES, ...(generatedGamesData as unknown as Game[])];
 
 export const getGamesByCategory = (categoryId: CategoryId) => {
   return GAMES.filter(game => game.categories.includes(categoryId));

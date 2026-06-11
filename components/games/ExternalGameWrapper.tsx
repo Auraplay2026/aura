@@ -431,14 +431,14 @@ export function ExternalGameWrapper({
 
   if (hasError) {
     return (
-      <div className="w-full h-full min-h-[600px] flex flex-col items-center justify-center bg-slate-950 rounded-[2rem] border border-red-500/30 shadow-2xl relative overflow-hidden">
+      <div className="w-full h-full min-h-[600px] flex flex-col items-center justify-center bg-white rounded-[2rem] border border-red-500/30 shadow-2xl relative overflow-hidden">
         <div className="absolute inset-0 bg-red-500/5 blur-3xl rounded-full" />
         <div className="relative z-10 flex flex-col items-center text-center p-8">
           <div className="w-20 h-20 rounded-full bg-red-500/10 flex items-center justify-center mb-6 border border-red-500/20">
             <span className="text-4xl">⚠️</span>
           </div>
           <h3 className="text-red-500 font-black text-2xl mb-2 tracking-widest uppercase">Connection Lost</h3>
-          <p className="text-slate-400 font-medium text-sm mb-8 max-w-sm">
+          <p className="text-slate-600 font-medium text-sm mb-8 max-w-sm">
             {errorMessage || `Provider ${providerName} encountered a fatal execution error.`}
           </p>
           <button 
@@ -454,8 +454,8 @@ export function ExternalGameWrapper({
   }
 
   return (
-    <div className="space-y-6">
-      <div className="relative w-full h-[600px] bg-slate-950 rounded-[2rem] overflow-hidden border border-slate-800 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
+    <div className="space-y-6 w-full h-full">
+      <div className="relative w-full h-[450px] md:h-[600px] bg-white rounded-[2rem] overflow-hidden border border-slate-200 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
         
         {/* Unstuck banner safeguard */}
         {showUnstuckBanner && (
@@ -467,24 +467,24 @@ export function ExternalGameWrapper({
 
         {/* Premium Active Spin Overlay / Countdown / Stop Button */}
         {isSpinning && (
-          <div className="absolute top-4 left-4 right-4 z-40 bg-slate-950/95 backdrop-blur-md border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-4 duration-300">
+          <div className="absolute top-4 left-4 right-4 z-40 bg-white/95 backdrop-blur-md border border-amber-500/30 rounded-2xl p-4 flex items-center justify-between shadow-[0_10px_30px_rgba(0,0,0,0.8)] animate-in fade-in slide-in-from-top-4 duration-300">
             <div className="flex items-center gap-3">
               <div className="relative w-8 h-8 flex items-center justify-center">
                 <div className="absolute inset-0 border-2 border-amber-500/20 rounded-full" />
                 <div className="absolute inset-0 border-2 border-t-amber-500 rounded-full animate-spin" />
-                <Clock className="w-4 h-4 text-amber-400" />
+                <Clock className="w-4 h-4 text-amber-600" />
               </div>
               <div>
-                <p className="text-white text-xs font-black uppercase tracking-wider">Spin connection active</p>
-                <p className="text-slate-400 text-[10px] font-mono">
-                  Auto-resolving in <span className="text-amber-400 font-bold">{countdown}s</span>
+                <p className="text-slate-900 text-xs font-black uppercase tracking-wider">Spin connection active</p>
+                <p className="text-slate-600 text-[10px] font-mono">
+                  Auto-resolving in <span className="text-amber-600 font-bold">{countdown}s</span>
                 </p>
               </div>
             </div>
             
             <button
               onClick={handleForceStop}
-              className="px-5 py-2.5 bg-red-500/10 hover:bg-red-650 text-red-400 hover:text-white border border-red-500/30 hover:border-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] cursor-pointer hover:scale-105 active:scale-95"
+              className="px-5 py-2.5 bg-red-500/10 hover:bg-red-650 text-red-600 hover:text-white border border-red-500/30 hover:border-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] cursor-pointer hover:scale-105 active:scale-95"
             >
               Stop / Kill Spin
             </button>
@@ -494,41 +494,41 @@ export function ExternalGameWrapper({
         {/* Premium Spin Result Announcement Banner */}
         {resultBanner.show && (
           <div className={cn(
-            "absolute inset-0 z-45 flex flex-col items-center justify-center backdrop-blur-md bg-black/80 transition-all duration-500 animate-in fade-in duration-300",
-            resultBanner.isWin ? "border-2 border-emerald-500/20" : "border-2 border-slate-800"
+            "absolute inset-0 z-45 flex flex-col items-center justify-center backdrop-blur-md bg-white/80 transition-all duration-500 animate-in fade-in duration-300",
+            resultBanner.isWin ? "border-2 border-emerald-500/20" : "border-2 border-slate-200"
           )}>
-            <div className="text-center p-8 max-w-sm rounded-[2rem] bg-slate-950/95 border border-slate-800 shadow-2xl relative overflow-hidden">
+            <div className="text-center p-8 max-w-sm rounded-[2rem] bg-white/95 border border-slate-200 shadow-2xl relative overflow-hidden">
               {resultBanner.isWin && (
                 <div className="absolute -top-10 -left-10 w-40 h-40 bg-emerald-500/10 blur-[40px] rounded-full pointer-events-none animate-pulse" />
               )}
               <div className={cn(
                 "w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 border",
                 resultBanner.isWin 
-                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-bounce" 
-                  : "bg-slate-900 border-slate-800 text-slate-400 animate-pulse"
+                  ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-600 shadow-[0_0_20px_rgba(16,185,129,0.3)] animate-bounce" 
+                  : "bg-slate-50 border-slate-200 text-slate-600 animate-pulse"
               )}>
-                {resultBanner.isWin ? <Sparkles className="w-8 h-8 text-emerald-400" /> : <AlertTriangle className="w-8 h-8 text-slate-500" />}
+                {resultBanner.isWin ? <Sparkles className="w-8 h-8 text-emerald-600" /> : <AlertTriangle className="w-8 h-8 text-slate-500" />}
               </div>
               
               <h3 className={cn(
                 "font-black text-xl tracking-wider uppercase mb-1",
-                resultBanner.isWin ? "text-emerald-400" : "text-slate-400"
+                resultBanner.isWin ? "text-emerald-600" : "text-slate-600"
               )}>
                 {resultBanner.isWin ? "Win Result!" : "Loss Result"}
               </h3>
               
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-4">Spin Settle Protocol</p>
               
-              <div className="bg-slate-900/60 rounded-2xl p-4 border border-slate-850">
+              <div className="bg-slate-50/60 rounded-2xl p-4 border border-slate-200">
                 <div className="flex justify-between items-center text-xs mb-2">
                   <span className="text-slate-500">Multiplier:</span>
-                  <span className={cn("font-bold font-mono", resultBanner.isWin ? "text-emerald-400" : "text-slate-400")}>
+                  <span className={cn("font-bold font-mono", resultBanner.isWin ? "text-emerald-600" : "text-slate-600")}>
                     {resultBanner.multiplier.toFixed(1)}x
                   </span>
                 </div>
                 <div className="flex justify-between items-center text-xs">
                   <span className="text-slate-500">Payout:</span>
-                  <span className="font-bold font-mono text-white text-base">
+                  <span className="font-bold font-mono text-slate-900 text-base">
                     ₹{resultBanner.payout.toLocaleString(undefined, { minimumFractionDigits: 2 })}
                   </span>
                 </div>
@@ -539,13 +539,13 @@ export function ExternalGameWrapper({
 
         {/* Dark-mode Pulsing Skeleton Loader */}
         {isLoading && (
-          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-slate-950">
+          <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-white">
             <div className="absolute inset-0 bg-neon-purple/5 blur-[100px] rounded-full animate-pulse" />
             <div className="relative z-10 flex flex-col items-center">
-              <div className="w-20 h-20 border-4 border-slate-800 border-t-yellow-400 rounded-full animate-spin mb-8 shadow-[0_0_15px_rgba(250,204,21,0.2)]" />
-              <div className="h-4 w-48 bg-slate-800 rounded-full mb-4 animate-pulse" />
-              <div className="h-3 w-64 bg-slate-800/50 rounded-full animate-pulse" />
-              <p className="mt-8 font-black text-yellow-400 text-[10px] tracking-[0.3em] uppercase drop-shadow-[0_0_5px_rgba(250,204,21,0.5)]">
+              <div className="w-20 h-20 border-4 border-slate-200 border-t-yellow-400 rounded-full animate-spin mb-8 shadow-[0_0_15px_rgba(250,204,21,0.2)]" />
+              <div className="h-4 w-48 bg-slate-100 rounded-full mb-4 animate-pulse" />
+              <div className="h-3 w-64 bg-slate-100/50 rounded-full animate-pulse" />
+              <p className="mt-8 font-black text-yellow-600 text-[10px] tracking-[0.3em] uppercase drop-shadow-[0_0_5px_rgba(250,204,21,0.5)]">
                 Connecting to {providerName}
               </p>
             </div>
@@ -564,13 +564,13 @@ export function ExternalGameWrapper({
       </div>
 
       {/* 📊 Premium Live Spin Results Panel (Last 10 Spins) */}
-      <div className="bg-[#050814]/90 border border-slate-850/60 rounded-3xl p-5 shadow-2xl space-y-4">
-        <div className="flex items-center justify-between border-b border-slate-900 pb-3">
+      <div className="bg-slate-50/90 border border-slate-200/60 rounded-3xl p-5 shadow-2xl space-y-4">
+        <div className="flex items-center justify-between border-b border-slate-200 pb-3">
           <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-yellow-400" />
-            <h4 className="text-xs font-black uppercase text-white tracking-wider">Live Wallet Ledger (Last 10 Spins)</h4>
+            <TrendingUp className="w-4 h-4 text-yellow-600" />
+            <h4 className="text-xs font-black uppercase text-slate-900 tracking-wider">Live Wallet Ledger (Last 10 Spins)</h4>
           </div>
-          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-900/60 px-2 py-0.5 rounded border border-slate-800">Aggregator Hub</span>
+          <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest bg-slate-50/60 px-2 py-0.5 rounded border border-slate-200">Aggregator Hub</span>
         </div>
 
         {spinHistory.length === 0 ? (
@@ -579,10 +579,10 @@ export function ExternalGameWrapper({
             <p className="text-[10px] font-bold uppercase tracking-wider">No spin wagers logged yet in this session</p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse text-[10px] font-mono">
+          <div className="overflow-x-auto w-full">
+            <table className="w-full text-left border-collapse text-[10px] font-mono min-w-[500px]">
               <thead>
-                <tr className="text-slate-500 uppercase tracking-wider border-b border-slate-900/80">
+                <tr className="text-slate-500 uppercase tracking-wider border-b border-slate-200/80">
                   <th className="pb-2 font-bold">Spin ID</th>
                   <th className="pb-2 font-bold">Time</th>
                   <th className="pb-2 font-bold text-right">Wager</th>
@@ -593,15 +593,15 @@ export function ExternalGameWrapper({
               </thead>
               <tbody className="divide-y divide-slate-900/40">
                 {spinHistory.map((spin) => (
-                  <tr key={spin.id} className="text-slate-300 hover:bg-slate-900/30 transition-colors">
-                    <td className="py-2.5 font-bold text-slate-400">{spin.id}</td>
+                  <tr key={spin.id} className="text-slate-700 hover:bg-slate-50/30 transition-colors">
+                    <td className="py-2.5 font-bold text-slate-600">{spin.id}</td>
                     <td className="py-2.5 text-slate-500">{spin.timestamp}</td>
-                    <td className="py-2.5 text-right text-slate-200">₹{spin.bet.toLocaleString()}</td>
-                    <td className="py-2.5 text-right font-bold text-slate-200">₹{spin.payout.toLocaleString()}</td>
+                    <td className="py-2.5 text-right text-slate-800">₹{spin.bet.toLocaleString()}</td>
+                    <td className="py-2.5 text-right font-bold text-slate-800">₹{spin.payout.toLocaleString()}</td>
                     <td className="py-2.5 text-center font-bold">
                       <span className={cn(
                         "px-1.5 py-0.5 rounded text-[9px] font-black",
-                        spin.multiplier > 0 ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/20" : "bg-slate-900 text-slate-600"
+                        spin.multiplier > 0 ? "bg-emerald-500/10 text-emerald-600 border border-emerald-500/20" : "bg-slate-50 text-slate-600"
                       )}>
                         {spin.multiplier.toFixed(1)}x
                       </span>
@@ -609,7 +609,7 @@ export function ExternalGameWrapper({
                     <td className="py-2.5 text-center">
                       <span className={cn(
                         "px-2 py-0.5 rounded-full text-[8px] font-black uppercase tracking-wider",
-                        spin.status === 'WIN' ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.15)]" : "bg-red-500/15 text-red-400 border border-red-500/20"
+                        spin.status === 'WIN' ? "bg-emerald-500/20 text-emerald-600 border border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.15)]" : "bg-red-500/15 text-red-600 border border-red-500/20"
                       )}>
                         {spin.status}
                       </span>
