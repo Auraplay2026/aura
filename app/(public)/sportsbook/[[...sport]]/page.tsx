@@ -2,7 +2,7 @@
 
 import { useState, useEffect, use } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Trophy, Activity, CalendarDays, TrendingUp, TrendingDown, Clock, X } from "lucide-react";
+import { Search, Trophy, Activity, CalendarDays, TrendingUp, TrendingDown, Clock, X, Menu, Receipt } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { generateMatches, Match } from "@/lib/sportsData";
 import { useTradingStore } from "@/lib/store";
@@ -46,6 +46,9 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
   const [activeSport, setActiveSport] = useState(sportParam);
   const [activeFilter, setActiveFilter] = useState<'In-Play' | 'Today' | 'Tomorrow'>('In-Play');
+  const [activeMarket, setActiveMarket] = useState('Match Odds');
+  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
+  const [showMobileBetslip, setShowMobileBetslip] = useState(false);
   const [betslip, setBetslip] = useState<{ matchId: number; selection: string; odds: number; type: 'back' | 'lay'; stake: number }[]>([]);
   const placeSportsBet = useTradingStore(s => s.placeSportsBet);
   
@@ -116,12 +119,33 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   }, 0);
 
   return (
-    <div className="flex h-[calc(100vh-56px)] w-full bg-exchange-bg text-exchange-text overflow-hidden">
+    <div className="flex relative h-[calc(100vh-56px)] w-full bg-exchange-bg text-exchange-text overflow-hidden">
       
+      {/* Mobile Drawer Overlays */}
+      {showMobileSidebar && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 md:hidden" 
+          onClick={() => setShowMobileSidebar(false)}
+        />
+      )}
+      {showMobileBetslip && (
+        <div 
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
+          onClick={() => setShowMobileBetslip(false)}
+        />
+      )}
+
       {/* Column 1: Sports & Categories Hierarchy */}
-      <div className="hidden md:flex flex-col w-60 border-r border-exchange-border bg-exchange-surface shrink-0">
-        <div className="p-4 border-b border-exchange-border">
+      <div className={cn(
+        "flex flex-col w-60 border-r border-exchange-border bg-exchange-surface shrink-0 z-40 transition-transform duration-300",
+        "fixed inset-y-0 left-0 md:relative md:translate-x-0 h-full",
+        showMobileSidebar ? "translate-x-0" : "-translate-x-full"
+      )}>
+        <div className="p-4 border-b border-exchange-border flex justify-between items-center">
           <h2 className="font-bold text-sm text-exchange-text uppercase tracking-wider">Categories</h2>
+          <button className="md:hidden text-exchange-muted hover:text-exchange-text" onClick={() => setShowMobileSidebar(false)}>
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
           {SPORTS.map(sport => (
@@ -138,9 +162,21 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
               </button>
               {activeSport === sport && (
                 <div className="ml-4 pl-2 border-l border-exchange-border mt-1 space-y-1">
-                  <button className="text-xs text-exchange-muted hover:text-exchange-text block py-1">Match Odds</button>
-                  <button className="text-xs text-exchange-muted hover:text-exchange-text block py-1">Handicap</button>
-                  <button className="text-xs text-exchange-muted hover:text-exchange-text block py-1">Over/Under</button>
+                  {['Match Odds', 'Handicap', 'Over/Under'].map(market => (
+                    <button 
+                      key={market}
+                      onClick={() => {
+                        setActiveMarket(market);
+                        setShowMobileSidebar(false);
+                      }}
+                      className={cn(
+                        "text-xs block py-1 w-full text-left transition-colors",
+                        activeMarket === market ? "text-blue-600 font-bold" : "text-exchange-muted hover:text-exchange-text"
+                      )}
+                    >
+                      {market}
+                    </button>
+                  ))}
                 </div>
               )}
             </div>
@@ -151,6 +187,22 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       {/* Column 2: Exchange Data Grid */}
       <div className="flex-1 flex flex-col min-w-0 bg-exchange-surface">
         
+        {/* Mobile Header (Visible only on small screens) */}
+        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-exchange-border bg-white shrink-0">
+          <button onClick={() => setShowMobileSidebar(true)} className="flex items-center gap-2 font-bold text-sm">
+            <Menu className="w-5 h-5 text-exchange-muted" />
+            <span className="uppercase text-exchange-text">{activeSport}</span>
+          </button>
+          <button onClick={() => setShowMobileBetslip(true)} className="relative flex items-center gap-2 font-bold text-sm text-exchange-muted hover:text-exchange-text">
+            <Receipt className="w-5 h-5" />
+            {betslip.length > 0 && (
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 text-white rounded-full text-[10px] flex items-center justify-center">
+                {betslip.length}
+              </span>
+            )}
+          </button>
+        </div>
+
         {/* Filtering Tabs */}
         <div className="flex items-center gap-1 border-b border-exchange-border px-4 py-2 bg-slate-50 shrink-0">
           {['In-Play', 'Today', 'Tomorrow'].map(filter => (
@@ -247,9 +299,16 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       </div>
 
       {/* Column 3: Side-Docked Transaction Slip */}
-      <div className="hidden lg:flex flex-col w-[320px] bg-exchange-surface border-l border-exchange-border shrink-0 z-20 shadow-[-4px_0_15px_rgba(0,0,0,0.03)]">
-        <div className="p-4 border-b border-exchange-border bg-slate-50">
+      <div className={cn(
+        "flex flex-col w-[320px] max-w-[85vw] bg-exchange-surface border-l border-exchange-border shrink-0 z-40 shadow-[-4px_0_15px_rgba(0,0,0,0.03)] transition-transform duration-300",
+        "fixed inset-y-0 right-0 lg:relative lg:translate-x-0 h-full",
+        showMobileBetslip ? "translate-x-0" : "translate-x-full"
+      )}>
+        <div className="p-4 border-b border-exchange-border bg-slate-50 flex justify-between items-center">
           <h2 className="font-bold text-sm text-exchange-text uppercase tracking-wider">Bet Slip</h2>
+          <button className="lg:hidden text-exchange-muted hover:text-exchange-text" onClick={() => setShowMobileBetslip(false)}>
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50">
