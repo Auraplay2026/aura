@@ -92,7 +92,7 @@ function VIPLiveBetsFeed({ gameTitle }: { gameTitle: string }) {
   }, []);
 
   return (
-    <div className="hidden xl:flex w-[350px] shrink-0 flex-col gap-6 relative">
+    <div className="flex w-full xl:w-[350px] shrink-0 flex-col gap-6 relative mt-8 lg:mt-0">
       <div className="bg-white/85 backdrop-blur-2xl rounded-3xl border border-slate-200 p-6 shadow-[0_20px_50px_rgba(0,0,0,0.5)] relative overflow-hidden">
         <div className="absolute -top-20 -right-20 w-40 h-40 bg-neon-purple/20 blur-[50px] rounded-full pointer-events-none" />
         
@@ -605,7 +605,7 @@ export default function GamePlayerPage() {
                   <div className="relative z-10 w-full h-full flex flex-col p-4 sm:p-6 lg:p-10 overflow-hidden">
                     
                     {/* Header Overlay */}
-                    <div className="w-full flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 shrink-0 z-20">
+                    <div className="hidden md:flex w-full flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 shrink-0 z-20">
                       <div className={`bg-white/60 backdrop-blur-md border ${theme.borderClass} px-3 py-2 md:px-4 md:py-2 rounded-xl flex items-center gap-3 shadow-2xl w-full sm:w-auto`}>
                         <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover border border-white/20 shadow-md shrink-0" />
                         <div className="flex-1">
