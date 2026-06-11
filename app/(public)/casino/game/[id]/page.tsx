@@ -1021,10 +1021,76 @@ export default function GamePlayerPage() {
                                     </div>
                                   )
                                 ) : (
-                      </motion.div>
-                    )}
-                  </div>
-                </motion.div>
+                                  renderEngine()
+                                )}
+                              </div>
+                            </div>
+                            
+                            {/* Premium Command Center */}
+                            {tutorialDismissed && (
+                              <motion.div
+                                initial={{ opacity: 0, y: 20 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ delay: 0.5, type: 'spring', stiffness: 200, damping: 20 }}
+                                className="w-full mt-auto bg-slate-50 border-t border-slate-200 p-2 md:p-6"
+                              >
+                                {isCloudRenting ? (
+                                  <div className="flex items-center justify-between max-w-4xl mx-auto w-full">
+                                    <div className="flex flex-col">
+                                      <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Instance Cost</span>
+                                      <div className="flex items-center gap-2">
+                                        <Coins className="w-4 h-4 text-[#a855f7]" />
+                                        <span className="text-xl font-black text-slate-900">₹{STAKE_PRESETS[1]}</span>
+                                        <span className="text-xs text-slate-500 font-bold">/ hour</span>
+                                      </div>
+                                    </div>
+                                    <button 
+                                      onClick={handlePlay}
+                                      disabled={isSpinning || isSessionActive}
+                                      className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${isSessionActive ? 'bg-slate-200 text-slate-400' : isSpinning ? 'bg-slate-200 text-slate-400' : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 hover:scale-[1.02] shadow-lg shadow-yellow-500/20'}`}
+                                    >
+                                      {isSessionActive ? "Active" : isSpinning ? "Booting..." : "Rent Instance"}
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="flex flex-col md:flex-row items-center gap-4 max-w-5xl mx-auto w-full">
+                                    <div className="flex-1 w-full bg-white border border-slate-200 rounded-2xl p-2 md:p-3 flex gap-2 overflow-x-auto no-scrollbar shadow-sm">
+                                      {STAKE_PRESETS.map((amount) => (
+                                        <button
+                                          key={amount}
+                                          onClick={() => setStake(amount)}
+                                          className={`flex-1 min-w-[60px] py-2 md:py-3 rounded-xl flex items-center justify-center font-black text-xs transition-all ${stake === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md scale-[1.02]` : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
+                                        >
+                                          ₹{amount}
+                                        </button>
+                                      ))}
+                                    </div>
+                                    <div className="w-full md:w-auto flex justify-between items-center bg-white border border-slate-200 rounded-2xl p-2 md:p-3 shadow-sm">
+                                      <div className="flex flex-col mr-6 pl-2">
+                                        <span className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Custom Bet</span>
+                                        <div className="flex items-center gap-1.5">
+                                          <span className="text-slate-400 font-bold text-lg">₹</span>
+                                          <input 
+                                            type="number" 
+                                            value={stake} 
+                                            onChange={(e) => setStake(Number(e.target.value))}
+                                            className="bg-transparent border-none text-slate-900 font-black text-xl w-24 focus:outline-none focus:ring-0 p-0"
+                                          />
+                                        </div>
+                                      </div>
+                                      <button 
+                                        onClick={handlePlay}
+                                        disabled={isSpinning}
+                                        className={`h-12 md:h-14 px-8 rounded-xl font-black text-xs uppercase tracking-widest transition-all shrink-0 ${isSpinning ? 'bg-slate-100 text-slate-400 border-2 border-slate-200 scale-95' : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-lg active:scale-95`}`}
+                                      >
+                                        {isSpinning ? "..." : "SPIN"}
+                                      </button>
+                                    </div>
+                                  </div>
+                                )}
+                              </motion.div>
+                            )}
+                    </motion.div>
               )}
             </AnimatePresence>
           </motion.div>

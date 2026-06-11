@@ -1,6 +1,66 @@
 {
   "bets": [
     {
+      "user": "DeltaWhale",
+      "bet": "7 hrs",
+      "mult": "₹799/hr",
+      "win": "₹5,593",
+      "raw_bet": 799,
+      "raw_payout": 5593,
+      "raw_mult": 7,
+      "game": "Grand Theft Auto V",
+      "color": "text-neon-purple animate-pulse",
+      "type": "rental"
+    },
+    {
+      "user": "GoldDigger",
+      "bet": "8 hrs",
+      "mult": "₹399/hr",
+      "win": "₹3,192",
+      "raw_bet": 399,
+      "raw_payout": 3192,
+      "raw_mult": 8,
+      "game": "Civilization VI",
+      "color": "text-neon-purple animate-pulse",
+      "type": "rental"
+    },
+    {
+      "user": "GigaChancer",
+      "bet": "1 hrs",
+      "mult": "₹599/hr",
+      "win": "₹599",
+      "raw_bet": 599,
+      "raw_payout": 599,
+      "raw_mult": 1,
+      "game": "Elden Ring",
+      "color": "text-emerald-400",
+      "type": "rental"
+    },
+    {
+      "user": "HighStakeHustler",
+      "bet": "6 hrs",
+      "mult": "₹499/hr",
+      "win": "₹2,994",
+      "raw_bet": 499,
+      "raw_payout": 2994,
+      "raw_mult": 6,
+      "game": "Spider-Man 2",
+      "color": "text-amber-400",
+      "type": "rental"
+    },
+    {
+      "user": "VIP_Diamond",
+      "bet": "4 hrs",
+      "mult": "₹199/hr",
+      "win": "₹796",
+      "raw_bet": 199,
+      "raw_payout": 796,
+      "raw_mult": 4,
+      "game": "Baldur's Gate 3",
+      "color": "text-amber-400",
+      "type": "rental"
+    },
+    {
       "user": "CryptoWhale",
       "bet": "3 hrs",
       "mult": "₹399/hr",
@@ -119,71 +179,11 @@
       "game": "Cyberpunk 2077",
       "color": "text-neon-purple animate-pulse",
       "type": "rental"
-    },
-    {
-      "user": "LuckBox",
-      "bet": "₹2,929",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 2929,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Keno",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "GoldDigger",
-      "bet": "₹8,247",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 8247,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Keno",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "Ruler777",
-      "bet": "₹33,824",
-      "mult": "3.73x",
-      "win": "₹126,164",
-      "raw_bet": 33824,
-      "raw_payout": 126164,
-      "raw_mult": 3.73,
-      "game": "Plinko",
-      "color": "text-amber-400",
-      "type": "bet"
-    },
-    {
-      "user": "LuckBox",
-      "bet": "₹38,302",
-      "mult": "0x",
-      "win": "₹0",
-      "raw_bet": 38302,
-      "raw_payout": 0,
-      "raw_mult": 0,
-      "game": "Sweet Bonanza",
-      "color": "text-slate-500",
-      "type": "bet"
-    },
-    {
-      "user": "DelhiBull",
-      "bet": "2 hrs",
-      "mult": "₹399/hr",
-      "win": "₹798",
-      "raw_bet": 399,
-      "raw_payout": 798,
-      "raw_mult": 2,
-      "game": "Red Dead Redemption 2",
-      "color": "text-emerald-400",
-      "type": "rental"
     }
   ],
   "stats": {
-    "totalWagered": "₹15039M",
+    "totalWagered": "₹15065M",
     "maxWin": "₹24M",
-    "activePlayers": "838"
+    "activePlayers": "861"
   }
 }
