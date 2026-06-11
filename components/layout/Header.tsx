@@ -98,17 +98,17 @@ export function Header() {
         {isLoggedIn ? (
           <>
             {/* Wallet Balance Widget */}
-            <div className="flex items-center gap-2 bg-slate-50 rounded-sm pl-3 pr-1 py-1 border border-exchange-border">
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-bold text-exchange-muted uppercase tracking-wider">Bal:</span>
-                <span className="text-sm font-bold text-exchange-text font-mono">
+            <div className="flex items-center gap-1 sm:gap-2 bg-slate-50 rounded-sm pl-2 sm:pl-3 pr-1 py-1 border border-exchange-border">
+              <div className="flex items-center gap-1 sm:gap-2">
+                <span className="hidden sm:inline text-xs font-bold text-exchange-muted uppercase tracking-wider">Bal:</span>
+                <span className="text-xs sm:text-sm font-bold text-exchange-text font-mono">
                   ${isClient && typeof balance === 'number' ? balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
               
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-1 px-3 rounded-sm transition-colors ml-2"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-bold py-1 px-2 sm:px-3 rounded-sm transition-colors ml-1 sm:ml-2"
               >
                 Deposit
               </button>
@@ -117,7 +117,7 @@ export function Header() {
             {/* Positions Button */}
             <button 
               onClick={() => setIsPortfolioOpen(true)}
-              className="relative flex items-center gap-1.5 text-exchange-muted hover:text-exchange-text transition-colors p-1.5"
+              className="relative hidden sm:flex items-center gap-1.5 text-exchange-muted hover:text-exchange-text transition-colors p-1.5"
             >
               <Briefcase className="w-5 h-5" />
               {isClient && positions.length > 0 && (
@@ -128,7 +128,7 @@ export function Header() {
             </button>
 
             {/* Notification Bell */}
-            <div className="relative">
+            <div className="relative hidden sm:block">
               <button 
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={cn(
@@ -199,7 +199,7 @@ export function Header() {
             </div>
 
             {/* Settings Cog */}
-            <button className="p-1.5 text-exchange-muted hover:text-exchange-text hover:bg-slate-50 rounded-sm transition-colors">
+            <button className="hidden sm:flex p-1.5 text-exchange-muted hover:text-exchange-text hover:bg-slate-50 rounded-sm transition-colors">
               <Settings className="w-5 h-5" />
             </button>
 
