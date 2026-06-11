@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, History, Gift, Shield } from "lucide-react";
+import { User, History, Gift, Shield, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -17,10 +17,20 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
   const pathname = usePathname();
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto p-4 sm:p-6 lg:p-10 flex flex-col md:flex-row gap-8 pt-8">
+    <div className="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 md:p-6 lg:p-10 md:pt-8">
       
+      {/* Mobile Back Header */}
+      <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-slate-200 bg-white sticky top-0 z-30 shrink-0 shadow-sm">
+        <Link href="/" className="p-2 -ml-2 text-slate-500 hover:text-slate-900 transition-colors">
+          <ArrowLeft className="w-6 h-6" />
+        </Link>
+        <span className="font-bold text-slate-800 text-sm uppercase tracking-widest">
+          {NAV_ITEMS.find(i => pathname.startsWith(i.href))?.name || "Dashboard"}
+        </span>
+      </div>
+
       {/* Secondary Dashboard Navigation */}
-      <div className="w-full md:w-64 shrink-0">
+      <div className="w-full md:w-64 shrink-0 px-4 sm:px-6 md:px-0 mt-4 md:mt-0">
         <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-4 backdrop-blur-2xl sticky top-24 shadow-2xl">
           <div className="flex items-center gap-4 mb-6 p-2">
             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-neon-purple to-neon-green p-0.5 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
