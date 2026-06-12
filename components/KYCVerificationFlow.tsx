@@ -39,11 +39,20 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
       setScanProgress(0);
       setCameraError(false);
 
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.error("Camera API not available (requires HTTPS or localhost).");
+        setCameraError(true);
+        return;
+      }
+
+      const facingMode = step === "DOCUMENT_SCAN" ? "environment" : "user";
+
       // Request camera permissions
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+      navigator.mediaDevices.getUserMedia({ video: { facingMode } })
         .then((stream) => {
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
+            videoRef.current.play().catch(e => console.error("Play failed", e));
           }
           
           // Only start progress if camera is active
@@ -207,10 +216,13 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
                 <div className="relative w-full max-w-sm aspect-[1.6] rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-800">
                   {cameraError ? (
-                    <div className="absolute inset-0 flex flex-col items-center justify-center text-red-400 p-4 text-center">
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-red-400 p-4 text-center z-50 bg-slate-900/90">
                       <AlertCircle className="w-8 h-8 mb-2" />
-                      <p className="text-sm font-bold">Camera Access Denied</p>
-                      <p className="text-xs text-red-400/80 mt-1">Please enable camera permissions in your browser settings to proceed with verification.</p>
+                      <p className="text-sm font-bold">Camera Unavailable</p>
+                      <p className="text-[10px] text-red-400/80 mt-1">Please allow permissions or ensure secure connection (HTTPS).</p>
+                      <button onClick={() => setStep("PROCESSING")} className="mt-3 text-xs bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-lg font-bold transition-colors">
+                        Bypass Verification
+                      </button>
                     </div>
                   ) : (
                     <>
@@ -280,9 +292,12 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
                 <div className="relative w-48 h-64 rounded-[100px] overflow-hidden border-4 border-purple-500/50 bg-slate-800 flex items-center justify-center">
                   {cameraError ? (
-                    <div className="flex flex-col items-center justify-center text-red-400 p-4 text-center">
+                    <div className="flex flex-col items-center justify-center text-red-400 p-4 text-center z-50 bg-slate-900/90 w-full h-full">
                       <AlertCircle className="w-8 h-8 mb-2" />
                       <p className="text-xs font-bold">Camera Denied</p>
+                      <button onClick={() => setStep("PROCESSING")} className="mt-3 text-[10px] bg-slate-800 hover:bg-slate-700 text-white px-3 py-1.5 rounded font-bold transition-colors">
+                        Bypass
+                      </button>
                     </div>
                   ) : (
                     <>
