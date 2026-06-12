@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 import { AlertTriangle, Crosshair } from "lucide-react";
 
 interface CrashEngineProps {
@@ -27,8 +28,9 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
       return;
     }
 
-    const willWin = Math.random() < 0.02;
-    const target = willWin ? (Math.random() * 5 + 2.0) : (Math.random() * 0.9 + 1.0);
+    const outcome = calculateGameOutcome("CRASH");
+    const target = outcome.multiplier;
+    const willWin = outcome.isWin;
 
     let current = 1.0;
     const interval = setInterval(() => {

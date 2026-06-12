@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface RouletteEngineProps {
   isPlaying: boolean;
@@ -66,7 +67,8 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
     }
 
     setIsSpinning(true);
-    const won = Math.random() < 0.35; // 35% win rate for simulated bets
+    const outcome = calculateGameOutcome("TABLE");
+    const won = outcome.isWin;
     const targetIdx = won 
       ? Math.floor(Math.random() * (NUMBERS.length - 1)) + 1 // red or black mostly
       : Math.floor(Math.random() * NUMBERS.length);

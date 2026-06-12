@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 import { Cloud, HelpCircle } from "lucide-react";
 
 interface BalloonRaceEngineProps {
@@ -26,8 +27,9 @@ export function BalloonRaceEngine({ isPlaying, onComplete }: BalloonRaceEnginePr
       return;
     }
 
-    const willWin = Math.random() < 0.40;
-    const target = willWin ? (Math.random() * 5 + 2.0) : (Math.random() * 0.9 + 1.0);
+    const outcome = calculateGameOutcome("CRASH");
+    const target = outcome.multiplier;
+    const willWin = outcome.isWin;
 
     let current = 1.0;
     let tick = 0;

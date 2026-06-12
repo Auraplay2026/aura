@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface BlackjackVIPEngineProps {
   isPlaying: boolean;
@@ -35,7 +36,8 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
       return;
     }
 
-    const won = Math.random() < 0.45;
+    const outcome = calculateGameOutcome("TABLE");
+    const won = outcome.isWin;
     
     // Deal sequence
     let count = 0;

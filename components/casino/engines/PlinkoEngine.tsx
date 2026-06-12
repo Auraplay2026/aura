@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 import { useTradingStore } from "@/lib/store";
 
 interface PlinkoEngineProps {
@@ -40,8 +41,8 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
 
   const dropBall = () => {
     // Math-correct Plinko winning rate adjusted for houseEdge (baseline 50% for outer win bins)
-    const winChance = 0.50 * (1 - houseEdge / 100);
-    const willWin = Math.random() < winChance;
+    const outcome = calculateGameOutcome("ORIGINAL");
+    const willWin = outcome.isWin;
     let targetBinIndex: number;
 
     if (willWin) {

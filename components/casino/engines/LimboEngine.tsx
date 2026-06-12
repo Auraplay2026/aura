@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 import { Zap, Target, TrendingUp } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 
@@ -31,12 +32,9 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
     setResult(null);
     setLiveCounter(1.00);
 
-    // Math-correct Limbo probability: P(win) = (1 - houseEdge/100) / targetMultiplier
-    const winChance = (1 - houseEdge / 100) / targetMultiplier;
-    const willWin = Math.random() < winChance;
-    const finalResult = willWin
-      ? parseFloat((targetMultiplier + Math.random() * 5).toFixed(2))
-      : parseFloat((Math.random() * (targetMultiplier - 1.01) + 1.00).toFixed(2));
+    const outcome = calculateGameOutcome("ORIGINAL", targetMultiplier);
+    const willWin = outcome.isWin;
+    const finalResult = parseFloat(outcome.multiplier.toFixed(2));
 
     let current = 1.00;
     const step = (finalResult - 1.00) / 30;

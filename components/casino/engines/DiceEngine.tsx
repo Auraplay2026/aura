@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 import { useTradingStore } from "@/lib/store";
 
 interface DiceEngineProps {
@@ -30,9 +31,8 @@ export function DiceEngine({ isPlaying, onComplete }: DiceEngineProps) {
     }
 
     setRolling(true);
-    // Math-correct Dice sum >= 8 win probability (15 winning outcomes out of 36)
-    const winChance = (15 / 36) * (1 - houseEdge / 100);
-    const won = Math.random() < winChance;
+    const outcome = calculateGameOutcome("ORIGINAL");
+    const won = outcome.isWin;
     
     // Choose winning faces
     let f1 = Math.floor(Math.random() * 6);

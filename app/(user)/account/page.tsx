@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { User, Mail, Shield, Smartphone, Key, ShieldCheck, CheckCircle2, Wallet, Activity, Trophy, ArrowRight, Camera, AlertCircle } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import Link from "next/link";
+import { KYCVerificationFlow } from "@/components/KYCVerificationFlow";
 
 export default function AccountSettingsPage() {
   const { balance, positions, transactions, currentUser, updateProfile } = useTradingStore();
@@ -25,6 +26,7 @@ export default function AccountSettingsPage() {
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [saveError, setSaveError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
+  const [showKYC, setShowKYC] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -365,7 +367,10 @@ export default function AccountSettingsPage() {
                   <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2 py-0.5 rounded bg-slate-100">Pending</span>
                 </div>
                 <p className="text-xs text-slate-500 leading-relaxed mb-4">Unlock Fiat deposits and unlimited crypto withdrawals. Requires official government ID verification.</p>
-                <button className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-900 uppercase tracking-widest hover:bg-slate-700 transition-colors border border-slate-700">
+                <button 
+                  onClick={() => setShowKYC(true)}
+                  className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-900 uppercase tracking-widest hover:bg-slate-700 transition-colors border border-slate-700"
+                >
                   Begin KYC Process
                 </button>
               </div>
@@ -405,12 +410,29 @@ export default function AccountSettingsPage() {
                   Live RTP Monitor
                 </Link>
               </div>
+              {/* Mobile Spacer */}
+              <div className="h-24 md:hidden" />
             </motion.div>
           )}
 
         </div>
 
       </div>
+
+      <AnimatePresence>
+        {showKYC && (
+          <KYCVerificationFlow 
+            onCancel={() => setShowKYC(false)} 
+            onComplete={() => {
+              setShowKYC(false);
+              // In real implementation, this would make an API call to update the user's KYC status
+              if (currentUser) {
+                useTradingStore.getState().updateProfile({ kycStatus: 'APPROVED' } as any);
+              }
+            }} 
+          />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

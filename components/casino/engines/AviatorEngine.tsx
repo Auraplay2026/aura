@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 import { AlertCircle } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 
@@ -32,8 +33,9 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
 
     // Math-correct Aviator win chance (baseline 45% win rate adjusted for houseEdge)
     const winChance = 0.45 * (1 - houseEdge / 100);
-    const willWin = Math.random() < winChance;
-    const target = willWin ? (Math.random() * 4 + 2.0) : (Math.random() * 0.9 + 1.0);
+    const outcome = calculateGameOutcome("CRASH");
+    const target = outcome.multiplier;
+    const willWin = outcome.isWin;
 
     let current = 1.0;
     let tick = 0;

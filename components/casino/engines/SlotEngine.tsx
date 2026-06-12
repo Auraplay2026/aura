@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface SlotEngineProps {
   isPlaying: boolean;
@@ -35,15 +36,26 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
     const baseTime = isTurbo ? 400 : 800;
     const staggerTime = isTurbo ? 150 : 300;
     
-    // Compute result early (exactly 2% win rate)
-    const isWin = Math.random() < 0.02;
-    const multiplier = isWin ? (Math.random() > 0.8 ? (Math.floor(Math.random() * 50) + 10) : (Math.floor(Math.random() * 5) + 1)) : 0;
+    // Compute result securely using centralized 20% win-rate mandate
+    const outcome = calculateGameOutcome("SLOTS");
+    const isWin = outcome.isWin;
+    const multiplier = outcome.multiplier;
     
     const newReels = generateGrid();
     if (isWin) {
       const winSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
       const middleRow = Math.floor(theme.rows / 2);
       for (let c = 0; c < Math.min(4, theme.cols); c++) newReels[c][middleRow] = winSymbol;
+    } else if (outcome.isNearMiss) {
+      // Psychological "Near Miss" Generation
+      const winSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
+      const middleRow = Math.floor(theme.rows / 2);
+      for (let c = 0; c < Math.min(3, theme.cols); c++) newReels[c][middleRow] = winSymbol;
+      if (theme.cols > 3) {
+         let diffSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
+         while(diffSymbol === winSymbol) diffSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
+         newReels[3][middleRow] = diffSymbol;
+      }
     }
     setReels(newReels);
 
