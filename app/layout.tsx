@@ -3,6 +3,7 @@ import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/layout/AppProviders";
 import { GlobalAlerts } from "@/components/ui/GlobalAlerts";
+import { GlobalHypeFeed } from "@/components/ui/GlobalHypeFeed";
 
 const outfit = Outfit({ subsets: ["latin"], display: 'swap', weight: ['300', '400', '500', '600', '700', '800', '900'] });
 
@@ -48,6 +49,7 @@ export default function RootLayout({
       <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-blue-500/30 selection:text-blue-900`}>
         <AppProviders>
           <GlobalAlerts />
+          <GlobalHypeFeed />
           {children}
         </AppProviders>
       </body>

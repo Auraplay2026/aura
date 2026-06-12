@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ShieldCheck, 
@@ -26,29 +26,57 @@ type KYCStep = "SELECTION" | "DOCUMENT_SCAN" | "SELFIE_CHECK" | "PROCESSING" | "
 export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
   const [step, setStep] = useState<KYCStep>("SELECTION");
   const [docType, setDocType] = useState<"PASSPORT" | "ID" | "LICENSE" | null>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [cameraError, setCameraError] = useState(false);
   
   // Simulation states
   const [scanProgress, setScanProgress] = useState(0);
   const [processingStatus, setProcessingStatus] = useState("Analyzing Security Features...");
 
-  // Handle Scanning Simulation
+  // Handle Camera Stream & Scanning Simulation
   useEffect(() => {
     if (step === "DOCUMENT_SCAN" || step === "SELFIE_CHECK") {
       setScanProgress(0);
-      const interval = setInterval(() => {
-        setScanProgress(prev => {
-          if (prev >= 100) {
-            clearInterval(interval);
-            setTimeout(() => {
-              if (step === "DOCUMENT_SCAN") setStep("SELFIE_CHECK");
-              if (step === "SELFIE_CHECK") setStep("PROCESSING");
-            }, 600);
-            return 100;
+      setCameraError(false);
+
+      // Request camera permissions
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } })
+        .then((stream) => {
+          if (videoRef.current) {
+            videoRef.current.srcObject = stream;
           }
-          return prev + 2;
+          
+          // Only start progress if camera is active
+          const interval = setInterval(() => {
+            setScanProgress(prev => {
+              if (prev >= 100) {
+                clearInterval(interval);
+                setTimeout(() => {
+                  if (step === "DOCUMENT_SCAN") setStep("SELFIE_CHECK");
+                  if (step === "SELFIE_CHECK") {
+                    // Stop camera stream when moving to processing
+                    stream.getTracks().forEach(track => track.stop());
+                    setStep("PROCESSING");
+                  }
+                }, 600);
+                return 100;
+              }
+              return prev + 2;
+            });
+          }, 50);
+        })
+        .catch((err) => {
+          console.error("Camera access denied:", err);
+          setCameraError(true);
         });
-      }, 50);
-      return () => clearInterval(interval);
+
+      // Cleanup
+      return () => {
+        if (videoRef.current && videoRef.current.srcObject) {
+          const stream = videoRef.current.srcObject as MediaStream;
+          stream.getTracks().forEach(track => track.stop());
+        }
+      };
     }
   }, [step]);
 
@@ -178,10 +206,27 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                 </div>
 
                 <div className="relative w-full max-w-sm aspect-[1.6] rounded-2xl overflow-hidden border-2 border-slate-700 bg-slate-800">
-                  <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600">
-                    <IdCard className="w-16 h-16 mb-2 opacity-50" />
-                    <span className="text-xs font-bold uppercase tracking-widest">Document Viewfinder</span>
-                  </div>
+                  {cameraError ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center text-red-400 p-4 text-center">
+                      <AlertCircle className="w-8 h-8 mb-2" />
+                      <p className="text-sm font-bold">Camera Access Denied</p>
+                      <p className="text-xs text-red-400/80 mt-1">Please enable camera permissions in your browser settings to proceed with verification.</p>
+                    </div>
+                  ) : (
+                    <>
+                      <video 
+                        ref={videoRef} 
+                        autoPlay 
+                        playsInline 
+                        muted 
+                        className="absolute inset-0 w-full h-full object-cover" 
+                      />
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-slate-600 mix-blend-overlay">
+                        <IdCard className="w-16 h-16 mb-2 opacity-50" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-white/50">Document Viewfinder</span>
+                      </div>
+                    </>
+                  )}
 
                   {/* Laser Scan Animation */}
                   <motion.div 
@@ -234,7 +279,23 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                 </div>
 
                 <div className="relative w-48 h-64 rounded-[100px] overflow-hidden border-4 border-purple-500/50 bg-slate-800 flex items-center justify-center">
-                  <Camera className="w-12 h-12 text-slate-600 mb-4" />
+                  {cameraError ? (
+                    <div className="flex flex-col items-center justify-center text-red-400 p-4 text-center">
+                      <AlertCircle className="w-8 h-8 mb-2" />
+                      <p className="text-xs font-bold">Camera Denied</p>
+                    </div>
+                  ) : (
+                    <>
+                      <video 
+                        ref={step === "SELFIE_CHECK" ? videoRef : undefined} 
+                        autoPlay 
+                        playsInline 
+                        muted 
+                        className="absolute inset-0 w-full h-full object-cover" 
+                      />
+                      <Camera className="w-12 h-12 text-white/30 mb-4 mix-blend-overlay relative z-10" />
+                    </>
+                  )}
                   
                   {/* Face mapping mesh overlay */}
                   <motion.div 
