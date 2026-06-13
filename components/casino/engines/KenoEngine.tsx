@@ -1,63 +1,89 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Ticket, Hash, Star } from "lucide-react";
+import { Target, Zap, CircleDollarSign, Ghost } from "lucide-react";
+import { calculateGameOutcome, GameOutcome } from "@/lib/casino-math";
 
 interface KenoEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
 type GameState = "idle" | "drawing" | "finished";
 
-export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
+export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngineProps) {
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
   const [gameState, setGameState] = useState<GameState>("idle");
+  const [outcome, setOutcome] = useState<GameOutcome | null>(null);
   const onCompleteRef = useRef(onComplete);
 
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   useEffect(() => {
     if (!isPlaying) {
-      setDrawnNumbers([]);
-      setGameState("idle");
+      if (gameState === "drawing" || gameState === "finished") {
+        setGameState("idle");
+        setDrawnNumbers([]);
+      }
       return;
     }
 
-    if (selectedNumbers.length === 0) {
-      // Auto-pick 7 random numbers
+    if (gameState === "idle") {
+      startGame();
+    }
+  }, [isPlaying]);
+
+  const startGame = () => {
+    let currentPicks = [...selectedNumbers];
+    if (currentPicks.length === 0) {
+      // Auto-pick 10 random numbers if none selected
       const picks: number[] = [];
-      while (picks.length < 7) {
+      while (picks.length < 10) {
         const r = Math.floor(Math.random() * 40) + 1;
         if (!picks.includes(r)) picks.push(r);
       }
       setSelectedNumbers(picks);
+      currentPicks = picks;
     }
 
     setGameState("drawing");
     setDrawnNumbers([]);
 
-    const willWin = Math.random() < 0.1;
-    const pool = Array.from({ length: 40 }, (_, i) => i + 1).filter(n => !selectedNumbers.includes(n));
-    const selected = [...selectedNumbers];
+    // 1. Calculate outcome strictly using the central engine
+    const mathOutcome = calculateGameOutcome("ORIGINAL"); // Global 20% win rate
+    setOutcome(mathOutcome);
 
+    const pool = Array.from({ length: 40 }, (_, i) => i + 1);
+    const nonSelectedPool = pool.filter(n => !currentPicks.includes(n));
     const finalDraws: number[] = [];
 
-    if (willWin && selected.length > 0) {
-      const numHits = Math.max(3, Math.floor(selected.length * 0.5));
-      for (let i = 0; i < Math.min(numHits, selected.length); i++) {
-        const idx = Math.floor(Math.random() * selected.length);
-        finalDraws.push(selected.splice(idx, 1)[0]);
+    if (mathOutcome.isWin) {
+      // WIN: Force 5 to 10 hits
+      const numHits = Math.floor(Math.random() * 6) + 5; // 5 to 10 hits
+      const selectedCopy = [...currentPicks];
+      for (let i = 0; i < Math.min(numHits, currentPicks.length); i++) {
+        const idx = Math.floor(Math.random() * selectedCopy.length);
+        finalDraws.push(selectedCopy.splice(idx, 1)[0]);
+      }
+    } else {
+      // LOSS: Force 0 to 2 hits (to prevent big payouts)
+      const numHits = mathOutcome.isNearMiss ? 2 : Math.floor(Math.random() * 2); 
+      const selectedCopy = [...currentPicks];
+      for (let i = 0; i < Math.min(numHits, currentPicks.length); i++) {
+        const idx = Math.floor(Math.random() * selectedCopy.length);
+        finalDraws.push(selectedCopy.splice(idx, 1)[0]);
       }
     }
 
-    while (finalDraws.length < 10 && pool.length > 0) {
-      const idx = Math.floor(Math.random() * pool.length);
-      finalDraws.push(pool.splice(idx, 1)[0]);
+    // Fill the rest with non-selected numbers
+    while (finalDraws.length < 10) {
+      const idx = Math.floor(Math.random() * nonSelectedPool.length);
+      finalDraws.push(nonSelectedPool.splice(idx, 1)[0]);
     }
 
-    // Shuffle
+    // Shuffle final draws
     for (let i = finalDraws.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1));
       [finalDraws[i], finalDraws[j]] = [finalDraws[j], finalDraws[i]];
@@ -68,108 +94,89 @@ export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
       const next = finalDraws[draws.length];
       draws.push(next);
       setDrawnNumbers([...draws]);
+      
       if (draws.length === 10) {
         clearInterval(interval);
         setGameState("finished");
-        const hits = draws.filter(n => selectedNumbers.includes(n)).length;
-        const mult = hits >= 5 ? hits * 2 : hits >= 3 ? 2.0 : 0;
+        const hits = draws.filter(n => currentPicks.includes(n)).length;
+        // Basic payout logic (in a real app, this would use a matrix)
+        let mult = 0;
+        if (hits >= 10) mult = 500;
+        else if (hits >= 8) mult = 50;
+        else if (hits >= 6) mult = 5;
+        else if (hits >= 4) mult = 1.5;
+        
         onCompleteRef.current(mult, mult > 0);
       }
-    }, 300);
+    }, 400);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
-
-  const toggleNumber = (num: number) => {
-    if (gameState !== "idle" && gameState !== "finished") return;
-    setSelectedNumbers(prev =>
-      prev.includes(num)
-        ? prev.filter(n => n !== num)
-        : prev.length < 10 ? [...prev, num] : prev
-    );
   };
 
-  const hits = drawnNumbers.filter(n => selectedNumbers.includes(n)).length;
+  const toggleNumber = (num: number) => {
+    if (gameState !== "idle") return;
+    setSelectedNumbers(prev => {
+      if (prev.includes(num)) return prev.filter(n => n !== num);
+      if (prev.length < 10) return [...prev, num];
+      return prev;
+    });
+  };
+
+  const clearSelection = () => {
+    if (gameState === "idle") setSelectedNumbers([]);
+  };
+
+  const autoPick = () => {
+    if (gameState !== "idle") return;
+    const picks: number[] = [];
+    while (picks.length < 10) {
+      const r = Math.floor(Math.random() * 40) + 1;
+      if (!picks.includes(r)) picks.push(r);
+    }
+    setSelectedNumbers(picks);
+  };
+
+  const hitsCount = drawnNumbers.filter(n => selectedNumbers.includes(n)).length;
 
   return (
-    <div className="w-full h-full flex flex-col gap-3 p-4 md:p-6 relative">
-      {/* Carnival-neon background */}
-      <div className="absolute inset-0 rounded-3xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0a0318] via-[#0d0523] to-[#060110]" />
-        <div className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(circle at 50% 0%, rgba(168,85,247,0.2) 0%, transparent 50%),
-                              radial-gradient(circle at 0% 100%, rgba(236,72,153,0.15) 0%, transparent 40%),
-                              radial-gradient(circle at 100% 50%, rgba(99,102,241,0.1) 0%, transparent 40%)`
-          }}
-        />
+    <div className="w-full h-full flex flex-col gap-6 p-6 relative bg-[#0a0514] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(139,92,246,0.15)] border border-purple-900/30">
+      {/* Background glow */}
+      <div className="absolute inset-0">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.15),transparent_70%)]" />
+        <div className="absolute top-0 w-full h-1/2 bg-gradient-to-b from-purple-900/10 to-transparent" />
       </div>
 
-      {/* Header stats */}
+      {/* Header UI */}
       <div className="relative z-10 flex items-center justify-between">
-        <div className="flex items-center gap-2 bg-white/40 border border-purple-500/20 rounded-xl px-4 py-2">
-          <Ticket className="w-4 h-4 text-purple-600" />
-          <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Selected:</span>
-          <span className="text-slate-900 font-black text-sm">{selectedNumbers.length}/10</span>
+        <div className="flex gap-2">
+          <button 
+            onClick={clearSelection}
+            disabled={gameState !== "idle"}
+            className="px-4 py-2 bg-slate-800/50 hover:bg-slate-700/50 text-slate-300 text-xs font-bold uppercase tracking-wider rounded-lg border border-slate-700 disabled:opacity-50 transition-colors"
+          >
+            Clear
+          </button>
+          <button 
+            onClick={autoPick}
+            disabled={gameState !== "idle"}
+            className="px-4 py-2 bg-purple-500/10 hover:bg-purple-500/20 text-purple-400 text-xs font-bold uppercase tracking-wider rounded-lg border border-purple-500/30 disabled:opacity-50 transition-colors flex items-center gap-2"
+          >
+            <Zap className="w-3 h-3" /> Auto Pick
+          </button>
         </div>
 
-        <AnimatePresence>
-          {gameState === "finished" && (
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className={`flex items-center gap-2 px-4 py-2 rounded-xl border font-black text-sm ${
-                hits >= 3
-                  ? "bg-neon-green/10 border-neon-green/40 text-neon-green"
-                  : "bg-red-500/10 border-red-500/40 text-red-600"
-              }`}
-            >
-              <Star className="w-4 h-4" />
-              {hits} Hit{hits !== 1 ? "s" : ""} — {hits >= 3 ? `${hits * 2}x WIN!` : "No Payout"}
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        <div className="flex items-center gap-2 bg-white/40 border border-purple-500/20 rounded-xl px-4 py-2">
-          <Hash className="w-4 h-4 text-fuchsia-600" />
-          <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Drawn:</span>
-          <span className="text-slate-900 font-black text-sm">{drawnNumbers.length}/10</span>
+        <div className="flex flex-col items-end">
+          <span className="text-[10px] uppercase tracking-widest text-slate-400 font-bold">Selected</span>
+          <span className="text-xl font-black text-white">
+            {selectedNumbers.length} <span className="text-slate-500 text-sm">/ 10</span>
+          </span>
         </div>
       </div>
 
-      {/* Drawn numbers display */}
-      <div className="relative z-10 min-h-[40px] flex items-center justify-center gap-2 flex-wrap">
-        <AnimatePresence>
-          {drawnNumbers.map((n, i) => {
-            const isHit = selectedNumbers.includes(n);
-            return (
-              <motion.div
-                key={n}
-                initial={{ scale: 0, rotate: -180, opacity: 0 }}
-                animate={{ scale: 1, rotate: 0, opacity: 1 }}
-                transition={{ type: "spring", stiffness: 400, damping: 15, delay: i * 0.02 }}
-                className={`w-9 h-9 rounded-full flex items-center justify-center text-sm font-black border-2 ${
-                  isHit
-                    ? "bg-purple-500 border-purple-300 text-white shadow-[0_0_15px_rgba(168,85,247,0.7)]"
-                    : "bg-slate-100 border-slate-600 text-slate-700"
-                }`}
-              >
-                {n}
-              </motion.div>
-            );
-          })}
-        </AnimatePresence>
-        {drawnNumbers.length === 0 && (
-          <span className="text-slate-700 text-sm font-bold uppercase tracking-widest">Numbers will appear here...</span>
-        )}
-      </div>
-
-      {/* Number grid */}
-      <div className="relative z-10 flex-1 flex items-center justify-center">
-        <div className="grid grid-cols-8 gap-1.5 w-full max-w-[480px]">
-          {Array.from({ length: 40 }).map((_, i) => {
-            const num = i + 1;
+      {/* Grid container */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center">
+        <div className="grid grid-cols-8 gap-2 sm:gap-3 w-full max-w-2xl">
+          {Array.from({ length: 40 }, (_, i) => i + 1).map(num => {
             const isSelected = selectedNumbers.includes(num);
             const isDrawn = drawnNumbers.includes(num);
             const isHit = isSelected && isDrawn;
@@ -178,30 +185,72 @@ export function KenoEngine({ isPlaying, onComplete }: KenoEngineProps) {
             return (
               <motion.button
                 key={num}
-                disabled={gameState === "drawing"}
                 onClick={() => toggleNumber(num)}
-                whileHover={gameState !== "drawing" ? { scale: 1.1 } : {}}
-                whileTap={gameState !== "drawing" ? { scale: 0.9 } : {}}
-                className={`aspect-square rounded-lg flex items-center justify-center text-xs md:text-sm font-black border transition-all duration-200 ${
-                  isHit ? "bg-purple-500 border-purple-300 text-white shadow-[0_0_12px_rgba(168,85,247,0.6)]" :
-                  isSelected ? "bg-indigo-600/80 border-indigo-400 text-slate-900" :
-                  isMiss ? "bg-slate-100/50 border-slate-700/50 text-slate-600" :
-                  "bg-slate-900/5 border-slate-200 text-slate-600 hover:bg-purple-100 hover:border-purple-500/40 hover:text-slate-900"
-                }`}
+                disabled={gameState !== "idle"}
+                whileHover={gameState === "idle" ? { scale: 1.05 } : {}}
+                whileTap={gameState === "idle" ? { scale: 0.95 } : {}}
+                className={`
+                  relative aspect-square rounded-lg sm:rounded-xl font-black text-sm sm:text-base flex items-center justify-center transition-all duration-300
+                  ${isSelected && !isDrawn ? "bg-purple-600 text-white shadow-[0_0_20px_rgba(147,51,234,0.5)] border border-purple-400" : ""}
+                  ${isHit ? "bg-emerald-500 text-slate-900 shadow-[0_0_30px_rgba(16,185,129,0.8)] border border-emerald-300 z-10 scale-110" : ""}
+                  ${isMiss ? "bg-slate-800/80 text-white border border-slate-600" : ""}
+                  ${!isSelected && !isDrawn ? "bg-slate-900/50 text-slate-500 border border-slate-800 hover:border-slate-700 hover:text-slate-400" : ""}
+                `}
               >
-                {num}
+                {/* Number text */}
+                <span className="relative z-10">{num}</span>
+
+                {/* Hit effect */}
+                <AnimatePresence>
+                  {isHit && (
+                    <motion.div
+                      initial={{ scale: 0, opacity: 1 }}
+                      animate={{ scale: 2.5, opacity: 0 }}
+                      transition={{ duration: 0.8, ease: "easeOut" }}
+                      className="absolute inset-0 bg-emerald-400 rounded-full z-0"
+                    />
+                  )}
+                </AnimatePresence>
+                
+                {/* Miss selection effect */}
+                <AnimatePresence>
+                  {isSelected && !isDrawn && gameState === "finished" && (
+                    <motion.div
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      className="absolute inset-0 bg-slate-900/60 rounded-xl z-20 flex items-center justify-center"
+                    >
+                      <div className="w-1.5 h-1.5 rounded-full bg-slate-500" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
               </motion.button>
             );
           })}
         </div>
       </div>
 
-      {/* Hint */}
-      {gameState === "idle" && selectedNumbers.length < 3 && (
-        <p className="relative z-10 text-center text-xs text-slate-600 font-bold uppercase tracking-widest">
-          Pick 3–10 numbers or they'll be auto-selected when you bet
-        </p>
-      )}
+      {/* Footer Info */}
+      <div className="relative z-10 flex items-center justify-between h-12 bg-slate-900/80 rounded-2xl border border-slate-800 px-6 backdrop-blur-md">
+        <div className="flex items-center gap-3">
+          <Target className="w-4 h-4 text-purple-400" />
+          <span className="text-xs font-bold uppercase tracking-widest text-slate-300">
+            Hits: <span className="text-white text-base">{hitsCount}</span>
+          </span>
+        </div>
+        
+        {gameState === "finished" && (
+          <motion.div 
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className={`font-black uppercase tracking-widest text-sm
+              ${hitsCount >= 4 ? "text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]" : "text-slate-500"}
+            `}
+          >
+            {hitsCount >= 4 ? "Winner!" : "No Win"}
+          </motion.div>
+        )}
+      </div>
     </div>
   );
 }
