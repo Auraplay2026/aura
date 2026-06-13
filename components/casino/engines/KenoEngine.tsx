@@ -138,7 +138,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
   const hitsCount = drawnNumbers.filter(n => selectedNumbers.includes(n)).length;
 
   return (
-    <div className="w-full h-full flex flex-col gap-6 p-6 relative bg-[#0a0514] rounded-3xl overflow-hidden shadow-[0_0_50px_rgba(139,92,246,0.15)] border border-purple-900/30">
+    <div className="w-full flex-1 flex flex-col gap-4 p-4 relative bg-[#0f172a] rounded-3xl overflow-hidden shadow-2xl border border-purple-900/30">
       {/* Background glow */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(139,92,246,0.15),transparent_70%)]" />

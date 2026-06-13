@@ -590,7 +590,7 @@ export default function GamePlayerPage() {
                   </div>
                 </motion.div>
               ) : (
-                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }} className="absolute inset-0 w-full h-full flex flex-col">
+                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }} className="relative w-full flex-1 flex flex-col">
                   
                   {/* Cinematic Background */}
                   <div className="absolute inset-0 z-0 pointer-events-none">
@@ -602,7 +602,7 @@ export default function GamePlayerPage() {
                   </div>
 
                   {/* Game UI Simulation - Top 1% Stake Style */}
-                  <div className="relative z-10 w-full h-full flex flex-col md:flex-row overflow-hidden">
+                  <div className="relative z-10 w-full flex-1 flex flex-col md:flex-row">
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
                     {tutorialDismissed && (
@@ -720,9 +720,9 @@ export default function GamePlayerPage() {
                       </div>
 
                       {/* Central Canvas Area */}
-                      <div className="flex-1 min-h-0 w-full flex flex-col md:flex-row gap-6 relative z-10">
+                      <div className="flex-1 w-full flex flex-col md:flex-row gap-6 relative z-10 min-h-[500px] md:min-h-[600px]">
                         
-                        <div className="flex-1 h-full flex items-center justify-center relative bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5">
+                        <div className="flex-1 flex items-center justify-center relative bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5">
                           {!isCloudRenting ? (
                             <div className="relative w-full h-full flex items-center justify-center">
                               {renderEngine()}

@@ -136,7 +136,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
   };
 
   return (
-    <div className="w-full h-full flex flex-col gap-4 p-4 relative bg-[#0f172a] rounded-3xl overflow-hidden shadow-2xl">
+    <div className="w-full flex-1 flex flex-col gap-4 p-4 relative bg-[#0f172a] rounded-3xl overflow-hidden shadow-2xl">
       {/* Dynamic Background */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,#1e293b,transparent_80%)]" />
