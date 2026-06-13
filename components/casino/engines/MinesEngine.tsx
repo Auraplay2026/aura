@@ -34,7 +34,8 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
       if (gameState === "playing") setGameState("idle");
       return;
     }
-    if (gameState === "idle") startGame();
+    // ALWAYS start game when isPlaying goes from false to true
+    startGame();
   }, [isPlaying]);
 
   const nextMultiplier = useMemo(() => {

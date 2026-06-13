@@ -23,16 +23,15 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
 
   useEffect(() => {
     if (!isPlaying) {
-      if (gameState === "drawing" || gameState === "finished") {
+      if (gameState === "drawing") {
         setGameState("idle");
         setDrawnNumbers([]);
       }
       return;
     }
 
-    if (gameState === "idle") {
-      startGame();
-    }
+    // ALWAYS start game when isPlaying goes from false to true
+    startGame();
   }, [isPlaying]);
 
   const startGame = () => {

@@ -535,7 +535,7 @@ export default function GamePlayerPage() {
           <motion.div 
             animate={isMegaWin ? { x: [-10, 10, -10, 10, -5, 5, 0], y: [-5, 5, -5, 5, 0] } : {}}
             transition={{ duration: 0.6 }}
-            className={`relative w-full h-[50vh] md:h-[calc(100vh-100px)] min-h-[350px] md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
+            className={`relative w-full h-auto min-h-[600px] md:h-[calc(100vh-100px)] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence>
               {isLoading ? (
