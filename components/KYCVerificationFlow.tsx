@@ -28,15 +28,15 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
   const [docType, setDocType] = useState<"PASSPORT" | "ID" | "LICENSE" | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const [cameraError, setCameraError] = useState(false);
+  const [isCaptured, setIsCaptured] = useState(false);
   
   // Simulation states
-  const [scanProgress, setScanProgress] = useState(0);
   const [processingStatus, setProcessingStatus] = useState("Analyzing Security Features...");
 
-  // Handle Camera Stream & Scanning Simulation
+  // Handle Camera Stream
   useEffect(() => {
     if (step === "DOCUMENT_SCAN" || step === "SELFIE_CHECK") {
-      setScanProgress(0);
+      setIsCaptured(false);
       setCameraError(false);
 
       if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -46,33 +46,16 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
       }
 
       const facingMode = step === "DOCUMENT_SCAN" ? "environment" : "user";
+      let activeStream: MediaStream | null = null;
 
       // Request camera permissions
       navigator.mediaDevices.getUserMedia({ video: { facingMode } })
         .then((stream) => {
+          activeStream = stream;
           if (videoRef.current) {
             videoRef.current.srcObject = stream;
             videoRef.current.play().catch(e => console.error("Play failed", e));
           }
-          
-          // Only start progress if camera is active
-          const interval = setInterval(() => {
-            setScanProgress(prev => {
-              if (prev >= 100) {
-                clearInterval(interval);
-                setTimeout(() => {
-                  if (step === "DOCUMENT_SCAN") setStep("SELFIE_CHECK");
-                  if (step === "SELFIE_CHECK") {
-                    // Stop camera stream when moving to processing
-                    stream.getTracks().forEach(track => track.stop());
-                    setStep("PROCESSING");
-                  }
-                }, 600);
-                return 100;
-              }
-              return prev + 2;
-            });
-          }, 50);
         })
         .catch((err) => {
           console.error("Camera access denied:", err);
@@ -81,13 +64,35 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
       // Cleanup
       return () => {
-        if (videoRef.current && videoRef.current.srcObject) {
-          const stream = videoRef.current.srcObject as MediaStream;
-          stream.getTracks().forEach(track => track.stop());
+        if (activeStream) {
+          activeStream.getTracks().forEach(track => track.stop());
         }
       };
     }
   }, [step]);
+
+  const handleCapture = () => {
+    if (videoRef.current) {
+      videoRef.current.pause();
+      setIsCaptured(true);
+    }
+  };
+
+  const handleRetake = () => {
+    if (videoRef.current) {
+      videoRef.current.play().catch(e => console.error("Play failed", e));
+      setIsCaptured(false);
+    }
+  };
+
+  const handleContinue = () => {
+    if (step === "DOCUMENT_SCAN") {
+      setStep("SELFIE_CHECK");
+    } else if (step === "SELFIE_CHECK") {
+      // Stream is cleaned up via useEffect when step changes
+      setStep("PROCESSING");
+    }
+  };
 
   // Handle Processing Simulation
   useEffect(() => {
@@ -240,12 +245,14 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                     </>
                   )}
 
-                  {/* Laser Scan Animation */}
-                  <motion.div 
-                    className="absolute left-0 right-0 h-1 bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.8)] z-10"
-                    animate={{ top: ["0%", "100%", "0%"] }}
-                    transition={{ duration: 3, ease: "linear", repeat: Infinity }}
-                  />
+                  {/* Laser Scan Animation (only when not captured) */}
+                  {!isCaptured && !cameraError && (
+                    <motion.div 
+                      className="absolute left-0 right-0 h-1 bg-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.8)] z-10"
+                      animate={{ top: ["0%", "100%", "0%"] }}
+                      transition={{ duration: 3, ease: "linear", repeat: Infinity }}
+                    />
+                  )}
                   
                   {/* Grid overlay */}
                   <div className="absolute inset-0 opacity-10 mix-blend-overlay" />
@@ -257,17 +264,24 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                   <div className="absolute bottom-4 right-4 w-6 h-6 border-b-4 border-r-4 border-cyan-400 rounded-br-lg" />
                 </div>
 
-                <div className="w-full max-w-sm mt-8">
-                  <div className="flex justify-between text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">
-                    <span>Scanning Quality</span>
-                    <span className="text-cyan-400">{scanProgress}%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
-                    <motion.div 
-                      className="h-full bg-cyan-400"
-                      style={{ width: `${scanProgress}%` }}
-                    />
-                  </div>
+                <div className="w-full max-w-sm mt-8 flex flex-col gap-3">
+                  {!isCaptured && !cameraError && (
+                    <button onClick={handleCapture} className="w-full bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                      <Camera className="w-5 h-5" />
+                      Capture Document
+                    </button>
+                  )}
+
+                  {isCaptured && (
+                    <div className="flex gap-3">
+                      <button onClick={handleRetake} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors">
+                        Retake
+                      </button>
+                      <button onClick={handleContinue} className="flex-1 bg-cyan-500 hover:bg-cyan-400 text-slate-900 font-bold py-3 rounded-xl transition-colors">
+                        Continue
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
@@ -284,9 +298,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                 <div className="text-center mb-8">
                   <h3 className="text-xl font-black text-white mb-2">Biometric Liveness</h3>
                   <p className="text-slate-400 text-sm">
-                    {scanProgress < 30 ? "Position your face in the oval..." :
-                     scanProgress < 60 ? "Look slightly to the left..." :
-                     "Look slightly to the right..."}
+                    Position your face within the oval.
                   </p>
                 </div>
 
@@ -313,26 +325,43 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                   )}
                   
                   {/* Face mapping mesh overlay */}
-                  <motion.div 
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: [0, 0.5, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                    className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#a855f7_100%)] opacity-20 mix-blend-screen"
-                  />
+                  {!isCaptured && !cameraError && (
+                    <motion.div 
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: [0, 0.5, 0] }}
+                      transition={{ duration: 2, repeat: Infinity }}
+                      className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,#a855f7_100%)] opacity-20 mix-blend-screen"
+                    />
+                  )}
                   
                   {/* Reticle */}
-                  <motion.div 
-                    animate={{ rotate: 360 }}
-                    transition={{ duration: 10, ease: "linear", repeat: Infinity }}
-                    className="absolute inset-2 border-2 border-dashed border-purple-400/30 rounded-[100px]"
-                  />
+                  {!isCaptured && !cameraError && (
+                    <motion.div 
+                      animate={{ rotate: 360 }}
+                      transition={{ duration: 10, ease: "linear", repeat: Infinity }}
+                      className="absolute inset-2 border-2 border-dashed border-purple-400/30 rounded-[100px]"
+                    />
+                  )}
                 </div>
 
-                <div className="w-full max-w-sm mt-8 text-center">
-                  <div className="inline-flex items-center gap-2 bg-purple-500/10 text-purple-400 px-4 py-2 rounded-full font-bold text-xs uppercase tracking-widest border border-purple-500/20">
-                    <ScanFace className="w-4 h-4" />
-                    Analyzing Facial Geometry
-                  </div>
+                <div className="w-full max-w-sm mt-8 text-center flex flex-col gap-3">
+                  {!isCaptured && !cameraError && (
+                    <button onClick={handleCapture} className="w-full bg-purple-500 hover:bg-purple-400 text-white font-bold py-3 rounded-xl transition-colors flex items-center justify-center gap-2">
+                      <Camera className="w-5 h-5" />
+                      Capture Selfie
+                    </button>
+                  )}
+
+                  {isCaptured && (
+                    <div className="flex gap-3">
+                      <button onClick={handleRetake} className="flex-1 bg-slate-800 hover:bg-slate-700 text-white font-bold py-3 rounded-xl transition-colors">
+                        Retake
+                      </button>
+                      <button onClick={handleContinue} className="flex-1 bg-purple-500 hover:bg-purple-400 text-white font-bold py-3 rounded-xl transition-colors">
+                        Submit
+                      </button>
+                    </div>
+                  )}
                 </div>
               </motion.div>
             )}
