@@ -87,7 +87,7 @@ export function GlobalAlerts() {
   }
 
   return (
-    <div className="fixed top-6 left-1/2 -translate-x-1/2 z-[100] pointer-events-none w-full max-w-2xl px-4 flex justify-center">
+    <div className="fixed top-4 right-4 md:top-20 md:right-6 z-[100] pointer-events-none w-full max-w-[400px] flex flex-col items-end gap-2">
       <AnimatePresence mode="wait">
         {currentAlert && currentAlert.isMega && (
           <motion.div

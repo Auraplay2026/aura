@@ -601,357 +601,327 @@ export default function GamePlayerPage() {
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050914_100%)] opacity-90" />
                   </div>
 
-                  {/* Game UI Simulation */}
-                  <div className="relative z-10 w-full h-full flex flex-col p-4 sm:p-6 lg:p-10 overflow-hidden">
+                  {/* Game UI Simulation - Top 1% Stake Style */}
+                  <div className="relative z-10 w-full h-full flex flex-col md:flex-row overflow-hidden">
                     
-                    {/* Header Overlay */}
-                    <div className="hidden md:flex w-full flex-col sm:flex-row justify-between items-start sm:items-center gap-3 sm:gap-0 shrink-0 z-20">
-                      <div className={`bg-white/60 backdrop-blur-md border ${theme.borderClass} px-3 py-2 md:px-4 md:py-2 rounded-xl flex items-center gap-3 shadow-2xl w-full sm:w-auto`}>
-                        <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover border border-white/20 shadow-md shrink-0" />
-                        <div className="flex-1">
-                          <p className="text-slate-900 font-black text-xs md:text-sm md:text-base uppercase tracking-wider leading-none truncate max-w-[150px] sm:max-w-none">{game.title}</p>
-                          <p className="text-cyan-600 text-[9px] md:text-[10px] md:text-xs font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                            <span className="relative flex h-2 w-2 shrink-0">
-                              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                              <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                            </span>
-                            {isCloudRenting ? "Cloud Stream" : "Live Betting"}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Multiplayer Toggle Mode */}
-                      <div className="flex items-center justify-between w-full sm:w-auto gap-3 bg-white/60 backdrop-blur-md border border-slate-200 px-3 py-2 md:px-4 md:py-2 rounded-xl shadow-2xl">
-                        <div className="flex items-center gap-2">
-                          <Users className="w-4 h-4 text-cyan-600" />
-                          <span className="text-[10px] md:text-xs font-black uppercase text-slate-700">Lobby</span>
-                        </div>
-                        <button 
-                          onClick={() => setIsMultiplayer(!isMultiplayer)}
-                          className={cn(
-                            "relative w-12 h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
-                            isMultiplayer ? "bg-neon-green" : "bg-slate-850"
-                          )}
-                        >
-                          <motion.div 
-                            layout
-                            className="w-4 h-4 bg-white rounded-full"
-                            style={{ marginLeft: isMultiplayer ? '24px' : '0px' }}
-                          />
-                        </button>
-                      </div>
-                    </div>
-
-                    {/* Central Canvas Area */}
-                    <div className="flex-1 min-h-0 w-full flex flex-col md:flex-row gap-6 max-w-5xl mx-auto my-4 relative z-10">
-                      
-                      <div className="flex-1 h-full flex items-center justify-center relative">
-                        {!isCloudRenting ? (
-                          /* ================= CASINO ENGINE VIEW ================= */
-                          <div className="relative w-full h-full flex items-center justify-center">
-                            {renderEngine()}
-
-                            {/* Win Overlay */}
-                            <AnimatePresence>
-                              {winAmount !== null && !isSpinning && (
-                                <motion.div 
-                                  initial={{ scale: 0.5, opacity: 0 }} 
-                                  animate={{ scale: 1, opacity: 1 }} 
-                                  exit={{ scale: 1.5, opacity: 0 }} 
-                                  className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/70 backdrop-blur-sm rounded-3xl"
-                                >
-                                  <motion.h2 
-                                    animate={isMegaWin ? { scale: [1, 1.2, 1] } : {}}
-                                    transition={{ repeat: Infinity, duration: 1 }}
-                                    className={`text-4xl sm:text-7xl font-black uppercase tracking-tighter transform -skew-x-6 drop-shadow-[0_0_40px_rgba(255,255,255,0.4)] ${isMegaWin ? `text-${theme.primaryColor} bg-clip-text text-transparent bg-gradient-to-b ${theme.buttonGradient}` : 'text-white'}`}
-                                  >
-                                    {isMegaWin ? "MEGA WIN!" : "EPIC WIN!"}
-                                  </motion.h2>
-                                  <motion.div 
-                                    className="text-5xl md:text-8xl font-black text-neon-yellow mt-4 drop-shadow-[0_0_30px_rgba(234,179,8,0.6)] font-mono tracking-tighter"
-                                  >
-                                    ₹<RollingCounter target={winAmount} />
-                                  </motion.div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-
-                            {/* Low Balance Overlay */}
-                            <AnimatePresence>
-                              {balance < betAmount && !isSpinning && (
-                                <motion.div initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(12px)" }} className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 rounded-3xl border border-red-500/30">
-                                  <div className="text-center p-8 max-w-md">
-                                    <AlertCircle className="w-20 h-20 text-red-500 mx-auto mb-6" />
-                                    <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-wider">Low Balance</h2>
-                                    <p className="text-slate-600 mb-8 font-medium text-lg">Your balance (₹{balance.toLocaleString()}) is insufficient for a ₹{betAmount.toLocaleString()} bet. Please deposit to continue.</p>
-                                    <button 
-                                      onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                      className={`w-full py-5 mb-3 bg-gradient-to-r ${theme.buttonGradient} text-white font-black text-xl uppercase tracking-widest rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95`}
-                                    >
-                                      Deposit to Continue
-                                    </button>
-                                    <button 
-                                      onClick={() => useTradingStore.getState().switchAccountType('demo')}
-                                      className={`w-full py-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-black text-sm uppercase tracking-widest rounded-xl transition-all`}
-                                    >
-                                      Switch to Free Demo
-                                    </button>
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
+                    {/* LEFT SIDEBAR (Premium Command Center) */}
+                    {tutorialDismissed && (
+                      <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)]">
+                        {isCloudRenting ? (
+                          <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
+                            <div className="flex flex-col">
+                              <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Instance Cost</span>
+                              <div className="flex items-center gap-2">
+                                <Coins className="w-4 h-4 text-[#a855f7]" />
+                                <span className="text-xl font-black text-slate-900">₹{STAKE_PRESETS[1]}</span>
+                                <span className="text-xs text-slate-500 font-bold">/ hour</span>
+                              </div>
+                            </div>
+                            <button 
+                              onClick={handlePlay}
+                              disabled={isSpinning || isSessionActive}
+                              className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${isSessionActive ? 'bg-slate-200 text-slate-400' : isSpinning ? 'bg-slate-200 text-slate-400' : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 hover:scale-[1.02] shadow-lg shadow-yellow-500/20'}`}
+                            >
+                              {isSessionActive ? "Active" : isSpinning ? "Booting..." : "Rent Instance"}
+                            </button>
                           </div>
                         ) : (
-                          /* ================= CLOUD RENTAL VIEW ================= */
-                          isSessionActive ? (
-                            <div className="relative w-full h-full flex items-center justify-center">
-                              {renderEngine()}
-                              {/* Rental countdown HUD */}
-                              <div className="absolute top-4 right-4 bg-white/80 backdrop-blur-md border border-slate-200 px-4 py-2 rounded-xl text-right z-30 shadow-lg pointer-events-none">
-                                <p className="text-[10px] text-slate-500 uppercase tracking-widest font-black">Session Time Left</p>
-                                <p className="text-neon-yellow font-mono font-black text-base flex items-center justify-end gap-1.5 mt-0.5">
-                                  <Clock className="w-4 h-4 text-neon-yellow animate-pulse" />
-                                  {formatTime(sessionTimeLeft)}
-                                </p>
+                          <div className="p-4 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar">
+                            
+                            {/* Bet Amount Control */}
+                            <div className="flex flex-col gap-2">
+                              <div className="flex justify-between items-center">
+                                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Bet Amount</span>
+                                <span className="text-xs font-black text-slate-900">₹{betAmount.toLocaleString()}</span>
+                              </div>
+                              
+                              <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-neon-purple focus-within:border-neon-purple transition-all">
+                                <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-12">
+                                  <span className="text-slate-400 font-bold">₹</span>
+                                </div>
+                                <input 
+                                  type="number" 
+                                  value={betAmount} 
+                                  onChange={(e) => setBetAmount(Number(e.target.value))}
+                                  className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-3 h-12 focus:outline-none focus:ring-0"
+                                />
+                                <div className="flex items-center bg-slate-50 border-l border-slate-200 h-12">
+                                  <button onClick={() => setBetAmount(prev => prev / 2)} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
+                                  <button onClick={() => setBetAmount(prev => prev * 2)} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors">2x</button>
+                                </div>
+                              </div>
+                              
+                              <div className="grid grid-cols-4 gap-2 mt-2">
+                                {STAKE_PRESETS.map((amount) => (
+                                  <button
+                                    key={amount}
+                                    onClick={() => setBetAmount(amount)}
+                                    className={`py-2 rounded-lg font-black text-[10px] transition-all ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                                  >
+                                    ₹{amount}
+                                  </button>
+                                ))}
                               </div>
                             </div>
-                          ) : (
-                            /* Lock screen asking to subscribe */
-                            <motion.div 
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              className="w-full max-w-md bg-white/80 backdrop-blur-xl border border-slate-200 rounded-3xl p-8 text-center shadow-[0_30px_60px_rgba(0,0,0,0.8)]"
-                            >
-                              <Gamepad2 className="w-16 h-16 text-cyan-600 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]" />
-                              {(!currentUser || currentUser.accountType === 'demo') && !isDemoLimitReached && (
-                                <div className="mb-4 bg-purple-500/10 border border-purple-500/20 px-4 py-2 rounded-2xl text-[10px] font-black text-[#a855f7] uppercase tracking-widest inline-block select-none">
-                                  ⚡ Free Trials Left: {3 - demoRentalsCount} of 3
-                                </div>
-                              )}
-                              <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-wide">Premium Cloud Streaming</h2>
-                              <p className="text-slate-600 text-sm font-medium mb-6">
-                                Rent <span className="text-slate-900 font-bold">{game.title}</span> for cloud-native gaming at 60 FPS, with saves synced instantly to your profile.
-                              </p>
 
-                              <div className="bg-slate-50/60 border border-slate-200 rounded-2xl p-4 mb-6">
-                                <div className="flex justify-between items-center mb-3">
-                                  <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Hourly Rental Rate</span>
-                                  <span className="text-base font-black text-neon-green">₹{game.hourlyRate}/hr</span>
-                                </div>
-
-                                <div className="flex items-center gap-2 justify-center">
-                                  {[1, 3, 5, 10].map(hrs => (
-                                    <button
-                                      key={hrs}
-                                      onClick={() => { setSelectedHours(hrs); setCustomHoursVal(""); }}
-                                      className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all border
-                                        ${selectedHours === hrs && !customHoursVal
-                                          ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.2)]"
-                                          : "bg-white text-slate-600 border-slate-200 hover:border-slate-700"
-                                        }`}
-                                    >
-                                      {hrs}h
-                                    </button>
-                                  ))}
-                                  {/* Custom Hours Input */}
-                                  <input 
-                                    type="number"
-                                    placeholder="Custom hrs"
-                                    min="1"
-                                    max="24"
-                                    value={customHoursVal}
-                                    onChange={(e) => {
-                                      const val = parseInt(e.target.value);
-                                      setCustomHoursVal(e.target.value);
-                                      if (!isNaN(val) && val >= 1 && val <= 24) {
-                                        setSelectedHours(val);
-                                      }
-                                    }}
-                                    className="w-24 px-2 py-1.5 rounded-xl bg-white border border-slate-200 focus:border-neon-cyan focus:outline-none text-slate-900 text-center text-xs font-black placeholder:text-slate-600 font-mono"
-                                  />
-                                </div>
-                              </div>
-
-                              <div className="flex items-center justify-between mb-6 px-1">
-                                <span className="text-sm text-slate-600 font-bold">Total Cost ({selectedHours} hrs)</span>
-                                <span className="text-2xl font-black text-slate-900 font-mono">₹{rentCost.toLocaleString()}</span>
-                              </div>
-
-                              {isDemoLimitReached ? (
-                                <div className="space-y-4">
-                                  <div className="flex items-center gap-2 text-yellow-500 bg-yellow-500/10 border border-yellow-500/20 p-4 rounded-xl text-left">
-                                    <AlertCircle className="w-5 h-5 shrink-0 text-yellow-500" />
-                                    <p className="text-xs font-semibold">
-                                      You have used all 3 free trials in Demo mode. Please deposit to switch to a Real Account and enjoy unlimited premium games!
-                                    </p>
-                                  </div>
-                                  <button
-                                    onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-300 hover:to-yellow-500 text-slate-950 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
-                                  >
-                                    Deposit & Activate Real Account
-                                  </button>
-                                </div>
-                              ) : balance < rentCost ? (
-                                <div className="space-y-4">
-                                  <div className="flex items-center gap-2 text-red-500 bg-red-500/10 border border-red-500/20 p-3.5 rounded-xl text-left">
-                                    <AlertCircle className="w-5 h-5 shrink-0" />
-                                    <p className="text-xs font-semibold">Insufficient funds (Balance: ₹{balance.toLocaleString()}). Please deposit to rent.</p>
-                                  </div>
-                                  <button
-                                    onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 hover:from-yellow-300 hover:to-yellow-500 text-slate-950 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
-                                  >
-                                    Deposit Funds
-                                  </button>
-                                  <button
-                                    onClick={() => useTradingStore.getState().switchAccountType('demo')}
-                                    className="w-full py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-black uppercase text-xs tracking-wider transition-all"
-                                  >
-                                    Switch to Free Demo
-                                  </button>
-                                </div>
-                              ) : (
-                                <button
-                                  onClick={handleRent}
-                                  className="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-black uppercase text-sm tracking-widest shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                                >
-                                  Rent & Stream Game
-                                </button>
-                              )}
-                            </motion.div>
-                          )
+                            <div className="mt-auto pt-4 border-t border-slate-200 md:border-none md:pt-0">
+                              <button 
+                                onClick={handlePlay}
+                                disabled={isSpinning}
+                                className={`w-full py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-widest transition-all ${isSpinning ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95' : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95`}`}
+                              >
+                                {isSpinning ? "PLAYING..." : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
+                              </button>
+                            </div>
+                          </div>
                         )}
                       </div>
+                    )}
 
-                      {/* Multiplayer Lobby Side Panel */}
-                      {isMultiplayer && (
-                        <motion.div 
-                          initial={{ width: 0, opacity: 0 }}
-                          animate={{ width: 280, opacity: 1 }}
-                          exit={{ width: 0, opacity: 0 }}
-                          className="w-full md:w-[280px] shrink-0 bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl p-4 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[500px]"
-                        >
-                          <div className="flex items-center justify-between border-b border-slate-200 pb-2">
-                            <span className="text-slate-900 font-black text-xs uppercase tracking-wider flex items-center gap-2">
-                              <span className="w-2.5 h-2.5 bg-neon-green rounded-full animate-pulse" />
-                              Lobby #91A-STAKE
-                            </span>
-                            <span className="text-[9px] text-slate-500 font-mono font-bold">4/8 Active</span>
+                    {/* RIGHT AREA (Game Canvas) */}
+                    <div className="flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden bg-[#0f1923] p-2 md:p-6 md:pl-8">
+                      
+                      {/* Header Overlay */}
+                      <div className="w-full flex justify-between items-center z-20 mb-4 bg-white/5 backdrop-blur-md border border-white/10 p-2 md:p-3 rounded-2xl shadow-xl">
+                        <div className="flex items-center gap-3">
+                          <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover shadow-md shrink-0 border border-white/10" />
+                          <div className="flex-1">
+                            <p className="text-white font-black text-xs md:text-sm uppercase tracking-wider leading-none truncate max-w-[150px] sm:max-w-none">{game.title}</p>
+                            <p className="text-cyan-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                              <span className="relative flex h-2 w-2 shrink-0">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                              </span>
+                              {isCloudRenting ? "Cloud Stream" : "Live Betting"}
+                            </p>
                           </div>
-                          
-                          {/* List of mock players */}
-                          <div className="space-y-3 flex-1 overflow-y-auto">
-                            <div className="flex justify-between items-center bg-slate-50/40 p-2.5 rounded-xl border border-slate-200">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-600 flex items-center justify-center text-[10px] font-bold">U1</div>
-                                <span className="text-slate-700 font-bold text-xs">CryptoWhale</span>
-                              </div>
-                              <span className="text-neon-green text-[10px] font-black font-mono">₹1,500</span>
-                            </div>
-                            <div className="flex justify-between items-center bg-slate-50/40 p-2.5 rounded-xl border border-slate-200">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-600 flex items-center justify-center text-[10px] font-bold">U2</div>
-                                <span className="text-slate-700 font-bold text-xs">WagerGod</span>
-                              </div>
-                              <span className="text-neon-green text-[10px] font-black font-mono">₹4,200</span>
-                            </div>
-                            <div className="flex justify-between items-center bg-slate-50/40 p-2.5 rounded-xl border border-slate-200">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-amber-500/20 text-amber-600 flex items-center justify-center text-[10px] font-bold">U3</div>
-                                <span className="text-slate-700 font-bold text-xs">LuckyLady</span>
-                              </div>
-                              <span className="text-neon-green text-[10px] font-black font-mono">₹2,800</span>
-                            </div>
-                            <div className="flex justify-between items-center bg-slate-50/40 p-2.5 rounded-xl border border-slate-200">
-                              <div className="flex items-center gap-2">
-                                <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-600 flex items-center justify-center text-[10px] font-bold">ME</div>
-                                <span className="text-slate-900 font-black text-xs">You</span>
-                              </div>
-                              <span className="text-neon-yellow text-[10px] font-black font-mono font-bold">₹{balance.toLocaleString()}</span>
-                            </div>
-                          </div>
-{/* Live Chat inside multiplayer lobby */}
-                          <div className="border-t border-slate-200 pt-3 flex flex-col gap-2">
-                            <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest">Table Chat</span>
-                            <div className="bg-white/90 rounded-xl p-2 h-32 overflow-y-auto text-[10px] space-y-2 font-medium custom-scrollbar">
-                              <p className="text-slate-600"><span className="text-cyan-600 font-bold">CryptoWhale</span>: lets win this round guys</p>
-                              <p className="text-slate-600"><span className="text-purple-600 font-bold">WagerGod</span>: going high stake next spin</p>
-                              <p className="text-slate-600"><span className="text-amber-600 font-bold">LuckyLady</span>: just hit a 10x! nice</p>
-                              <p className="text-slate-500 italic">User joined the channel</p>
-                            </div>
-                          </div>
-                        </motion.div>
-                      )}
-                    </div>
+                        </div>
 
-                            
-                            {/* Premium Command Center */}
-                            {tutorialDismissed && (
-                              <motion.div
-                                initial={{ opacity: 0, y: 20 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ delay: 0.5, type: 'spring', stiffness: 200, damping: 20 }}
-                                className="w-full mt-auto bg-slate-50 border-t border-slate-200 p-2 md:p-6"
-                              >
-                                {isCloudRenting ? (
-                                  <div className="flex items-center justify-between max-w-4xl mx-auto w-full">
-                                    <div className="flex flex-col">
-                                      <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Instance Cost</span>
-                                      <div className="flex items-center gap-2">
-                                        <Coins className="w-4 h-4 text-[#a855f7]" />
-                                        <span className="text-xl font-black text-slate-900">₹{STAKE_PRESETS[1]}</span>
-                                        <span className="text-xs text-slate-500 font-bold">/ hour</span>
-                                      </div>
-                                    </div>
-                                    <button 
-                                      onClick={handlePlay}
-                                      disabled={isSpinning || isSessionActive}
-                                      className={`px-8 py-3 rounded-xl font-black text-xs uppercase tracking-widest transition-all ${isSessionActive ? 'bg-slate-200 text-slate-400' : isSpinning ? 'bg-slate-200 text-slate-400' : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-900 hover:scale-[1.02] shadow-lg shadow-yellow-500/20'}`}
+                        {/* Multiplayer Toggle Mode */}
+                        <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
+                          <div className="flex items-center gap-2">
+                            <Users className="w-4 h-4 text-cyan-400" />
+                            <span className="text-[10px] md:text-xs font-black uppercase text-slate-300 hidden sm:inline">Lobby</span>
+                          </div>
+                          <button 
+                            onClick={() => setIsMultiplayer(!isMultiplayer)}
+                            className={cn(
+                              "relative w-10 h-5 md:w-12 md:h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
+                              isMultiplayer ? "bg-neon-green" : "bg-slate-700"
+                            )}
+                          >
+                            <motion.div 
+                              layout
+                              className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full"
+                              style={{ marginLeft: isMultiplayer ? (typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : '24px') : '0px' }}
+                            />
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Central Canvas Area */}
+                      <div className="flex-1 min-h-0 w-full flex flex-col md:flex-row gap-6 relative z-10">
+                        
+                        <div className="flex-1 h-full flex items-center justify-center relative bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5">
+                          {!isCloudRenting ? (
+                            <div className="relative w-full h-full flex items-center justify-center">
+                              {renderEngine()}
+
+                              {/* Win Overlay */}
+                              <AnimatePresence>
+                                {winAmount !== null && !isSpinning && (
+                                  <motion.div 
+                                    initial={{ scale: 0.5, opacity: 0 }} 
+                                    animate={{ scale: 1, opacity: 1 }} 
+                                    exit={{ scale: 1.5, opacity: 0 }} 
+                                    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md rounded-3xl"
+                                  >
+                                    <motion.h2 
+                                      animate={isMegaWin ? { scale: [1, 1.2, 1] } : {}}
+                                      transition={{ repeat: Infinity, duration: 1 }}
+                                      className={`text-4xl sm:text-7xl font-black uppercase tracking-tighter transform -skew-x-6 drop-shadow-[0_0_40px_rgba(255,255,255,0.4)] ${isMegaWin ? `text-${theme.primaryColor} bg-clip-text text-transparent bg-gradient-to-b ${theme.buttonGradient}` : 'text-white'}`}
                                     >
-                                      {isSessionActive ? "Active" : isSpinning ? "Booting..." : "Rent Instance"}
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <div className="flex flex-col md:flex-row items-center gap-4 max-w-5xl mx-auto w-full">
-                                    <div className="flex-1 w-full bg-white border border-slate-200 rounded-2xl p-2 md:p-3 flex gap-2 overflow-x-auto no-scrollbar shadow-sm">
-                                      {STAKE_PRESETS.map((amount) => (
-                                        <button
-                                          key={amount}
-                                          onClick={() => setBetAmount(amount)}
-                                          className={`flex-1 min-w-[60px] py-2 md:py-3 rounded-xl flex items-center justify-center font-black text-xs transition-all ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md scale-[1.02]` : 'bg-slate-50 text-slate-600 hover:bg-slate-100'}`}
-                                        >
-                                          ₹{amount}
-                                        </button>
-                                      ))}
-                                    </div>
-                                    <div className="w-full md:w-auto flex justify-between items-center bg-white border border-slate-200 rounded-2xl p-2 md:p-3 shadow-sm">
-                                      <div className="flex flex-col mr-6 pl-2">
-                                        <span className="text-[9px] uppercase tracking-widest text-slate-400 font-bold mb-0.5">Custom Bet</span>
-                                        <div className="flex items-center gap-1.5">
-                                          <span className="text-slate-400 font-bold text-lg">₹</span>
-                                          <input 
-                                            type="number" 
-                                            value={betAmount} 
-                                            onChange={(e) => setBetAmount(Number(e.target.value))}
-                                            className="bg-transparent border-none text-slate-900 font-black text-xl w-24 focus:outline-none focus:ring-0 p-0"
-                                          />
-                                        </div>
-                                      </div>
+                                      {isMegaWin ? "MEGA WIN!" : "EPIC WIN!"}
+                                    </motion.h2>
+                                    <motion.div 
+                                      className="text-5xl md:text-8xl font-black text-neon-yellow mt-4 drop-shadow-[0_0_30px_rgba(234,179,8,0.6)] font-mono tracking-tighter"
+                                    >
+                                      ₹<RollingCounter target={winAmount} />
+                                    </motion.div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+
+                              {/* Low Balance Overlay */}
+                              <AnimatePresence>
+                                {balance < betAmount && !isSpinning && (
+                                  <motion.div initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(12px)" }} className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 rounded-3xl border border-red-500/30">
+                                    <div className="text-center p-8 max-w-md">
+                                      <AlertCircle className="w-20 h-20 text-red-500 mx-auto mb-6" />
+                                      <h2 className="text-3xl md:text-4xl font-black text-white mb-4 uppercase tracking-wider">Low Balance</h2>
+                                      <p className="text-slate-300 mb-8 font-medium text-lg">Your balance (₹{balance.toLocaleString()}) is insufficient for a ₹{betAmount.toLocaleString()} bet.</p>
                                       <button 
-                                        onClick={handlePlay}
-                                        disabled={isSpinning}
-                                        className={`h-12 md:h-14 px-8 rounded-xl font-black text-xs uppercase tracking-widest transition-all shrink-0 ${isSpinning ? 'bg-slate-100 text-slate-400 border-2 border-slate-200 scale-95' : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-lg active:scale-95`}`}
+                                        onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
+                                        className={`w-full py-5 mb-3 bg-gradient-to-r ${theme.buttonGradient} text-white font-black text-xl uppercase tracking-widest rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95`}
                                       >
-                                        {isSpinning ? "..." : "SPIN"}
+                                        Deposit to Continue
                                       </button>
                                     </div>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+                          ) : (
+                            isSessionActive ? (
+                              <div className="relative w-full h-full flex items-center justify-center">
+                                {renderEngine()}
+                                {/* Rental countdown HUD */}
+                                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-right z-30 shadow-lg pointer-events-none">
+                                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Session Time Left</p>
+                                  <p className="text-neon-yellow font-mono font-black text-base flex items-center justify-end gap-1.5 mt-0.5">
+                                    <Clock className="w-4 h-4 text-neon-yellow animate-pulse" />
+                                    {formatTime(sessionTimeLeft)}
+                                  </p>
+                                </div>
+                              </div>
+                            ) : (
+                              <motion.div 
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center shadow-[0_30px_60px_rgba(0,0,0,0.8)]"
+                              >
+                                <Gamepad2 className="w-16 h-16 text-cyan-400 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]" />
+                                <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-wide">Premium Cloud Streaming</h2>
+                                <p className="text-slate-300 text-sm font-medium mb-6">
+                                  Rent <span className="text-white font-bold">{game.title}</span> for cloud-native gaming at 60 FPS, with saves synced instantly to your profile.
+                                </p>
+
+                                <div className="bg-black/40 border border-white/10 rounded-2xl p-4 mb-6">
+                                  <div className="flex justify-between items-center mb-3">
+                                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Hourly Rental Rate</span>
+                                    <span className="text-base font-black text-neon-green">₹{game.hourlyRate}/hr</span>
                                   </div>
+
+                                  <div className="flex items-center gap-2 justify-center">
+                                    {[1, 3, 5, 10].map(hrs => (
+                                      <button
+                                        key={hrs}
+                                        onClick={() => { setSelectedHours(hrs); setCustomHoursVal(""); }}
+                                        className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all border
+                                          ${selectedHours === hrs && !customHoursVal
+                                            ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.2)]"
+                                            : "bg-black/50 text-slate-300 border-white/20 hover:border-white/50"
+                                          }`}
+                                      >
+                                        {hrs}h
+                                      </button>
+                                    ))}
+                                    {/* Custom Hours Input */}
+                                    <input 
+                                      type="number"
+                                      placeholder="Custom hrs"
+                                      min="1"
+                                      max="24"
+                                      value={customHoursVal}
+                                      onChange={(e) => {
+                                        const val = parseInt(e.target.value);
+                                        setCustomHoursVal(e.target.value);
+                                        if (!isNaN(val) && val >= 1 && val <= 24) {
+                                          setSelectedHours(val);
+                                        }
+                                      }}
+                                      className="w-24 px-2 py-1.5 rounded-xl bg-black/50 border border-white/20 focus:border-cyan-400 focus:outline-none text-white text-center text-xs font-black placeholder:text-slate-500 font-mono"
+                                    />
+                                  </div>
+                                </div>
+
+                                <div className="flex items-center justify-between mb-6 px-1">
+                                  <span className="text-sm text-slate-400 font-bold">Total Cost ({selectedHours} hrs)</span>
+                                  <span className="text-2xl font-black text-white font-mono">₹{rentCost.toLocaleString()}</span>
+                                </div>
+
+                                {isDemoLimitReached ? (
+                                  <button
+                                    onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-950 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
+                                  >
+                                    Deposit & Activate
+                                  </button>
+                                ) : balance < rentCost ? (
+                                  <button
+                                    onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-red-700 text-white font-black uppercase text-sm tracking-wider shadow-lg transition-all"
+                                  >
+                                    Insufficient Funds
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={handleRent}
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black uppercase text-sm tracking-widest shadow-lg shadow-blue-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                  >
+                                    Rent & Stream Game
+                                  </button>
                                 )}
                               </motion.div>
-                            )}
-                          </div>
-                    </motion.div>
+                            )
+                          )}
+                        </div>
+
+                        {/* Multiplayer Lobby Side Panel */}
+                        {isMultiplayer && (
+                          <motion.div 
+                            initial={{ width: 0, opacity: 0 }}
+                            animate={{ width: 280, opacity: 1 }}
+                            exit={{ width: 0, opacity: 0 }}
+                            className="w-full md:w-[280px] shrink-0 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[500px]"
+                          >
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <span className="text-white font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                                <span className="w-2.5 h-2.5 bg-neon-green rounded-full animate-pulse" />
+                                Lobby #91A-STAKE
+                              </span>
+                              <span className="text-[9px] text-slate-400 font-mono font-bold">4/8 Active</span>
+                            </div>
+                            
+                            {/* List of mock players */}
+                            <div className="space-y-3 flex-1 overflow-y-auto">
+                              <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold">U1</div>
+                                  <span className="text-slate-300 font-bold text-xs">CryptoWhale</span>
+                                </div>
+                                <span className="text-neon-green text-[10px] font-black font-mono">₹1,500</span>
+                              </div>
+                              <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-[10px] font-bold">U2</div>
+                                  <span className="text-slate-300 font-bold text-xs">WagerGod</span>
+                                </div>
+                                <span className="text-neon-green text-[10px] font-black font-mono">₹4,200</span>
+                              </div>
+                              <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                                <div className="flex items-center gap-2">
+                                  <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">ME</div>
+                                  <span className="text-white font-black text-xs">You</span>
+                                </div>
+                                <span className="text-neon-yellow text-[10px] font-black font-mono font-bold">₹{balance.toLocaleString()}</span>
+                              </div>
+                            </div>
+
+                            <div className="border-t border-white/10 pt-3 flex flex-col gap-2">
+                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Table Chat</span>
+                              <div className="bg-black/30 rounded-xl p-2 h-32 overflow-y-auto text-[10px] space-y-2 font-medium custom-scrollbar">
+                                <p className="text-slate-300"><span className="text-cyan-400 font-bold">CryptoWhale</span>: lets win this round guys</p>
+                                <p className="text-slate-300"><span className="text-purple-400 font-bold">WagerGod</span>: going high stake next spin</p>
+                                <p className="text-slate-500 italic">User joined the channel</p>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
               )}
             </AnimatePresence>
           </motion.div>
