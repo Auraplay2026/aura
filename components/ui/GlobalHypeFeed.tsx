@@ -90,7 +90,7 @@ export function GlobalHypeFeed() {
   }, []);
 
   return (
-    <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-50 pointer-events-none flex flex-col justify-end">
+    <div className="fixed top-16 md:top-auto md:bottom-6 left-4 md:left-6 z-50 pointer-events-none flex flex-col justify-end">
       <AnimatePresence mode="popLayout">
         {currentMessage && (
           <motion.div
