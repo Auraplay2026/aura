@@ -594,9 +594,9 @@ export default function GamePlayerPage() {
                   
                   {/* Cinematic Background */}
                   <div className="absolute inset-0 z-0 pointer-events-none">
-                    <motion.div animate={{ scale: [1, 1.02, 1] }} transition={{ duration: 20, repeat: Infinity, ease: "linear" }} className="w-full h-full">
-                      <img src={game.image} className="w-full h-full object-cover blur-[12px] opacity-20 mix-blend-screen" />
-                    </motion.div>
+                    <div className="w-full h-full opacity-30">
+                      <img src={game.image} className="w-full h-full object-cover blur-md" />
+                    </div>
                     <div className={`absolute inset-0 bg-gradient-to-t ${theme.bgGradient}`} />
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050914_100%)] opacity-90" />
                   </div>

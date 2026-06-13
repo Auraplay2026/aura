@@ -33,7 +33,7 @@ export function RightSidebar() {
         : { id: Date.now(), user: `User${Math.floor(Math.random() * 1000)}`, type: "chat", text: ["LFG!!!", "Rigged tbh", "Nice hit", "Anyone betting on the Arsenal match?"][Math.floor(Math.random() * 4)] };
       
       setMessages((prev) => [...prev.slice(-49), newMessage]); // Keep last 50
-    }, 8000);
+    }, 25000);
 
     return () => clearInterval(interval);
   }, []);

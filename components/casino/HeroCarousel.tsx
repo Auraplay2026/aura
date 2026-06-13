@@ -72,7 +72,7 @@ export function HeroCarousel() {
             <img 
               src={slide.bgImage} 
               alt={slide.title} 
-              className="w-full h-full object-cover opacity-40 mix-blend-overlay mix-blend-luminosity"
+              className="w-full h-full object-cover opacity-30"
             />
             {/* Linear gradient fade out to the right */}
             <div className={`absolute inset-0 bg-gradient-to-r ${slide.bgClass}`} />

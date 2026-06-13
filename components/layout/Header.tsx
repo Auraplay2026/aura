@@ -45,11 +45,6 @@ export function Header() {
     if (!isLoggedIn) return;
     
     syncFromServer();
-    const interval = setInterval(() => {
-      syncFromServer();
-    }, 10000);
-    
-    return () => clearInterval(interval);
   }, [isLoggedIn, syncFromServer]);
 
   return (

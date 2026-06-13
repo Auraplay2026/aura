@@ -13,7 +13,7 @@ export function TickingVolume() {
       // Randomly increase volume by 10k to 500k
       const jump = Math.floor(Math.random() * 490000) + 10000;
       setVolume(prev => prev + jump);
-    }, 2000); // Ticks every 2 seconds
+    }, 4000); // Ticks every 4 seconds
 
     return () => clearInterval(interval);
   }, []);
