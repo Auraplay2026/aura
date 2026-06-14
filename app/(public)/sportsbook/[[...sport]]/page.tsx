@@ -9,25 +9,35 @@ import { useTradingStore } from "@/lib/store";
 
 const SPORTS = ["Soccer", "Tennis", "Basketball", "Cricket"];
 
-const ExchangeCell = ({ value, trend, type, onClick, isSelected }: any) => {
+const ExchangeCell = ({ value, trend, type, onClick, isSelected, suspended }: any) => {
   const isBack = type === 'back';
   
+  if (suspended) {
+    return (
+      <div className="relative flex flex-col items-center justify-center w-[50px] sm:w-[60px] h-[40px] border border-slate-200 bg-slate-100 overflow-hidden cursor-not-allowed">
+        <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[1px] flex items-center justify-center z-10">
+          <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Suspend</span>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <button 
       onClick={onClick}
       className={cn(
-        "relative flex flex-col items-center justify-center w-[50px] sm:w-[60px] h-[40px] border transition-colors group",
+        "relative flex flex-col items-center justify-center w-[50px] sm:w-[60px] h-[40px] transition-colors group",
         isBack 
-          ? "bg-back-bg border-[#bae6fd] hover:bg-[#bae6fd]" 
-          : "bg-lay-bg border-[#fbcfe8] hover:bg-[#fbcfe8]",
-        isSelected && (isBack ? "border-blue-500 border-2" : "border-pink-500 border-2"),
+          ? "bg-[#E0F2FE] hover:bg-[#bae6fd] border-r border-white/50" 
+          : "bg-[#FCE7F3] hover:bg-[#fbcfe8] border-r border-white/50",
+        isSelected && (isBack ? "border-[#0284C7] border-2" : "border-[#DB2777] border-2"),
         trend === 'up' && "animate-flash-green",
         trend === 'down' && "animate-flash-red"
       )}
     >
       <span className={cn(
         "font-bold text-sm leading-none",
-        isBack ? "text-back-text" : "text-lay-text"
+        isBack ? "text-[#0284C7]" : "text-[#DB2777]"
       )}>
         {value ? value.toFixed(2) : '-'}
       </span>
@@ -68,8 +78,13 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       setMatches(current => current.map(match => {
         if (Math.random() > 0.3) return match; 
         const tweak = () => (Math.random() * 0.04 - 0.02);
+        
+        // 5% chance to suspend randomly for effect
+        const isSuspended = Math.random() < 0.05;
+
         return {
           ...match,
+          suspended: isSuspended,
           odds: {
             team1: Math.max(1.01, match.odds.team1 + tweak()),
             draw: match.odds.draw ? Math.max(1.01, match.odds.draw + tweak()) : null,
@@ -204,19 +219,22 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         </div>
 
         {/* Filtering Tabs */}
-        <div className="flex items-center gap-1 border-b border-exchange-border px-4 py-2 bg-slate-50 shrink-0">
+        <div className="flex items-center gap-4 border-b border-exchange-border px-4 py-2 bg-white shrink-0">
           {['In-Play', 'Today', 'Tomorrow'].map(filter => (
             <button
               key={filter}
               onClick={() => setActiveFilter(filter as any)}
               className={cn(
-                "px-4 py-1.5 text-xs font-bold transition-colors rounded-sm",
+                "px-2 py-1 text-sm font-bold transition-all relative",
                 activeFilter === filter 
-                  ? "bg-blue-600 text-white shadow-sm" 
-                  : "text-exchange-muted hover:bg-slate-200 hover:text-exchange-text"
+                  ? "text-slate-900" 
+                  : "text-slate-400 hover:text-slate-600"
               )}
             >
               {filter}
+              {activeFilter === filter && (
+                <span className="absolute bottom-[-9px] left-0 right-0 h-0.5 bg-[#0284C7] rounded-t-sm" />
+              )}
             </button>
           ))}
         </div>
@@ -233,62 +251,76 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
         {/* Matches Feed */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {matches.map(match => (
-            <div key={match.id} className="flex flex-col lg:flex-row items-center justify-between border-b border-exchange-border hover:bg-slate-50 transition-colors">
+          {matches.map((match: any) => (
+            <div key={match.id} className="flex flex-col lg:flex-row items-center justify-between border-b border-exchange-border hover:bg-slate-50 transition-colors relative">
+              
+              {/* Suspended Overlay Mask for the entire row (Optional, but UI calls for Market Blocks specifically) */}
               
               <div className="flex-1 w-full px-4 py-3 flex items-center gap-4">
-                <div className="flex flex-col items-center justify-center shrink-0 w-12 text-center border-r border-exchange-border pr-3">
-                  <span className="text-[10px] font-bold text-exchange-muted uppercase mb-1">{match.status === 'Live' ? <span className="text-green-600 animate-pulse">Live</span> : 'Soon'}</span>
-                  <span className="text-xs font-black text-exchange-text">{match.score.split(',')[0] || "0-0"}</span>
-                </div>
                 <div className="flex flex-col gap-1 w-full">
-                  <span className="text-sm font-bold text-exchange-text truncate">{match.team1}</span>
-                  <span className="text-sm font-bold text-exchange-text truncate">{match.team2}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-bold text-slate-900 truncate">
+                      {match.team1} v {match.team2}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    <span className={cn(match.status === 'Live' ? "text-green-600 animate-pulse" : "")}>
+                      {match.status === 'Live' ? 'In-Play' : match.time || '14:00 GMT'}
+                    </span>
+                    <span>•</span>
+                    <span>ID: #{match.id.toString().padStart(6, '0')}</span>
+                    {match.status === 'Live' && (
+                      <>
+                        <span>•</span>
+                        <span className="text-blue-600 font-black">{match.score.split(',')[0] || "0-0"}</span>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* High Density Back/Lay Grid */}
-              <div className="flex items-center gap-1 shrink-0 p-2 border-t lg:border-t-0 border-exchange-border w-full lg:w-auto justify-end bg-slate-50/50">
+              <div className="flex items-center gap-px shrink-0 p-2 border-t lg:border-t-0 border-exchange-border w-full lg:w-auto justify-end bg-slate-50/50">
                 
                 {/* Selection 1 */}
-                <div className="flex">
+                <div className="flex gap-px mr-1">
                   <ExchangeCell 
-                    value={match.odds.team1} trend={match.trend.team1} type="back" 
+                    value={match.odds.team1} trend={match.trend.team1} type="back" suspended={match.suspended}
                     isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'back')}
-                    onClick={() => toggleBet(match.id, match.team1, match.odds.team1, 'back')} 
+                    onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1, 'back')} 
                   />
                   <ExchangeCell 
-                    value={match.odds.team1 + 0.02} trend={match.trend.team1} type="lay" 
+                    value={match.odds.team1 + 0.02} trend={match.trend.team1} type="lay" suspended={match.suspended}
                     isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'lay')}
-                    onClick={() => toggleBet(match.id, match.team1, match.odds.team1 + 0.02, 'lay')} 
+                    onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1 + 0.02, 'lay')} 
                   />
                 </div>
 
                 {/* Selection X */}
-                <div className="flex">
+                <div className="flex gap-px mr-1">
                   <ExchangeCell 
-                    value={match.odds.draw || 3.5} trend={match.trend.draw} type="back" 
+                    value={match.odds.draw || 3.5} trend={match.trend.draw} type="back" suspended={match.suspended}
                     isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'back')}
-                    onClick={() => toggleBet(match.id, "Draw", match.odds.draw || 3.5, 'back')} 
+                    onClick={() => !match.suspended && toggleBet(match.id, "Draw", match.odds.draw || 3.5, 'back')} 
                   />
                   <ExchangeCell 
-                    value={(match.odds.draw || 3.5) + 0.05} trend={match.trend.draw} type="lay" 
+                    value={(match.odds.draw || 3.5) + 0.05} trend={match.trend.draw} type="lay" suspended={match.suspended}
                     isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'lay')}
-                    onClick={() => toggleBet(match.id, "Draw", (match.odds.draw || 3.5) + 0.05, 'lay')} 
+                    onClick={() => !match.suspended && toggleBet(match.id, "Draw", (match.odds.draw || 3.5) + 0.05, 'lay')} 
                   />
                 </div>
 
                 {/* Selection 2 */}
-                <div className="flex">
+                <div className="flex gap-px">
                   <ExchangeCell 
-                    value={match.odds.team2} trend={match.trend.team2} type="back" 
+                    value={match.odds.team2} trend={match.trend.team2} type="back" suspended={match.suspended}
                     isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'back')}
-                    onClick={() => toggleBet(match.id, match.team2, match.odds.team2, 'back')} 
+                    onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2, 'back')} 
                   />
                   <ExchangeCell 
-                    value={match.odds.team2 + 0.02} trend={match.trend.team2} type="lay" 
+                    value={match.odds.team2 + 0.02} trend={match.trend.team2} type="lay" suspended={match.suspended}
                     isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'lay')}
-                    onClick={() => toggleBet(match.id, match.team2, match.odds.team2 + 0.02, 'lay')} 
+                    onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2 + 0.02, 'lay')} 
                   />
                 </div>
 

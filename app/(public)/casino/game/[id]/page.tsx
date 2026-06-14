@@ -242,6 +242,10 @@ export default function GamePlayerPage() {
   const [sessionTimeLeft, setSessionTimeLeft] = useState(0);
   const [customHoursVal, setCustomHoursVal] = useState("");
 
+  // Casino Modal Hydration State
+  const [hasTransferred, setHasTransferred] = useState(false);
+  const [transferAmount, setTransferAmount] = useState(100);
+
   useEffect(() => {
     setRngSeed(Math.random().toString(36).substring(2, 15).toUpperCase());
   }, []);
@@ -555,9 +559,61 @@ export default function GamePlayerPage() {
             transition={{ duration: 0.6 }}
             className={`relative w-full h-auto min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
-            <AnimatePresence>
-              {isLoading ? (
-                <motion.div exit={{ opacity: 0 }} transition={{ duration: 0.8 }} className="absolute inset-0 bg-slate-50 z-50 flex flex-col items-center justify-center overflow-hidden">
+            <AnimatePresence mode="wait">
+              {!hasTransferred ? (
+                <motion.div 
+                  key="modal"
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  transition={{ duration: 0.3 }}
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-sm"
+                >
+                  <div className="bg-[#1E293B] border border-slate-700 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
+                    <div className="p-6 text-center border-b border-slate-700">
+                      <h2 className="text-xl font-black text-white uppercase tracking-wider">Sub-Wallet Transfer</h2>
+                      <p className="text-slate-400 text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
+                    </div>
+                    <div className="p-6 space-y-6">
+                      <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+                        <span>Main: ${rawBalance.toFixed(2)}</span>
+                        <span>Casino: ${transferAmount}</span>
+                      </div>
+                      <input 
+                        type="range" 
+                        min="10" 
+                        max={Math.max(10, Math.floor(rawBalance))} 
+                        step="10" 
+                        value={transferAmount}
+                        onChange={(e) => setTransferAmount(Number(e.target.value))}
+                        className="w-full accent-[#FACC15] h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                      />
+                      <div className="text-center">
+                        <span className="text-3xl font-black text-[#FACC15] font-mono tracking-tighter">${transferAmount}</span>
+                      </div>
+                    </div>
+                    <div className="p-4 bg-slate-800 flex gap-4">
+                      <button 
+                        onClick={() => router.back()}
+                        className="flex-1 py-3 font-bold text-slate-300 hover:text-white transition-colors uppercase tracking-wider text-sm"
+                      >
+                        Cancel
+                      </button>
+                      <button 
+                        onClick={() => {
+                          if (rawBalance < transferAmount) {
+                            alert("Insufficient balance.");
+                            return;
+                          }
+                          setHasTransferred(true);
+                        }}
+                        className="flex-1 py-3 font-black text-slate-900 bg-[#FACC15] hover:bg-[#EAB308] rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-yellow-500/20 text-sm"
+                      >
+                        Transfer & Enter
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : isLoading ? (
+                <motion.div key="loader" exit={{ opacity: 0 }} transition={{ duration: 0.8 }} className="absolute inset-0 bg-slate-50 z-50 flex flex-col items-center justify-center overflow-hidden">
                   <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=1600&q=80')] opacity-10 bg-cover bg-center mix-blend-screen" />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#02050a] via-[#02050a]/80 to-transparent" />
                   
@@ -608,7 +664,7 @@ export default function GamePlayerPage() {
                   </div>
                 </motion.div>
               ) : (
-                <motion.div initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }} className="relative w-full flex-1 flex flex-col">
+                <motion.div key="game" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.8, ease: "easeOut" }} className="relative w-full flex-1 flex flex-col">
                   
                   {/* Cinematic Background */}
                   <div className="absolute inset-0 z-0 pointer-events-none">
