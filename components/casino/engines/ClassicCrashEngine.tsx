@@ -6,10 +6,11 @@ import { useTradingStore } from "@/lib/store";
 
 interface ClassicCrashEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function ClassicCrashEngine({ isPlaying, onComplete }: ClassicCrashEngineProps) {
+export function ClassicCrashEngine({ isPlaying, betAmount = 10, onComplete }: ClassicCrashEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [multiplier, setMultiplier] = useState(1.0);
   const [crashed, setCrashed] = useState(false);
@@ -25,6 +26,7 @@ export function ClassicCrashEngine({ isPlaying, onComplete }: ClassicCrashEngine
     if (!isPlaying) {
       setMultiplier(1.0);
       setCrashed(false);
+      setHasCashedOut(false);
       setPoints([]);
       return;
     }
@@ -52,7 +54,9 @@ export function ClassicCrashEngine({ isPlaying, onComplete }: ClassicCrashEngine
         clearInterval(interval);
         setMultiplier(target);
         setCrashed(true);
-        onCompleteRef.current(target, willWin);
+        if (!hasCashedOutRef.current) {
+          onCompleteRef.current(target, false);
+        }
       } else {
         setMultiplier(current);
       }
@@ -60,6 +64,18 @@ export function ClassicCrashEngine({ isPlaying, onComplete }: ClassicCrashEngine
 
     return () => clearInterval(interval);
   }, [isPlaying]);
+
+  const [hasCashedOut, setHasCashedOut] = useState(false);
+  const hasCashedOutRef = useRef(hasCashedOut);
+  useEffect(() => {
+    hasCashedOutRef.current = hasCashedOut;
+  }, [hasCashedOut]);
+
+  const handleCashout = () => {
+    if (crashed || hasCashedOut || !isPlaying) return;
+    setHasCashedOut(true);
+    onCompleteRef.current(multiplier, true);
+  };
 
   return (
     <div ref={containerRef} className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-inner">
@@ -72,11 +88,40 @@ export function ClassicCrashEngine({ isPlaying, onComplete }: ClassicCrashEngine
           {multiplier.toFixed(2)}x
         </h1>
         {crashed && (
-          <div className="mt-2 bg-red-100 border border-red-500/20 px-4 py-1 rounded-full text-red-500 font-bold text-xs uppercase tracking-wider animate-pulse">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mt-2 bg-red-100 border border-red-500/20 px-4 py-1 rounded-full text-red-500 font-bold text-xs uppercase tracking-wider animate-pulse"
+          >
             💥 crashed @ {multiplier.toFixed(2)}x
+          </motion.div>
+        )}
+        
+        {hasCashedOut && !crashed && (
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-12 bg-emerald-500 text-white font-black px-4 py-1 rounded-full text-sm animate-pulse shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+            CASHED OUT
           </div>
         )}
       </div>
+
+      <AnimatePresence>
+        {isPlaying && !crashed && !hasCashedOut && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[300px]"
+          >
+            <button
+              onClick={handleCashout}
+              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_50px_rgba(52,211,153,0.5),inset_0_2px_0_rgba(255,255,255,0.5)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
+            >
+              <span>Cashout</span>
+              <span className="bg-slate-900/20 px-3 py-1 rounded-lg">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* SVG Exponential Graph Line */}
       <svg className="absolute inset-0 w-full h-full z-10 pointer-events-none">

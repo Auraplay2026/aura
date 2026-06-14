@@ -474,7 +474,7 @@ export default function GamePlayerPage() {
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {
       if (game.id === "orig-1" || game.title.toLowerCase() === "crash") {
-        return <ClassicCrashEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+        return <ClassicCrashEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
       }
       if (game.id === "crash-1" || game.title.toLowerCase().includes("aviator") || game.title.toLowerCase().includes("aviamasters")) {
         return <AviatorEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -485,7 +485,7 @@ export default function GamePlayerPage() {
       if (game.title.toLowerCase().includes("coin flip") || game.title.toLowerCase().includes("crazy coin")) {
         return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
       }
-      return <CrashEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <CrashEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     // === TABLE / CARD GAMES ===
     if (game.categories.includes("poker") || game.categories.includes("table") || game.id.includes("blackjack") || game.id.includes("poker")) {

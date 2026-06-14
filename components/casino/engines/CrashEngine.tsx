@@ -6,12 +6,14 @@ import { AlertTriangle, Crosshair } from "lucide-react";
 
 interface CrashEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
+export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngineProps) {
   const [multiplier, setMultiplier] = useState(1.0);
   const [crashed, setCrashed] = useState(false);
+  const [hasCashedOut, setHasCashedOut] = useState(false);
   const [yPos, setYPos] = useState(0); // For rocket trajectory mapping
   const graphRef = useRef<HTMLDivElement>(null);
 
@@ -24,6 +26,7 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
     if (!isPlaying) {
       setMultiplier(1.0);
       setCrashed(false);
+      setHasCashedOut(false);
       setYPos(0);
       return;
     }
@@ -46,9 +49,10 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
         clearInterval(interval);
         setMultiplier(target);
         setCrashed(true);
-        // User wins if target >= 2.0 (simulating auto cashout at 2x)
-        const won = target >= 2.0; 
-        onCompleteRef.current(target, won);
+        // If they already cashed out manually, we don't call onComplete again here as a loss
+        if (!hasCashedOutRef.current) {
+          onCompleteRef.current(target, false);
+        }
       } else {
         setMultiplier(current);
       }
@@ -56,6 +60,17 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
 
     return () => clearInterval(interval);
   }, [isPlaying]);
+
+  const hasCashedOutRef = useRef(hasCashedOut);
+  useEffect(() => {
+    hasCashedOutRef.current = hasCashedOut;
+  }, [hasCashedOut]);
+
+  const handleCashout = () => {
+    if (crashed || hasCashedOut || !isPlaying) return;
+    setHasCashedOut(true);
+    onCompleteRef.current(multiplier, true);
+  };
 
   return (
     <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,1)]">
@@ -108,13 +123,33 @@ export function CrashEngine({ isPlaying, onComplete }: CrashEngineProps) {
           {multiplier.toFixed(2)}<span className="text-4xl md:text-6xl text-emerald-500 ml-2">x</span>
         </motion.h1>
         
-        <div className={`mt-2 px-6 py-2 rounded-full border border-slate-200 backdrop-blur-md flex items-center gap-2 ${crashed ? "bg-red-100 text-red-500" : "bg-emerald-100 text-emerald-600"}`}>
-          {crashed ? <AlertTriangle className="w-5 h-5" /> : <Crosshair className="w-5 h-5 animate-spin-slow" />}
+        <div className={`mt-2 px-6 py-2 rounded-full border border-slate-200 backdrop-blur-md flex items-center gap-2 ${crashed ? "bg-red-100 text-red-500" : hasCashedOut ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"}`}>
+          {crashed ? <AlertTriangle className="w-5 h-5" /> : <Crosshair className={`w-5 h-5 ${hasCashedOut ? '' : 'animate-spin-slow'}`} />}
           <span className="font-mono text-sm tracking-widest uppercase font-bold">
-            {crashed ? "COMMS LOST - CRASHED" : "ORBITAL CLIMB ACTIVE"}
+            {crashed ? "COMMS LOST - CRASHED" : hasCashedOut ? "ESCAPED ORBIT - SECURED" : "ORBITAL CLIMB ACTIVE"}
           </span>
         </div>
       </motion.div>
+
+      {/* Massive Cashout Button */}
+      <AnimatePresence>
+        {isPlaying && !crashed && !hasCashedOut && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[300px]"
+          >
+            <button
+              onClick={handleCashout}
+              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_50px_rgba(52,211,153,0.5),inset_0_2px_0_rgba(255,255,255,0.5)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
+            >
+              <span>Cashout</span>
+              <span className="bg-slate-900/20 px-3 py-1 rounded-lg">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* The Rocket & Trajectory Graph */}
       <div ref={graphRef} className="absolute inset-x-16 inset-y-10 z-10 pointer-events-none">
