@@ -560,6 +560,7 @@ export function ExternalGameWrapper({
           className={`w-full h-full border-none transition-opacity duration-1000 ${isLoading ? "opacity-0 scale-95" : "opacity-100 scale-100"}`}
           onLoad={handleIframeLoad}
           allow="autoplay; fullscreen"
+          sandbox="allow-scripts allow-same-origin"
         />
       </div>
 

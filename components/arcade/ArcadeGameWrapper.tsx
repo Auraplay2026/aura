@@ -138,6 +138,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
           allow="autoplay; fullscreen; gamepad"
           allowFullScreen
           referrerPolicy="no-referrer-when-downgrade"
+          sandbox="allow-scripts allow-same-origin"
         />
 
         {isFullscreen && (
