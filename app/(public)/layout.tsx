@@ -14,21 +14,21 @@ export default function PublicLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <div className="flex h-screen overflow-hidden w-full relative">
+    <div className="flex h-[100dvh] overflow-hidden w-full relative">
       <GlobalLoader />
       <CursorSpotlight />
       <AIConcierge />
       <OnboardingModal />
 
-      {/* Animated Aurora Background Mesh (Subtle) */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50">
-        <div className="absolute -top-[40%] -left-[10%] w-[70%] h-[70%] rounded-full bg-indigo-500/5 blur-[120px] mix-blend-screen" />
-        <div className="absolute top-[20%] -right-[20%] w-[60%] h-[60%] rounded-full bg-purple-500/5 blur-[120px] mix-blend-screen" />
+      {/* Animated Aurora Background Mesh (Safari Optimized) */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-white">
+        <div className="absolute -top-[40%] -left-[10%] w-[70%] h-[70%] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08)_0%,transparent_70%)]" />
+        <div className="absolute top-[20%] -right-[20%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.08)_0%,transparent_70%)]" />
       </div>
 
       <Sidebar />
       
-      <div className="flex-1 flex flex-col relative min-w-0 h-screen overflow-hidden z-10">
+      <div className="flex-1 flex flex-col relative min-w-0 h-[100dvh] overflow-hidden z-10">
         <Header />
         
         <main className="flex-1 overflow-y-auto custom-scrollbar relative">

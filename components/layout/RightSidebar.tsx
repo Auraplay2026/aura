@@ -67,7 +67,7 @@ export function RightSidebar() {
         initial={false}
         animate={{ width: isOpen ? 320 : 0, opacity: isOpen ? 1 : 0 }}
         transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden xl:flex flex-col bg-white border-l border-slate-200 sticky top-0 h-screen z-40 relative"
+        className="hidden xl:flex flex-col bg-white border-l border-slate-200 sticky top-0 h-[100dvh] z-40 relative"
         style={{ width: 0 }} // Initial state before animation
       >
         <div className="h-16 flex items-center justify-between px-4 border-b border-slate-200 bg-slate-50 shrink-0">

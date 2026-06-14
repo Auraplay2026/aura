@@ -77,11 +77,12 @@ export function Sidebar() {
         />
       )}
 
-      <aside className={cn(
-        "flex flex-col w-[260px] bg-exchange-surface border-r border-exchange-border h-screen sticky top-0 shrink-0 z-50 transition-transform duration-300",
-        "fixed inset-y-0 left-0 lg:relative lg:translate-x-0",
-        isMobileMenuOpen ? "translate-x-0 shadow-2xl" : "-translate-x-full"
-      )}>
+      <aside 
+        className={cn(
+          "flex flex-col w-[260px] bg-exchange-surface border-r border-exchange-border h-[100dvh] sticky top-0 shrink-0 z-50 transition-transform duration-300",
+          !isMobileMenuOpen && "max-lg:-translate-x-full max-lg:fixed max-lg:inset-y-0 max-lg:left-0",
+          isMobileMenuOpen && "max-lg:translate-x-0 max-lg:fixed max-lg:inset-y-0 max-lg:left-0"
+        )}>
         {/* Expanded Header / Logo */}
         <div className="h-14 lg:h-16 flex items-center justify-between px-6 border-b border-exchange-border shrink-0 bg-transparent">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>

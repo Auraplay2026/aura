@@ -12,7 +12,7 @@ export function RightSidebarWrapper() {
       <motion.div
         initial={false}
         animate={{ width: isChatOpen ? 320 : 0, borderLeftWidth: isChatOpen ? 1 : 0 }}
-        className="hidden lg:flex h-screen shrink-0 border-slate-200 bg-slate-50 flex-col z-20 relative overflow-hidden transition-colors"
+        className="hidden lg:flex h-[100dvh] shrink-0 border-slate-200 bg-slate-50 flex-col z-20 relative overflow-hidden transition-colors"
       >
         <div className="w-80 h-full flex flex-col shrink-0">
           <LiveChat isDocked={true} onClose={() => setIsChatOpen(false)} />
