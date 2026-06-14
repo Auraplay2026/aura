@@ -72,7 +72,7 @@ export default function AccountStatementPage() {
             <tbody>
               {filteredTransactions.length > 0 ? (
                 filteredTransactions.slice().reverse().map((tx, i) => (
-                  <tr key={i} className="hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0">
+                  <tr key={i} className="hover:bg-slate-50 transition-all duration-200 border-b border-slate-100 last:border-0">
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex flex-col">
                         <span className="font-bold text-slate-900 text-sm">{new Date(tx.timestamp).toLocaleDateString()}</span>

@@ -99,6 +99,7 @@ export default function GlobalHomepage() {
 
   // Carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
+  const [progressActive, setProgressActive] = useState(false);
   
   // Betslip state
   const { isLoggedIn, balance, placeSportsBet } = useTradingStore();
@@ -120,6 +121,15 @@ export default function GlobalHomepage() {
     }, 6000);
     return () => clearInterval(timer);
   }, []);
+
+  // Progress bar reset on slide change
+  useEffect(() => {
+    setProgressActive(false);
+    const raf = requestAnimationFrame(() => {
+      requestAnimationFrame(() => setProgressActive(true));
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [currentSlide]);
 
   const handlePlaceBet = async () => {
     if (!isLoggedIn) {
@@ -219,6 +229,17 @@ export default function GlobalHomepage() {
           ))}
         </div>
 
+        {/* Progress bar */}
+        <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 z-20 w-24 h-1 bg-white/20 rounded-full overflow-hidden">
+          <div
+            className="h-full bg-yellow-400 rounded-full"
+            style={{
+              width: progressActive ? '100%' : '0%',
+              transition: progressActive ? 'width 6s linear' : 'none',
+            }}
+          />
+        </div>
+
         {/* Arrow Navigation */}
         <button 
           onClick={() => setCurrentSlide((prev) => (prev - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length)}
@@ -238,10 +259,10 @@ export default function GlobalHomepage() {
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         
         {/* SPORTS LIVE ODDS WIDGET */}
-        <div className="md:col-span-3 bg-white border border-slate-200 rounded-md p-5 flex flex-col justify-between shadow-sm relative overflow-hidden">
+        <div className="md:col-span-3 bg-white border border-slate-200 rounded-md p-5 flex flex-col justify-between shadow-sm relative overflow-hidden ring-1 ring-red-100">
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.4)]" />
               <h3 className="text-base font-black text-slate-900 uppercase tracking-wider">Live Exchange Matches</h3>
             </div>
             <Link href="/sportsbook" className="text-xs font-bold text-slate-500 hover:text-slate-900 uppercase tracking-widest flex items-center gap-1 transition-colors">
@@ -288,7 +309,7 @@ export default function GlobalHomepage() {
         </div>
 
         {/* BLOG BANNER */}
-        <Link href="/blog" className="md:col-span-2 relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-auto md:h-auto bg-gradient-to-br from-yellow-400 to-amber-500 group cursor-pointer shadow-sm flex items-center justify-center p-6">
+        <Link href="/blog" className="md:col-span-2 relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-auto md:h-auto bg-gradient-to-br from-yellow-400 to-amber-500 group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex items-center justify-center p-6">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay z-0" />
           <div className="relative z-10 flex flex-col items-center w-full">
             <div className="bg-blue-500 text-white font-black text-6xl md:text-7xl italic tracking-tighter px-6 py-2 rounded-xl shadow-xl transform -rotate-2 mb-4 border-4 border-white">
@@ -310,7 +331,7 @@ export default function GlobalHomepage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         {/* Betradar */}
-        <Link href="/casino?provider=betradar" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-blue-900 group cursor-pointer shadow-sm">
+        <Link href="/casino?provider=betradar" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-blue-900 group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700 opacity-60 mix-blend-overlay" />
           <div className="absolute inset-0 bg-gradient-to-t from-blue-900 to-transparent" />
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-end p-6">
@@ -319,7 +340,7 @@ export default function GlobalHomepage() {
         </Link>
 
         {/* Evolution */}
-        <Link href="/casino?provider=evolution" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-purple-900 group cursor-pointer shadow-sm">
+        <Link href="/casino?provider=evolution" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-purple-900 group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700 opacity-50 mix-blend-overlay" />
           <div className="absolute inset-0 bg-gradient-to-t from-purple-900 to-transparent" />
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-end p-6">
@@ -331,7 +352,7 @@ export default function GlobalHomepage() {
         </Link>
 
         {/* SmartSoft */}
-        <Link href="/casino?provider=smartsoft" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-slate-900 group cursor-pointer shadow-sm">
+        <Link href="/casino?provider=smartsoft" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-slate-900 group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518331647614-7a1f04cd34ce?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700 opacity-50" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-end p-6">
@@ -344,10 +365,10 @@ export default function GlobalHomepage() {
 
       </div>
 
-      <div className="h-4" /> {/* Spacer */}
+      <div className="h-6" /> {/* Spacer */}
 
       {/* 4. AURA ORIGINALS */}
-      <section className="w-full">
+      <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5 }} className="w-full">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Gamepad2 className="w-5 h-5 text-emerald-600" />
@@ -363,10 +384,10 @@ export default function GlobalHomepage() {
             <GameCard key={game.id} {...game} />
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* 5. PREMIUM CASINO FEATURED */}
-      <section className="w-full mt-4">
+      <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.1 }} className="w-full mt-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Star className="w-5 h-5 text-yellow-500" />
@@ -382,10 +403,10 @@ export default function GlobalHomepage() {
             <GameCard key={game.id} {...game} />
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* 6. ARCADE HUB FEATURED */}
-      <section className="w-full mt-4">
+      <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.15 }} className="w-full mt-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Gamepad2 className="w-5 h-5 text-indigo-500" />
@@ -409,10 +430,10 @@ export default function GlobalHomepage() {
             </Link>
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* 7. LIVE DEALERS */}
-      <section className="w-full mt-4">
+      <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.2 }} className="w-full mt-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Crown className="w-5 h-5 text-yellow-500" />
@@ -424,16 +445,16 @@ export default function GlobalHomepage() {
             <GameCard key={game.id} {...game} />
           ))}
         </div>
-      </section>
+      </motion.section>
 
       {/* 8. LIVE ACTION FEED & ACTIVITY */}
-      <section className="w-full mt-8 border-t border-slate-200 pt-8">
+      <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.25 }} className="w-full mt-8 border-t border-slate-200 pt-8">
         <div className="flex items-center gap-2 mb-6">
           <Activity className="w-5 h-5 text-blue-600" />
           <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">Platform Activity & Live Wins</h2>
         </div>
         <LiveActionFeed />
-      </section>
+      </motion.section>
 
       {/* 9. QUICK BET SLIP MODAL */}
       <AnimatePresence>
@@ -453,7 +474,7 @@ export default function GlobalHomepage() {
                 animate={{ scale: 1, y: 0 }}
                 exit={{ scale: 0.9, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm bg-white border border-slate-200 rounded-xl shadow-2xl overflow-hidden"
+                className="w-full max-w-sm bg-white border border-slate-200 rounded-xl shadow-[0_25px_60px_rgba(0,0,0,0.15)] overflow-hidden"
               >
                 <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                   <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">

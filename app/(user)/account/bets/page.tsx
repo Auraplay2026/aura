@@ -53,7 +53,7 @@ export default function MyBetsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {filteredPositions.length > 0 ? (
             filteredPositions.map((pos, i) => (
-              <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4">
+              <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4 hover:shadow-sm transition-all duration-200">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">

@@ -26,7 +26,7 @@ export default function ActivityLogPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 flex items-start gap-4">
+        <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-6 flex items-start gap-4 hover:shadow-sm transition-all duration-200">
           <div className="w-12 h-12 rounded-full bg-emerald-200 text-emerald-800 flex items-center justify-center shrink-0">
             <CheckCircle2 className="w-6 h-6" />
           </div>
@@ -36,7 +36,7 @@ export default function ActivityLogPage() {
           </div>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-center">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-center hover:shadow-sm transition-all duration-200">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-bold text-slate-900 flex items-center gap-2">
               <Monitor className="w-4 h-4 text-blue-500" /> Current Session
@@ -59,7 +59,7 @@ export default function ActivityLogPage() {
         
         <div className="divide-y divide-slate-100">
           {mockLogs.map(log => (
-            <div key={log.id} className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 transition-colors">
+            <div key={log.id} className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 hover:shadow-sm transition-all duration-200">
               <div className="flex items-start gap-4">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
                   log.type === 'success' ? 'bg-emerald-100 text-emerald-600' : 

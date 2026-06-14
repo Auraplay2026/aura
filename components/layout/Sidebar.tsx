@@ -89,7 +89,7 @@ export function Sidebar() {
           isMobileMenuOpen && "max-lg:translate-x-0 max-lg:fixed max-lg:inset-y-0 max-lg:left-0"
         )}>
         {/* Expanded Header / Logo */}
-        <div className="h-14 lg:h-16 flex items-center justify-between px-6 border-b border-exchange-border shrink-0 bg-transparent">
+        <div className="h-14 lg:h-16 flex items-center justify-between px-6 border-b border-exchange-border shadow-sm shrink-0 bg-transparent">
           <Link href="/" className="flex items-center gap-3 hover:opacity-80 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>
             <div className="w-6 h-6 bg-exchange-text rounded-sm flex items-center justify-center">
               <span className="text-slate-900 font-black text-xs">AP</span>
@@ -109,7 +109,7 @@ export function Sidebar() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05, duration: 0.3, ease: "easeOut" }}
-            className="flex flex-col w-full"
+            className={cn("flex flex-col w-full", idx < NAV_SECTIONS.length - 1 && "border-b border-slate-100 pb-6")}
           >
             <p className="px-4 text-[10px] font-bold text-exchange-muted uppercase tracking-widest mb-3 select-none">
               {section.title}
@@ -125,7 +125,7 @@ export function Sidebar() {
                       href={item.href}
                       className={cn(
                         "flex items-center justify-between pl-8 pr-3 py-2 rounded-md transition-colors relative group",
-                        isActive ? "bg-slate-100 text-exchange-text font-bold" : "text-exchange-muted hover:bg-slate-50 hover:text-exchange-text"
+                        isActive ? "bg-slate-100 text-exchange-text font-bold before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-1.5 before:bg-blue-500 before:rounded-full" : "text-exchange-muted hover:bg-blue-50/50 hover:text-exchange-text"
                       )}
                     >
                       <div className="flex items-center gap-3">
@@ -142,11 +142,11 @@ export function Sidebar() {
                     href={item.href}
                     className={cn(
                       "flex items-center justify-between p-2.5 rounded-md transition-colors relative group",
-                      isActive ? "bg-slate-100 text-exchange-text font-bold" : "hover:bg-slate-50 text-exchange-muted hover:text-exchange-text"
+                      isActive ? "bg-slate-100 text-exchange-text font-bold before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-4 before:bg-blue-600 before:rounded-full" : "hover:bg-blue-50/50 text-exchange-muted hover:text-exchange-text"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className={cn("w-4 h-4", isActive ? "text-exchange-text" : "text-exchange-muted")} />
+                      <item.icon className={cn("w-4 h-4 transition-all duration-200", isActive ? "text-exchange-text" : "text-exchange-muted")} />
                       <span className="text-sm font-semibold">{item.name}</span>
                     </div>
                     {item.badge && (

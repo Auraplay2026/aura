@@ -41,9 +41,9 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 h-10 px-2 rounded-sm hover:bg-slate-100 transition-colors focus:outline-none"
+        className="flex items-center gap-2 h-10 px-2 rounded-sm hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center border border-blue-200/80">
           <span className="font-bold text-blue-600 text-xs">
             {currentUser ? getInitials(currentUser.username) : "P1"}
           </span>
@@ -60,9 +60,9 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 5 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-1 w-56 bg-white border border-slate-200 shadow-2xl z-50 py-1 rounded-sm"
+              className="absolute right-0 mt-1 w-56 bg-white border border-slate-200 shadow-[0_20px_60px_rgba(0,0,0,0.12)] z-50 py-1 rounded-lg"
             >
-              <div className="px-4 py-2 border-b border-slate-200 mb-1">
+              <div className="px-4 py-2 border-b border-slate-200 mb-1 bg-gradient-to-r from-blue-50/50 to-indigo-50/30">
                 <p className="text-sm font-bold text-slate-900 truncate">
                   {currentUser?.username || "PlayerOne"}
                 </p>
@@ -78,7 +78,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                       key={item.label}
                       href={item.href} 
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-blue-50/40 transition-all border-l-2 border-transparent hover:border-blue-500"
                     >
                       <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
                       {item.label}
@@ -90,7 +90,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                           setIsOpen(false);
                           if ('action' in item) (item as any).action?.();
                         }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-blue-50/40 transition-all border-l-2 border-transparent hover:border-blue-500 text-left"
                     >
                       <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
                       {item.label}
@@ -105,7 +105,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                     logout();
                     setIsOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50/80 transition-all border-l-2 border-transparent hover:border-red-500 text-left"
                 >
                   <LogOut className="w-3.5 h-3.5" /> Log Out
                 </button>

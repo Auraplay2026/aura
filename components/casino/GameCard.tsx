@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import Link from "next/link";
 import { Play, TrendingUp, Users, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -14,6 +15,7 @@ interface GameCardProps {
 }
 
 export function GameCard({ id, title, provider, image, isNew, rtp, players }: GameCardProps) {
+  const [imageLoaded, setImageLoaded] = useState(false);
   // Extract category from ID to determine badge color (Light theme adaptations)
   const category = id.split('-')[0];
   let badgeColor = "bg-blue-50 text-blue-600 border-blue-100";
@@ -27,14 +29,16 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
   const formattedPlayers = players ? (players > 1000 ? (players / 1000).toFixed(1) + 'k' : players) : null;
 
   return (
-    <Link href={`/casino/game/${id}`} className="group relative block w-full aspect-[4/5] rounded-[24px] overflow-hidden bg-slate-100 isolation-auto transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1.5 border border-slate-200/50">
+    <Link href={`/casino/game/${id}`} className="group relative block w-full aspect-[4/5] rounded-[24px] overflow-hidden bg-slate-100 isolation-auto transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1.5 border border-slate-200/50 hover:ring-2 hover:ring-blue-200/50">
       
       {/* Background Image */}
+      {!imageLoaded && <div className="absolute inset-0 bg-slate-200 animate-pulse" />}
       <img 
         src={image} 
         alt={title}
         loading="lazy"
-        className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+        onLoad={() => setImageLoaded(true)}
+        className={cn("absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105", !imageLoaded && "opacity-0")}
       />
       
       {/* Light Glass Overlay for text readability */}
@@ -42,10 +46,13 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
       
       {/* Hover Overlay: Premium Glassmorphism Play Button */}
       <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center pointer-events-none z-10">
-        <div className="relative w-16 h-16 rounded-full bg-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center backdrop-blur-md transform scale-75 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-400 ease-out">
+        <div className="relative w-16 h-16 rounded-full bg-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center backdrop-blur-md transform scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-400 ease-out">
           <Play className="w-6 h-6 text-slate-900 ml-1 fill-slate-900" />
         </div>
       </div>
+
+      {/* Top gradient shine on hover */}
+      <div className="absolute inset-x-0 top-0 h-1/3 bg-gradient-to-b from-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-10" />
 
       {/* Badges / Top Stats */}
       <div className="absolute top-4 w-full px-4 flex justify-between items-start pointer-events-none z-20">
@@ -69,7 +76,7 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
       </div>
 
       {/* Card Info Content */}
-      <div className="absolute bottom-0 w-full p-5 z-20 transform translate-y-1 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+      <div className="absolute bottom-0 w-full p-5 z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
         <h3 className="text-white font-black text-lg sm:text-xl tracking-tight leading-tight line-clamp-2 drop-shadow-sm">
           {title}
         </h3>

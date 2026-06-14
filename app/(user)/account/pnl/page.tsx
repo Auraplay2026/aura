@@ -31,7 +31,7 @@ export default function PnLPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between h-40">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between h-40 hover:shadow-sm transition-all duration-200">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Net PNL</span>
             <div className={`w-8 h-8 rounded-full flex items-center justify-center ${pnl >= 0 ? 'bg-emerald-100 text-emerald-600' : 'bg-red-100 text-red-600'}`}>
@@ -79,7 +79,7 @@ export default function PnLPage() {
       </div>
 
       {/* Chart Mockup */}
-      <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[300px]">
+      <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col items-center justify-center min-h-[300px] hover:shadow-sm transition-all duration-200">
         <BarChart className="w-16 h-16 text-slate-200 mb-4" />
         <h3 className="font-black text-slate-900 mb-2">Detailed Charts Unavailable</h3>
         <p className="text-sm font-medium text-slate-500">You need more settled betting data to generate graphical charts.</p>

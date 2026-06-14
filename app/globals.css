@@ -21,6 +21,8 @@
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-flash-green: flash-green 0.5s ease-out;
   --animate-flash-red: flash-red 0.5s ease-out;
+  --animate-fade-in: fadeIn 0.4s ease-out;
+  --animate-pulse-glow: pulseGlow 2s ease-in-out infinite;
   
   @keyframes shimmer {
     from { background-position: 0 0; }
@@ -34,6 +36,18 @@
     0% { background-color: #fee2e2; color: #b91c1c; }
     100% { background-color: inherit; color: inherit; }
   }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes pulseGlow {
+    0%, 100% { box-shadow: 0 0 0 0 rgba(99,102,241,0.3); }
+    50% { box-shadow: 0 0 12px 4px rgba(99,102,241,0.15); }
+  }
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 :root {
@@ -45,6 +59,27 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+::selection {
+  background: #818cf8;
+  color: white;
+}
+
+*:focus-visible {
+  outline: 2px solid #6366f1;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* Skeleton loading utility */
+.skeleton {
+  background: linear-gradient(90deg, #f1f5f9 25%, #e2e8f0 50%, #f1f5f9 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
 }
 
 /* Premium Custom Scrollbar - Light Theme */
@@ -62,6 +97,7 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb {
   background: #cbd5e1;
   border-radius: 20px;
+  transition: background 0.2s;
 }
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;

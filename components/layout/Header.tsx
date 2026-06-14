@@ -52,7 +52,7 @@ export function Header() {
   }, [isLoggedIn, syncFromServer]);
 
   return (
-    <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between px-4 sm:px-6 transition-all">
+    <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-white/85 backdrop-blur-2xl border-b border-slate-200/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between px-4 sm:px-6 transition-all">
       
       {/* Mobile Menu Toggle */}
       <div className="flex items-center lg:hidden mr-3">
@@ -77,7 +77,7 @@ export function Header() {
           onBlur={() => setIsSearchFocused(false)}
           className={cn(
             "relative hidden md:flex items-center rounded-lg overflow-hidden transition-all duration-300 border bg-slate-50/50 cursor-pointer shadow-sm group",
-            isSearchFocused ? "border-slate-300 w-64 ring-2 ring-slate-100" : "border-slate-200/60 w-56 hover:border-slate-300 hover:bg-slate-50"
+            isSearchFocused ? "border-slate-300 w-72 ring-2 ring-slate-100" : "border-slate-200/60 w-56 hover:border-slate-300 hover:bg-slate-50"
           )}
         >
           <div className="pl-3 py-1.5 transition-colors group-hover:text-slate-600">
@@ -102,20 +102,20 @@ export function Header() {
             <div className="flex items-center gap-2 sm:gap-4 pr-1 sm:pr-2">
               <div className="flex flex-col items-end leading-none">
                 <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Balance</span>
-                <span className="text-xs sm:text-sm font-black text-slate-900 font-mono tracking-tight">
+                <span className="text-xs sm:text-sm font-black text-slate-900 font-mono tabular-nums tracking-tight">
                   ${isClient && typeof balance === 'number' ? balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
               <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
               <div className="flex flex-col items-end leading-none">
                 <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Exposure</span>
-                <span className="text-xs sm:text-sm font-black text-blue-600 font-mono tracking-tight">
+                <span className="text-xs sm:text-sm font-black text-blue-600 font-mono tabular-nums tracking-tight">
                   ${isClient ? positions.reduce((acc, p) => acc + (p.investment || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="hidden sm:block bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-sm transition-colors ml-2 uppercase tracking-wider"
+                className="hidden sm:block bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-sm transition-all ml-2 uppercase tracking-wider shadow-sm hover:shadow-md active:scale-95"
               >
                 Deposit
               </button>
@@ -185,7 +185,7 @@ export function Header() {
                                 }
                               }}
                               className={cn(
-                                "p-3 border-b border-exchange-border hover:bg-slate-50 cursor-pointer transition-colors relative",
+                                "p-3 border-b border-exchange-border hover:bg-slate-50 hover:shadow-sm cursor-pointer transition-all relative",
                                 !notif.read ? "bg-slate-50/50" : "opacity-70"
                               )}
                             >
@@ -245,7 +245,7 @@ export function Header() {
                             key={item.label}
                             href={item.href} 
                             onClick={() => setIsSettingsOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
+                            className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all border-l-2 border-transparent hover:border-l-2 hover:border-blue-500 hover:pl-[14px]"
                           >
                             <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
                             {item.label}

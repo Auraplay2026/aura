@@ -3,7 +3,8 @@ import { Shield, Mail, MessageSquare, Globe, MessageCircle, ShieldCheck, Bitcoin
 
 export function Footer() {
   return (
-    <footer className="mt-20 border-t border-slate-200 bg-white/80 backdrop-blur-md pt-16 pb-8">
+    <footer className="mt-20 relative bg-white/80 backdrop-blur-md pt-16 pb-8">
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-blue-400/40 to-transparent" />
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
 
@@ -67,10 +68,10 @@ export function Footer() {
           <div className="space-y-4">
             <h4 className="text-slate-900 font-bold tracking-wide">Community</h4>
             <ul className="space-y-2 text-sm text-slate-600">
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Twitter / X</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Telegram</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Discord</a></li>
-              <li><a href="#" className="hover:text-blue-600 transition-colors">Instagram</a></li>
+              <li><a href="#" className="hover:text-[#1DA1F2] transition-colors">Twitter / X</a></li>
+              <li><a href="#" className="hover:text-[#0088cc] transition-colors">Telegram</a></li>
+              <li><a href="#" className="hover:text-[#5865F2] transition-colors">Discord</a></li>
+              <li><a href="#" className="hover:text-[#E4405F] transition-colors">Instagram</a></li>
             </ul>
           </div>
 
@@ -87,7 +88,7 @@ export function Footer() {
             </h4>
             <div className="flex flex-wrap items-center gap-3 sm:gap-4">
               {["Pragmatic Play", "Evolution", "Hacksaw", "Nolimit City"].map((provider) => (
-                <div key={provider} className="bg-slate-50 border border-slate-200 px-5 py-3 rounded-2xl shadow-sm font-black text-sm md:text-base tracking-tighter text-slate-600 hover:text-slate-900 hover:border-blue-300 cursor-pointer transition-all duration-300 transform hover:-translate-y-1">
+                <div key={provider} className="bg-slate-50 border border-slate-200 px-5 py-3 rounded-2xl shadow-sm font-black text-sm md:text-base tracking-tighter text-slate-600 hover:text-slate-900 hover:border-blue-300 hover:shadow-md cursor-pointer transition-all duration-300 transform hover:-translate-y-1">
                   {provider.toUpperCase()}
                 </div>
               ))}
@@ -101,13 +102,13 @@ export function Footer() {
               Accepted Currencies / Methods
             </h4>
             <div className="flex flex-wrap items-center gap-3">
-              <div className="flex items-center gap-2 bg-[#f7931a]/5 border border-[#f7931a]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#f7931a]/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Bitcoin className="w-5 h-5 text-[#f7931a]" /> BTC</div>
-              <div className="flex items-center gap-2 bg-[#627eea]/5 border border-[#627eea]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#627eea]/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Coins className="w-5 h-5 text-[#627eea]" /> ETH</div>
-              <div className="flex items-center gap-2 bg-slate-50/5 border border-[#26a17b]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-slate-50/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Coins className="w-5 h-5 text-[#26a17b]" /> USDT</div>
-              <div className="flex items-center gap-2 bg-slate-50/5 border border-[#0054A6]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-slate-50/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1">
+              <div className="flex items-center gap-2 bg-[#f7931a]/5 border border-[#f7931a]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#f7931a]/10 hover:shadow-md transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Bitcoin className="w-5 h-5 text-[#f7931a]" /> BTC</div>
+              <div className="flex items-center gap-2 bg-[#627eea]/5 border border-[#627eea]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#627eea]/10 hover:shadow-md transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Coins className="w-5 h-5 text-[#627eea]" /> ETH</div>
+              <div className="flex items-center gap-2 bg-slate-50/5 border border-[#26a17b]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-slate-50/10 hover:shadow-md transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Coins className="w-5 h-5 text-[#26a17b]" /> USDT</div>
+              <div className="flex items-center gap-2 bg-slate-50/5 border border-[#0054A6]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-slate-50/10 hover:shadow-md transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1">
                 <Landmark className="w-5 h-5 text-[#0054A6]" /> IMPS
               </div>
-              <div className="flex items-center gap-2 bg-[#ff5722]/5 border border-[#ff5722]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#ff5722]/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1">
+              <div className="flex items-center gap-2 bg-[#ff5722]/5 border border-[#ff5722]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#ff5722]/10 hover:shadow-md transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1">
                 <Landmark className="w-5 h-5 text-[#ff5722]" /> RTGS
               </div>
             </div>
@@ -140,7 +141,7 @@ export function Footer() {
         </div>
 
         {/* Regulatory Bottom */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 text-xs text-slate-500">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 pb-4 text-xs text-slate-500">
           <div className="flex items-center gap-4">
             <div className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center font-black text-slate-600">
               18+
@@ -155,7 +156,7 @@ export function Footer() {
             </div>
           </div>
           <div className="flex gap-4">
-            <span>© 2026 AuraPlay. All rights reserved.</span>
+            <span className="text-slate-400">© 2026 AuraPlay. All rights reserved.</span>
           </div>
         </div>
 

@@ -137,7 +137,7 @@ export default function AccountSettingsPage() {
           <motion.div 
             key={stat.label}
             initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-            className="bg-slate-50/40 border border-slate-200/80 rounded-2xl p-5 backdrop-blur-xl relative overflow-hidden group"
+            className="bg-slate-50/40 border border-slate-200/80 rounded-2xl p-5 backdrop-blur-xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-lg transition-all duration-200"
           >
             <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
               <stat.icon className={`w-12 h-12 ${stat.color}`} />
@@ -187,7 +187,7 @@ export default function AccountSettingsPage() {
                   type="text" 
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-slate-900/30 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple transition-colors shadow-inner"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -197,7 +197,7 @@ export default function AccountSettingsPage() {
                   value={dob}
                   onChange={(e) => setDob(e.target.value)}
                   placeholder="DD/MM/YYYY"
-                  className="w-full bg-slate-900/30 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple transition-colors shadow-inner"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -206,7 +206,7 @@ export default function AccountSettingsPage() {
                   type="text" 
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-slate-900/30 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple transition-colors shadow-inner"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -215,7 +215,7 @@ export default function AccountSettingsPage() {
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-slate-900/30 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple transition-colors shadow-inner"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -225,7 +225,7 @@ export default function AccountSettingsPage() {
                     type="email" 
                     defaultValue={currentUser?.email || ""}
                     readOnly
-                    className="w-full bg-slate-900/50 border border-slate-200/50 rounded-xl px-4 py-3.5 text-slate-500 font-bold focus:outline-none cursor-not-allowed"
+                    className="w-full bg-slate-50 border border-slate-200/50 rounded-xl px-4 py-3.5 text-slate-500 font-bold focus:outline-none cursor-not-allowed"
                   />
                   <CheckCircle2 className="w-5 h-5 text-neon-green absolute right-4 top-1/2 -translate-y-1/2" />
                 </div>
@@ -237,7 +237,7 @@ export default function AccountSettingsPage() {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="e.g. +91 99999 99999"
-                  className="w-full bg-slate-900/30 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple transition-colors shadow-inner"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -247,7 +247,7 @@ export default function AccountSettingsPage() {
                   value={gamingState}
                   onChange={(e) => setGamingState(e.target.value)}
                   placeholder="e.g. Maharashtra"
-                  className="w-full bg-slate-900/30 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple transition-colors shadow-inner"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -258,7 +258,7 @@ export default function AccountSettingsPage() {
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="e.g. UPI ID or Crypto Address"
-                    className="w-full bg-slate-900/30 border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-neon-purple transition-colors shadow-inner font-mono"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors font-mono"
                   />
                   <Shield className="w-5 h-5 text-neon-purple absolute right-4 top-1/2 -translate-y-1/2" />
                 </div>
@@ -280,7 +280,7 @@ export default function AccountSettingsPage() {
                   setIsSaving(false);
                 }}
                 disabled={isSaving}
-                className="bg-white text-slate-950 font-black py-3 px-8 rounded-xl hover:bg-slate-200 hover:scale-105 active:scale-95 transition-all shadow-[0_0_20px_rgba(255,255,255,0.2)] disabled:opacity-50 disabled:cursor-not-allowed"
+                className="bg-blue-600 text-white font-black py-3 px-8 rounded-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
               </button>
@@ -300,7 +300,7 @@ export default function AccountSettingsPage() {
             </h2>
             
             <div className="space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/40 border border-slate-200 rounded-2xl group hover:border-slate-700 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/40 border border-slate-200 rounded-2xl group hover:border-slate-700 hover:shadow-md transition-all">
                 <div className="flex items-center gap-4 mb-4 sm:mb-0">
                   <div className="w-12 h-12 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center group-hover:scale-110 transition-transform">
                     <Key className="w-5 h-5 text-slate-600" />
@@ -313,7 +313,7 @@ export default function AccountSettingsPage() {
                 <button className="text-xs font-black uppercase tracking-widest text-slate-950 bg-white px-5 py-2.5 rounded-lg hover:bg-slate-200 transition-colors w-full sm:w-auto">Update</button>
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/40 border border-slate-200 rounded-2xl group hover:border-slate-700 transition-colors">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/40 border border-slate-200 rounded-2xl group hover:border-slate-700 hover:shadow-md transition-all">
                 <div className="flex items-center gap-4 mb-4 sm:mb-0">
                   <div className="w-12 h-12 rounded-full bg-neon-green/10 border border-neon-green/20 flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(34,197,94,0.2)]">
                     <Smartphone className="w-5 h-5 text-neon-green" />

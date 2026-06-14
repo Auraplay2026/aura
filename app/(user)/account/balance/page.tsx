@@ -31,7 +31,7 @@ export default function BalanceOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className={`col-span-1 lg:col-span-2 rounded-2xl p-8 border ${isDemo ? 'bg-amber-50 border-amber-200' : 'bg-emerald-50 border-emerald-200'} relative overflow-hidden`}>
+        <div className={`col-span-1 lg:col-span-2 rounded-2xl p-8 border ${isDemo ? 'bg-amber-50 border-amber-200 ring-1 ring-amber-200' : 'bg-emerald-50 border-emerald-200 ring-1 ring-emerald-200'} relative overflow-hidden hover:shadow-xl transition-all duration-300`}>
           <div className="relative z-10 flex flex-col h-full justify-between">
             <div className="flex items-center gap-3 mb-8">
               <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isDemo ? 'bg-amber-200 text-amber-800' : 'bg-emerald-200 text-emerald-800'}`}>
@@ -64,7 +64,7 @@ export default function BalanceOverviewPage() {
             <button 
               onClick={handleSwitch}
               disabled={isSwitching}
-              className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all flex items-center justify-center gap-2 ${
+              className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all active:scale-95 flex items-center justify-center gap-2 ${
                 isDemo 
                   ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20' 
                   : 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20'
@@ -82,7 +82,7 @@ export default function BalanceOverviewPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-start gap-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-start gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
           <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
             <ShieldCheck className="w-6 h-6 text-blue-600" />
           </div>
@@ -92,7 +92,7 @@ export default function BalanceOverviewPage() {
           </div>
         </div>
         
-        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-start gap-4">
+        <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-start gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
           <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
             <Gamepad2 className="w-6 h-6 text-purple-600" />
           </div>
