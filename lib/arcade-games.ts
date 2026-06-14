@@ -58,5 +58,9 @@ export const getArcadeGamesByCategory = (categoryId: ArcadeCategoryId) => {
 };
 
 export const getArcadeGameById = (id: string) => {
-  return ARCADE_GAMES.find(game => game.id === id);
+  if (!id) return undefined;
+  return ARCADE_GAMES.find(
+    game => game.id.toLowerCase() === id.toLowerCase() || 
+    game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === id.toLowerCase()
+  );
 };

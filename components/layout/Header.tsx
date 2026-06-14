@@ -103,7 +103,7 @@ export function Header() {
               <div className="flex flex-col items-end leading-none">
                 <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Balance</span>
                 <span className="text-xs sm:text-sm font-black text-slate-900 font-mono tabular-nums tracking-tight">
-                  ${isClient && typeof balance === 'number' ? balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
+                  ${isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
               <div className="w-[1px] h-6 bg-slate-200 shrink-0" />

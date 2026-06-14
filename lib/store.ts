@@ -182,6 +182,19 @@ function getSyncedStateAndSync(
   };
 }
 
+export function sanitizeClientUserProfile(user: any): UserProfile | null {
+  if (!user) return null;
+  const coerce = (val: any) => typeof val === 'number' ? val : (parseFloat(String(val)) || 0);
+  return {
+    ...user,
+    balance: coerce(user.balance),
+    demoBalance: coerce(user.demoBalance),
+    realBalance: coerce(user.realBalance),
+    totalWagered: coerce(user.totalWagered),
+    affiliateEarnings: coerce(user.affiliateEarnings),
+  };
+}
+
 export const useTradingStore = create<TradingState>()(
   persist(
     (set, get) => ({
@@ -202,10 +215,11 @@ export const useTradingStore = create<TradingState>()(
           });
           const data = await res.json();
           if (res.ok && data.success) {
+            const sanitizedUser = sanitizeClientUserProfile(data.user);
             set({
-              currentUser: data.user,
+              currentUser: sanitizedUser,
               isLoggedIn: true,
-              balance: data.user.balance,
+              balance: sanitizedUser ? sanitizedUser.balance : 0,
               positions: data.user.positions,
               transactions: data.user.transactions
             });
@@ -227,9 +241,10 @@ export const useTradingStore = create<TradingState>()(
           });
           const data = await res.json();
           if (res.ok && data.success && data.user) {
+            const sanitizedUser = sanitizeClientUserProfile(data.user);
             set({
-              currentUser: data.user,
-              balance: data.user.balance,
+              currentUser: sanitizedUser,
+              balance: sanitizedUser ? sanitizedUser.balance : 0,
               positions: data.user.positions,
               transactions: data.user.transactions
             });
@@ -259,10 +274,11 @@ export const useTradingStore = create<TradingState>()(
             return { success: false, error: data.error || "Signup failed." };
           }
           
+          const sanitizedUser = sanitizeClientUserProfile(data.user);
           set({
-            currentUser: data.user,
+            currentUser: sanitizedUser,
             isLoggedIn: true,
-            balance: data.user.balance,
+            balance: sanitizedUser ? sanitizedUser.balance : 0,
             positions: data.user.positions,
             transactions: data.user.transactions
           });
@@ -284,10 +300,11 @@ export const useTradingStore = create<TradingState>()(
             return { success: false, error: data.error || "Login failed." };
           }
           
+          const sanitizedUser = sanitizeClientUserProfile(data.user);
           set({
-            currentUser: data.user,
+            currentUser: sanitizedUser,
             isLoggedIn: true,
-            balance: data.user.balance,
+            balance: sanitizedUser ? sanitizedUser.balance : 0,
             positions: data.user.positions,
             transactions: data.user.transactions
           });
@@ -309,10 +326,11 @@ export const useTradingStore = create<TradingState>()(
             return { success: false, error: data.error || "Google login failed." };
           }
           
+          const sanitizedUser = sanitizeClientUserProfile(data.user);
           set({
-            currentUser: data.user,
+            currentUser: sanitizedUser,
             isLoggedIn: true,
-            balance: data.user.balance,
+            balance: sanitizedUser ? sanitizedUser.balance : 0,
             positions: data.user.positions,
             transactions: data.user.transactions
           });
@@ -334,12 +352,13 @@ export const useTradingStore = create<TradingState>()(
           
           // 1. Save the current active states into their respective isolated wallets
           const updatedUser = { ...user };
+          const coerce = (val: any) => typeof val === 'number' ? val : (parseFloat(String(val)) || 0);
           if (currentType === 'real') {
-            updatedUser.realBalance = state.balance;
+            updatedUser.realBalance = coerce(state.balance);
             updatedUser.realPositions = state.positions;
             updatedUser.realTransactions = state.transactions;
           } else {
-            updatedUser.demoBalance = state.balance;
+            updatedUser.demoBalance = coerce(state.balance);
             updatedUser.demoPositions = state.positions;
             updatedUser.demoTransactions = state.transactions;
           }
@@ -348,7 +367,7 @@ export const useTradingStore = create<TradingState>()(
           const targetType = type;
           updatedUser.accountType = targetType;
           
-          const nextBalance = targetType === 'real' ? updatedUser.realBalance : updatedUser.demoBalance;
+          const nextBalance = coerce(targetType === 'real' ? updatedUser.realBalance : updatedUser.demoBalance);
           const nextPositions = targetType === 'real' ? updatedUser.realPositions : updatedUser.demoPositions;
           const nextTransactions = targetType === 'real' ? updatedUser.realTransactions : updatedUser.demoTransactions;
           

@@ -118,7 +118,7 @@ interface PaymentSettingsState {
 
   const currentUser = useTradingStore(state => state.currentUser);
   const { balance: rawBalance, deposit, switchAccountType } = useTradingStore();
-  const balance = typeof rawBalance === 'number' ? rawBalance : 0;
+  const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
 
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
   const isDemo = !currentUser || currentUser.accountType === 'demo';

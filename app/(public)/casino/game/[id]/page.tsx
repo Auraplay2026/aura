@@ -252,7 +252,7 @@ export default function GamePlayerPage() {
   
   // Game UX State
   const { balance: rawBalance, playCasino, currentUser } = useTradingStore();
-  const balance = typeof rawBalance === 'number' ? rawBalance : 0;
+  const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
   const [betAmount, setBetAmount] = useState(100);
   const [customBetVal, setCustomBetVal] = useState("");
   const [isTurbo, setIsTurbo] = useState(false);
@@ -260,7 +260,7 @@ export default function GamePlayerPage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [winAmount, setWinAmount] = useState<number | null>(null);
   const [isMegaWin, setIsMegaWin] = useState(false);
-
+  
   const [isDemoLimitReached, setIsDemoLimitReached] = useState(false);
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
 
@@ -278,7 +278,7 @@ export default function GamePlayerPage() {
     }
   }, [currentUser]);
 
-  const game = GAMES.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === id || g.id === id);
+  const game = GAMES.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === id.toLowerCase() || g.id.toLowerCase() === id.toLowerCase());
 
   const theme = useMemo(() => {
     if (!game) return getProceduralTheme(id);

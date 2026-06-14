@@ -23,6 +23,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
   const [hasTransferred, setHasTransferred] = useState(false);
 
   const rawBalance = useTradingStore(state => state.balance);
+  const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
   const playCasino = useTradingStore(state => state.playCasino);
 
   // Enter Real mode
@@ -35,7 +36,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
   };
 
   const handleTransferSubmit = () => {
-    if (rawBalance < transferAmount) return;
+    if (balance < transferAmount) return;
     playCasino(transferAmount, 0, `Arcade Context: ${game.title}`);
     setHasTransferred(true);
     setIsTransferModalOpen(false);
@@ -168,7 +169,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
                 <div className="flex justify-between items-end">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Available</span>
-                    <span className="text-sm font-black text-slate-900 font-mono">${rawBalance.toFixed(2)}</span>
+                    <span className="text-sm font-black text-slate-900 font-mono">${balance.toFixed(2)}</span>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Transfer</span>
@@ -176,7 +177,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
                   </div>
                 </div>
 
-                {rawBalance < 10 ? (
+                {balance < 10 ? (
                   <div className="p-3 bg-red-50 border border-red-100 rounded-lg flex items-start gap-3">
                     <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                     <p className="text-xs text-red-700 font-medium">Insufficient funds. You need at least $10.00 to play in Real mode.</p>
@@ -185,7 +186,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
                   <input 
                     type="range" 
                     min="10" 
-                    max={Math.max(10, Math.floor(rawBalance))} 
+                    max={Math.max(10, Math.floor(balance))} 
                     step="10" 
                     value={transferAmount}
                     onChange={(e) => setTransferAmount(Number(e.target.value))}
@@ -202,7 +203,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
                   Cancel
                 </button>
                 <button 
-                  disabled={rawBalance < transferAmount}
+                  disabled={balance < transferAmount}
                   onClick={handleTransferSubmit}
                   className="flex-[2] py-3 text-xs font-black text-white bg-blue-600 hover:bg-blue-700 disabled:bg-slate-300 rounded-xl transition-all uppercase tracking-wider shadow-lg shadow-blue-500/20 disabled:shadow-none"
                 >

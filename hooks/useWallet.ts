@@ -1,7 +1,8 @@
 import { useTradingStore } from "@/lib/store";
 
 export function useWallet() {
-  const { balance, playCasino, houseEdge } = useTradingStore();
+  const { balance: rawBalance, playCasino, houseEdge } = useTradingStore();
+  const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
 
   const SYSTEM_CONFIG = {
     globalHouseEdge: houseEdge / 100, // Convert percentage e.g. 2.0% -> 0.02
