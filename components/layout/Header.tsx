@@ -124,9 +124,9 @@ export function Header() {
             {/* Positions Button */}
             <button 
               onClick={() => setIsPortfolioOpen(true)}
-              className="relative hidden sm:flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors p-1.5"
+              className="relative hidden sm:flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors p-1.5 group"
             >
-              <Briefcase className="w-5 h-5" />
+              <Briefcase className="w-5 h-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200" />
               {isClient && positions.length > 0 && (
                 <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 rounded-full text-[9px] font-black text-white flex items-center justify-center">
                   {positions.length}
@@ -139,11 +139,11 @@ export function Header() {
               <button 
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={cn(
-                  "relative transition-colors p-1.5 rounded-sm",
+                  "relative transition-colors p-1.5 rounded-sm group",
                   isNotificationsOpen ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                 )}
               >
-                <Bell className="w-5 h-5" />
+                <Bell className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-200" />
                 {isClient && currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                 )}
@@ -210,11 +210,11 @@ export function Header() {
               <button 
                 onClick={() => setIsSettingsOpen(!isSettingsOpen)}
                 className={cn(
-                  "p-1.5 rounded-sm transition-colors flex items-center justify-center",
+                  "p-1.5 rounded-sm transition-colors flex items-center justify-center group",
                   isSettingsOpen ? "bg-slate-100 text-slate-900" : "text-exchange-muted hover:text-exchange-text hover:bg-slate-50"
                 )}
               >
-                <Settings className="w-5 h-5" />
+                <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
               </button>
               
               <AnimatePresence>

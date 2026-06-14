@@ -5,6 +5,7 @@ import { User, History, Gift, Shield, ArrowLeft, Wallet, FileText, Activity, Pie
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { BackToTop } from "@/components/ui/BackToTop";
 
 const NAV_ITEMS = [
   { name: "My Profile", href: "/account", icon: User },
@@ -22,6 +23,7 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
 
   return (
     <div className="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 md:p-6 lg:p-10 md:pt-8">
+      <BackToTop />
       
       {/* Mobile Back Header */}
       <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-slate-200 bg-white sticky top-0 z-30 shrink-0 shadow-sm">

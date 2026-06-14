@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { 
@@ -164,6 +164,18 @@ export default function BlogPostDetail() {
   const router = useRouter();
   const [liked, setLiked] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const totalHeight = document.documentElement.scrollHeight - window.innerHeight;
+      if (totalHeight > 0) {
+        setScrollProgress((window.scrollY / totalHeight) * 100);
+      }
+    };
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   const postId = params.id as string;
   const post = BLOG_POSTS.find(p => p.id === postId);
@@ -197,6 +209,13 @@ export default function BlogPostDetail() {
 
   return (
     <div className="max-w-[900px] mx-auto px-4 sm:px-6 py-8 md:py-12 flex flex-col gap-6 md:gap-8 min-h-screen">
+      {/* Reading Progress Bar */}
+      <div className="fixed top-14 left-0 w-full h-[3px] bg-slate-100 z-50 pointer-events-none">
+        <div 
+          className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 transition-all duration-75" 
+          style={{ width: `${scrollProgress}%` }}
+        />
+      </div>
       
       {/* Back Button */}
       <div>

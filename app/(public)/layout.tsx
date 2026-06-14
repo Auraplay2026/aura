@@ -7,6 +7,7 @@ import { CursorSpotlight } from "@/components/ui/CursorSpotlight";
 import { AIConcierge } from "@/components/AIConcierge";
 import { OnboardingModal } from "@/components/ui/OnboardingModal";
 import { RightSidebarWrapper } from "@/components/layout/RightSidebarWrapper";
+import { BackToTop } from "@/components/ui/BackToTop";
 
 export default function PublicLayout({
   children,
@@ -19,6 +20,7 @@ export default function PublicLayout({
       <CursorSpotlight />
       <AIConcierge />
       <OnboardingModal />
+      <BackToTop />
 
       {/* Animated Aurora Background Mesh (Safari Optimized) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-white">
