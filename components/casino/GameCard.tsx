@@ -33,9 +33,11 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
       <div className="absolute inset-0 border-2 border-transparent rounded-3xl z-20 transition-all duration-500 group-hover:border-neon-purple/50 group-hover:shadow-[inset_0_0_30px_rgba(168,85,247,0.2)] pointer-events-none" />
       
       {/* Background Image with Cinematic Zoom & Dark Overlay */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center transition-transform duration-[1.5s] ease-out group-hover:scale-110 group-hover:rotate-1"
-        style={{ backgroundImage: `url(${image})` }}
+      <img 
+        src={image} 
+        alt={title}
+        loading="lazy"
+        className="absolute inset-0 w-full h-full object-cover transition-transform duration-[1.5s] ease-out group-hover:scale-110 group-hover:rotate-1"
       />
       
       {/* Heavy Dark Gradient Overlay (Bottom up) */}

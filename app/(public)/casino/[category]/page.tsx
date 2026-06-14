@@ -184,6 +184,11 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
   const mappedCategory = categorySlug as CategoryId;
   const games = getGamesByCategory(mappedCategory) || GAMES.slice(0, 20);
 
+  const filteredGames = games.filter(g => g.title.toLowerCase().includes(searchQuery.toLowerCase()));
+  const [visibleCount, setVisibleCount] = useState(36);
+
+  const displayedGames = filteredGames.slice(0, visibleCount);
+
   return (
     <div className="flex flex-col h-[calc(100vh-56px)] w-full bg-exchange-bg p-6 overflow-y-auto">
       <div className="max-w-[1600px] mx-auto w-full space-y-6">
@@ -209,24 +214,31 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
           </div>
         </div>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-12">
-          {games.map((game, i) => (
-            <Link href={`/casino/game/${game.id}`} key={game.id} className="bg-white border border-exchange-border rounded-sm overflow-hidden group hover:shadow-md transition-shadow cursor-pointer block">
-              <div className="aspect-[4/3] bg-slate-100 relative">
-                <img src={game.image} alt={game.title} className="w-full h-full object-cover" />
-                <div className="absolute inset-0 bg-white/0 group-hover:bg-slate-900/20 transition-colors flex items-center justify-center">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity bg-blue-600 text-white rounded-full p-3 shadow-lg transform scale-90 group-hover:scale-100">
-                    <Play className="w-5 h-5 fill-current" />
-                  </div>
-                </div>
-              </div>
-              <div className="p-3">
-                <h3 className="font-bold text-xs text-exchange-text truncate mb-1">{game.title}</h3>
-                <span className="text-[10px] text-exchange-muted uppercase">{game.provider}</span>
-              </div>
-            </Link>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 pb-8">
+          {displayedGames.map((game, i) => (
+            <GameCard 
+              key={game.id}
+              id={game.id}
+              title={game.title}
+              provider={game.provider}
+              image={game.image}
+              isNew={game.isNew}
+              rtp={game.rtp}
+              players={game.players}
+            />
           ))}
         </div>
+
+        {visibleCount < filteredGames.length && (
+          <div className="w-full flex justify-center pb-12">
+            <button 
+              onClick={() => setVisibleCount(prev => prev + 36)}
+              className="bg-slate-800 hover:bg-slate-700 text-white font-black uppercase tracking-widest text-sm px-8 py-3 rounded-full transition-colors border border-slate-700 shadow-lg"
+            >
+              Load More Games
+            </button>
+          </div>
+        )}
 
       </div>
     </div>
