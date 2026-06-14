@@ -17,6 +17,7 @@ const NAV_SECTIONS = [
       { name: "Cricket (In-Play)", href: "/sportsbook?sport=cricket", emoji: "🏏", isSub: true },
       { name: "Tennis (Sets)", href: "/sportsbook?sport=tennis", emoji: "🎾", isSub: true },
       { name: "Soccer (1X2)", href: "/sportsbook?sport=soccer", emoji: "⚽", isSub: true },
+      { name: "Basketball (Full Time)", href: "/sportsbook?sport=basketball", emoji: "🏀", isSub: true },
     ]
   },
   {

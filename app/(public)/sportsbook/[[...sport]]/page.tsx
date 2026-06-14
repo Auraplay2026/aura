@@ -6,6 +6,8 @@ import { Search, Trophy, Activity, CalendarDays, TrendingUp, TrendingDown, Clock
 import { cn } from "@/lib/utils";
 import { generateMatches, Match } from "@/lib/sportsData";
 import { useTradingStore } from "@/lib/store";
+import { useSearchParams } from "next/navigation";
+import { useSidebarContext } from "@/components/layout/AppProviders";
 
 const SPORTS = ["Soccer", "Tennis", "Basketball", "Cricket"];
 
@@ -50,6 +52,9 @@ const ExchangeCell = ({ value, trend, type, onClick, isSelected, suspended }: an
 
 export default function SportsbookPage({ params }: { params: Promise<{ sport?: string[] }> }) {
   const unwrappedParams = use(params);
+  const searchParams = useSearchParams();
+  const sportQuery = searchParams.get("sport");
+  const { setIsMobileMenuOpen } = useSidebarContext();
   
   const initialSportSlug = unwrappedParams.sport?.[0] ? unwrappedParams.sport[0].replace(/-/g, ' ') : "soccer";
   const sportParam = initialSportSlug.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
@@ -57,13 +62,19 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   const [activeSport, setActiveSport] = useState(sportParam);
   const [activeFilter, setActiveFilter] = useState<'In-Play' | 'Today' | 'Tomorrow'>('In-Play');
   const [activeMarket, setActiveMarket] = useState('Match Odds');
-  const [showMobileSidebar, setShowMobileSidebar] = useState(false);
   const [showMobileBetslip, setShowMobileBetslip] = useState(false);
   const [betslip, setBetslip] = useState<{ matchId: number; selection: string; odds: number; type: 'back' | 'lay'; stake: number }[]>([]);
   const placeSportsBet = useTradingStore(s => s.placeSportsBet);
   
   const [isLoading, setIsLoading] = useState(false);
   const [matches, setMatches] = useState<Match[]>([]);
+
+  useEffect(() => {
+    if (sportQuery) {
+      const formatted = sportQuery.charAt(0).toUpperCase() + sportQuery.slice(1);
+      setActiveSport(formatted);
+    }
+  }, [sportQuery]);
 
   useEffect(() => {
     setIsLoading(true);
@@ -137,12 +148,6 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     <div className="flex relative h-[calc(100vh-56px)] w-full bg-exchange-bg text-exchange-text overflow-hidden">
       
       {/* Mobile Drawer Overlays */}
-      {showMobileSidebar && (
-        <div 
-          className="fixed inset-0 bg-black/50 z-30 md:hidden" 
-          onClick={() => setShowMobileSidebar(false)}
-        />
-      )}
       {showMobileBetslip && (
         <div 
           className="fixed inset-0 bg-black/50 z-30 lg:hidden" 
@@ -150,61 +155,12 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         />
       )}
 
-      {/* Column 1: Sports & Categories Hierarchy */}
-      <div className={cn(
-        "flex flex-col w-60 border-r border-exchange-border bg-exchange-surface shrink-0 z-40 transition-transform duration-300",
-        "fixed inset-y-0 left-0 md:relative md:translate-x-0 h-full",
-        showMobileSidebar ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="p-4 border-b border-exchange-border flex justify-between items-center">
-          <h2 className="font-bold text-sm text-exchange-text uppercase tracking-wider">Categories</h2>
-          <button className="md:hidden text-exchange-muted hover:text-exchange-text" onClick={() => setShowMobileSidebar(false)}>
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-        <div className="flex-1 overflow-y-auto p-2 space-y-1 custom-scrollbar">
-          {SPORTS.map(sport => (
-            <div key={sport} className="flex flex-col">
-              <button 
-                onClick={() => setActiveSport(sport)}
-                className={cn(
-                  "flex items-center justify-between px-3 py-2 rounded-sm text-sm font-medium transition-colors",
-                  activeSport === sport ? "bg-slate-100 text-exchange-text font-bold border-l-2 border-blue-600" : "text-exchange-muted hover:bg-slate-50 hover:text-exchange-text"
-                )}
-              >
-                <span>{sport}</span>
-                <span className="text-[10px] bg-slate-200 text-slate-600 px-1.5 py-0.5 rounded-sm">{Math.floor(Math.random() * 50) + 10}</span>
-              </button>
-              {activeSport === sport && (
-                <div className="ml-4 pl-2 border-l border-exchange-border mt-1 space-y-1">
-                  {['Match Odds', 'Handicap', 'Over/Under'].map(market => (
-                    <button 
-                      key={market}
-                      onClick={() => {
-                        setActiveMarket(market);
-                        setShowMobileSidebar(false);
-                      }}
-                      className={cn(
-                        "text-xs block py-1 w-full text-left transition-colors",
-                        activeMarket === market ? "text-blue-600 font-bold" : "text-exchange-muted hover:text-exchange-text"
-                      )}
-                    >
-                      {market}
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Column 2: Exchange Data Grid */}
       <div className="flex-1 flex flex-col min-w-0 bg-exchange-surface">
         
         {/* Mobile Header (Visible only on small screens) */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-exchange-border bg-white shrink-0">
-          <button onClick={() => setShowMobileSidebar(true)} className="flex items-center gap-2 font-bold text-sm">
+          <button onClick={() => setIsMobileMenuOpen(true)} className="flex items-center gap-2 font-bold text-sm">
             <Menu className="w-5 h-5 text-exchange-muted" />
             <span className="uppercase text-exchange-text">{activeSport}</span>
           </button>
