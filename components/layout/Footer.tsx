@@ -137,13 +137,6 @@ export function Footer() {
               <img src="/eighteen.webp" alt="18+ Underage Gaming Restricted" className="h-8 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" />
               <span className="text-slate-600 text-xs font-semibold">Strictly 18+ Only</span>
             </div>
-            <div className="flex items-center gap-3 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 hover:border-slate-300 transition-all duration-300">
-              <svg className="h-6 w-auto object-contain opacity-70 hover:opacity-100 transition-opacity" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M3 16L7 8H11L7 16H3Z" fill="#0054A6" />
-                <path d="M9 16L13 8H17L13 16H9Z" fill="#097939" />
-              </svg>
-              <span className="text-slate-600 text-xs font-semibold">UPI Payments Accepted</span>
-            </div>
           </div>
           
           <div className="flex items-center gap-4 text-xs text-slate-500 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
