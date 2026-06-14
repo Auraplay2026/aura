@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Smile, Info } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
+import { usePathname } from "next/navigation";
 
 interface Message {
   id: number;
@@ -52,6 +53,8 @@ interface LiveChatProps {
 
 export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
   const { currentUser } = useTradingStore();
+  const pathname = usePathname();
+  const isSportsbook = pathname?.startsWith("/sportsbook");
   const [isOpen, setIsOpen] = useState(isDocked);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState("");
@@ -195,7 +198,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-[96px] z-50 p-4 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-lg transition-colors"
+            className={`fixed bottom-6 z-50 p-4 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-lg transition-colors ${isSportsbook ? "right-[96px] lg:right-[430px]" : "right-[96px]"}`}
           >
             <MessageSquare className="w-6 h-6" />
           </motion.button>
