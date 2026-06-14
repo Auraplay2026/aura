@@ -8,6 +8,7 @@ const ALLOWED_HOSTS = [
   "cdn.gamedistribution.com",
   "sdk.gamedistribution.com",
   "html5.api.gamedistribution.com",
+  "api.gamedistribution.com",
   "akamaized.net",
 ];
 
@@ -15,6 +16,7 @@ const PROXY_BASE = "/api/game-proxy";
 const GD_ORIGIN = "https://gamedistribution.com";
 const GD_REFERER = "https://gamedistribution.com/";
 const FAKE_HOST = "html5.gamedistribution.com";
+const FAKE_REFERRER = "https://gamedistribution.com/";
 
 function isAllowedHost(hostname: string): boolean {
   return ALLOWED_HOSTS.some(
@@ -23,90 +25,133 @@ function isAllowedHost(hostname: string): boolean {
 }
 
 /**
- * Script injected as the FIRST thing inside <head> in every proxied HTML page.
- * It overrides the browser APIs that the GD SDK uses to detect the embedding domain,
- * making the game believe it is running on gamedistribution.com itself.
+ * Script injected as the VERY FIRST thing in every proxied HTML page.
+ * Overrides everything the GD SDK could use to detect an unauthorized origin.
  */
 const ORIGIN_SPOOF_SCRIPT = `<script>
 (function(){
+  'use strict';
   var _fakeHost = "${FAKE_HOST}";
   var _fakeOrigin = "https://${FAKE_HOST}";
-  var _fakeHref = "https://${FAKE_HOST}/";
+  var _fakeRef = "${FAKE_REFERRER}";
 
-  // 1. Override document.referrer so the SDK sees gamedistribution.com as the referrer
+  /* ── 1. document.referrer ── */
   try {
-    Object.defineProperty(document, 'referrer', {
-      get: function() { return "https://gamedistribution.com/"; },
-      configurable: true
-    });
-  } catch(e) {}
+    Object.defineProperty(document, 'referrer', { get: function(){ return _fakeRef; }, configurable: true });
+  } catch(e){}
 
-  // 2. Patch window.location to return fake host/origin
-  try {
-    var _realLocation = window.location;
-    var _fakeLocation = new Proxy(_realLocation, {
-      get: function(target, prop) {
-        if (prop === 'hostname') return _fakeHost;
-        if (prop === 'host') return _fakeHost;
-        if (prop === 'origin') return _fakeOrigin;
-        if (prop === 'href') return _fakeHref;
-        if (prop === 'protocol') return 'https:';
-        if (prop === 'pathname') return '/';
-        if (prop === 'search') return '';
-        if (prop === 'assign' || prop === 'replace' || prop === 'reload') {
-          return function(){};  // block any location.replace() hijacks
-        }
-        var val = target[prop];
-        if (typeof val === 'function') return val.bind(target);
-        return val;
-      }
-    });
-    try {
+  /* ── 2. document.domain ── */
+  try { document.domain = _fakeHost; } catch(e){}
+
+  /* ── 3. Override window.location via Proxy ──
+     Chrome: location is non-configurable on window, but we can shadow it on the
+     window's prototype or intercept via a getter on the global object itself.    */
+  (function patchLocation(){
+    var real = Object.getOwnPropertyDescriptor(window, 'location');
+    if (real && real.configurable) {
       Object.defineProperty(window, 'location', {
-        get: function() { return _fakeLocation; },
+        get: function(){
+          return new Proxy(real.get.call(window), {
+            get: function(t, p) {
+              if (p === 'hostname') return _fakeHost;
+              if (p === 'host')     return _fakeHost;
+              if (p === 'origin')   return _fakeOrigin;
+              if (p === 'protocol') return 'https:';
+              if (p === 'pathname') return '/';
+              if (p === 'href')     return _fakeOrigin + '/';
+              if (p === 'search')   return '?gd_sdk_referrer_url=' + encodeURIComponent(_fakeRef);
+              if (p === 'replace' || p === 'assign') return function(u){
+                // Only allow same-proxy-origin navigations
+                if (typeof u === 'string' && u.indexOf('gamedistribution.com') !== -1 && u.indexOf('block') === -1) {
+                  t.replace.call(t, u.replace(/https?:\\/\\/html5\\.gamedistribution\\.com\\//g, '/api/game-proxy/html5.gamedistribution.com/'));
+                }
+                // block everything else (redirect hijacks)
+              };
+              var v = t[p];
+              return typeof v === 'function' ? v.bind(t) : v;
+            }
+          });
+        },
         configurable: true
       });
-    } catch(e) {}
-  } catch(e) {}
+    }
+  })();
 
-  // 3. Block window.top.location / window.parent.location access from leaking real host
-  //    The SDK sometimes checks window.top.location.hostname
-  try {
+  /* ── 4. window.top / window.parent ── */
+  (function patchAncestors(){
     ['top','parent'].forEach(function(key){
       try {
         Object.defineProperty(window, key, {
-          get: function() {
+          get: function(){
             return new Proxy(window, {
-              get: function(t, p) {
-                if (p === 'location') return { hostname: _fakeHost, host: _fakeHost, origin: _fakeOrigin, href: _fakeHref, pathname:'/', protocol:'https:', search:'' };
-                if (p === 'document') return document;
+              get: function(t, p){
+                if (p === 'location') return { hostname:_fakeHost, host:_fakeHost, origin:_fakeOrigin, href:_fakeOrigin+'/', pathname:'/', protocol:'https:', search:'', replace:function(){}, assign:function(){} };
                 var v = t[p];
-                if (typeof v === 'function') return v.bind(t);
-                return v;
+                return typeof v === 'function' ? v.bind(t) : v;
               }
             });
           },
           configurable: true
         });
-      } catch(e2) {}
+      } catch(e){}
     });
-  } catch(e) {}
+  })();
 
-  // 4. Block XMLHttpRequest / fetch redirects to block-and-redirect
-  var _origOpen = XMLHttpRequest.prototype.open;
-  XMLHttpRequest.prototype.open = function(method, url) {
-    if (typeof url === 'string' && url.indexOf('block-and-redirect') !== -1) return;
-    return _origOpen.apply(this, arguments);
+  /* ── 5. XMLHttpRequest intercept ── */
+  var _xhrOpen = XMLHttpRequest.prototype.open;
+  XMLHttpRequest.prototype.open = function(method, url){
+    if (typeof url === 'string') {
+      // Rewrite GD API domain to go through our proxy so we can spoof the domain param
+      url = url.replace(/https?:\\/\\/api\\.gamedistribution\\.com\\//g, '/api/game-proxy/api.gamedistribution.com/');
+      url = url.replace(/https?:\\/\\/html5\\.api\\.gamedistribution\\.com\\//g, '/api/game-proxy/html5.api.gamedistribution.com/');
+      // Block block-and-redirect calls entirely
+      if (url.indexOf('block-and-redirect') !== -1 || url.indexOf('block_and_redirect') !== -1) {
+        url = 'about:blank';
+      }
+    }
+    return _xhrOpen.apply(this, arguments);
   };
 
-  var _origFetch = window.fetch;
-  window.fetch = function(input, init) {
-    var url = typeof input === 'string' ? input : (input && input.url) || '';
-    if (url.indexOf('block-and-redirect') !== -1) return Promise.resolve(new Response('{}'));
-    return _origFetch.apply(this, arguments);
-  };
+  /* ── 6. fetch intercept ── */
+  if (window.fetch) {
+    var _origFetch = window.fetch.bind(window);
+    window.fetch = function(input, init){
+      var url = (typeof input === 'string') ? input : (input && input.url) || '';
+      if (url.indexOf('block-and-redirect') !== -1 || url.indexOf('block_and_redirect') !== -1) {
+        return Promise.resolve(new Response('{}', {status:200}));
+      }
+      // Rewrite GD API calls through proxy
+      if (typeof input === 'string') {
+        input = input.replace(/https?:\\/\\/api\\.gamedistribution\\.com\\//g, '/api/game-proxy/api.gamedistribution.com/');
+        input = input.replace(/https?:\\/\\/html5\\.api\\.gamedistribution\\.com\\//g, '/api/game-proxy/html5.api.gamedistribution.com/');
+      }
+      return _origFetch(input, init);
+    };
+  }
+
+  /* ── 7. window.open hijack prevention ── */
+  window.open = function(){ return null; };
+
 })();
 </script>`;
+
+/**
+ * Patch GD SDK JavaScript to disable origin checking code.
+ * Applied to all proxied JavaScript files.
+ */
+function patchGdSdkJs(js: string): string {
+  return js
+    // Neutralize "Not found at origin" message display
+    .replace(/"Not found at origin[^"]*"/g, '"Game is loading..."')
+    .replace(/'Not found at origin[^']*'/g, "'Game is loading...'")
+    // Rewrite any hard-coded GD domains in JS to go through proxy
+    .replace(
+      /https?:\/\/(html5|img|assets|cdn|sdk|api|html5\.api)\.gamedistribution\.com\//g,
+      (_, sub) => `/api/game-proxy/${sub}.gamedistribution.com/`
+    )
+    // Block block-and-redirect patterns in string constants
+    .replace(/utm_campaign=block-and-redirect/g, "utm_campaign=playing");
+}
 
 /**
  * Rewrite absolute URLs in text content (HTML/JS/CSS) so they route
@@ -116,31 +161,44 @@ function rewriteUrls(text: string, proxyBase: string): string {
   return text
     // Rewrite https://... GD URLs to proxy paths
     .replace(
-      /https?:\/\/(html5|img|assets|cdn|sdk|html5\.api)\.gamedistribution\.com\//g,
+      /https?:\/\/(html5|img|assets|cdn|sdk|api|html5\.api)\.gamedistribution\.com\//g,
       (_, sub) => `${proxyBase}/${sub}.gamedistribution.com/`
     )
     // Rewrite protocol-relative //host/... to proxy paths
     .replace(
-      /(?<![a-zA-Z:])\/\/(html5|img|assets|cdn|sdk)\.gamedistribution\.com\//g,
+      /(?<![a-zA-Z:])\/\/(html5|img|assets|cdn|sdk|api|html5\.api)\.gamedistribution\.com\//g,
       (_, sub) => `${proxyBase}/${sub}.gamedistribution.com/`
-    )
-    // Strip any block-and-redirect utm params injected by the SDK
-    .replace(/[?&]utm_source=[^"&\s]*/g, "")
-    .replace(/[?&]utm_medium=[^"&\s]*/g, "")
-    .replace(/[?&]utm_campaign=[^"&\s]*/g, "");
+    );
 }
 
 /**
  * Inject the origin-spoof script as the very first child of <head>.
- * If there's no <head>, inject before the first <script> or at the top.
  */
 function injectSpoofScript(html: string): string {
-  // Try to inject right after <head> opening tag
   if (/<head[\s>]/i.test(html)) {
     return html.replace(/(<head[^>]*>)/i, `$1${ORIGIN_SPOOF_SCRIPT}`);
   }
-  // Fallback: inject at the very top
   return ORIGIN_SPOOF_SCRIPT + html;
+}
+
+/**
+ * Spoof the domain parameter in GD API verification requests.
+ * GD API calls look like: /v5/?key=...&domain=aura-k061.onrender.com
+ * We rewrite the domain param to gamedistribution.com.
+ */
+function spoofApiParams(url: string): string {
+  try {
+    const parsed = new URL(url);
+    if (parsed.searchParams.has("domain")) {
+      parsed.searchParams.set("domain", "gamedistribution.com");
+    }
+    if (parsed.searchParams.has("origin")) {
+      parsed.searchParams.set("origin", "https://gamedistribution.com");
+    }
+    return parsed.toString();
+  } catch {
+    return url;
+  }
 }
 
 export async function GET(
@@ -158,12 +216,23 @@ export async function GET(
     return new NextResponse("Forbidden host", { status: 403 });
   }
 
-  // Reconstruct the real upstream URL, stripping any gd_sdk_referrer_url we may have set
+  // Reconstruct the real upstream URL
   const upstreamPath = rest.join("/");
   const searchParams = new URLSearchParams(req.nextUrl.search);
-  // Always tell the GD SDK that the referrer is gamedistribution.com
-  searchParams.set("gd_sdk_referrer_url", "https://gamedistribution.com/");
-  const targetUrl = `https://${hostname}/${upstreamPath}?${searchParams.toString()}`;
+
+  // Always set gd_sdk_referrer_url to gamedistribution.com
+  searchParams.set("gd_sdk_referrer_url", GD_REFERER);
+  // Spoof domain-related params for API verification calls
+  if (searchParams.has("domain")) {
+    searchParams.set("domain", "gamedistribution.com");
+  }
+
+  let targetUrl = `https://${hostname}/${upstreamPath}?${searchParams.toString()}`;
+
+  // For API routes, also spoof any domain params in the path
+  if (hostname.includes("api.gamedistribution.com")) {
+    targetUrl = spoofApiParams(targetUrl);
+  }
 
   let upstreamResponse: Response;
   try {
@@ -173,8 +242,9 @@ export async function GET(
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
         Referer: GD_REFERER,
         Origin: GD_ORIGIN,
+        Host: hostname,
         Accept: req.headers.get("Accept") || "*/*",
-        "Accept-Encoding": "identity", // avoid compressed responses we can't rewrite
+        "Accept-Encoding": "identity",
         "Accept-Language": "en-US,en;q=0.9",
       },
       redirect: "follow",
@@ -186,25 +256,30 @@ export async function GET(
 
   const contentType = upstreamResponse.headers.get("content-type") || "";
   const isHtml = contentType.includes("text/html");
+  const isJs =
+    contentType.includes("javascript") || contentType.includes("ecmascript");
   const isTextContent =
     isHtml ||
-    contentType.includes("javascript") ||
+    isJs ||
     contentType.includes("text/css") ||
     contentType.includes("application/json") ||
     contentType.includes("text/plain");
 
   const responseHeaders = new Headers();
-  responseHeaders.set("Content-Type", contentType || "application/octet-stream");
-  // Allow cross-origin embedding
+  responseHeaders.set(
+    "Content-Type",
+    contentType || "application/octet-stream"
+  );
   responseHeaders.set("Access-Control-Allow-Origin", "*");
   responseHeaders.set("Access-Control-Allow-Methods", "GET, OPTIONS");
-  // Remove any upstream frame-busting headers
+  // Strip all frame-busting headers from upstream
   responseHeaders.delete("X-Frame-Options");
   responseHeaders.delete("Content-Security-Policy");
+  responseHeaders.delete("Cross-Origin-Embedder-Policy");
+  responseHeaders.delete("Cross-Origin-Opener-Policy");
   responseHeaders.set("Cache-Control", isHtml ? "no-cache" : "public, max-age=3600");
 
   if (!isTextContent) {
-    // Binary response (images, audio, wasm, etc.) — stream straight through
     const body = await upstreamResponse.arrayBuffer();
     return new NextResponse(body, {
       status: upstreamResponse.status,
@@ -212,13 +287,19 @@ export async function GET(
     });
   }
 
-  // Text response — rewrite internal URLs and inject anti-detection script
   let text = await upstreamResponse.text();
+
+  // Rewrite all GD domain URLs to go through proxy
   text = rewriteUrls(text, PROXY_BASE);
 
-  // For HTML pages: inject the origin spoof script at the very top of <head>
   if (isHtml) {
+    // Inject origin-spoof script at the very top of <head>
     text = injectSpoofScript(text);
+  }
+
+  if (isJs) {
+    // Patch GD SDK JavaScript to disable origin checking
+    text = patchGdSdkJs(text);
   }
 
   return new NextResponse(text, {

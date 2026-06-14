@@ -19,7 +19,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "High-speed 3D temple runner. Dodge ancient obstacles, collect gems, slide, jump, and run as far as you can.",
     thumbnail: "/games/tomb_runner.png",
     categories: ["runner", "action"],
-    url: "/api/game-proxy/html5.gamedistribution.com/f2af2ecc05a445edb6862c589e996a7e/",
+    url: "/api/game-proxy/html5.gamedistribution.com/f2af2ecc05a445edb6862c589e996a7e/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F",
     isNew: true
   },
   {
@@ -29,7 +29,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Form sweet cascades and match colourful jellies and candy combos in this delicious match-3 puzzle adventure.",
     thumbnail: "/games/candy_rain.png",
     categories: ["puzzle"],
-    url: "/api/game-proxy/html5.gamedistribution.com/f318ed77bd024a5eac09f407b4a25e9e/"
+    url: "/api/game-proxy/html5.gamedistribution.com/f318ed77bd024a5eac09f407b4a25e9e/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F"
   },
   {
     id: "zen-archery",
@@ -38,7 +38,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Master wind and gravity. Aim with high precision to clear balloons and moving targets around the globe.",
     thumbnail: "/games/archery_world_tour.png",
     categories: ["action", "puzzle"],
-    url: "/api/game-proxy/html5.gamedistribution.com/51352e850b5d4da2aba57e10b10ec8cb/",
+    url: "/api/game-proxy/html5.gamedistribution.com/51352e850b5d4da2aba57e10b10ec8cb/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F",
     isNew: true
   },
   {
@@ -48,7 +48,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Perform insane drifts, jumps, and stunts in luxury supercars. Run open-world maps in single or multiplayer sandbox modes.",
     thumbnail: "/games/two_stunt_supercars.png",
     categories: ["action", "racing"] as ArcadeCategoryId[],
-    url: "/api/game-proxy/html5.gamedistribution.com/2b5cd37e40d046cba9456ce4371f43a9/",
+    url: "/api/game-proxy/html5.gamedistribution.com/2b5cd37e40d046cba9456ce4371f43a9/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F",
     isNew: true
   }
 ];
