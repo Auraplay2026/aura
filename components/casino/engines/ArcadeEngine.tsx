@@ -61,7 +61,7 @@ const GAME_MANIFEST: Record<string, {
     controls: ["Arrow Keys / WASD — Drive", "Mouse — Aim weapons", "Space — Boost"]
   },
   "fps-6": {
-    url: "https://www.crazygames.com/embed/bullet-force-multiplayer",
+    url: "https://html5.gamedistribution.com/f255cc3243bd46ceab90d3d5fcdbe2eb/",
     genre: "Military FPS", resolution: "1920×1080", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Aim", "Left Click — Shoot", "Shift — Ads", "G — Grenade", "R — Reload"]
@@ -75,25 +75,25 @@ const GAME_MANIFEST: Record<string, {
     controls: ["WASD / Arrow Keys — Steer & Throttle", "E — Change Environment", "M — Map View"]
   },
   "driving-2": {
-    url: "https://www.crazygames.com/embed/madalin-stunt-cars-pro",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Stunt Racing", resolution: "1920×1080", serverNode: "PUN-NODE-05",
     nodeCity: "Pune", gpuTier: "RTX 4080",
     controls: ["WASD — Drive", "Space — Handbrake", "Shift — Nitro", "C — Camera", "R — Reset"]
   },
   "driving-3": {
-    url: "https://www.crazygames.com/embed/road-rush-cars",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Racing Simulator", resolution: "1920×1080", serverNode: "KOL-NODE-02",
     nodeCity: "Kolkata", gpuTier: "RTX 4070",
     controls: ["Arrow Keys — Steer", "↑ — Accelerate", "↓ — Brake", "Space — Handbrake"]
   },
   "driving-4": {
-    url: "https://www.crazygames.com/embed/city-car-stunt-4",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Car Stunt", resolution: "1920×1080", serverNode: "DEL-NODE-06",
     nodeCity: "Delhi", gpuTier: "RTX 3080",
     controls: ["Arrow Keys — Drive", "Space — Handbrake", "C — Camera Change"]
   },
   "driving-5": {
-    url: "https://www.crazygames.com/embed/madalin-stunt-cars-pro",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Motorsport Sim", resolution: "2560×1440", serverNode: "MUM-NODE-07",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Drive", "Space — Handbrake", "Shift — Nitro Boost", "R — Reset Car", "C — Camera"]
@@ -125,7 +125,7 @@ const GAME_MANIFEST: Record<string, {
     controls: ["Mouse — Move", "Space — Split", "W — Eject mass"]
   },
   "action-5": {
-    url: "https://www.crazygames.com/embed/spider-doll",
+    url: "https://html5.gamedistribution.com/d5a9d60edec84b3ca961b7f9eb3f22da/",
     genre: "Action Adventure", resolution: "1920×1080", serverNode: "MUM-NODE-05",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Swing", "Left Click — Web Left", "Right Click — Web Right", "Space — Jump"]
@@ -133,7 +133,7 @@ const GAME_MANIFEST: Record<string, {
 
   // ── AAA TITLES ─────────────────────────────────────────────
   "aaa-1": {
-    url: "https://www.crazygames.com/embed/cyber-cars-punk-racing",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Open World RPG", resolution: "2560×1440", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Look", "F — Interact", "Tab — Map", "I — Inventory", "E — Enter Vehicle"]
@@ -145,25 +145,25 @@ const GAME_MANIFEST: Record<string, {
     controls: ["WASD — Move", "Mouse — Camera", "Left Click — Attack", "Right Click — Block", "1–6 — Skills", "M — Map"]
   },
   "aaa-3": {
-    url: "https://www.crazygames.com/embed/ninja-clash-heroes",
+    url: "https://html5.gamedistribution.com/f255cc3243bd46ceab90d3d5fcdbe2eb/",
     genre: "Action RPG", resolution: "2560×1440", serverNode: "DEL-NODE-01",
     nodeCity: "Delhi", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Camera & Attack", "Space — Dodge", "E — Skill", "R — Ultimate"]
   },
   "aaa-4": {
-    url: "https://www.crazygames.com/embed/spider-doll",
+    url: "https://html5.gamedistribution.com/d5a9d60edec84b3ca961b7f9eb3f22da/",
     genre: "Open World Action", resolution: "2560×1440", serverNode: "MUM-NODE-02",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Swing & Camera", "Space — Jump", "Shift — Run", "Ctrl — Crouch"]
   },
   "aaa-5": {
-    url: "https://www.crazygames.com/embed/cyber-cars-punk-racing",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Sci-Fi Action", resolution: "2560×1440", serverNode: "MUM-NODE-06",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Aim", "Left Click — Shoot", "F — Interact", "Tab — Map"]
   },
   "aaa-6": {
-    url: "https://www.crazygames.com/embed/madalin-stunt-cars-pro",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Street Racing", resolution: "2560×1440", serverNode: "MUM-NODE-04",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Steer & Throttle", "Space — Handbrake", "Shift — Nitrous", "C — Camera", "R — Reset"]
@@ -171,19 +171,19 @@ const GAME_MANIFEST: Record<string, {
 
   // ── PUZZLE & STRATEGY ─────────────────────────────────────
   "puzzle-1": {
-    url: "https://www.crazygames.com/embed/territorial-io",
+    url: "https://html5.gamedistribution.com/0088df6ee0ce420faad0a3b2b8005663/",
     genre: "Strategy", resolution: "1920×1080", serverNode: "PUN-NODE-03",
     nodeCity: "Pune", gpuTier: "RTX 3080",
     controls: ["Mouse — Select & Command", "Scroll — Zoom", "Space — End Turn"]
   },
   "puzzle-2": {
-    url: "https://www.crazygames.com/embed/fireboy-and-watergirl-1-forest-temple",
+    url: "https://html5.gamedistribution.com/0088df6ee0ce420faad0a3b2b8005663/",
     genre: "Co-op Puzzle", resolution: "1920×1080", serverNode: "KOL-NODE-07",
     nodeCity: "Kolkata", gpuTier: "RTX 3070",
     controls: ["Arrow Keys — Watergirl", "WASD — Fireboy", "Reach the door to complete level"]
   },
   "puzzle-3": {
-    url: "https://www.crazygames.com/embed/territorial-io",
+    url: "https://html5.gamedistribution.com/0088df6ee0ce420faad0a3b2b8005663/",
     genre: "Puzzle Strategy", resolution: "1920×1080", serverNode: "HYD-NODE-02",
     nodeCity: "Hyderabad", gpuTier: "RTX 3070",
     controls: ["Mouse — Click & Drag", "Scroll — Zoom Map"]
@@ -191,13 +191,13 @@ const GAME_MANIFEST: Record<string, {
 
   // ── CASUAL ────────────────────────────────────────────────
   "boring-1": {
-    url: "https://www.crazygames.com/embed/farm-merge-valley",
+    url: "https://html5.gamedistribution.com/0088df6ee0ce420faad0a3b2b8005663/",
     genre: "Simulation", resolution: "1920×1080", serverNode: "CHE-NODE-06",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
     controls: ["Mouse — Click to interact", "Drag items to merge"]
   },
   "casual-1": {
-    url: "https://www.crazygames.com/embed/draw-and-run",
+    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
     genre: "Casual", resolution: "1920×1080", serverNode: "CHE-NODE-04",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
     controls: ["Mouse / Touch — Draw path", "Watch your character run it!"]
@@ -210,8 +210,8 @@ function getGameUrl(gameId: string, categories: string[]): string {
   if (categories.includes("fps") || categories.includes("action")) return "https://krunker.io/";
   if (categories.includes("driving") || categories.includes("racing")) return "https://slowroads.io/";
   if (categories.includes("aaa") || categories.includes("3d")) return "https://hordes.io/";
-  if (categories.includes("puzzle")) return "https://www.crazygames.com/embed/fireboy-and-watergirl-1-forest-temple";
-  return "https://www.crazygames.com/embed/madalin-stunt-cars-pro";
+  if (categories.includes("puzzle")) return "https://html5.gamedistribution.com/0088df6ee0ce420faad0a3b2b8005663/";
+  return "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/";
 }
 
 // ─────────────────────────────────────────────────────────────
