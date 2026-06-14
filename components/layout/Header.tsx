@@ -50,7 +50,7 @@ export function Header() {
   }, [isLoggedIn, syncFromServer]);
 
   return (
-    <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-white border-b border-exchange-border flex items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/50 flex items-center justify-between px-4 sm:px-6 transition-all">
       
       {/* Mobile Menu Toggle */}
       <div className="flex items-center lg:hidden mr-3">
@@ -69,25 +69,24 @@ export function Header() {
           <span className="text-slate-900 font-black tracking-widest uppercase text-xs hidden sm:block">AuraPlay</span>
         </div>
 
-        {/* Desktop Search Bar */}
         <button 
           onClick={() => setIsSearchModalOpen(true)}
           onFocus={() => setIsSearchFocused(true)}
           onBlur={() => setIsSearchFocused(false)}
           className={cn(
-            "relative hidden md:flex items-center rounded-sm overflow-hidden transition-all duration-200 border bg-slate-50 cursor-pointer",
-            isSearchFocused ? "border-blue-500 w-64" : "border-slate-200 w-48 hover:border-slate-300"
+            "relative hidden md:flex items-center rounded-lg overflow-hidden transition-all duration-300 border bg-slate-50/50 cursor-pointer shadow-sm group",
+            isSearchFocused ? "border-slate-300 w-64 ring-2 ring-slate-100" : "border-slate-200/60 w-56 hover:border-slate-300 hover:bg-slate-50"
           )}
         >
-          <div className="pl-3 py-1.5">
-            <Search className="w-4 h-4 text-slate-400" />
+          <div className="pl-3 py-1.5 transition-colors group-hover:text-slate-600">
+            <Search className="w-4 h-4 text-slate-400 group-hover:text-slate-500 transition-colors" />
           </div>
-          <span className="w-full text-left text-xs text-slate-400 font-medium px-2 py-1.5">
+          <span className="w-full text-left text-[13px] text-slate-400 group-hover:text-slate-500 font-medium px-2 py-1.5 transition-colors">
             Search games & markets...
           </span>
-          <div className="hidden lg:flex items-center gap-1 pr-2">
-            <kbd className="text-[10px] font-bold text-slate-400 border border-slate-200 rounded px-1">⌘</kbd>
-            <kbd className="text-[10px] font-bold text-slate-400 border border-slate-200 rounded px-1">K</kbd>
+          <div className="hidden lg:flex items-center gap-0.5 pr-2">
+            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md px-1.5 py-0.5 shadow-sm">⌘</kbd>
+            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md px-1.5 py-0.5 shadow-sm">K</kbd>
           </div>
         </button>
       </div>

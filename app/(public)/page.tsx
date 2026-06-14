@@ -16,57 +16,56 @@ export default function GlobalHomepage() {
   return (
     <div className="flex flex-col gap-12 max-w-[1600px] mx-auto pb-20 w-full overflow-hidden">
       
-      {/* 1. MASTER HERO SECTION (LIGHT THEME) */}
-      <section className="relative w-full rounded-[2rem] overflow-hidden min-h-[450px] flex items-center bg-white border border-slate-200 shadow-sm">
+      {/* 1. MASTER HERO SECTION (TOP 1% ENTERPRISE THEME) */}
+      <section className="relative w-full rounded-3xl overflow-hidden min-h-[500px] flex items-center bg-white border border-slate-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)]">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-white to-transparent z-10" />
-          {/* Subtle light background texture */}
-          <div className="absolute right-0 top-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50 via-white to-transparent opacity-70 blur-2xl" />
-          <div className="absolute right-1/4 bottom-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-50/50 via-white to-transparent opacity-80 blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-b from-slate-50/50 to-white z-10" />
+          {/* Extremely subtle ambient glow */}
+          <div className="absolute right-[10%] top-0 w-[800px] h-[800px] bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-slate-100 via-white to-transparent opacity-50 blur-3xl pointer-events-none" />
         </div>
 
-        <div className="relative z-20 w-full p-10 lg:p-20 flex flex-col items-start max-w-4xl">
-          <div className="px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 flex items-center gap-2 mb-6">
-            <Zap className="w-4 h-4 text-blue-600" />
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-700">Next-Gen iGaming Engine</span>
+        <div className="relative z-20 w-full p-10 lg:p-20 flex flex-col items-start max-w-5xl mx-auto text-center lg:text-left lg:mx-0">
+          <div className="px-3 py-1 rounded-full bg-slate-50 border border-slate-200/60 flex items-center gap-2 mb-8 mx-auto lg:mx-0 shadow-sm transition-all hover:bg-slate-100">
+            <Zap className="w-3.5 h-3.5 text-slate-900" />
+            <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-slate-700">Next-Gen iGaming Engine</span>
           </div>
           
-          <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-6">
+          <h1 className="text-5xl lg:text-[80px] font-black text-slate-900 tracking-tighter leading-[1.05] mb-6">
             The Ultimate <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
+            <span className="text-slate-400">
               Entertainment Hub
             </span>
           </h1>
           
-          <p className="text-lg text-slate-600 font-medium max-w-2xl mb-10 leading-relaxed">
+          <p className="text-lg lg:text-xl text-slate-500 font-medium max-w-2xl mb-12 leading-relaxed mx-auto lg:mx-0">
             Experience sub-millisecond bet executions, live dealer streams, and instant-play WebGL arcade games all powered by a unified wallet architecture.
           </p>
 
-          <div className="flex flex-wrap items-center gap-4">
-            <Link href="/sportsbook" className="px-8 py-4 bg-blue-600 text-white font-black uppercase tracking-widest text-sm rounded-xl hover:bg-blue-700 transition-all shadow-[0_4px_20px_rgba(37,99,235,0.3)] flex items-center gap-2 group">
+          <div className="flex flex-col sm:flex-row items-center gap-4 mx-auto lg:mx-0">
+            <Link href="/sportsbook" className="w-full sm:w-auto px-8 py-4 bg-slate-900 text-white font-bold text-sm rounded-xl hover:bg-slate-800 transition-all shadow-[0_4px_14px_0_rgb(0,0,0,0.2)] hover:shadow-[0_6px_20px_rgba(0,0,0,0.23)] hover:-translate-y-0.5 flex items-center justify-center gap-2 group">
               Explore Sportsbook
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/arcade" className="px-8 py-4 bg-white text-slate-900 font-black uppercase tracking-widest text-sm rounded-xl hover:bg-slate-50 border border-slate-200 transition-all flex items-center gap-2 group shadow-sm">
-              <Gamepad2 className="w-4 h-4 text-indigo-500" />
+            <Link href="/arcade" className="w-full sm:w-auto px-8 py-4 bg-white text-slate-900 font-bold text-sm rounded-xl hover:bg-slate-50 border border-slate-200 transition-all flex items-center justify-center gap-2 group shadow-sm hover:shadow-md">
+              <Gamepad2 className="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors" />
               Play Arcade
             </Link>
           </div>
 
-          <div className="mt-16 flex items-center gap-8">
-            <div className="flex flex-col">
-              <span className="text-3xl font-black text-slate-900 font-mono">150+</span>
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Live Markets</span>
+          <div className="mt-20 flex flex-wrap items-center justify-center lg:justify-start gap-10 opacity-80">
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="text-4xl font-black text-slate-900 font-mono tracking-tight">150+</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Live Markets</span>
             </div>
-            <div className="w-px h-10 bg-slate-200" />
-            <div className="flex flex-col">
-              <span className="text-3xl font-black text-slate-900 font-mono">&lt;50ms</span>
-              <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Execution Speed</span>
+            <div className="w-px h-12 bg-slate-200 hidden sm:block" />
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="text-4xl font-black text-slate-900 font-mono tracking-tight">&lt;50ms</span>
+              <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-1">Execution Speed</span>
             </div>
-            <div className="w-px h-10 bg-slate-200" />
-            <div className="flex flex-col">
-              <span className="text-3xl font-black text-slate-900 font-mono">0%</span>
-              <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1">Transfer Fees</span>
+            <div className="w-px h-12 bg-slate-200 hidden sm:block" />
+            <div className="flex flex-col items-center lg:items-start">
+              <span className="text-4xl font-black text-slate-900 font-mono tracking-tight">0%</span>
+              <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mt-1">Transfer Fees</span>
             </div>
           </div>
         </div>
@@ -90,32 +89,27 @@ export default function GlobalHomepage() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {/* Mock live matches */}
           {[
             { id: 1, sport: "Cricket", event: "IND vs AUS", score: "IND 210/4", odds1: 1.85, odds2: 2.10, live: true },
             { id: 2, sport: "Soccer", event: "Real Madrid vs Barcelona", score: "1 - 1", odds1: 2.40, odds2: 2.55, live: true },
             { id: 3, sport: "Tennis", event: "Alcaraz vs Sinner", score: "Set 3", odds1: 1.50, odds2: 3.10, live: true }
           ].map((match) => (
-            <div key={match.id} className="bg-white border border-slate-200 p-6 rounded-2xl hover:border-blue-300 transition-colors group cursor-pointer">
+            <div key={match.id} className="bg-white border border-slate-200/60 p-6 rounded-3xl hover:border-slate-300 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] transition-all duration-300 group cursor-pointer">
               <div className="flex items-center justify-between mb-4">
-                <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">{match.sport}</span>
-                {match.live && (
-                  <span className="flex items-center gap-1.5 px-2 py-1 bg-red-50 text-red-600 text-[10px] font-bold uppercase tracking-widest rounded">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> Live
-                  </span>
-                )}
+                <span className="text-xs font-bold px-2.5 py-1 rounded-md bg-slate-50 text-slate-600 border border-slate-200/50">{match.sport}</span>
+                {match.live && <span className="flex items-center gap-1.5 text-[10px] font-bold text-red-500 uppercase tracking-widest"><span className="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse" /> Live</span>}
               </div>
-              <h3 className="font-black text-slate-900 mb-1">{match.event}</h3>
-              <p className="text-sm font-bold text-blue-600 mb-6">{match.score}</p>
-
-              <div className="flex gap-2">
-                <button className="flex-1 py-3 bg-blue-50 text-blue-700 font-bold rounded-lg hover:bg-blue-100 transition-colors flex flex-col items-center justify-center border border-blue-100">
-                  <span className="text-[10px] uppercase tracking-widest opacity-70">Back</span>
-                  <span className="font-mono">{match.odds1.toFixed(2)}</span>
+              <h3 className="text-lg font-bold text-slate-900 mb-1">{match.event}</h3>
+              <p className="text-sm font-medium text-slate-500 mb-6">{match.score}</p>
+              
+              <div className="grid grid-cols-2 gap-3">
+                <button className="flex flex-col items-center justify-center py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200/50">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Back 1</span>
+                  <span className="text-sm font-black text-slate-900">{match.odds1.toFixed(2)}</span>
                 </button>
-                <button className="flex-1 py-3 bg-pink-50 text-pink-700 font-bold rounded-lg hover:bg-pink-100 transition-colors flex flex-col items-center justify-center border border-pink-100">
-                  <span className="text-[10px] uppercase tracking-widest opacity-70">Lay</span>
-                  <span className="font-mono">{match.odds2.toFixed(2)}</span>
+                <button className="flex flex-col items-center justify-center py-2.5 rounded-xl bg-slate-50 hover:bg-slate-100 transition-colors border border-slate-200/50">
+                  <span className="text-[10px] font-bold text-slate-400 uppercase">Back 2</span>
+                  <span className="text-sm font-black text-slate-900">{match.odds2.toFixed(2)}</span>
                 </button>
               </div>
             </div>
