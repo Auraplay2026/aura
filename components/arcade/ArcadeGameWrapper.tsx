@@ -33,9 +33,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
     }
   }, []);
 
-  const iframeSrc = referrerUrl 
-    ? `${game.url}?gd_sdk_referrer_url=${encodeURIComponent(referrerUrl)}`
-    : game.url;
+  const iframeSrc = game.url;
 
   // Enter Real mode
   const handleSwitchToReal = () => {
@@ -139,6 +137,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
           onLoad={() => setIsLoading(false)}
           allow="autoplay; fullscreen; gamepad"
           allowFullScreen
+          referrerPolicy="no-referrer"
           sandbox="allow-scripts allow-forms allow-same-origin allow-pointer-lock allow-downloads"
         />
 
