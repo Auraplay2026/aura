@@ -26,6 +26,17 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
   const playCasino = useTradingStore(state => state.playCasino);
 
+  const [referrerUrl, setReferrerUrl] = useState("");
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setReferrerUrl(window.location.href);
+    }
+  }, []);
+
+  const iframeSrc = referrerUrl 
+    ? `${game.url}?gd_sdk_referrer_url=${encodeURIComponent(referrerUrl)}`
+    : game.url;
+
   // Enter Real mode
   const handleSwitchToReal = () => {
     if (!hasTransferred) {
@@ -123,11 +134,12 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
 
         <iframe
           ref={iframeRef}
-          src={game.url}
+          src={iframeSrc}
           className="w-full h-full border-0"
           onLoad={() => setIsLoading(false)}
           allow="autoplay; fullscreen; gamepad"
           allowFullScreen
+          sandbox="allow-scripts allow-forms allow-same-origin allow-pointer-lock allow-downloads"
         />
 
         {isFullscreen && (
