@@ -565,15 +565,15 @@ export default function GamePlayerPage() {
                   key="modal"
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/90 backdrop-blur-sm"
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-100/90 backdrop-blur-sm"
                 >
-                  <div className="bg-[#1E293B] border border-slate-700 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
-                    <div className="p-6 text-center border-b border-slate-700">
-                      <h2 className="text-xl font-black text-white uppercase tracking-wider">Sub-Wallet Transfer</h2>
-                      <p className="text-slate-400 text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
+                  <div className="bg-white border border-slate-200 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
+                    <div className="p-6 text-center border-b border-slate-200">
+                      <h2 className="text-xl font-black text-slate-900 uppercase tracking-wider">Sub-Wallet Transfer</h2>
+                      <p className="text-slate-500 text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
                     </div>
                     <div className="p-6 space-y-6">
-                      <div className="flex justify-between items-center text-xs font-bold text-slate-400 uppercase tracking-widest">
+                      <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-widest">
                         <span>Main: ${rawBalance.toFixed(2)}</span>
                         <span>Casino: ${transferAmount}</span>
                       </div>
@@ -584,16 +584,16 @@ export default function GamePlayerPage() {
                         step="10" 
                         value={transferAmount}
                         onChange={(e) => setTransferAmount(Number(e.target.value))}
-                        className="w-full accent-[#FACC15] h-2 bg-slate-700 rounded-lg appearance-none cursor-pointer"
+                        className="w-full accent-blue-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                       />
                       <div className="text-center">
-                        <span className="text-3xl font-black text-[#FACC15] font-mono tracking-tighter">${transferAmount}</span>
+                        <span className="text-3xl font-black text-blue-600 font-mono tracking-tighter">${transferAmount}</span>
                       </div>
                     </div>
-                    <div className="p-4 bg-slate-800 flex gap-4">
+                    <div className="p-4 bg-slate-50 flex gap-4">
                       <button 
                         onClick={() => router.back()}
-                        className="flex-1 py-3 font-bold text-slate-300 hover:text-white transition-colors uppercase tracking-wider text-sm"
+                        className="flex-1 py-3 font-bold text-slate-500 hover:text-slate-900 transition-colors uppercase tracking-wider text-sm"
                       >
                         Cancel
                       </button>
@@ -605,7 +605,7 @@ export default function GamePlayerPage() {
                           }
                           setHasTransferred(true);
                         }}
-                        className="flex-1 py-3 font-black text-slate-900 bg-[#FACC15] hover:bg-[#EAB308] rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-yellow-500/20 text-sm"
+                        className="flex-1 py-3 font-black text-white bg-blue-600 hover:bg-blue-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-blue-500/20 text-sm"
                       >
                         Transfer & Enter
                       </button>

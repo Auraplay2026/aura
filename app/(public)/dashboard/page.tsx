@@ -69,7 +69,7 @@ export default function DashboardPage() {
               {/* Circular Progress */}
               <div className="relative w-48 h-48 shrink-0 flex items-center justify-center">
                 <svg className="w-full h-full -rotate-90 transform" viewBox="0 0 100 100">
-                  <circle cx="50" cy="50" r="45" fill="none" stroke="#1e293b" strokeWidth="8" />
+                  <circle cx="50" cy="50" r="45" fill="none" stroke="#e2e8f0" strokeWidth="8" />
                   <motion.circle 
                     cx="50" cy="50" r="45" fill="none" 
                     stroke="currentColor" 
@@ -99,7 +99,7 @@ export default function DashboardPage() {
                     <p className="text-slate-300 text-sm mb-2 font-medium">
                       Wager <span className="text-neon-green font-bold">₹{wagerRemaining.toLocaleString()}</span> more to unlock <span className={`font-black uppercase tracking-widest ${nextLevel.color}`}>{nextLevel.name}</span>!
                     </p>
-                    <div className="w-full h-3 bg-[#1e293b] rounded-full overflow-hidden border border-white/5 shadow-inner">
+                    <div className="w-full h-3 bg-slate-200 rounded-full overflow-hidden border border-slate-300 shadow-inner">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${progressToNext}%` }}

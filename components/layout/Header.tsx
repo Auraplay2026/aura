@@ -48,11 +48,11 @@ export function Header() {
   }, [isLoggedIn, syncFromServer]);
 
   return (
-    <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-[#1E293B] border-b border-slate-800 flex items-center justify-between px-4 sm:px-6">
+    <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-white border-b border-exchange-border flex items-center justify-between px-4 sm:px-6">
       
       {/* Mobile Menu Toggle */}
       <div className="flex items-center lg:hidden mr-3">
-        <button onClick={() => setIsMobileMenuOpen(true)} className="p-1 text-slate-400 hover:text-white transition-colors">
+        <button onClick={() => setIsMobileMenuOpen(true)} className="p-1 text-slate-500 hover:text-slate-900 transition-colors">
           <Menu className="w-6 h-6" />
         </button>
       </div>
@@ -61,17 +61,17 @@ export function Header() {
       <div className="flex-1 flex items-center gap-4">
         {/* Mobile Logo (Only visible when sidebar is hidden) */}
         <div className="lg:hidden flex items-center gap-2">
-          <div className="w-6 h-6 bg-[#FACC15] rounded-sm flex items-center justify-center">
-            <span className="text-slate-900 font-black text-[10px]">AP</span>
+          <div className="w-6 h-6 bg-blue-600 rounded-sm flex items-center justify-center">
+            <span className="text-white font-black text-[10px]">AP</span>
           </div>
-          <span className="text-white font-black tracking-widest uppercase text-xs hidden sm:block">AuraPlay</span>
+          <span className="text-slate-900 font-black tracking-widest uppercase text-xs hidden sm:block">AuraPlay</span>
         </div>
 
         {/* Desktop Search Bar */}
         <div 
           className={cn(
-            "relative hidden md:flex items-center rounded-sm overflow-hidden transition-all duration-200 border bg-[#0F172A]",
-            isSearchFocused ? "border-[#FACC15] w-64" : "border-slate-700 w-48 hover:border-slate-600"
+            "relative hidden md:flex items-center rounded-sm overflow-hidden transition-all duration-200 border bg-slate-50",
+            isSearchFocused ? "border-blue-500 w-64" : "border-slate-200 w-48 hover:border-slate-300"
           )}
         >
           <div className="pl-3 py-1.5">
@@ -82,7 +82,7 @@ export function Header() {
             placeholder="Search markets..." 
             onFocus={() => setIsSearchFocused(true)}
             onBlur={() => setIsSearchFocused(false)}
-            className="w-full bg-transparent border-none text-xs text-white placeholder:text-slate-500 focus:outline-none focus:ring-0 px-2 py-1.5 font-medium"
+            className="w-full bg-transparent border-none text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 px-2 py-1.5 font-medium"
           />
         </div>
       </div>
@@ -95,20 +95,20 @@ export function Header() {
             {/* Wallet Balance Widget */}
             <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4 pr-2">
               <div className="flex flex-col items-end sm:items-start leading-none">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Main Balance</span>
-                <span className="text-xs sm:text-sm font-black text-white font-mono tracking-tight">
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Main Balance</span>
+                <span className="text-xs sm:text-sm font-black text-slate-900 font-mono tracking-tight">
                   ${isClient && typeof balance === 'number' ? balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
               <div className="flex flex-col items-end sm:items-start leading-none">
-                <span className="text-[9px] font-bold text-slate-400 uppercase tracking-widest mb-0.5">Exposure</span>
-                <span className="text-xs sm:text-sm font-black text-[#FACC15] font-mono tracking-tight">
+                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Exposure</span>
+                <span className="text-xs sm:text-sm font-black text-blue-600 font-mono tracking-tight">
                   ${isClient ? positions.reduce((acc, p) => acc + (p.investment || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="hidden sm:block bg-[#FACC15] hover:bg-[#EAB308] text-slate-900 text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-sm transition-colors ml-2 uppercase tracking-wider"
+                className="hidden sm:block bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-sm transition-colors ml-2 uppercase tracking-wider"
               >
                 Deposit
               </button>
@@ -117,11 +117,11 @@ export function Header() {
             {/* Positions Button */}
             <button 
               onClick={() => setIsPortfolioOpen(true)}
-              className="relative hidden sm:flex items-center gap-1.5 text-slate-400 hover:text-[#FACC15] transition-colors p-1.5"
+              className="relative hidden sm:flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors p-1.5"
             >
               <Briefcase className="w-5 h-5" />
               {isClient && positions.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-[#FACC15] rounded-full text-[9px] font-black text-slate-900 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 rounded-full text-[9px] font-black text-white flex items-center justify-center">
                   {positions.length}
                 </span>
               )}
@@ -133,7 +133,7 @@ export function Header() {
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={cn(
                   "relative transition-colors p-1.5 rounded-sm",
-                  isNotificationsOpen ? "bg-slate-800 text-[#FACC15]" : "text-slate-400 hover:text-[#FACC15] hover:bg-slate-800"
+                  isNotificationsOpen ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
                 )}
               >
                 <Bell className="w-5 h-5" />
@@ -146,7 +146,7 @@ export function Header() {
               {isNotificationsOpen && (
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
-                  <div className="absolute top-full mt-2 right-0 w-80 bg-[#1E293B] border border-slate-700 rounded-sm shadow-xl z-50 overflow-hidden">
+                  <div className="absolute top-full mt-2 right-0 w-80 bg-white border border-slate-200 rounded-sm shadow-xl z-50 overflow-hidden">
                     <div className="p-3 border-b border-exchange-border flex items-center justify-between bg-slate-50">
                       <h3 className="text-xs font-bold text-exchange-text uppercase tracking-wider">Notifications</h3>
                       {currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (

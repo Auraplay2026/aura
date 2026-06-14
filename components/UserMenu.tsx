@@ -39,14 +39,14 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
     <div className="relative">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-2 h-10 px-2 rounded-sm hover:bg-slate-800 transition-colors focus:outline-none"
+        className="flex items-center gap-2 h-10 px-2 rounded-sm hover:bg-slate-100 transition-colors focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center border border-slate-700">
-          <span className="font-bold text-[#FACC15] text-xs">
+        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
+          <span className="font-bold text-blue-600 text-xs">
             {currentUser ? getInitials(currentUser.username) : "P1"}
           </span>
         </div>
-        <ChevronDown className="w-4 h-4 text-slate-400" />
+        <ChevronDown className="w-4 h-4 text-slate-500" />
       </button>
 
       <AnimatePresence>
@@ -58,13 +58,13 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 5 }}
               transition={{ duration: 0.15 }}
-              className="absolute right-0 mt-1 w-56 bg-[#1E293B] border border-slate-700 shadow-2xl z-50 py-1"
+              className="absolute right-0 mt-1 w-56 bg-white border border-slate-200 shadow-2xl z-50 py-1 rounded-sm"
             >
-              <div className="px-4 py-2 border-b border-slate-700 mb-1">
-                <p className="text-sm font-bold text-white truncate">
+              <div className="px-4 py-2 border-b border-slate-200 mb-1">
+                <p className="text-sm font-bold text-slate-900 truncate">
                   {currentUser?.username || "PlayerOne"}
                 </p>
-                <p className="text-[10px] text-slate-400 truncate">
+                <p className="text-[10px] text-slate-500 truncate">
                   {currentUser?.email || "demo@aurabet.io"}
                 </p>
               </div>
@@ -76,7 +76,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                       key={item.label}
                       href={item.href} 
                       onClick={() => setIsOpen(false)}
-                      className="flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors"
+                      className="flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors"
                     >
                       <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
                       {item.label}
@@ -88,7 +88,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                         setIsOpen(false);
                         item.action?.();
                       }}
-                      className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-300 hover:text-white hover:bg-slate-800 transition-colors text-left"
+                      className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors text-left"
                     >
                       <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
                       {item.label}
@@ -97,15 +97,15 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                 ))}
               </div>
 
-              <div className="mt-1 pt-1 border-t border-slate-700">
+              <div className="mt-1 pt-1 border-t border-slate-200">
                 <button 
                   onClick={() => {
-                    setIsOpen(false);
                     logout();
+                    setIsOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-red-400 hover:text-red-300 hover:bg-slate-800 transition-colors text-left"
+                  className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-red-600 hover:bg-red-50 transition-colors text-left"
                 >
-                  <LogOut className="w-3.5 h-3.5" /> Sign Out
+                  <LogOut className="w-3.5 h-3.5" /> Log Out
                 </button>
               </div>
             </motion.div>
