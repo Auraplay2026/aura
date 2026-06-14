@@ -104,13 +104,6 @@ export function Footer() {
               <div className="flex items-center gap-2 bg-[#f7931a]/5 border border-[#f7931a]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#f7931a]/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Bitcoin className="w-5 h-5 text-[#f7931a]" /> BTC</div>
               <div className="flex items-center gap-2 bg-[#627eea]/5 border border-[#627eea]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-[#627eea]/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Coins className="w-5 h-5 text-[#627eea]" /> ETH</div>
               <div className="flex items-center gap-2 bg-slate-50/5 border border-[#26a17b]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-slate-50/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1"><Coins className="w-5 h-5 text-[#26a17b]" /> USDT</div>
-              <div className="flex items-center gap-2 bg-slate-50/5 border border-[#097939]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-slate-50/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1">
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M3 16L7 8H11L7 16H3Z" fill="#0054A6" />
-                  <path d="M9 16L13 8H17L13 16H9Z" fill="#097939" />
-                </svg>
-                UPI
-              </div>
               <div className="flex items-center gap-2 bg-slate-50/5 border border-[#0054A6]/20 px-5 py-3 rounded-2xl text-slate-700 font-bold hover:bg-slate-50/10 transition-all duration-300 cursor-pointer shadow-sm transform hover:-translate-y-1">
                 <Landmark className="w-5 h-5 text-[#0054A6]" /> IMPS
               </div>
