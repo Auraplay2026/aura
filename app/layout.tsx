@@ -9,6 +9,10 @@ const outfit = Outfit({ subsets: ["latin"], display: 'swap', weight: ['300', '40
 
 export const viewport = {
   themeColor: "#f8fafc",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export const metadata: Metadata = {
