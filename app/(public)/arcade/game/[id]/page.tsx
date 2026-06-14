@@ -2,8 +2,9 @@ import { notFound } from "next/navigation";
 import { getArcadeGameById } from "@/lib/arcade-games";
 import { ArcadeGameWrapper } from "@/components/arcade/ArcadeGameWrapper";
 
-export default function ArcadeGamePage({ params }: { params: { id: string } }) {
-  const game = getArcadeGameById(params.id);
+export default async function ArcadeGamePage({ params }: { params: Promise<{ id: string }> }) {
+  const resolvedParams = await params;
+  const game = getArcadeGameById(resolvedParams.id);
 
   if (!game) {
     notFound();

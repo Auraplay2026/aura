@@ -1,4 +1,4 @@
-export type ArcadeCategoryId = "runner" | "puzzle" | "action";
+export type ArcadeCategoryId = "runner" | "puzzle" | "action" | "racing";
 
 export interface ArcadeGame {
   id: string;
@@ -39,6 +39,15 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     thumbnail: "https://images.unsplash.com/photo-1511227499330-819586145398?w=800&h=600&fit=crop", // Archery/Target
     categories: ["action", "puzzle"],
     url: "https://html5.gamedistribution.com/d5a9d60edec84b3ca961b7f9eb3f22da/", // Archery clone
+  },
+  {
+    id: "madalin-stunt-cars-pro",
+    title: "Madalin Stunt Cars Pro",
+    provider: "AuraPlay Racing",
+    description: "High-fidelity 3D drifting & racing simulator. Master the tracks and perform insane stunts.",
+    thumbnail: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop",
+    categories: ["action", "racing"] as ArcadeCategoryId[],
+    url: "https://html5.gamedistribution.com/5f8b50e051394c8b82df130d2fc4df8d/",
     isNew: true
   }
 ];
