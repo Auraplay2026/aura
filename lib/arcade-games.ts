@@ -19,7 +19,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "High-speed 3D temple runner. Dodge ancient obstacles, collect gems, slide, jump, and run as far as you can.",
     thumbnail: "/games/tomb_runner.png",
     categories: ["runner", "action"],
-    url: "https://scratch.mit.edu/projects/251939103/embed", 
+    url: "https://scratch.mit.edu/projects/105500895/embed", 
     isNew: true
   },
   {
@@ -29,7 +29,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Form sweet cascades and match colourful jellies and candy combos in this delicious match-3 puzzle adventure.",
     thumbnail: "/games/candy_rain.png",
     categories: ["puzzle"],
-    url: "https://scratch.mit.edu/projects/388147690/embed" 
+    url: "https://scratch.mit.edu/projects/60917032/embed" 
   },
   {
     id: "zen-archery",
@@ -38,7 +38,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Master wind and gravity. Aim with high precision to clear balloons and moving targets around the globe.",
     thumbnail: "/games/archery_world_tour.png",
     categories: ["action", "puzzle"],
-    url: "https://scratch.mit.edu/projects/412035817/embed",
+    url: "https://scratch.mit.edu/projects/112004240/embed",
     isNew: true
   },
   {
@@ -48,7 +48,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Perform insane drifts, jumps, and stunts in luxury supercars. Run open-world maps in single or multiplayer sandbox modes.",
     thumbnail: "/games/two_stunt_supercars.png",
     categories: ["action", "racing"] as ArcadeCategoryId[],
-    url: "https://scratch.mit.edu/projects/263625406/embed",
+    url: "https://scratch.mit.edu/projects/10128407/embed",
     isNew: true
   }
 ];
