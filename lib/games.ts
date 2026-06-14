@@ -1,4 +1,4 @@
-export type CategoryId = "fps" | "driving" | "retro" | "sports" | "action" | "puzzle" | "funny" | "boring" | "originals" | "slots" | "live" | "shows" | "table" | "crash" | "poker" | "esports" | "racing" | "adventure" | "casual" | "classic" | "roulette" | "blackjack" | "baccarat" | "aaa" | "3d" | "open-world";
+export type CategoryId = "fps" | "driving" | "retro" | "sports" | "action" | "puzzle" | "funny" | "boring" | "originals" | "slots" | "live" | "shows" | "table" | "crash" | "poker" | "esports" | "racing" | "adventure" | "casual" | "classic" | "roulette" | "blackjack" | "baccarat" | "aaa" | "3d" | "open-world" | "external";
 
 
 export interface Game {
@@ -11,9 +11,12 @@ export interface Game {
   hourlyRate?: number; // hourly renting rate in ₹ (only for cloud games)
   rtp?: number; // RTP for casino/betting games
   players?: number; // active streams/players
+  isExternal?: boolean; // If true, opens the cinematic launcher instead of an internal engine
 }
 
-export const GAMES: Game[] = [
+import generatedGamesData from "./generatedGames.json";
+
+export const FEATURED_GAMES: Game[] = [
   // ==========================================
   // CASINO & BETTING GAMES - ORIGINALS
   // ==========================================
@@ -124,6 +127,8 @@ export const GAMES: Game[] = [
   { id: "puzzle-3", title: "Mind Solver", provider: "Originals", image: "/games/puzzle_thumbnail_1780932148588.png", categories: ["puzzle"], rtp: 99.0, players: 4300 },
   { id: "casual-1", title: "Wacky World", provider: "Originals", image: "/games/funny_thumbnail_1780932135777.png", categories: ["casual", "funny"], rtp: 98.8, players: 26000 }
 ];
+
+export const GAMES: Game[] = [...FEATURED_GAMES, ...(generatedGamesData as unknown as Game[])];
 
 export const getGamesByCategory = (categoryId: CategoryId) => {
   return GAMES.filter(game => game.categories.includes(categoryId));

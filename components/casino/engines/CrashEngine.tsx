@@ -73,7 +73,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
   };
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,1)]">
+    <div className="w-full h-full min-h-[500px] bg-[#0a0f1c] rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]">
       
       {/* Photorealistic Deep Space Nebula Background */}
       <div 
@@ -116,36 +116,48 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
         transition={{ duration: 0.3 }}
         className="z-20 relative flex flex-col items-center"
       >
-        <motion.h1 
-          className={`text-8xl md:text-[120px] font-black font-mono tracking-tighter drop-shadow-2xl ${crashed ? "text-red-500" : "text-slate-900"}`}
-          style={{ textShadow: crashed ? "0 0 40px rgba(239, 68, 68, 0.8)" : "0 0 40px rgba(255, 255, 255, 0.5)" }}
+        <motion.div 
+          animate={crashed ? { scale: [1, 1.2, 1], rotate: [-2, 2, -2, 2, 0] } : { scale: 1 }}
+          transition={{ duration: 0.5 }}
+          className={`text-6xl md:text-8xl font-black font-mono tracking-tighter drop-shadow-2xl ${
+            crashed ? 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)]' : 
+            hasCashedOut ? 'text-emerald-400 drop-shadow-[0_0_30px_rgba(16,185,129,0.8)]' : 
+            'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]'
+          }`}
         >
-          {multiplier.toFixed(2)}<span className="text-4xl md:text-6xl text-emerald-500 ml-2">x</span>
-        </motion.h1>
+          {multiplier.toFixed(2)}x
+        </motion.div>
         
-        <div className={`mt-2 px-6 py-2 rounded-full border border-slate-200 backdrop-blur-md flex items-center gap-2 ${crashed ? "bg-red-100 text-red-500" : hasCashedOut ? "bg-emerald-100 text-emerald-600" : "bg-blue-100 text-blue-600"}`}>
-          {crashed ? <AlertTriangle className="w-5 h-5" /> : <Crosshair className={`w-5 h-5 ${hasCashedOut ? '' : 'animate-spin-slow'}`} />}
-          <span className="font-mono text-sm tracking-widest uppercase font-bold">
-            {crashed ? "COMMS LOST - CRASHED" : hasCashedOut ? "ESCAPED ORBIT - SECURED" : "ORBITAL CLIMB ACTIVE"}
-          </span>
-        </div>
+        <AnimatePresence>
+          {hasCashedOut && !crashed && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mt-4 px-6 py-2 bg-emerald-900/20 border border-emerald-500/30 rounded-xl backdrop-blur-md flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.2)]"
+            >
+              <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Secured</span>
+              <span className="text-white font-black text-xl">₹{(betAmount * multiplier).toFixed(2)}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </motion.div>
 
-      {/* Massive Cashout Button */}
+      {/* Manual Cashout Interaction Panel */}
       <AnimatePresence>
         {isPlaying && !crashed && !hasCashedOut && (
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[300px]"
+            className="absolute bottom-8 z-50 w-[90%] max-w-[300px]"
           >
             <button
               onClick={handleCashout}
-              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_50px_rgba(52,211,153,0.5),inset_0_2px_0_rgba(255,255,255,0.5)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
+              className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95"
             >
               <span>Cashout</span>
-              <span className="bg-slate-900/20 px-3 py-1 rounded-lg">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="bg-black/20 px-3 py-1 rounded-lg">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </button>
           </motion.div>
         )}

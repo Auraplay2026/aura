@@ -32,6 +32,7 @@ import { PlinkoEngine } from "@/components/casino/engines/PlinkoEngine";
 import { TradeXEngine } from "@/components/casino/engines/TradeXEngine";
 import { HiLoEngine } from "@/components/casino/engines/HiLoEngine";
 import { PenaltyEngine } from "@/components/casino/engines/PenaltyEngine";
+import { ExternalEngine } from "@/components/casino/engines/ExternalEngine";
 import { GameTutorialOverlay } from "@/components/GameTutorialOverlay";
 
 // VIP LIVE RENTERS & BETS SIDEBAR
@@ -446,6 +447,11 @@ export default function GamePlayerPage() {
   const isArcade = game.categories.some(cat => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat));
 
   const renderEngine = () => {
+    // === EXTERNAL GAMES (Cinematic Loading Simulation) ===
+    if (game.isExternal) {
+      return <ExternalEngine isPlaying={isSpinning} onComplete={handleEngineComplete} game={game} />;
+    }
+
     // === ORIGINALS — each gets its own unique engine ===
     if (game.id === "orig-7" || game.title.toLowerCase().includes("tower")) {
       return <TowerEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
