@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bell, Briefcase, Settings, Settings2, Menu, Wallet, FileText, Activity, BarChart, Gift, ShieldCheck } from "lucide-react";
+import { Search, Bell, Briefcase, Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CashierModal } from "@/components/ui/CashierModal";
 import { UserMenu } from "@/components/UserMenu";
@@ -18,7 +18,6 @@ export function Header() {
   const [isCashierOpen, setIsCashierOpen] = useState(false);
   const [isPortfolioOpen, setIsPortfolioOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authView, setAuthView] = useState<'login' | 'signup'>('login');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
@@ -205,58 +204,6 @@ export function Header() {
               )}
             </div>
 
-            {/* Settings Cog */}
-            <div className="relative">
-              <button 
-                onClick={() => setIsSettingsOpen(!isSettingsOpen)}
-                className={cn(
-                  "p-1.5 rounded-sm transition-colors flex items-center justify-center group",
-                  isSettingsOpen ? "bg-slate-100 text-slate-900" : "text-exchange-muted hover:text-exchange-text hover:bg-slate-50"
-                )}
-              >
-                <Settings className="w-5 h-5 group-hover:rotate-90 transition-transform duration-300" />
-              </button>
-              
-              <AnimatePresence>
-                {isSettingsOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsSettingsOpen(false)} />
-                    <motion.div 
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, y: 5 }}
-                      transition={{ duration: 0.15 }}
-                      className="absolute right-0 mt-2 w-64 bg-white border border-slate-200 rounded-sm shadow-xl z-50 py-1 overflow-hidden"
-                    >
-                      <div className="px-4 py-2 border-b border-slate-100 bg-slate-50">
-                        <h3 className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Quick Settings</h3>
-                      </div>
-                      <div className="flex flex-col py-1">
-                        {[
-                          { label: "Balance & Funds", icon: Wallet, href: "/account/balance" },
-                          { label: "Account Statement", icon: FileText, href: "/account/statement" },
-                          { label: "My Bets", icon: Activity, href: "/account/bets" },
-                          { label: "Profit & Loss", icon: BarChart, href: "/account/pnl" },
-                          { label: "Activity Log", icon: Settings2, href: "/account/activity" },
-                          { label: "Refer & Earn", icon: Gift, href: "/refer" },
-                          { label: "Safe Play", icon: ShieldCheck, href: "/rg" },
-                        ].map((item) => (
-                          <Link 
-                            key={item.label}
-                            href={item.href} 
-                            onClick={() => setIsSettingsOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all border-l-2 border-transparent hover:border-l-2 hover:border-red-600 hover:pl-[14px]"
-                          >
-                            <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
-                            {item.label}
-                          </Link>
-                        ))}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
 
             {/* User Profile Dropdown */}
             <UserMenu onOpenCashier={() => setIsCashierOpen(true)} />
