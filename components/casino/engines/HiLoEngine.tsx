@@ -1,0 +1,215 @@
+"use client";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { ArrowUp, ArrowDown, Wallet, Play } from "lucide-react";
+import { calculateGameOutcome } from "@/lib/casino-math";
+
+interface HiLoEngineProps {
+  isPlaying: boolean;
+  onComplete: (multiplier: number, won: boolean) => void;
+}
+
+const DECK = [
+  { val: "2", suit: "♠", color: "text-slate-900", rank: 2 },
+  { val: "3", suit: "♦️", color: "text-red-600", rank: 3 },
+  { val: "4", suit: "♥️", color: "text-red-600", rank: 4 },
+  { val: "5", suit: "♣️", color: "text-slate-900", rank: 5 },
+  { val: "6", suit: "♠", color: "text-slate-900", rank: 6 },
+  { val: "7", suit: "♦️", color: "text-red-600", rank: 7 },
+  { val: "8", suit: "♥️", color: "text-red-600", rank: 8 },
+  { val: "9", suit: "♣️", color: "text-slate-900", rank: 9 },
+  { val: "10", suit: "♠", color: "text-slate-900", rank: 10 },
+  { val: "J", suit: "♦️", color: "text-red-600", rank: 11 },
+  { val: "Q", suit: "♥️", color: "text-red-600", rank: 12 },
+  { val: "K", suit: "♣️", color: "text-slate-900", rank: 13 },
+  { val: "A", suit: "♠", color: "text-slate-900", rank: 14 }
+];
+
+export function HiLoEngine({ isPlaying, onComplete }: HiLoEngineProps) {
+  const [currentCard, setCurrentCard] = useState<typeof DECK[0] | null>(null);
+  const [prevCards, setPrevCards] = useState<typeof DECK[0][]>([]);
+  const [gameState, setGameState] = useState<"idle" | "playing" | "busted" | "cashed_out">("idle");
+  const [multiplier, setMultiplier] = useState(1.0);
+  const [targetWinLength, setTargetWinLength] = useState(0);
+  
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+
+  useEffect(() => {
+    if (isPlaying && gameState === "idle") {
+      setGameState("playing");
+      setMultiplier(1.0);
+      setPrevCards([]);
+      // Draw first card
+      setCurrentCard(DECK[Math.floor(Math.random() * DECK.length)]);
+      
+      // We determine how many correct guesses they are ALLOWED to have before forced bust
+      const mathOutcome = calculateGameOutcome("ORIGINAL");
+      if (mathOutcome.isWin) {
+        setTargetWinLength(Math.floor(Math.random() * 5) + 3); // Let them win 3 to 7 guesses
+      } else {
+        setTargetWinLength(mathOutcome.isNearMiss ? 2 : 0); // Bust quickly
+      }
+    } else if (!isPlaying) {
+      setGameState("idle");
+      setCurrentCard(null);
+      setPrevCards([]);
+    }
+  }, [isPlaying, gameState]);
+
+  const handleGuess = (guess: "HIGHER" | "LOWER") => {
+    if (gameState !== "playing" || !currentCard) return;
+
+    const currentRank = currentCard.rank;
+    const winsSoFar = prevCards.length + 1;
+    
+    // Determine the next card based on our pre-determined win length target
+    let nextCard;
+    if (winsSoFar <= targetWinLength) {
+      // Force Win
+      let validCards = DECK.filter(c => guess === "HIGHER" ? c.rank > currentRank : c.rank < currentRank);
+      if (validCards.length === 0) validCards = [currentCard]; // fallback if rank is 14 and guessed higher (unlikely in real play but safe)
+      nextCard = validCards[Math.floor(Math.random() * validCards.length)];
+      
+      setPrevCards(prev => [...prev, currentCard]);
+      setCurrentCard(nextCard);
+      setMultiplier(prev => +(prev * 1.5).toFixed(2));
+    } else {
+      // Force Loss
+      let invalidCards = DECK.filter(c => guess === "HIGHER" ? c.rank <= currentRank : c.rank >= currentRank);
+      if (invalidCards.length === 0) invalidCards = DECK; // fallback
+      nextCard = invalidCards[Math.floor(Math.random() * invalidCards.length)];
+      
+      setPrevCards(prev => [...prev, currentCard]);
+      setCurrentCard(nextCard);
+      setGameState("busted");
+      setTimeout(() => {
+        onCompleteRef.current(0, false);
+      }, 1500);
+    }
+  };
+
+  const handleCashout = () => {
+    if (gameState !== "playing") return;
+    setGameState("cashed_out");
+    setTimeout(() => {
+      onCompleteRef.current(multiplier, true);
+    }, 1500);
+  };
+
+  return (
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950 rounded-[3rem] border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center p-6 overflow-hidden perspective-[1000px]">
+      
+      {/* Deep Casino Felt */}
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.15),_transparent_60%)] pointer-events-none" />
+
+      {/* Header */}
+      <div className="relative z-10 w-full flex justify-between items-center mb-12 bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-700/50 shadow-inner">
+        <div>
+          <h2 className="text-purple-400 font-black text-xl tracking-widest uppercase drop-shadow-md">Aura HiLo</h2>
+          <span className="text-slate-500 text-[10px] font-bold tracking-[0.2em] block">PREDICT THE NEXT CARD</span>
+        </div>
+        <div className="flex flex-col items-end">
+          <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Current Multiplier</span>
+          <span className={`text-2xl font-mono font-black ${multiplier > 1.0 ? "text-neon-green drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "text-white"}`}>
+            {multiplier.toFixed(2)}x
+          </span>
+        </div>
+      </div>
+
+      {/* Play Area */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full transform-style-3d rotate-x-[10deg]">
+        
+        {/* Card Stack / History */}
+        <div className="absolute top-0 flex gap-[-30px] opacity-60 scale-75 blur-[2px] pointer-events-none">
+          {prevCards.slice(-3).map((card, idx) => (
+            <div key={idx} className={`w-20 h-28 bg-slate-200 rounded-lg border border-slate-400 shadow-md relative flex items-center justify-center ${card.color} -ml-8 first:ml-0 rotate-[-5deg]`}>
+              <span className="absolute top-1 left-2 font-black text-xs">{card.val}</span>
+              <span className="text-2xl">{card.suit}</span>
+            </div>
+          ))}
+        </div>
+
+        {/* Current Active Card */}
+        <div className="relative mt-8">
+          <AnimatePresence mode="wait">
+            {currentCard ? (
+              <motion.div
+                key={`${currentCard.val}-${currentCard.suit}-${prevCards.length}`}
+                initial={{ y: -300, rotateY: 180, scale: 0.5, opacity: 0 }}
+                animate={{ y: 0, rotateY: 0, scale: 1, opacity: 1 }}
+                exit={{ x: -200, opacity: 0, rotateZ: -20 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className={`w-40 md:w-56 h-60 md:h-80 bg-gradient-to-br from-white to-slate-100 border-4 border-slate-200 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-4 transform-style-3d z-30`}
+              >
+                <span className={`font-black text-3xl md:text-4xl leading-none ${currentCard.color}`}>{currentCard.val}</span>
+                <span className={`text-7xl md:text-9xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${currentCard.color} drop-shadow-lg`}>{currentCard.suit}</span>
+                <span className={`font-black text-3xl md:text-4xl leading-none self-end rotate-180 ${currentCard.color}`}>{currentCard.val}</span>
+              </motion.div>
+            ) : (
+              <div className="w-40 md:w-56 h-60 md:h-80 bg-slate-800/50 border-4 border-dashed border-slate-700 rounded-2xl flex items-center justify-center backdrop-blur-sm z-30">
+                <span className="text-slate-600 font-black uppercase tracking-widest text-sm">Place Bet</span>
+              </div>
+            )}
+          </AnimatePresence>
+
+          {/* Result Overlays */}
+          <AnimatePresence>
+            {gameState === "busted" && (
+              <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-40 flex items-center justify-center">
+                <div className="bg-rose-600 text-white font-black text-4xl px-8 py-4 rounded-xl border-4 border-rose-400 shadow-[0_0_50px_rgba(225,29,72,0.8)] -rotate-12">
+                  BUSTED!
+                </div>
+              </motion.div>
+            )}
+            {gameState === "cashed_out" && (
+              <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-40 flex items-center justify-center">
+                <div className="bg-emerald-500 text-white font-black text-3xl px-8 py-4 rounded-xl border-4 border-emerald-300 shadow-[0_0_50px_rgba(16,185,129,0.8)] rotate-12 flex flex-col items-center">
+                  <span>CASHED OUT</span>
+                  <span className="text-xl">{multiplier.toFixed(2)}x</span>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+      </div>
+
+      {/* Manual Controls */}
+      <AnimatePresence>
+        {gameState === "playing" && (
+          <motion.div 
+            initial={{ y: 100, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: 100, opacity: 0 }}
+            className="w-full relative z-20 flex flex-col sm:flex-row gap-4 mt-8"
+          >
+            <button 
+              onClick={() => handleGuess("HIGHER")}
+              disabled={currentCard?.rank === 14}
+              className="flex-1 bg-gradient-to-t from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(30,58,138,1),0_15px_20px_rgba(59,130,246,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(30,58,138,1),0_5px_10px_rgba(59,130,246,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              HIGHER <ArrowUp className="w-6 h-6 stroke-[3]" />
+            </button>
+            <button 
+              onClick={() => handleGuess("LOWER")}
+              disabled={currentCard?.rank === 2}
+              className="flex-1 bg-gradient-to-t from-rose-600 to-rose-400 hover:from-rose-500 hover:to-rose-300 text-white font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(159,18,57,1),0_15px_20px_rgba(244,63,94,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(159,18,57,1),0_5px_10px_rgba(244,63,94,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
+            >
+              LOWER <ArrowDown className="w-6 h-6 stroke-[3]" />
+            </button>
+            <button 
+              onClick={handleCashout}
+              disabled={multiplier <= 1.0}
+              className="flex-1 bg-gradient-to-t from-emerald-600 to-emerald-400 hover:from-emerald-500 hover:to-emerald-300 text-slate-900 font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(6,95,70,1),0_15px_20px_rgba(16,185,129,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(6,95,70,1),0_5px_10px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border-2 border-emerald-300"
+            >
+              CASHOUT <Wallet className="w-6 h-6 stroke-[3]" />
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+    </div>
+  );
+}

@@ -29,6 +29,9 @@ import { LimboEngine } from "@/components/casino/engines/LimboEngine";
 import { MinesEngine } from "@/components/casino/engines/MinesEngine";
 import { KenoEngine } from "@/components/casino/engines/KenoEngine";
 import { PlinkoEngine } from "@/components/casino/engines/PlinkoEngine";
+import { TradeXEngine } from "@/components/casino/engines/TradeXEngine";
+import { HiLoEngine } from "@/components/casino/engines/HiLoEngine";
+import { PenaltyEngine } from "@/components/casino/engines/PenaltyEngine";
 import { GameTutorialOverlay } from "@/components/GameTutorialOverlay";
 
 // VIP LIVE RENTERS & BETS SIDEBAR
@@ -470,6 +473,15 @@ export default function GamePlayerPage() {
     }
     if (game.id === "orig-10" || game.categories.includes("shows") || game.title.toLowerCase().includes("wheel") || game.title.toLowerCase().includes("time") || game.title.toLowerCase().includes("funky") || game.title.toLowerCase().includes("monopoly") || game.title.toLowerCase().includes("dream catcher")) {
       return <LiveWheelEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-12" || game.title.toLowerCase().includes("tradex") || game.title.toLowerCase().includes("trade")) {
+      return <TradeXEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-13" || game.title.toLowerCase().includes("hilo") || game.title.toLowerCase().includes("high")) {
+      return <HiLoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-14" || game.title.toLowerCase().includes("penalty") || game.title.toLowerCase().includes("shootout")) {
+      return <PenaltyEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {

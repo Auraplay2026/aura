@@ -64,6 +64,9 @@ export const FEATURED_GAMES: Game[] = [
   { id: "orig-9", title: "Coinflip", provider: "Originals", image: "/games/housegames_coinflip.jpg", categories: ["originals"], rtp: 99.0, players: 8400 },
   { id: "orig-10", title: "Wheel", provider: "Originals", image: "/games/housegames_slide-lDqMEzMQA.png", categories: ["originals"], rtp: 99.0, players: 6300 },
   { id: "orig-11", title: "Roulette", provider: "Originals", image: "/games/housegames_roulette-M5fn8z7Db.png", categories: ["originals", "table", "roulette"], rtp: 97.3, players: 12500 },
+  { id: "orig-12", title: "TradeX", provider: "Originals", image: "/games/trade_thumbnail_1780932148588.png", categories: ["originals", "casual"], rtp: 99.0, players: 18500, isNew: true },
+  { id: "orig-13", title: "HiLo", provider: "Originals", image: "/games/hilo_thumbnail_1780932148588.png", categories: ["originals", "table"], rtp: 99.0, players: 22100, isNew: true },
+  { id: "orig-14", title: "Penalty Shootout", provider: "Originals", image: "/games/penalty_thumbnail_1780932148588.png", categories: ["originals", "sports"], rtp: 99.0, players: 15400, isNew: true },
 
   { id: "crash-1", title: "Aviator", provider: "Spribe", image: "/games/spribe_aviator-7zuT5hj-B.jpeg", categories: ["crash"], players: 50000 },
   { id: "slot-1", title: "Sweet Bonanza", provider: "Pragmatic Play", image: "/games/slot_cover_sweet.png", categories: ["slots"], players: 12000 },
