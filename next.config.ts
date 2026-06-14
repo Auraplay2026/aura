@@ -31,11 +31,30 @@ const securityHeaders = [
   }
 ];
 
+// Headers for the game proxy route — no frame restrictions, wide CORS
+const gameProxyHeaders = [
+  {
+    key: 'Access-Control-Allow-Origin',
+    value: '*',
+  },
+  {
+    key: 'Access-Control-Allow-Methods',
+    value: 'GET, OPTIONS',
+  },
+  // Deliberately NO X-Frame-Options so the proxied content embeds freely
+];
+
 const nextConfig: NextConfig = {
   async headers() {
     return [
+      // Game proxy: open CORS, no frame restrictions
       {
-        source: '/(.*)',
+        source: '/api/game-proxy/:path*',
+        headers: gameProxyHeaders,
+      },
+      // All other routes: full security headers
+      {
+        source: '/((?!api/game-proxy).*)',
         headers: securityHeaders,
       },
     ];
@@ -53,7 +72,11 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'play-lh.googleusercontent.com',
-      }
+      },
+      {
+        protocol: 'https',
+        hostname: '*.gamedistribution.com',
+      },
     ],
   },
 };
