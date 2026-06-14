@@ -469,6 +469,13 @@ export const useTradingStore = create<TradingState>()(
 
         const isWithdrawal = amount < 0;
         const absAmount = Math.abs(amount);
+
+        // Security check: Prevent overdrafts on withdrawal
+        if (isWithdrawal && absAmount > safeBalance) {
+          console.error("Insufficient balance for withdrawal");
+          return state;
+        }
+
         const newBalance = safeBalance + amount;
         
         const tx: Transaction = {
@@ -490,6 +497,12 @@ export const useTradingStore = create<TradingState>()(
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
            safeBalance = isNaN(parsed) ? 100000 : parsed;
+        }
+
+        // Security check: Prevent overdrafts and negative wagers
+        if (investment <= 0 || investment > safeBalance) {
+          console.error("Invalid investment amount or insufficient balance");
+          return state;
         }
 
         const shares = investment / (currentPrice / 100);
@@ -537,6 +550,12 @@ export const useTradingStore = create<TradingState>()(
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
            safeBalance = isNaN(parsed) ? 100000 : parsed;
+        }
+
+        // Security check: Prevent overdrafts and negative wagers
+        if (stake <= 0 || stake > safeBalance) {
+          console.error("Invalid stake amount or insufficient balance");
+          return state;
         }
 
         const newBalance = safeBalance - stake;
@@ -607,6 +626,12 @@ export const useTradingStore = create<TradingState>()(
            safeBalance = isNaN(parsed) ? 100000 : parsed;
         }
 
+        // Security check: Prevent overdrafts and negative wagers/payouts
+        if (wager <= 0 || wager > safeBalance || payout < 0) {
+          console.error("Invalid wager/payout or insufficient balance");
+          return state;
+        }
+
         const netChange = payout - wager;
         const newBalance = safeBalance + netChange;
 
@@ -632,10 +657,13 @@ export const useTradingStore = create<TradingState>()(
         }
 
         const position = state.positions.find(p => p.id === positionId);
-        if (!position) return state;
+        if (!position) return state; // Ensure position exists
 
         const currentValue = position.shares * (currentMarketPrice / 100);
         const newBalance = safeBalance + currentValue;
+
+        // Security check: Remove the position to prevent infinite cashouts
+        const updatedPositions = state.positions.filter(p => p.id !== positionId);
 
         const tx: Transaction = {
           id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
@@ -648,7 +676,7 @@ export const useTradingStore = create<TradingState>()(
         };
 
         recordGameRound({
-          gameId: 'predictions',
+          gameId: 'predictions_cashout',
           userId: 'current-user',
           wager: position.investment,
           payout: currentValue,
@@ -657,9 +685,7 @@ export const useTradingStore = create<TradingState>()(
         });
 
         const newTransactions = [tx, ...state.transactions];
-        const newPositions = state.positions.filter(p => p.id !== positionId);
-
-        return getSyncedStateAndSync(state, newBalance, newTransactions, newPositions);
+        return getSyncedStateAndSync(state, newBalance, newTransactions, updatedPositions);
       }),
 
       repairState: () => set((state) => {
