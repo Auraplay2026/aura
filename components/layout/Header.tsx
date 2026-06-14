@@ -99,15 +99,16 @@ export function Header() {
         {isLoggedIn ? (
           <>
             {/* Wallet Balance Widget */}
-            <div className="flex flex-col sm:flex-row items-end sm:items-center gap-2 sm:gap-4 pr-2">
-              <div className="flex flex-col items-end sm:items-start leading-none">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Main Balance</span>
+            <div className="flex items-center gap-2 sm:gap-4 pr-1 sm:pr-2">
+              <div className="flex flex-col items-end leading-none">
+                <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Balance</span>
                 <span className="text-xs sm:text-sm font-black text-slate-900 font-mono tracking-tight">
                   ${isClient && typeof balance === 'number' ? balance.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
-              <div className="flex flex-col items-end sm:items-start leading-none">
-                <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Exposure</span>
+              <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
+              <div className="flex flex-col items-end leading-none">
+                <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Exposure</span>
                 <span className="text-xs sm:text-sm font-black text-blue-600 font-mono tracking-tight">
                   ${isClient ? positions.reduce((acc, p) => acc + (p.investment || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
