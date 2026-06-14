@@ -300,10 +300,10 @@ export default function GamePlayerPage() {
   useEffect(() => {
     if (!game) return;
     const steps = [
-      setTimeout(() => setLoadingStep(1), 600),
-      setTimeout(() => setLoadingStep(2), 1200),
-      setTimeout(() => setLoadingStep(3), 2000),
-      setTimeout(() => setIsLoading(false), 2800)
+      setTimeout(() => setLoadingStep(1), 100),
+      setTimeout(() => setLoadingStep(2), 200),
+      setTimeout(() => setLoadingStep(3), 300),
+      setTimeout(() => setIsLoading(false), 400)
     ];
     return () => steps.forEach(clearTimeout);
   }, [game]);

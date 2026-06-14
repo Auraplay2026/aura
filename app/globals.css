@@ -102,3 +102,42 @@ body {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #94a3b8;
 }
+
+/* Optimize Backdrop Blurs and Animations for performance */
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Hardware accelerate animations */
+.animate-spin, .animate-pulse, .animate-shimmer {
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+/* GPU-accelerated backdrop blur with Webkit compatibility */
+.backdrop-blur-sm, .backdrop-blur-md, .backdrop-blur-lg, .backdrop-blur-xl, .backdrop-blur-2xl, .backdrop-blur-3xl {
+  -webkit-backdrop-filter: blur(var(--backdrop-blur-amount, 8px));
+  backdrop-filter: blur(var(--backdrop-blur-amount, 8px));
+  transform: translate3d(0, 0, 0);
+  will-change: transform, opacity;
+}
+
+.backdrop-blur-sm { --backdrop-blur-amount: 4px; }
+.backdrop-blur-md { --backdrop-blur-amount: 8px; }
+.backdrop-blur-lg { --backdrop-blur-amount: 16px; }
+.backdrop-blur-xl { --backdrop-blur-amount: 24px; }
+.backdrop-blur-2xl { --backdrop-blur-amount: 40px; }
+.backdrop-blur-3xl { --backdrop-blur-amount: 64px; }
+
+/* Mobile performance overrides: reduce blurs slightly on mobile to prevent lagging */
+@media (max-width: 768px) {
+  .backdrop-blur-2xl, .backdrop-blur-3xl {
+    --backdrop-blur-amount: 16px; /* Cap blur at a reasonable level on mobile to save performance */
+  }
+}
+
