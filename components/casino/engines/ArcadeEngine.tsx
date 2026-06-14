@@ -569,7 +569,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
               frameBorder="0"
               allow="autoplay; fullscreen; keyboard-map; pointer-lock; gamepad; accelerometer; gyroscope"
               allowFullScreen
-              referrerPolicy="no-referrer"
+              referrerPolicy="no-referrer-when-downgrade"
             />
           )}
         </div>
