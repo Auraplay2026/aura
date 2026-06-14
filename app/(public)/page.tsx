@@ -65,7 +65,7 @@ const CAROUSEL_SLIDES = [
     subtitle: "Get Your Online ID",
     accent: "5% BONUS ON FIRST DEPOSIT",
     bgUrl: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop",
-    gradient: "from-blue-900 via-slate-900 to-slate-900",
+    gradient: "from-red-950 via-slate-900 to-slate-900",
     buttonText: "Register Now",
     link: "/promotions"
   },
@@ -287,9 +287,9 @@ export default function GlobalHomepage() {
                       <div className="flex gap-1">
                         <button 
                           onClick={() => setSelectedBet({ matchTitle: match.title, selectionName: sel.name, odds: sel.back, type: 'back' })}
-                          className="w-12 py-1 bg-blue-100 hover:bg-blue-200 border border-blue-200 rounded text-center text-blue-800 transition-colors"
+                          className="w-12 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 rounded text-center text-emerald-800 transition-colors"
                         >
-                          <span className="block text-[8px] font-black uppercase text-blue-700/80 leading-none">Back</span>
+                          <span className="block text-[8px] font-black uppercase text-emerald-700/80 leading-none">Back</span>
                           <span className="text-xs font-black font-mono leading-none">{sel.back.toFixed(2)}</span>
                         </button>
                         <button 
@@ -312,7 +312,7 @@ export default function GlobalHomepage() {
         <Link href="/blog" className="md:col-span-2 relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-auto md:h-auto bg-gradient-to-br from-yellow-400 to-amber-500 group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex items-center justify-center p-6">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay z-0" />
           <div className="relative z-10 flex flex-col items-center w-full">
-            <div className="bg-blue-500 text-white font-black text-6xl md:text-7xl italic tracking-tighter px-6 py-2 rounded-xl shadow-xl transform -rotate-2 mb-4 border-4 border-white">
+            <div className="bg-red-600 text-white font-black text-6xl md:text-7xl italic tracking-tighter px-6 py-2 rounded-xl shadow-xl transform -rotate-2 mb-4 border-4 border-white">
               BLOG
             </div>
             <p className="text-slate-900 font-black uppercase tracking-widest text-sm mb-6 bg-white px-3 py-1 rounded">News | Sporting Info | Etc.</p>
@@ -331,11 +331,11 @@ export default function GlobalHomepage() {
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
         
         {/* Betradar */}
-        <Link href="/casino?provider=betradar" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-blue-900 group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
+        <Link href="/casino?provider=betradar" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-rose-950 group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700 opacity-60 mix-blend-overlay" />
-          <div className="absolute inset-0 bg-gradient-to-t from-blue-900 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-rose-950 to-transparent" />
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-end p-6">
-             <h3 className="text-3xl font-black text-white tracking-tighter mb-1">bet<span className="text-blue-400">radar</span></h3>
+             <h3 className="text-3xl font-black text-white tracking-tighter mb-1">bet<span className="text-rose-400">radar</span></h3>
           </div>
         </Link>
 
@@ -409,7 +409,7 @@ export default function GlobalHomepage() {
       <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.15 }} className="w-full mt-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Gamepad2 className="w-5 h-5 text-indigo-500" />
+            <Gamepad2 className="w-5 h-5 text-red-600" />
             <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">Instant Arcade</h2>
           </div>
           <Link href="/arcade" className="text-xs font-bold text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors">
@@ -450,7 +450,7 @@ export default function GlobalHomepage() {
       {/* 8. LIVE ACTION FEED & ACTIVITY */}
       <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.25 }} className="w-full mt-8 border-t border-slate-200 pt-8">
         <div className="flex items-center gap-2 mb-6">
-          <Activity className="w-5 h-5 text-blue-600" />
+          <Activity className="w-5 h-5 text-red-600" />
           <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">Platform Activity & Live Wins</h2>
         </div>
         <LiveActionFeed />
@@ -478,7 +478,7 @@ export default function GlobalHomepage() {
               >
                 <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
                   <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Trophy className="w-4 h-4 text-blue-600" /> Quick Wager Slip
+                    <Trophy className="w-4 h-4 text-red-600" /> Quick Wager Slip
                   </span>
                   <button onClick={() => setSelectedBet(null)} className="text-slate-400 hover:text-slate-600">
                     <X className="w-5 h-5" />
@@ -489,7 +489,7 @@ export default function GlobalHomepage() {
                   <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{selectedBet.matchTitle}</div>
                   <div className="flex justify-between items-center">
                     <span className="font-black text-slate-900 text-sm">{selectedBet.selectionName}</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase font-mono ${selectedBet.type === 'back' ? 'bg-blue-100 text-blue-800' : 'bg-pink-100 text-pink-800'}`}>
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase font-mono ${selectedBet.type === 'back' ? 'bg-emerald-100 text-emerald-800' : 'bg-pink-100 text-pink-800'}`}>
                       {selectedBet.type} @ {selectedBet.odds.toFixed(2)}
                     </span>
                   </div>
@@ -514,7 +514,7 @@ export default function GlobalHomepage() {
                           type="number"
                           value={stake}
                           onChange={(e) => setStake(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold font-mono focus:outline-none focus:border-blue-500 transition-colors"
+                          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold font-mono focus:outline-none focus:border-red-600 transition-colors"
                         />
                       </div>
 
@@ -524,7 +524,7 @@ export default function GlobalHomepage() {
                           <button
                             key={s}
                             onClick={() => setStake(s)}
-                            className={`py-1.5 border rounded text-xs font-bold font-mono transition-colors ${stake === s ? 'bg-blue-600 text-white border-blue-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+                            className={`py-1.5 border rounded text-xs font-bold font-mono transition-colors ${stake === s ? 'bg-red-600 text-white border-red-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'}`}
                           >
                             ₹{s}
                           </button>
@@ -544,7 +544,7 @@ export default function GlobalHomepage() {
                         disabled={isPlacingBet}
                         className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs shadow-md transition-all ${
                           selectedBet.type === 'back' 
-                            ? 'bg-blue-600 hover:bg-blue-700 text-white shadow-blue-500/20' 
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' 
                             : 'bg-pink-600 hover:bg-pink-700 text-white shadow-pink-500/20'
                         } disabled:opacity-50`}
                       >

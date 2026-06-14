@@ -242,13 +242,13 @@ export default function RewardsPage() {
           <div className="flex flex-col">
             <h2 className="text-2xl font-black text-slate-900 mb-4 uppercase tracking-tight">Current Rank</h2>
             <div className="bg-white border border-slate-200 rounded-3xl p-8 flex-1 flex flex-col items-center justify-center relative overflow-hidden min-h-[400px]">
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-indigo-500/10 blur-[80px] rounded-full pointer-events-none" />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-64 h-64 bg-red-500/10 blur-[80px] rounded-full pointer-events-none" />
               
               <div className="relative w-32 h-32 mb-4 flex items-center justify-center">
-                <div className="absolute inset-0 bg-indigo-500/20 rotate-45 rounded-2xl blur-md" />
-                <div className="relative w-24 h-24 bg-slate-50 border-4 border-indigo-500 rotate-45 rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(99,102,241,0.4)]">
-                  <div className="w-16 h-16 bg-white border border-indigo-500/50 rounded-lg shadow-inner flex items-center justify-center -rotate-45">
-                    <Star className="w-8 h-8 text-indigo-600 fill-indigo-400/20" />
+                <div className="absolute inset-0 bg-red-500/20 rotate-45 rounded-2xl blur-md" />
+                <div className="relative w-24 h-24 bg-slate-50 border-4 border-red-600 rotate-45 rounded-xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.4)]">
+                  <div className="w-16 h-16 bg-white border border-red-600/50 rounded-lg shadow-inner flex items-center justify-center -rotate-45">
+                    <Star className="w-8 h-8 text-red-600 fill-red-400/20" />
                   </div>
                 </div>
               </div>
@@ -270,7 +270,7 @@ export default function RewardsPage() {
                     initial={{ width: 0 }}
                     animate={{ width: `${rankProgress}%` }}
                     transition={{ duration: 1 }}
-                    className="h-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)]"
+                    className="h-full bg-red-600 shadow-[0_0_10px_rgba(220,38,38,0.8)]"
                   />
                 </div>
               </div>

@@ -25,7 +25,7 @@ export default function HoldingsPage() {
         <div className="relative z-10 flex flex-col md:flex-row md:items-end justify-between gap-8">
           <div>
             <h1 className="text-3xl md:text-5xl font-black text-slate-900 flex items-center gap-4 tracking-tight mb-2">
-              <span className="w-2 h-10 bg-blue-500 rounded-full shadow-[0_0_15px_rgba(59,130,246,0.6)]"></span>
+              <span className="w-2 h-10 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.6)]"></span>
               My Portfolio
             </h1>
             <p className="text-slate-600 max-w-xl text-lg">Track your active prediction shares and manage your financial exposure.</p>
@@ -50,7 +50,7 @@ export default function HoldingsPage() {
       {/* Active Positions */}
       <div className="space-y-6">
         <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-          <Activity className="w-5 h-5 text-blue-500" /> Active Positions
+          <Activity className="w-5 h-5 text-red-600" /> Active Positions
         </h2>
         
         <div className="grid grid-cols-1 gap-4">

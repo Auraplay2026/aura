@@ -50,7 +50,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-blue-500/30 selection:text-blue-900`}>
+      <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-red-200/50 selection:text-red-900`}>
         <AppProviders>
           <GlobalAlerts />
           <GlobalHypeFeed />

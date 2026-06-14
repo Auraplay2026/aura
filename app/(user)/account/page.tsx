@@ -158,11 +158,11 @@ export default function AccountSettingsPage() {
             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
             className="bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden"
           >
-            <div className="absolute -left-32 top-0 w-64 h-64 bg-blue-500/5 blur-[80px] rounded-full pointer-events-none" />
+            <div className="absolute -left-32 top-0 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full pointer-events-none" />
             
             <h2 className="text-xl font-black text-slate-900 flex items-center gap-3 mb-8 relative z-10">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center border border-blue-500/30">
-                <User className="w-5 h-5 text-blue-600" />
+              <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center border border-red-500/30">
+                <User className="w-5 h-5 text-red-600" />
               </div>
               Personal Details
             </h2>
@@ -187,7 +187,7 @@ export default function AccountSettingsPage() {
                   type="text" 
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -197,7 +197,7 @@ export default function AccountSettingsPage() {
                   value={dob}
                   onChange={(e) => setDob(e.target.value)}
                   placeholder="DD/MM/YYYY"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-colors"
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -206,7 +206,7 @@ export default function AccountSettingsPage() {
                   type="text" 
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -215,7 +215,7 @@ export default function AccountSettingsPage() {
                   type="text" 
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -237,7 +237,7 @@ export default function AccountSettingsPage() {
                   value={phoneNumber}
                   onChange={(e) => setPhoneNumber(e.target.value)}
                   placeholder="e.g. +91 99999 99999"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-colors"
                 />
               </div>
               <div className="space-y-2">
@@ -247,7 +247,7 @@ export default function AccountSettingsPage() {
                   value={gamingState}
                   onChange={(e) => setGamingState(e.target.value)}
                   placeholder="e.g. Maharashtra"
-                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors"
+                  className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-colors"
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
@@ -258,7 +258,7 @@ export default function AccountSettingsPage() {
                     value={upiId}
                     onChange={(e) => setUpiId(e.target.value)}
                     placeholder="e.g. UPI ID or Crypto Address"
-                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-colors font-mono"
+                    className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3.5 text-slate-900 font-bold focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-colors font-mono"
                   />
                   <Shield className="w-5 h-5 text-neon-purple absolute right-4 top-1/2 -translate-y-1/2" />
                 </div>
@@ -280,7 +280,7 @@ export default function AccountSettingsPage() {
                   setIsSaving(false);
                 }}
                 disabled={isSaving}
-                className="bg-blue-600 text-white font-black py-3 px-8 rounded-xl hover:bg-blue-700 hover:scale-105 active:scale-95 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-red-600 text-white font-black py-3 px-8 rounded-xl hover:bg-red-700 hover:scale-105 active:scale-95 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
               </button>

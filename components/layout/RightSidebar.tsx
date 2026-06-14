@@ -55,7 +55,7 @@ export function RightSidebar() {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 p-4 bg-white hover:bg-slate-50 text-blue-600 rounded-full shadow-lg border border-slate-200"
+            className="fixed bottom-6 right-6 z-50 p-4 bg-white hover:bg-slate-50 text-red-600 rounded-full shadow-lg border border-slate-200"
           >
             <MessageSquare className="w-6 h-6" />
           </motion.button>
@@ -129,11 +129,11 @@ export function RightSidebar() {
               onChange={(e) => setInputValue(e.target.value)}
               onKeyDown={(e) => e.key === "Enter" && handleSend()}
               placeholder="Say something..." 
-              className="w-full bg-white border border-slate-300 rounded-full pl-4 pr-10 py-3 text-sm text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 transition-colors shadow-sm"
+              className="w-full bg-white border border-slate-300 rounded-full pl-4 pr-10 py-3 text-sm text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-600 transition-colors shadow-sm"
             />
             <button 
               onClick={handleSend}
-              className="absolute right-2 p-1.5 bg-blue-600 hover:bg-blue-700 rounded-full text-white transition-colors shadow-sm"
+              className="absolute right-2 p-1.5 bg-red-600 hover:bg-red-700 rounded-full text-white transition-colors shadow-sm"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -210,11 +210,11 @@ export function RightSidebar() {
                   onChange={(e) => setInputValue(e.target.value)}
                   onKeyDown={(e) => e.key === "Enter" && handleSend()}
                   placeholder="Say something..." 
-                  className="w-full bg-white border border-slate-300 rounded-full pl-4 pr-10 py-3 text-sm text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-blue-500 transition-colors"
+                  className="w-full bg-white border border-slate-300 rounded-full pl-4 pr-10 py-3 text-sm text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-600 transition-colors"
                 />
                 <button 
                   onClick={handleSend}
-                  className="absolute right-2 p-1.5 bg-blue-600 text-white rounded-full"
+                  className="absolute right-2 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full"
                 >
                   <Send className="w-4 h-4" />
                 </button>

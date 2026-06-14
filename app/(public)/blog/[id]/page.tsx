@@ -190,7 +190,7 @@ export default function BlogPostDetail() {
         </p>
         <button 
           onClick={() => router.push("/blog")}
-          className="px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md"
+          className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md"
         >
           Back to Chronicles
         </button>
@@ -212,7 +212,7 @@ export default function BlogPostDetail() {
       {/* Reading Progress Bar */}
       <div className="fixed top-14 left-0 w-full h-[3px] bg-slate-100 z-50 pointer-events-none">
         <div 
-          className="h-full bg-gradient-to-r from-blue-500 via-indigo-500 to-purple-500 transition-all duration-75" 
+          className="h-full bg-gradient-to-r from-red-500 via-rose-500 to-amber-500 transition-all duration-75" 
           style={{ width: `${scrollProgress}%` }}
         />
       </div>
@@ -230,7 +230,7 @@ export default function BlogPostDetail() {
 
       {/* Article Header */}
       <div className="flex flex-col gap-4">
-        <span className="w-max px-3 py-1 bg-blue-50 border border-blue-100 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg">
+        <span className="w-max px-3 py-1 bg-red-50 border border-red-100 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-lg">
           {post.category}
         </span>
         <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight leading-tight">
@@ -240,8 +240,8 @@ export default function BlogPostDetail() {
         {/* Author / Date info */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-xs text-slate-500 font-semibold border-y border-slate-100 py-4 mt-2">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center border border-blue-200">
-              <User className="w-4 h-4 text-blue-600" />
+            <div className="w-8 h-8 rounded-full bg-red-100 flex items-center justify-center border border-red-200">
+              <User className="w-4 h-4 text-red-600" />
             </div>
             <span className="text-slate-800 font-bold">{post.author}</span>
           </div>
@@ -322,7 +322,7 @@ export default function BlogPostDetail() {
       {/* Related Posts Section */}
       <div className="border-t border-slate-100 pt-8 mt-4 flex flex-col gap-6">
         <h3 className="text-lg font-black text-slate-900 flex items-center gap-2 tracking-tight">
-          <BookOpen className="w-5 h-5 text-blue-600" /> Recommended Reading
+          <BookOpen className="w-5 h-5 text-red-600" /> Recommended Reading
         </h3>
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -340,8 +340,8 @@ export default function BlogPostDetail() {
                 />
               </div>
               <div>
-                <span className="text-[9px] font-bold text-blue-600 uppercase tracking-widest">{related.category}</span>
-                <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-tight mt-1 line-clamp-2">
+                <span className="text-[9px] font-bold text-red-600 uppercase tracking-widest">{related.category}</span>
+                <h4 className="font-bold text-sm text-slate-900 group-hover:text-red-600 transition-colors leading-tight mt-1 line-clamp-2">
                   {related.title}
                 </h4>
               </div>

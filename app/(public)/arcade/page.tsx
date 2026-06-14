@@ -9,7 +9,7 @@ export default function ArcadeHubPage() {
         
         {/* Header Section */}
         <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3 text-blue-600 mb-2">
+          <div className="flex items-center gap-3 text-red-600 mb-2">
             <Gamepad2 className="w-6 h-6" />
             <span className="text-xs font-black uppercase tracking-widest">Instant Play Hub</span>
           </div>
@@ -26,7 +26,7 @@ export default function ArcadeHubPage() {
           <div className="flex items-center gap-6">
             <button className="text-sm font-bold text-slate-900 relative">
               All Games
-              <span className="absolute -bottom-4.5 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
+              <span className="absolute -bottom-4.5 left-0 w-full h-0.5 bg-red-600 rounded-t-full" />
             </button>
             <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">
               Runners
@@ -59,7 +59,7 @@ export default function ArcadeHubPage() {
 
                   {/* Play Overlay */}
                   <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-14 h-14 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-xl text-blue-600 transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                    <div className="w-14 h-14 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-xl text-red-600 transform scale-90 group-hover:scale-100 transition-transform duration-300">
                       <Play className="w-6 h-6 ml-1" />
                     </div>
                   </div>
@@ -68,7 +68,7 @@ export default function ArcadeHubPage() {
                 <div className="p-5 flex flex-col flex-1">
                   <div className="flex items-start justify-between gap-4 mb-2">
                     <div>
-                      <h3 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-blue-600 transition-colors">
+                      <h3 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-red-600 transition-colors">
                         {game.title}
                       </h3>
                       <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
@@ -84,8 +84,8 @@ export default function ArcadeHubPage() {
                   <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
                     <div className="flex items-center gap-2">
                       <div className="flex -space-x-1">
-                        <div className="w-5 h-5 rounded-full bg-blue-100 border border-white flex items-center justify-center">
-                          <Sparkles className="w-2.5 h-2.5 text-blue-600" />
+                        <div className="w-5 h-5 rounded-full bg-red-100 border border-white flex items-center justify-center">
+                          <Sparkles className="w-2.5 h-2.5 text-red-600" />
                         </div>
                         <div className="w-5 h-5 rounded-full bg-emerald-100 border border-white flex items-center justify-center">
                           <TrendingUp className="w-2.5 h-2.5 text-emerald-600" />
@@ -94,7 +94,7 @@ export default function ArcadeHubPage() {
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Optimized</span>
                     </div>
                     
-                    <span className="text-[10px] font-bold text-blue-600 uppercase tracking-widest group-hover:underline underline-offset-2">
+                    <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest group-hover:underline underline-offset-2">
                       Play Now
                     </span>
                   </div>

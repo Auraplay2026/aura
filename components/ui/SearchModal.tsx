@@ -57,9 +57,9 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
   const quickLinks = [
     { title: "Sportsbook", icon: Trophy, href: "/sportsbook", keywords: "sports bet matches odds" },
     { title: "Live Casino", icon: Flame, href: "/casino/live", keywords: "live dealer roulette blackjack" },
-    { title: "My Profile", icon: User, href: "/account", iconColor: "text-blue-500", keywords: "account settings profile" },
+    { title: "My Profile", icon: User, href: "/account", iconColor: "text-red-500", keywords: "account settings profile" },
     { title: "Balance & Funds", icon: Activity, href: "/account/balance", iconColor: "text-emerald-500", keywords: "wallet balance deposit withdraw" },
-    { title: "Affiliate Dashboard", icon: User, href: "/refer", iconColor: "text-purple-500", keywords: "refer earn affiliate" },
+    { title: "Affiliate Dashboard", icon: User, href: "/refer", iconColor: "text-red-500", keywords: "refer earn affiliate" },
   ];
 
   const filteredLinks = searchQuery
@@ -134,7 +134,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                           </div>
                           <span className="font-bold text-slate-700 group-hover:text-slate-900">{link.title}</span>
                         </div>
-                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-blue-500 group-hover:translate-x-1 transition-all" />
+                        <ArrowRight className="w-4 h-4 text-slate-300 group-hover:text-red-500 group-hover:translate-x-1 transition-all" />
                       </button>
                     ))}
                   </div>
@@ -157,7 +157,7 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             <Image src={game.image} alt={game.title} fill className="object-cover" />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className="font-bold text-slate-900 group-hover:text-blue-600 transition-colors">{game.title}</span>
+                            <span className="font-bold text-slate-900 group-hover:text-red-600 transition-colors">{game.title}</span>
                             <span className="text-xs font-medium text-slate-500">{game.provider}</span>
                           </div>
                         </div>
@@ -184,11 +184,11 @@ export function SearchModal({ isOpen, onClose }: SearchModalProps) {
                             <Image src={game.thumbnail} alt={game.title} fill className="object-cover" />
                           </div>
                           <div className="flex flex-col items-start">
-                            <span className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{game.title}</span>
+                            <span className="font-bold text-slate-900 group-hover:text-red-600 transition-colors">{game.title}</span>
                             <span className="text-xs font-medium text-slate-500">{game.provider}</span>
                           </div>
                         </div>
-                        <span className="text-xs font-bold px-2 py-1 bg-indigo-50 text-indigo-600 rounded-md">Arcade</span>
+                        <span className="text-xs font-bold px-2 py-1 bg-red-50 text-red-600 rounded-md">Arcade</span>
                       </button>
                     ))}
                   </div>

@@ -151,7 +151,7 @@ export default function BlogPage() {
         className="flex flex-col md:flex-row md:items-end justify-between gap-6 border-b border-slate-200/50 pb-8"
       >
         <div>
-          <span className="text-blue-600 font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 mb-2">
+          <span className="text-red-600 font-bold text-xs uppercase tracking-widest flex items-center gap-1.5 mb-2">
             <BookOpen className="w-3.5 h-3.5" /> AuraPlay Chronicles
           </span>
           <h1 className="text-3xl md:text-5xl font-black text-slate-900 tracking-tight">
@@ -170,7 +170,7 @@ export default function BlogPage() {
             placeholder="Search articles..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-100 transition-all shadow-sm"
+            className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-red-600 focus:ring-2 focus:ring-red-100 transition-all shadow-sm"
           />
         </div>
       </motion.div>
@@ -191,7 +191,7 @@ export default function BlogPage() {
               className={cn(
                 "px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 border whitespace-nowrap",
                 isActive 
-                  ? "bg-blue-600 border-blue-600 text-white shadow-md shadow-blue-500/10" 
+                  ? "bg-red-600 border-red-600 text-white shadow-md shadow-red-500/10" 
                   : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-800"
               )}
             >
@@ -216,7 +216,7 @@ export default function BlogPage() {
             >
               <Link 
                 href={`/blog/${featuredPost.id}`}
-                className="group relative flex flex-col md:flex-row bg-white border border-slate-200/80 rounded-[24px] overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-blue-200/30 hover:-translate-y-1 transition-all duration-300 shadow-sm"
+                className="group relative flex flex-col md:flex-row bg-white border border-slate-200/80 rounded-[24px] overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-red-200/30 hover:-translate-y-1 transition-all duration-300 shadow-sm"
               >
                 {/* Image Section */}
                 <div className="relative w-full md:w-1/2 aspect-[16/10] md:aspect-auto overflow-hidden bg-slate-100">
@@ -229,7 +229,7 @@ export default function BlogPage() {
                     <span className="px-3 py-1 bg-yellow-400 text-slate-900 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-md flex items-center gap-1">
                       <Sparkles className="w-3 h-3" /> FEATURED
                     </span>
-                    <span className="px-3 py-1 bg-white/95 backdrop-blur-sm border border-slate-200 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm">
+                    <span className="px-3 py-1 bg-white/95 backdrop-blur-sm border border-slate-200 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm">
                       {featuredPost.category}
                     </span>
                   </div>
@@ -242,7 +242,7 @@ export default function BlogPage() {
                       <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {featuredPost.date}</span>
                       <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {featuredPost.readTime}</span>
                     </div>
-                    <h2 className="text-xl md:text-2xl font-black text-slate-900 leading-tight group-hover:text-blue-600 transition-colors">
+                    <h2 className="text-xl md:text-2xl font-black text-slate-900 leading-tight group-hover:text-red-600 transition-colors">
                       {featuredPost.title}
                     </h2>
                     <p className="text-slate-500 text-sm leading-relaxed font-medium">
@@ -287,7 +287,7 @@ export default function BlogPage() {
                 >
                   <Link 
                     href={`/blog/${post.id}`}
-                    className="group relative flex flex-col h-full bg-white border border-slate-200/80 rounded-[20px] overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-blue-200/30 hover:-translate-y-1 transition-all duration-300 shadow-sm"
+                    className="group relative flex flex-col h-full bg-white border border-slate-200/80 rounded-[20px] overflow-hidden hover:shadow-xl hover:ring-2 hover:ring-red-200/30 hover:-translate-y-1 transition-all duration-300 shadow-sm"
                   >
                     {/* Post Image */}
                     <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-100">
@@ -296,7 +296,7 @@ export default function BlogPage() {
                         alt={post.title}
                         className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                       />
-                      <span className="absolute top-4 left-4 px-3 py-1 bg-white/95 backdrop-blur-sm border border-slate-200 text-blue-600 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm z-10">
+                      <span className="absolute top-4 left-4 px-3 py-1 bg-white/95 backdrop-blur-sm border border-slate-200 text-red-600 text-[10px] font-black uppercase tracking-widest rounded-lg shadow-sm z-10">
                         {post.category}
                       </span>
                     </div>
@@ -308,7 +308,7 @@ export default function BlogPage() {
                           <span className="flex items-center gap-1.5"><Calendar className="w-3.5 h-3.5" /> {post.date}</span>
                           <span className="flex items-center gap-1.5"><Clock className="w-3.5 h-3.5" /> {post.readTime}</span>
                         </div>
-                        <h3 className="text-lg font-black text-slate-900 leading-snug group-hover:text-blue-600 transition-colors line-clamp-2">
+                        <h3 className="text-lg font-black text-slate-900 leading-snug group-hover:text-red-600 transition-colors line-clamp-2">
                           {post.title}
                         </h3>
                         <p className="text-slate-500 text-xs leading-relaxed font-medium line-clamp-2">
@@ -368,13 +368,13 @@ export default function BlogPage() {
             className="bg-white border border-slate-200 rounded-3xl p-6 shadow-sm flex flex-col gap-4"
           >
             <h3 className="text-xs font-bold text-slate-500 uppercase tracking-widest flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-600" /> Trending Topics
+              <TrendingUp className="w-4 h-4 text-red-600" /> Trending Topics
             </h3>
             <div className="flex flex-col gap-4">
               <div className="flex items-start gap-3 group cursor-pointer">
-                <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-600 font-black text-xs flex items-center justify-center shrink-0">1</div>
+                <div className="w-7 h-7 rounded-full bg-red-50 text-red-600 font-black text-xs flex items-center justify-center shrink-0">1</div>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">
+                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-red-600 transition-colors leading-tight">
                     Cricket Betting exchange rates hedge strategies
                   </h4>
                   <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1.5 mt-1">
@@ -386,9 +386,9 @@ export default function BlogPage() {
               <div className="w-full h-px bg-slate-100" />
 
               <div className="flex items-start gap-3 group cursor-pointer">
-                <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-600 font-black text-xs flex items-center justify-center shrink-0">2</div>
+                <div className="w-7 h-7 rounded-full bg-red-50 text-red-600 font-black text-xs flex items-center justify-center shrink-0">2</div>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">
+                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-red-600 transition-colors leading-tight">
                     How random number seeds prove 100% fair games
                   </h4>
                   <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1.5 mt-1">
@@ -400,9 +400,9 @@ export default function BlogPage() {
               <div className="w-full h-px bg-slate-100" />
 
               <div className="flex items-start gap-3 group cursor-pointer">
-                <div className="w-7 h-7 rounded-full bg-blue-50 text-blue-600 font-black text-xs flex items-center justify-center shrink-0">3</div>
+                <div className="w-7 h-7 rounded-full bg-red-50 text-red-600 font-black text-xs flex items-center justify-center shrink-0">3</div>
                 <div>
-                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-blue-600 transition-colors leading-tight">
+                  <h4 className="font-bold text-sm text-slate-900 group-hover:text-red-600 transition-colors leading-tight">
                     Martingale double-down buffers on crash mechanics
                   </h4>
                   <span className="text-[10px] text-slate-500 font-semibold uppercase tracking-wider flex items-center gap-1.5 mt-1">
@@ -421,12 +421,12 @@ export default function BlogPage() {
             className="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden"
           >
             {/* Background elements */}
-            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-blue-600/10 rounded-full blur-2xl pointer-events-none" />
-            <div className="absolute -left-10 -top-10 w-32 h-32 bg-purple-600/15 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-red-600/10 rounded-full blur-2xl pointer-events-none" />
+            <div className="absolute -left-10 -top-10 w-32 h-32 bg-red-600/15 rounded-full blur-2xl pointer-events-none" />
 
             <div className="relative z-10 flex flex-col gap-4">
               <div>
-                <span className="text-blue-400 font-bold text-[10px] uppercase tracking-widest">Stay Updated</span>
+                <span className="text-red-400 font-bold text-[10px] uppercase tracking-widest">Stay Updated</span>
                 <h3 className="text-lg font-black tracking-tight mt-1">Weekly Betradar Guides</h3>
                 <p className="text-slate-400 text-xs font-semibold mt-1.5 leading-relaxed">
                   Join 12,000+ traders receiving outright odds value picks and system updates directly in their inbox.
@@ -447,11 +447,11 @@ export default function BlogPage() {
                       placeholder="Enter email address"
                       value={newsletterEmail}
                       onChange={(e) => setNewsletterEmail(e.target.value)}
-                      className="px-4 py-3 bg-white/10 border border-white/10 hover:border-white/20 focus:border-blue-500 focus:outline-none transition-all rounded-xl text-xs font-semibold text-white placeholder-slate-500"
+                      className="px-4 py-3 bg-white/10 border border-white/10 hover:border-white/20 focus:border-red-600 focus:outline-none transition-all rounded-xl text-xs font-semibold text-white placeholder-slate-500"
                     />
                     <button 
                       type="submit"
-                      className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] shadow-md shadow-blue-500/20 flex items-center justify-center gap-1.5"
+                      className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] shadow-md shadow-red-500/20 flex items-center justify-center gap-1.5"
                     >
                       <Send className="w-3 h-3" /> Subscribe
                     </button>

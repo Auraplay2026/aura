@@ -52,7 +52,7 @@ export function Header() {
   }, [isLoggedIn, syncFromServer]);
 
   return (
-    <header className="sticky top-0 z-30 shrink-0 h-14 w-full bg-white/85 backdrop-blur-2xl border-b border-slate-200/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between px-4 sm:px-6 transition-all">
+    <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white/85 backdrop-blur-2xl border-b border-slate-200/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between px-4 sm:px-6 transition-all">
       
       {/* Mobile Menu Toggle */}
       <div className="flex items-center lg:hidden mr-3">
@@ -65,7 +65,7 @@ export function Header() {
       <div className="flex-1 flex items-center gap-4">
         {/* Mobile Logo (Only visible when sidebar is hidden) */}
         <div className="lg:hidden flex items-center gap-2">
-          <div className="w-6 h-6 bg-blue-600 rounded-sm flex items-center justify-center">
+          <div className="w-6 h-6 bg-red-600 rounded-sm flex items-center justify-center">
             <span className="text-white font-black text-[10px]">AP</span>
           </div>
           <span className="text-slate-900 font-black tracking-widest uppercase text-xs hidden sm:block">AuraPlay</span>
@@ -109,13 +109,13 @@ export function Header() {
               <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
               <div className="flex flex-col items-end leading-none">
                 <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Exposure</span>
-                <span className="text-xs sm:text-sm font-black text-blue-600 font-mono tabular-nums tracking-tight">
+                <span className="text-xs sm:text-sm font-black text-red-600 font-mono tabular-nums tracking-tight">
                   ${isClient ? positions.reduce((acc, p) => acc + (p.investment || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="hidden sm:block bg-blue-600 hover:bg-blue-700 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-sm transition-all ml-2 uppercase tracking-wider shadow-sm hover:shadow-md active:scale-95"
+                className="hidden sm:block bg-gradient-to-r from-red-600 to-rose-600 hover:opacity-95 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-md transition-all ml-2 uppercase tracking-wider shadow-md active:scale-95 shadow-red-500/10"
               >
                 Deposit
               </button>
@@ -128,7 +128,7 @@ export function Header() {
             >
               <Briefcase className="w-5 h-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200" />
               {isClient && positions.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-blue-600 rounded-full text-[9px] font-black text-white flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 rounded-full text-[9px] font-black text-white flex items-center justify-center">
                   {positions.length}
                 </span>
               )}
@@ -163,7 +163,7 @@ export function Header() {
                             const updated = currentUser.notifications.map((n: any) => ({ ...n, read: true }));
                             useTradingStore.getState().updateProfile({ notifications: updated });
                           }}
-                          className="text-[10px] font-bold text-blue-600 hover:underline cursor-pointer"
+                          className="text-[10px] font-bold text-red-600 hover:underline cursor-pointer"
                         >
                           Mark all read
                         </button>
@@ -190,7 +190,7 @@ export function Header() {
                               )}
                             >
                               {!notif.read && (
-                                <div className="absolute left-0 top-0 w-0.5 h-full bg-blue-500" />
+                                <div className="absolute left-0 top-0 w-0.5 h-full bg-red-600" />
                               )}
                               <h4 className="text-xs font-bold text-exchange-text mb-1 pl-1">{notif.title || "Notification"}</h4>
                               <p className="text-[11px] text-exchange-muted pl-1 leading-relaxed">{notif.message}</p>
@@ -245,7 +245,7 @@ export function Header() {
                             key={item.label}
                             href={item.href} 
                             onClick={() => setIsSettingsOpen(false)}
-                            className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all border-l-2 border-transparent hover:border-l-2 hover:border-blue-500 hover:pl-[14px]"
+                            className="flex items-center gap-3 px-4 py-2 text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-all border-l-2 border-transparent hover:border-l-2 hover:border-red-600 hover:pl-[14px]"
                           >
                             <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
                             {item.label}
@@ -266,7 +266,7 @@ export function Header() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => { setAuthView('login'); setIsAuthOpen(true); }}
-              className="text-exchange-text hover:text-blue-600 font-bold text-xs px-3 py-1.5 transition-colors"
+              className="text-exchange-text hover:text-red-600 font-bold text-xs px-3 py-1.5 transition-colors"
             >
               Log In
             </button>

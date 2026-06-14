@@ -34,7 +34,7 @@ export default function AccountStatementPage() {
               onClick={() => setFilter(f)}
               className={`px-4 py-2 rounded-md text-xs font-bold uppercase tracking-widest transition-all ${
                 filter === f 
-                  ? 'bg-white text-blue-600 shadow-sm' 
+                  ? 'bg-white text-red-600 shadow-sm' 
                   : 'text-slate-500 hover:text-slate-900'
               }`}
             >
@@ -51,7 +51,7 @@ export default function AccountStatementPage() {
             <input 
               type="text" 
               placeholder="Search statements..." 
-              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-shadow"
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-medium focus:outline-none focus:border-red-600 focus:ring-1 focus:ring-red-100 transition-shadow"
             />
           </div>
           <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-lg text-sm font-bold text-slate-600 hover:bg-slate-50 transition-colors">

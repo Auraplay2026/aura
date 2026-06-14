@@ -78,7 +78,7 @@ export function Sidebar() {
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-40 lg:hidden" 
+          className="fixed inset-0 bg-black/60 z-[48] lg:hidden" 
           onClick={() => setIsMobileMenuOpen(false)} 
         />
       )}
@@ -126,7 +126,7 @@ export function Sidebar() {
                       href={item.href}
                       className={cn(
                         "flex items-center justify-between pl-8 pr-3 py-2 rounded-md transition-colors relative group",
-                        isActive ? "bg-slate-100 text-exchange-text font-bold before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-1.5 before:bg-blue-500 before:rounded-full" : "text-exchange-muted hover:bg-blue-50/50 hover:text-exchange-text"
+                        isActive ? "bg-red-50/30 text-exchange-text font-bold before:absolute before:left-3 before:top-1/2 before:-translate-y-1/2 before:w-1.5 before:h-1.5 before:bg-red-500 before:rounded-full" : "text-exchange-muted hover:bg-red-50/40 hover:text-exchange-text"
                       )}
                     >
                       <div className="flex items-center gap-3">
@@ -143,15 +143,15 @@ export function Sidebar() {
                     href={item.href}
                     className={cn(
                       "flex items-center justify-between p-2.5 rounded-md transition-colors relative group",
-                      isActive ? "bg-slate-100 text-exchange-text font-bold before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-4 before:bg-blue-600 before:rounded-full" : "hover:bg-blue-50/50 text-exchange-muted hover:text-exchange-text"
+                      isActive ? "bg-red-50/30 text-exchange-text font-bold before:absolute before:left-0 before:top-1/2 before:-translate-y-1/2 before:w-[3px] before:h-4 before:bg-red-600 before:rounded-full" : "hover:bg-red-50/40 text-exchange-muted hover:text-exchange-text"
                     )}
                   >
                     <div className="flex items-center gap-3">
-                      <item.icon className={cn("w-4 h-4 transition-all duration-200", isActive ? "text-exchange-text" : "text-exchange-muted")} />
+                      <item.icon className={cn("w-4 h-4 transition-all duration-200", isActive ? "text-red-600" : "text-exchange-muted")} />
                       <span className="text-sm font-semibold">{item.name}</span>
                     </div>
                     {item.badge && (
-                      <span className="text-[9px] font-bold tracking-wider text-slate-900 bg-blue-600 px-1.5 py-0.5 rounded-sm uppercase">
+                      <span className="text-[9px] font-bold tracking-wider text-white bg-gradient-to-r from-red-600 to-rose-600 px-1.5 py-0.5 rounded-sm uppercase shadow-sm">
                         {item.badge}
                       </span>
                     )}

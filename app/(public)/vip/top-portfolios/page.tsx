@@ -17,8 +17,8 @@ const ACTIVITIES = [
 
 const WHALES = [
   { rank: 1, name: "CryptoWhale", title: "Apex Predator", roi: "+845.2%", pnl: "₹42,500,000", followers: 12450, winRate: "94.2%", avatar: "👑", color: "from-amber-400 to-yellow-600", text: "text-amber-600" },
-  { rank: 2, name: "Diamond_HODL", title: "Market Maker", roi: "+620.8%", pnl: "₹28,150,000", followers: 8200, winRate: "89.5%", avatar: "💎", color: "from-cyan-400 to-blue-600", text: "text-cyan-600" },
-  { rank: 3, name: "Alpha_Seeker", title: "Quant Master", roi: "+415.5%", pnl: "₹15,400,000", followers: 5120, winRate: "86.1%", avatar: "🐺", color: "from-purple-400 to-fuchsia-600", text: "text-purple-600" },
+  { rank: 2, name: "Diamond_HODL", title: "Market Maker", roi: "+620.8%", pnl: "₹28,150,000", followers: 8200, winRate: "89.5%", avatar: "💎", color: "from-emerald-400 to-teal-600", text: "text-emerald-600" },
+  { rank: 3, name: "Alpha_Seeker", title: "Quant Master", roi: "+415.5%", pnl: "₹15,400,000", followers: 5120, winRate: "86.1%", avatar: "🐺", color: "from-red-400 to-rose-600", text: "text-red-650" },
   { rank: 4, name: "Anonymous_Whale", title: "Shadow Trader", roi: "+???", pnl: "₹???,???", followers: 21000, winRate: "99.9%", avatar: "🕵️", color: "from-slate-600 to-slate-800", text: "text-slate-600", isLocked: true },
 ];
 
@@ -44,7 +44,7 @@ export default function TopPortfoliosPage() {
       {/* Background Ambient Effects */}
       <div className="absolute top-0 left-0 w-full h-[500px] bg-gradient-to-b from-amber-900/20 via-slate-100 to-slate-50 pointer-events-none" />
       <div className="absolute -top-[200px] -right-[200px] w-[600px] h-[600px] bg-amber-500/10 rounded-full blur-[150px] pointer-events-none" />
-      <div className="absolute top-[20%] -left-[100px] w-[400px] h-[400px] bg-neon-purple/10 rounded-full blur-[120px] pointer-events-none" />
+      <div className="absolute top-[20%] -left-[100px] w-[400px] h-[400px] bg-red-650/10 rounded-full blur-[120px] pointer-events-none" />
       
       {/* Live Ticker Bar */}
       <div className="max-w-6xl mx-auto mb-8">
@@ -116,8 +116,8 @@ export default function TopPortfoliosPage() {
             <p className="text-3xl font-black text-slate-900 font-mono text-neon-green">+412.5%</p>
           </div>
           <div className="bg-gradient-to-br from-slate-900 to-slate-50 border border-slate-200 rounded-3xl p-6 shadow-2xl relative overflow-hidden group">
-            <div className="absolute inset-0 bg-gradient-to-br from-neon-purple/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <Users className="w-8 h-8 text-neon-purple mb-4 opacity-80" />
+            <div className="absolute inset-0 bg-gradient-to-br from-red-600/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <Users className="w-8 h-8 text-red-600 mb-4 opacity-80" />
             <p className="text-slate-500 font-bold uppercase tracking-widest text-xs mb-1">Active Copiers</p>
             <p className="text-3xl font-black text-slate-900 font-mono">1.2 Million</p>
           </div>
@@ -212,14 +212,14 @@ export default function TopPortfoliosPage() {
         </div>
 
         {/* VIP Call to action footer */}
-        <div className="mt-16 bg-gradient-to-r from-neon-purple/20 via-slate-100 to-blue-600/20 border border-neon-purple/30 rounded-[2rem] p-8 md:p-12 text-center relative overflow-hidden shadow-[0_0_50px_rgba(168,85,247,0.1)]">
+        <div className="mt-16 bg-gradient-to-r from-red-600/20 via-slate-100 to-red-750/20 border border-red-600/30 rounded-[2rem] p-8 md:p-12 text-center relative overflow-hidden shadow-[0_0_50px_rgba(220,38,38,0.1)]">
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-20" />
-          <Star className="w-12 h-12 text-neon-purple mx-auto mb-6 animate-pulse relative z-10" />
+          <Star className="w-12 h-12 text-red-600 mx-auto mb-6 animate-pulse relative z-10" />
           <h2 className="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-4 relative z-10">Want to join the Top 1%?</h2>
           <p className="text-slate-600 text-lg max-w-2xl mx-auto mb-8 relative z-10">
             Increase your volume, make bolder predictions, and secure your spot on the elite leaderboard to attract copiers and earn passive revenue shares.
           </p>
-          <button onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))} className="relative z-10 px-10 py-5 bg-gradient-to-r from-neon-purple to-blue-600 text-slate-900 font-black text-lg uppercase tracking-widest rounded-2xl shadow-[0_0_40px_rgba(168,85,247,0.5)] hover:scale-105 active:scale-95 transition-all">
+          <button onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))} className="relative z-10 px-10 py-5 bg-gradient-to-r from-red-600 to-rose-600 text-slate-900 font-black text-lg uppercase tracking-widest rounded-2xl shadow-[0_0_40px_rgba(220,38,38,0.5)] hover:scale-105 active:scale-95 transition-all">
             Deposit to Boost Rank
           </button>
         </div>

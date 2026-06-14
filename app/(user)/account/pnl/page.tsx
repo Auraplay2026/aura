@@ -49,7 +49,7 @@ export default function PnLPage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between h-40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Total Wagered</span>
-            <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-red-100 text-red-600 flex items-center justify-center">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
@@ -64,7 +64,7 @@ export default function PnLPage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-between h-40">
           <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Net Cashflow</span>
-            <div className="w-8 h-8 rounded-full bg-indigo-100 text-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
               <Wallet className="w-4 h-4" />
             </div>
           </div>

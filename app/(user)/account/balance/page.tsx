@@ -83,8 +83,8 @@ export default function BalanceOverviewPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-start gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-          <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-            <ShieldCheck className="w-6 h-6 text-blue-600" />
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-6 h-6 text-red-600" />
           </div>
           <div>
             <h3 className="font-bold text-slate-900 mb-1">Cold Storage Security</h3>
@@ -93,8 +93,8 @@ export default function BalanceOverviewPage() {
         </div>
         
         <div className="bg-white border border-slate-200 rounded-2xl p-6 flex items-start gap-4 hover:-translate-y-1 hover:shadow-md transition-all duration-300">
-          <div className="w-12 h-12 rounded-full bg-purple-50 flex items-center justify-center shrink-0">
-            <Gamepad2 className="w-6 h-6 text-purple-600" />
+          <div className="w-12 h-12 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+            <Gamepad2 className="w-6 h-6 text-red-600" />
           </div>
           <div>
             <h3 className="font-bold text-slate-900 mb-1">Arcade Instants</h3>

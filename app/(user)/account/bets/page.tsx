@@ -28,23 +28,23 @@ export default function MyBetsPage() {
         <button 
           onClick={() => setActiveTab('open')}
           className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
-            activeTab === 'open' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-900'
+            activeTab === 'open' ? 'text-red-600' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           Open Positions
           {activeTab === 'open' && (
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red-600 rounded-t-full" />
           )}
         </button>
         <button 
           onClick={() => setActiveTab('settled')}
           className={`pb-4 text-sm font-bold uppercase tracking-widest transition-all relative ${
-            activeTab === 'settled' ? 'text-blue-600' : 'text-slate-500 hover:text-slate-900'
+            activeTab === 'settled' ? 'text-red-600' : 'text-slate-500 hover:text-slate-900'
           }`}
         >
           Settled Bets
           {activeTab === 'settled' && (
-            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 rounded-t-full" />
+            <span className="absolute bottom-0 left-0 w-full h-0.5 bg-red-600 rounded-t-full" />
           )}
         </button>
       </div>
@@ -56,8 +56,8 @@ export default function MyBetsPage() {
               <div key={i} className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col gap-4 hover:shadow-sm transition-all duration-200">
                 <div className="flex items-start justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center shrink-0">
-                      <Ticket className="w-5 h-5 text-blue-600" />
+                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center shrink-0">
+                      <Ticket className="w-5 h-5 text-red-600" />
                     </div>
                     <div>
                       <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Exchange Position</span>
@@ -90,7 +90,7 @@ export default function MyBetsPage() {
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Stake</span>
                     <span className="font-black text-slate-900 font-mono text-lg">${pos.investment.toFixed(2)}</span>
                   </div>
-                  <button className="px-4 py-2 bg-blue-50 text-blue-600 font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-blue-100 transition-colors">
+                  <button className="px-4 py-2 bg-red-50 text-red-600 font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-red-100 transition-colors">
                     Cash Out
                   </button>
                 </div>

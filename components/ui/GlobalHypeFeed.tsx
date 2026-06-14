@@ -43,8 +43,8 @@ const generateHypeMessage = (): HypeMessage => {
       type: "AFFILIATE",
       icon: Users,
       title: "Affiliate Earnings",
-      message: <span><strong className="text-blue-400">{user}</strong> earned <strong className="text-white">{amount}</strong> in commissions today!</span>,
-      color: "text-blue-400 border-blue-500/30 bg-blue-500/10"
+      message: <span><strong className="text-red-400">{user}</strong> earned <strong className="text-white">{amount}</strong> in commissions today!</span>,
+      color: "text-red-400 border-red-500/30 bg-red-500/10"
     };
   } else {
     // 20% chance of Trust Badge
@@ -113,7 +113,7 @@ export function GlobalHypeFeed() {
                     <p className="text-sm text-slate-300 leading-tight">
                       {currentMessage.message}
                     </p>
-                    <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-black uppercase text-blue-400 bg-blue-500/20 px-2 py-1 rounded">
+                    <div className="mt-2 inline-flex items-center gap-1 text-[10px] font-black uppercase text-red-400 bg-red-500/20 px-2 py-1 rounded">
                       Refer & Earn <BadgeCheck className="w-3 h-3" />
                     </div>
                   </div>

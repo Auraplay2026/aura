@@ -98,7 +98,7 @@ export default function AffiliatePage() {
   if (!isClient) {
     return (
       <div className="flex items-center justify-center min-h-[70vh]">
-        <div className="w-10 h-10 border-4 border-neon-purple border-t-transparent rounded-full animate-spin" />
+        <div className="w-10 h-10 border-4 border-red-600 border-t-transparent rounded-full animate-spin" />
       </div>
     );
   }
@@ -109,11 +109,11 @@ export default function AffiliatePage() {
       <div className="flex min-h-[80vh] w-full items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="max-w-2xl w-full bg-white/80 border border-slate-200/80 rounded-3xl p-8 backdrop-blur-2xl relative overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.1)] flex flex-col items-center text-center">
           {/* Glowing background shapes */}
-          <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-neon-purple/10 blur-[100px] rounded-full pointer-events-none" />
-          <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-blue-500/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute top-[-20%] left-[-20%] w-[60%] h-[60%] bg-red-600/10 blur-[100px] rounded-full pointer-events-none" />
+          <div className="absolute bottom-[-20%] right-[-20%] w-[60%] h-[60%] bg-red-500/10 blur-[100px] rounded-full pointer-events-none" />
           
-          <div className="w-20 h-20 bg-slate-50 border border-slate-200 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(168,85,247,0.25)] mb-6">
-            <Lock className="w-10 h-10 text-neon-purple" />
+          <div className="w-20 h-20 bg-slate-50 border border-slate-200 rounded-3xl flex items-center justify-center shadow-[0_0_30px_rgba(220,38,38,0.25)] mb-6">
+            <Lock className="w-10 h-10 text-red-600" />
           </div>
 
           <h1 className="text-3xl sm:text-5xl font-black text-slate-900 mb-4 uppercase tracking-tight">Partner Dashboard</h1>
@@ -124,7 +124,7 @@ export default function AffiliatePage() {
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(168,85,247,0.3)] transform hover:scale-[1.02] active:scale-95"
+              className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(220,38,38,0.3)] transform hover:scale-[1.02] active:scale-95"
             >
               Sign In to Partner Account
             </button>
@@ -153,7 +153,7 @@ export default function AffiliatePage() {
         <div className="relative z-10 flex flex-col lg:flex-row lg:items-center justify-between gap-8">
           <div>
             <h1 className="text-3xl md:text-5xl font-black text-slate-900 flex items-center gap-4 tracking-tight mb-2">
-              <span className="w-2 h-10 bg-neon-purple rounded-full shadow-[0_0_15px_rgba(168,85,247,0.6)]"></span>
+              <span className="w-2 h-10 bg-red-600 rounded-full shadow-[0_0_15px_rgba(220,38,38,0.6)]"></span>
               Affiliate Partner Lobby
             </h1>
             <p className="text-slate-600 max-w-xl text-lg">Your B2B portal. Track your referrals, analyze your campaign performance, and withdraw commissions.</p>
@@ -165,8 +165,8 @@ export default function AffiliatePage() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {[
           { label: "Total Earnings", value: `₹ ${totalEarnings.toLocaleString()}`, icon: DollarSign, color: "text-neon-green" },
-          { label: "Active Players", value: totalSignups.toString(), icon: Users, color: "text-blue-500" },
-          { label: "Total Clicks", value: totalClicks.toLocaleString(), icon: MousePointerClick, color: "text-neon-purple" },
+          { label: "Active Players", value: totalSignups.toString(), icon: Users, color: "text-emerald-500" },
+          { label: "Total Clicks", value: totalClicks.toLocaleString(), icon: MousePointerClick, color: "text-red-600" },
           { label: "Conversion Rate", value: avgConversion, icon: TrendingUp, color: "text-neon-yellow" },
         ].map((stat, i) => (
           <motion.div
@@ -209,7 +209,7 @@ export default function AffiliatePage() {
                   value={customCode}
                   onChange={(e) => setCustomCode(e.target.value)}
                   placeholder="e.g. BLOGPOST"
-                  className="bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-neon-purple transition-all font-mono uppercase"
+                  className="bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-600 transition-all font-mono uppercase"
                 />
               </div>
               
@@ -218,7 +218,7 @@ export default function AffiliatePage() {
                 <select 
                   value={commissionType}
                   onChange={(e) => setCommissionType(e.target.value)}
-                  className="bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-neon-purple transition-all"
+                  className="bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 focus:outline-none focus:border-red-600 transition-all"
                 >
                   <option value="revshare">Revenue Share (35%)</option>
                   <option value="cpa">CPA (₹1,500 / Signup)</option>
@@ -229,7 +229,7 @@ export default function AffiliatePage() {
               <div className="flex flex-col justify-end">
                 <button 
                   type="submit"
-                  className="bg-neon-purple hover:bg-purple-600 text-white font-black uppercase text-xs tracking-wider px-6 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(168,85,247,0.2)] flex items-center justify-center gap-2"
+                  className="bg-red-600 hover:bg-red-700 text-white font-black uppercase text-xs tracking-wider px-6 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(220,38,38,0.2)] flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> Generate URL
                 </button>
@@ -240,7 +240,7 @@ export default function AffiliatePage() {
           {/* Active Campaigns Table */}
           <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-6 backdrop-blur-md flex-1">
             <h3 className="text-lg font-black text-slate-900 mb-6 uppercase tracking-wider flex items-center gap-2">
-              <Link2 className="w-5 h-5 text-neon-purple" /> Active Campaigns
+              <Link2 className="w-5 h-5 text-red-600" /> Active Campaigns
             </h3>
             
             <div className="overflow-x-auto">
@@ -300,15 +300,15 @@ export default function AffiliatePage() {
           {/* Glassmorphic SVG Area Chart */}
           <div className="h-56 relative w-full bg-white border border-slate-200 rounded-2xl p-4 flex flex-col justify-between overflow-hidden shadow-inner">
             {/* Ambient Background Glow */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-neon-purple/10 blur-[50px] rounded-full pointer-events-none" />
+            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 bg-red-600/10 blur-[50px] rounded-full pointer-events-none" />
             
             {/* SVG Plot */}
             <div className="absolute inset-0 top-6 bottom-8 left-4 right-4 z-10">
               <svg className="w-full h-full" viewBox="0 0 100 50" preserveAspectRatio="none">
                 <defs>
                   <linearGradient id="chartGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="#a855f7" stopOpacity="0.4" />
-                    <stop offset="100%" stopColor="#a855f7" stopOpacity="0.0" />
+                    <stop offset="0%" stopColor="#dc2626" stopOpacity="0.4" />
+                    <stop offset="100%" stopColor="#dc2626" stopOpacity="0.0" />
                   </linearGradient>
                 </defs>
                 {/* Grid Lines */}
@@ -325,19 +325,19 @@ export default function AffiliatePage() {
                 <path 
                   d="M 0 35 L 16.6 25 L 33.3 40 L 50 20 L 66.6 15 L 83.3 8 L 100 5" 
                   fill="none" 
-                  stroke="#a855f7" 
+                  stroke="#dc2626" 
                   strokeWidth="1.5" 
                   strokeLinecap="round"
                 />
                 
                 {/* Data Points circles */}
-                <circle cx="0" cy="35" r="1.5" fill="#a855f7" stroke="white" strokeWidth="0.5" />
-                <circle cx="16.6" cy="25" r="1.5" fill="#a855f7" stroke="white" strokeWidth="0.5" />
-                <circle cx="33.3" cy="40" r="1.5" fill="#a855f7" stroke="white" strokeWidth="0.5" />
-                <circle cx="50" cy="20" r="1.5" fill="#a855f7" stroke="white" strokeWidth="0.5" />
-                <circle cx="66.6" cy="15" r="1.5" fill="#a855f7" stroke="white" strokeWidth="0.5" />
-                <circle cx="83.3" cy="8" r="1.5" fill="#a855f7" stroke="white" strokeWidth="0.5" />
-                <circle cx="100" cy="5" r="1.5" fill="#a855f7" stroke="white" strokeWidth="0.5" />
+                <circle cx="0" cy="35" r="1.5" fill="#dc2626" stroke="white" strokeWidth="0.5" />
+                <circle cx="16.6" cy="25" r="1.5" fill="#dc2626" stroke="white" strokeWidth="0.5" />
+                <circle cx="33.3" cy="40" r="1.5" fill="#dc2626" stroke="white" strokeWidth="0.5" />
+                <circle cx="50" cy="20" r="1.5" fill="#dc2626" stroke="white" strokeWidth="0.5" />
+                <circle cx="66.6" cy="15" r="1.5" fill="#dc2626" stroke="white" strokeWidth="0.5" />
+                <circle cx="83.3" cy="8" r="1.5" fill="#dc2626" stroke="white" strokeWidth="0.5" />
+                <circle cx="100" cy="5" r="1.5" fill="#dc2626" stroke="white" strokeWidth="0.5" />
               </svg>
             </div>
             

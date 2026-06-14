@@ -145,7 +145,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
             </div>
             <div className="flex flex-col">
               <div className="flex items-baseline gap-2 mb-1">
-                <span className="font-bold text-sm text-blue-600">{msg.user}</span>
+                <span className="font-bold text-sm text-red-600">{msg.user}</span>
                 <span className="text-[10px] text-slate-600">{msg.time}</span>
               </div>
               <p className="text-sm text-slate-700 leading-relaxed bg-white border border-slate-200 rounded-lg rounded-tl-none p-2 inline-block">
@@ -158,7 +158,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
 
       {/* Input Area */}
       <div className="p-4 border-t border-slate-200 shrink-0 bg-white">
-        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus-within:border-blue-500 transition-colors">
+        <div className="flex items-center bg-slate-50 border border-slate-200 rounded-lg px-2 py-1 focus-within:border-red-600 transition-colors">
           <button className="p-2 text-slate-600 hover:text-slate-600 transition-colors">
             <Smile className="w-5 h-5" />
           </button>
@@ -172,7 +172,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
           />
           <button 
             onClick={handleSend}
-            className="p-2 text-blue-600 hover:text-blue-500 transition-colors"
+            className="p-2 text-red-600 hover:text-red-500 transition-colors"
           >
             <Send className="w-5 h-5" />
           </button>
@@ -195,7 +195,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 z-50 p-4 bg-blue-600 hover:bg-blue-500 text-white rounded-full shadow-lg transition-colors"
+            className="fixed bottom-6 right-[96px] z-50 p-4 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-lg transition-colors"
           >
             <MessageSquare className="w-6 h-6" />
           </motion.button>
@@ -210,7 +210,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsOpen(false)}
-            className="fixed inset-0 bg-slate-50/20 z-40 backdrop-blur-sm"
+            className="fixed inset-0 bg-slate-50/20 z-[48] backdrop-blur-sm"
           />
         )}
       </AnimatePresence>

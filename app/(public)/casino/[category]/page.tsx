@@ -46,7 +46,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
             onClick={() => setActiveToken(token)}
             className={`w-14 h-14 rounded-full flex items-center justify-center font-black text-sm transition-all ${
               activeToken === token 
-                ? "bg-blue-600 text-white shadow-lg scale-110 border-4 border-blue-200" 
+                ? "bg-red-600 text-white shadow-lg scale-110 border-4 border-red-200" 
                 : "bg-white text-exchange-text border-2 border-exchange-border hover:bg-slate-100"
             }`}
           >
@@ -57,7 +57,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       <div className="flex items-center gap-6">
         <button onClick={clearBets} className="text-exchange-muted hover:text-exchange-text font-bold uppercase tracking-widest text-xs transition-colors">Cancel</button>
         <button onClick={repeatBets} className="text-exchange-muted hover:text-exchange-text font-bold uppercase tracking-widest text-xs transition-colors">Repeat</button>
-        <button onClick={submitBets} className="text-blue-600 hover:text-blue-800 font-black uppercase tracking-widest text-xs transition-colors">Submit</button>
+        <button onClick={submitBets} className="text-red-600 hover:text-red-800 font-black uppercase tracking-widest text-xs transition-colors">Submit</button>
       </div>
     </div>
   );
@@ -79,11 +79,11 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               {/* Perfect Pairs */}
               <button 
                 onClick={() => handleBetDrop("perfect-pairs")}
-                className="w-24 h-24 rounded-full border-2 border-dashed border-exchange-border flex flex-col items-center justify-center bg-slate-900/50 hover:bg-blue-50 transition-colors relative"
+                className="w-24 h-24 rounded-full border-2 border-dashed border-exchange-border flex flex-col items-center justify-center bg-slate-900/50 hover:bg-red-50/40 transition-colors relative"
               >
                 <span className="text-[10px] font-bold text-exchange-muted uppercase">Pairs</span>
                 {bets["perfect-pairs"] && (
-                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-blue-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
                     ${bets["perfect-pairs"]}
                   </div>
                 )}
@@ -92,11 +92,11 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               {/* Main Hand */}
               <button 
                 onClick={() => handleBetDrop("main")}
-                className="w-32 h-32 rounded-full border-4 border-exchange-border flex flex-col items-center justify-center bg-white hover:bg-blue-50 transition-colors relative shadow-sm"
+                className="w-32 h-32 rounded-full border-4 border-exchange-border flex flex-col items-center justify-center bg-white hover:bg-red-50/40 transition-colors relative shadow-sm"
               >
                 <span className="text-xs font-black text-exchange-text uppercase">Main Hand</span>
                 {bets["main"] && (
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-blue-600 text-white font-black text-xs flex items-center justify-center shadow-lg">
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-red-600 text-white font-black text-xs flex items-center justify-center shadow-lg">
                     ${bets["main"]}
                   </div>
                 )}
@@ -105,11 +105,11 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               {/* Bonus */}
               <button 
                 onClick={() => handleBetDrop("bonus")}
-                className="w-24 h-24 rounded-full border-2 border-dashed border-exchange-border flex flex-col items-center justify-center bg-slate-900/50 hover:bg-blue-50 transition-colors relative"
+                className="w-24 h-24 rounded-full border-2 border-dashed border-exchange-border flex flex-col items-center justify-center bg-slate-900/50 hover:bg-red-50/40 transition-colors relative"
               >
                 <span className="text-[10px] font-bold text-exchange-muted uppercase">Bonus</span>
                 {bets["bonus"] && (
-                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-blue-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
+                  <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
                     ${bets["bonus"]}
                   </div>
                 )}
@@ -150,7 +150,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               {/* Player Cards */}
               <div className="flex gap-4 relative">
                 {/* Hand Strength Badge */}
-                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-blue-100 text-blue-800 border border-blue-200 px-3 py-1 rounded-sm text-xs font-bold tracking-widest uppercase whitespace-nowrap shadow-sm">
+                <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-emerald-100 text-emerald-800 border border-emerald-200 px-3 py-1 rounded-sm text-xs font-bold tracking-widest uppercase whitespace-nowrap shadow-sm">
                   Strength: 92% (Straight)
                 </div>
                 <div className="w-20 h-28 bg-white border border-slate-300 rounded-md shadow-md flex items-center justify-center text-2xl font-black text-slate-800 rotate-[-5deg]">
@@ -168,7 +168,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 <div className="grid grid-cols-2 gap-4">
                   <button className="text-center text-exchange-muted hover:text-exchange-text font-black text-xl uppercase tracking-widest transition-colors py-4">Fold</button>
                   <button className="text-center text-exchange-muted hover:text-exchange-text font-black text-xl uppercase tracking-widest transition-colors py-4">Check</button>
-                  <button className="text-center text-blue-600 hover:text-blue-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Call $500</button>
+                  <button className="text-center text-red-600 hover:text-red-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Call $500</button>
                   <button className="text-center text-pink-600 hover:text-pink-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Raise</button>
                 </div>
               </div>
@@ -201,7 +201,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search nodes..." 
-              className="w-full bg-slate-50 border border-exchange-border rounded-sm pl-9 pr-9 py-2 text-xs font-medium text-exchange-text focus:outline-none focus:border-blue-500"
+              className="w-full bg-slate-50 border border-exchange-border rounded-sm pl-9 pr-9 py-2 text-xs font-medium text-exchange-text focus:outline-none focus:border-red-600"
             />
             {searchQuery && (
               <button onClick={() => setSearchQuery("")} className="absolute right-3 top-1/2 -translate-y-1/2 text-exchange-muted hover:text-exchange-text">

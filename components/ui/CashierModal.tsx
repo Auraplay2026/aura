@@ -354,7 +354,7 @@ interface PaymentSettingsState {
                       {activeTab === tab.id && (
                         <motion.div 
                           layoutId="activeTab"
-                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-slate-50 rounded-t-full shadow-[0_-2px_10px_rgba(34,197,94,0.5)]"
+                          className="absolute bottom-0 left-0 right-0 h-0.5 bg-red-600 rounded-t-full shadow-[0_-2px_10px_rgba(220,38,38,0.5)]"
                         />
                       )}
                     </button>
@@ -418,7 +418,7 @@ interface PaymentSettingsState {
                           <div className="absolute top-4 left-6 right-6 h-0.5 bg-slate-100/80 -z-10" />
                           {/* Active Fill Line */}
                           <div 
-                            className="absolute top-4 left-6 right-6 h-0.5 bg-gradient-to-r from-emerald-500 via-indigo-500 to-amber-500 origin-left transition-all duration-500 -z-10" 
+                            className="absolute top-4 left-6 right-6 h-0.5 bg-gradient-to-r from-emerald-500 via-red-500 to-amber-500 origin-left transition-all duration-500 -z-10" 
                             style={{
                               transform: `scaleX(${depositStep === 'amount' ? 0 : depositStep === 'transfer' ? 0.5 : 1})`
                             }}
@@ -444,8 +444,8 @@ interface PaymentSettingsState {
                               depositStep === 'amount' 
                                 ? "bg-white border-slate-200 text-slate-500" 
                                 : depositStep === 'transfer'
-                                ? "bg-white border-indigo-500 text-indigo-600 shadow-[0_0_12px_rgba(99,102,241,0.3)] ring-2 ring-indigo-500/10" 
-                                : "bg-indigo-500 border-indigo-500 text-white"
+                                ? "bg-white border-red-500 text-red-600 shadow-[0_0_12px_rgba(220,38,38,0.3)] ring-2 ring-red-500/10" 
+                                : "bg-red-500 border-red-500 text-white"
                             )}>
                               {depositStep === 'verify' ? <Check className="w-4 h-4 stroke-[3]" /> : "2"}
                             </div>
@@ -683,7 +683,7 @@ interface PaymentSettingsState {
                                   <span className="text-slate-900 font-bold">{paymentSettings.bankAccountNo}</span>
                                   <button 
                                     onClick={() => handleCopyText(paymentSettings.bankAccountNo, 'bankAccount')} 
-                                    className="text-[9px] font-black uppercase text-indigo-600 hover:text-indigo-700 cursor-pointer"
+                                    className="text-[9px] font-black uppercase text-red-600 hover:text-red-700 cursor-pointer"
                                   >
                                     {copiedField === 'bankAccount' ? 'Copied' : 'Copy'}
                                   </button>
@@ -695,7 +695,7 @@ interface PaymentSettingsState {
                                   <span className="text-slate-900 font-bold">{paymentSettings.bankIfsc}</span>
                                   <button 
                                     onClick={() => handleCopyText(paymentSettings.bankIfsc, 'bankIfsc')} 
-                                    className="text-[9px] font-black uppercase text-indigo-600 hover:text-indigo-700 cursor-pointer"
+                                    className="text-[9px] font-black uppercase text-red-600 hover:text-red-700 cursor-pointer"
                                   >
                                     {copiedField === 'bankIfsc' ? 'Copied' : 'Copy'}
                                   </button>
@@ -706,20 +706,20 @@ interface PaymentSettingsState {
                             {/* Instruction Card */}
                             <div className="bg-slate-50/40 border border-slate-200 rounded-2xl p-4 space-y-2.5">
                               <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
-                                <Info className="w-3.5 h-3.5 text-indigo-600" />
+                                <Info className="w-3.5 h-3.5 text-red-600" />
                                 Bank Wire Instructions
                               </h4>
                               <ol className="space-y-1.5 text-[11px] text-slate-600 font-medium">
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
+                                  <span className="w-4 h-4 bg-red-500/10 text-red-600 border border-red-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">1</span>
                                   <span>Log in to your banking app or internet portal.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
+                                  <span className="w-4 h-4 bg-red-500/10 text-red-600 border border-red-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">2</span>
                                   <span>Transfer exactly <strong className="text-slate-900 font-mono">₹{amount.toLocaleString()}</strong> using IMPS/NEFT.</span>
                                 </li>
                                 <li className="flex gap-2">
-                                  <span className="w-4 h-4 bg-indigo-500/10 text-indigo-600 border border-indigo-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
+                                  <span className="w-4 h-4 bg-red-500/10 text-red-600 border border-red-500/20 rounded-full flex items-center justify-center shrink-0 font-black text-[9px]">3</span>
                                   <span>Save the official bank transaction receipt image. Proceed to verify details next.</span>
                                 </li>
                               </ol>
@@ -750,7 +750,7 @@ interface PaymentSettingsState {
                                 value={senderUpi}
                                 onChange={e => setSenderUpi(e.target.value)}
                                 placeholder={selectedMethod === "crypto" ? "e.g. bc1q..." : selectedMethod === "card" ? "e.g. John Doe / Bank Acc" : "sender@upi"}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-500 transition-colors"
                               />
                             </div>
 
@@ -770,7 +770,7 @@ interface PaymentSettingsState {
                                   }
                                 }}
                                 placeholder={selectedMethod === "upi" ? "12-digit number" : "Transaction Reference ID"}
-                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-indigo-500 transition-colors"
+                                className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-500 transition-colors"
                               />
                             </div>
                           </div>
@@ -917,14 +917,14 @@ interface PaymentSettingsState {
                               className={cn(
                                 "p-3 rounded-2xl border flex flex-col items-center justify-center gap-2 transition-all duration-300 relative group cursor-pointer",
                                 selectedMethod === "card" 
-                                  ? "bg-indigo-500/10 border-indigo-500/50 text-slate-900 shadow-[0_0_20px_rgba(99,102,241,0.15)] scale-[1.03]" 
+                                  ? "bg-red-500/10 border-red-500/50 text-slate-900 shadow-[0_0_20px_rgba(220,38,38,0.15)] scale-[1.03]" 
                                   : "bg-slate-50/60 border-slate-200 text-slate-600 hover:border-slate-700 hover:text-slate-700 hover:scale-[1.01]"
                               )}
                             >
-                              <Landmark className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "card" ? "text-indigo-600" : "text-slate-500")} />
+                              <Landmark className={cn("w-5 h-5 transition-transform duration-300 group-hover:scale-110", selectedMethod === "card" ? "text-red-600" : "text-slate-500")} />
                               <span className="text-[10px] sm:text-xs font-black uppercase tracking-wider text-center leading-tight">IMPS<br className="sm:hidden"/>/RTGS</span>
                               {selectedMethod === "card" && (
-                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-indigo-500 shadow-[0_0_8px_rgba(99,102,241,0.8)] border border-slate-300" />
+                                <span className="absolute -top-1.5 -right-1 w-2.5 h-2.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(220,38,38,0.8)] border border-slate-300" />
                               )}
                             </button>
 
@@ -969,7 +969,7 @@ interface PaymentSettingsState {
                           type="number" 
                           value={amount}
                           onChange={(e) => setAmount(Number(e.target.value))}
-                          className={`w-full bg-slate-50 border rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono outline-none transition-all ${amount > balance ? 'border-red-500 text-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-slate-200 text-slate-900 focus:border-neon-purple focus:ring-1 focus:ring-neon-purple'}`} 
+                          className={`w-full bg-slate-50 border rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono outline-none transition-all ${amount > balance ? 'border-red-500 text-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-slate-200 text-slate-900 focus:border-red-500 focus:ring-1 focus:ring-red-500'}`} 
                         />
                       </div>
                       {amount > balance && (
@@ -984,7 +984,7 @@ interface PaymentSettingsState {
                             value={senderUpi}
                             onChange={e => setSenderUpi(e.target.value)}
                             placeholder="yourname@bank"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-neon-purple transition-colors"
+                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-500 transition-colors"
                           />
                         </div>
                       )}
@@ -1043,7 +1043,7 @@ interface PaymentSettingsState {
                               ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]'
                               : selectedMethod === 'crypto'
                               ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]'
-                              : 'bg-indigo-500 hover:bg-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)]'
+                              : 'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]'
                           )}
                         >
                           <div className="absolute inset-0 bg-white/25 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
@@ -1066,7 +1066,7 @@ interface PaymentSettingsState {
                                 ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]'
                                 : selectedMethod === 'crypto'
                                 ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]'
-                                : 'bg-indigo-500 hover:bg-indigo-400 text-white shadow-[0_0_15px_rgba(99,102,241,0.3)] hover:shadow-[0_0_25px_rgba(99,102,241,0.5)]'
+                                : 'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]'
                             )}
                           >
                             <div className="absolute inset-0 bg-white/25 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
@@ -1108,7 +1108,7 @@ interface PaymentSettingsState {
                         }
                       }}
                       disabled={isProcessing || amount <= 0 || (activeTab === "withdraw" && amount > balance) || (currentUser?.accountType === 'real' && activeTab === 'withdraw' && !senderUpi)}
-                      className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${activeTab === 'withdraw' ? 'bg-neon-purple hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.3)] hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]' : 'bg-slate-50 hover:bg-green-500 text-slate-950'}`}
+                      className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${activeTab === 'withdraw' ? 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]' : 'bg-slate-50 hover:bg-green-500 text-slate-950'}`}
                     >
                       <div className="absolute inset-0 bg-slate-900/20 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
                       {isProcessing ? (
