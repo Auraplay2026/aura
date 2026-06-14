@@ -22,6 +22,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
   const [playerHand, setPlayerHand] = useState<typeof DECK>([]);
   const [dealerHand, setDealerHand] = useState<typeof DECK>([]);
   const [dealt, setDealt] = useState(false);
+  const [resultMsg, setResultMsg] = useState("");
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -33,6 +34,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
       setPlayerHand([]);
       setDealerHand([]);
       setDealt(false);
+      setResultMsg("");
       return;
     }
 
@@ -52,12 +54,21 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
       } else if (count === 4) {
         setDealerHand(d => [...d, DECK[Math.floor(Math.random() * DECK.length)]]);
         clearInterval(interval);
+        
         setTimeout(() => {
           setDealt(true);
+          const pScore = playerHand.reduce((acc, c) => acc + c.score, 0);
+          const dScore = dealerHand.reduce((acc, c) => acc + c.score, 0);
+          
+          if (won) setResultMsg("Player Wins!");
+          else if (pScore > 21) setResultMsg("Player Busts");
+          else if (dScore > pScore && dScore <= 21) setResultMsg("Dealer Wins");
+          else setResultMsg("Push");
+          
           onCompleteRef.current(won);
-        }, 1000);
+        }, 1200);
       }
-    }, 450);
+    }, 500);
 
     return () => clearInterval(interval);
   }, [isPlaying]);
@@ -66,73 +77,107 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
   const dealerScore = dealerHand.reduce((acc, c) => acc + c.score, 0);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-[#111115] via-[#1a1a24] to-[#070709] rounded-[3rem] border-[24px] border-[#0c0d12] shadow-[inset_0_0_120px_rgba(0,0,0,1)] relative flex flex-col items-center justify-center overflow-hidden">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-[#111115] via-[#1a1a24] to-[#070709] rounded-3xl border border-[#27272a] shadow-2xl relative flex flex-col items-center justify-center overflow-hidden perspective-[1000px]">
       
-      {/* Carbon fiber grid effect */}
+      {/* Carbon fiber grid effect / Table Felt */}
       <div 
-        className="absolute inset-0 z-0 opacity-5"
+        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
         style={{
           backgroundImage: `
             radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 0),
             radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 0)
           `,
-          backgroundSize: '8px 8px',
-          backgroundPosition: '0 0, 4px 4px'
+          backgroundSize: '16px 16px',
+          backgroundPosition: '0 0, 8px 8px'
         }}
       />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.05),_transparent_60%)] pointer-events-none" />
 
-      <div className="absolute top-10 text-center opacity-30 select-none">
-        <h2 className="text-yellow-500/80 font-black text-2xl md:text-3xl tracking-[0.4em] uppercase">VIP BLACKJACK PLATINUM</h2>
-        <span className="text-slate-900 text-[9px] font-bold tracking-widest mt-1 block">INSURANCE PAYS 2 TO 1</span>
+      {/* Table Border illusion */}
+      <div className="absolute inset-4 rounded-[2.5rem] border-2 border-slate-800/50 pointer-events-none" />
+
+      <div className="absolute top-8 text-center opacity-40 select-none">
+        <h2 className="text-slate-300 font-black text-2xl md:text-4xl tracking-[0.4em] uppercase drop-shadow-md">VIP BLACKJACK PLATINUM</h2>
+        <span className="text-slate-500 text-[10px] md:text-xs font-bold tracking-[0.5em] mt-1 block">BLACKJACK PAYS 3 TO 2</span>
       </div>
 
-      <div className="relative z-10 w-full flex flex-col md:flex-row gap-12 justify-center mt-12 px-6">
-        {/* Dealer */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider">Dealer Hand</span>
-          <div className="flex gap-2 min-h-[112px]">
+      <div className="relative z-10 w-full flex flex-col md:flex-row gap-8 md:gap-20 justify-center mt-12 px-6 transform-style-3d rotate-x-[15deg]">
+        
+        {/* Dealer Section */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="px-6 py-1 rounded-full border border-slate-700/50 bg-slate-800/30 backdrop-blur-sm shadow-inner">
+            <span className="text-xs text-slate-400 font-black uppercase tracking-widest">Dealer</span>
+          </div>
+          <div className="flex gap-[-20px] min-h-[140px] perspective-[800px]">
             {dealerHand.map((card, idx) => (
               <motion.div
                 key={idx}
-                initial={{ y: -200, rotateY: 180, scale: 0.8 }}
-                animate={{ y: 0, rotateY: 0, scale: 1 }}
-                className={`w-20 h-28 bg-white border border-slate-200 rounded-lg shadow-lg relative flex items-center justify-center ${card.color}`}
+                initial={{ y: -300, x: -200, rotateY: 180, rotateZ: -45, scale: 0.5 }}
+                animate={{ y: 0, x: 0, rotateY: 0, rotateZ: idx === 0 ? -5 : 5, scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className={`w-24 h-36 bg-gradient-to-br from-white to-slate-100 border-2 border-slate-200 rounded-xl shadow-[0_20px_30px_rgba(0,0,0,0.8),inset_0_0_10px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-2 transform-style-3d z-${10 + idx}`}
+                style={{ marginLeft: idx > 0 ? "-30px" : "0px" }}
               >
-                <span className="absolute top-1 left-2 font-black text-sm">{card.val}{card.suit}</span>
-                <span className="text-3xl">{card.suit}</span>
+                <span className={`font-black text-lg leading-none ${card.color}`}>{card.val}</span>
+                <span className={`text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${card.color}`}>{card.suit}</span>
+                <span className={`font-black text-lg leading-none self-end rotate-180 ${card.color}`}>{card.val}</span>
               </motion.div>
             ))}
           </div>
           {dealerHand.length > 0 && (
-            <span className="text-slate-900 font-mono font-bold text-xs bg-slate-50 border border-slate-200 px-4 py-1 rounded-full shadow-inner">
-              Dealer: {dealerScore}
-            </span>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-white font-mono font-black text-xl bg-slate-900/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
+              {dealerScore}
+            </motion.div>
           )}
         </div>
 
-        {/* Player */}
-        <div className="flex flex-col items-center gap-2">
-          <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider">Player Hand</span>
-          <div className="flex gap-2 min-h-[112px]">
+        {/* Player Section */}
+        <div className="flex flex-col items-center gap-4">
+          <div className="px-6 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 backdrop-blur-sm shadow-[0_0_15px_rgba(59,130,246,0.2)]">
+            <span className="text-xs text-blue-400 font-black uppercase tracking-widest">Player</span>
+          </div>
+          <div className="flex gap-[-20px] min-h-[140px] perspective-[800px]">
             {playerHand.map((card, idx) => (
               <motion.div
                 key={idx}
-                initial={{ y: -200, rotateY: 180, scale: 0.8 }}
-                animate={{ y: 0, rotateY: 0, scale: 1 }}
-                className={`w-20 h-28 bg-white border border-slate-200 rounded-lg shadow-lg relative flex items-center justify-center ${card.color}`}
+                initial={{ y: -300, x: 200, rotateY: 180, rotateZ: 45, scale: 0.5 }}
+                animate={{ y: 0, x: 0, rotateY: 0, rotateZ: idx === 0 ? -5 : 5, scale: 1 }}
+                transition={{ type: "spring", stiffness: 200, damping: 20 }}
+                className={`w-24 h-36 bg-gradient-to-br from-white to-slate-100 border-2 border-slate-200 rounded-xl shadow-[0_20px_30px_rgba(0,0,0,0.8),inset_0_0_10px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-2 transform-style-3d z-${10 + idx}`}
+                style={{ marginLeft: idx > 0 ? "-30px" : "0px" }}
               >
-                <span className="absolute top-1 left-2 font-black text-sm">{card.val}{card.suit}</span>
-                <span className="text-3xl">{card.suit}</span>
+                <span className={`font-black text-lg leading-none ${card.color}`}>{card.val}</span>
+                <span className={`text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${card.color}`}>{card.suit}</span>
+                <span className={`font-black text-lg leading-none self-end rotate-180 ${card.color}`}>{card.val}</span>
               </motion.div>
             ))}
           </div>
           {playerHand.length > 0 && (
-            <span className="text-slate-900 font-mono font-bold text-xs bg-slate-50 border border-slate-200 px-4 py-1 rounded-full shadow-inner">
-              Player: {playerScore}
-            </span>
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-white font-mono font-black text-xl bg-slate-900/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
+              {playerScore}
+            </motion.div>
           )}
         </div>
       </div>
+
+      {/* Results HUD Overlay */}
+      <AnimatePresence>
+        {dealt && resultMsg && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5, y: 50 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.5, y: 50 }}
+            className="absolute bottom-10 z-50 px-12 py-4 bg-slate-900/90 border border-slate-600 shadow-[0_0_50px_rgba(255,255,255,0.1)] rounded-2xl backdrop-blur-lg"
+          >
+            <span className={`font-black uppercase tracking-widest text-3xl drop-shadow-md ${
+              resultMsg.includes("Player") ? "text-blue-400" :
+              resultMsg.includes("Dealer") || resultMsg.includes("Busts") ? "text-red-400" : "text-slate-300"
+            }`}>
+              {resultMsg}
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

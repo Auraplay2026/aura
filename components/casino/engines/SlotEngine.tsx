@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface SlotEngineProps {
@@ -28,7 +28,6 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
       return;
     }
 
-    // Guard to prevent mid-spin resets if parent re-renders
     if (hasStartedSpin.current) return;
     hasStartedSpin.current = true;
 
@@ -36,7 +35,6 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
     const baseTime = isTurbo ? 400 : 800;
     const staggerTime = isTurbo ? 150 : 300;
     
-    // Compute result securely using centralized 20% win-rate mandate
     const outcome = calculateGameOutcome("SLOTS");
     const isWin = outcome.isWin;
     const multiplier = outcome.multiplier;
@@ -47,7 +45,6 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
       const middleRow = Math.floor(theme.rows / 2);
       for (let c = 0; c < Math.min(4, theme.cols); c++) newReels[c][middleRow] = winSymbol;
     } else if (outcome.isNearMiss) {
-      // Psychological "Near Miss" Generation
       const winSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
       const middleRow = Math.floor(theme.rows / 2);
       for (let c = 0; c < Math.min(3, theme.cols); c++) newReels[c][middleRow] = winSymbol;
@@ -61,7 +58,6 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
 
     const timeouts: NodeJS.Timeout[] = [];
 
-    // Staggered Stops
     Array.from({ length: theme.cols }).forEach((_, i) => {
       const t = setTimeout(() => {
         setSpinStops(prev => {
@@ -73,7 +69,6 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
       timeouts.push(t);
     });
 
-    // Finish Spin
     const timer = setTimeout(() => {
       onCompleteRef.current(multiplier, isWin);
     }, baseTime + (theme.cols * staggerTime) + 300);
@@ -83,24 +78,43 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
   }, [isPlaying, isTurbo, theme]);
 
   return (
-    <div className={`w-full bg-white/80 backdrop-blur-2xl border-4 ${theme.borderClass} rounded-3xl p-4 md:p-6 shadow-[0_0_100px_rgba(0,0,0,0.8)] relative overflow-hidden`}>
-      <div className="grid gap-2 h-64 md:h-96 relative" style={{ gridTemplateColumns: `repeat(${theme.cols}, minmax(0, 1fr))` }}>
+    <div className={`w-full max-w-5xl mx-auto h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-b from-slate-800 to-[#09090b] rounded-[3rem] border-8 ${theme.borderClass} p-4 md:p-8 shadow-[0_40px_100px_rgba(0,0,0,0.8),inset_0_2px_10px_rgba(255,255,255,0.2)] relative overflow-hidden flex flex-col justify-center perspective-[1200px]`}>
+      
+      {/* Premium Metallic Cabinet Illusion */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.1),_transparent_50%)] pointer-events-none z-0" />
+      <div className="absolute inset-2 border-2 border-slate-700/50 rounded-[2.5rem] pointer-events-none z-0 shadow-inner" />
+
+      {/* Reel Container */}
+      <div 
+        className="grid gap-2 md:gap-4 h-[350px] md:h-[450px] relative z-10 p-4 md:p-6 bg-[#000] rounded-2xl border-4 border-[#18181b] shadow-[inset_0_20px_50px_rgba(0,0,0,1)] transform-style-3d rotate-x-[5deg]" 
+        style={{ gridTemplateColumns: `repeat(${theme.cols}, minmax(0, 1fr))` }}
+      >
         {reels.map((col, cIdx) => (
-          <div key={cIdx} className={`${theme.slotBg} rounded-xl overflow-hidden relative border border-slate-200 shadow-inner flex justify-center`}>
-            <div className="absolute inset-0 bg-gradient-to-b from-black/80 via-transparent to-black/80 z-10 pointer-events-none" />
+          <div key={cIdx} className={`${theme.slotBg} rounded-xl overflow-hidden relative border-x-2 border-slate-800 shadow-[inset_0_0_30px_rgba(0,0,0,1)] flex justify-center bg-[#09090b]`}>
+            {/* Dark gradient mask on top and bottom for realistic cylindrical drum effect */}
+            <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-black via-black/80 to-transparent z-20 pointer-events-none" />
+            <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black via-black/80 to-transparent z-20 pointer-events-none" />
             
+            {/* Spinning Reel Content */}
             <motion.div 
-              animate={!spinStops[cIdx] ? (theme.animationType === "tumble" ? { y: [-800, 0] } : { y: [0, -1600] }) : { y: 0 }}
+              animate={!spinStops[cIdx] ? (theme.animationType === "tumble" ? { y: [-800, 0] } : { y: [0, -2000] }) : { y: 0 }}
               transition={!spinStops[cIdx] 
-                ? { repeat: Infinity, duration: isTurbo ? 0.1 : 0.2, ease: "linear" }
-                : { type: "spring", stiffness: 400, damping: 15, mass: 1.2 }
+                ? { repeat: Infinity, duration: isTurbo ? 0.08 : 0.15, ease: "linear" }
+                : { type: "spring", stiffness: 300, damping: 15, mass: 1 }
               }
-              className="h-full w-full flex flex-col justify-around items-center"
+              className="h-full w-full flex flex-col justify-around items-center absolute inset-0 z-10"
             >
               {col.map((sym, rIdx) => (
-                <div key={rIdx} className={`text-5xl md:text-7xl lg:text-8xl flex items-center justify-center w-full h-full relative ${!spinStops[cIdx] ? (theme.animationType === "tumble" ? "blur-[2px]" : "blur-[8px] opacity-70 scale-125") : "scale-100"}`}>
-                  <div className="absolute inset-0 bg-slate-900/5 backdrop-blur-[1px] rounded-2xl opacity-50 m-2 border border-slate-200" />
-                  <span className="relative z-10 drop-shadow-[0_15px_15px_rgba(0,0,0,0.8)] filter transition-all duration-300 group-hover:drop-shadow-[0_0_30px_rgba(255,255,255,0.4)]">
+                <div 
+                  key={rIdx} 
+                  className={`text-5xl md:text-7xl lg:text-[6rem] flex items-center justify-center w-full h-1/3 relative transition-all duration-75 
+                    ${!spinStops[cIdx] 
+                      ? (theme.animationType === "tumble" ? "blur-[2px]" : "blur-[4px] opacity-80 scale-y-125") 
+                      : "scale-y-100 blur-0"
+                    }
+                  `}
+                >
+                  <span className={`relative z-10 drop-shadow-[0_10px_10px_rgba(0,0,0,0.8)] filter ${!spinStops[cIdx] ? "brightness-150" : ""}`}>
                     {sym}
                   </span>
                 </div>
@@ -108,7 +122,18 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
             </motion.div>
           </div>
         ))}
+
+        {/* Win Line Illusion */}
+        {spinStops.every(v => v) && isPlaying === false && (
+          <motion.div 
+            initial={{ opacity: 0, scaleX: 0 }}
+            animate={{ opacity: 1, scaleX: 1 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
+            className="absolute top-1/2 left-0 right-0 h-1 bg-yellow-400/50 shadow-[0_0_20px_rgba(250,204,21,1)] z-30 pointer-events-none origin-center" 
+          />
+        )}
       </div>
+
     </div>
   );
 }

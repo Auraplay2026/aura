@@ -8,24 +8,25 @@ interface LiveWheelEngineProps {
 }
 
 const WHEEL_SECTORS = [
-  { val: "1x", mult: 1, color: "bg-blue-500", label: "Blue Sector" },
-  { val: "2x", mult: 2, color: "bg-green-500", label: "Green Sector" },
-  { val: "1x", mult: 1, color: "bg-blue-500", label: "Blue Sector" },
-  { val: "5x", mult: 5, color: "bg-purple-500", label: "Purple Sector" },
-  { val: "1x", mult: 1, color: "bg-blue-500", label: "Blue Sector" },
-  { val: "2x", mult: 2, color: "bg-green-500", label: "Green Sector" },
-  { val: "10x", mult: 10, color: "bg-yellow-500", label: "Gold Sector" },
-  { val: "CRAZY", mult: 25, color: "bg-red-500 animate-pulse", label: "CRAZY TIME" },
-  { val: "1x", mult: 1, color: "bg-blue-500", label: "Blue Sector" },
-  { val: "2x", mult: 2, color: "bg-green-500", label: "Green Sector" },
-  { val: "5x", mult: 5, color: "bg-purple-500", label: "Purple Sector" },
-  { val: "2x", mult: 2, color: "bg-green-500", label: "Green Sector" }
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" },
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
+  { val: "5x", mult: 5, color: "bg-gradient-to-b from-purple-400 to-purple-600 text-white", label: "Purple Sector" },
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" },
+  { val: "10x", mult: 10, color: "bg-gradient-to-b from-yellow-300 to-yellow-500 text-slate-900", label: "Gold Sector" },
+  { val: "CRAZY", mult: 25, color: "bg-gradient-to-b from-red-500 to-rose-700 text-white font-black", label: "CRAZY TIME" },
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" },
+  { val: "5x", mult: 5, color: "bg-gradient-to-b from-purple-400 to-purple-600 text-white", label: "Purple Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" }
 ];
 
 export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps) {
   const [rotation, setRotation] = useState(0);
   const [winningSector, setWinningSector] = useState<typeof WHEEL_SECTORS[0] | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [pointerTick, setPointerTick] = useState(0);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -40,88 +41,134 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
     }
 
     setIsSpinning(true);
-    const won = Math.random() < 0.40; // 40% win rate
+    const won = Math.random() < 0.40; 
     const sectorIdx = won
-      ? Math.floor(Math.random() * (WHEEL_SECTORS.length - 1)) // Win most sectors
+      ? Math.floor(Math.random() * (WHEEL_SECTORS.length - 1)) 
       : Math.floor(Math.random() * WHEEL_SECTORS.length);
 
     const result = WHEEL_SECTORS[sectorIdx];
     const segmentAngle = 360 / WHEEL_SECTORS.length;
-    // Rotate wheel
-    const finalRotation = 1800 + (360 - (sectorIdx * segmentAngle));
-    setRotation(finalRotation);
+    // Rotate wheel with heavy realistic spin (10 spins + exact sector)
+    const finalRotation = 3600 + (360 - (sectorIdx * segmentAngle));
+    
+    setRotation(prev => prev + finalRotation);
+
+    // Simulate pointer ticking physically
+    let ticks = 0;
+    const tickInterval = setInterval(() => {
+      setPointerTick(prev => (prev === 0 ? -15 : 0));
+      ticks++;
+      if (ticks > 40) clearInterval(tickInterval);
+    }, 150); // fast ticking initially
 
     const timer = setTimeout(() => {
+      clearInterval(tickInterval);
+      setPointerTick(0);
       setWinningSector(result);
       setIsSpinning(false);
       onCompleteRef.current(result.mult, won);
-    }, 4000);
+    }, 6000); // 6 second heavy spin
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      clearInterval(tickInterval);
+    };
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-purple-950 via-slate-900 to-black rounded-3xl border border-slate-200 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-[#09090b] rounded-3xl border border-[#27272a] p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl perspective-[1200px]">
       
-      <div className="text-center mb-6 z-10">
-        <h3 className="text-slate-900 font-black text-xl uppercase tracking-widest animate-pulse">Aura Live Game Show</h3>
-        <p className="text-purple-600 text-xs font-bold uppercase tracking-wider mt-1">Spin the Giant Multiplier Wheel</p>
+      {/* Studio Lighting Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(236,72,153,0.15),_transparent_40%),radial-gradient(circle_at_bottom,_rgba(139,92,246,0.15),_transparent_40%)] pointer-events-none" />
+      <div className="absolute top-0 w-full h-1/3 bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none" />
+
+      <div className="text-center mb-8 z-20">
+        <h3 className="text-white font-black text-2xl uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Live Game Show</h3>
+        <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mt-1">Spin the Massive Multiplier Wheel</p>
       </div>
 
-      {/* The Giant Wheel Container */}
-      <div className="relative w-80 h-80 md:w-96 md:h-96 rounded-full border-8 border-yellow-500 bg-white flex items-center justify-center shadow-[0_0_50px_rgba(168,85,247,0.4)] select-none">
+      {/* The Giant 3D Wheel Container */}
+      <div className="relative w-full max-w-[450px] aspect-square flex items-center justify-center select-none transform-style-3d rotate-x-[15deg]">
         
-        {/* Pointer indicator */}
-        <div className="absolute top-[-15px] left-1/2 -translate-x-1/2 w-6 h-8 bg-red-500 border-2 border-white rounded-b-lg shadow-lg z-30 flex items-center justify-center">
-          <div className="w-2 h-2 bg-white rounded-full" />
+        {/* Glow behind wheel */}
+        <div className="absolute inset-10 bg-yellow-500/10 rounded-full blur-[60px] pointer-events-none" />
+
+        {/* Thick Outer Rim */}
+        <div className="absolute inset-0 rounded-full border-[16px] border-[#fbbf24] shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_5px_15px_rgba(0,0,0,0.5)] bg-[#b45309] flex items-center justify-center transform-style-3d">
+          <div className="absolute inset-2 rounded-full border-4 border-yellow-300/40 shadow-inner" />
         </div>
 
-        {/* Rotating sectors */}
+        {/* 3D Flapping Pointer */}
+        <motion.div 
+          animate={{ rotate: pointerTick }}
+          transition={{ type: "spring", stiffness: 500, damping: 10 }}
+          className="absolute top-[-25px] left-1/2 -translate-x-1/2 w-10 h-14 bg-gradient-to-b from-red-500 to-red-700 border-2 border-white/50 rounded-b-xl shadow-[0_10px_20px_rgba(0,0,0,0.8)] z-40 flex items-center justify-center origin-top"
+        >
+          <div className="w-3 h-3 bg-white rounded-full shadow-inner" />
+        </motion.div>
+
+        {/* Rotating Wheel Base */}
         <motion.div
-          animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
-          transition={{ duration: 4, ease: "easeOut" }}
-          className="w-full h-full rounded-full relative overflow-hidden"
+          animate={{ rotate: rotation }}
+          transition={{ duration: 6, ease: [0.1, 0.9, 0.2, 1] }}
+          className="absolute inset-[16px] rounded-full overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-4 border-yellow-600 bg-slate-900"
         >
           {WHEEL_SECTORS.map((sec, i) => {
             const angle = (360 / WHEEL_SECTORS.length) * i;
             return (
               <div
                 key={i}
-                className="absolute top-0 left-1/2 w-12 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-4 text-slate-900 text-[10px] font-black font-mono"
+                className="absolute top-0 left-1/2 w-16 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-2 md:pt-4"
                 style={{ transform: `rotate(${angle}deg)` }}
               >
-                <div className={`w-8 h-8 rounded-full ${sec.color} flex items-center justify-center shadow-lg border border-white/20`}>
-                  {sec.val}
+                {/* Sector Background color span */}
+                <div className={`absolute inset-0 ${sec.color} opacity-90 clip-sector`} style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+                
+                {/* Label */}
+                <div className="relative z-10 flex flex-col items-center justify-start pt-2">
+                  <span className={`text-sm md:text-xl font-black font-mono drop-shadow-md ${sec.val === 'CRAZY' ? 'text-[10px] md:text-sm tracking-tighter' : ''}`}>
+                    {sec.val}
+                  </span>
                 </div>
-                <div className="w-0.5 h-12 bg-slate-900/10 mt-2" />
+
+                {/* Pegs on the edge */}
+                <div className="absolute top-1 right-0 w-3 h-3 bg-white rounded-full shadow-[0_2px_5px_rgba(0,0,0,0.5)] translate-x-1/2 z-20 border border-slate-300" />
               </div>
             );
           })}
         </motion.div>
 
-        {/* Inner Hub */}
-        <div className="absolute w-28 h-28 rounded-full bg-gradient-to-br from-yellow-400 via-amber-600 to-yellow-500 border-4 border-yellow-300 shadow-2xl flex items-center justify-center z-20">
-          <div className="w-20 h-20 rounded-full bg-white border border-yellow-600/30 flex flex-col items-center justify-center text-center">
-            <span className="text-yellow-500 text-[9px] font-black tracking-widest uppercase">LIVE</span>
-            <span className="text-slate-900 text-xs font-black tracking-tight mt-0.5">WHEEL</span>
+        {/* Heavy Inner Center Hub */}
+        <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-yellow-300 via-amber-500 to-yellow-600 border-8 border-yellow-200 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex items-center justify-center z-30 transform-style-3d">
+          <div className="w-20 h-20 rounded-full bg-slate-900 border-2 border-yellow-500/50 flex flex-col items-center justify-center text-center shadow-inner">
+            <span className="text-yellow-500 text-[10px] font-black tracking-widest uppercase drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]">LIVE</span>
+            <span className="text-white text-sm font-black tracking-tight mt-0.5">WHEEL</span>
           </div>
         </div>
       </div>
 
-      {/* Results overlay */}
+      {/* Cinematic Results Overlay */}
       <AnimatePresence>
         {winningSector && !isSpinning && (
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.8, opacity: 0 }}
-            className="absolute inset-0 bg-white/75 backdrop-blur-sm z-30 flex flex-col items-center justify-center"
+            className="absolute inset-0 bg-[#09090b]/80 backdrop-blur-md z-50 flex flex-col items-center justify-center pointer-events-none"
           >
-            <span className="text-slate-600 text-xs font-black uppercase tracking-widest mb-2">Winning Segment</span>
-            <div className={`px-8 py-6 rounded-3xl ${winningSector.color} border-4 border-white/20 flex flex-col items-center justify-center shadow-2xl`}>
-              <span className="text-slate-900 text-5xl font-black font-mono">{winningSector.val}</span>
-            </div>
-            <span className="text-slate-900 font-bold text-sm mt-3 uppercase tracking-wider">{winningSector.label} Hit!</span>
+            <span className="text-slate-400 text-sm font-black uppercase tracking-widest mb-4">Winning Segment</span>
+            <motion.div 
+              initial={{ y: 50 }} animate={{ y: 0 }} transition={{ type: "spring", bounce: 0.5 }}
+              className={`px-12 py-8 rounded-3xl ${winningSector.color} border-4 border-white/20 flex flex-col items-center justify-center shadow-[0_0_100px_rgba(0,0,0,0.5)]`}
+            >
+              <span className="text-6xl md:text-8xl font-black font-mono drop-shadow-xl">{winningSector.val}</span>
+            </motion.div>
+            <motion.span 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
+              className="text-white font-black text-xl mt-6 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+            >
+              {winningSector.label} Hit!
+            </motion.span>
           </motion.div>
         )}
       </AnimatePresence>
