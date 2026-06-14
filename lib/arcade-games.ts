@@ -19,7 +19,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "High-speed 3D temple runner. Dodge ancient obstacles, collect gems, slide, jump, and run as far as you can.",
     thumbnail: "/games/tomb_runner.png",
     categories: ["runner", "action"],
-    url: "https://html5.gamedistribution.com/f2af2ecc05a445edb6862c589e996a7e/", 
+    url: "https://play.gamepix.com/tomb-runner/embed", 
     isNew: true
   },
   {
@@ -29,7 +29,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Form sweet cascades and match colourful jellies and candy combos in this delicious match-3 puzzle adventure.",
     thumbnail: "/games/candy_rain.png",
     categories: ["puzzle"],
-    url: "https://html5.gamedistribution.com/f318ed77bd024a5eac09f407b4a25e9e/" 
+    url: "https://play.gamepix.com/candy-rain-7/embed" 
   },
   {
     id: "zen-archery",
@@ -38,7 +38,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Master wind and gravity. Aim with high precision to clear balloons and moving targets around the globe.",
     thumbnail: "/games/archery_world_tour.png",
     categories: ["action", "puzzle"],
-    url: "https://html5.gamedistribution.com/945bdbee665e4f778195eb23e9429e40/",
+    url: "https://play.gamepix.com/archery-world-tour/embed",
     isNew: true
   },
   {
@@ -48,7 +48,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Perform insane drifts, jumps, and stunts in luxury supercars. Run open-world maps in single or multiplayer sandbox modes.",
     thumbnail: "/games/two_stunt_supercars.png",
     categories: ["action", "racing"] as ArcadeCategoryId[],
-    url: "https://html5.gamedistribution.com/b57c15d037024b798c2e80efbca087cc/",
+    url: "https://play.gamepix.com/madalin-stunt-cars-2/embed",
     isNew: true
   }
 ];
