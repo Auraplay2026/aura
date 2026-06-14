@@ -27,7 +27,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
 
   const MENU_ITEMS = [
     { label: "My Profile", icon: User, href: "/account" },
-    { label: "Balance Overview", icon: Wallet, action: onOpenCashier },
+    { label: "Balance Overview", icon: Wallet, href: "/account/balance" },
     { label: "Account Statement", icon: FileText, href: "/account/statement" },
     { label: "My Bets", icon: Activity, href: "/account/bets" },
     { label: "Bets History", icon: History, href: "/history" },
@@ -84,10 +84,10 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                   ) : (
                     <button
                       key={item.label}
-                      onClick={() => {
-                        setIsOpen(false);
-                        item.action?.();
-                      }}
+                        onClick={() => {
+                          setIsOpen(false);
+                          if ('action' in item) (item as any).action?.();
+                        }}
                       className="w-full flex items-center gap-3 px-4 py-2 text-xs font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors text-left"
                     >
                       <item.icon className="w-3.5 h-3.5 text-slate-400" /> 
