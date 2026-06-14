@@ -44,6 +44,12 @@ export interface UserProfile {
   referralCount?: number;
   affiliateEarnings?: number;
   
+  // VIP System
+  totalWagered?: number;
+  vipLevel?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+  manualVipLevel?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+  vipRewardsClaimed?: Record<string, boolean>;
+  
   // Wallet states
   demoBalance: number;
   demoPositions: Position[];
@@ -89,6 +95,16 @@ interface TradingState {
   fetchSystemConfig: () => Promise<void>;
 }
 
+// Helper to determine VIP Level based on total wagered
+export function calculateVipLevel(wagered: number, manualLevel?: string) {
+  if (manualLevel) return manualLevel;
+  if (wagered >= 5000000) return 'Diamond';
+  if (wagered >= 1000000) return 'Platinum';
+  if (wagered >= 250000) return 'Gold';
+  if (wagered >= 50000) return 'Silver';
+  return 'Bronze';
+}
+
 // Background utility to sync client state modifications to the server database
 function syncWithServer(
   email: string, 
@@ -99,7 +115,11 @@ function syncWithServer(
   hasCompletedOnboarding?: boolean,
   phoneNumber?: string,
   gamingState?: string,
-  upiId?: string
+  upiId?: string,
+  totalWagered?: number,
+  vipLevel?: string,
+  manualVipLevel?: string,
+  vipRewardsClaimed?: Record<string, boolean>
 ) {
   fetch('/api/auth/sync', {
     method: 'POST',
@@ -113,7 +133,11 @@ function syncWithServer(
       hasCompletedOnboarding,
       phoneNumber,
       gamingState,
-      upiId
+      upiId,
+      totalWagered,
+      vipLevel,
+      manualVipLevel,
+      vipRewardsClaimed
     })
   }).catch(err => console.error("Failed to sync state to server database", err));
 }
@@ -130,7 +154,7 @@ function getSyncedStateAndSync(
   if (state.isLoggedIn && state.currentUser) {
     const accountType = state.currentUser.accountType || 'demo';
     const hasCompletedOnboarding = state.currentUser.hasCompletedOnboarding;
-    const { phoneNumber, gamingState, upiId } = state.currentUser;
+    const { phoneNumber, gamingState, upiId, totalWagered, vipLevel, manualVipLevel, vipRewardsClaimed } = state.currentUser;
     syncWithServer(
       state.currentUser.email, 
       accountType, 
@@ -140,7 +164,11 @@ function getSyncedStateAndSync(
       hasCompletedOnboarding,
       phoneNumber,
       gamingState,
-      upiId
+      upiId,
+      totalWagered,
+      vipLevel,
+      manualVipLevel,
+      vipRewardsClaimed
     );
   }
   
@@ -560,6 +588,15 @@ export const useTradingStore = create<TradingState>()(
 
         const newBalance = safeBalance - stake;
         
+        let newTotalWagered = state.currentUser?.totalWagered || 0;
+        let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
+        if (state.currentUser) {
+          newTotalWagered += stake;
+          newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+          state.currentUser.totalWagered = newTotalWagered;
+          state.currentUser.vipLevel = newVipLevel;
+        }
+
         const tx: Transaction = {
           id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
           type: 'trade',
@@ -634,6 +671,15 @@ export const useTradingStore = create<TradingState>()(
 
         const netChange = payout - wager;
         const newBalance = safeBalance + netChange;
+
+        let newTotalWagered = state.currentUser?.totalWagered || 0;
+        let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
+        if (state.currentUser) {
+          newTotalWagered += wager;
+          newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+          state.currentUser.totalWagered = newTotalWagered;
+          state.currentUser.vipLevel = newVipLevel;
+        }
 
         const tx: Transaction = {
           id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,

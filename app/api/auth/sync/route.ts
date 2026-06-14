@@ -14,7 +14,11 @@ export async function POST(request: Request) {
       phoneNumber,
       gamingState,
       upiId,
-      notifications
+      notifications,
+      totalWagered,
+      vipLevel,
+      manualVipLevel,
+      vipRewardsClaimed
     } = await request.json();
     
     if (!email) {
@@ -36,6 +40,10 @@ export async function POST(request: Request) {
     if (gamingState !== undefined) updates.gamingState = gamingState;
     if (upiId !== undefined) updates.upiId = upiId;
     if (notifications !== undefined) updates.notifications = notifications;
+    if (totalWagered !== undefined) updates.totalWagered = totalWagered;
+    if (vipLevel !== undefined) updates.vipLevel = vipLevel;
+    if (manualVipLevel !== undefined) updates.manualVipLevel = manualVipLevel;
+    if (vipRewardsClaimed !== undefined) updates.vipRewardsClaimed = vipRewardsClaimed;
     
     // Write changes into the specific wallet to keep them isolated
     if (accountType === 'real') {

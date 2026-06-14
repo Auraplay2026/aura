@@ -5,7 +5,7 @@ import { UserProfile, Transaction } from "@/lib/userDb";
 import { useTradingStore } from "@/lib/store";
 import { 
   Shield, Users, Coins, TrendingUp, Clock, ArrowUpRight, ArrowDownLeft, 
-  RefreshCw, Eye, AlertTriangle, CheckCircle, Activity, Bell, CreditCard, ArrowRight
+  RefreshCw, Eye, AlertTriangle, CheckCircle, Activity, Bell, CreditCard, ArrowRight, Crown
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -412,6 +412,15 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
                 <Bell className="w-4 h-4 text-emerald-600" />
                 <span className="text-xs uppercase tracking-wider">Broadcast Global Alert</span>
               </button>
+
+              {/* VIP Manager */}
+              <Link 
+                href="/admin/vip"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600/20 to-transparent hover:from-amber-600/30 border border-amber-500/20 hover:border-amber-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 sm:col-span-3"
+              >
+                <Crown className="w-4 h-4 text-amber-600" />
+                <span className="text-xs uppercase tracking-wider">VIP System Manager</span>
+              </Link>
 
             </div>
           </div>

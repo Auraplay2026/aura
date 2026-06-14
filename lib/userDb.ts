@@ -61,6 +61,12 @@ export interface UserProfile {
   referredBy?: string;
   referralCount?: number;
   affiliateEarnings?: number;
+
+  // VIP System
+  totalWagered?: number;
+  vipLevel?: string;
+  manualVipLevel?: string;
+  vipRewardsClaimed?: Record<string, boolean>;
 }
 
 const DB_DIR = path.join(process.cwd(), 'data');

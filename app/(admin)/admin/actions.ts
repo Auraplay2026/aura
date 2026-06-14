@@ -64,6 +64,25 @@ export async function getAdminAuditLogs() {
 }
 
 // ─────────────────────────────────────────────────────────────────────
+// VIP System Manager
+// ─────────────────────────────────────────────────────────────────────
+export async function adminUpdateVip(email: string, totalWagered: number, manualVipLevel: string, adminEmail: string = "system@aurabet.io") {
+  const users = getUsers();
+  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  if (!user) return { success: false, error: "User not found" };
+
+  updateUser(email, {
+    totalWagered: totalWagered,
+    manualVipLevel: manualVipLevel === "Auto" ? undefined : manualVipLevel,
+    vipLevel: manualVipLevel !== "Auto" ? manualVipLevel : user.vipLevel // Note: real vipLevel will recalculate on next play if Auto, but we set it here if manual
+  });
+
+  await logAdminAction(adminEmail, "VIP_UPDATE", email, `Updated VIP: Wagered ₹${totalWagered}, Level: ${manualVipLevel}`);
+  revalidatePath("/admin/vip");
+  return { success: true };
+}
+
+// ─────────────────────────────────────────────────────────────────────
 // Balance Adjustments (God-Mode & Credit/Debit)
 // ─────────────────────────────────────────────────────────────────────
 export async function adminCreditUser(email: string, amount: number, adminEmail: string = "system@aurabet.io") {
