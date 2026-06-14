@@ -205,7 +205,7 @@ export function Header() {
             </div>
 
             {/* Settings Cog */}
-            <div className="relative hidden sm:block">
+            <div className="relative">
               <button 
                 onClick={() => setIsSettingsOpen(!isSettingsOpen)}
                 className={cn(
