@@ -73,7 +73,7 @@ export default function ReferAndEarnPage() {
       {/* Top Metrics Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
           <div className="absolute inset-0 bg-neon-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center justify-between mb-4 relative z-10">
             <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Commission Earned</h3>
@@ -87,7 +87,7 @@ export default function ReferAndEarnPage() {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
           <div className="absolute inset-0 bg-neon-purple/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center justify-between mb-4 relative z-10">
             <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Total Referrals</h3>
@@ -101,7 +101,7 @@ export default function ReferAndEarnPage() {
           </p>
         </div>
 
-        <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+        <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
           <div className="absolute inset-0 bg-neon-yellow/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center justify-between mb-4 relative z-10">
             <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Current Rate</h3>
@@ -125,8 +125,8 @@ export default function ReferAndEarnPage() {
       {/* Invite Link Section */}
       <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-6 lg:p-10 backdrop-blur-xl flex flex-col md:flex-row items-center gap-8 shadow-2xl">
         <div className="flex-1 space-y-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-slate-800 to-slate-900 rounded-2xl border border-slate-700 flex items-center justify-center shadow-lg mb-6">
-            <Gift className="w-8 h-8 text-slate-900" />
+          <div className="w-16 h-16 bg-white rounded-2xl border border-slate-200 flex items-center justify-center shadow-lg mb-6">
+            <Gift className="w-8 h-8 text-neon-purple" />
           </div>
           <h2 className="text-2xl font-black text-slate-900">Share Your Link</h2>
           <p className="text-slate-600 leading-relaxed text-sm">

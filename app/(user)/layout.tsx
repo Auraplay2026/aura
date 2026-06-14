@@ -1,14 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { User, History, Gift, Shield, ArrowLeft } from "lucide-react";
+import { User, History, Gift, Shield, ArrowLeft, Wallet, FileText, Activity, PieChart } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 
 const NAV_ITEMS = [
-  { name: "Account Settings", href: "/account", icon: User },
-  { name: "Bet History", href: "/history", icon: History },
+  { name: "My Profile", href: "/account", icon: User },
+  { name: "Balance & Funds", href: "/account/balance", icon: Wallet },
+  { name: "Account Statement", href: "/account/statement", icon: FileText },
+  { name: "My Bets", href: "/account/bets", icon: History },
+  { name: "Profit & Loss", href: "/account/pnl", icon: PieChart },
+  { name: "Activity Log", href: "/account/activity", icon: Activity },
   { name: "Refer & Earn", href: "/refer", icon: Gift },
   { name: "Safe Play", href: "/rg", icon: Shield },
 ];
