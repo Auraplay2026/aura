@@ -37,50 +37,83 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
     const finalResult = parseFloat(outcome.multiplier.toFixed(2));
 
     let current = 1.00;
+    // We want it to feel fast, accelerating towards the end
     const step = (finalResult - 1.00) / 30;
+    
     const interval = setInterval(() => {
-      current = Math.min(current + step, finalResult);
+      current = Math.min(current + step + (current * 0.05), finalResult);
       setLiveCounter(parseFloat(current.toFixed(2)));
       if (current >= finalResult) {
         clearInterval(interval);
         setResult(finalResult);
         setPhase("reveal");
         const won = finalResult >= targetMultiplier;
-        setTimeout(() => onCompleteRef.current(won ? finalResult : 0, won), 800);
+        setTimeout(() => onCompleteRef.current(won ? finalResult : 0, won), 1000);
       }
-    }, 50);
+    }, 40);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, targetMultiplier]);
 
   const isWin = result !== null && result >= targetMultiplier;
   const winChance = targetMultiplier <= 1 ? 99 : (99 / targetMultiplier).toFixed(2);
 
+  // Generate 20 warp lines for the 3D tunnel effect
+  const warpLines = Array.from({ length: 20 }).map((_, i) => ({
+    id: i,
+    angle: (360 / 20) * i,
+    delay: Math.random() * 2,
+    duration: Math.random() * 1 + 0.5
+  }));
+
   return (
-    <div className="w-full h-full flex flex-col items-center justify-center gap-6 relative p-6">
-      {/* Deep space background */}
-      <div className="absolute inset-0 rounded-3xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#000510] via-[#050a1f] to-[#000510]" />
-        <div className="absolute inset-0 opacity-30"
-          style={{
-            backgroundImage: `radial-gradient(circle at 20% 50%, rgba(99,102,241,0.15) 0%, transparent 50%),
-                              radial-gradient(circle at 80% 20%, rgba(6,182,212,0.1) 0%, transparent 40%)`
-          }}
-        />
-        {/* Grid lines */}
-        <div className="absolute inset-0 opacity-10"
-          style={{
-            backgroundImage: `linear-gradient(rgba(99,102,241,0.3) 1px, transparent 1px),
-                              linear-gradient(90deg, rgba(99,102,241,0.3) 1px, transparent 1px)`,
-            backgroundSize: '60px 60px'
-          }}
-        />
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] flex flex-col items-center justify-center gap-6 relative p-6 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 bg-black perspective-[1000px]">
+      
+      {/* 3D Warp Tunnel Background */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none flex items-center justify-center">
+        {/* Deep space glow */}
+        <div className={`absolute inset-0 transition-colors duration-700 ${
+          phase === 'reveal' && isWin ? 'bg-[radial-gradient(ellipse_at_center,_rgba(16,185,129,0.2)_0%,_#000_100%)]' :
+          phase === 'reveal' ? 'bg-[radial-gradient(ellipse_at_center,_rgba(239,68,68,0.2)_0%,_#000_100%)]' :
+          'bg-[radial-gradient(ellipse_at_center,_rgba(59,130,246,0.15)_0%,_#000_100%)]'
+        }`} />
+        
+        {/* Warp lines */}
+        <div className="absolute w-[200vw] h-[200vw] flex items-center justify-center transform-style-3d">
+          {warpLines.map(line => (
+            <motion.div
+              key={line.id}
+              className="absolute origin-center w-full h-[2px] flex justify-end"
+              style={{ transform: `rotate(${line.angle}deg)` }}
+            >
+              <motion.div 
+                animate={
+                  phase === 'counting' 
+                    ? { x: ['0%', '-500%'], scaleX: [1, 5, 1], opacity: [0, 1, 0] } 
+                    : phase === 'reveal' 
+                      ? { x: '-500%', opacity: 0 } 
+                      : { x: ['0%', '-100%'], opacity: [0, 0.5, 0] }
+                }
+                transition={
+                  phase === 'counting'
+                    ? { repeat: Infinity, duration: line.duration * 0.3, ease: "linear", delay: line.delay * 0.3 }
+                    : { repeat: Infinity, duration: line.duration * 2, ease: "linear", delay: line.delay }
+                }
+                className={`w-[10%] h-full blur-sm ${
+                  phase === 'reveal' && isWin ? 'bg-emerald-400 shadow-[0_0_15px_rgba(52,211,153,0.8)]' :
+                  phase === 'reveal' ? 'bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.8)]' :
+                  'bg-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.8)]'
+                }`}
+              />
+            </motion.div>
+          ))}
+        </div>
       </div>
 
       {/* Target multiplier selector */}
-      <div className="relative z-10 flex items-center gap-4 bg-slate-900/5 backdrop-blur-md border border-slate-200 rounded-2xl px-6 py-3">
-        <Target className="w-5 h-5 text-cyan-600" />
-        <span className="text-slate-600 text-sm font-bold uppercase tracking-widest">Target</span>
+      <div className="relative z-20 flex items-center gap-4 bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-2xl px-6 py-4 shadow-[0_10px_30px_rgba(0,0,0,0.5)]">
+        <Target className="w-6 h-6 text-blue-400 drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]" />
+        <span className="text-slate-400 text-xs font-black uppercase tracking-widest">Target</span>
         <input
           type="number"
           step="0.01"
@@ -88,66 +121,68 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
           value={targetMultiplier}
           onChange={(e) => setTargetMultiplier(Math.max(1.01, parseFloat(e.target.value) || 1.01))}
           disabled={isPlaying}
-          className="w-24 bg-transparent text-slate-900 font-black text-lg text-right focus:outline-none disabled:opacity-50"
+          className="w-28 bg-slate-950/50 border border-slate-800 rounded-lg px-2 py-1 text-white font-black text-xl text-right focus:outline-none focus:border-blue-500 transition-colors shadow-inner disabled:opacity-50"
         />
-        <span className="text-cyan-600 font-black text-lg">x</span>
-        <span className="text-slate-500 text-xs font-bold ml-2">{winChance}% chance</span>
+        <span className="text-blue-400 font-black text-xl drop-shadow-[0_0_5px_rgba(96,165,250,0.8)]">x</span>
+        <div className="ml-4 pl-4 border-l border-slate-800 flex flex-col">
+          <span className="text-slate-500 text-[10px] font-bold uppercase tracking-widest">Win Chance</span>
+          <span className="text-emerald-400 font-mono font-bold">{winChance}%</span>
+        </div>
       </div>
 
       {/* Main counter display */}
-      <div className="relative z-10 flex flex-col items-center gap-4">
+      <div className="relative z-20 flex flex-col items-center justify-center min-h-[250px] w-full">
         <motion.div
           key={`${phase}-${result}`}
           animate={
             phase === "reveal"
               ? isWin
-                ? { scale: [1, 1.15, 1], filter: ["drop-shadow(0 0 0px transparent)", "drop-shadow(0 0 60px rgba(34,197,94,0.8))", "drop-shadow(0 0 30px rgba(34,197,94,0.5))"] }
-                : { scale: [1, 0.95, 1], filter: ["drop-shadow(0 0 0px transparent)", "drop-shadow(0 0 60px rgba(239,68,68,0.8))", "drop-shadow(0 0 20px rgba(239,68,68,0.3))"] }
-              : {}
+                ? { scale: [1, 1.2, 1], filter: ["drop-shadow(0 0 0px transparent)", "drop-shadow(0 0 80px rgba(52,211,153,1))", "drop-shadow(0 0 40px rgba(52,211,153,0.5))"] }
+                : { scale: [1, 0.9, 1], filter: ["drop-shadow(0 0 0px transparent)", "drop-shadow(0 0 80px rgba(239,68,68,1))", "drop-shadow(0 0 30px rgba(239,68,68,0.5))"] }
+              : phase === "counting"
+                ? { scale: [1, 1.02, 1], filter: ["drop-shadow(0 0 20px rgba(96,165,250,0))", "drop-shadow(0 0 40px rgba(96,165,250,0.5))", "drop-shadow(0 0 20px rgba(96,165,250,0))"] }
+                : {}
           }
-          transition={{ duration: 0.5 }}
-          className={`text-[6rem] md:text-[9rem] font-black font-mono tabular-nums tracking-tighter leading-none transition-colors duration-300 ${
-            phase === "idle" ? "text-slate-600" :
-            phase === "counting" ? "text-slate-900" :
-            isWin ? "text-neon-green" : "text-red-500"
+          transition={
+            phase === "counting" 
+              ? { repeat: Infinity, duration: 0.5 } 
+              : { duration: 0.6, type: "spring", bounce: 0.5 }
+          }
+          className={`text-[5rem] md:text-[8rem] lg:text-[10rem] font-black font-mono tabular-nums tracking-tighter leading-none transition-colors duration-300 flex items-baseline ${
+            phase === "idle" ? "text-slate-700" :
+            phase === "counting" ? "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]" :
+            isWin ? "text-emerald-400 drop-shadow-[0_0_30px_rgba(52,211,153,0.8)]" : "text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)]"
           }`}
+          style={{ transformStyle: "preserve-3d" }}
         >
           {(phase === "idle" ? 1.00 : liveCounter).toFixed(2)}
-          <span className="text-3xl md:text-5xl text-cyan-600 ml-2">x</span>
+          <span className={`text-4xl md:text-6xl ml-2 font-black ${
+            phase === 'idle' ? 'text-slate-800' :
+            phase === 'counting' ? 'text-blue-500' :
+            isWin ? 'text-emerald-500' : 'text-red-700'
+          }`}>x</span>
         </motion.div>
 
-        {/* Target indicator line */}
-        <div className="flex items-center gap-3">
-          <div className={`h-0.5 w-16 rounded-full transition-colors duration-300 ${
-            phase === "reveal" && isWin ? "bg-neon-green shadow-[0_0_10px_rgba(34,197,94,0.8)]" :
-            phase === "reveal" ? "bg-red-500" : "bg-slate-900/20"
-          }`} />
-          <span className={`text-sm font-black uppercase tracking-widest transition-colors duration-300 ${
-            phase === "reveal" && isWin ? "text-neon-green" :
-            phase === "reveal" ? "text-red-600" : "text-slate-500"
-          }`}>
-            {phase === "idle" ? "Awaiting roll..." :
-             phase === "counting" ? "Calculating..." :
-             isWin ? `✓ Above ${targetMultiplier}x — WIN!` : `✗ Below ${targetMultiplier}x — BUST`}
-          </span>
-          <div className={`h-0.5 w-16 rounded-full transition-colors duration-300 ${
-            phase === "reveal" && isWin ? "bg-neon-green shadow-[0_0_10px_rgba(34,197,94,0.8)]" :
-            phase === "reveal" ? "bg-red-500" : "bg-slate-900/20"
-          }`} />
-        </div>
+        {/* Target indicator line / message */}
+        <AnimatePresence>
+          {phase === "reveal" && (
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="absolute -bottom-8 flex items-center justify-center gap-4 w-full"
+            >
+              <div className={`h-px flex-1 max-w-[100px] bg-gradient-to-r ${isWin ? 'from-transparent to-emerald-500' : 'from-transparent to-red-500'}`} />
+              <span className={`text-sm md:text-base font-black uppercase tracking-widest px-4 py-1 rounded-full border bg-slate-900 ${
+                isWin ? "text-emerald-400 border-emerald-500/50 shadow-[0_0_15px_rgba(52,211,153,0.3)]" : "text-red-500 border-red-500/50 shadow-[0_0_15px_rgba(239,68,68,0.3)]"
+              }`}>
+                {isWin ? `TARGET BEATEN` : `CRASHED EARLY`}
+              </span>
+              <div className={`h-px flex-1 max-w-[100px] bg-gradient-to-l ${isWin ? 'from-transparent to-emerald-500' : 'from-transparent to-red-500'}`} />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* History dots */}
-      <div className="relative z-10 flex items-center gap-2">
-        <TrendingUp className="w-4 h-4 text-slate-600" />
-        {[...Array(8)].map((_, i) => (
-          <div
-            key={i}
-            className={`w-2 h-2 rounded-full ${i === 7 && phase === "reveal" ? (isWin ? "bg-neon-green shadow-[0_0_8px_rgba(34,197,94,0.6)]" : "bg-red-500") : "bg-slate-100"}`}
-          />
-        ))}
-        <Zap className="w-4 h-4 text-slate-600" />
-      </div>
     </div>
   );
 }

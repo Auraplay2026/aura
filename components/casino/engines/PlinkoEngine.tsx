@@ -20,7 +20,7 @@ const MULTIPLIERS: Record<Risk, number[]> = {
 export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [risk, setRisk] = useState<Risk>("medium");
-  const [balls, setBalls] = useState<{ id: number; xKeyframes: number[]; multiplier: number; binIndex: number }[]>([]);
+  const [balls, setBalls] = useState<{ id: number; pathX: number[]; pathY: number[]; multiplier: number; binIndex: number }[]>([]);
   const [ballId, setBallId] = useState(0);
   const [lastResult, setLastResult] = useState<{ mult: number; won: boolean } | null>(null);
   const onCompleteRef = useRef(onComplete);
@@ -40,7 +40,6 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
   }, [isPlaying, risk]);
 
   const dropBall = () => {
-    // Math-correct Plinko winning rate adjusted for houseEdge (baseline 50% for outer win bins)
     const outcome = calculateGameOutcome("ORIGINAL");
     const willWin = outcome.isWin;
     let targetBinIndex: number;
@@ -62,19 +61,23 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
       [bounces[i], bounces[j]] = [bounces[j], bounces[i]];
     }
 
-    let pos = 0;
-    const xKeyframes = [0];
-    for (const dir of bounces) {
-      pos += dir;
-      xKeyframes.push(pos * 20);
+    let posX = 0;
+    const pathX = [0];
+    const pathY = [0];
+    
+    for (let i = 0; i < bounces.length; i++) {
+      posX += bounces[i];
+      // Multiply by peg spacing for precise coordinates
+      pathX.push(posX * 18); 
+      pathY.push((i + 1) * 36);
     }
 
     const multiplier = MULTIPLIERS[risk][targetBinIndex];
-    const newBall = { id: ballId, xKeyframes, multiplier, binIndex: targetBinIndex };
+    const newBall = { id: ballId, pathX, pathY, multiplier, binIndex: targetBinIndex };
     setBalls(prev => [...prev, newBall]);
     setBallId(prev => prev + 1);
 
-    const animDuration = 2200;
+    const animDuration = ROWS * 250;
     setTimeout(() => {
       setBalls(prev => prev.filter(b => b.id !== newBall.id));
       const won = multiplier >= 1.5;
@@ -84,43 +87,39 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
   };
 
   const multColor = (m: number) => {
-    if (m >= 10) return "from-red-500 to-red-600 shadow-[0_0_12px_rgba(239,68,68,0.6)]";
-    if (m >= 2)  return "from-orange-500 to-amber-500 shadow-[0_0_8px_rgba(249,115,22,0.4)]";
-    if (m >= 1)  return "from-yellow-500 to-yellow-400";
-    return "from-slate-600 to-slate-700 opacity-60";
+    if (m >= 10) return "from-red-500 to-red-600 shadow-[0_0_20px_rgba(239,68,68,0.8)] border-red-400 text-white";
+    if (m >= 2)  return "from-orange-500 to-amber-500 shadow-[0_0_15px_rgba(249,115,22,0.6)] border-orange-400 text-white";
+    if (m >= 1)  return "from-yellow-500 to-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.4)] border-yellow-300 text-slate-900";
+    return "from-slate-700 to-slate-800 shadow-inner border-slate-600 text-slate-400";
   };
 
   return (
-    <div className="w-full h-full flex flex-col gap-3 p-3 md:p-5 relative">
-      {/* Neon stadium background */}
-      <div className="absolute inset-0 rounded-3xl overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-[#02060f] via-[#050b1a] to-[#010308]" />
-        <div className="absolute inset-0"
-          style={{
-            backgroundImage: `radial-gradient(ellipse at 50% -20%, rgba(59,130,246,0.2) 0%, transparent 60%),
-                              radial-gradient(circle at 80% 80%, rgba(168,85,247,0.1) 0%, transparent 40%)`
-          }}
-        />
-        {/* vertical neon lines */}
-        <div className="absolute inset-0 opacity-5"
-          style={{
-            backgroundImage: `repeating-linear-gradient(90deg, transparent, transparent 40px, rgba(99,102,241,0.5) 40px, rgba(99,102,241,0.5) 41px)`,
-          }}
-        />
-      </div>
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-4 relative overflow-hidden flex flex-col shadow-2xl">
+      
+      {/* 3D Deep Grid Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
+      <div 
+        className="absolute inset-0 opacity-10 pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(rgba(99, 102, 241, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.4) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px',
+          transform: 'perspective(1000px) rotateX(45deg) scale(2)',
+          transformOrigin: 'top'
+        }}
+      />
 
-      {/* Risk selector */}
-      <div className="relative z-10 flex items-center justify-between">
-        <span className="text-xs text-slate-500 font-black uppercase tracking-widest">Risk Level</span>
-        <div className="flex gap-2">
+      {/* Header UI */}
+      <div className="relative z-20 flex items-center justify-between mb-8">
+        <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-inner">
           {(["low", "medium", "high"] as Risk[]).map(r => (
             <button
               key={r}
+              disabled={isPlaying}
               onClick={() => setRisk(r)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-black capitalize transition-all ${
+              className={`px-4 py-2 rounded-lg text-xs font-black capitalize transition-all duration-300 ${
                 risk === r
-                  ? "bg-blue-500 text-white shadow-[0_0_12px_rgba(59,130,246,0.5)]"
-                  : "bg-slate-900/5 border border-slate-200 text-slate-600 hover:text-slate-900 hover:border-blue-500/30"
+                  ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.6)]"
+                  : "text-slate-500 hover:text-white"
               }`}
             >
               {r}
@@ -131,67 +130,85 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
         <AnimatePresence>
           {lastResult && (
             <motion.div
-              key={`${lastResult.mult}`}
-              initial={{ opacity: 0, x: 20 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0 }}
-              className={`px-3 py-1.5 rounded-lg text-xs font-black ${
-                lastResult.won ? "bg-neon-green/10 text-neon-green border border-neon-green/30" : "bg-red-500/10 text-red-600 border border-red-500/30"
+              initial={{ opacity: 0, scale: 0.5, x: 20 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              exit={{ opacity: 0, scale: 0.5 }}
+              className={`px-6 py-2 rounded-xl text-lg font-black border ${
+                lastResult.won ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]" : "bg-red-500/10 text-red-500 border-red-500/30"
               }`}
             >
-              Last: {lastResult.mult}x
+              {lastResult.mult.toFixed(2)}x
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/* Plinko board */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-between">
-        {/* Pegs */}
-        <div className="w-full max-w-[420px] flex flex-col justify-between gap-2 flex-1 relative pb-2">
-          {Array.from({ length: ROWS }).map((_, rIdx) => {
-            const pegsInRow = 3 + rIdx;
-            return (
-              <div key={rIdx} className="flex justify-center gap-5 md:gap-6 w-full">
-                {Array.from({ length: pegsInRow }).map((_, pIdx) => (
-                  <div
-                    key={pIdx}
-                    className="w-2 h-2 rounded-full bg-blue-400/30 border border-blue-400/50 shadow-[0_0_6px_rgba(59,130,246,0.4)]"
-                  />
-                ))}
-              </div>
-            );
-          })}
+      {/* The 3D Board */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-12 perspective-[1000px]">
+        
+        {/* Board Container */}
+        <div className="relative w-full max-w-[500px] aspect-[4/3] flex flex-col items-center">
+          
+          {/* Pegs */}
+          {Array.from({ length: ROWS }).map((_, rIndex) => (
+            <div key={rIndex} className="flex justify-center" style={{ marginTop: rIndex === 0 ? 0 : '24px' }}>
+              {Array.from({ length: rIndex + 3 }).map((_, pIndex) => (
+                <div key={pIndex} className="w-9 h-3 flex items-center justify-center relative">
+                  <div className="w-3 h-3 rounded-full bg-slate-700 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.8),0_2px_5px_rgba(255,255,255,0.1)] border border-slate-600 z-20" />
+                  <div className="absolute inset-0 bg-blue-500/20 blur-md rounded-full opacity-0 transition-opacity duration-100 hover:opacity-100" />
+                </div>
+              ))}
+            </div>
+          ))}
 
-          {/* Falling balls */}
+          {/* Balls */}
           <AnimatePresence>
             {balls.map(ball => (
               <motion.div
                 key={ball.id}
-                initial={{ x: 0, y: "-5%" }}
-                animate={{
-                  x: ball.xKeyframes,
-                  y: ball.xKeyframes.map((_, i) => `${(i / ball.xKeyframes.length) * 95}%`)
+                initial={{ x: 0, y: -20, scale: 0 }}
+                animate={{ 
+                  x: ball.pathX, 
+                  y: ball.pathY,
+                  scale: 1 
                 }}
-                transition={{ duration: 2.2, ease: "easeIn", times: ball.xKeyframes.map((_, i) => i / ball.xKeyframes.length) }}
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-5 h-5 rounded-full bg-gradient-to-br from-purple-400 to-pink-500 border-2 border-white/30 shadow-[0_0_15px_rgba(168,85,247,0.8)] z-20"
-              />
+                transition={{ 
+                  duration: ROWS * 0.25, 
+                  ease: "linear",
+                  times: Array.from({ length: ball.pathX.length }, (_, i) => i / (ball.pathX.length - 1))
+                }}
+                className="absolute top-0 left-1/2 -ml-3 z-30 pointer-events-none filter drop-shadow-[0_10px_10px_rgba(0,0,0,0.5)]"
+              >
+                {/* Comet Trail */}
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0 }}
+                  animate={{ opacity: 1, scale: [1, 2, 0] }}
+                  transition={{ duration: ROWS * 0.25 }}
+                  className="absolute -top-10 left-1/2 -ml-1 w-2 h-10 bg-gradient-to-t from-pink-500 to-transparent blur-sm rounded-full"
+                />
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-pink-400 to-purple-600 shadow-[0_0_20px_rgba(236,72,153,1),inset_0_2px_4px_rgba(255,255,255,0.8)] border border-pink-300" />
+              </motion.div>
             ))}
           </AnimatePresence>
         </div>
 
-        {/* Multiplier bins */}
-        <div className="w-full max-w-[420px] flex gap-1">
-          {MULTIPLIERS[risk].map((mult, i) => (
-            <div
-              key={i}
-              className={`flex-1 h-7 rounded-md flex items-center justify-center text-[10px] font-black text-slate-900 bg-gradient-to-b ${multColor(mult)}`}
-            >
-              {mult >= 10 ? `${mult}x` : `${mult}x`}
-            </div>
-          ))}
+        {/* Multiplier Buckets */}
+        <div className="flex justify-center gap-1 mt-6 w-full max-w-[550px] relative z-40 transform-style-3d rotate-x-[10deg]">
+          {MULTIPLIERS[risk].map((mult, i) => {
+            const isActive = balls.some(b => b.binIndex === i && b.pathY.length === ROWS + 1);
+            return (
+              <motion.div
+                key={i}
+                animate={isActive ? { y: 10, scale: 1.1 } : { y: 0, scale: 1 }}
+                className={`flex-1 h-12 flex items-center justify-center rounded-lg font-black text-[10px] md:text-xs bg-gradient-to-b border transition-all duration-300 ${multColor(mult)} ${isActive ? 'brightness-150 z-50' : 'z-10'}`}
+              >
+                {mult}x
+              </motion.div>
+            );
+          })}
         </div>
       </div>
+
     </div>
   );
 }
