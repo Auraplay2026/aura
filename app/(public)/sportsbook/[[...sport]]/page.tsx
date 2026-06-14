@@ -66,8 +66,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   const [betslip, setBetslip] = useState<{ matchId: number; selection: string; odds: number; type: 'back' | 'lay'; stake: number }[]>([]);
   const placeSportsBet = useTradingStore(s => s.placeSportsBet);
   
-  const [isLoading, setIsLoading] = useState(false);
-  const [matches, setMatches] = useState<Match[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [matches, setMatches] = useState<any[]>([]);
 
   useEffect(() => {
     if (sportQuery) {
@@ -76,26 +76,49 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     }
   }, [sportQuery]);
 
+  // Fetch real scraped/worldwide matches from our API
   useEffect(() => {
-    setIsLoading(true);
-    const sportKey = activeSport.toLowerCase();
-    const simulated = generateMatches(sportKey === 'live overview' ? 'soccer' : sportKey, 20);
-    setMatches(simulated.map(m => ({ ...m, status: activeFilter === 'In-Play' ? 'Live' : 'Upcoming' })));
-    setIsLoading(false);
-  }, [activeSport, activeFilter]);
+    let active = true;
+    const fetchMatches = async () => {
+      setIsLoading(true);
+      try {
+        const sportKey = activeSport.toLowerCase();
+        const res = await fetch(`/api/sports/live?sport=${sportKey === 'live overview' ? 'soccer' : sportKey}`);
+        if (!res.ok) throw new Error("API error");
+        const data = await res.json();
+        if (data.success && active) {
+          setMatches(data.matches || []);
+        }
+      } catch (err) {
+        console.error("Failed to fetch sports matches:", err);
+      } finally {
+        if (active) setIsLoading(false);
+      }
+    };
 
+    fetchMatches();
+
+    // Refresh match list from backend every 30 seconds for live updates
+    const listInterval = setInterval(fetchMatches, 30000);
+
+    return () => {
+      active = false;
+      clearInterval(listInterval);
+    };
+  }, [activeSport]);
+
+  // Minor fluctuations in back/lay odds every 2 seconds for active simulation feel
   useEffect(() => {
     const interval = setInterval(() => {
       setMatches(current => current.map(match => {
-        if (Math.random() > 0.3) return match; 
+        if (Math.random() > 0.35) return match; 
         const tweak = () => (Math.random() * 0.04 - 0.02);
         
-        // 5% chance to suspend randomly for effect
-        const isSuspended = Math.random() < 0.05;
+        const isSuspended = Math.random() < 0.01;
 
         return {
           ...match,
-          suspended: isSuspended,
+          suspended: isSuspended ? true : (match.suspended || false),
           odds: {
             team1: Math.max(1.01, match.odds.team1 + tweak()),
             draw: match.odds.draw ? Math.max(1.01, match.odds.draw + tweak()) : null,
@@ -143,6 +166,15 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     if (bet.type === 'lay') return acc + bet.stake;
     return acc;
   }, 0);
+
+  // Filter matches locally based on tab selection
+  const filteredMatches = matches.filter((match: any) => {
+    if (activeFilter === 'In-Play') {
+      return match.status === 'Live';
+    } else {
+      return match.status === 'Upcoming';
+    }
+  });
 
   return (
     <div className="flex relative h-[calc(100vh-56px)] w-full bg-exchange-bg text-exchange-text overflow-hidden">
@@ -207,82 +239,122 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
         {/* Matches Feed */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {matches.map((match: any) => (
-            <div key={match.id} className="flex flex-col lg:flex-row items-center justify-between border-b border-exchange-border hover:bg-slate-50 transition-colors relative">
-              
-              {/* Suspended Overlay Mask for the entire row (Optional, but UI calls for Market Blocks specifically) */}
-              
-              <div className="flex-1 w-full px-4 py-3 flex items-center gap-4">
-                <div className="flex flex-col gap-1 w-full">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-slate-900 truncate">
-                      {match.team1} v {match.team2}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">
-                    <span className={cn(match.status === 'Live' ? "text-green-600 animate-pulse" : "")}>
-                      {match.status === 'Live' ? 'In-Play' : match.time || '14:00 GMT'}
-                    </span>
-                    <span>•</span>
-                    <span>ID: #{match.id.toString().padStart(6, '0')}</span>
-                    {match.status === 'Live' && (
-                      <>
-                        <span>•</span>
-                        <span className="text-emerald-600 font-black">{match.score.split(',')[0] || "0-0"}</span>
-                      </>
-                    )}
-                  </div>
-                </div>
-              </div>
-
-              {/* High Density Back/Lay Grid */}
-              <div className="flex items-center gap-px shrink-0 p-2 border-t lg:border-t-0 border-exchange-border w-full lg:w-auto justify-end bg-slate-50/50">
-                
-                {/* Selection 1 */}
-                <div className="flex gap-px mr-1">
-                  <ExchangeCell 
-                    value={match.odds.team1} trend={match.trend.team1} type="back" suspended={match.suspended}
-                    isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'back')}
-                    onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1, 'back')} 
-                  />
-                  <ExchangeCell 
-                    value={match.odds.team1 + 0.02} trend={match.trend.team1} type="lay" suspended={match.suspended}
-                    isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'lay')}
-                    onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1 + 0.02, 'lay')} 
-                  />
-                </div>
-
-                {/* Selection X */}
-                <div className="flex gap-px mr-1">
-                  <ExchangeCell 
-                    value={match.odds.draw || 3.5} trend={match.trend.draw} type="back" suspended={match.suspended}
-                    isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'back')}
-                    onClick={() => !match.suspended && toggleBet(match.id, "Draw", match.odds.draw || 3.5, 'back')} 
-                  />
-                  <ExchangeCell 
-                    value={(match.odds.draw || 3.5) + 0.05} trend={match.trend.draw} type="lay" suspended={match.suspended}
-                    isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'lay')}
-                    onClick={() => !match.suspended && toggleBet(match.id, "Draw", (match.odds.draw || 3.5) + 0.05, 'lay')} 
-                  />
-                </div>
-
-                {/* Selection 2 */}
-                <div className="flex gap-px">
-                  <ExchangeCell 
-                    value={match.odds.team2} trend={match.trend.team2} type="back" suspended={match.suspended}
-                    isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'back')}
-                    onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2, 'back')} 
-                  />
-                  <ExchangeCell 
-                    value={match.odds.team2 + 0.02} trend={match.trend.team2} type="lay" suspended={match.suspended}
-                    isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'lay')}
-                    onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2 + 0.02, 'lay')} 
-                  />
-                </div>
-
-              </div>
+          {isLoading ? (
+            <div className="flex flex-col items-center justify-center p-12 text-slate-400">
+              <div className="w-8 h-8 border-4 border-t-red-600 border-r-transparent border-slate-200 rounded-full animate-spin mb-3"></div>
+              <p className="text-xs font-bold uppercase tracking-wider">Syncing worldwide sports exchange data...</p>
             </div>
-          ))}
+          ) : filteredMatches.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 text-slate-400">
+              <Trophy className="w-12 h-12 text-slate-300 mb-3" />
+              <p className="text-sm font-bold uppercase tracking-wider">No {activeFilter} Matches Available</p>
+              <p className="text-xs text-slate-400 mt-1">Check other filters or try again later</p>
+            </div>
+          ) : (
+            filteredMatches.map((match: any) => (
+              <div key={match.id} className="flex flex-col lg:flex-row items-center justify-between border-b border-exchange-border hover:bg-slate-50 transition-colors relative">
+                
+                <div className="flex-1 w-full px-4 py-3 flex items-center gap-4">
+                  <div className="flex flex-col gap-1 w-full">
+                    {/* Team Display with logos */}
+                    <div className="flex flex-wrap items-center gap-2.5">
+                      <div className="flex items-center gap-2">
+                        {match.team1Logo && (
+                          <img 
+                            src={match.team1Logo} 
+                            alt={match.team1} 
+                            className="w-5 h-5 object-contain rounded-full bg-slate-100 p-0.5 border border-slate-200 shrink-0" 
+                            onError={(e) => { (e.target as any).style.display = 'none'; }}
+                          />
+                        )}
+                        <span className="text-sm font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">
+                          {match.team1}
+                        </span>
+                      </div>
+                      <span className="text-xs text-slate-400 font-bold uppercase shrink-0">vs</span>
+                      <div className="flex items-center gap-2">
+                        {match.team2Logo && (
+                          <img 
+                            src={match.team2Logo} 
+                            alt={match.team2} 
+                            className="w-5 h-5 object-contain rounded-full bg-slate-100 p-0.5 border border-slate-200 shrink-0" 
+                            onError={(e) => { (e.target as any).style.display = 'none'; }}
+                          />
+                        )}
+                        <span className="text-sm font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">
+                          {match.team2}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 mt-1">
+                      {match.status === 'Live' ? (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-red-100 text-red-800 animate-pulse shrink-0">
+                          ● LIVE
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-1.5 py-0.5 rounded-full text-[9px] font-medium bg-slate-100 text-slate-800 shrink-0">
+                          SCHEDULED
+                        </span>
+                      )}
+                      <span>•</span>
+                      <span>ID: #{match.id.toString().padStart(6, '0')}</span>
+                      <span>•</span>
+                      <span className={cn(match.status === 'Live' ? "text-emerald-600 font-black normal-case text-xs" : "text-slate-600 normal-case")}>
+                        {match.score}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* High Density Back/Lay Grid */}
+                <div className="flex items-center gap-px shrink-0 p-2 border-t lg:border-t-0 border-exchange-border w-full lg:w-auto justify-end bg-slate-50/50">
+                  
+                  {/* Selection 1 */}
+                  <div className="flex gap-px mr-1">
+                    <ExchangeCell 
+                      value={match.odds.team1} trend={match.trend.team1} type="back" suspended={match.suspended}
+                      isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'back')}
+                      onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1, 'back')} 
+                    />
+                    <ExchangeCell 
+                      value={match.odds.team1 + 0.02} trend={match.trend.team1} type="lay" suspended={match.suspended}
+                      isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'lay')}
+                      onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1 + 0.02, 'lay')} 
+                    />
+                  </div>
+
+                  {/* Selection X */}
+                  <div className="flex gap-px mr-1">
+                    <ExchangeCell 
+                      value={match.odds.draw} trend={match.trend.draw} type="back" suspended={match.suspended || match.odds.draw === null}
+                      isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'back')}
+                      onClick={() => !match.suspended && match.odds.draw !== null && toggleBet(match.id, "Draw", match.odds.draw, 'back')} 
+                    />
+                    <ExchangeCell 
+                      value={match.odds.draw ? match.odds.draw + 0.05 : null} trend={match.trend.draw} type="lay" suspended={match.suspended || match.odds.draw === null}
+                      isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'lay')}
+                      onClick={() => !match.suspended && match.odds.draw !== null && toggleBet(match.id, "Draw", match.odds.draw + 0.05, 'lay')} 
+                    />
+                  </div>
+
+                  {/* Selection 2 */}
+                  <div className="flex gap-px">
+                    <ExchangeCell 
+                      value={match.odds.team2} trend={match.trend.team2} type="back" suspended={match.suspended}
+                      isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'back')}
+                      onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2, 'back')} 
+                    />
+                    <ExchangeCell 
+                      value={match.odds.team2 + 0.02} trend={match.trend.team2} type="lay" suspended={match.suspended}
+                      isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'lay')}
+                      onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2 + 0.02, 'lay')} 
+                    />
+                  </div>
+
+                </div>
+              </div>
+            )))}
         </div>
       </div>
 
