@@ -254,14 +254,19 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
       {/* Cashout Action */}
       <div className="relative z-10 flex justify-center mt-2 h-14">
         {gameState === "playing" && clickCount > 0 && (
-          <motion.button
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            onClick={cashOut}
-            className="w-full max-w-sm bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl rounded-xl shadow-[0_0_30px_rgba(52,211,153,0.3)] transition-all uppercase tracking-widest"
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[300px]"
           >
-            Cashout {(betAmount * activeMultiplier).toFixed(2)}
-          </motion.button>
+            <button
+              onClick={cashOut}
+              className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_50px_rgba(52,211,153,0.5),inset_0_2px_0_rgba(255,255,255,0.5)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
+            >
+              <span>Cashout</span>
+              <span className="bg-slate-900/20 px-3 py-1 rounded-lg">₹{(betAmount * activeMultiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </button>
+          </motion.div>
         )}
         {gameState === "busted" && (
           <motion.div

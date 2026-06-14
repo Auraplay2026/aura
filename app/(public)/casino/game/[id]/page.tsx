@@ -454,7 +454,7 @@ export default function GamePlayerPage() {
       return <PlinkoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-4" || game.title.toLowerCase().includes("mines")) {
-      return <MinesEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-6" || game.title.toLowerCase().includes("keno")) {
       return <KenoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
