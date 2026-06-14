@@ -56,8 +56,13 @@ const NAV_SECTIONS = [
     title: "Account & Data",
     items: [
       { name: "My Profile", href: "/account", icon: Zap, color: "text-exchange-muted" },
+      { name: "Balance & Funds", href: "/account/balance", icon: BarChart3, color: "text-exchange-muted" },
+      { name: "Account Statement", href: "/account/statement", icon: BarChart3, color: "text-exchange-muted" },
+      { name: "My Bets", href: "/account/bets", icon: Sword, color: "text-exchange-muted" },
+      { name: "Profit & Loss", href: "/account/pnl", icon: LineChart, color: "text-exchange-muted" },
+      { name: "Activity Log", href: "/account/activity", icon: Zap, color: "text-exchange-muted" },
+      { name: "Refer & Earn", href: "/refer", icon: Gift, color: "text-exchange-muted" },
       { name: "Safe Play", href: "/rg", icon: Shield, color: "text-slate-400" },
-      { name: "Statements", href: "/account/statements", icon: BarChart3, color: "text-exchange-muted" },
       { name: "Support Desk", href: "/support", icon: HeadphonesIcon, color: "text-exchange-muted" },
     ]
   }

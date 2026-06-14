@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
-import { User, Wallet, Settings, History, Activity, BarChart, LogOut, FileText, ChevronDown } from "lucide-react";
+import { User, Wallet, Settings, History, Activity, BarChart, LogOut, FileText, ChevronDown, Gift, Shield } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
@@ -33,6 +33,8 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
     { label: "Bets History", icon: History, href: "/history" },
     { label: "Profit & Loss", icon: BarChart, href: "/account/pnl" },
     { label: "Activity Log", icon: Settings, href: "/account/activity" },
+    { label: "Refer & Earn", icon: Gift, href: "/refer" },
+    { label: "Safe Play", icon: Shield, href: "/rg" },
   ];
 
   return (
