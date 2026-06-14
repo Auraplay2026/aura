@@ -20,7 +20,7 @@ import { BlackjackVIPEngine } from "@/components/casino/engines/BlackjackVIPEngi
 import { BaccaratEngine } from "@/components/casino/engines/BaccaratEngine";
 import { CardEngine } from "@/components/casino/engines/CardEngine";
 import { ArcadeEngine } from "@/components/casino/engines/ArcadeEngine";
-import { FlappyChickenEngine } from "@/components/casino/engines/FlappyChickenEngine";
+import { TowerEngine } from "@/components/casino/engines/TowerEngine";
 import { RouletteEngine } from "@/components/casino/engines/RouletteEngine";
 import { DiceEngine } from "@/components/casino/engines/DiceEngine";
 import { CoinflipEngine } from "@/components/casino/engines/CoinflipEngine";
@@ -445,7 +445,7 @@ export default function GamePlayerPage() {
   const renderEngine = () => {
     // === ORIGINALS — each gets its own unique engine ===
     if (game.id === "orig-7" || game.title.toLowerCase().includes("tower")) {
-      return <FlappyChickenEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <TowerEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-2" || game.title.toLowerCase().includes("limbo")) {
       return <LimboEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;

@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/casino-math";
 import { useTradingStore } from "@/lib/store";
 
 interface DiceEngineProps {
@@ -9,107 +8,165 @@ interface DiceEngineProps {
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-const DIE_FACES = [
-  "⚀", "⚁", "⚂", "⚃", "⚄", "⚅"
-];
-
 export function DiceEngine({ isPlaying, onComplete }: DiceEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
-  const [rolling, setRolling] = useState(false);
-  const [die1, setDie1] = useState(5); // Default 6
-  const [die2, setDie2] = useState(5); // Default 6
+  
+  const [target, setTarget] = useState(50.5);
+  const [rollResult, setRollResult] = useState<number | null>(null);
+  const [isRolling, setIsRolling] = useState(false);
+  const [won, setWon] = useState<boolean | null>(null);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
+  // Handle game start
   useEffect(() => {
     if (!isPlaying) {
-      setRolling(false);
+      setIsRolling(false);
       return;
     }
 
-    setRolling(true);
-    const outcome = calculateGameOutcome("ORIGINAL");
-    const won = outcome.isWin;
+    setIsRolling(true);
+    setRollResult(null);
+    setWon(null);
     
-    // Choose winning faces
-    let f1 = Math.floor(Math.random() * 6);
-    let f2 = Math.floor(Math.random() * 6);
+    const winChance = target * (1 - houseEdge / 100);
+    const isWin = Math.random() * 100 < winChance;
     
-    // If win, force a high total
-    if (won && (f1 + f2 + 2 < 8)) {
-      f1 = 4; // 5
-      f2 = 5; // 6
-    } else if (!won && (f1 + f2 + 2 >= 8)) {
-      f1 = 0; // 1
-      f2 = 1; // 2
-    }
+    const finalRoll = isWin 
+      ? Math.random() * target // Roll under target
+      : target + Math.random() * (100 - target); // Roll over target
+      
+    // Calculate multiplier based on target
+    const multiplier = isWin ? Number((99 / target).toFixed(2)) : 0;
 
     const timer = setTimeout(() => {
-      setDie1(f1);
-      setDie2(f2);
-      setRolling(false);
-      
-      const total = f1 + f2 + 2;
-      const mult = total >= 8 ? 2.0 : 0.0;
-      onCompleteRef.current(mult, won);
-    }, 2000);
+      setRollResult(Number(finalRoll.toFixed(2)));
+      setWon(isWin);
+      setIsRolling(false);
+      onCompleteRef.current(multiplier, isWin);
+    }, 1500);
 
     return () => clearTimeout(timer);
-  }, [isPlaying]);
+  }, [isPlaying, target, houseEdge]);
+
+  // Derived values for UI
+  const winMultiplier = (99 / target).toFixed(2);
+  const winChance = target.toFixed(2);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-indigo-950 via-slate-900 to-black rounded-3xl border border-slate-200 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-4 md:p-12">
       
-      <div className="text-center mb-8 z-10">
-        <h3 className="text-slate-900 font-black text-xl uppercase tracking-widest">Neon Over-Under Dice</h3>
-        <p className="text-indigo-600 text-xs font-bold uppercase tracking-wider mt-1">Roll 8 or Higher to Double Your Bet</p>
-      </div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
 
-      <div className="flex gap-12 items-center justify-center relative z-10 h-48">
-        {/* Die 1 */}
-        <motion.div
-          animate={rolling ? { 
-            rotateX: [0, 360, 720, 1080], 
-            rotateY: [0, 180, 540, 900],
-            scale: [1, 1.2, 0.9, 1]
-          } : { rotateX: 0, rotateY: 0, scale: 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-          className="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-3xl flex items-center justify-center text-7xl text-white font-black border-4 border-cyan-300 shadow-[0_0_40px_rgba(6,182,212,0.5)] select-none cursor-pointer"
-        >
-          {DIE_FACES[die1]}
-        </motion.div>
+      {/* Central Roll Display */}
+      <div className="relative w-full max-w-2xl mx-auto z-10 flex flex-col items-center">
+        
+        {/* Animated Result Badge */}
+        <div className="h-32 flex items-center justify-center mb-8">
+          <AnimatePresence mode="wait">
+            {isRolling ? (
+              <motion.div 
+                key="rolling"
+                initial={{ opacity: 0, scale: 0.5 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.5 }}
+                className="text-6xl md:text-8xl font-black font-mono text-slate-700 animate-pulse tracking-tighter"
+              >
+                00.00
+              </motion.div>
+            ) : rollResult !== null ? (
+              <motion.div
+                key="result"
+                initial={{ opacity: 0, scale: 0.5, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className={`text-7xl md:text-9xl font-black font-mono tracking-tighter drop-shadow-2xl ${won ? 'text-emerald-400 drop-shadow-[0_0_30px_rgba(16,185,129,0.5)]' : 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.5)]'}`}
+              >
+                {rollResult.toFixed(2)}
+              </motion.div>
+            ) : (
+              <motion.div 
+                key="idle"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-6xl md:text-8xl font-black font-mono text-slate-800 tracking-tighter"
+              >
+                100.00
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
 
-        {/* Die 2 */}
-        <motion.div
-          animate={rolling ? { 
-            rotateX: [0, -360, -720, -1080], 
-            rotateY: [0, -180, -540, -900],
-            scale: [1, 1.2, 0.9, 1]
-          } : { rotateX: 0, rotateY: 0, scale: 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-          className="w-24 h-24 bg-gradient-to-br from-fuchsia-500 to-pink-600 rounded-3xl flex items-center justify-center text-7xl text-white font-black border-4 border-fuchsia-300 shadow-[0_0_40px_rgba(217,70,239,0.5)] select-none cursor-pointer"
-        >
-          {DIE_FACES[die2]}
-        </motion.div>
-      </div>
+        {/* The Precision Slider */}
+        <div className="w-full relative mt-12 mb-16">
+          
+          {/* Slider Background Track */}
+          <div className="h-4 w-full bg-red-500/20 rounded-full overflow-hidden relative shadow-[inset_0_2px_4px_rgba(0,0,0,0.5)]">
+            {/* Green Win Zone */}
+            <div 
+              className="absolute top-0 left-0 h-full bg-emerald-500 shadow-[0_0_15px_rgba(16,185,129,0.8)] transition-all duration-200"
+              style={{ width: `${target}%` }}
+            />
+            {/* Red Loss Zone */}
+            <div 
+              className="absolute top-0 right-0 h-full bg-red-500 shadow-[0_0_15px_rgba(239,68,68,0.8)] transition-all duration-200"
+              style={{ width: `${100 - target}%` }}
+            />
+          </div>
 
-      {/* Result HUD Overlay */}
-      <AnimatePresence>
-        {!rolling && (
-          <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-8 bg-white/60 border border-slate-200 px-8 py-3 rounded-2xl text-center"
+          {/* Slider Input */}
+          <input 
+            type="range" 
+            min="2" 
+            max="98" 
+            step="0.01" 
+            value={target}
+            onChange={(e) => setTarget(parseFloat(e.target.value))}
+            disabled={isRolling}
+            className="absolute top-1/2 -translate-y-1/2 left-0 w-full h-12 opacity-0 cursor-pointer z-20"
+          />
+
+          {/* Thumb / Handle UI */}
+          <div 
+            className="absolute top-1/2 -translate-y-1/2 -ml-6 w-12 h-14 bg-white rounded-xl shadow-[0_5px_15px_rgba(0,0,0,0.5),inset_0_2px_0_rgba(255,255,255,0.8)] border-2 border-slate-200 flex items-center justify-center pointer-events-none z-10 transition-transform duration-75"
+            style={{ left: `${target}%`, transform: `translate(-50%, -50%) scale(${isRolling ? 0.9 : 1})` }}
           >
-            <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Dice Sum Total</span>
-            <p className="text-3xl font-black text-slate-900 font-mono mt-0.5">{die1 + die2 + 2}</p>
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <div className="w-1 h-6 bg-slate-300 rounded-full mx-0.5" />
+            <div className="w-1 h-6 bg-slate-300 rounded-full mx-0.5" />
+          </div>
 
+          {/* Result Marker Overlay */}
+          <AnimatePresence>
+            {rollResult !== null && !isRolling && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0, y: -20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                className={`absolute top-1/2 -translate-y-1/2 w-4 h-8 -ml-2 rounded-full border-2 border-white shadow-[0_0_10px_rgba(255,255,255,0.8)] z-30 pointer-events-none ${won ? 'bg-emerald-400' : 'bg-red-500'}`}
+                style={{ left: `${rollResult}%` }}
+              />
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Stats Readout */}
+        <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center shadow-inner">
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Multiplier</p>
+            <p className="text-white text-xl font-black font-mono mt-1">{winMultiplier}x</p>
+          </div>
+          <div className="hidden md:block bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center shadow-inner">
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Roll Under</p>
+            <p className="text-blue-400 text-xl font-black font-mono mt-1">{target.toFixed(2)}</p>
+          </div>
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl p-4 text-center shadow-inner">
+            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Win Chance</p>
+            <p className="text-emerald-400 text-xl font-black font-mono mt-1">{winChance}%</p>
+          </div>
+        </div>
+
+      </div>
     </div>
   );
 }

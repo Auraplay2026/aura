@@ -11,7 +11,7 @@ interface CoinflipEngineProps {
 export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [flipping, setFlipping] = useState(false);
-  const [result, setResult] = useState<"HEADS" | "TAILS" | null>(null);
+  const [result, setResult] = useState<"AURA" | "SKULL" | null>(null);
   const [rotationX, setRotationX] = useState(0);
 
   const onCompleteRef = useRef(onComplete);
@@ -30,53 +30,83 @@ export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
     // Math-correct Coinflip win chance (50% fair rate adjusted for houseEdge)
     const winChance = 0.50 * (1 - houseEdge / 100);
     const won = Math.random() < winChance;
-    const finalResult = won ? "HEADS" : "TAILS";
+    const finalResult = won ? "AURA" : "SKULL";
 
-    const extraSpins = 1800 + (finalResult === "HEADS" ? 0 : 180);
+    const extraSpins = 1800 + (finalResult === "AURA" ? 0 : 180);
     setRotationX(prev => prev + extraSpins);
 
     const timer = setTimeout(() => {
       setResult(finalResult);
       setFlipping(false);
       onCompleteRef.current(2.0, won);
-    }, 2000);
+    }, 2500);
 
     return () => clearTimeout(timer);
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-gradient-to-br from-amber-950 via-slate-900 to-black rounded-3xl border border-slate-200 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.8)]">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
       
-      <div className="text-center mb-8 z-10">
-        <h3 className="text-slate-900 font-black text-xl uppercase tracking-widest">Aura Gold Coinflip</h3>
-        <p className="text-amber-500 text-xs font-bold uppercase tracking-wider mt-1">Guess Coinflip Outcome to Double Up</p>
-      </div>
+      {/* Deep Space Background / Arena */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950 pointer-events-none" />
+      
+      {/* Floor grid for depth */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-[40%] opacity-20 pointer-events-none"
+        style={{
+          backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.5) 1px, transparent 1px)`,
+          backgroundSize: '30px 30px',
+          transform: 'perspective(500px) rotateX(60deg)',
+          transformOrigin: 'bottom'
+        }}
+      />
 
-      <div className="h-48 flex items-center justify-center relative z-10 select-none">
+      <div className="h-64 flex items-center justify-center relative z-10 select-none perspective-[1000px]">
+        {/* Glow underneath the coin */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-yellow-500/30 rounded-full blur-[50px]" />
+        
         <motion.div
           animate={flipping ? { 
-            rotateY: rotationX,
-            y: [-50, -150, -50, 0],
-            scale: [1, 1.3, 0.9, 1]
-          } : { rotateY: rotationX % 360, y: 0, scale: 1 }}
-          transition={{ duration: 2, ease: "easeInOut" }}
-          className="w-32 h-32 rounded-full bg-gradient-to-br from-yellow-400 via-amber-500 to-yellow-600 border-4 border-yellow-300 shadow-[0_0_50px_rgba(234,179,8,0.5)] flex items-center justify-center text-white relative font-black"
+            rotateX: rotationX,
+            y: [-20, -150, -20, 0],
+            scale: [1, 1.5, 0.8, 1]
+          } : { rotateX: rotationX % 360, y: 0, scale: 1 }}
+          transition={{ duration: 2.5, ease: [0.32, 0.72, 0, 1] }}
+          className="w-40 h-40 relative font-black drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)]"
           style={{ transformStyle: "preserve-3d" }}
         >
-          {/* Heads Side */}
-          <div className="absolute inset-0 rounded-full flex flex-col items-center justify-center backface-hidden" style={{ backfaceVisibility: "hidden" }}>
-            <span className="text-4xl text-amber-950">👑</span>
-            <span className="text-[10px] text-amber-950 uppercase font-black tracking-widest mt-1">HEADS</span>
+          {/* Side A (AURA) */}
+          <div 
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 border-[6px] border-yellow-200 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]" 
+            style={{ backfaceVisibility: "hidden" }}
+          >
+            <div className="absolute inset-2 rounded-full border-2 border-yellow-700/30 border-dashed animate-spin-slow opacity-50" />
+            <svg className="w-16 h-16 text-yellow-900 drop-shadow-[0_2px_0_rgba(255,255,255,0.4)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 17 12 22 22 17" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+            <span className="text-[10px] text-yellow-900 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">AURA</span>
           </div>
 
-          {/* Tails Side */}
+          {/* Side B (SKULL) */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-yellow-500 via-amber-600 to-yellow-700"
-            style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-300 via-slate-400 to-slate-600 border-[6px] border-slate-200 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+            style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
           >
-            <span className="text-4xl text-amber-950">🪙</span>
-            <span className="text-[10px] text-amber-950 uppercase font-black tracking-widest mt-1">TAILS</span>
+            <div className="absolute inset-2 rounded-full border-2 border-slate-700/30 border-dashed animate-[spin_4s_linear_infinite_reverse] opacity-50" />
+            <svg className="w-16 h-16 text-slate-800 drop-shadow-[0_2px_0_rgba(255,255,255,0.8)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <circle cx="9" cy="12" r="1" />
+              <circle cx="15" cy="12" r="1" />
+              <path d="M8 20v2h8v-2" />
+              <path d="m12.5 17-.5-1-.5 1h1z" />
+              <path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20" />
+            </svg>
+            <span className="text-[10px] text-slate-800 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(255,255,255,0.8)]">SKULL</span>
           </div>
+
+          {/* Edge / Thickness Illusion */}
+          <div className="absolute inset-0 rounded-full border-[10px] border-black/10 mix-blend-overlay pointer-events-none" />
         </motion.div>
       </div>
 
@@ -84,12 +114,14 @@ export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
       <AnimatePresence>
         {result && !flipping && (
           <motion.div 
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-8 bg-white/60 border border-slate-200 px-8 py-3 rounded-2xl text-center"
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            className={`mt-12 px-10 py-4 rounded-2xl text-center border shadow-2xl backdrop-blur-md ${result === 'AURA' ? 'bg-yellow-500/10 border-yellow-500/30' : 'bg-slate-500/10 border-slate-500/30'}`}
           >
-            <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest">Result Outcome</span>
-            <p className="text-3xl font-black text-neon-yellow font-mono mt-0.5">{result}</p>
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Landed On</span>
+            <p className={`text-4xl font-black mt-1 tracking-wider ${result === 'AURA' ? 'text-yellow-400 drop-shadow-[0_0_10px_rgba(250,204,21,0.5)]' : 'text-slate-300 drop-shadow-[0_0_10px_rgba(203,213,225,0.5)]'}`}>
+              {result}
+            </p>
           </motion.div>
         )}
       </AnimatePresence>
