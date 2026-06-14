@@ -10,6 +10,7 @@ import { useSidebarContext } from "@/components/layout/AppProviders";
 import { useTradingStore } from "@/lib/store";
 import { PortfolioSidebar } from "@/components/portfolio/PortfolioSidebar";
 import { AuthModal } from "@/components/ui/AuthModal";
+import { SearchModal } from "@/components/ui/SearchModal";
 
 export function Header() {
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -18,6 +19,7 @@ export function Header() {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [authView, setAuthView] = useState<'login' | 'signup'>('login');
+  const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
   const { balance, positions, isLoggedIn, currentUser } = useTradingStore();
   const syncFromServer = useTradingStore(state => state.syncFromServer);
@@ -68,23 +70,26 @@ export function Header() {
         </div>
 
         {/* Desktop Search Bar */}
-        <div 
+        <button 
+          onClick={() => setIsSearchModalOpen(true)}
+          onFocus={() => setIsSearchFocused(true)}
+          onBlur={() => setIsSearchFocused(false)}
           className={cn(
-            "relative hidden md:flex items-center rounded-sm overflow-hidden transition-all duration-200 border bg-slate-50",
+            "relative hidden md:flex items-center rounded-sm overflow-hidden transition-all duration-200 border bg-slate-50 cursor-pointer",
             isSearchFocused ? "border-blue-500 w-64" : "border-slate-200 w-48 hover:border-slate-300"
           )}
         >
           <div className="pl-3 py-1.5">
             <Search className="w-4 h-4 text-slate-400" />
           </div>
-          <input 
-            type="text" 
-            placeholder="Search markets..." 
-            onFocus={() => setIsSearchFocused(true)}
-            onBlur={() => setIsSearchFocused(false)}
-            className="w-full bg-transparent border-none text-xs text-slate-900 placeholder:text-slate-400 focus:outline-none focus:ring-0 px-2 py-1.5 font-medium"
-          />
-        </div>
+          <span className="w-full text-left text-xs text-slate-400 font-medium px-2 py-1.5">
+            Search games & markets...
+          </span>
+          <div className="hidden lg:flex items-center gap-1 pr-2">
+            <kbd className="text-[10px] font-bold text-slate-400 border border-slate-200 rounded px-1">⌘</kbd>
+            <kbd className="text-[10px] font-bold text-slate-400 border border-slate-200 rounded px-1">K</kbd>
+          </div>
+        </button>
       </div>
 
       {/* Right Side Controls */}
@@ -226,7 +231,8 @@ export function Header() {
 
       </div>
 
-      {/* Modals */}
+      {/* Global Modals & Sidebars */}
+      <SearchModal isOpen={isSearchModalOpen} onClose={() => setIsSearchModalOpen(false)} />
       <CashierModal isOpen={isCashierOpen} onClose={() => setIsCashierOpen(false)} />
       <PortfolioSidebar isOpen={isPortfolioOpen} onClose={() => setIsPortfolioOpen(false)} />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} initialView={authView} />

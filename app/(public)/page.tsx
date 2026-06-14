@@ -16,57 +16,57 @@ export default function GlobalHomepage() {
   return (
     <div className="flex flex-col gap-12 max-w-[1600px] mx-auto pb-20 w-full overflow-hidden">
       
-      {/* 1. MASTER HERO SECTION */}
-      <section className="relative w-full rounded-[2rem] overflow-hidden min-h-[500px] flex items-center bg-slate-900 border border-slate-800">
+      {/* 1. MASTER HERO SECTION (LIGHT THEME) */}
+      <section className="relative w-full rounded-[2rem] overflow-hidden min-h-[450px] flex items-center bg-white border border-slate-200 shadow-sm">
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-r from-slate-900 via-slate-900/90 to-transparent z-10" />
-          {/* Mock abstract 3D mesh background */}
-          <div className="absolute right-0 top-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-600/30 via-slate-900/0 to-slate-900/0 opacity-70 blur-2xl" />
-          <div className="absolute right-1/4 bottom-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-500/20 via-slate-900/0 to-slate-900/0 opacity-50 blur-3xl" />
+          <div className="absolute inset-0 bg-gradient-to-r from-slate-50 via-white to-transparent z-10" />
+          {/* Subtle light background texture */}
+          <div className="absolute right-0 top-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-50 via-white to-transparent opacity-70 blur-2xl" />
+          <div className="absolute right-1/4 bottom-0 w-1/2 h-full bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-indigo-50/50 via-white to-transparent opacity-80 blur-3xl" />
         </div>
 
-        <div className="relative z-20 w-full p-12 lg:p-20 flex flex-col items-start max-w-4xl">
-          <div className="px-4 py-1.5 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center gap-2 mb-6 backdrop-blur-sm">
-            <Zap className="w-4 h-4 text-blue-400" />
-            <span className="text-xs font-bold uppercase tracking-widest text-blue-400">Next-Gen iGaming Engine</span>
+        <div className="relative z-20 w-full p-10 lg:p-20 flex flex-col items-start max-w-4xl">
+          <div className="px-4 py-1.5 rounded-full bg-blue-50 border border-blue-100 flex items-center gap-2 mb-6">
+            <Zap className="w-4 h-4 text-blue-600" />
+            <span className="text-xs font-bold uppercase tracking-widest text-blue-700">Next-Gen iGaming Engine</span>
           </div>
           
-          <h1 className="text-5xl lg:text-7xl font-black text-white tracking-tighter leading-[1.1] mb-6">
+          <h1 className="text-5xl lg:text-7xl font-black text-slate-900 tracking-tighter leading-[1.1] mb-6">
             The Ultimate <br/>
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">
               Entertainment Hub
             </span>
           </h1>
           
-          <p className="text-lg text-slate-400 font-medium max-w-2xl mb-10 leading-relaxed">
+          <p className="text-lg text-slate-600 font-medium max-w-2xl mb-10 leading-relaxed">
             Experience sub-millisecond bet executions, live dealer streams, and instant-play WebGL arcade games all powered by a unified wallet architecture.
           </p>
 
           <div className="flex flex-wrap items-center gap-4">
-            <Link href="/sportsbook" className="px-8 py-4 bg-white text-slate-900 font-black uppercase tracking-widest text-sm rounded-xl hover:bg-slate-100 transition-all shadow-[0_0_40px_rgba(255,255,255,0.1)] flex items-center gap-2 group">
+            <Link href="/sportsbook" className="px-8 py-4 bg-blue-600 text-white font-black uppercase tracking-widest text-sm rounded-xl hover:bg-blue-700 transition-all shadow-[0_4px_20px_rgba(37,99,235,0.3)] flex items-center gap-2 group">
               Explore Sportsbook
               <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
             </Link>
-            <Link href="/arcade" className="px-8 py-4 bg-slate-800 text-white font-black uppercase tracking-widest text-sm rounded-xl hover:bg-slate-700 border border-slate-700 transition-all flex items-center gap-2 group">
-              <Gamepad2 className="w-4 h-4 text-indigo-400" />
+            <Link href="/arcade" className="px-8 py-4 bg-white text-slate-900 font-black uppercase tracking-widest text-sm rounded-xl hover:bg-slate-50 border border-slate-200 transition-all flex items-center gap-2 group shadow-sm">
+              <Gamepad2 className="w-4 h-4 text-indigo-500" />
               Play Arcade
             </Link>
           </div>
 
           <div className="mt-16 flex items-center gap-8">
             <div className="flex flex-col">
-              <span className="text-3xl font-black text-white font-mono">150+</span>
+              <span className="text-3xl font-black text-slate-900 font-mono">150+</span>
               <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Live Markets</span>
             </div>
-            <div className="w-px h-10 bg-slate-800" />
+            <div className="w-px h-10 bg-slate-200" />
             <div className="flex flex-col">
-              <span className="text-3xl font-black text-white font-mono">&lt;50ms</span>
+              <span className="text-3xl font-black text-slate-900 font-mono">&lt;50ms</span>
               <span className="text-xs font-bold text-slate-500 uppercase tracking-widest mt-1">Execution Speed</span>
             </div>
-            <div className="w-px h-10 bg-slate-800" />
+            <div className="w-px h-10 bg-slate-200" />
             <div className="flex flex-col">
-              <span className="text-3xl font-black text-white font-mono">0%</span>
-              <span className="text-xs font-bold text-emerald-500 uppercase tracking-widest mt-1">Transfer Fees</span>
+              <span className="text-3xl font-black text-slate-900 font-mono">0%</span>
+              <span className="text-xs font-bold text-emerald-600 uppercase tracking-widest mt-1">Transfer Fees</span>
             </div>
           </div>
         </div>
