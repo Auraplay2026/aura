@@ -14,41 +14,41 @@ export interface ArcadeGame {
 export const ARCADE_GAMES: ArcadeGame[] = [
   {
     id: "neon-surfer",
-    title: "Neon Surfer",
+    title: "Tomb Runner",
     provider: "AuraPlay Studios",
-    description: "High-speed 3D endless runner. Dodge obstacles, collect powerups, and top the leaderboard.",
-    thumbnail: "https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&h=600&fit=crop", // Retro neon arcade look
+    description: "High-speed 3D temple runner. Dodge ancient obstacles, collect gems, slide, jump, and run as far as you can.",
+    thumbnail: "/games/tomb_runner.png",
     categories: ["runner", "action"],
-    url: "https://html5.gamedistribution.com/23f66a26d7f941f2bb243b9eb22c4f82/", 
+    url: "https://html5.gamedistribution.com/f2af2ecc05a445edb6862c589e996a7e/", 
     isNew: true
   },
   {
     id: "sugar-cascade",
-    title: "Sugar Cascade",
+    title: "Candy Rain 8",
     provider: "AuraPlay Casual",
-    description: "A fast-paced match-3 puzzle adventure. Form cascades and trigger explosive candy combos.",
-    thumbnail: "https://images.unsplash.com/photo-1575510651918-09e45143ff42?w=800&h=600&fit=crop", // Candy/Sweet look
+    description: "Form sweet cascades and match colourful jellies and candy combos in this delicious match-3 puzzle adventure.",
+    thumbnail: "/games/candy_rain.png",
     categories: ["puzzle"],
-    url: "https://html5.gamedistribution.com/1fdfbf6bd1424bf1b51e0ff6697397b9/" 
+    url: "https://html5.gamedistribution.com/f318ed77bd024a5eac09f407b4a25e9e/" 
   },
   {
     id: "zen-archery",
-    title: "Zen Archery",
+    title: "Archery World Tour",
     provider: "AuraPlay Physics",
-    description: "Precision-based projectile game. Master gravity and wind to hit moving targets.",
-    thumbnail: "https://images.unsplash.com/photo-1511227499330-819586145398?w=800&h=600&fit=crop", // Archery/Target
+    description: "Master wind and gravity. Aim with high precision to clear balloons and moving targets around the globe.",
+    thumbnail: "/games/archery_world_tour.png",
     categories: ["action", "puzzle"],
-    url: "https://html5.gamedistribution.com/7620bcbc7fa648a0bac1491e7ee55dbb/",
+    url: "https://html5.gamedistribution.com/945bdbee665e4f778195eb23e9429e40/",
     isNew: true
   },
   {
     id: "madalin-stunt-cars-pro",
-    title: "Madalin Stunt Cars Pro",
+    title: "Two Stunt Supercars",
     provider: "AuraPlay Racing",
-    description: "High-fidelity 3D drifting & racing simulator. Master the tracks and perform insane stunts.",
-    thumbnail: "https://images.unsplash.com/photo-1549317661-bd32c8ce0db2?w=800&h=600&fit=crop",
+    description: "Perform insane drifts, jumps, and stunts in luxury supercars. Run open-world maps in single or multiplayer sandbox modes.",
+    thumbnail: "/games/two_stunt_supercars.png",
     categories: ["action", "racing"] as ArcadeCategoryId[],
-    url: "https://html5.gamedistribution.com/62fcfec80e154722950d99ba115f2095/",
+    url: "https://html5.gamedistribution.com/b57c15d037024b798c2e80efbca087cc/",
     isNew: true
   }
 ];
