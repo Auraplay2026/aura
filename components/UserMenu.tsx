@@ -27,7 +27,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
 
   const MENU_ITEMS = [
     { label: "My Profile", icon: User, href: "/account" },
-    { label: "Balance Overview", icon: Wallet, href: "/account/balance" },
+    { label: "Balance & Funds", icon: Wallet, href: "/account/balance" },
     { label: "Account Statement", icon: FileText, href: "/account/statement" },
     { label: "My Bets", icon: Activity, href: "/account/bets" },
     { label: "Bets History", icon: History, href: "/history" },
