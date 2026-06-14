@@ -9,6 +9,9 @@ const ALLOWED_HOSTS = [
   "sdk.gamedistribution.com",
   "html5.api.gamedistribution.com",
   "api.gamedistribution.com",
+  "game.api.gamedistribution.com",
+  "tag.atom.gamedistribution.com",
+  "pm.gamedistribution.com",
   "akamaized.net",
 ];
 
@@ -78,10 +81,40 @@ const SPOOF_SCRIPT = `<script>
 })();
 </script>`;
 
+/**
+ * Patch the GD SDK JS to neutralize the domain block redirect.
+ * Only applied to JS files from html5.api.gamedistribution.com.
+ * We know from SDK analysis that:
+ *   - _redirectToBlocking() sets window.location.href to blocked.html
+ *   - _redirectToLoaderFrame() shows block inside iframe
+ * We null these out surgically.
+ */
+function patchSdkJs(js: string): string {
+  return js
+    // Neutralize _redirectToBlocking — replace the function body with a no-op
+    .replace(
+      /key:"_redirectToBlocking",value:function/g,
+      'key:"_redirectToBlocking",value:function _noopBlock'
+    )
+    // Prevent window.location.href redirect to blocked.html
+    .replace(
+      /window\.location\.href="https:\/\/html5\.api\.gamedistribution\.com\/blocked\.html/g,
+      'window.__blocked__="https://html5.api.gamedistribution.com/blocked.html'
+    )
+    // Neutralize the to-blocked-page behavior check
+    .replace(/"to-blocked-page"===/g, '"__disabled__"===')
+    .replace(/"to-blocked-page"==/g,  '"__disabled__"==')
+    // Rewrite all GD URLs to go through proxy
+    .replace(
+      /https?:\/\/(html5\.api|api|game\.api|tag\.atom|pm|img|assets|cdn|sdk|html5)\.gamedistribution\.com\//g,
+      (_, sub) => `${PROXY_BASE}/${sub}.gamedistribution.com/`
+    );
+}
+
 function rewriteUrls(text: string): string {
   return text
     .replace(
-      /https?:\/\/(html5|img|assets|cdn|sdk|api|html5\.api)\.gamedistribution\.com\//g,
+      /https?:\/\/(html5|img|assets|cdn|sdk|api|html5\.api|game\.api|tag\.atom|pm)\.gamedistribution\.com\//g,
       (_, sub) => `${PROXY_BASE}/${sub}.gamedistribution.com/`
     )
     .replace(
@@ -176,10 +209,14 @@ export async function GET(
   }
 
   let text = await upstreamResponse.text();
-  // Rewrite GD URLs in HTML and JS so assets load through proxy
+  // Rewrite GD URLs in all text content so assets load through proxy
   text = rewriteUrls(text);
-  // Inject spoof script only in HTML (not in JS - to avoid breaking game scripts)
+  // Inject spoof script into HTML pages
   if (isHtml) text = injectSpoof(text);
+  // Patch GD SDK JS - only for the main SDK file from html5.api.gamedistribution.com
+  const isGdSdk = hostname === "html5.api.gamedistribution.com" &&
+    (upstreamPath.includes("main.min.js") || upstreamPath.includes("main.js"));
+  if (isGdSdk) text = patchSdkJs(text);
 
   return new NextResponse(text, { status: upstreamResponse.status, headers: responseHeaders });
 }
