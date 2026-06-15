@@ -24,6 +24,8 @@ export function OnboardingModal() {
   const currentUser = useTradingStore(state => state.currentUser);
   const switchAccountType = useTradingStore(state => state.switchAccountType);
   const completeOnboarding = useTradingStore(state => state.completeOnboarding);
+  const setGeoRestricted = useTradingStore(state => state.setGeoRestricted);
+  const geoRestricted = useTradingStore(state => state.geoRestricted);
 
   const [isOpen, setIsOpen] = useState(false);
   const [step, setStep] = useState(0); 
@@ -63,10 +65,48 @@ export function OnboardingModal() {
     }
   }, [isLoggedIn, currentUser, isOpen]);
 
+  // Sniff geolocation via IP
+  useEffect(() => {
+    async function sniffLocation() {
+      try {
+        const res = await fetch('https://ipapi.co/json/');
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.region) {
+            const region = data.region;
+            const restrictedStates = ["Telangana", "Andhra Pradesh", "Assam", "Odisha", "Nagaland"];
+            const isRestricted = restrictedStates.some(rs => 
+              region.toLowerCase().includes(rs.toLowerCase())
+            );
+            
+            const matchedState = INDIAN_STATES.find(s => s.toLowerCase() === region.toLowerCase()) || region;
+            setStateName(matchedState);
+            setGeoRestricted(isRestricted);
+          }
+        }
+      } catch (e) {
+        console.error("IP sniffing failed, using default state", e);
+      }
+    }
+    if (isOpen && selectedType === 'real') {
+      sniffLocation();
+    }
+  }, [isOpen, selectedType]);
+
   const INDIAN_STATES = [
     "Maharashtra", "Delhi", "Goa", "Karnataka", "Haryana", 
-    "West Bengal", "Tamil Nadu", "Gujarat", "Rajasthan", "Punjab"
+    "West Bengal", "Tamil Nadu", "Gujarat", "Rajasthan", "Punjab",
+    "Telangana", "Andhra Pradesh", "Assam", "Odisha", "Nagaland"
   ];
+
+  const handleStateChange = (selectedState: string) => {
+    setStateName(selectedState);
+    const restrictedStates = ["Telangana", "Andhra Pradesh", "Assam", "Odisha", "Nagaland"];
+    const isRestricted = restrictedStates.some(rs => 
+      selectedState.toLowerCase().includes(rs.toLowerCase())
+    );
+    setGeoRestricted(isRestricted);
+  };
 
   const handleNext = async () => {
     setFormError(null);
@@ -74,6 +114,14 @@ export function OnboardingModal() {
     // Validation for Step 2
     if (step === 2) {
       if (selectedType === 'real') {
+        const restrictedStates = ["Telangana", "Andhra Pradesh", "Assam", "Odisha", "Nagaland"];
+        const isRestricted = restrictedStates.some(rs => 
+          stateName.toLowerCase().includes(rs.toLowerCase())
+        );
+        if (isRestricted) {
+          setFormError(`Live trading is legally unavailable in ${stateName} due to local state regulations.`);
+          return;
+        }
         if (!phone || phone.trim().length < 10) {
           setFormError("Please enter a valid 10-digit phone number.");
           return;
@@ -370,7 +418,7 @@ export function OnboardingModal() {
                               </div>
                               <select
                                 value={stateName}
-                                onChange={e => setStateName(e.target.value)}
+                                onChange={e => handleStateChange(e.target.value)}
                                 className="w-full bg-white border border-slate-200 rounded-xl py-2.5 pl-10 pr-4 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 transition-colors cursor-pointer appearance-none"
                               >
                                 {INDIAN_STATES.map(st => (
@@ -378,6 +426,17 @@ export function OnboardingModal() {
                                 ))}
                               </select>
                             </div>
+                            {geoRestricted && (
+                              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mt-3 flex items-start gap-3 text-left">
+                                <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                                <div>
+                                  <h4 className="text-red-500 font-bold text-xs uppercase tracking-wider">Jurisdiction Restricted</h4>
+                                  <p className="text-slate-400 text-[10px] mt-1 leading-normal">
+                                    Online gaming is restricted in <strong className="text-white">{stateName}</strong>. Real Money accounts are blocked in this region.
+                                  </p>
+                                </div>
+                              </div>
+                            )}
                           </div>
 
                           {/* UPI ID */}

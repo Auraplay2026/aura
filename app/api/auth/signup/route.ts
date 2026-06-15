@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmail, findUserByUsername, addUser, getUsers, updateUser, UserProfile } from '@/lib/userDb';
+import { findUserByEmail, findUserByUsername, addUser, getUsers, updateUser, UserProfile, addActivityLog } from '@/lib/userDb';
+import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 
 export async function POST(request: Request) {
   try {
@@ -16,6 +17,13 @@ export async function POST(request: Request) {
     if (await findUserByEmail(email)) {
       return NextResponse.json({ error: 'Email address is already registered.' }, { status: 400 });
     }
+
+    // Sniff IP and User-Agent
+    const ip = getClientIP(request);
+    const ua = request.headers.get('user-agent');
+    const device = parseUserAgent(ua);
+    const { state, countryCode } = await getIPLocation(ip);
+    const locationString = `${state}, ${countryCode}`;
     
     const newUser: UserProfile = {
       username,
@@ -38,6 +46,23 @@ export async function POST(request: Request) {
     };
     
     await addUser(newUser);
+
+    // Record dynamic login activities for audit trail
+    await addActivityLog(newUser.email, {
+      action: "Successful Registration",
+      device,
+      location: locationString,
+      ip,
+      type: 'success'
+    });
+
+    await addActivityLog(newUser.email, {
+      action: "Onboarding Initialized",
+      device,
+      location: locationString,
+      ip,
+      type: 'info'
+    });
 
     // If they were referred by someone, increment the referrer's count
     if (referralCode) {

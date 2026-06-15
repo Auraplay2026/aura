@@ -37,9 +37,12 @@ export interface UserProfile {
   gamingState?: string;
   upiId?: string;
   role?: 'user' | 'admin';
-  kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
   kycDocumentUrl?: string;
   notifications?: { id: string; message: string; timestamp: number; read: boolean }[];
+  activityLogs?: any[];
+  geoRestricted?: boolean;
+  verifiedAge?: number;
   adminNotes?: string;
   affiliateCode?: string;
   referredBy?: string;
@@ -69,6 +72,12 @@ interface TradingState {
   // Active session profile
   currentUser: UserProfile | null;
   isLoggedIn: boolean;
+
+  // New strict typing tracking fields
+  kycStatus: 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED' | 'REJECTED';
+  geoRestricted: boolean;
+  verifiedAge: number;
+  activityLogs: any[];
 
   // Daily Streak
   streakCount: number;
@@ -101,6 +110,10 @@ interface TradingState {
   switchAccountType: (type: 'demo' | 'real') => Promise<void>;
   completeOnboarding: (phoneNumber?: string, gamingState?: string, upiId?: string) => Promise<void>;
   updateProfile: (updates: { username?: string; phoneNumber?: string; upiId?: string; gamingState?: string; notifications?: { id: string; message: string; timestamp: number; read: boolean; title?: string }[] }) => Promise<boolean>;
+  setKycStatus: (status: 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED' | 'REJECTED') => void;
+  setGeoRestricted: (restricted: boolean) => void;
+  setVerifiedAge: (age: number) => void;
+  fetchActivityLogs: () => Promise<void>;
 
   // Sportsbook
   placeSportsBet: (matchTitle: string, selection: string, odds: number, stake: number) => void;
@@ -207,6 +220,15 @@ function getSyncedStateAndSync(
   };
 }
 
+export function mapKycStatus(status?: string): 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED' | 'REJECTED' {
+  if (!status) return 'UNVERIFIED';
+  const s = status.toUpperCase();
+  if (s === 'APPROVED' || s === 'VERIFIED') return 'VERIFIED';
+  if (s === 'PENDING' || s === 'PROCESSING') return 'PROCESSING';
+  if (s === 'REJECTED') return 'REJECTED';
+  return 'UNVERIFIED';
+}
+
 export function sanitizeClientUserProfile(user: any): UserProfile | null {
   if (!user) return null;
   const coerce = (val: any) => typeof val === 'number' ? val : (parseFloat(String(val)) || 0);
@@ -228,6 +250,10 @@ export const useTradingStore = create<TradingState>()(
       transactions: [],
       currentUser: null,
       isLoggedIn: false, // Default to logged out
+      kycStatus: 'UNVERIFIED',
+      geoRestricted: false,
+      verifiedAge: 0,
+      activityLogs: [],
       houseEdge: 2.0, // Default 2% house edge
 
       // Daily Streak & Spin states
@@ -261,7 +287,10 @@ export const useTradingStore = create<TradingState>()(
               isLoggedIn: true,
               balance: sanitizedUser ? sanitizedUser.balance : 0,
               positions: data.user.positions,
-              transactions: data.user.transactions
+              transactions: data.user.transactions,
+              kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
+              geoRestricted: sanitizedUser?.geoRestricted || false,
+              verifiedAge: sanitizedUser?.verifiedAge || 0,
             });
           }
         } catch (err) {
@@ -286,7 +315,10 @@ export const useTradingStore = create<TradingState>()(
               currentUser: sanitizedUser,
               balance: sanitizedUser ? sanitizedUser.balance : 0,
               positions: data.user.positions,
-              transactions: data.user.transactions
+              transactions: data.user.transactions,
+              kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
+              geoRestricted: sanitizedUser?.geoRestricted || false,
+              verifiedAge: sanitizedUser?.verifiedAge || 0,
             });
           }
         } catch (err) {
@@ -320,7 +352,10 @@ export const useTradingStore = create<TradingState>()(
             isLoggedIn: true,
             balance: sanitizedUser ? sanitizedUser.balance : 0,
             positions: data.user.positions,
-            transactions: data.user.transactions
+            transactions: data.user.transactions,
+            kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
+            geoRestricted: sanitizedUser?.geoRestricted || false,
+            verifiedAge: sanitizedUser?.verifiedAge || 0,
           });
           return { success: true };
         } catch (err) {
@@ -346,7 +381,10 @@ export const useTradingStore = create<TradingState>()(
             isLoggedIn: true,
             balance: sanitizedUser ? sanitizedUser.balance : 0,
             positions: data.user.positions,
-            transactions: data.user.transactions
+            transactions: data.user.transactions,
+            kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
+            geoRestricted: sanitizedUser?.geoRestricted || false,
+            verifiedAge: sanitizedUser?.verifiedAge || 0,
           });
           return { success: true };
         } catch (err) {
@@ -372,7 +410,10 @@ export const useTradingStore = create<TradingState>()(
             isLoggedIn: true,
             balance: sanitizedUser ? sanitizedUser.balance : 0,
             positions: data.user.positions,
-            transactions: data.user.transactions
+            transactions: data.user.transactions,
+            kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
+            geoRestricted: sanitizedUser?.geoRestricted || false,
+            verifiedAge: sanitizedUser?.verifiedAge || 0,
           });
           return { success: true };
         } catch (err) {
@@ -1205,6 +1246,55 @@ export const useTradingStore = create<TradingState>()(
           }
         } catch (err) {
           console.error("Failed to fetch system config in store:", err);
+        }
+      },
+
+      setKycStatus: (status) => set((state) => {
+        if (state.currentUser) {
+          const updatedUser = { ...state.currentUser, kycStatus: status };
+          // Sync with database
+          fetch('/api/auth/sync', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: updatedUser.email,
+              kycStatus: status
+            })
+          }).catch(err => console.error("Sync failed", err));
+          
+          return { kycStatus: status, currentUser: updatedUser };
+        }
+        return { kycStatus: status };
+      }),
+      setGeoRestricted: (restricted) => set((state) => {
+        if (state.currentUser) {
+          const updatedUser = { ...state.currentUser, geoRestricted: restricted };
+          return { geoRestricted: restricted, currentUser: updatedUser };
+        }
+        return { geoRestricted: restricted };
+      }),
+      setVerifiedAge: (age) => set((state) => {
+        if (state.currentUser) {
+          const updatedUser = { ...state.currentUser, verifiedAge: age };
+          return { verifiedAge: age, currentUser: updatedUser };
+        }
+        return { verifiedAge: age };
+      }),
+      fetchActivityLogs: async () => {
+        const state = get();
+        if (!state.isLoggedIn || !state.currentUser) return;
+        try {
+          const res = await fetch('/api/account/activity', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: state.currentUser.email })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            set({ activityLogs: data.logs || [] });
+          }
+        } catch (err) {
+          console.error("Failed to fetch activity logs:", err);
         }
       }
     }),

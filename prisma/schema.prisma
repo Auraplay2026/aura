@@ -42,6 +42,7 @@ model User {
   positions              Position[]
   transactions           Transaction[]
   notifications          Notification[]
+  activityLogs           ActivityLog[]
 }
 
 model Position {
@@ -83,6 +84,19 @@ model Notification {
   message   String
   timestamp Float
   read      Boolean  @default(false)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model ActivityLog {
+  id        String   @id @default(uuid())
+  action    String
+  device    String
+  location  String
+  ip        String
+  timestamp Float
+  type      String   @default("info")
   
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmailOrUsername } from '@/lib/userDb';
+import { findUserByEmailOrUsername, addActivityLog } from '@/lib/userDb';
+import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 
 export async function POST(request: Request) {
   try {
@@ -9,6 +10,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
     
+    // Sniff IP and User-Agent
+    const ip = getClientIP(request);
+    const ua = request.headers.get('user-agent');
+    const device = parseUserAgent(ua);
+    const { state, countryCode } = await getIPLocation(ip);
+    const locationString = `${state}, ${countryCode}`;
+
     const user = await findUserByEmailOrUsername(emailOrUsername);
     if (!user) {
       if (emailOrUsername === 'admin@aurabet.io' && password === 'AuraAdmin2026!') {
@@ -36,9 +44,26 @@ export async function POST(request: Request) {
     }
     
     if (user.passwordHash !== password) {
+      // Log failed login attempt
+      await addActivityLog(user.email, {
+        action: "Failed Login Attempt",
+        device,
+        location: locationString,
+        ip,
+        type: 'danger'
+      });
       return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 400 });
     }
     
+    // Log successful login
+    await addActivityLog(user.email, {
+      action: "Successful Login",
+      device,
+      location: locationString,
+      ip,
+      type: 'success'
+    });
+
     const { passwordHash, ...safeUser } = user;
     return NextResponse.json({ success: true, user: safeUser }, { status: 200 });
   } catch (err) {

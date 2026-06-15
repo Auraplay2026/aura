@@ -43,9 +43,12 @@ export interface UserProfile {
   gamingState?: string;
   upiId?: string;
   role?: 'user' | 'admin' | 'BANNED';
-  kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
   kycDocumentUrl?: string;
   notifications?: { id: string; message: string; timestamp: number; read: boolean }[];
+  activityLogs?: any[];
+  geoRestricted?: boolean;
+  verifiedAge?: number;
   adminNotes?: string;
   affiliateCode?: string;
   referredBy?: string;
@@ -77,6 +80,7 @@ export function sanitizeUserProfile(user: any): UserProfile {
     realPositions,
     realTransactions,
     notifications: user.notifications || [],
+    activityLogs: user.activityLogs || [],
     hasCompletedOnboarding: !!user.hasCompletedOnboarding,
     role: user.email === 'twintubrovquattro@gmail.com' ? 'admin' : user.role,
     kycStatus: user.kycStatus || 'NONE',
@@ -223,9 +227,43 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
     const updatedUser = await tx.user.update({
       where: { email },
       data,
-      include: { transactions: true, positions: true, notifications: true }
+      include: { transactions: true, positions: true, notifications: true, activityLogs: true }
     });
 
     return sanitizeUserProfile(updatedUser);
   });
+}
+
+export async function addActivityLog(
+  email: string,
+  log: { action: string; device: string; location: string; ip: string; type?: string }
+): Promise<any> {
+  const user = await prisma.user.findUnique({ where: { email } });
+  if (!user) return null;
+
+  return await prisma.activityLog.create({
+    data: {
+      userId: user.id,
+      action: log.action,
+      device: log.device,
+      location: log.location,
+      ip: log.ip,
+      timestamp: Date.now(),
+      type: log.type || 'info'
+    }
+  });
+}
+
+export async function getActivityLogs(email: string): Promise<any[]> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: {
+      activityLogs: {
+        orderBy: {
+          timestamp: 'desc'
+        }
+      }
+    }
+  });
+  return user?.activityLogs || [];
 }

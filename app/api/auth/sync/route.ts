@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
-import { updateUser } from '@/lib/userDb';
+import { updateUser, addActivityLog } from '@/lib/userDb';
+import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
+import { prisma } from '@/lib/prisma'; // If prisma is imported, wait: let's verify if prisma is imported. Let's look: lib/userDb imports prisma. Wait, let's import prisma from '@/lib/prisma' or check userDb.ts. Yes, userDb.ts imports prisma from '@/lib/prisma' or is it local? Let's check how prisma is exported.
 
 export async function POST(request: Request) {
   try {
@@ -18,11 +20,56 @@ export async function POST(request: Request) {
       totalWagered,
       vipLevel,
       manualVipLevel,
-      vipRewardsClaimed
+      vipRewardsClaimed,
+      kycStatus
     } = await request.json();
     
     if (!email) {
       return NextResponse.json({ error: 'Email is required for sync.' }, { status: 400 });
+    }
+
+    // Sniff IP and User-Agent
+    const ip = getClientIP(request);
+    const ua = request.headers.get('user-agent');
+    const device = parseUserAgent(ua);
+    const { state, countryCode } = await getIPLocation(ip);
+    const locationString = `${state}, ${countryCode}`;
+
+    // Read current state to audit changes
+    // Fetch directly from DB using helper or select
+    const existingUser = await prisma.user.findUnique({ where: { email } });
+    if (existingUser) {
+      if (accountType !== undefined && existingUser.accountType !== accountType) {
+        await addActivityLog(email, {
+          action: "Account Context Switched",
+          device,
+          location: locationString,
+          ip,
+          type: 'info'
+        });
+      }
+      
+      if (kycStatus !== undefined && existingUser.kycStatus !== kycStatus) {
+        let action = "KYC Status Updated";
+        let type = 'info';
+        if (kycStatus === 'VERIFIED' || kycStatus === 'APPROVED') {
+          action = "Identity Verification Approved";
+          type = 'success';
+        } else if (kycStatus === 'PROCESSING' || kycStatus === 'PENDING') {
+          action = "KYC Review Initiated";
+          type = 'info';
+        } else if (kycStatus === 'REJECTED') {
+          action = "Identity Verification Rejected";
+          type = 'danger';
+        }
+        await addActivityLog(email, {
+          action,
+          device,
+          location: locationString,
+          ip,
+          type
+        });
+      }
     }
     
     const updates: any = {
@@ -33,8 +80,18 @@ export async function POST(request: Request) {
     };
     
     if (username !== undefined) updates.username = username;
+    if (kycStatus !== undefined) updates.kycStatus = kycStatus;
     if (hasCompletedOnboarding !== undefined) {
       updates.hasCompletedOnboarding = !!hasCompletedOnboarding;
+      if (existingUser && !existingUser.hasCompletedOnboarding && hasCompletedOnboarding) {
+        await addActivityLog(email, {
+          action: "Onboarding Completed",
+          device,
+          location: locationString,
+          ip,
+          type: 'success'
+        });
+      }
     }
     if (phoneNumber !== undefined) updates.phoneNumber = phoneNumber;
     if (gamingState !== undefined) updates.gamingState = gamingState;

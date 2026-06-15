@@ -58,7 +58,7 @@ interface UserProfile {
   gamingState?: string;
   upiId?: string;
   role?: 'user' | 'admin' | 'BANNED';
-  kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED';
+  kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
   kycDocumentUrl?: string;
   notifications?: any[];
   adminNotes?: string;

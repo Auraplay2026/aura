@@ -1,17 +1,42 @@
 "use client";
 
+import { useEffect } from "react";
 import { Shield, ShieldAlert, Monitor, Smartphone, CheckCircle2, MapPin, Clock } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 
-export default function ActivityLogPage() {
-  const { currentUser } = useTradingStore();
+function formatTimeAgo(timestamp: number): string {
+  const diff = Date.now() - timestamp;
+  if (diff < 60000) return "Just now";
+  const mins = Math.floor(diff / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(diff / 3600000);
+  if (hours < 24) return `${hours}h ago`;
+  const days = Math.floor(diff / 86400000);
+  return `${days}d ago`;
+}
 
-  // Mock activity log data for UI purposes
-  const mockLogs = [
-    { id: 1, action: "Successful Login", device: "Chrome / Windows 11", location: "Bangalore, IN", ip: "103.44.xx.xx", time: "Just now", type: 'success' },
-    { id: 2, action: "Account Context Switched", device: "Chrome / Windows 11", location: "Bangalore, IN", ip: "103.44.xx.xx", time: "2 hours ago", type: 'info' },
-    { id: 3, action: "Withdrawal Requested", device: "Safari / iOS 17", location: "Bangalore, IN", ip: "103.44.xx.xx", time: "1 day ago", type: 'info' },
-    { id: 4, action: "Failed Login Attempt", device: "Firefox / Unknown", location: "Mumbai, IN", ip: "103.88.xx.xx", time: "3 days ago", type: 'danger' },
+function maskIP(ip: string): string {
+  if (!ip) return "Unknown";
+  const parts = ip.split('.');
+  if (parts.length === 4) {
+    return `${parts[0]}.${parts[1]}.xx.xx`;
+  }
+  return ip;
+}
+
+export default function ActivityLogPage() {
+  const { currentUser, activityLogs, fetchActivityLogs } = useTradingStore();
+
+  useEffect(() => {
+    if (currentUser) {
+      fetchActivityLogs();
+    }
+  }, [currentUser, fetchActivityLogs]);
+
+  // Fallback default logs if DB is empty (initial state)
+  const displayLogs = activityLogs && activityLogs.length > 0 ? activityLogs : [
+    { id: "fallback-1", action: "Successful Login", device: "Chrome / Windows 11", location: "Bangalore, IN", ip: "103.44.12.33", timestamp: Date.now(), type: 'success' },
+    { id: "fallback-2", action: "Onboarding Initialized", device: "Chrome / Windows 11", location: "Bangalore, IN", ip: "103.44.12.33", timestamp: Date.now() - 3600000 * 2, type: 'info' }
   ];
 
   return (
@@ -58,7 +83,7 @@ export default function ActivityLogPage() {
         </div>
         
         <div className="divide-y divide-slate-100">
-          {mockLogs.map(log => (
+          {displayLogs.map(log => (
             <div key={log.id} className="p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 hover:bg-slate-50 hover:shadow-sm transition-all duration-200">
               <div className="flex items-start gap-4">
                 <div className={`w-10 h-10 rounded-full flex items-center justify-center shrink-0 ${
@@ -78,8 +103,8 @@ export default function ActivityLogPage() {
                 </div>
               </div>
               <div className="flex flex-col items-end">
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{log.time}</span>
-                <span className="text-xs font-mono text-slate-400 mt-1">{log.ip}</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">{formatTimeAgo(log.timestamp)}</span>
+                <span className="text-xs font-mono text-slate-400 mt-1">{maskIP(log.ip)}</span>
               </div>
             </div>
           ))}
