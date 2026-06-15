@@ -167,9 +167,10 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
         "Initiating UIDAI gateway bridge...",
         "Requesting Digilocker consent approval...",
         "Generating secure transactional session token...",
-        "OTP dispatched successfully to registered mobile."
+        "Aadhaar details verified successfully."
       ];
-      const cleanup = runTicker(logs, "AADHAAR_OTP", 1100);
+      // Skip OTP phase, transition directly to GEO_CHECKING
+      const cleanup = runTicker(logs, "GEO_CHECKING", 1100);
       return cleanup;
     }
   }, [phase]);
@@ -225,12 +226,36 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
           } else {
             setGeoRestricted(false);
             setKycStatus("VERIFIED");
+            
+            // Dispatch dynamic verified account notification
+            const newNotif = {
+              id: `NOTIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+              message: "Congratulations! Your Tier 2 KYC Identity Verification (PAN & Aadhaar) has been successfully verified. Your account limits have been upgraded.",
+              timestamp: Date.now(),
+              read: false
+            };
+            useTradingStore.getState().updateProfile({
+              notifications: [...(currentUser?.notifications || []), newNotif]
+            });
+
             setPhase("SUCCESS");
           }
         } catch (e) {
           console.error("IP sniffing failed, allowing fallback", e);
           purgeIdentifiers();
           setKycStatus("VERIFIED");
+          
+          // Dispatch dynamic verified account notification
+          const newNotif = {
+            id: `NOTIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+            message: "Congratulations! Your Tier 2 KYC Identity Verification (PAN & Aadhaar) has been successfully verified. Your account limits have been upgraded.",
+            timestamp: Date.now(),
+            read: false
+          };
+          useTradingStore.getState().updateProfile({
+            notifications: [...(currentUser?.notifications || []), newNotif]
+          });
+
           setPhase("SUCCESS");
         }
       };
@@ -433,7 +458,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                 type="submit"
                 className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 cursor-pointer"
               >
-                Send Verification OTP <ArrowRight className="w-3.5 h-3.5" />
+                Verify Aadhaar Details <ArrowRight className="w-3.5 h-3.5" />
               </button>
             </motion.form>
           )}

@@ -84,6 +84,7 @@ interface TradingState {
   lastLoginDate: string | null;
   claimedToday: boolean;
   spinWheelClaimedToday: boolean;
+  dailyModalLastDismissedDate: string | null;
 
   // Achievements
   unlockedAchievements: string[];
@@ -131,6 +132,7 @@ interface TradingState {
   unlockAchievement: (id: string) => void;
   clearLatestAchievement: () => void;
   clearLatestWinCelebration: () => void;
+  dismissDailyModal: () => void;
 }
 
 // Helper to determine VIP Level based on total wagered
@@ -261,6 +263,7 @@ export const useTradingStore = create<TradingState>()(
       lastLoginDate: null,
       claimedToday: false,
       spinWheelClaimedToday: false,
+      dailyModalLastDismissedDate: null,
 
       // Achievements states
       unlockedAchievements: [],
@@ -667,6 +670,17 @@ export const useTradingStore = create<TradingState>()(
           won: false,
         });
 
+        let newTotalWagered = state.currentUser?.totalWagered || 0;
+        let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
+        if (state.currentUser) {
+          if (state.currentUser.accountType === 'real') {
+            newTotalWagered += investment;
+            newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+            state.currentUser.totalWagered = newTotalWagered;
+            state.currentUser.vipLevel = newVipLevel;
+          }
+        }
+
         const newTransactions = [tx, ...state.transactions];
         const newPositions = [newPosition, ...state.positions];
 
@@ -691,10 +705,12 @@ export const useTradingStore = create<TradingState>()(
         let newTotalWagered = state.currentUser?.totalWagered || 0;
         let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
         if (state.currentUser) {
-          newTotalWagered += stake;
-          newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
-          state.currentUser.totalWagered = newTotalWagered;
-          state.currentUser.vipLevel = newVipLevel;
+          if (state.currentUser.accountType === 'real') {
+            newTotalWagered += stake;
+            newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+            state.currentUser.totalWagered = newTotalWagered;
+            state.currentUser.vipLevel = newVipLevel;
+          }
         }
 
         const tx: Transaction = {
@@ -840,10 +856,12 @@ export const useTradingStore = create<TradingState>()(
         let newTotalWagered = state.currentUser?.totalWagered || 0;
         let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
         if (state.currentUser) {
-          newTotalWagered += wager;
-          newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
-          state.currentUser.totalWagered = newTotalWagered;
-          state.currentUser.vipLevel = newVipLevel;
+          if (state.currentUser.accountType === 'real') {
+            newTotalWagered += wager;
+            newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+            state.currentUser.totalWagered = newTotalWagered;
+            state.currentUser.vipLevel = newVipLevel;
+          }
         }
 
         const tx: Transaction = {
@@ -1296,6 +1314,10 @@ export const useTradingStore = create<TradingState>()(
         } catch (err) {
           console.error("Failed to fetch activity logs:", err);
         }
+      },
+      dismissDailyModal: () => {
+        const todayStr = new Date().toISOString().split('T')[0];
+        set({ dailyModalLastDismissedDate: todayStr });
       }
     }),
     {

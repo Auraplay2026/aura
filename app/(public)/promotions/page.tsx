@@ -273,23 +273,32 @@ export default function PromotionsPage() {
                     >
                       <Clock className="w-3.5 h-3.5" /> {showTerms === promo.id ? 'Hide Terms' : 'Read Terms'}
                     </button>
-                    <button 
-                      onClick={() => {
-                        if (!optedIn[promo.id]) {
+                    {optedIn[promo.id] ? (
+                      <div className="flex items-center gap-2">
+                        <span className="flex items-center gap-1.5 text-xs font-black text-green-600 bg-green-500/10 px-3 py-2 rounded-xl border border-green-500/20"><CheckCircle2 className="w-4 h-4" /> Joined</span>
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            router.push('/account/balance');
+                          }}
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 transition-all"
+                        >
+                          Deposit
+                        </button>
+                      </div>
+                    ) : (
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
                           setOptedIn(prev => ({ ...prev, [promo.id]: true }));
-                          setToast(`✅ Opted in to ${promo.title}!`);
-                          setTimeout(() => setToast(null), 3000);
-                        }
-                      }}
-                      className={cn(
-                        "font-bold text-sm px-5 py-2 rounded-xl transition-all shadow-sm",
-                        optedIn[promo.id]
-                          ? "bg-green-500/20 border border-green-500/30 text-green-600 cursor-default"
-                          : "bg-slate-50 group-hover:bg-white text-slate-700 group-hover:text-black hover:scale-105"
-                      )}
-                    >
-                      {optedIn[promo.id] ? (<span className="flex items-center gap-1.5"><CheckCircle2 className="w-4 h-4" /> Joined</span>) : "Opt In"}
-                    </button>
+                          setToast(`✅ Opted in! Deposit real money to activate ${promo.title}.`);
+                          setTimeout(() => setToast(null), 4000);
+                        }}
+                        className="font-bold text-sm px-5 py-2 rounded-xl bg-slate-50 group-hover:bg-white text-slate-700 group-hover:text-black hover:scale-105 transition-all shadow-sm"
+                      >
+                        Opt In
+                      </button>
+                    )}
                   </div>
                   
                   {/* Expandable Terms */}

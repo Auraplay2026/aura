@@ -17,7 +17,9 @@ export function DailyRewardModal() {
     spinWheelClaimedToday,
     claimDailyReward,
     spinWheelClaimed,
-    unlockAchievement
+    unlockAchievement,
+    dailyModalLastDismissedDate,
+    dismissDailyModal
   } = useTradingStore();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -31,6 +33,9 @@ export function DailyRewardModal() {
   useEffect(() => {
     if (currentUser?.role === 'admin' || pathname?.startsWith('/admin')) return;
     if (isLoggedIn) {
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (dailyModalLastDismissedDate === todayStr) return;
+
       if (!claimedToday || !spinWheelClaimedToday) {
         // Delay slightly for premium entrance
         const timer = setTimeout(() => {
@@ -42,7 +47,7 @@ export function DailyRewardModal() {
         return () => clearTimeout(timer);
       }
     }
-  }, [isLoggedIn, claimedToday, spinWheelClaimedToday]);
+  }, [isLoggedIn, claimedToday, spinWheelClaimedToday, dailyModalLastDismissedDate, currentUser, pathname]);
 
   const DAILY_REWARDS = [50, 100, 200, 350, 500, 1000, 5000];
   const WHEEL_SECTORS = [
@@ -145,6 +150,7 @@ export function DailyRewardModal() {
         setActiveTab("wheel");
       } else {
         setIsOpen(false);
+        dismissDailyModal();
       }
     }, 2500);
   };
@@ -165,7 +171,10 @@ export function DailyRewardModal() {
         >
           {/* Close button */}
           <button
-            onClick={() => setIsOpen(false)}
+            onClick={() => {
+              setIsOpen(false);
+              dismissDailyModal();
+            }}
             className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors z-10"
           >
             <X className="w-5 h-5" />

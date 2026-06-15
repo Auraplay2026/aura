@@ -92,11 +92,11 @@ export default function AccountSettingsPage() {
               {currentUser?.username || "Player"}
             </h1>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-bold">
-              {currentUser?.kycStatus === 'APPROVED' ? (
+              {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
                 <span className="flex items-center gap-1.5 text-neon-green bg-neon-green/10 px-3 py-1 rounded-full border border-neon-green/20">
                   <CheckCircle2 className="w-4 h-4" /> KYC Verified
                 </span>
-              ) : currentUser?.kycStatus === 'PENDING' ? (
+              ) : currentUser?.kycStatus === 'PENDING' || currentUser?.kycStatus === 'PROCESSING' ? (
                 <span className="flex items-center gap-1.5 text-yellow-500 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">
                   <Activity className="w-4 h-4 animate-pulse" /> KYC Pending
                 </span>
@@ -111,8 +111,13 @@ export default function AccountSettingsPage() {
               )}
               <span className="text-slate-600">Account Active</span>
               <span className="text-neon-purple px-3 py-1 rounded-full border border-neon-purple/20 bg-neon-purple/10">
-                {currentUser?.role === 'admin' ? "Platform Admin" : `VIP ${currentUser?.accountType === 'real' ? 'Diamond' : 'Guest'}`}
+                {currentUser?.role === 'admin' ? "Platform Admin" : `VIP ${currentUser?.accountType === 'real' ? (currentUser?.vipLevel || 'Bronze') : 'Guest'}`}
               </span>
+              {(currentUser?.kycStatus === 'VERIFIED' || currentUser?.kycStatus === 'APPROVED') && (
+                <span className="text-emerald-600 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10">
+                  Tier 2 Verified
+                </span>
+              )}
             </div>
           </div>
 

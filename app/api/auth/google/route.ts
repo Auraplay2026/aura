@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmail, addUser, UserProfile } from '@/lib/userDb';
+import { findUserByEmail, addUser, UserProfile, addActivityLog } from '@/lib/userDb';
+import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 
 export async function POST(request: Request) {
   try {
@@ -8,6 +9,13 @@ export async function POST(request: Request) {
     if (!email) {
       return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
     }
+
+    // Sniff IP and User-Agent for Google session auditing
+    const ip = getClientIP(request);
+    const ua = request.headers.get('user-agent');
+    const device = parseUserAgent(ua);
+    const { state, countryCode } = await getIPLocation(ip);
+    const locationString = `${state}, ${countryCode}`;
     
     let user = await findUserByEmail(email);
     if (!user) {
@@ -29,7 +37,33 @@ export async function POST(request: Request) {
         realTransactions: []
       };
       await addUser(user);
+
+      // Audit new Google signup
+      await addActivityLog(user.email, {
+        action: "Successful Registration (Google)",
+        device,
+        location: locationString,
+        ip,
+        type: 'success'
+      });
+
+      await addActivityLog(user.email, {
+        action: "Onboarding Initialized",
+        device,
+        location: locationString,
+        ip,
+        type: 'info'
+      });
     }
+
+    // Audit Google login
+    await addActivityLog(user.email, {
+      action: "Successful Login (Google)",
+      device,
+      location: locationString,
+      ip,
+      type: 'success'
+    });
     
     const { passwordHash, ...safeUser } = user;
     return NextResponse.json({ success: true, user: safeUser }, { status: 200 });

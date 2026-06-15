@@ -6,9 +6,10 @@ import {
 } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 
 export default function RewardsPage() {
-  const { balance, deposit, transactions, isLoggedIn } = useTradingStore();
+  const { balance, deposit, transactions, isLoggedIn, currentUser } = useTradingStore();
   const [isClient, setIsClient] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
 
@@ -27,8 +28,9 @@ export default function RewardsPage() {
     setRakebackClaimed(localStorage.getItem("reward_rakeback_claimed") === "true");
   }, []);
 
+  // Calculate actual total wager from real wagers in database only (no demo)
   const totalWager = isClient && isLoggedIn 
-    ? transactions.filter(t => t.type === 'casino' || t.type === 'trade').reduce((sum, t) => sum + t.amount, 0)
+    ? (currentUser?.totalWagered || 0)
     : 0;
 
   // Calculate instant rakeback: 5% of total wagers, capped at ₹25,000 for safety, or ₹0 if already claimed
@@ -168,6 +170,25 @@ export default function RewardsPage() {
             </div>
           </div>
         </div>
+
+        {/* Rewards Conversion Nudges / Hooks */}
+        {currentUser?.accountType === 'demo' ? (
+          <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 text-amber-800 text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm">
+            <div className="space-y-1">
+              <p className="text-base font-black uppercase tracking-wide">⚠️ Demo Mode Active</p>
+              <p className="font-medium text-amber-700 text-xs">Rakeback, daily drop bonuses, and VIP rewards are currently simulated. Deposit real money to claim real rewards!</p>
+            </div>
+            <Link href="/account/balance" className="shrink-0 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-all text-center w-full sm:w-auto uppercase tracking-wider text-xs font-black shadow-md">Deposit & Unlock Rewards</Link>
+          </div>
+        ) : (
+          <div className="bg-indigo-50 border border-indigo-200 rounded-3xl p-6 text-indigo-800 text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm">
+            <div className="space-y-1">
+              <p className="text-base font-black uppercase tracking-wide">💎 Real Rewards Active</p>
+              <p className="font-medium text-indigo-700 text-xs">You are earning 5% rakeback and weekly VIP loyalty rewards on all wagers! Claim your cash drops below.</p>
+            </div>
+            <Link href="/account/balance" className="shrink-0 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all text-center w-full sm:w-auto uppercase tracking-wider text-xs font-black shadow-md">Deposit Cashier</Link>
+          </div>
+        )}
 
         {/* Rakeback Section */}
         <section>

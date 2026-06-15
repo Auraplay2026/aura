@@ -5,6 +5,7 @@ import { Crown, Star, Shield, Gift, Zap, ArrowRight, ChevronRight, Lock, Unlock 
 import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/lib/store";
 import { useState, useEffect } from "react";
+import Link from "next/link";
 
 const TIERS = [
   { name: "Bronze", wagerReq: "₹0", wagerNum: 0, rakeback: "5%", bonus: "None", color: "text-amber-600", bg: "bg-amber-600/10", border: "border-amber-600/20", icon: Shield },
@@ -14,13 +15,13 @@ const TIERS = [
 ];
 
 export default function VIPClubPage() {
-  const { isLoggedIn, balance, transactions } = useTradingStore();
+  const { isLoggedIn, balance, transactions, currentUser } = useTradingStore();
   const [isClient, setIsClient] = useState(false);
   useEffect(() => setIsClient(true), []);
 
-  // Calculate actual total wager from real trade & casino transactions
+  // Calculate actual total wager from real wagers in database only (no demo)
   const simulatedWager = isClient && isLoggedIn 
-    ? transactions.filter(t => t.type === 'casino' || t.type === 'trade').reduce((sum, t) => sum + t.amount, 0)
+    ? (currentUser?.totalWagered || 0)
     : 0;
   
   const currentTierIndex = TIERS.findLastIndex(t => simulatedWager >= t.wagerNum) || 0;
@@ -103,6 +104,19 @@ export default function VIPClubPage() {
                 )}
               </div>
             </div>
+
+            {/* VIP Conversion Nudges / Hooks */}
+            {currentUser?.accountType === 'demo' ? (
+              <div className="mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                <span>⚠️ You are currently in DEMO mode. Demo wagers do not count towards VIP rank. Switch to Real Money to earn real cashbacks!</span>
+                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit & Play Real</Link>
+              </div>
+            ) : (
+              <div className="mt-6 bg-indigo-50 border border-indigo-200 rounded-2xl p-4 text-indigo-800 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
+                <span>🚀 You are earning <strong>{currentTier.rakeback} Rakeback</strong> and exclusive <strong>{currentTier.bonus} bonuses</strong> on all real wagers! Play more to level up to {nextTier?.name || 'Max rank'}!</span>
+                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit / Cashier</Link>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>
