@@ -66,6 +66,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
           onLoad={() => setIsLoading(false)}
           allow="autoplay; fullscreen; gamepad; accelerometer; gyroscope; xr-spatial-tracking; clipboard-write"
           allowFullScreen
+          referrerPolicy="no-referrer"
         />
 
         {isFullscreen && (
