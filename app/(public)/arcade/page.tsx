@@ -23,16 +23,22 @@ export default function ArcadeHubPage() {
 
         {/* Featured / Filters row */}
         <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-          <div className="flex items-center gap-6">
-            <button className="text-sm font-bold text-slate-900 relative">
+          <div className="flex items-center gap-6 overflow-x-auto pb-2">
+            <button className="text-sm font-bold text-slate-900 relative whitespace-nowrap">
               All Games
               <span className="absolute -bottom-4.5 left-0 w-full h-0.5 bg-red-600 rounded-t-full" />
             </button>
-            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">
-              Runners
+            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
+              Action & Arcade
             </button>
-            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors">
-              Puzzles
+            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
+              Puzzle & Logic
+            </button>
+            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
+              Racing & Sports
+            </button>
+            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
+              Strategy & Board
             </button>
           </div>
         </div>
