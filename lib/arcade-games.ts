@@ -19,7 +19,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "High-speed 3D temple runner. Dodge ancient obstacles, collect gems, slide, jump, and run as far as you can.",
     thumbnail: "/games/tomb_runner.png",
     categories: ["runner", "action"],
-    url: "/api/game-proxy/html5.gamedistribution.com/f2af2ecc05a445edb6862c589e996a7e/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F",
+    url: "https://play.gamepix.com/tomb-runner/embed",
     isNew: true
   },
   {
@@ -29,7 +29,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Form sweet cascades and match colourful jellies and candy combos in this delicious match-3 puzzle adventure.",
     thumbnail: "/games/candy_rain.png",
     categories: ["puzzle"],
-    url: "/api/game-proxy/html5.gamedistribution.com/f318ed77bd024a5eac09f407b4a25e9e/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F"
+    url: "https://play.gamepix.com/candy-rain-7/embed"
   },
   {
     id: "zen-archery",
@@ -38,7 +38,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Master wind and gravity. Aim with high precision to clear balloons and moving targets around the globe.",
     thumbnail: "/games/archery_world_tour.png",
     categories: ["action", "puzzle"],
-    url: "/api/game-proxy/html5.gamedistribution.com/51352e850b5d4da2aba57e10b10ec8cb/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F",
+    url: "https://play.gamepix.com/archery-master/embed",
     isNew: true
   },
   {
@@ -48,8 +48,46 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Perform insane drifts, jumps, and stunts in luxury supercars. Run open-world maps in single or multiplayer sandbox modes.",
     thumbnail: "/games/two_stunt_supercars.png",
     categories: ["action", "racing"] as ArcadeCategoryId[],
-    url: "/api/game-proxy/html5.gamedistribution.com/2b5cd37e40d046cba9456ce4371f43a9/?gd_sdk_referrer_url=https%3A%2F%2Fgamedistribution.com%2F",
+    url: "https://play.gamepix.com/ado-stunt-cars-3/embed",
     isNew: true
+  },
+  {
+    id: "slope-racing-3d",
+    title: "Slope Racing 3D",
+    provider: "AuraPlay Speed",
+    description: "High-speed 3D neon ball race down a steep, tricky slope. Guide the ball safely and avoid red hazards to survive.",
+    thumbnail: "https://img.gamepix.com/games/slope-racing-3d/cover/slope-racing-3d.png",
+    categories: ["action", "racing"],
+    url: "https://play.gamepix.com/slope-racing-3d/embed",
+    isNew: true
+  },
+  {
+    id: "cut-the-rope",
+    title: "Cut The Rope",
+    provider: "ZeptoLab",
+    description: "Cut the ropes, feed candy to Om Nom, and collect gold stars in this award-winning physics puzzle game.",
+    thumbnail: "https://img.gamepix.com/games/cut-the-rope/cover/cut-the-rope.png",
+    categories: ["puzzle"],
+    url: "https://play.gamepix.com/cut-the-rope/embed"
+  },
+  {
+    id: "jetpack-joyride",
+    title: "Jetpack Joyride",
+    provider: "Halfbrick Studios",
+    description: "Fly with cool high-tech jetpacks, dodge laser beams and electrical hazards, and collect coins in this action-packed endless runner.",
+    thumbnail: "https://img.gamepix.com/games/jetpack-joyride/cover/jetpack-joyride.png",
+    categories: ["runner", "action"],
+    url: "https://play.gamepix.com/jetpack-joyride/embed",
+    isNew: true
+  },
+  {
+    id: "tentrix",
+    title: "TenTrix",
+    provider: "AuraPlay Casual",
+    description: "Place colorful blocks on the board to form full vertical and horizontal lines in this addictive grid puzzle game.",
+    thumbnail: "https://img.gamepix.com/games/tentrix/cover/tentrix.png",
+    categories: ["puzzle"],
+    url: "https://play.gamepix.com/tentrix/embed"
   }
 ];
 
