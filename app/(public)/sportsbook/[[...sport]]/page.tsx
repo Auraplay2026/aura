@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, use } from "react";
+import { useState, useEffect, use, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Trophy, Activity, CalendarDays, TrendingUp, TrendingDown, Clock, X, Menu, Receipt, ChevronDown, ChevronUp } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -8,6 +8,7 @@ import { generateMatches, Match } from "@/lib/sportsData";
 import { useTradingStore } from "@/lib/store";
 import { useSearchParams } from "next/navigation";
 import { useSidebarContext } from "@/components/layout/AppProviders";
+import { validateTransactionIdempotency, adjustOddsForExposure, parseAndSettleBet } from "@/lib/mathEngine";
 
 const SPORTS = ["Soccer", "Tennis", "Basketball", "Cricket"];
 
@@ -52,7 +53,7 @@ const ExchangeCell = ({ value, trend, type, onClick, isSelected, suspended }: an
 };
 
 // High density borderless Outcome row with Back/Lay selection for Micro-Markets
-const MicroMarketOutcomeRow = ({ outcomeName, backOdds, layOdds, trend, isSuspended, onSelect, activeSelection }: any) => {
+const MicroMarketOutcomeRow = ({ outcomeName, backOdds, layOdds, trend, isSuspended, onSelect, activeSelection, selectionId, baseBackOdds, baseLayOdds }: any) => {
   return (
     <div className="flex items-center justify-between py-1 bg-white border-b border-slate-100">
       <span className="text-xs font-bold text-slate-800 tracking-wide truncate max-w-[130px] sm:max-w-[180px]">{outcomeName}</span>
@@ -60,7 +61,7 @@ const MicroMarketOutcomeRow = ({ outcomeName, backOdds, layOdds, trend, isSuspen
         
         {/* Back Button (Green theme) */}
         <button
-          onClick={() => !isSuspended && onSelect('back', backOdds)}
+          onClick={() => !isSuspended && onSelect('back', backOdds, baseBackOdds, selectionId)}
           disabled={isSuspended}
           className={cn(
             "flex flex-col items-center justify-center w-[55px] h-[34px] transition-colors rounded-sm border border-slate-100",
@@ -85,7 +86,7 @@ const MicroMarketOutcomeRow = ({ outcomeName, backOdds, layOdds, trend, isSuspen
 
         {/* Lay Button (Pink theme) */}
         <button
-          onClick={() => !isSuspended && onSelect('lay', layOdds)}
+          onClick={() => !isSuspended && onSelect('lay', layOdds, baseLayOdds, selectionId)}
           disabled={isSuspended}
           className={cn(
             "flex flex-col items-center justify-center w-[55px] h-[34px] transition-colors rounded-sm border border-slate-100",
@@ -132,6 +133,21 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   
   const placeSportsBet = useTradingStore(s => s.placeSportsBet);
   const walletBalance = useTradingStore(s => s.balance);
+  const deposit = useTradingStore(s => s.deposit);
+  const [liveCommentary, setLiveCommentary] = useState("Waiting for match feed updates...");
+
+  // Helper to compute liability on a selection
+  const getSelectionLiability = (selectionId: string) => {
+    return placedMicroBets
+      .filter(b => b.selectionId === selectionId)
+      .reduce((sum, b) => sum + (b.type === 'lay' ? b.stake * (b.odds - 1) : b.stake), 0);
+  };
+
+  // Helper to get exposure-adjusted odds
+  const getAdjustedOdds = (baseOdds: number, selectionId: string) => {
+    const liability = getSelectionLiability(selectionId);
+    return adjustOddsForExposure(baseOdds, selectionId, liability);
+  };
   
   const [isLoading, setIsLoading] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
@@ -171,6 +187,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     marketName: string;
     selectionName: string;
     odds: number;
+    baseOdds: number;
+    selectionId: string;
     type: 'back' | 'lay';
     lineValue?: number;
   } | null>(null);
@@ -218,6 +236,103 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       clearInterval(listInterval);
     };
   }, [activeSport]);
+
+  // Settle sports bets based on event
+  const settlePendingBets = useCallback((eventType: string, outcome: string, value?: number) => {
+    setPlacedMicroBets(prev => prev.map(bet => {
+      if (bet.status !== 'Pending') return bet;
+
+      let isMatch = false;
+      let won = false;
+      let payout = 0;
+
+      if (bet.marketName === 'Toss Winner' && eventType === 'Toss') {
+        isMatch = true;
+        won = bet.selectionName === outcome;
+        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
+      } else if (bet.marketName === 'Session Runs' && eventType === 'Session') {
+        isMatch = true;
+        const actualRuns = value || 0;
+        const res = parseAndSettleBet(bet, actualRuns);
+        won = res.won;
+        payout = res.payout;
+      } else if (bet.marketName === 'Ball-by-Ball Runs' && eventType === 'Ball') {
+        isMatch = true;
+        const actualRuns = value || 0;
+        const res = parseAndSettleBet(bet, actualRuns);
+        won = res.won;
+        payout = res.payout;
+      } else if (bet.marketName === 'Point Winner' && eventType === 'TennisPoint') {
+        isMatch = true;
+        won = bet.selectionName === outcome;
+        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
+      } else if (bet.marketName === 'Deuce Status' && eventType === 'TennisDeuce') {
+        isMatch = true;
+        won = bet.selectionName === outcome; // 'Yes' or 'No'
+        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
+      } else if (bet.marketName === '1-Min Event' && eventType === 'SoccerEvent') {
+        isMatch = true;
+        won = bet.selectionName === outcome; // 'Corner', 'Card', 'Goal', 'Throw-In'
+        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
+      }
+
+      if (isMatch) {
+        if (won && payout > 0) {
+          deposit(payout, `Settle: ${bet.marketName}`);
+        }
+        return {
+          ...bet,
+          status: won ? 'Won' : 'Lost',
+          payout: Math.round(payout)
+        };
+      }
+
+      return bet;
+    }));
+  }, [deposit]);
+
+  useEffect(() => {
+    if (expandedMatchId === null) return;
+    const currentMatch = matches.find(m => m.id === expandedMatchId);
+    if (!currentMatch) return;
+
+    const interval = setInterval(() => {
+      if (currentMatch.sport === 'Cricket') {
+        const rand = Math.random();
+        if (rand < 0.25) {
+          const winner = Math.random() > 0.5 ? currentMatch.team1 : currentMatch.team2;
+          setLiveCommentary(`Toss completed: ${winner} won the toss and elected to field.`);
+          settlePendingBets('Toss', winner);
+        } else if (rand < 0.65) {
+          const runs = [0, 1, 2, 4, 6, 1][Math.floor(Math.random() * 6)];
+          setLiveCommentary(`Delivery 19.5 bowled. Batsman scored ${runs} run(s).`);
+          settlePendingBets('Ball', '', runs);
+        } else {
+          const totalRuns = Math.floor(Math.random() * 50) + 135; // 135 to 185 runs
+          setLiveCommentary(`1st Innings finished (20 Overs). Team total runs: ${totalRuns}.`);
+          settlePendingBets('Session', '', totalRuns);
+        }
+      } else if (currentMatch.sport === 'Tennis') {
+        const rand = Math.random();
+        if (rand < 0.5) {
+          const winner = Math.random() > 0.5 ? currentMatch.team1 : currentMatch.team2;
+          setLiveCommentary(`Point won by ${winner} with a clean baseline forehand.`);
+          settlePendingBets('TennisPoint', winner);
+        } else {
+          const deuce = Math.random() > 0.5 ? 'Yes' : 'No';
+          setLiveCommentary(`Game finished. Reached deuce state: ${deuce}.`);
+          settlePendingBets('TennisDeuce', deuce);
+        }
+      } else if (currentMatch.sport === 'Soccer') {
+        const events = ['Corner', 'Card', 'Goal', 'Throw-In'];
+        const event = events[Math.floor(Math.random() * events.length)];
+        setLiveCommentary(`Minute 68: Active play resulted in a ${event}!`);
+        settlePendingBets('SoccerEvent', event);
+      }
+    }, 7000);
+
+    return () => clearInterval(interval);
+  }, [expandedMatchId, matches, settlePendingBets]);
 
   // Fluctuate General Match Odds
   useEffect(() => {
@@ -705,6 +820,16 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                       </div>
                     )}
 
+                    {/* Live Match Ticker & Commentary */}
+                    <div className="bg-slate-900 text-white rounded p-2.5 flex items-center justify-between text-xs font-black uppercase tracking-wider">
+                      <div className="flex items-center gap-2">
+                        <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                        <span className="text-red-400">Live Feed:</span>
+                        <span className="text-slate-200">{liveCommentary}</span>
+                      </div>
+                      <span className="text-[10px] text-slate-400 font-bold">Autopilot Settlement Layer Active</span>
+                    </div>
+
                     {/* Dynamic Sports Micro-Markets Grid */}
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       
@@ -716,37 +841,47 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">Toss Winner</span>
                             <MicroMarketOutcomeRow 
                               outcomeName={match.team1}
-                              backOdds={1.91}
-                              layOdds={1.96}
+                              backOdds={getAdjustedOdds(1.91, `cricket-toss-${match.team1}`)}
+                              layOdds={getAdjustedOdds(1.96, `cricket-toss-${match.team1}`)}
                               trend={tossLineTrend}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Cricket',
                                 marketName: 'Toss Winner',
                                 selectionName: match.team1,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type
                               })}
                               activeSelection={hudSelection?.marketName === 'Toss Winner' && hudSelection?.selectionName === match.team1 ? hudSelection : null}
+                              selectionId={`cricket-toss-${match.team1}`}
+                              baseBackOdds={1.91}
+                              baseLayOdds={1.96}
                             />
                             <MicroMarketOutcomeRow 
                               outcomeName={match.team2}
-                              backOdds={1.91}
-                              layOdds={1.96}
+                              backOdds={getAdjustedOdds(1.91, `cricket-toss-${match.team2}`)}
+                              layOdds={getAdjustedOdds(1.96, `cricket-toss-${match.team2}`)}
                               trend={tossLineTrend}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Cricket',
                                 marketName: 'Toss Winner',
                                 selectionName: match.team2,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type
                               })}
                               activeSelection={hudSelection?.marketName === 'Toss Winner' && hudSelection?.selectionName === match.team2 ? hudSelection : null}
+                              selectionId={`cricket-toss-${match.team2}`}
+                              baseBackOdds={1.91}
+                              baseLayOdds={1.96}
                             />
                           </div>
 
@@ -758,39 +893,49 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                             </div>
                             <MicroMarketOutcomeRow 
                               outcomeName={`Over ${cricketLine}`}
-                              backOdds={cricketOdds.over}
-                              layOdds={cricketOdds.over + 0.05}
+                              backOdds={getAdjustedOdds(cricketOdds.over, `cricket-session-over`)}
+                              layOdds={getAdjustedOdds(cricketOdds.over + 0.05, `cricket-session-over`)}
                               trend={cricketTrend.over}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Cricket',
                                 marketName: 'Session Runs',
                                 selectionName: `Over ${cricketLine}`,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type,
                                 lineValue: cricketLine
                               })}
                               activeSelection={hudSelection?.marketName === 'Session Runs' && hudSelection?.selectionName.includes('Over') ? hudSelection : null}
+                              selectionId={`cricket-session-over`}
+                              baseBackOdds={cricketOdds.over}
+                              baseLayOdds={cricketOdds.over + 0.05}
                             />
                             <MicroMarketOutcomeRow 
                               outcomeName={`Under ${cricketLine}`}
-                              backOdds={cricketOdds.under}
-                              layOdds={cricketOdds.under + 0.05}
+                              backOdds={getAdjustedOdds(cricketOdds.under, `cricket-session-under`)}
+                              layOdds={getAdjustedOdds(cricketOdds.under + 0.05, `cricket-session-under`)}
                               trend={cricketTrend.under}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Cricket',
                                 marketName: 'Session Runs',
                                 selectionName: `Under ${cricketLine}`,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type,
                                 lineValue: cricketLine
                               })}
                               activeSelection={hudSelection?.marketName === 'Session Runs' && hudSelection?.selectionName.includes('Under') ? hudSelection : null}
+                              selectionId={`cricket-session-under`}
+                              baseBackOdds={cricketOdds.under}
+                              baseLayOdds={cricketOdds.under + 0.05}
                             />
                           </div>
 
@@ -801,39 +946,49 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                             </span>
                             <MicroMarketOutcomeRow 
                               outcomeName={`Over ${ballLine.line} Runs`}
-                              backOdds={ballLine.overOdds}
-                              layOdds={ballLine.overOdds + 0.05}
+                              backOdds={getAdjustedOdds(ballLine.overOdds, `cricket-ball-over`)}
+                              layOdds={getAdjustedOdds(ballLine.overOdds + 0.05, `cricket-ball-over`)}
                               trend={ballTrend.over}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Cricket',
                                 marketName: 'Ball-by-Ball Runs',
                                 selectionName: `Over ${ballLine.line}`,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type,
                                 lineValue: ballLine.line
                               })}
                               activeSelection={hudSelection?.marketName === 'Ball-by-Ball Runs' && hudSelection?.selectionName.includes('Over') ? hudSelection : null}
+                              selectionId={`cricket-ball-over`}
+                              baseBackOdds={ballLine.overOdds}
+                              baseLayOdds={ballLine.overOdds + 0.05}
                             />
                             <MicroMarketOutcomeRow 
                               outcomeName={`Under ${ballLine.line} Runs`}
-                              backOdds={ballLine.underOdds}
-                              layOdds={ballLine.underOdds + 0.05}
+                              backOdds={getAdjustedOdds(ballLine.underOdds, `cricket-ball-under`)}
+                              layOdds={getAdjustedOdds(ballLine.underOdds + 0.05, `cricket-ball-under`)}
                               trend={ballTrend.under}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Cricket',
                                 marketName: 'Ball-by-Ball Runs',
                                 selectionName: `Under ${ballLine.line}`,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type,
                                 lineValue: ballLine.line
                               })}
                               activeSelection={hudSelection?.marketName === 'Ball-by-Ball Runs' && hudSelection?.selectionName.includes('Under') ? hudSelection : null}
+                              selectionId={`cricket-ball-under`}
+                              baseBackOdds={ballLine.underOdds}
+                              baseLayOdds={ballLine.underOdds + 0.05}
                             />
                           </div>
                         </>
@@ -847,37 +1002,47 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">Point Winner (Curr Game)</span>
                             <MicroMarketOutcomeRow 
                               outcomeName={match.team1}
-                              backOdds={tennisPointOdds.p1}
-                              layOdds={tennisPointOdds.p1 + 0.05}
+                              backOdds={getAdjustedOdds(tennisPointOdds.p1, `tennis-point-p1`)}
+                              layOdds={getAdjustedOdds(tennisPointOdds.p1 + 0.05, `tennis-point-p1`)}
                               trend={tennisPointTrend.p1}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Tennis',
                                 marketName: 'Point Winner',
                                 selectionName: match.team1,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type
                               })}
                               activeSelection={hudSelection?.marketName === 'Point Winner' && hudSelection?.selectionName === match.team1 ? hudSelection : null}
+                              selectionId={`tennis-point-p1`}
+                              baseBackOdds={tennisPointOdds.p1}
+                              baseLayOdds={tennisPointOdds.p1 + 0.05}
                             />
                             <MicroMarketOutcomeRow 
                               outcomeName={match.team2}
-                              backOdds={tennisPointOdds.p2}
-                              layOdds={tennisPointOdds.p2 + 0.05}
+                              backOdds={getAdjustedOdds(tennisPointOdds.p2, `tennis-point-p2`)}
+                              layOdds={getAdjustedOdds(tennisPointOdds.p2 + 0.05, `tennis-point-p2`)}
                               trend={tennisPointTrend.p2}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Tennis',
                                 marketName: 'Point Winner',
                                 selectionName: match.team2,
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type
                               })}
                               activeSelection={hudSelection?.marketName === 'Point Winner' && hudSelection?.selectionName === match.team2 ? hudSelection : null}
+                              selectionId={`tennis-point-p2`}
+                              baseBackOdds={tennisPointOdds.p2}
+                              baseLayOdds={tennisPointOdds.p2 + 0.05}
                             />
                           </div>
 
@@ -886,37 +1051,47 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                             <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">Will game reach Deuce (40-40)?</span>
                             <MicroMarketOutcomeRow 
                               outcomeName="Yes (Deuce)"
-                              backOdds={tennisDeuceOdds.yes}
-                              layOdds={tennisDeuceOdds.yes + 0.10}
+                              backOdds={getAdjustedOdds(tennisDeuceOdds.yes, `tennis-deuce-yes`)}
+                              layOdds={getAdjustedOdds(tennisDeuceOdds.yes + 0.10, `tennis-deuce-yes`)}
                               trend={tennisDeuceTrend.yes}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Tennis',
                                 marketName: 'Deuce Status',
                                 selectionName: 'Yes',
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type
                               })}
                               activeSelection={hudSelection?.marketName === 'Deuce Status' && hudSelection?.selectionName === 'Yes' ? hudSelection : null}
+                              selectionId={`tennis-deuce-yes`}
+                              baseBackOdds={tennisDeuceOdds.yes}
+                              baseLayOdds={tennisDeuceOdds.yes + 0.10}
                             />
                             <MicroMarketOutcomeRow 
                               outcomeName="No (Deuce)"
-                              backOdds={tennisDeuceOdds.no}
-                              layOdds={tennisDeuceOdds.no + 0.05}
+                              backOdds={getAdjustedOdds(tennisDeuceOdds.no, `tennis-deuce-no`)}
+                              layOdds={getAdjustedOdds(tennisDeuceOdds.no + 0.05, `tennis-deuce-no`)}
                               trend={tennisDeuceTrend.no}
                               isSuspended={isFeedSuspended}
-                              onSelect={(type: any, odds: any) => setHudSelection({
+                              onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                 matchId: match.id,
                                 matchTitle: `${match.team1} vs ${match.team2}`,
                                 sport: 'Tennis',
                                 marketName: 'Deuce Status',
                                 selectionName: 'No',
                                 odds,
+                                baseOdds,
+                                selectionId,
                                 type
                               })}
                               activeSelection={hudSelection?.marketName === 'Deuce Status' && hudSelection?.selectionName === 'No' ? hudSelection : null}
+                              selectionId={`tennis-deuce-no`}
+                              baseBackOdds={tennisDeuceOdds.no}
+                              baseLayOdds={tennisDeuceOdds.no + 0.05}
                             />
                           </div>
                         </>
@@ -934,80 +1109,100 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                               <div className="border border-slate-100 rounded p-1.5 bg-slate-50/50">
                                 <MicroMarketOutcomeRow 
                                   outcomeName="Corner Kick"
-                                  backOdds={soccerMinuteOdds.corner}
-                                  layOdds={soccerMinuteOdds.corner + 0.1}
+                                  backOdds={getAdjustedOdds(soccerMinuteOdds.corner, `soccer-corner`)}
+                                  layOdds={getAdjustedOdds(soccerMinuteOdds.corner + 0.1, `soccer-corner`)}
                                   trend={soccerMinuteTrend.corner}
                                   isSuspended={isFeedSuspended}
-                                  onSelect={(type: any, odds: any) => setHudSelection({
+                                  onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                     matchId: match.id,
                                     matchTitle: `${match.team1} vs ${match.team2}`,
                                     sport: 'Soccer',
                                     marketName: '1-Min Event',
                                     selectionName: 'Corner',
                                     odds,
+                                    baseOdds,
+                                    selectionId,
                                     type
                                   })}
                                   activeSelection={hudSelection?.marketName === '1-Min Event' && hudSelection?.selectionName === 'Corner' ? hudSelection : null}
+                                  selectionId={`soccer-corner`}
+                                  baseBackOdds={soccerMinuteOdds.corner}
+                                  baseLayOdds={soccerMinuteOdds.corner + 0.1}
                                 />
                               </div>
 
                               <div className="border border-slate-100 rounded p-1.5 bg-slate-50/50">
                                 <MicroMarketOutcomeRow 
                                   outcomeName="Booking Card"
-                                  backOdds={soccerMinuteOdds.card}
-                                  layOdds={soccerMinuteOdds.card + 0.2}
+                                  backOdds={getAdjustedOdds(soccerMinuteOdds.card, `soccer-card`)}
+                                  layOdds={getAdjustedOdds(soccerMinuteOdds.card + 0.2, `soccer-card`)}
                                   trend={soccerMinuteTrend.card}
                                   isSuspended={isFeedSuspended}
-                                  onSelect={(type: any, odds: any) => setHudSelection({
+                                  onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                     matchId: match.id,
                                     matchTitle: `${match.team1} vs ${match.team2}`,
                                     sport: 'Soccer',
                                     marketName: '1-Min Event',
                                     selectionName: 'Card',
                                     odds,
+                                    baseOdds,
+                                    selectionId,
                                     type
                                   })}
                                   activeSelection={hudSelection?.marketName === '1-Min Event' && hudSelection?.selectionName === 'Card' ? hudSelection : null}
+                                  selectionId={`soccer-card`}
+                                  baseBackOdds={soccerMinuteOdds.card}
+                                  baseLayOdds={soccerMinuteOdds.card + 0.2}
                                 />
                               </div>
 
                               <div className="border border-slate-100 rounded p-1.5 bg-slate-50/50">
                                 <MicroMarketOutcomeRow 
                                   outcomeName="Goal Scored"
-                                  backOdds={soccerMinuteOdds.goal}
-                                  layOdds={soccerMinuteOdds.goal + 0.5}
+                                  backOdds={getAdjustedOdds(soccerMinuteOdds.goal, `soccer-goal`)}
+                                  layOdds={getAdjustedOdds(soccerMinuteOdds.goal + 0.5, `soccer-goal`)}
                                   trend={soccerMinuteTrend.goal}
                                   isSuspended={isFeedSuspended}
-                                  onSelect={(type: any, odds: any) => setHudSelection({
+                                  onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                     matchId: match.id,
                                     matchTitle: `${match.team1} vs ${match.team2}`,
                                     sport: 'Soccer',
                                     marketName: '1-Min Event',
                                     selectionName: 'Goal',
                                     odds,
+                                    baseOdds,
+                                    selectionId,
                                     type
                                   })}
                                   activeSelection={hudSelection?.marketName === '1-Min Event' && hudSelection?.selectionName === 'Goal' ? hudSelection : null}
+                                  selectionId={`soccer-goal`}
+                                  baseBackOdds={soccerMinuteOdds.goal}
+                                  baseLayOdds={soccerMinuteOdds.goal + 0.5}
                                 />
                               </div>
 
                               <div className="border border-slate-100 rounded p-1.5 bg-slate-50/50">
                                 <MicroMarketOutcomeRow 
                                   outcomeName="Throw-In"
-                                  backOdds={soccerMinuteOdds.throwIn}
-                                  layOdds={soccerMinuteOdds.throwIn + 0.02}
+                                  backOdds={getAdjustedOdds(soccerMinuteOdds.throwIn, `soccer-throwin`)}
+                                  layOdds={getAdjustedOdds(soccerMinuteOdds.throwIn + 0.02, `soccer-throwin`)}
                                   trend={soccerMinuteTrend.throwIn}
                                   isSuspended={isFeedSuspended}
-                                  onSelect={(type: any, odds: any) => setHudSelection({
+                                  onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({
                                     matchId: match.id,
                                     matchTitle: `${match.team1} vs ${match.team2}`,
                                     sport: 'Soccer',
                                     marketName: '1-Min Event',
                                     selectionName: 'Throw-In',
                                     odds,
+                                    baseOdds,
+                                    selectionId,
                                     type
                                   })}
                                   activeSelection={hudSelection?.marketName === '1-Min Event' && hudSelection?.selectionName === 'Throw-In' ? hudSelection : null}
+                                  selectionId={`soccer-throwin`}
+                                  baseBackOdds={soccerMinuteOdds.throwIn}
+                                  baseLayOdds={soccerMinuteOdds.throwIn + 0.02}
                                 />
                               </div>
 
@@ -1128,13 +1323,19 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                 return;
                               }
 
+                              const currentAdjustedOdds = getAdjustedOdds(hudSelection.baseOdds, hudSelection.selectionId);
+
                               const newBet = {
                                 marketName: hudSelection.marketName,
                                 selectionName: hudSelection.selectionName,
                                 lineValue: hudSelection.lineValue,
                                 stake: hudStake,
-                                odds: hudSelection.odds,
-                                type: hudSelection.type
+                                odds: currentAdjustedOdds,
+                                baseOdds: hudSelection.baseOdds,
+                                selectionId: hudSelection.selectionId,
+                                type: hudSelection.type,
+                                status: 'Pending' as const,
+                                payout: 0
                               };
 
                               // Platform Risk Ledger Validation
@@ -1145,10 +1346,10 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                 return;
                               }
 
-                              // Balance check
-                              const requiredFunds = hudSelection.type === 'back' ? hudStake : hudStake * (hudSelection.odds - 1);
-                              if (requiredFunds > walletBalance) {
-                                setBetError("INSUFFICIENT BALANCE FOR STAKE + LIABILITY");
+                              // Balance and ledger check via quantitative math engine
+                              const validation = validateTransactionIdempotency(walletBalance, hudStake, currentAdjustedOdds, hudSelection.type);
+                              if (!validation.success) {
+                                setBetError(validation.error || "INSUFFICIENT BALANCE FOR STAKE + LIABILITY");
                                 setBetPlacing(false);
                                 return;
                               }
@@ -1157,7 +1358,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                               placeSportsBet(
                                 hudSelection.matchTitle,
                                 `${hudSelection.marketName}: ${hudSelection.selectionName} ${hudSelection.lineValue ? '(' + hudSelection.lineValue + ')' : ''}`,
-                                hudSelection.odds,
+                                currentAdjustedOdds,
                                 hudStake,
                                 hudSelection.type === 'back' ? 'yes' : 'no',
                                 `MICRO-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
@@ -1204,7 +1405,14 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                 )}>
                                   {bet.type === 'back' ? 'Back' : 'Lay'} (₹{bet.stake})
                                 </span>
-                                <span className="text-yellow-600 font-extrabold uppercase animate-pulse">Pending</span>
+                                <span className={cn(
+                                  "font-extrabold uppercase",
+                                  bet.status === 'Pending' && "text-yellow-600 animate-pulse",
+                                  bet.status === 'Won' && "text-emerald-600",
+                                  bet.status === 'Lost' && "text-slate-400"
+                                )}>
+                                  {bet.status === 'Won' ? `Won (+₹${bet.payout})` : bet.status}
+                                </span>
                               </div>
                             </div>
                           ))}

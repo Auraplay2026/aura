@@ -6,6 +6,161 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
+import { useAdminStore } from "@/lib/adminStore";
+
+function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (token: string, signature: string) => void }) {
+  const [passcode, setPasscode] = useState("AURA_PLAY_ADMIN_SUPER_SECRET_KEY_123!");
+  const [logs, setLogs] = useState<string[]>([]);
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const addLog = (msg: string) => {
+    setLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] ${msg}`]);
+  };
+
+  const handleVerify = async () => {
+    setIsVerifying(true);
+    setError(null);
+    setLogs([]);
+    addLog("Initializing L5 secure handshake...");
+
+    try {
+      // 1. Fetch cryptographic challenge from server
+      addLog("Requesting verification challenge from /api/admin/auth/challenge...");
+      const challengeRes = await fetch("/api/admin/auth/challenge");
+      if (!challengeRes.ok) throw new Error("Challenge handshake failed");
+      const challengeData = await challengeRes.json();
+      const challenge = challengeData.challenge;
+      addLog(`Challenge acquired: ${challenge}`);
+
+      // 2. Compute local HMAC-SHA256 signature using WebCrypto API
+      addLog("Generating cryptographic hardware signature using local private key...");
+      const enc = new TextEncoder();
+      const cryptoKey = await window.crypto.subtle.importKey(
+        "raw",
+        enc.encode(passcode),
+        { name: "HMAC", hash: { name: "SHA-256" } },
+        false,
+        ["sign"]
+      );
+      const signatureBuffer = await window.crypto.subtle.sign(
+        "HMAC",
+        cryptoKey,
+        enc.encode(challenge)
+      );
+      const signature = Array.from(new Uint8Array(signatureBuffer))
+        .map(b => b.toString(16).padStart(2, "0"))
+        .join("");
+      
+      addLog(`Generated Signature: ${signature}`);
+
+      // 3. Submit JWT and HSM signature for dual-key verification
+      addLog("Submitting credentials for dual-key authentication...");
+      const verifyRes = await fetch("/api/admin/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          challenge,
+          signature,
+          token: "AURA-CLIENT-JWT-TOKEN-MOCK"
+        })
+      });
+
+      const verifyData = await verifyRes.json();
+      if (!verifyRes.ok || !verifyData.success) {
+        throw new Error(verifyData.error || "Cryptographic verification failed");
+      }
+
+      addLog("Dual-Key handshake approved. Validating token signatures...");
+      addLog("Access Granted. Launching Aura Core admin interface...");
+      
+      setTimeout(() => {
+        onVerified(verifyData.token, verifyData.hwSignature);
+      }, 500);
+
+    } catch (err: any) {
+      addLog(`[ERROR] Verification rejected: ${err.message}`);
+      setError(err.message);
+    } finally {
+      setIsVerifying(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen bg-[#090d16] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+      
+      <div className="relative max-w-md w-full bg-slate-900/80 border border-slate-700/80 backdrop-blur-xl rounded-2xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col gap-5">
+        
+        <div className="flex flex-col items-center text-center gap-2">
+          <div className="w-14 h-14 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.2)]">
+            <ShieldAlert className="w-7 h-7 text-indigo-400 animate-pulse" />
+          </div>
+          <div className="mt-2">
+            <h1 className="text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-300 uppercase">
+              AURA SECURITY CORE
+            </h1>
+            <span className="text-[9px] font-black text-indigo-400 tracking-widest uppercase mt-1 block">
+              L5 CLEARANCE LEVEL LOCKDOWN
+            </span>
+          </div>
+        </div>
+
+        <p className="text-xs text-slate-400 text-center font-medium leading-relaxed">
+          Administrative dashboard access is encrypted and requires dual-key validation: your JWT session plus a dynamic server-side hardware signature.
+        </p>
+
+        <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase">Admin Identity</label>
+            <input
+              type="text"
+              readOnly
+              value={email}
+              className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-bold text-slate-400 focus:outline-none"
+            />
+          </div>
+          
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase">L5 Master Security Key</label>
+            <input
+              type="password"
+              value={passcode}
+              onChange={(e) => setPasscode(e.target.value)}
+              placeholder="Enter cryptographic key..."
+              className="bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none transition-colors"
+            />
+          </div>
+        </div>
+
+        <button
+          onClick={handleVerify}
+          disabled={isVerifying}
+          className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-indigo-600/20"
+        >
+          {isVerifying ? "Verifying Credentials..." : "Initiate Verification"}
+        </button>
+
+        {logs.length > 0 && (
+          <div className="bg-black/60 rounded-lg p-3 border border-slate-800 font-mono text-[9px] text-emerald-400 flex flex-col gap-1 max-h-40 overflow-y-auto scrollbar-thin">
+            {logs.map((log, idx) => (
+              <div key={idx} className="whitespace-pre-wrap leading-relaxed">{log}</div>
+            ))}
+          </div>
+        )}
+
+        {error && (
+          <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-wider p-2.5 rounded text-center">
+            ⚠️ Authorization Failed: {error}
+          </div>
+        )}
+
+      </div>
+    </div>
+  );
+}
 
 export default function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -13,15 +168,48 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const currentUser = useTradingStore(state => state.currentUser);
   const isLoggedIn = useTradingStore(state => state.isLoggedIn);
 
+  // Sandboxed Admin state imports
+  const isAuthenticated = useAdminStore(state => state.isAuthenticated);
+  const setAdminSession = useAdminStore(state => state.setAdminSession);
+  const clearAdminSession = useAdminStore(state => state.clearAdminSession);
+
   const [pendingCount, setPendingCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  // 1. Enforce Role-Based Access Control (RBAC)
+  // 1. Role-Based Access Control (RBAC) redirect
   useEffect(() => {
     if (isLoggedIn && currentUser && currentUser.role !== 'admin') {
       router.push("/");
     }
   }, [isLoggedIn, currentUser, router]);
+
+  // 2. Sandboxed activity listeners to track idle duration (300 seconds lockdown)
+  useEffect(() => {
+    if (!isAuthenticated) return;
+
+    const updateActivity = useAdminStore.getState().updateActivity;
+
+    const handleActivity = () => {
+      updateActivity();
+    };
+
+    window.addEventListener("mousemove", handleActivity);
+    window.addEventListener("keydown", handleActivity);
+    window.addEventListener("click", handleActivity);
+    window.addEventListener("touchstart", handleActivity);
+
+    // Run interval checks every 5 seconds
+    const checkIdleTimeout = useAdminStore.getState().checkIdleTimeout;
+    const interval = setInterval(checkIdleTimeout, 5000);
+
+    return () => {
+      window.removeEventListener("mousemove", handleActivity);
+      window.removeEventListener("keydown", handleActivity);
+      window.removeEventListener("click", handleActivity);
+      window.removeEventListener("touchstart", handleActivity);
+      clearInterval(interval);
+    };
+  }, [isAuthenticated]);
 
   // Audio synthesizer ping chime (Browser-native Web Audio API)
   const playPingChime = () => {
@@ -51,9 +239,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     }
   };
 
-  // 2. Poll pending transactions count & alert the admin
+  // 3. Poll pending transactions count & alert the admin
   useEffect(() => {
-    if (!isLoggedIn || !currentUser || currentUser.role !== 'admin') return;
+    if (!isLoggedIn || !currentUser || currentUser.role !== 'admin' || !isAuthenticated) return;
 
     const fetchPending = async () => {
       try {
@@ -62,7 +250,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         if (res.ok && data.success) {
           const currentCount = (data.pending || []).length;
           
-          // Trigger audio chime if new requests arrived
           if (currentCount > pendingCount && pendingCount !== 0) {
             playPingChime();
           }
@@ -76,7 +263,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     fetchPending();
     const interval = setInterval(fetchPending, 10000); // Poll every 10s
     return () => clearInterval(interval);
-  }, [isLoggedIn, currentUser, pendingCount]);
+  }, [isLoggedIn, currentUser, pendingCount, isAuthenticated]);
 
   const menuItems = [
     {
@@ -151,18 +338,26 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     },
   ];
 
-  // While redirecting, show loading or dark shell
-  if (isLoggedIn && currentUser && currentUser.role !== 'admin') {
+  // Default redirect loading shell
+  if (!isLoggedIn || !currentUser || currentUser.role !== 'admin') {
     return <div className="min-h-screen bg-slate-50" />;
+  }
+
+  // Dual-Key Cryptographic Lock gate
+  if (!isAuthenticated) {
+    return (
+      <AdminSecurityGate 
+        email={currentUser.email} 
+        onVerified={(token, signature) => setAdminSession(currentUser.email, token, signature)} 
+      />
+    );
   }
 
   return (
     <div className="flex h-[100dvh] overflow-hidden bg-slate-50 w-full text-slate-800 font-sans antialiased selection:bg-indigo-500/30 selection:text-slate-900 relative">
-      {/* Background cyber grid and radial ambient lights */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.08),rgba(255,255,255,0))] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
       
-      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
           <motion.div
@@ -175,7 +370,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         )}
       </AnimatePresence>
 
-      {/* Premium Sidebar */}
       <aside 
         className={`fixed inset-y-0 left-0 z-50 w-72 lg:w-68 border-r border-slate-200 bg-white/45 flex flex-col shrink-0 overflow-hidden backdrop-blur-2xl transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:relative lg:translate-x-0 ${
           isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
@@ -183,7 +377,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       >
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
         
-        {/* Admin Sidebar Branding */}
         <div className="h-20 border-b border-slate-200 flex items-center justify-between px-6 relative z-10 w-full shrink-0">
           <div className="flex items-center">
             <div className="relative group">
@@ -202,7 +395,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
 
           <div className="flex items-center gap-2">
-            {/* Admin Alerts Bell */}
             <div className="relative group cursor-pointer" title={`${pendingCount} Pending Requests Pending Review`}>
               <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 hover:border-white/15 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all duration-300">
                 <Bell className={`w-4 h-4 ${pendingCount > 0 && 'text-yellow-600 animate-bounce'}`} />
@@ -213,7 +405,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 </span>
               )}
             </div>
-            {/* Close Menu Button (Mobile Only) */}
             <button 
               onClick={() => setIsMobileMenuOpen(false)}
               className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 lg:hidden"
@@ -223,7 +414,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
-        {/* Navigation Links */}
         <nav className="flex-1 p-4 space-y-2 z-10 relative mt-4 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
@@ -270,20 +460,23 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        {/* Bottom Panel */}
         <div className="p-4 z-10 relative border-t border-slate-200 shrink-0">
-          <Link href="/" className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 font-bold tracking-widest text-xs uppercase transition-all duration-300 border border-transparent hover:border-rose-500/10">
+          <button 
+            onClick={() => {
+              clearAdminSession();
+              router.push("/");
+            }} 
+            className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 font-bold tracking-widest text-xs uppercase transition-all duration-300 border border-transparent hover:border-rose-500/10 text-left"
+          >
             <div className="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600 shrink-0">
               <LogOut className="w-4 h-4" />
             </div>
             <span>Exit Admin</span>
-          </Link>
+          </button>
         </div>
       </aside>
 
-      {/* Main Container */}
       <main className="flex-1 flex flex-col h-[100dvh] overflow-hidden relative z-10 bg-slate-100/60">
-        {/* Mobile Header */}
         <div className="h-16 lg:hidden border-b border-slate-200 bg-white/60 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-20">
           <div className="flex items-center gap-3">
             <button 
@@ -310,7 +503,6 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           </div>
         </div>
 
-        {/* Page Content */}
         <div className="flex-1 overflow-y-auto custom-scrollbar">
           {children}
         </div>

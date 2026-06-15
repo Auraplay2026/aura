@@ -86,6 +86,16 @@ export const FEATURED_GAMES: Game[] = [
   { id: "poker-3", title: "Triple Card Poker", provider: "Evolution", image: "/games/evo_blackjack-vip-h-ki4ceE6V_.jpeg", categories: ["live", "table", "poker"], players: 7400 },
   { id: "poker-4", title: "Gold Bar Poker Deluxe", provider: "Evolution", image: "/games/evo_golden-baron-N07G4x_uW.jpeg", categories: ["live", "table", "poker"], players: 9600 },
 
+  // ==========================================
+  // ROYAL GAMING LIVE CASINO FUSION MATRIX
+  // ==========================================
+  { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
+  { id: "royal-2", title: "Super Over Fusion", provider: "Royal Gaming", image: "/games/orig_cover_plinko.png", categories: ["live", "table"], rtp: 98.8, players: 14000, isNew: true },
+  { id: "royal-3", title: "Andar Bahar Fusion", provider: "Royal Gaming", image: "/games/hilo_thumbnail.png", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
+  { id: "royal-4", title: "32 Cards Fusion", provider: "Royal Gaming", image: "/games/orig_cover_plinko.png", categories: ["live", "table"], rtp: 96.5, players: 9000, isNew: true },
+  { id: "royal-5", title: "Lightning 7 Up & Down Fusion", provider: "Royal Gaming", image: "/games/penalty_thumbnail.png", categories: ["live", "table"], rtp: 97.2, players: 18000, isNew: true },
+  { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table"], rtp: 96.2, players: 41000, isNew: true },
+
   // --- AAA CLOUD RENTALS (Premium High Price Tier) ---
   { id: "aaa-1", title: "Cyberpunk 2077", provider: "CD Projekt Red", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg", categories: ["aaa", "open-world", "3d"], isNew: true, hourlyRate: 399, players: 4500 },
   { id: "aaa-2", title: "Elden Ring", provider: "FromSoftware", image: "/games/gamingcorps_NorthVsGiant-TsvdHyYnO.jpeg", categories: ["aaa", "action", "3d"], isNew: true, hourlyRate: 499, players: 6800 },

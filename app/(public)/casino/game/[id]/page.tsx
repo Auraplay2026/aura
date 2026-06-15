@@ -34,6 +34,8 @@ import { HiLoEngine } from "@/components/casino/engines/HiLoEngine";
 import { PenaltyEngine } from "@/components/casino/engines/PenaltyEngine";
 import { ExternalEngine } from "@/components/casino/engines/ExternalEngine";
 import { GameTutorialOverlay } from "@/components/GameTutorialOverlay";
+import { RoyalGamingEngine } from "@/components/casino/engines/RoyalGamingEngine";
+
 
 // VIP LIVE RENTERS & BETS SIDEBAR
 function VIPLiveBetsFeed({ gameTitle }: { gameTitle: string }) {
@@ -511,6 +513,9 @@ export default function GamePlayerPage() {
     }
     // === TABLE / CARD GAMES ===
     if (game.categories.includes("poker") || game.categories.includes("table") || game.id.includes("blackjack") || game.id.includes("poker")) {
+      if (game.id.startsWith("royal-") || game.provider === "Royal Gaming") {
+        return <RoyalGamingEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
+      }
       if (game.id.includes("blackjack") || game.title.toLowerCase().includes("blackjack") || game.id === "orig-8") {
         return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
       }
