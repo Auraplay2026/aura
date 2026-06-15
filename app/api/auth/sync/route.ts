@@ -21,7 +21,10 @@ export async function POST(request: Request) {
       vipLevel,
       manualVipLevel,
       vipRewardsClaimed,
-      kycStatus
+      kycStatus,
+      fullName,
+      dob,
+      address
     } = await request.json();
     
     if (!email) {
@@ -122,6 +125,9 @@ export async function POST(request: Request) {
     if (phoneNumber !== undefined) updates.phoneNumber = phoneNumber;
     if (gamingState !== undefined) updates.gamingState = gamingState;
     if (upiId !== undefined) updates.upiId = upiId;
+    if (fullName !== undefined) updates.fullName = fullName;
+    if (dob !== undefined) updates.dob = dob;
+    if (address !== undefined) updates.address = address;
     if (notifications !== undefined) updates.notifications = notifications;
     if (totalWagered !== undefined) updates.totalWagered = totalWagered;
     if (vipLevel !== undefined) updates.vipLevel = vipLevel;

@@ -25,6 +25,9 @@ model User {
   kycStatus              String   @default("NONE")
   kycDocumentUrl         String?
   adminNotes             String?
+  fullName               String?
+  dob                    String?
+  address                String?
   
   affiliateCode          String?  @unique
   referredBy             String?

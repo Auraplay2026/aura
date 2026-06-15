@@ -36,6 +36,9 @@ export interface UserProfile {
   phoneNumber?: string;
   gamingState?: string;
   upiId?: string;
+  fullName?: string;
+  dob?: string;
+  address?: string;
   role?: 'user' | 'admin';
   kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
   kycDocumentUrl?: string;
@@ -113,7 +116,7 @@ interface TradingState {
   loginWithGoogle: (email: string, username: string) => Promise<{ success: boolean; error?: string }>;
   switchAccountType: (type: 'demo' | 'real') => Promise<void>;
   completeOnboarding: (phoneNumber?: string, gamingState?: string, upiId?: string) => Promise<void>;
-  updateProfile: (updates: { username?: string; phoneNumber?: string; upiId?: string; gamingState?: string; notifications?: { id: string; message: string; timestamp: number; read: boolean; title?: string }[] }) => Promise<boolean>;
+  updateProfile: (updates: { username?: string; phoneNumber?: string; upiId?: string; gamingState?: string; fullName?: string; dob?: string; address?: string; notifications?: { id: string; message: string; timestamp: number; read: boolean; title?: string }[] }) => Promise<boolean>;
   setKycStatus: (status: 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED' | 'REJECTED') => void;
   setKycSubmittedAt: (time: number | null) => void;
   setGeoRestricted: (restricted: boolean) => void;
@@ -556,6 +559,9 @@ export const useTradingStore = create<TradingState>()(
             phoneNumber: updates.phoneNumber !== undefined ? updates.phoneNumber : state.currentUser.phoneNumber,
             upiId: updates.upiId !== undefined ? updates.upiId : state.currentUser.upiId,
             gamingState: updates.gamingState !== undefined ? updates.gamingState : state.currentUser.gamingState,
+            fullName: updates.fullName !== undefined ? updates.fullName : state.currentUser.fullName,
+            dob: updates.dob !== undefined ? updates.dob : state.currentUser.dob,
+            address: updates.address !== undefined ? updates.address : state.currentUser.address,
             notifications: updates.notifications !== undefined ? updates.notifications : state.currentUser.notifications
           };
           
@@ -571,6 +577,9 @@ export const useTradingStore = create<TradingState>()(
             phoneNumber: updatedUser.phoneNumber,
             gamingState: updatedUser.gamingState,
             upiId: updatedUser.upiId,
+            fullName: updatedUser.fullName,
+            dob: updatedUser.dob,
+            address: updatedUser.address,
             notifications: updatedUser.notifications
           };
           

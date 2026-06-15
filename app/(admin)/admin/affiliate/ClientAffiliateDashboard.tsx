@@ -86,7 +86,7 @@ export default function ClientAffiliateDashboard() {
       {/* Overview Stats */}
       {stats && (
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
             <div className="absolute inset-0 bg-neon-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between mb-4 relative z-10">
               <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Total Affiliates</h3>
@@ -97,7 +97,7 @@ export default function ClientAffiliateDashboard() {
             <p className="text-3xl font-black text-slate-900 relative z-10">{stats.totalAffiliates}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
             <div className="absolute inset-0 bg-neon-purple/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between mb-4 relative z-10">
               <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Total Network Signups</h3>
@@ -108,7 +108,7 @@ export default function ClientAffiliateDashboard() {
             <p className="text-3xl font-black text-slate-900 relative z-10">{stats.totalSignups}</p>
           </div>
 
-          <div className="bg-gradient-to-br from-slate-900 to-slate-950 border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
+          <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-6 shadow-xl relative group overflow-hidden">
             <div className="absolute inset-0 bg-yellow-500/5 opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="flex items-center justify-between mb-4 relative z-10">
               <h3 className="text-sm font-bold text-slate-600 uppercase tracking-widest">Total Commissions</h3>
@@ -142,7 +142,7 @@ export default function ClientAffiliateDashboard() {
                   <th className="pb-4 font-bold text-right pr-4">Earnings</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-800/50">
+              <tbody className="divide-y divide-slate-200/80">
                 {promoters.map((promoter, idx) => (
                   <tr key={promoter.username} className="group hover:bg-slate-100/30 transition-colors">
                     <td className="py-4 pl-4 text-sm font-bold text-slate-600">

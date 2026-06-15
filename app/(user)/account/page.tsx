@@ -39,9 +39,9 @@ export default function AccountSettingsPage() {
       setPhoneNumber(currentUser.phoneNumber || "");
       setUpiId(currentUser.upiId || "");
       setGamingState(currentUser.gamingState || "");
-      setFullName((currentUser as any).fullName || "Aarav Sharma");
-      setDob((currentUser as any).dob || "15/08/1990");
-      setAddress((currentUser as any).address || "42, Residency Road, Bangalore, 560025");
+      setFullName(currentUser.fullName || "");
+      setDob(currentUser.dob || "");
+      setAddress(currentUser.address || "");
     }
   }, [currentUser]);
 
@@ -408,7 +408,7 @@ export default function AccountSettingsPage() {
                   setIsSaving(true);
                   setSaveSuccess(false);
                   setSaveError("");
-                  const ok = await updateProfile({ username, phoneNumber, upiId, gamingState });
+                  const ok = await updateProfile({ username, phoneNumber, upiId, gamingState, fullName, dob, address });
                   if (ok) {
                     setSaveSuccess(true);
                   } else {
