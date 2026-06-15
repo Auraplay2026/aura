@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Shield, ShieldAlert, Monitor, Smartphone, CheckCircle2, MapPin, Clock } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 
@@ -26,12 +26,53 @@ function maskIP(ip: string): string {
 
 export default function ActivityLogPage() {
   const { currentUser, activityLogs, fetchActivityLogs } = useTradingStore();
+  const [sessionGeo, setSessionGeo] = useState("Bangalore, IN");
+  const [sessionDevice, setSessionDevice] = useState("Chrome / Windows");
 
   useEffect(() => {
     if (currentUser) {
       fetchActivityLogs();
     }
   }, [currentUser, fetchActivityLogs]);
+
+  useEffect(() => {
+    async function sniffGeo() {
+      try {
+        const res = await fetch("https://ipapi.co/json/");
+        if (res.ok) {
+          const data = await res.json();
+          if (data && data.city && data.country_code) {
+            setSessionGeo(`${data.city}, ${data.country_code}`);
+          }
+        }
+      } catch (e) {
+        console.error("Failed to sniff geolocation details client-side", e);
+      }
+    }
+    sniffGeo();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined" && window.navigator) {
+      const ua = navigator.userAgent;
+      let browser = "Chrome";
+      let os = "Windows";
+
+      if (ua.indexOf("Windows") !== -1) os = "Windows";
+      else if (ua.indexOf("Macintosh") !== -1) os = "macOS";
+      else if (ua.indexOf("iPhone") !== -1 || ua.indexOf("iPad") !== -1) os = "iOS";
+      else if (ua.indexOf("Android") !== -1) os = "Android";
+      else if (ua.indexOf("Linux") !== -1) os = "Linux";
+
+      if (ua.indexOf("Firefox") !== -1) browser = "Firefox";
+      else if (ua.indexOf("SamsungBrowser") !== -1) browser = "Samsung Browser";
+      else if (ua.indexOf("Chrome") !== -1 && ua.indexOf("Safari") !== -1) browser = "Chrome";
+      else if (ua.indexOf("Safari") !== -1 && ua.indexOf("Chrome") === -1) browser = "Safari";
+      else if (ua.indexOf("Edge") !== -1) browser = "Edge";
+
+      setSessionDevice(`${browser} / ${os}`);
+    }
+  }, []);
 
   const displayLogs = activityLogs || [];
 
@@ -60,13 +101,13 @@ export default function ActivityLogPage() {
         <div className="bg-white border border-slate-200 rounded-2xl p-6 flex flex-col justify-center hover:shadow-sm transition-all duration-200">
           <div className="flex items-center justify-between mb-2">
             <h3 className="font-bold text-slate-900 flex items-center gap-2">
-              <Monitor className="w-4 h-4 text-red-500" /> Current Session
+              <Monitor className="w-4 h-4 text-red-500" /> Current Session ({sessionDevice})
             </h3>
             <span className="px-2 py-1 bg-red-100 text-red-700 text-[10px] font-bold uppercase tracking-widest rounded">Active</span>
           </div>
           <div className="text-sm text-slate-500 font-medium flex items-center gap-4">
-            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> Bangalore, IN</span>
-            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Started 2h ago</span>
+            <span className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {sessionGeo}</span>
+            <span className="flex items-center gap-1"><Clock className="w-3 h-3" /> Started just now</span>
           </div>
         </div>
       </div>

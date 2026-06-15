@@ -137,7 +137,7 @@ export default function ClientUserAnalytics({
   let roundsCount = 0;
   let winsCount = 0;
 
-  const userTxHistory = activeUser ? [...(activeUser.realTransactions || []), ...(activeUser.demoTransactions || [])] : [];
+  const userTxHistory = activeUser ? (activeUser.realTransactions || []) : [];
   const sortedTxHistory = userTxHistory.sort((a, b) => b.timestamp - a.timestamp);
 
   userTxHistory.forEach(tx => {
@@ -442,7 +442,7 @@ export default function ClientUserAnalytics({
                         Turnover: <span className="text-slate-700 font-mono font-bold">₹{totalWagers.toLocaleString('en-IN')}</span>
                       </span>
                       <span className="text-emerald-600 font-mono font-bold">
-                        ₹{(user.accountType === 'real' ? user.realBalance : user.demoBalance).toLocaleString('en-IN')}
+                        ₹{user.realBalance.toLocaleString('en-IN')}
                       </span>
                     </div>
                   </button>

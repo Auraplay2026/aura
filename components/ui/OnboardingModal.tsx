@@ -427,12 +427,12 @@ export function OnboardingModal() {
                               </select>
                             </div>
                             {geoRestricted && (
-                              <div className="bg-red-500/10 border border-red-500/30 rounded-xl p-4 mt-3 flex items-start gap-3 text-left">
+                              <div className="bg-red-50/50 border border-red-200/50 rounded-xl p-4 mt-3 flex items-start gap-3 text-left">
                                 <AlertTriangle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
                                 <div>
-                                  <h4 className="text-red-500 font-bold text-xs uppercase tracking-wider">Jurisdiction Restricted</h4>
-                                  <p className="text-slate-400 text-[10px] mt-1 leading-normal">
-                                    Online gaming is restricted in <strong className="text-white">{stateName}</strong>. Real Money accounts are blocked in this region.
+                                  <h4 className="text-red-700 font-bold text-xs uppercase tracking-wider">Jurisdiction Restricted</h4>
+                                  <p className="text-slate-700 text-[10px] mt-1 leading-normal">
+                                    Online gaming is restricted in <strong className="text-red-700 font-black">{stateName}</strong>. Real Money accounts are blocked in this region.
                                   </p>
                                 </div>
                               </div>
@@ -538,10 +538,10 @@ export function OnboardingModal() {
                       <div className="absolute right-0 top-0 w-24 h-24 bg-[#a855f7]/5 blur-xl rounded-full" />
                       <div className="text-left">
                         <p className="text-[8px] font-black text-[#a855f7] tracking-widest uppercase">Welcome Reward</p>
-                        <h4 className="text-sm font-black text-slate-900 uppercase mt-0.5">
+                        <h4 className="text-sm font-black text-white uppercase mt-0.5">
                           {selectedType === 'real' ? "100% Deposit Match Activated" : "VIP Practice Medal Granted"}
                         </h4>
-                        <p className="text-[10px] text-slate-600 mt-1 leading-relaxed">
+                        <p className="text-[10px] text-slate-300 mt-1 leading-relaxed">
                           {selectedType === 'real' ? "Make your first deposit to get up to ₹10,000 extra balance match." : "Enjoy risk-free trading simulator mode with zero limits."}
                         </p>
                       </div>

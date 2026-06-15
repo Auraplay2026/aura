@@ -49,6 +49,16 @@ export function DailyRewardModal() {
     }
   }, [isLoggedIn, claimedToday, spinWheelClaimedToday, dailyModalLastDismissedDate, currentUser, pathname]);
 
+  // Listen to open-daily-reward custom event for manual triggers
+  useEffect(() => {
+    const handleOpen = () => {
+      setIsOpen(true);
+      setActiveTab("streak");
+    };
+    window.addEventListener("open-daily-reward", handleOpen);
+    return () => window.removeEventListener("open-daily-reward", handleOpen);
+  }, []);
+
   const DAILY_REWARDS = [50, 100, 200, 350, 500, 1000, 5000];
   const WHEEL_SECTORS = [
     { label: "₹50", prize: 50, color: "#1e1b4b" }, // Indigo 950

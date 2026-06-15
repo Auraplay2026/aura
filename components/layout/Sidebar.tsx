@@ -8,6 +8,7 @@ import { motion } from "framer-motion";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useSidebarContext } from "@/components/layout/AppProviders";
+import { useTradingStore } from "@/lib/store";
 
 const NAV_SECTIONS = [
   {
@@ -72,6 +73,19 @@ const NAV_SECTIONS = [
 export function Sidebar() {
   const pathname = usePathname();
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useSidebarContext();
+  const isLoggedIn = useTradingStore(state => state.isLoggedIn);
+  const xp = useTradingStore(state => state.xp || 0);
+  const claimedToday = useTradingStore(state => state.claimedToday);
+  const spinWheelClaimedToday = useTradingStore(state => state.spinWheelClaimedToday);
+
+  const level = Math.floor(xp / 1000) + 1;
+  const progressPercent = (xp % 1000) / 10;
+  const nextLevelXp = 1000 - (xp % 1000);
+
+  const triggerRewardsModal = () => {
+    const event = new CustomEvent("open-daily-reward");
+    window.dispatchEvent(event);
+  };
 
   return (
     <>
@@ -103,6 +117,59 @@ export function Sidebar() {
         </div>
 
       <div className="flex-1 overflow-y-auto custom-scrollbar p-4 flex flex-col gap-8 pb-24">
+        
+        {isLoggedIn && (
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            onClick={triggerRewardsModal}
+            className="bg-gradient-to-br from-slate-900 via-purple-950 to-slate-900 border border-purple-500/20 rounded-2xl p-4 shadow-xl cursor-pointer hover:border-purple-500/50 hover:shadow-purple-900/10 transition-all duration-300 group select-none relative overflow-hidden shrink-0"
+          >
+            {/* Shimmer Effect */}
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+            
+            <div className="flex justify-between items-center mb-2">
+              <span className="text-[10px] font-black text-[#a855f7] tracking-widest uppercase">Loyalty Status</span>
+              <span className="bg-[#a855f7]/20 border border-[#a855f7]/30 text-[#c084fc] text-[9px] font-bold px-2 py-0.5 rounded-full">
+                Level {level}
+              </span>
+            </div>
+
+            {/* Progress Bar */}
+            <div className="space-y-1.5 mb-3">
+              <div className="flex justify-between text-[10px] font-bold text-slate-300">
+                <span>Progress to Lvl {level + 1}</span>
+                <span>{Math.round(progressPercent)}%</span>
+              </div>
+              <div className="w-full h-2 bg-slate-950/60 border border-slate-800 rounded-full overflow-hidden p-0.5">
+                <div 
+                  style={{ width: `${progressPercent}%` }}
+                  className="h-full bg-gradient-to-r from-[#a855f7] to-pink-500 rounded-full shadow-[0_0_8px_rgba(168,85,247,0.5)] transition-all duration-500"
+                />
+              </div>
+              <div className="text-[9px] text-right text-slate-500 font-medium">{nextLevelXp} XP remaining</div>
+            </div>
+
+            {/* Missions / Claim Indicators */}
+            <div className="space-y-1.5 pt-2 border-t border-slate-800">
+              {!claimedToday && (
+                <div className="flex items-center gap-1.5 text-xs text-yellow-400 font-bold animate-pulse">
+                  <span>🎁</span> <span>Claim Daily Streak!</span>
+                </div>
+              )}
+              {!spinWheelClaimedToday && (
+                <div className="flex items-center gap-1.5 text-xs text-cyan-400 font-bold animate-pulse">
+                  <span>🎡</span> <span>Spin the Wheel!</span>
+                </div>
+              )}
+              {claimedToday && spinWheelClaimedToday && (
+                <div className="flex items-center gap-1.5 text-[10px] text-slate-400 font-bold">
+                  <span>🚀</span> <span>All Dailies Claimed</span>
+                </div>
+              )}
+            </div>
+          </motion.div>
+        )}
         
         {NAV_SECTIONS.map((section, idx) => (
           <motion.div 

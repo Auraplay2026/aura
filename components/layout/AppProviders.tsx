@@ -31,8 +31,33 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
     // 3. Poll server every 10s for admin approvals (e.g., deposits/withdrawals)
     const interval = setInterval(() => {
-      useTradingStore.getState().syncFromServer();
-      useTradingStore.getState().fetchSystemConfig();
+      const storeState = useTradingStore.getState();
+      storeState.syncFromServer();
+      storeState.fetchSystemConfig();
+
+      // 4. Automatic KYC Approval after 10 minutes (600,000 ms)
+      if (
+        storeState.isLoggedIn && 
+        storeState.currentUser && 
+        storeState.kycStatus === 'PROCESSING' && 
+        storeState.kycSubmittedAt
+      ) {
+        const elapsed = Date.now() - storeState.kycSubmittedAt;
+        if (elapsed >= 10 * 60 * 1000) {
+          storeState.setKycStatus('VERIFIED');
+          
+          // Dispatch verification success notification
+          const newNotif = {
+            id: `NOTIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+            message: "Congratulations! Your Tier 2 KYC Identity Verification (PAN & Aadhaar) has been successfully verified. Your account limits have been upgraded.",
+            timestamp: Date.now(),
+            read: false
+          };
+          storeState.updateProfile({
+            notifications: [...(storeState.currentUser?.notifications || []), newNotif]
+          });
+        }
+      }
     }, 10000);
 
     return () => clearInterval(interval);

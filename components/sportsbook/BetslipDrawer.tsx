@@ -51,9 +51,9 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
       >
         <div className="flex items-center gap-2 font-black">
           <div className="w-5 h-5 flex flex-col justify-center gap-0.5">
-            <div className="h-0.5 w-full bg-white rounded" />
-            <div className="h-0.5 w-full bg-white rounded" />
-            <div className="h-0.5 w-full bg-white rounded" />
+            <div className="h-0.5 w-full bg-slate-950 rounded" />
+            <div className="h-0.5 w-full bg-slate-950 rounded" />
+            <div className="h-0.5 w-full bg-slate-950 rounded" />
           </div>
           Betslip
           <span className="bg-white text-[#FFD700] text-[10px] px-1.5 py-0.5 rounded ml-1">1</span>
@@ -124,7 +124,7 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
               <button
                 onClick={handlePlaceBet}
                 disabled={isProcessing || stake <= 0 || balance < stake}
-                className="w-full bg-slate-50 hover:bg-green-500 disabled:bg-slate-700 text-black disabled:text-slate-500 font-black py-3 rounded-lg flex justify-center items-center gap-2 transition-colors uppercase tracking-widest text-sm"
+                className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black py-3 rounded-lg flex justify-center items-center gap-2 transition-all uppercase tracking-widest text-sm cursor-pointer"
               >
                 {isProcessing ? (
                   <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />

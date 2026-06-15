@@ -44,6 +44,45 @@ export default function AccountSettingsPage() {
     }
   }, [currentUser]);
 
+  const [kycCountdown, setKycCountdown] = useState("");
+
+  useEffect(() => {
+    if (currentUser?.kycStatus !== 'PROCESSING' || !currentUser?.kycSubmittedAt) {
+      setKycCountdown("");
+      return;
+    }
+
+    const interval = setInterval(() => {
+      const submittedAt = currentUser.kycSubmittedAt || 0;
+      const elapsed = Date.now() - submittedAt;
+      const remainingMs = 10 * 60 * 1000 - elapsed;
+
+      if (remainingMs <= 0) {
+        setKycCountdown("");
+        clearInterval(interval);
+        // Trigger verification immediately client-side
+        useTradingStore.getState().setKycStatus('VERIFIED');
+        // Dispatch verification success notification
+        const newNotif = {
+          id: `NOTIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          message: "Congratulations! Your Tier 2 KYC Identity Verification (PAN & Aadhaar) has been successfully verified. Your account limits have been upgraded.",
+          timestamp: Date.now(),
+          read: false
+        };
+        updateProfile({
+          notifications: [...(currentUser?.notifications || []), newNotif]
+        } as any);
+      } else {
+        const totalSecs = Math.floor(remainingMs / 1000);
+        const mins = Math.floor(totalSecs / 60);
+        const secs = totalSecs % 60;
+        setKycCountdown(`${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [currentUser?.kycStatus, currentUser?.kycSubmittedAt, currentUser?.notifications, updateProfile]);
+
   if (!isClient) return null;
 
   // Calculate logic resources
@@ -369,15 +408,58 @@ export default function AccountSettingsPage() {
               <div className="bg-slate-900/20 border border-slate-200 border-dashed rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-slate-700 font-bold">Level 2 (Advanced)</span>
-                  <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest px-2 py-0.5 rounded bg-slate-100">Pending</span>
+                  {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
+                    <span className="text-[10px] font-black text-emerald-600 bg-emerald-100 px-2 py-0.5 rounded uppercase tracking-widest">Verified</span>
+                  ) : currentUser?.kycStatus === 'PENDING' || currentUser?.kycStatus === 'PROCESSING' ? (
+                    <span className="text-[10px] font-black text-yellow-600 bg-yellow-100 px-2 py-0.5 rounded uppercase tracking-widest animate-pulse">Processing</span>
+                  ) : currentUser?.kycStatus === 'REJECTED' ? (
+                    <span className="text-[10px] font-black text-red-600 bg-red-100 px-2 py-0.5 rounded uppercase tracking-widest">Rejected</span>
+                  ) : (
+                    <span className="text-[10px] font-black text-slate-500 bg-slate-100 px-2 py-0.5 rounded uppercase tracking-widest">Unverified</span>
+                  )}
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed mb-4">Unlock Fiat deposits and unlimited crypto withdrawals. Requires official government ID verification.</p>
-                <button 
-                  onClick={() => setShowKYC(true)}
-                  className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-900 uppercase tracking-widest hover:bg-slate-700 transition-colors border border-slate-700"
-                >
-                  Begin KYC Process
-                </button>
+                {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
+                  <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                    Tier 2 KYC Identity Verification completed successfully (Verified within 10 minutes of submission). Unlimited withdrawals and deposit matches are active.
+                  </p>
+                ) : currentUser?.kycStatus === 'PENDING' || currentUser?.kycStatus === 'PROCESSING' ? (
+                  <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                    Your document verification has been submitted successfully. It will be automatically verified in 10 minutes.
+                  </p>
+                ) : (
+                  <p className="text-xs text-slate-500 leading-relaxed mb-4">
+                    Unlock Fiat deposits and unlimited crypto withdrawals. Requires government ID verification.
+                  </p>
+                )}
+                {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
+                  <button 
+                    disabled
+                    className="w-full py-3 rounded-xl bg-emerald-100 text-xs font-black text-emerald-800 uppercase tracking-widest border border-emerald-300 cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    <CheckCircle2 className="w-4 h-4" /> Verification Completed
+                  </button>
+                ) : currentUser?.kycStatus === 'PENDING' || currentUser?.kycStatus === 'PROCESSING' ? (
+                  <button 
+                    disabled
+                    className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-400 uppercase tracking-widest border border-slate-200 cursor-not-allowed flex items-center justify-center gap-1.5"
+                  >
+                    <Activity className="w-4 h-4 animate-pulse text-yellow-600" /> Under Review {kycCountdown ? `(${kycCountdown})` : ""}
+                  </button>
+                ) : currentUser?.kycStatus === 'REJECTED' ? (
+                  <button 
+                    onClick={() => setShowKYC(true)}
+                    className="w-full py-3 rounded-xl bg-red-600 text-white text-xs font-black uppercase tracking-widest hover:bg-red-750 transition-colors border border-red-700 cursor-pointer"
+                  >
+                    Restart KYC Process
+                  </button>
+                ) : (
+                  <button 
+                    onClick={() => setShowKYC(true)}
+                    className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-900 uppercase tracking-widest hover:bg-slate-700 transition-colors border border-slate-700 cursor-pointer"
+                  >
+                    Begin KYC Process
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>
@@ -430,10 +512,10 @@ export default function AccountSettingsPage() {
             onCancel={() => setShowKYC(false)} 
             onComplete={() => {
               setShowKYC(false);
-              // In real implementation, this would make an API call to update the user's KYC status
-              if (currentUser) {
-                useTradingStore.getState().updateProfile({ kycStatus: 'APPROVED' } as any);
-              }
+              // Explicitly invoke status and timer actions in store
+              const store = useTradingStore.getState();
+              store.setKycStatus('PROCESSING');
+              store.setKycSubmittedAt(Date.now());
             }} 
           />
         )}

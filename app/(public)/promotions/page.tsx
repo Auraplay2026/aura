@@ -141,12 +141,12 @@ export default function PromotionsPage() {
               <Flame className="w-4 h-4" /> Global Event Live
             </div>
             
-            <h1 className="text-5xl sm:text-7xl font-black text-slate-900 leading-none tracking-tight mb-4 drop-shadow-2xl">
+            <h1 className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tight mb-4 drop-shadow-2xl">
               Win a Custom <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">Lamborghini</span>
             </h1>
             
-            <p className="text-lg sm:text-xl text-slate-700 font-medium mb-8 max-w-xl text-shadow-sm">
+            <p className="text-lg sm:text-xl text-slate-300 font-medium mb-8 max-w-xl text-shadow-sm">
               Wager on any AuraPlay Originals to earn tickets. 1 Ticket = 1 Entry. The biggest giveaway in crypto casino history ends soon.
             </p>
             
@@ -172,7 +172,7 @@ export default function PromotionsPage() {
               </button>
               
               <div className="flex flex-col gap-1">
-                <span className="text-xs font-bold text-slate-600 uppercase tracking-widest">Event Ends In</span>
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-widest">Event Ends In</span>
                 <div className="flex gap-2">
                   {[
                     { label: "D", val: timeLeft.days },

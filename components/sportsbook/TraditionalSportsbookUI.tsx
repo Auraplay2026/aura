@@ -129,7 +129,7 @@ export function TraditionalSportsbookUI() {
                 className={`flex flex-col items-center gap-3 min-w-[80px] transition-all duration-300 group ${activeSport === sport.id ? 'text-[#FFD700]' : 'text-slate-500 hover:text-slate-700'}`}
               >
                 <div className={`w-8 h-8 flex items-center justify-center transition-all duration-300 ${activeSport === sport.id ? 'scale-110 drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]' : 'opacity-50 grayscale group-hover:opacity-80 group-hover:grayscale-0'}`}>
-                  <img src={sport.iconUrl} alt={sport.label} className="w-full h-full object-contain filter invert" style={{ filter: activeSport === sport.id ? 'invert(75%) sepia(85%) saturate(735%) hue-rotate(352deg) brightness(101%) contrast(105%)' : 'invert(100%)' }} />
+                  <img src={sport.iconUrl} alt={sport.label} className="w-full h-full object-contain filter" style={{ filter: activeSport === sport.id ? 'invert(75%) sepia(85%) saturate(735%) hue-rotate(352deg) brightness(101%) contrast(105%)' : 'none' }} />
                 </div>
                 <span className={`text-[10px] font-black uppercase tracking-wider ${activeSport === sport.id ? 'text-slate-900' : ''}`}>{sport.label}</span>
               </button>

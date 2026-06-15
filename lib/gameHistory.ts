@@ -42,9 +42,7 @@ function getStore(): GameRound[] {
           const uniqueTxIds = new Set<string>();
           for (const user of users) {
             const allTx = [
-              ...(user.realTransactions || []),
-              ...(user.demoTransactions || []),
-              ...(user.transactions || [])
+              ...(user.realTransactions || [])
             ];
             
             for (const tx of allTx) {

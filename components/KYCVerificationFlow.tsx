@@ -11,7 +11,8 @@ import {
   FileText,
   Fingerprint,
   MapPin,
-  Sparkles
+  Sparkles,
+  Clock
 } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -225,12 +226,13 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
             setPhase("BLOCKED");
           } else {
             setGeoRestricted(false);
-            setKycStatus("VERIFIED");
+            setKycStatus("PROCESSING");
+            useTradingStore.getState().setKycSubmittedAt(Date.now());
             
-            // Dispatch dynamic verified account notification
+            // Dispatch review initiated notification
             const newNotif = {
               id: `NOTIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-              message: "Congratulations! Your Tier 2 KYC Identity Verification (PAN & Aadhaar) has been successfully verified. Your account limits have been upgraded.",
+              message: "Your Tier 2 KYC Identity Verification (PAN & Aadhaar) application has been submitted and is under automatic review. Approval will complete in 10 minutes.",
               timestamp: Date.now(),
               read: false
             };
@@ -569,26 +571,26 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 15 }}
-                className="w-20 h-20 rounded-full bg-emerald-50 border border-emerald-100 flex items-center justify-center"
+                className="w-20 h-20 rounded-full bg-yellow-50 border border-yellow-100 flex items-center justify-center animate-pulse"
               >
-                <CheckCircle2 className="w-10 h-10 text-emerald-600" />
+                <Clock className="w-10 h-10 text-yellow-600" />
               </motion.div>
               
               <div className="space-y-2">
-                <h3 className="text-2xl font-black text-slate-950">Verification Complete!</h3>
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-emerald-100 text-emerald-700 text-[10px] font-black uppercase tracking-wider rounded-full border border-emerald-200">
-                  <Sparkles className="w-3.5 h-3.5" /> Verified Pro Exchange Member
+                <h3 className="text-2xl font-black text-slate-950">Application Submitted!</h3>
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 bg-yellow-100 text-yellow-700 text-[10px] font-black uppercase tracking-wider rounded-full border border-yellow-200">
+                  <Sparkles className="w-3.5 h-3.5" /> Under Automatic Review
                 </div>
                 <p className="text-xs text-slate-500 font-medium leading-relaxed max-w-xs pt-2">
-                  Your trust tier has been successfully upgraded. Accelerated withdrawals and unlimited exchange volumes are now active.
+                  Your PAN & Aadhaar details have been successfully received. Identity checks are being processed automatically. Your account limits will upgrade in 10 minutes.
                 </p>
               </div>
 
               <button 
                 onClick={onComplete}
-                className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg shadow-emerald-600/10 cursor-pointer"
+                className="w-full py-4 bg-yellow-500 hover:bg-yellow-400 text-slate-950 rounded-xl font-black uppercase tracking-widest text-xs transition-colors shadow-lg shadow-yellow-500/10 cursor-pointer"
               >
-                Enter Platform
+                Return to Profile
               </button>
             </motion.div>
           )}

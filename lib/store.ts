@@ -43,6 +43,7 @@ export interface UserProfile {
   activityLogs?: any[];
   geoRestricted?: boolean;
   verifiedAge?: number;
+  kycSubmittedAt?: number | null;
   adminNotes?: string;
   affiliateCode?: string;
   referredBy?: string;
@@ -78,6 +79,7 @@ interface TradingState {
   geoRestricted: boolean;
   verifiedAge: number;
   activityLogs: any[];
+  kycSubmittedAt: number | null;
 
   // Daily Streak
   streakCount: number;
@@ -112,6 +114,7 @@ interface TradingState {
   completeOnboarding: (phoneNumber?: string, gamingState?: string, upiId?: string) => Promise<void>;
   updateProfile: (updates: { username?: string; phoneNumber?: string; upiId?: string; gamingState?: string; notifications?: { id: string; message: string; timestamp: number; read: boolean; title?: string }[] }) => Promise<boolean>;
   setKycStatus: (status: 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED' | 'REJECTED') => void;
+  setKycSubmittedAt: (time: number | null) => void;
   setGeoRestricted: (restricted: boolean) => void;
   setVerifiedAge: (age: number) => void;
   fetchActivityLogs: () => Promise<void>;
@@ -256,6 +259,7 @@ export const useTradingStore = create<TradingState>()(
       geoRestricted: false,
       verifiedAge: 0,
       activityLogs: [],
+      kycSubmittedAt: null,
       houseEdge: 2.0, // Default 2% house edge
 
       // Daily Streak & Spin states
@@ -1270,6 +1274,9 @@ export const useTradingStore = create<TradingState>()(
       setKycStatus: (status) => set((state) => {
         if (state.currentUser) {
           const updatedUser = { ...state.currentUser, kycStatus: status };
+          if (status === 'VERIFIED') {
+            updatedUser.kycSubmittedAt = null;
+          }
           // Sync with database
           fetch('/api/auth/sync', {
             method: 'POST',
@@ -1280,9 +1287,23 @@ export const useTradingStore = create<TradingState>()(
             })
           }).catch(err => console.error("Sync failed", err));
           
-          return { kycStatus: status, currentUser: updatedUser };
+          return { 
+            kycStatus: status, 
+            currentUser: updatedUser,
+            kycSubmittedAt: status === 'VERIFIED' ? null : state.kycSubmittedAt
+          };
         }
-        return { kycStatus: status };
+        return { 
+          kycStatus: status,
+          kycSubmittedAt: status === 'VERIFIED' ? null : state.kycSubmittedAt
+        };
+      }),
+      setKycSubmittedAt: (time) => set((state) => {
+        if (state.currentUser) {
+          const updatedUser = { ...state.currentUser, kycSubmittedAt: time };
+          return { kycSubmittedAt: time, currentUser: updatedUser };
+        }
+        return { kycSubmittedAt: time };
       }),
       setGeoRestricted: (restricted) => set((state) => {
         if (state.currentUser) {
