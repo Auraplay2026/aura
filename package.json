@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "prisma generate && prisma db push && next build",
+    "build": "echo \"[Render Debug] Database URL is: $DATABASE_URL\" && prisma generate && prisma db push && next build",
     "start": "concurrently \"next start\" \"node scripts/generate_hype_bets.js\" \"node scripts/notification_worker.js\"",
     "lint": "eslint"
   },
