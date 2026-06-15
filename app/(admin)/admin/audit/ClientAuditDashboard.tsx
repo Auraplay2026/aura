@@ -314,6 +314,12 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                         return <AlertTriangle className="w-4 h-4 text-amber-500" />;
                       case "HIGH_ROLLER":
                         return <TrendingUp className="w-4 h-4 text-indigo-600" />;
+                      case "SHARED_IP":
+                        return <Globe className="w-4 h-4 text-cyan-600" />;
+                      case "SHARED_DEVICE":
+                        return <FileText className="w-4 h-4 text-emerald-600" />;
+                      case "ARBITRAGE_WARNING":
+                        return <ShieldAlert className="w-4 h-4 text-orange-600 animate-pulse" />;
                       default:
                         return <AlertCircle className="w-4 h-4 text-slate-600" />;
                     }

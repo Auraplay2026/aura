@@ -91,7 +91,7 @@ export function sanitizeUserProfile(user: any): UserProfile {
 
 export async function getUsers(): Promise<UserProfile[]> {
   const users = await prisma.user.findMany({
-    include: { transactions: true, positions: true, notifications: true }
+    include: { transactions: true, positions: true, notifications: true, activityLogs: true }
   });
   return users.map(sanitizeUserProfile);
 }

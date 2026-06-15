@@ -6,7 +6,7 @@ export const dynamic = 'force-dynamic';
 
 export interface AuditAnomaly {
   id: string;
-  type: "RECONCILIATION_GAP" | "SHARED_PAYMENT" | "EXPLOIT_WINRATE" | "HIGH_ROLLER";
+  type: "RECONCILIATION_GAP" | "SHARED_PAYMENT" | "EXPLOIT_WINRATE" | "HIGH_ROLLER" | "SHARED_IP" | "SHARED_DEVICE" | "ARBITRAGE_WARNING";
   severity: "CRITICAL" | "WARNING" | "INFO";
   userEmail: string;
   username: string;
@@ -21,18 +21,72 @@ export default async function AuditLogsPage() {
   // 1. Group payment profiles for multi-accounting checks
   const upiGroups: Record<string, { email: string; username: string }[]> = {};
   const phoneGroups: Record<string, { email: string; username: string }[]> = {};
+  const ipGroups: Record<string, { email: string; username: string }[]> = {};
+  const deviceGroups: Record<string, { email: string; username: string }[]> = {};
 
   users.forEach((u) => {
+    // UPI Check
     if (u.upiId && u.upiId.trim() !== "" && u.upiId !== "admin@okaxis" && u.upiId !== "demo@okaxis") {
       const key = u.upiId.toLowerCase().trim();
       if (!upiGroups[key]) upiGroups[key] = [];
-      upiGroups[key].push({ email: u.email, username: u.username });
+      if (!upiGroups[key].some(acc => acc.email === u.email)) {
+        upiGroups[key].push({ email: u.email, username: u.username });
+      }
     }
+    // Phone Check
     if (u.phoneNumber && u.phoneNumber.trim() !== "" && u.phoneNumber !== "9999999999") {
       const key = u.phoneNumber.toLowerCase().trim();
       if (!phoneGroups[key]) phoneGroups[key] = [];
-      phoneGroups[key].push({ email: u.email, username: u.username });
+      if (!phoneGroups[key].some(acc => acc.email === u.email)) {
+        phoneGroups[key].push({ email: u.email, username: u.username });
+      }
     }
+
+    // Scan activity logs for unique IPs and Devices/User-Agents
+    const uniqueIps = new Set<string>();
+    const uniqueDevices = new Set<string>();
+
+    if (u.activityLogs && Array.isArray(u.activityLogs)) {
+      u.activityLogs.forEach(log => {
+        // Collect IPs
+        if (log.ip && log.ip.trim() !== "" && log.ip !== "127.0.0.1" && log.ip !== "::1" && log.ip.toLowerCase() !== "unknown") {
+          uniqueIps.add(log.ip.trim());
+        }
+        // Collect Devices
+        if (log.device && log.device.trim() !== "" && log.device.toLowerCase() !== "unknown" && log.device.toLowerCase() !== "server") {
+          uniqueDevices.add(log.device.trim());
+        }
+
+        // If log is an arbitrage alert, flag it immediately
+        if (log.type === 'ARBITRAGE_ALERT') {
+          anomalies.push({
+            id: `anomaly_arb_${log.id || Math.random().toString()}`,
+            type: "ARBITRAGE_WARNING",
+            severity: "CRITICAL",
+            userEmail: u.email,
+            username: u.username,
+            description: `Arbitrage Warning: ${log.action}`,
+            meta: { timestamp: log.timestamp, action: log.action }
+          });
+        }
+      });
+    }
+
+    uniqueIps.forEach(ip => {
+      const key = ip.toLowerCase();
+      if (!ipGroups[key]) ipGroups[key] = [];
+      if (!ipGroups[key].some(acc => acc.email === u.email)) {
+        ipGroups[key].push({ email: u.email, username: u.username });
+      }
+    });
+
+    uniqueDevices.forEach(dev => {
+      const key = dev.toLowerCase();
+      if (!deviceGroups[key]) deviceGroups[key] = [];
+      if (!deviceGroups[key].some(acc => acc.email === u.email)) {
+        deviceGroups[key].push({ email: u.email, username: u.username });
+      }
+    });
   });
 
   // Flag duplicate UPIs
@@ -64,6 +118,40 @@ export default async function AuditLogsPage() {
           username: acc.username,
           description: `Suspected Multi-Accounting: Phone number '${phone}' is shared by ${accounts.length} accounts: ${accounts.map(a => a.username).join(", ")}.`,
           meta: { sharedField: "Phone", value: phone, count: accounts.length }
+        });
+      });
+    }
+  });
+
+  // Flag duplicate IPs (Syndicate IP clustering)
+  Object.entries(ipGroups).forEach(([ip, accounts]) => {
+    if (accounts.length > 1) {
+      accounts.forEach((acc) => {
+        anomalies.push({
+          id: `anomaly_ip_${ip.replace(/[^a-zA-Z0-9]/g, '_')}_${acc.email}`,
+          type: "SHARED_IP",
+          severity: "WARNING",
+          userEmail: acc.email,
+          username: acc.username,
+          description: `IP Address Clustering: Shared access IP '${ip}' detected across ${accounts.length} accounts: ${accounts.map(a => a.username).join(", ")}.`,
+          meta: { sharedField: "IP Address", value: ip, count: accounts.length }
+        });
+      });
+    }
+  });
+
+  // Flag duplicate Devices
+  Object.entries(deviceGroups).forEach(([dev, accounts]) => {
+    if (accounts.length > 1) {
+      accounts.forEach((acc) => {
+        anomalies.push({
+          id: `anomaly_dev_${dev.replace(/[^a-zA-Z0-9]/g, '_')}_${acc.email}`,
+          type: "SHARED_DEVICE",
+          severity: "WARNING",
+          userEmail: acc.email,
+          username: acc.username,
+          description: `Device Fingerprint Sharing: Hardware/browser signature '${dev}' detected across ${accounts.length} accounts: ${accounts.map(a => a.username).join(", ")}.`,
+          meta: { sharedField: "Device", value: dev, count: accounts.length }
         });
       });
     }
