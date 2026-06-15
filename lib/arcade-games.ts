@@ -9,6 +9,7 @@ export interface ArcadeGame {
   categories: ArcadeCategoryId[];
   url: string;
   isNew?: boolean;
+  orientation: "portrait" | "landscape";
 }
 
 export const ARCADE_GAMES: ArcadeGame[] = [
@@ -20,7 +21,8 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     thumbnail: "/games/tomb_runner.png",
     categories: ["runner", "action"],
     url: "https://www.y8.com/embed/tomb_runner",
-    isNew: true
+    isNew: true,
+    orientation: "landscape"
   },
   {
     id: "sugar-cascade",
@@ -29,7 +31,8 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Form sweet cascades and match colourful jellies and candy combos in this delicious match-3 puzzle adventure.",
     thumbnail: "/games/candy_rain.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/candy_rain_6"
+    url: "https://www.y8.com/embed/candy_rain_6",
+    orientation: "portrait"
   },
   {
     id: "slope-racing-3d",
@@ -39,7 +42,8 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     thumbnail: "https://img.gamepix.com/games/slope-racing-3d/cover/slope-racing-3d.png",
     categories: ["action", "racing"],
     url: "https://www.y8.com/embed/slope",
-    isNew: true
+    isNew: true,
+    orientation: "landscape"
   },
   {
     id: "cut-the-rope",
@@ -48,7 +52,8 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Cut the ropes, feed candy to Om Nom, and collect gold stars in this award-winning physics puzzle game.",
     thumbnail: "https://img.gamepix.com/games/cut-the-rope/cover/cut-the-rope.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/cut_the_rope_2"
+    url: "https://www.y8.com/embed/cut_the_rope_2",
+    orientation: "portrait"
   },
   {
     id: "tentrix",
@@ -57,7 +62,8 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Place colorful blocks on the board to form full vertical and horizontal lines in this addictive grid puzzle game.",
     thumbnail: "https://img.gamepix.com/games/tentrix/cover/tentrix.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/tentrix"
+    url: "https://www.y8.com/embed/tentrix",
+    orientation: "portrait"
   },
   {
     id: "hextris",
@@ -67,7 +73,8 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     thumbnail: "https://img.gamepix.com/games/hextris/cover/hextris.png",
     categories: ["puzzle", "action"],
     url: "https://www.y8.com/embed/hextris",
-    isNew: true
+    isNew: true,
+    orientation: "portrait"
   },
   {
     id: "2048",
@@ -76,7 +83,8 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "The classic slide-matching puzzle game. Join the numbers to reach the legendary 2048 tile.",
     thumbnail: "https://img.gamepix.com/games/2048/cover/2048.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/2048"
+    url: "https://www.y8.com/embed/2048",
+    orientation: "portrait"
   }
 ];
 
