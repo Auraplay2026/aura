@@ -578,9 +578,15 @@ export default function GamePlayerPage() {
                       <p className="text-slate-500 text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
                     </div>
                     <div className="p-6 space-y-6">
-                      <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-widest">
-                        <span>Main: ₹{rawBalance.toFixed(2)}</span>
-                        <span>Casino: ₹{transferAmount}</span>
+                      <div className="flex justify-between items-center text-xs font-black text-slate-600 uppercase tracking-widest">
+                        <div className="flex flex-col items-start">
+                          <span className="text-[10px] text-slate-400">Main Balance</span>
+                          <span className="text-slate-900 font-mono text-sm mt-0.5">₹{(rawBalance - transferAmount).toFixed(2)}</span>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="text-[10px] text-slate-400">Sub-Wallet</span>
+                          <span className="text-red-600 font-mono text-sm mt-0.5">₹{transferAmount}</span>
+                        </div>
                       </div>
                       <input 
                         type="range" 
@@ -589,10 +595,28 @@ export default function GamePlayerPage() {
                         step="10" 
                         value={transferAmount}
                         onChange={(e) => setTransferAmount(Number(e.target.value))}
-                        className="w-full accent-red-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                        className="w-full accent-red-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                       />
-                      <div className="text-center">
-                        <span className="text-3xl font-black text-red-600 font-mono tracking-tighter">₹{transferAmount}</span>
+                      
+                      {/* Percent shortcuts */}
+                      <div className="flex justify-between gap-2">
+                        {[0.25, 0.50, 0.75, 1.00].map(pct => {
+                          const amt = Math.max(10, Math.floor(rawBalance * pct));
+                          return (
+                            <button
+                              key={pct}
+                              onClick={() => setTransferAmount(amt)}
+                              className="flex-1 py-1 px-2 border border-slate-200 hover:border-red-600 rounded text-[10px] font-black text-slate-700 hover:text-red-600 uppercase tracking-wider transition-colors"
+                            >
+                              {pct * 100}%
+                            </button>
+                          );
+                        })}
+                      </div>
+
+                      <div className="text-center bg-slate-50 border border-slate-200/60 p-3 rounded-lg">
+                        <span className="text-xs font-bold text-slate-400 block uppercase tracking-widest mb-1">Allocated Amount</span>
+                        <span className="text-3xl font-black text-slate-900 font-mono tracking-tighter">₹{transferAmount.toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="p-4 bg-slate-50 flex gap-4">

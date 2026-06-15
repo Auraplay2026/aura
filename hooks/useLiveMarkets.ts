@@ -22,7 +22,7 @@ export interface Market {
 const INITIAL_MARKETS: Market[] = [
   // Politics
   { 
-    id: "pol-1", category: 'politics', title: "Iran closes its airspace by...?", volume: "$65.9m Vol.", yes: 100, no: 0, history: [100, 100], status: 'live',
+    id: "pol-1", category: 'politics', title: "Iran closes its airspace by...?", volume: "₹65.9m Vol.", yes: 100, no: 0, history: [100, 100], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Iran_location_map.svg/150px-Iran_location_map.svg.png",
     options: [
       { id: "opt1", name: "June 15", yes: 100, no: 0 },
@@ -30,7 +30,7 @@ const INITIAL_MARKETS: Market[] = [
     ]
   },
   { 
-    id: "pol-2", category: 'politics', title: "Peru Presidential Election Winner", volume: "$76.9m Vol.", yes: 83, no: 17, history: [80, 83], status: 'live',
+    id: "pol-2", category: 'politics', title: "Peru Presidential Election Winner", volume: "₹76.9m Vol.", yes: 83, no: 17, history: [80, 83], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cf/Flag_of_Peru.svg/150px-Flag_of_Peru.svg.png",
     options: [
       { id: "opt1", name: "Keiko Fujimori", yes: 83, no: 17 },
@@ -38,7 +38,7 @@ const INITIAL_MARKETS: Market[] = [
     ]
   },
   { 
-    id: "pol-3", category: 'politics', title: "US x Iran permanent peace deal by...?", volume: "$270.5m Vol.", yes: 69, no: 31, history: [65, 69], status: 'live',
+    id: "pol-3", category: 'politics', title: "US x Iran permanent peace deal by...?", volume: "₹270.5m Vol.", yes: 69, no: 31, history: [65, 69], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/150px-Flag_of_the_United_States.svg.png",
     options: [
       { id: "opt1", name: "December 31", yes: 69, no: 31 },
@@ -46,7 +46,7 @@ const INITIAL_MARKETS: Market[] = [
     ]
   },
   { 
-    id: "pol-4", category: 'politics', title: "Israel closes its airspace by...?", volume: "$18.2m Vol.", yes: 20, no: 80, history: [20, 20], status: 'live',
+    id: "pol-4", category: 'politics', title: "Israel closes its airspace by...?", volume: "₹18.2m Vol.", yes: 20, no: 80, history: [20, 20], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d4/Flag_of_Israel.svg/150px-Flag_of_Israel.svg.png",
     options: [
       { id: "opt1", name: "July 15", yes: 20, no: 80 },
@@ -54,7 +54,7 @@ const INITIAL_MARKETS: Market[] = [
     ]
   },
   { 
-    id: "pol-5", category: 'politics', title: "US announces new Iran agreement/ceasefire extension by...?", volume: "$12.4m Vol.", yes: 10, no: 90, history: [10, 10], status: 'live',
+    id: "pol-5", category: 'politics', title: "US announces new Iran agreement/ceasefire extension by...?", volume: "₹12.4m Vol.", yes: 10, no: 90, history: [10, 10], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ef/International_tie.svg/150px-International_tie.svg.png",
     options: [
       { id: "opt1", name: "July 31", yes: 10, no: 90 },
@@ -62,7 +62,7 @@ const INITIAL_MARKETS: Market[] = [
     ]
   },
   { 
-    id: "pol-6", category: 'finance', title: "Fed Decision in June?", volume: "$13.1m Vol.", yes: 94, no: 6, history: [90, 94], status: 'live',
+    id: "pol-6", category: 'finance', title: "Fed Decision in June?", volume: "₹13.1m Vol.", yes: 94, no: 6, history: [90, 94], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7b/Jerome_Powell_official_portrait_%28cropped%29.jpg/150px-Jerome_Powell_official_portrait_%28cropped%29.jpg",
     options: [
       { id: "opt1", name: "No Change", yes: 94, no: 6 },
@@ -72,7 +72,7 @@ const INITIAL_MARKETS: Market[] = [
   
   // Crypto
   { 
-    id: "cry-1", category: 'crypto', title: "Bitcoin hits $100k by end of 2026?", volume: "$185.9m Vol.", yes: 75, no: 25, history: [70, 75], status: 'live',
+    id: "cry-1", category: 'crypto', title: "Bitcoin hits ₹100k by end of 2026?", volume: "₹185.9m Vol.", yes: 75, no: 25, history: [70, 75], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Bitcoin.svg/150px-Bitcoin.svg.png",
     options: [
       { id: "opt1", name: "Yes", yes: 75, no: 25 },
@@ -80,7 +80,7 @@ const INITIAL_MARKETS: Market[] = [
     ]
   },
   { 
-    id: "cry-2", category: 'crypto', title: "Ethereum ETF approval in Europe?", volume: "$42.1m Vol.", yes: 40, no: 60, history: [35, 40], status: 'live',
+    id: "cry-2", category: 'crypto', title: "Ethereum ETF approval in Europe?", volume: "₹42.1m Vol.", yes: 40, no: 60, history: [35, 40], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/05/Ethereum_logo_2014.svg/150px-Ethereum_logo_2014.svg.png",
     options: [
       { id: "opt1", name: "Approved", yes: 40, no: 60 },
@@ -90,7 +90,7 @@ const INITIAL_MARKETS: Market[] = [
 
   // Trump
   { 
-    id: "tru-1", category: 'trump', title: "Will Trump announce a new VP pick early?", volume: "$88.4m Vol.", yes: 15, no: 85, history: [12, 15], status: 'live',
+    id: "tru-1", category: 'trump', title: "Will Trump announce a new VP pick early?", volume: "₹88.4m Vol.", yes: 15, no: 85, history: [12, 15], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/150px-Donald_Trump_official_portrait.jpg",
     options: [
       { id: "opt1", name: "Yes", yes: 15, no: 85 },
@@ -100,7 +100,7 @@ const INITIAL_MARKETS: Market[] = [
 
   // Tech / Earnings
   { 
-    id: "tec-1", category: 'tech', title: "Apple to announce new AI hardware?", volume: "$110.2m Vol.", yes: 88, no: 12, history: [85, 88], status: 'live',
+    id: "tec-1", category: 'tech', title: "Apple to announce new AI hardware?", volume: "₹110.2m Vol.", yes: 88, no: 12, history: [85, 88], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fa/Apple_logo_black.svg/150px-Apple_logo_black.svg.png",
     options: [
       { id: "opt1", name: "Yes", yes: 88, no: 12 },
@@ -108,7 +108,7 @@ const INITIAL_MARKETS: Market[] = [
     ]
   },
   { 
-    id: "ear-1", category: 'earnings', title: "NVIDIA beats Q3 earnings estimates?", volume: "$340.5m Vol.", yes: 92, no: 8, history: [90, 92], status: 'live',
+    id: "ear-1", category: 'earnings', title: "NVIDIA beats Q3 earnings estimates?", volume: "₹340.5m Vol.", yes: 92, no: 8, history: [90, 92], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Nvidia_logo.svg/150px-Nvidia_logo.svg.png",
     options: [
       { id: "opt1", name: "Beat", yes: 92, no: 8 },
@@ -120,52 +120,52 @@ const INITIAL_MARKETS: Market[] = [
 
   // Culture, World, Economy, Elections, Geopolitics
   { 
-    id: "cul-1", category: 'culture', title: "Will Taylor Swift release Rep TV in 2026?", volume: "$12.4m Vol.", yes: 88, no: 12, history: [80, 88], status: 'live',
+    id: "cul-1", category: 'culture', title: "Will Taylor Swift release Rep TV in 2026?", volume: "₹12.4m Vol.", yes: 88, no: 12, history: [80, 88], status: 'live',
     options: [ { id: "opt1", name: "Yes", yes: 88, no: 12 }, { id: "opt2", name: "No", yes: 12, no: 88 } ]
   },
   { 
-    id: "wor-1", category: 'world', title: "UN approves new climate pact by Q4?", volume: "$21.9m Vol.", yes: 45, no: 55, history: [40, 45], status: 'live',
+    id: "wor-1", category: 'world', title: "UN approves new climate pact by Q4?", volume: "₹21.9m Vol.", yes: 45, no: 55, history: [40, 45], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/2f/Flag_of_the_United_Nations.svg/150px-Flag_of_the_United_Nations.svg.png",
     options: [ { id: "opt1", name: "Approved", yes: 45, no: 55 }, { id: "opt2", name: "Delayed", yes: 55, no: 45 } ]
   },
   { 
-    id: "eco-1", category: 'economy', title: "US Inflation Drops Below 2.5%?", volume: "$65.2m Vol.", yes: 35, no: 65, history: [30, 35], status: 'live',
+    id: "eco-1", category: 'economy', title: "US Inflation Drops Below 2.5%?", volume: "₹65.2m Vol.", yes: 35, no: 65, history: [30, 35], status: 'live',
     options: [ { id: "opt1", name: "Drops Below", yes: 35, no: 65 }, { id: "opt2", name: "Stays Above", yes: 65, no: 35 } ]
   },
   { 
-    id: "ele-1", category: 'elections', title: "UK General Election called for November?", volume: "$32.1m Vol.", yes: 20, no: 80, history: [15, 20], status: 'live',
+    id: "ele-1", category: 'elections', title: "UK General Election called for November?", volume: "₹32.1m Vol.", yes: 20, no: 80, history: [15, 20], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/en/thumb/a/ae/Flag_of_the_United_Kingdom.svg/150px-Flag_of_the_United_Kingdom.svg.png",
     options: [ { id: "opt1", name: "Yes", yes: 20, no: 80 }, { id: "opt2", name: "No", yes: 80, no: 20 } ]
   },
   { 
-    id: "ele-2", category: 'elections', title: "French Presidential Election 2027: Le Pen Wins?", volume: "$14.2m Vol.", yes: 45, no: 55, history: [42, 45], status: 'live',
+    id: "ele-2", category: 'elections', title: "French Presidential Election 2027: Le Pen Wins?", volume: "₹14.2m Vol.", yes: 45, no: 55, history: [42, 45], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/en/thumb/c/c3/Flag_of_France.svg/150px-Flag_of_France.svg.png",
     options: [ { id: "opt1", name: "Yes", yes: 45, no: 55 }, { id: "opt2", name: "No", yes: 55, no: 45 } ]
   },
   { 
-    id: "geo-1", category: 'geopolitics', title: "EU expands Schengen Zone in 2026?", volume: "$8.4m Vol.", yes: 70, no: 30, history: [65, 70], status: 'live',
+    id: "geo-1", category: 'geopolitics', title: "EU expands Schengen Zone in 2026?", volume: "₹8.4m Vol.", yes: 70, no: 30, history: [65, 70], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Flag_of_Europe.svg/150px-Flag_of_Europe.svg.png",
     options: [ { id: "opt1", name: "Yes", yes: 70, no: 30 }, { id: "opt2", name: "No", yes: 30, no: 70 } ]
   },
   { 
-    id: "geo-2", category: 'geopolitics', title: "BRICS to add 3 new members by end of year?", volume: "$45.2m Vol.", yes: 82, no: 18, history: [80, 82], status: 'live',
+    id: "geo-2", category: 'geopolitics', title: "BRICS to add 3 new members by end of year?", volume: "₹45.2m Vol.", yes: 82, no: 18, history: [80, 82], status: 'live',
     options: [ { id: "opt1", name: "Yes", yes: 82, no: 18 }, { id: "opt2", name: "No", yes: 18, no: 82 } ]
   },
   { 
-    id: "tec-2", category: 'tech', title: "OpenAI to release GPT-5 before December?", volume: "$210.8m Vol.", yes: 60, no: 40, history: [55, 60], status: 'live',
+    id: "tec-2", category: 'tech', title: "OpenAI to release GPT-5 before December?", volume: "₹210.8m Vol.", yes: 60, no: 40, history: [55, 60], status: 'live',
     options: [ { id: "opt1", name: "Yes", yes: 60, no: 40 }, { id: "opt2", name: "No", yes: 40, no: 60 } ]
   },
   { 
-    id: "ear-2", category: 'earnings', title: "Tesla Q4 Deliveries Beat Estimates?", volume: "$120.4m Vol.", yes: 48, no: 52, history: [50, 48], status: 'live',
+    id: "ear-2", category: 'earnings', title: "Tesla Q4 Deliveries Beat Estimates?", volume: "₹120.4m Vol.", yes: 48, no: 52, history: [50, 48], status: 'live',
     options: [ { id: "opt1", name: "Beat", yes: 48, no: 52 }, { id: "opt2", name: "Miss", yes: 52, no: 48 } ]
   },
   { 
-    id: "tru-2", category: 'trump', title: "Trump to launch another social media platform?", volume: "$18.9m Vol.", yes: 30, no: 70, history: [25, 30], status: 'live',
+    id: "tru-2", category: 'trump', title: "Trump to launch another social media platform?", volume: "₹18.9m Vol.", yes: 30, no: 70, history: [25, 30], status: 'live',
     image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/56/Donald_Trump_official_portrait.jpg/150px-Donald_Trump_official_portrait.jpg",
     options: [ { id: "opt1", name: "Yes", yes: 30, no: 70 }, { id: "opt2", name: "No", yes: 70, no: 30 } ]
   },
   { 
-    id: "fin-2", category: 'finance', title: "S&P 500 Closes Above 6000 by year end?", volume: "$412.5m Vol.", yes: 85, no: 15, history: [82, 85], status: 'live',
+    id: "fin-2", category: 'finance', title: "S&P 500 Closes Above 6000 by year end?", volume: "₹412.5m Vol.", yes: 85, no: 15, history: [82, 85], status: 'live',
     options: [ { id: "opt1", name: "Yes", yes: 85, no: 15 }, { id: "opt2", name: "No", yes: 15, no: 85 } ]
   },
   

@@ -48,7 +48,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: false, error: "Email parameter is required" }, { status: 400 });
     }
 
-    const session = getChatByEmail(email);
+    const session = await getChatByEmail(email);
     return NextResponse.json({
       success: true,
       session: session || null
@@ -69,31 +69,31 @@ export async function POST(req: Request) {
 
     // 1. If action is specified, handle status updates directly
     if (action === "transfer") {
-      const updated = updateChatStatus(email, "waiting");
-      addMessageToChat(email, username || "Player", "bot", "System Alert: Connecting you to a live support representative. Please stand by...");
+      const updated = await updateChatStatus(email, "waiting");
+      await addMessageToChat(email, username || "Player", "bot", "System Alert: Connecting you to a live support representative. Please stand by...");
       await notifyAdminsOfTransfer(email, username || "Player");
       return NextResponse.json({ success: true, session: updated });
     }
 
     if (action === "close") {
-      const updated = updateChatStatus(email, "closed");
-      addMessageToChat(email, username || "Player", "bot", "System Alert: Support chat session has been closed.");
+      const updated = await updateChatStatus(email, "closed");
+      await addMessageToChat(email, username || "Player", "bot", "System Alert: Support chat session has been closed.");
       return NextResponse.json({ success: true, session: updated });
     }
 
     // 2. Add the incoming message to database
-    let session = addMessageToChat(email, username || "Player", sender, text);
+    let session = await addMessageToChat(email, username || "Player", sender, text);
 
     // If sender is admin, force status to 'active' (human chat)
     if (sender === "admin") {
-      updateChatStatus(email, "active");
-      session = getChatByEmail(email)!;
+      await updateChatStatus(email, "active");
+      session = (await getChatByEmail(email))!;
       return NextResponse.json({ success: true, session });
     }
 
     // 3. If in 'bot' mode, generate AI response
     if (session.status === "bot" && sender === "user") {
-      const config = getSupportConfig();
+      const config = await getSupportConfig();
       
       // Check if user is asking to switch to human support via basic keyword heuristics
       const lowerText = text.toLowerCase();
@@ -102,8 +102,8 @@ export async function POST(req: Request) {
 
       if (wantsHuman) {
         // Switch to waiting state
-        updateChatStatus(email, "waiting");
-        session = addMessageToChat(
+        await updateChatStatus(email, "waiting");
+        session = await addMessageToChat(
           email, 
           username || "Player", 
           "bot", 
@@ -162,11 +162,11 @@ export async function POST(req: Request) {
       // Check if AI requested a transfer
       if (botResponse.includes("[TRANSFER]")) {
         botResponse = botResponse.replace("[TRANSFER]", "").trim();
-        updateChatStatus(email, "waiting");
+        await updateChatStatus(email, "waiting");
         
-        session = addMessageToChat(email, username || "Player", "bot", botResponse);
+        session = await addMessageToChat(email, username || "Player", "bot", botResponse);
         // Append official connection alert
-        session = addMessageToChat(
+        session = await addMessageToChat(
           email, 
           username || "Player", 
           "bot", 
@@ -174,7 +174,7 @@ export async function POST(req: Request) {
         );
         await notifyAdminsOfTransfer(email, username || "Player");
       } else {
-        session = addMessageToChat(email, username || "Player", "bot", botResponse);
+        session = await addMessageToChat(email, username || "Player", "bot", botResponse);
       }
     }
 

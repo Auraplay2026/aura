@@ -50,7 +50,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 : "bg-white text-exchange-text border-2 border-exchange-border hover:bg-slate-100"
             }`}
           >
-            ${token}
+            ₹{token}
           </button>
         ))}
       </div>
@@ -84,7 +84,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 <span className="text-[10px] font-bold text-exchange-muted uppercase">Pairs</span>
                 {bets["perfect-pairs"] && (
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
-                    ${bets["perfect-pairs"]}
+                    ₹{bets["perfect-pairs"]}
                   </div>
                 )}
               </button>
@@ -97,7 +97,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 <span className="text-xs font-black text-exchange-text uppercase">Main Hand</span>
                 {bets["main"] && (
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-12 h-12 rounded-full bg-red-600 text-white font-black text-xs flex items-center justify-center shadow-lg">
-                    ${bets["main"]}
+                    ₹{bets["main"]}
                   </div>
                 )}
               </button>
@@ -110,7 +110,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 <span className="text-[10px] font-bold text-exchange-muted uppercase">Bonus</span>
                 {bets["bonus"] && (
                   <div className="absolute -top-3 -right-3 w-8 h-8 rounded-full bg-red-600 text-white font-black text-[10px] flex items-center justify-center shadow-md">
-                    ${bets["bonus"]}
+                    ₹{bets["bonus"]}
                   </div>
                 )}
               </button>

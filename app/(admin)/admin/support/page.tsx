@@ -3,9 +3,9 @@ import ClientSupportDashboard from "./ClientSupportDashboard";
 
 export const dynamic = 'force-dynamic';
 
-export default function SupportDashboardPage() {
-  const sessions = getChatSessions();
-  const config = getSupportConfig();
+export default async function SupportDashboardPage() {
+  const sessions = await getChatSessions();
+  const config = await getSupportConfig();
 
   return (
     <ClientSupportDashboard 

@@ -14,7 +14,7 @@ interface RoyalGamingProps {
   gameTitle: string;
 }
 
-// 6 Royal Gaming Categories Config
+// 9 Royal Gaming Categories Config
 const GAME_CONFIGS: Record<string, {
   label: string;
   targets: { id: string; name: string; odds: number; color: string }[];
@@ -26,6 +26,15 @@ const GAME_CONFIGS: Record<string, {
       { id: "player_a", name: "Player A", odds: 1.98, color: "bg-blue-50 border-blue-200 text-blue-800" },
       { id: "player_b", name: "Player B", odds: 1.98, color: "bg-red-50 border-red-200 text-red-800" },
       { id: "tie", name: "Tie", odds: 9.00, color: "bg-slate-50 border-slate-200 text-slate-700" }
+    ],
+    historyGenerator: () => Math.random() > 0.5 ? "A" : "B"
+  },
+  "royal-1-20": { // Teen Patti 20-20
+    label: "Teen Patti 20-20",
+    targets: [
+      { id: "player_a", name: "Player A", odds: 1.95, color: "bg-blue-50 border-blue-200 text-blue-800" },
+      { id: "player_b", name: "Player B", odds: 1.95, color: "bg-red-50 border-red-200 text-red-800" },
+      { id: "tie", name: "Tie", odds: 8.50, color: "bg-slate-50 border-slate-200 text-slate-700" }
     ],
     historyGenerator: () => Math.random() > 0.5 ? "A" : "B"
   },
@@ -42,11 +51,19 @@ const GAME_CONFIGS: Record<string, {
       return outcomes[Math.floor(Math.random() * outcomes.length)];
     }
   },
-  "royal-3": { // Andar Bahar Fusion
-    label: "Andar Bahar Fusion",
+  "royal-3": { // Andar Bahar Traditional
+    label: "Andar Bahar Traditional",
     targets: [
       { id: "andar", name: "Andar", odds: 1.90, color: "bg-sky-50 border-sky-200 text-sky-800" },
       { id: "bahar", name: "Bahar", odds: 1.90, color: "bg-pink-50 border-pink-200 text-pink-800" }
+    ],
+    historyGenerator: () => Math.random() > 0.5 ? "A" : "B"
+  },
+  "royal-3-vr": { // Andar Bahar VR
+    label: "Andar Bahar VR",
+    targets: [
+      { id: "andar", name: "Andar VR", odds: 1.90, color: "bg-sky-50 border-sky-200 text-sky-800" },
+      { id: "bahar", name: "Bahar VR", odds: 1.90, color: "bg-pink-50 border-pink-200 text-pink-800" }
     ],
     historyGenerator: () => Math.random() > 0.5 ? "A" : "B"
   },
@@ -83,10 +100,24 @@ const GAME_CONFIGS: Record<string, {
       { id: "tie", name: "Tie", odds: 11.00, color: "bg-slate-50 border-slate-200 text-slate-800" }
     ],
     historyGenerator: () => Math.random() > 0.5 ? "D" : "T"
+  },
+  "royal-7": { // European Roulette
+    label: "European Roulette",
+    targets: [
+      { id: "red", name: "Red", odds: 2.00, color: "bg-red-50 border-red-200 text-red-800" },
+      { id: "black", name: "Black", odds: 2.00, color: "bg-slate-800 border-slate-700 text-white" },
+      { id: "zero", name: "Zero (0)", odds: 35.00, color: "bg-emerald-50 border-emerald-200 text-emerald-800" },
+      { id: "even", name: "Even", odds: 2.00, color: "bg-slate-50 border-slate-200 text-slate-700" }
+    ],
+    historyGenerator: () => {
+      const colors = ["R", "B", "Z"];
+      const rand = Math.random();
+      return rand < 0.48 ? "R" : rand < 0.96 ? "B" : "Z";
+    }
   }
 };
 
-const COIN_VALUES = [50, 100, 500, 1000, 5000, 10000];
+const COIN_VALUES = [50, 100, 500, 1000, 5000, 10000, 25000, 50000];
 
 export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: RoyalGamingProps) {
   const { balance: rawBalance, playCasino } = useTradingStore();
@@ -472,7 +503,9 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
                 val === 500 && "bg-[#059669] border-emerald-300 text-white",
                 val === 1000 && "bg-[#D97706] border-amber-300 text-white",
                 val === 5000 && "bg-[#DC2626] border-rose-300 text-white",
-                val === 10000 && "bg-[#7C3AED] border-violet-300 text-white"
+                val === 10000 && "bg-[#7C3AED] border-violet-300 text-white",
+                val === 25000 && "bg-[#B45309] border-amber-400 text-white",
+                val === 50000 && "bg-[#1E1B4B] border-indigo-400 text-white"
               )}
             >
               {val >= 1000 ? `${(val/1000).toFixed(0)}K` : val}

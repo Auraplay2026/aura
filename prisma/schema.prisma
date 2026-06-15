@@ -106,3 +106,28 @@ model ActivityLog {
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model SupportConfig {
+  id               String @id @default("default")
+  openRouterApiKey String @default("")
+  aiModel          String @default("google/gemini-2.5-flash")
+  systemPrompt     String @db.Text
+}
+
+model SupportChat {
+  id        String           @id @default(uuid())
+  email     String           @unique
+  username  String
+  status    String           @default("bot")
+  updatedAt Float
+  messages  SupportMessage[]
+}
+
+model SupportMessage {
+  id        String      @id @default(uuid())
+  sender    String
+  text      String      @db.Text
+  timestamp Float
+  chatId    String
+  chat      SupportChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+}

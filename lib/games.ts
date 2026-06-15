@@ -90,11 +90,14 @@ export const FEATURED_GAMES: Game[] = [
   // ROYAL GAMING LIVE CASINO FUSION MATRIX
   // ==========================================
   { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
+  { id: "royal-1-20", title: "Teen Patti 20-20", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table", "poker"], rtp: 98.4, players: 24000, isNew: true },
   { id: "royal-2", title: "Super Over Fusion", provider: "Royal Gaming", image: "/games/orig_cover_plinko.png", categories: ["live", "table"], rtp: 98.8, players: 14000, isNew: true },
-  { id: "royal-3", title: "Andar Bahar Fusion", provider: "Royal Gaming", image: "/games/hilo_thumbnail.png", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
+  { id: "royal-3", title: "Andar Bahar Traditional", provider: "Royal Gaming", image: "/games/hilo_thumbnail.png", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
+  { id: "royal-3-vr", title: "Andar Bahar VR", provider: "Royal Gaming", image: "/games/hilo_thumbnail.png", categories: ["live", "table"], rtp: 97.6, players: 18000, isNew: true },
   { id: "royal-4", title: "32 Cards Fusion", provider: "Royal Gaming", image: "/games/orig_cover_plinko.png", categories: ["live", "table"], rtp: 96.5, players: 9000, isNew: true },
   { id: "royal-5", title: "Lightning 7 Up & Down Fusion", provider: "Royal Gaming", image: "/games/penalty_thumbnail.png", categories: ["live", "table"], rtp: 97.2, players: 18000, isNew: true },
   { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table"], rtp: 96.2, players: 41000, isNew: true },
+  { id: "royal-7", title: "European Roulette", provider: "Royal Gaming", image: "/games/housegames_roulette-M5fn8z7Db.png", categories: ["live", "table", "roulette"], rtp: 97.3, players: 12500, isNew: true },
 
   // --- AAA CLOUD RENTALS (Premium High Price Tier) ---
   { id: "aaa-1", title: "Cyberpunk 2077", provider: "CD Projekt Red", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg", categories: ["aaa", "open-world", "3d"], isNew: true, hourlyRate: 399, players: 4500 },
