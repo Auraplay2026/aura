@@ -27,7 +27,7 @@ export async function POST(request: Request) {
       }
     }
 
-    const user = findUserByEmail(email);
+    const user = await findUserByEmail(email);
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }
@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       updates.transactions = user.transactions;
     }
 
-    updateUser(email, updates);
+    await updateUser(email, updates);
 
     if (type === 'deposit') {
       sendDepositNotification(email, Number(amount), utr).catch(err => {

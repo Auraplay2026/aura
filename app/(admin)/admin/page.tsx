@@ -3,8 +3,8 @@ import ClientAdminDashboard from "./ClientAdminDashboard";
 
 export const dynamic = 'force-dynamic';
 
-export default function AdminPage() {
-  const users = getUsers();
+export default async function AdminDashboardPage() {
+  const users = await getUsers();
   
   // Aggregate all transactions into a single feed
   const allTransactions = users.flatMap(u => 

@@ -4,7 +4,7 @@ import { getUsers } from "@/lib/userDb";
 
 export async function getAffiliateLeaderboardAction() {
   try {
-    const users = getUsers();
+    const users = await getUsers();
     
     // Calculate global stats
     let totalAffiliates = 0;

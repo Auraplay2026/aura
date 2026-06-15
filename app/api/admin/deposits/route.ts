@@ -12,12 +12,12 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized. Admin email query parameter is required.' }, { status: 401 });
     }
     
-    const adminUser = findUserByEmail(adminEmail);
+    const adminUser = await findUserByEmail(adminEmail);
     if (!adminUser || adminUser.role !== 'admin') {
       return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
     }
 
-    const users = getUsers();
+    const users = await getUsers();
     const pendingDeposits: any[] = [];
     const completedDeposits: any[] = [];
     const rejectedDeposits: any[] = [];
@@ -73,7 +73,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized. Administrator credentials required.' }, { status: 401 });
     }
 
-    const adminUser = findUserByEmail(adminEmail);
+    const adminUser = await findUserByEmail(adminEmail);
     if (!adminUser || adminUser.role !== 'admin') {
       return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
     }
@@ -86,7 +86,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid action. Must be approve or reject.' }, { status: 400 });
     }
 
-    const users = getUsers();
+    const users = await getUsers();
     const userIndex = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
     
     if (userIndex === -1) {
@@ -205,7 +205,7 @@ export async function POST(request: Request) {
     }
 
     // Save updated users database to users.json
-    saveUsers(users);
+    await saveUsers(users);
 
     return NextResponse.json({ success: true, updatedBalance: user.realBalance }, { status: 200 });
   } catch (err) {

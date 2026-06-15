@@ -3,8 +3,8 @@ import ClientWithdrawalsDashboard from "./ClientWithdrawalsDashboard";
 
 export const dynamic = 'force-dynamic';
 
-export default function WithdrawalsPage() {
-  const users = getUsers();
+export default async function AdminWithdrawalsPage() {
+  const users = await getUsers();
   
   // Aggregate all transactions into a single feed
   const allTransactions = users.flatMap(u => 

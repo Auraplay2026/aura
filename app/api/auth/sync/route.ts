@@ -56,7 +56,7 @@ export async function POST(request: Request) {
       updates.demoTransactions = transactions;
     }
     
-    const updated = updateUser(email, updates);
+    const updated = await updateUser(email, updates);
     
     if (!updated) {
       return NextResponse.json({ error: 'User not found on server database.' }, { status: 404 });

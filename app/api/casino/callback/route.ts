@@ -21,7 +21,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "ERROR_INVALID_USER", message: "User identification is required." }, { status: 200 });
     }
 
-    const user = findUserByEmailOrUsername(userId);
+    const user = await findUserByEmailOrUsername(userId);
     if (!user) {
       return NextResponse.json({ status: "ERROR_USER_NOT_FOUND", message: "Player profile not found." }, { status: 200 });
     }
@@ -69,7 +69,7 @@ export async function POST(request: Request) {
         updates.transactions = [newTxn, ...user.transactions];
       }
 
-      updateUser(user.email, updates);
+      await updateUser(user.email, updates);
 
       return NextResponse.json({
         status: "OK",
@@ -101,7 +101,7 @@ export async function POST(request: Request) {
         updates.transactions = [newTxn, ...user.transactions];
       }
 
-      updateUser(user.email, updates);
+      await updateUser(user.email, updates);
 
       return NextResponse.json({
         status: "OK",
@@ -133,7 +133,7 @@ export async function POST(request: Request) {
         updates.transactions = [newTxn, ...user.transactions];
       }
 
-      updateUser(user.email, updates);
+      await updateUser(user.email, updates);
 
       return NextResponse.json({
         status: "OK",

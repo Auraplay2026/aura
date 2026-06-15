@@ -117,8 +117,8 @@ export async function GET() {
     const maxWinVal = Math.max(baseMaxWin, maxRealWin);
     
     // Count distinct actual registered users to add to player count
-    const registeredUsersCount = getUsers().length;
-    const activePlayersSum = baseActivePlayers + registeredUsersCount;
+    const totalUsers = (await getUsers()).length;
+    const activePlayersSum = baseActivePlayers + totalUsers;
 
     return NextResponse.json({
       success: true,

@@ -14,8 +14,8 @@ export interface AuditAnomaly {
   meta: any;
 }
 
-export default function AuditPage() {
-  const users = getUsers();
+export default async function AuditLogsPage() {
+  const users = await getUsers();
   const anomalies: AuditAnomaly[] = [];
 
   // 1. Group payment profiles for multi-accounting checks

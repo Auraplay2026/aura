@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
     }
     
-    let user = findUserByEmail(email);
+    let user = await findUserByEmail(email);
     if (!user) {
       // Auto-provision Google users on the server
       const username = name ? name.replace(/\s+/g, '') : email.split('@')[0];
@@ -28,7 +28,7 @@ export async function POST(request: Request) {
         realPositions: [],
         realTransactions: []
       };
-      addUser(user);
+      await addUser(user);
     }
     
     const { passwordHash, ...safeUser } = user;

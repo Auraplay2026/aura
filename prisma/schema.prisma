@@ -1,0 +1,89 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                     String   @id @default(uuid())
+  username               String   @unique
+  email                  String   @unique
+  passwordHash           String
+  accountType            String   @default("real")
+  
+  balance                Float    @default(0)
+  demoBalance            Float    @default(100000)
+  realBalance            Float    @default(0)
+  
+  hasCompletedOnboarding Boolean  @default(false)
+  phoneNumber            String?
+  gamingState            String?
+  upiId                  String?
+  role                   String   @default("user")
+  kycStatus              String   @default("NONE")
+  kycDocumentUrl         String?
+  adminNotes             String?
+  
+  affiliateCode          String?  @unique
+  referredBy             String?
+  referralCount          Int      @default(0)
+  affiliateEarnings      Float    @default(0)
+  
+  totalWagered           Float    @default(0)
+  vipLevel               String?
+  manualVipLevel         String?
+  vipRewardsClaimed      Json?    @default("{}")
+  
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  
+  positions              Position[]
+  transactions           Transaction[]
+  notifications          Notification[]
+}
+
+model Position {
+  id           String   @id @default(uuid())
+  marketId     String
+  marketTitle  String
+  side         String
+  shares       Float
+  buyPrice     Float
+  investment   Float
+  timestamp    Float
+  
+  walletType   String   @default("real")
+  
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Transaction {
+  id            String   @id
+  type          String
+  amount        Float
+  balanceAfter  Float
+  timestamp     Float
+  details       String
+  status        String
+  upiId         String?
+  utr           String?
+  screenshotUrl String?
+  
+  walletType    String   @default("real")
+  
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  message   String
+  timestamp Float
+  read      Boolean  @default(false)
+  
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}

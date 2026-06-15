@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
     }
     
-    const user = findUserByEmail(email);
+    const user = await findUserByEmail(email);
     
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });

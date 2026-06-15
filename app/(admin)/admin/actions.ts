@@ -67,11 +67,11 @@ export async function getAdminAuditLogs() {
 // VIP System Manager
 // ─────────────────────────────────────────────────────────────────────
 export async function adminUpdateVip(email: string, totalWagered: number, manualVipLevel: string, adminEmail: string = "system@aurabet.io") {
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
-  updateUser(email, {
+  await updateUser(email, {
     totalWagered: totalWagered,
     manualVipLevel: manualVipLevel === "Auto" ? undefined : manualVipLevel,
     vipLevel: manualVipLevel !== "Auto" ? manualVipLevel : user.vipLevel // Note: real vipLevel will recalculate on next play if Auto, but we set it here if manual
@@ -88,7 +88,7 @@ export async function adminUpdateVip(email: string, totalWagered: number, manual
 export async function adminCreditUser(email: string, amount: number, adminEmail: string = "system@aurabet.io") {
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
@@ -103,7 +103,7 @@ export async function adminCreditUser(email: string, amount: number, adminEmail:
     status: 'Completed'
   };
 
-  updateUser(email, {
+  await updateUser(email, {
     realBalance: newBalance,
     realTransactions: [transaction, ...user.realTransactions],
     balance: newBalance
@@ -118,7 +118,7 @@ export async function adminCreditUser(email: string, amount: number, adminEmail:
 export async function adminDebitUser(email: string, amount: number, adminEmail: string = "system@aurabet.io") {
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
@@ -135,7 +135,7 @@ export async function adminDebitUser(email: string, amount: number, adminEmail: 
     status: 'Completed'
   };
 
-  updateUser(email, {
+  await updateUser(email, {
     realBalance: newBalance,
     realTransactions: [transaction, ...user.realTransactions],
     balance: newBalance
@@ -151,7 +151,7 @@ export async function adminDebitUser(email: string, amount: number, adminEmail: 
 export async function adminOverrideBalance(email: string, newBalance: number, adminEmail: string) {
   if (newBalance < 0) return { success: false, error: "Balance cannot be negative" };
   
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
@@ -172,7 +172,7 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
     status: 'Completed'
   };
 
-  updateUser(email, {
+  await updateUser(email, {
     realBalance: newBalance,
     realTransactions: [transaction, ...user.realTransactions],
     balance: newBalance
@@ -188,13 +188,13 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
 // Suspensions & Reconciliations
 // ─────────────────────────────────────────────────────────────────────
 export async function adminBanUser(email: string, adminEmail: string = "system@aurabet.io") {
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
   
   const newRole = user.role === 'BANNED' ? 'user' : 'BANNED';
   
-  updateUser(email, { role: newRole as any });
+  await updateUser(email, { role: newRole as any });
   
   const actionWord = newRole === 'BANNED' ? "BANNED_USER" : "PARDONED_USER";
   await logAdminAction(adminEmail, actionWord, email, `Modified access role to ${newRole}`);
@@ -205,7 +205,7 @@ export async function adminBanUser(email: string, adminEmail: string = "system@a
 }
 
 export async function adminResolveDiscrepancy(email: string, adminEmail: string = "system@aurabet.io") {
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
@@ -237,7 +237,7 @@ export async function adminResolveDiscrepancy(email: string, adminEmail: string 
     status: 'Completed'
   };
 
-  updateUser(email, {
+  await updateUser(email, {
     realTransactions: [correctionTx, ...user.realTransactions]
   });
 
@@ -313,7 +313,7 @@ export async function adminUpdateWithdrawalStatus(
   adminEmail: string,
   declineReason?: string
 ) {
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
@@ -365,7 +365,7 @@ export async function adminUpdateWithdrawalStatus(
     user.transactions = user.realTransactions;
   }
 
-  updateUser(email, {
+  await updateUser(email, {
     realBalance: user.realBalance,
     realTransactions: user.realTransactions,
     balance: user.realBalance,
@@ -401,11 +401,11 @@ export async function adminUpdateKYCStatus(
   adminEmail: string,
   declineReason?: string
 ) {
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
-  updateUser(email, { kycStatus: newStatus });
+  await updateUser(email, { kycStatus: newStatus });
 
   // Add user notification
   if (!user.notifications) user.notifications = [];
@@ -421,7 +421,7 @@ export async function adminUpdateKYCStatus(
     read: false
   } as any);
 
-  updateUser(email, { notifications: user.notifications });
+  await updateUser(email, { notifications: user.notifications });
 
   await logAdminAction(adminEmail, `KYC_${newStatus}`, email, `Modified KYC status to ${newStatus}. ${newStatus === 'REJECTED' ? 'Reason: ' + declineReason : ''}`);
 
@@ -434,11 +434,11 @@ export async function adminUpdateKYCStatus(
 // Auditor Notes & Notification Logs Actions
 // ─────────────────────────────────────────────────────────────────────
 export async function adminSaveUserNotes(email: string, notes: string, adminEmail: string) {
-  const users = getUsers();
+  const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
-  updateUser(email, { adminNotes: notes });
+  await updateUser(email, { adminNotes: notes });
 
   await logAdminAction(adminEmail, "SAVE_AUDITOR_NOTES", email, `Updated auditor notes.`);
   
@@ -528,7 +528,7 @@ export async function adminTestWhatsAppAction(toPhone: string, message: string, 
 // 1. Simulate gameplay bet or rental transaction
 export async function adminSimulateWagerAction(adminEmail: string) {
   try {
-    const users = getUsers();
+    const users = await getUsers();
     if (users.length === 0) return { success: false, error: "No users in database to simulate wagers" };
     
     // Select a random user (prefer non-admin users if possible)
@@ -578,7 +578,7 @@ export async function adminSimulateWagerAction(adminEmail: string) {
       status: 'Completed'
     };
     
-    updateUser(targetUser.email, {
+    await updateUser(targetUser.email, {
       realBalance: newBalance,
       realTransactions: [simulatedTx, ...targetUser.realTransactions],
       balance: newBalance
@@ -618,7 +618,7 @@ export async function adminTriggerSportsSyncAction(adminEmail: string) {
 // 3. Clear system wagers and simulated activity
 export async function adminClearActivityAction(adminEmail: string) {
   try {
-    const users = getUsers();
+    const users = await getUsers();
     let clearedCount = 0;
     
     for (const u of users) {
@@ -632,7 +632,7 @@ export async function adminClearActivityAction(adminEmail: string) {
       
       clearedCount += (originalTxLength - cleanTx.length);
       
-      updateUser(u.email, {
+      await updateUser(u.email, {
         realTransactions: cleanTx,
         transactions: u.accountType === 'real' ? cleanTx : u.transactions
       });
@@ -653,7 +653,7 @@ export async function adminClearActivityAction(adminEmail: string) {
 // 4. Broadcast Global Notification
 export async function adminBroadcastNotificationAction(adminEmail: string, message: string) {
   try {
-    const users = getUsers();
+    const users = await getUsers();
     let sentCount = 0;
     
     for (const u of users) {
@@ -665,7 +665,7 @@ export async function adminBroadcastNotificationAction(adminEmail: string, messa
         read: false
       } as any);
       
-      updateUser(u.email, { notifications: u.notifications });
+      await updateUser(u.email, { notifications: u.notifications });
       sentCount++;
     }
     

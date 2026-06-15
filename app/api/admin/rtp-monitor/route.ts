@@ -168,7 +168,7 @@ export async function GET(request: Request) {
       return NextResponse.json({ error: 'Unauthorized. Admin email query parameter is required.' }, { status: 401 });
     }
 
-    const adminUser = findUserByEmail(adminEmail);
+    const adminUser = await findUserByEmail(adminEmail);
     if (!adminUser || adminUser.role !== 'admin') {
       return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
     }

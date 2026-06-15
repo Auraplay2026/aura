@@ -3,8 +3,8 @@ import ClientDepositsDashboard from "./ClientDepositsDashboard";
 
 export const dynamic = 'force-dynamic';
 
-export default function DepositsPage() {
-  const users = getUsers();
+export default async function AdminDepositsPage() {
+  const users = await getUsers();
   
   // Aggregate all transactions into a single feed
   const allTransactions = users.flatMap(u => 

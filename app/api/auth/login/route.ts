@@ -9,7 +9,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
     
-    const user = findUserByEmailOrUsername(emailOrUsername);
+    const user = await findUserByEmailOrUsername(emailOrUsername);
     if (!user) {
       return NextResponse.json({ error: 'Invalid username or email address.' }, { status: 400 });
     }

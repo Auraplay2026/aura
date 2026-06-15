@@ -311,7 +311,7 @@ export async function sendTransactionNotification(opts: {
   const id = `notif_${timestamp}_${Math.random().toString(36).slice(2, 8)}`;
 
   // Resolve user profile (phone number, username)
-  const user = findUserByEmail(userEmail);
+  const user = await findUserByEmail(userEmail);
   const username = user?.username || userEmail.split('@')[0];
   const userPhone = user?.phoneNumber || '';
 

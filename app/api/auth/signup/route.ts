@@ -9,11 +9,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
     
-    if (findUserByUsername(username)) {
+    if (await findUserByUsername(username)) {
       return NextResponse.json({ error: 'Username is already taken.' }, { status: 400 });
     }
     
-    if (findUserByEmail(email)) {
+    if (await findUserByEmail(email)) {
       return NextResponse.json({ error: 'Email address is already registered.' }, { status: 400 });
     }
     
@@ -37,14 +37,14 @@ export async function POST(request: Request) {
       affiliateEarnings: 0
     };
     
-    addUser(newUser);
+    await addUser(newUser);
 
     // If they were referred by someone, increment the referrer's count
     if (referralCode) {
-      const allUsers = getUsers();
+      const allUsers = await getUsers();
       const referrer = allUsers.find(u => u.affiliateCode === referralCode);
       if (referrer) {
-        updateUser(referrer.email, { referralCount: (referrer.referralCount || 0) + 1 });
+        await updateUser(referrer.email, { referralCount: (referrer.referralCount || 0) + 1 });
       }
     }
     

@@ -3,8 +3,8 @@ import ClientVipDashboard from "./ClientVipDashboard";
 
 export const dynamic = 'force-dynamic';
 
-export default function VipPage() {
-  const users = getUsers();
+export default async function AdminVipPage() {
+  const users = await getUsers();
   
   return <ClientVipDashboard initialUsers={users} />;
 }

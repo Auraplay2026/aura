@@ -1,5 +1,4 @@
-import fs from 'fs';
-import path from 'path';
+import { prisma } from './prisma';
 
 export interface Position {
   id: string;
@@ -30,22 +29,15 @@ export interface UserProfile {
   email: string;
   passwordHash: string;
   accountType: 'demo' | 'real';
-  
-  // Active pointers (legacy compatibility)
   balance: number;
   positions: Position[];
   transactions: Transaction[];
-
-  // Demo Wallet
   demoBalance: number;
   demoPositions: Position[];
   demoTransactions: Transaction[];
-
-  // Real Wallet
   realBalance: number;
   realPositions: Position[];
   realTransactions: Transaction[];
-
   hasCompletedOnboarding?: boolean;
   phoneNumber?: string;
   gamingState?: string;
@@ -55,221 +47,179 @@ export interface UserProfile {
   kycDocumentUrl?: string;
   notifications?: { id: string; message: string; timestamp: number; read: boolean }[];
   adminNotes?: string;
-
-  // Affiliate System
   affiliateCode?: string;
   referredBy?: string;
   referralCount?: number;
   affiliateEarnings?: number;
-
-  // VIP System
   totalWagered?: number;
   vipLevel?: string;
   manualVipLevel?: string;
   vipRewardsClaimed?: Record<string, boolean>;
 }
 
-const DB_DIR = path.join(process.cwd(), 'data');
-const DB_FILE = path.join(DB_DIR, 'users.json');
-
-const DEFAULT_DEMO_USER: UserProfile = {
-  username: "DemoPlayer",
-  email: "demo@aurabet.io",
-  passwordHash: "password123",
-  accountType: 'demo',
-  balance: 100000,
-  positions: [],
-  transactions: [],
-  demoBalance: 100000,
-  demoPositions: [],
-  demoTransactions: [],
-  realBalance: 0,
-  realPositions: [],
-  realTransactions: [],
-  hasCompletedOnboarding: false,
-  phoneNumber: '',
-  gamingState: '',
-  upiId: '',
-  role: 'user',
-  affiliateCode: 'DEMO500',
-  referredBy: '',
-  referralCount: 12,
-  affiliateEarnings: 45250
-};
-
-const DEFAULT_ADMIN_USER: UserProfile = {
-  username: "Admin",
-  email: "admin@aurabet.io",
-  passwordHash: "admin123",
-  accountType: 'real',
-  balance: 0,
-  positions: [],
-  transactions: [],
-  demoBalance: 100000,
-  demoPositions: [],
-  demoTransactions: [],
-  realBalance: 0,
-  realPositions: [],
-  realTransactions: [],
-  hasCompletedOnboarding: true,
-  phoneNumber: '9999999999',
-  gamingState: 'Maharashtra',
-  upiId: 'admin@okaxis',
-  role: 'admin',
-  affiliateCode: 'ADMIN123',
-  referredBy: '',
-  referralCount: 154,
-  affiliateEarnings: 1250000
-};
-
-// Ensure database directory and file exist
-function initDb() {
-  if (!fs.existsSync(DB_DIR)) {
-    fs.mkdirSync(DB_DIR, { recursive: true });
-  }
-  if (!fs.existsSync(DB_FILE)) {
-    const initialUsers = [DEFAULT_DEMO_USER, DEFAULT_ADMIN_USER];
-    fs.writeFileSync(DB_FILE, JSON.stringify(initialUsers, null, 2), 'utf-8');
-  } else {
-    try {
-      const data = fs.readFileSync(DB_FILE, 'utf-8');
-      const users = JSON.parse(data);
-      let modified = false;
-      if (Array.isArray(users)) {
-        if (!users.some(u => u.email.toLowerCase() === 'admin@aurabet.io')) {
-          users.push(DEFAULT_ADMIN_USER);
-          modified = true;
-        }
-        if (modified) {
-          fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2), 'utf-8');
-        }
-      }
-    } catch (e) {
-      console.error("Failed to initialize database users", e);
-    }
-  }
-}
-
-
 export function sanitizeUserProfile(user: any): UserProfile {
   const accountType = user.accountType === 'real' ? 'real' : 'demo';
-  const demoBalance = typeof user.demoBalance === 'number' ? user.demoBalance : 100000;
-  const demoPositions = Array.isArray(user.demoPositions) ? user.demoPositions : [];
-  const demoTransactions = Array.isArray(user.demoTransactions) ? user.demoTransactions : [];
-  
-  const realBalance = typeof user.realBalance === 'number' ? user.realBalance : 0;
-  const realPositions = Array.isArray(user.realPositions) ? user.realPositions : [];
-  const realTransactions = Array.isArray(user.realTransactions) ? user.realTransactions : [];
-  
-  const balance = typeof user.balance === 'number' 
-    ? user.balance 
-    : (accountType === 'real' ? realBalance : demoBalance);
-    
-  const positions = Array.isArray(user.positions)
-    ? user.positions
-    : (accountType === 'real' ? realPositions : demoPositions);
-    
-  const transactions = Array.isArray(user.transactions)
-    ? user.transactions
-    : (accountType === 'real' ? realTransactions : demoTransactions);
+  const allPositions = user.positions || [];
+  const allTransactions = user.transactions || [];
+
+  const demoPositions = allPositions.filter((p: any) => p.walletType === 'demo');
+  const demoTransactions = allTransactions.filter((t: any) => t.walletType === 'demo');
+  const realPositions = allPositions.filter((p: any) => p.walletType === 'real');
+  const realTransactions = allTransactions.filter((t: any) => t.walletType === 'real');
 
   return {
-    username: user.username || 'Player',
-    email: user.email || '',
-    passwordHash: user.passwordHash || '',
+    ...user,
     accountType,
-    balance,
-    positions,
-    transactions,
-    demoBalance,
+    positions: accountType === 'real' ? realPositions : demoPositions,
+    transactions: accountType === 'real' ? realTransactions : demoTransactions,
     demoPositions,
     demoTransactions,
-    realBalance,
     realPositions,
     realTransactions,
+    notifications: user.notifications || [],
     hasCompletedOnboarding: !!user.hasCompletedOnboarding,
-    phoneNumber: user.phoneNumber || '',
-    gamingState: user.gamingState || '',
-    upiId: user.upiId || '',
-    role: user.role === 'admin' ? 'admin' : (user.role === 'BANNED' ? 'BANNED' : 'user'),
+    role: user.role,
     kycStatus: user.kycStatus || 'NONE',
-    kycDocumentUrl: user.kycDocumentUrl || '',
-    notifications: Array.isArray(user.notifications) ? user.notifications : [],
-    adminNotes: user.adminNotes || '',
-    affiliateCode: user.affiliateCode || '',
-    referredBy: user.referredBy || '',
-    referralCount: typeof user.referralCount === 'number' ? user.referralCount : 0,
-    affiliateEarnings: typeof user.affiliateEarnings === 'number' ? user.affiliateEarnings : 0
-  };
+    affiliateEarnings: user.affiliateEarnings || 0,
+    referralCount: user.referralCount || 0,
+  } as UserProfile;
 }
 
-export function getUsers(): UserProfile[] {
-  initDb();
-  try {
-    const data = fs.readFileSync(DB_FILE, 'utf-8');
-    const parsed = JSON.parse(data);
-    if (Array.isArray(parsed)) {
-      let needsSave = false;
-      const users = parsed.map(u => {
-        if (!u.affiliateCode && u.username) {
-          u.affiliateCode = u.username.substring(0, 4).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
-          needsSave = true;
-        }
-        return sanitizeUserProfile(u);
-      });
-      if (needsSave) {
-        // Run save asynchronously to not block, but we still return the patched users
-        setTimeout(() => saveUsers(users), 0);
-      }
-      return users;
+export async function getUsers(): Promise<UserProfile[]> {
+  const users = await prisma.user.findMany({
+    include: { transactions: true, positions: true, notifications: true }
+  });
+  return users.map(sanitizeUserProfile);
+}
+
+export async function saveUsers(users: UserProfile[]) {
+  // Deprecated: No longer used in Prisma. Database saves automatically via updateUser.
+}
+
+export async function findUserByEmail(email: string): Promise<UserProfile | undefined> {
+  const user = await prisma.user.findUnique({
+    where: { email },
+    include: { transactions: true, positions: true, notifications: true }
+  });
+  return user ? sanitizeUserProfile(user) : undefined;
+}
+
+export async function findUserByUsername(username: string): Promise<UserProfile | undefined> {
+  const user = await prisma.user.findUnique({
+    where: { username },
+    include: { transactions: true, positions: true, notifications: true }
+  });
+  return user ? sanitizeUserProfile(user) : undefined;
+}
+
+export async function findUserByEmailOrUsername(identifier: string): Promise<UserProfile | undefined> {
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: identifier },
+        { username: identifier }
+      ]
+    },
+    include: { transactions: true, positions: true, notifications: true }
+  });
+  return user ? sanitizeUserProfile(user) : undefined;
+}
+
+export async function addUser(user: UserProfile): Promise<void> {
+  await prisma.user.create({
+    data: {
+      username: user.username,
+      email: user.email,
+      passwordHash: user.passwordHash,
+      accountType: user.accountType,
+      balance: user.balance,
+      demoBalance: user.demoBalance,
+      realBalance: user.realBalance,
+      role: user.role || 'user',
+      affiliateCode: user.affiliateCode || undefined,
     }
-    return [DEFAULT_DEMO_USER];
-  } catch (err) {
-    console.error("Failed to read users database", err);
-    return [DEFAULT_DEMO_USER];
-  }
+  });
 }
 
-export function saveUsers(users: UserProfile[]) {
-  initDb();
-  try {
-    fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2), 'utf-8');
-  } catch (err) {
-    console.error("Failed to write users database", err);
-  }
-}
+export async function updateUser(email: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
+  return await prisma.$transaction(async (tx) => {
+    const existing = await tx.user.findUnique({ where: { email } });
+    if (!existing) return null;
 
-export function findUserByEmail(email: string): UserProfile | undefined {
-  const users = getUsers();
-  return users.find(u => u.email.toLowerCase() === email.toLowerCase());
-}
+    const data: any = {};
+    if (updates.balance !== undefined) data.balance = updates.balance;
+    if (updates.realBalance !== undefined) data.realBalance = updates.realBalance;
+    if (updates.demoBalance !== undefined) data.demoBalance = updates.demoBalance;
+    if (updates.role !== undefined) data.role = updates.role;
+    if (updates.accountType !== undefined) data.accountType = updates.accountType;
+    if (updates.kycStatus !== undefined) data.kycStatus = updates.kycStatus;
+    if (updates.kycDocumentUrl !== undefined) data.kycDocumentUrl = updates.kycDocumentUrl;
+    if (updates.adminNotes !== undefined) data.adminNotes = updates.adminNotes;
+    if (updates.affiliateEarnings !== undefined) data.affiliateEarnings = updates.affiliateEarnings;
+    if (updates.referralCount !== undefined) data.referralCount = updates.referralCount;
+    if (updates.totalWagered !== undefined) data.totalWagered = updates.totalWagered;
+    if (updates.vipLevel !== undefined) data.vipLevel = updates.vipLevel;
 
-export function findUserByUsername(username: string): UserProfile | undefined {
-  const users = getUsers();
-  return users.find(u => u.username.toLowerCase() === username.toLowerCase());
-}
+    const txToProcess = [
+      ...(updates.realTransactions || []),
+      ...(updates.demoTransactions || []),
+      ...(updates.transactions || [])
+    ];
 
-export function findUserByEmailOrUsername(identifier: string): UserProfile | undefined {
-  const users = getUsers();
-  return users.find(u => 
-    u.email.toLowerCase() === identifier.toLowerCase() || 
-    u.username.toLowerCase() === identifier.toLowerCase()
-  );
-}
+    if (txToProcess.length > 0) {
+      const existingTx = await tx.transaction.findMany({ where: { userId: existing.id } });
+      const existingIds = new Set(existingTx.map(t => t.id));
+      for (const newTx of txToProcess) {
+        if (!existingIds.has(newTx.id)) {
+          let wallet = 'real';
+          if (updates.demoTransactions?.find(t => t.id === newTx.id)) wallet = 'demo';
+          
+          await tx.transaction.create({
+            data: {
+              id: newTx.id,
+              userId: existing.id,
+              walletType: wallet,
+              type: newTx.type,
+              amount: newTx.amount,
+              balanceAfter: newTx.balanceAfter,
+              timestamp: newTx.timestamp,
+              details: newTx.details,
+              status: newTx.status,
+              upiId: newTx.upiId,
+              utr: newTx.utr,
+              screenshotUrl: newTx.screenshotUrl
+            }
+          });
+          existingIds.add(newTx.id);
+        }
+      }
+    }
 
-export function addUser(user: UserProfile) {
-  const users = getUsers();
-  users.push(user);
-  saveUsers(users);
-}
+    if (updates.notifications) {
+      const existingNotifs = await tx.notification.findMany({ where: { userId: existing.id } });
+      const existingIds = new Set(existingNotifs.map(n => n.id));
+      for (const n of updates.notifications) {
+        if (!existingIds.has(n.id)) {
+          await tx.notification.create({
+            data: {
+              id: n.id,
+              userId: existing.id,
+              message: n.message,
+              timestamp: n.timestamp,
+              read: n.read
+            }
+          });
+          existingIds.add(n.id);
+        }
+      }
+    }
 
-export function updateUser(email: string, updates: Partial<UserProfile>) {
-  const users = getUsers();
-  const index = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
-  if (index !== -1) {
-    users[index] = { ...users[index], ...updates };
-    saveUsers(users);
-    return users[index];
-  }
-  return null;
+    const updatedUser = await tx.user.update({
+      where: { email },
+      data,
+      include: { transactions: true, positions: true, notifications: true }
+    });
+
+    return sanitizeUserProfile(updatedUser);
+  });
 }

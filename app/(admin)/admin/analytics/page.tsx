@@ -14,7 +14,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
   const selectedEmail = resolvedSearchParams.email || "";
 
   // Make sure users list triggers initial seed if empty
-  const users = getUsers();
+  const users = await getUsers();
   const allRounds = gameHistory.getAllRounds();
   const notificationLogs = await getNotificationLogsAction();
 

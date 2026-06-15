@@ -5,6 +5,15 @@
  * while implementing "Near-Miss" psychology to encourage replay.
  */
 
+function getSecureRandom(): number {
+  if (typeof crypto !== 'undefined' && crypto.getRandomValues) {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0] / (0xffffffff + 1);
+  }
+  return Math.random();
+}
+
 export interface GameOutcome {
   isWin: boolean;
   multiplier: number;
@@ -18,11 +27,11 @@ export function calculateGameOutcome(
   // Global mandate: 20% win rate (2 out of 10)
   const WIN_RATE = 0.20;
   
-  const roll = Math.random();
+  const roll = getSecureRandom();
   const isWin = roll < WIN_RATE;
   
   // "Near Miss" psychology: 40% of losses should look like a near miss
-  const isNearMiss = !isWin && Math.random() < 0.40;
+  const isNearMiss = !isWin && getSecureRandom() < 0.40;
   
   let multiplier = 0;
 
@@ -30,15 +39,15 @@ export function calculateGameOutcome(
   if (gameType === "SLOTS" || (!userTargetMultiplier && gameType !== "CRASH" && gameType !== "TABLE")) {
     if (isWin) {
       // Average payout of ~3x ensures House Edge of 40% (RTP 60%)
-      const mRoll = Math.random();
+      const mRoll = getSecureRandom();
       if (mRoll < 0.50) {
-        multiplier = 1.2 + Math.random() * 1.8; // 1.2x - 3.0x (Frequent small wins)
+        multiplier = 1.2 + getSecureRandom() * 1.8; // 1.2x - 3.0x (Frequent small wins)
       } else if (mRoll < 0.85) {
-        multiplier = 3.0 + Math.random() * 2.0; // 3.0x - 5.0x
+        multiplier = 3.0 + getSecureRandom() * 2.0; // 3.0x - 5.0x
       } else if (mRoll < 0.98) {
-        multiplier = 5.0 + Math.random() * 5.0; // 5.0x - 10.0x
+        multiplier = 5.0 + getSecureRandom() * 5.0; // 5.0x - 10.0x
       } else {
-        multiplier = 10.0 + Math.random() * 40.0; // 10.0x - 50.0x (Jackpot)
+        multiplier = 10.0 + getSecureRandom() * 40.0; // 10.0x - 50.0x (Jackpot)
       }
     } else {
       multiplier = 0;
@@ -49,15 +58,15 @@ export function calculateGameOutcome(
   if (gameType === "CRASH") {
     if (isWin) {
       // If win, the crash multiplier goes high enough to make players feel good
-      multiplier = 2.0 + (Math.random() * 8.0); // Crashes between 2.0x and 10.0x
+      multiplier = 2.0 + (getSecureRandom() * 8.0); // Crashes between 2.0x and 10.0x
     } else {
       // If loss, crash happens VERY early
       if (isNearMiss) {
         // "Near Miss" in crash means it crashes right before a psychological threshold (e.g. 1.95x instead of 2.0x)
-        multiplier = 1.5 + (Math.random() * 0.45); // 1.50x - 1.95x
+        multiplier = 1.5 + (getSecureRandom() * 0.45); // 1.50x - 1.95x
       } else {
         // Brutal instant crash
-        multiplier = 1.00 + (Math.random() * 0.15); // 1.00x - 1.15x
+        multiplier = 1.00 + (getSecureRandom() * 0.15); // 1.00x - 1.15x
       }
     }
   }
@@ -66,15 +75,15 @@ export function calculateGameOutcome(
   if (userTargetMultiplier && gameType !== "CRASH") {
     if (isWin) {
       // To win, the generated multiplier MUST be higher than the target
-      multiplier = userTargetMultiplier + (Math.random() * (userTargetMultiplier * 0.5));
+      multiplier = userTargetMultiplier + (getSecureRandom() * (userTargetMultiplier * 0.5));
     } else {
       // To lose, the generated multiplier MUST be lower than the target
       if (isNearMiss) {
         // Just barely miss the target
-        multiplier = userTargetMultiplier * (0.85 + Math.random() * 0.14);
+        multiplier = userTargetMultiplier * (0.85 + getSecureRandom() * 0.14);
       } else {
         // Completely miss
-        multiplier = userTargetMultiplier * (0.1 + Math.random() * 0.5);
+        multiplier = userTargetMultiplier * (0.1 + getSecureRandom() * 0.5);
       }
     }
   }
