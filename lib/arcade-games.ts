@@ -32,26 +32,6 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     url: "https://www.y8.com/embed/candy_rain_6"
   },
   {
-    id: "zen-archery",
-    title: "Archery World Tour",
-    provider: "AuraPlay Physics",
-    description: "Master wind and gravity. Aim with high precision to clear balloons and moving targets around the globe.",
-    thumbnail: "/games/archery_world_tour.png",
-    categories: ["action", "puzzle"],
-    url: "https://www.y8.com/embed/archery_master",
-    isNew: true
-  },
-  {
-    id: "madalin-stunt-cars-pro",
-    title: "Two Stunt Supercars",
-    provider: "AuraPlay Racing",
-    description: "Perform insane drifts, jumps, and stunts in luxury supercars. Run open-world maps in single or multiplayer sandbox modes.",
-    thumbnail: "/games/two_stunt_supercars.png",
-    categories: ["action", "racing"] as ArcadeCategoryId[],
-    url: "https://www.y8.com/embed/stunt_cars_pro",
-    isNew: true
-  },
-  {
     id: "slope-racing-3d",
     title: "Slope Racing 3D",
     provider: "AuraPlay Speed",
@@ -71,16 +51,6 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     url: "https://www.y8.com/embed/cut_the_rope_2"
   },
   {
-    id: "jetpack-joyride",
-    title: "Jetpack Joyride",
-    provider: "Halfbrick Studios",
-    description: "Fly with cool high-tech jetpacks, dodge laser beams and electrical hazards, and collect coins in this action-packed endless runner.",
-    thumbnail: "https://img.gamepix.com/games/jetpack-joyride/cover/jetpack-joyride.png",
-    categories: ["runner", "action"],
-    url: "https://www.y8.com/embed/jetpack_race_run",
-    isNew: true
-  },
-  {
     id: "tentrix",
     title: "TenTrix",
     provider: "AuraPlay Casual",
@@ -88,6 +58,25 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     thumbnail: "https://img.gamepix.com/games/tentrix/cover/tentrix.png",
     categories: ["puzzle"],
     url: "https://www.y8.com/embed/tentrix"
+  },
+  {
+    id: "hextris",
+    title: "Hextris",
+    provider: "AuraPlay Arcade",
+    description: "Fast-paced hexagonal block puzzle. Rotate the hexagon and match colors to clear lines before they reach the top.",
+    thumbnail: "https://img.gamepix.com/games/hextris/cover/hextris.png",
+    categories: ["puzzle", "action"],
+    url: "https://www.y8.com/embed/hextris",
+    isNew: true
+  },
+  {
+    id: "2048",
+    title: "2048",
+    provider: "AuraPlay Casual",
+    description: "The classic slide-matching puzzle game. Join the numbers to reach the legendary 2048 tile.",
+    thumbnail: "https://img.gamepix.com/games/2048/cover/2048.png",
+    categories: ["puzzle"],
+    url: "https://www.y8.com/embed/2048"
   }
 ];
 
