@@ -159,6 +159,12 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
     if (updates.referralCount !== undefined) data.referralCount = updates.referralCount;
     if (updates.totalWagered !== undefined) data.totalWagered = updates.totalWagered;
     if (updates.vipLevel !== undefined) data.vipLevel = updates.vipLevel;
+    if (updates.hasCompletedOnboarding !== undefined) data.hasCompletedOnboarding = updates.hasCompletedOnboarding;
+    if (updates.phoneNumber !== undefined) data.phoneNumber = updates.phoneNumber;
+    if (updates.gamingState !== undefined) data.gamingState = updates.gamingState;
+    if (updates.upiId !== undefined) data.upiId = updates.upiId;
+    if (updates.manualVipLevel !== undefined) data.manualVipLevel = updates.manualVipLevel;
+    if (updates.vipRewardsClaimed !== undefined) data.vipRewardsClaimed = updates.vipRewardsClaimed;
 
     const txToProcess = [
       ...(updates.realTransactions || []),
