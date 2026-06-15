@@ -3,10 +3,11 @@ import { generateMatches, Match } from "@/lib/sportsData";
 
 export const dynamic = "force-dynamic";
 
-// Extended Match type to support optional logos
+// Extended Match type to support optional logos and sport classification
 export type ExtendedMatch = Match & {
   team1Logo?: string;
   team2Logo?: string;
+  sport?: string;
 };
 
 // Standardizes ESPN scoreboard data to ExtendedMatch
@@ -122,7 +123,8 @@ function parseESPNEvent(event: any, sportKey: string): ExtendedMatch | null {
         draw: oDraw,
         team2: o2
       },
-      trend: { team1: 'none', draw: oDraw ? 'none' : null, team2: 'none' }
+      trend: { team1: 'none', draw: oDraw ? 'none' : null, team2: 'none' },
+      sport: sportKey
     };
   } catch (e) {
     console.error("Error parsing ESPN event:", e);
@@ -260,7 +262,8 @@ async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
             draw: parseFloat(oddsDraw.toFixed(2)),
             team2: parseFloat(odds2.toFixed(2))
           },
-          trend: { team1: 'none', draw: 'none', team2: 'none' }
+          trend: { team1: 'none', draw: 'none', team2: 'none' },
+          sport: 'cricket'
         });
       }
     }
@@ -294,42 +297,46 @@ export async function GET(req: Request) {
       if (matches.length === 0) {
         matches = generateMatches("soccer", 15);
       }
+      matches = matches.map(m => ({ ...m, sport: "soccer" }));
     } else if (sport === "basketball") {
       matches = await fetchBasketballMatches();
       if (matches.length === 0) {
         matches = generateMatches("basketball", 12);
       }
+      matches = matches.map(m => ({ ...m, sport: "basketball" }));
     } else if (sport === "tennis") {
       matches = await fetchTennisMatches();
       if (matches.length === 0) {
         matches = generateMatches("tennis", 10);
       }
+      matches = matches.map(m => ({ ...m, sport: "tennis" }));
     } else if (sport === "cricket") {
       matches = await fetchCricketMatches();
       if (matches.length === 0) {
         matches = generateMatches("cricket", 10);
       }
+      matches = matches.map(m => ({ ...m, sport: "cricket" }));
     } else {
       // "all" or combined
-      const soc = await fetchSoccerMatches();
-      const bas = await fetchBasketballMatches();
-      const ten = await fetchTennisMatches();
-      const cri = await fetchCricketMatches();
+      const soc = (await fetchSoccerMatches()).map(m => ({ ...m, sport: "soccer" }));
+      const bas = (await fetchBasketballMatches()).map(m => ({ ...m, sport: "basketball" }));
+      const ten = (await fetchTennisMatches()).map(m => ({ ...m, sport: "tennis" }));
+      const cri = (await fetchCricketMatches()).map(m => ({ ...m, sport: "cricket" }));
       matches = [...soc, ...bas, ...ten, ...cri];
       if (matches.length === 0) {
         matches = [
-          ...generateMatches("soccer", 5),
-          ...generateMatches("basketball", 5),
-          ...generateMatches("tennis", 5),
-          ...generateMatches("cricket", 5)
+          ...generateMatches("soccer", 5).map(m => ({ ...m, sport: "soccer" })),
+          ...generateMatches("basketball", 5).map(m => ({ ...m, sport: "basketball" })),
+          ...generateMatches("tennis", 5).map(m => ({ ...m, sport: "tennis" })),
+          ...generateMatches("cricket", 5).map(m => ({ ...m, sport: "cricket" }))
         ];
       }
     }
 
     // Ensure all matches have valid logos (fallbacks if ESPN/Cricbuzz doesn't supply one)
     const processed = matches.map(m => {
-      const isSoccer = m.odds.draw !== null && !m.team1Logo?.includes("cricbuzz");
-      const isCricket = m.odds.draw !== null && m.team1Logo?.includes("cricbuzz");
+      const isSoccer = m.sport === "soccer";
+      const isCricket = m.sport === "cricket";
       
       let fallback1 = "";
       let fallback2 = "";
