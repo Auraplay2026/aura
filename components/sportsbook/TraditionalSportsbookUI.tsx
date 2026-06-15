@@ -242,23 +242,23 @@ export function TraditionalSportsbookUI() {
                             <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
                               <button 
                                 onClick={() => handleOddsClick(market, 'yes')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#E0F2FE] hover:bg-[#c0e0fc] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-sky-500 ring-2 ring-sky-200' : 'border-sky-200/40'}`}
                               >
-                                <span className="text-slate-600 text-xs font-bold">1</span>
+                                <span className="text-sky-800 text-[10px] font-black uppercase tracking-wider">Back</span>
                                 <div className="flex items-center gap-1">
-                                  <span className="text-sm font-bold text-slate-900">{yesOdds}</span>
-                                  {isYesTrendingUp ? <TrendingUp className="w-3 h-3 text-green-500" /> : <TrendingDown className="w-3 h-3 text-red-500" />}
+                                  <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{yesOdds}</span>
+                                  {isYesTrendingUp ? <TrendingUp className="w-3 h-3 text-emerald-600" /> : <TrendingDown className="w-3 h-3 text-rose-600" />}
                                 </div>
                               </button>
                               
                               <button 
                                 onClick={() => handleOddsClick(market, 'no')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#FCE7F3] hover:bg-[#f9cce4] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-pink-500 ring-2 ring-pink-200' : 'border-pink-200/40'}`}
                               >
-                                <span className="text-slate-600 text-xs font-bold">2</span>
+                                <span className="text-pink-800 text-[10px] font-black uppercase tracking-wider">Lay</span>
                                 <div className="flex items-center gap-1">
-                                  <span className="text-sm font-bold text-slate-900">{noOdds}</span>
-                                  {isNoTrendingUp ? <TrendingUp className="w-3 h-3 text-green-500" /> : <TrendingDown className="w-3 h-3 text-red-500" />}
+                                  <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{noOdds}</span>
+                                  {isNoTrendingUp ? <TrendingUp className="w-3 h-3 text-emerald-600" /> : <TrendingDown className="w-3 h-3 text-rose-600" />}
                                 </div>
                               </button>
                             </div>
@@ -313,18 +313,18 @@ export function TraditionalSportsbookUI() {
                             <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
                               <button 
                                 onClick={() => handleOddsClick(market, 'yes')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#E0F2FE] hover:bg-[#c0e0fc] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-sky-500 ring-2 ring-sky-200' : 'border-sky-200/40'}`}
                               >
-                                <span className="text-slate-600 text-xs font-bold">1</span>
-                                <span className="text-sm font-bold text-slate-900">{yesOdds}</span>
+                                <span className="text-sky-850 text-[10px] font-black uppercase tracking-wider">Back</span>
+                                <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{yesOdds}</span>
                               </button>
                               
                               <button 
                                 onClick={() => handleOddsClick(market, 'no')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-slate-50 hover:bg-slate-50 rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-[#FFD700]' : 'border-transparent'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#FCE7F3] hover:bg-[#f9cce4] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-pink-500 ring-2 ring-pink-200' : 'border-pink-200/40'}`}
                               >
-                                <span className="text-slate-600 text-xs font-bold">2</span>
-                                <span className="text-sm font-bold text-slate-900">{noOdds}</span>
+                                <span className="text-pink-850 text-[10px] font-black uppercase tracking-wider">Lay</span>
+                                <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{noOdds}</span>
                               </button>
                             </div>
 

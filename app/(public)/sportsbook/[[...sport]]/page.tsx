@@ -407,7 +407,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                           </div>
                         </div>
                         <div className="flex-[2]">
-                          <label className="text-[10px] text-exchange-muted font-bold uppercase block mb-1">Stake ($)</label>
+                          <label className="text-[10px] text-exchange-muted font-bold uppercase block mb-1">Stake (₹)</label>
                           <input 
                             type="number" 
                             value={bet.stake}
@@ -421,7 +421,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                       <div className="mt-4 pt-3 border-t border-exchange-border">
                         <div className="flex items-center justify-between text-[10px] font-bold mb-1">
                           <span className="text-exchange-muted uppercase">Risk Slider</span>
-                          <span className={cn(isBack ? "text-emerald-600" : "text-pink-600")}>${bet.stake}</span>
+                          <span className={cn(isBack ? "text-emerald-600" : "text-pink-600")}>₹{bet.stake}</span>
                         </div>
                         <input 
                           type="range" 
@@ -433,8 +433,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                           className="w-full accent-emerald-600 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                         />
                         <div className="flex justify-between mt-2 text-[10px] font-bold">
-                          <span className="text-slate-500">Liability: <span className="text-red-600">${isBack ? bet.stake : (bet.stake * bet.odds - bet.stake).toFixed(2)}</span></span>
-                          <span className="text-slate-500">Profit: <span className="text-green-600">${isBack ? (bet.stake * bet.odds - bet.stake).toFixed(2) : bet.stake}</span></span>
+                          <span className="text-slate-500">Liability: <span className="text-red-600">₹{isBack ? bet.stake : (bet.stake * bet.odds - bet.stake).toFixed(2)}</span></span>
+                          <span className="text-slate-500">Profit: <span className="text-green-600">₹{isBack ? (bet.stake * bet.odds - bet.stake).toFixed(2) : bet.stake}</span></span>
                         </div>
                       </div>
 
@@ -451,11 +451,11 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
           <div className="p-4 bg-slate-100 border-t border-exchange-border shrink-0 space-y-2">
             <div className="flex justify-between text-xs font-bold text-exchange-muted">
               <span>Total Liability:</span>
-              <span className="text-red-600">${totalLiability.toFixed(2)}</span>
+              <span className="text-red-600">₹{totalLiability.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-xs font-bold text-exchange-muted">
               <span>Total Return:</span>
-              <span className="text-green-600">${totalPotentialReturn.toFixed(2)}</span>
+              <span className="text-green-600">₹{totalPotentialReturn.toFixed(2)}</span>
             </div>
             <button 
               onClick={() => {

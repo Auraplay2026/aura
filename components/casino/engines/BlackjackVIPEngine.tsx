@@ -23,11 +23,27 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
   const [dealerHand, setDealerHand] = useState<typeof DECK>([]);
   const [dealt, setDealt] = useState(false);
   const [resultMsg, setResultMsg] = useState("");
+  const [betCountdown, setBetCountdown] = useState(15);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
+  // Betting countdown loop when game is idle
+  useEffect(() => {
+    if (isPlaying) {
+      setBetCountdown(15);
+      return;
+    }
+    const timer = setInterval(() => {
+      setBetCountdown(prev => {
+        if (prev <= 1) return 15;
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [isPlaying]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -100,6 +116,30 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
         <h2 className="text-slate-300 font-black text-2xl md:text-4xl tracking-[0.4em] uppercase drop-shadow-md">VIP BLACKJACK PLATINUM</h2>
         <span className="text-slate-500 text-[10px] md:text-xs font-bold tracking-[0.5em] mt-1 block">BLACKJACK PAYS 3 TO 2</span>
       </div>
+
+      {/* 15s Betting Countdown Ring */}
+      {!isPlaying && (
+        <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-950/80 border border-slate-800 rounded-full px-3 py-1.5 shadow-lg backdrop-blur-md z-30 select-none">
+          <div className="relative w-8 h-8 flex items-center justify-center">
+            <svg className="w-full h-full transform -rotate-90">
+              <circle 
+                cx="16" cy="16" r="13" 
+                className="stroke-slate-800 fill-none" 
+                strokeWidth="2.5" 
+              />
+              <circle 
+                cx="16" cy="16" r="13" 
+                className="stroke-red-500 fill-none transition-all duration-1000" 
+                strokeWidth="2.5" 
+                strokeDasharray="81.68" 
+                strokeDashoffset={(81.68 - (81.68 * betCountdown) / 15).toFixed(2)}
+              />
+            </svg>
+            <span className="absolute text-[10px] font-black text-white font-mono">{betCountdown}s</span>
+          </div>
+          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider pr-1">Bet window</span>
+        </div>
+      )}
 
       <div className="relative z-10 w-full flex flex-col md:flex-row gap-8 md:gap-20 justify-center mt-12 px-6 transform-style-3d rotate-x-[15deg]">
         

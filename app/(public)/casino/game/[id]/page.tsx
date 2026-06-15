@@ -223,7 +223,7 @@ function RollingCounter({ target }: { target: number }) {
   return <>{current.toFixed(2)}</>;
 }
 
-const STAKE_PRESETS = [10, 50, 100, 500, 1000];
+const STAKE_PRESETS = [100, 500, 1000, 5000, 10000, 50000];
 
 export default function GamePlayerPage() {
   const params = useParams();
@@ -574,8 +574,8 @@ export default function GamePlayerPage() {
                     </div>
                     <div className="p-6 space-y-6">
                       <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-widest">
-                        <span>Main: ${rawBalance.toFixed(2)}</span>
-                        <span>Casino: ${transferAmount}</span>
+                        <span>Main: ₹{rawBalance.toFixed(2)}</span>
+                        <span>Casino: ₹{transferAmount}</span>
                       </div>
                       <input 
                         type="range" 
@@ -587,7 +587,7 @@ export default function GamePlayerPage() {
                         className="w-full accent-red-600 h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
                       />
                       <div className="text-center">
-                        <span className="text-3xl font-black text-red-600 font-mono tracking-tighter">${transferAmount}</span>
+                        <span className="text-3xl font-black text-red-600 font-mono tracking-tighter">₹{transferAmount}</span>
                       </div>
                     </div>
                     <div className="p-4 bg-slate-50 flex gap-4">
@@ -725,14 +725,20 @@ export default function GamePlayerPage() {
                                 </div>
                               </div>
                               
-                              <div className="grid grid-cols-4 gap-2 mt-2">
+                              <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1 px-1">
+                                <span>Chip Selector</span>
+                                <span>Double click to 2x</span>
+                              </div>
+                              <div className="grid grid-cols-6 gap-1 mt-1.5">
                                 {STAKE_PRESETS.map((amount) => (
                                   <button
                                     key={amount}
                                     onClick={() => setBetAmount(amount)}
-                                    className={`py-2 rounded-lg font-black text-[10px] transition-all ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                                    onDoubleClick={() => setBetAmount(amount * 2)}
+                                    className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                                    title="Double click to double bet"
                                   >
-                                    ₹{amount}
+                                    ₹{amount >= 1000 ? `${amount/1000}k` : amount}
                                   </button>
                                 ))}
                               </div>

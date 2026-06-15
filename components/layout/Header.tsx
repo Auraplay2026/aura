@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bell, Briefcase, Menu } from "lucide-react";
+import { Search, Bell, Briefcase, Menu, Clock } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CashierModal } from "@/components/ui/CashierModal";
 import { UserMenu } from "@/components/UserMenu";
@@ -22,7 +22,57 @@ export function Header() {
   const [authView, setAuthView] = useState<'login' | 'signup'>('login');
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
 
-  const { balance, positions, isLoggedIn, currentUser } = useTradingStore();
+  const { balance, positions, isLoggedIn, currentUser, xp } = useTradingStore();
+
+  // IST digital clock time string
+  const [timeStr, setTimeStr] = useState("");
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      const istTime = new Date(now.toLocaleString("en-US", { timeZone: "Asia/Kolkata" }));
+      const hours = istTime.getHours().toString().padStart(2, '0');
+      const minutes = istTime.getMinutes().toString().padStart(2, '0');
+      const seconds = istTime.getSeconds().toString().padStart(2, '0');
+      setTimeStr(`${hours}:${minutes}:${seconds} IST`);
+    };
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Flashing states for balance and exposure changes
+  const [prevBalance, setPrevBalance] = useState(balance);
+  const [balanceFlash, setBalanceFlash] = useState<"up" | "down" | null>(null);
+
+  const currentExposure = positions.reduce((acc, p) => acc + (p.investment || 0), 0);
+  const [prevExposure, setPrevExposure] = useState(currentExposure);
+  const [exposureFlash, setExposureFlash] = useState<"up" | "down" | null>(null);
+
+  useEffect(() => {
+    if (balance > prevBalance) {
+      setBalanceFlash("up");
+      const timer = setTimeout(() => setBalanceFlash(null), 1000);
+      return () => clearTimeout(timer);
+    } else if (balance < prevBalance) {
+      setBalanceFlash("down");
+      const timer = setTimeout(() => setBalanceFlash(null), 1000);
+      return () => clearTimeout(timer);
+    }
+    setPrevBalance(balance);
+  }, [balance, prevBalance]);
+
+  useEffect(() => {
+    if (currentExposure > prevExposure) {
+      setExposureFlash("up");
+      const timer = setTimeout(() => setExposureFlash(null), 1000);
+      return () => clearTimeout(timer);
+    } else if (currentExposure < prevExposure) {
+      setExposureFlash("down");
+      const timer = setTimeout(() => setExposureFlash(null), 1000);
+      return () => clearTimeout(timer);
+    }
+    setPrevExposure(currentExposure);
+  }, [currentExposure, prevExposure]);
   const syncFromServer = useTradingStore(state => state.syncFromServer);
   const { isMobileMenuOpen, setIsMobileMenuOpen } = useSidebarContext();
   
@@ -51,7 +101,7 @@ export function Header() {
   }, [isLoggedIn, syncFromServer]);
 
   return (
-    <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white/85 backdrop-blur-2xl border-b border-slate-200/50 shadow-[0_1px_3px_rgba(0,0,0,0.04)] flex items-center justify-between px-4 sm:px-6 transition-all">
+    <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white border-b border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center justify-between px-4 sm:px-6 transition-all relative">
       
       {/* Mobile Menu Toggle */}
       <div className="flex items-center lg:hidden mr-3">
@@ -90,6 +140,12 @@ export function Header() {
             <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md px-1.5 py-0.5 shadow-sm">K</kbd>
           </div>
         </button>
+
+        {/* IST Digital Clock */}
+        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-black text-slate-500 font-mono tracking-wider ml-2 shadow-sm select-none">
+          <Clock className="w-3.5 h-3.5 text-red-650 animate-pulse" />
+          <span>{timeStr}</span>
+        </div>
       </div>
 
       {/* Right Side Controls */}
@@ -100,18 +156,35 @@ export function Header() {
             {/* Wallet Balance Widget */}
             <div className="flex items-center gap-2 sm:gap-4 pr-1 sm:pr-2">
               <div className="flex flex-col items-end leading-none">
-                <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Balance</span>
-                <span className="text-xs sm:text-sm font-black text-slate-900 font-mono tabular-nums tracking-tight">
-                  ${isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
+                <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">Balance</span>
+                <span className={cn(
+                  "text-xs sm:text-sm font-black font-mono tabular-nums tracking-tight transition-all duration-300",
+                  balanceFlash === "up" ? "text-emerald-500 scale-105 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]" :
+                  balanceFlash === "down" ? "text-rose-500 scale-95 animate-bounce" : "text-slate-900"
+                )}>
+                  ₹{isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
               <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
               <div className="flex flex-col items-end leading-none">
-                <span className="text-[8px] sm:text-[9px] font-bold text-slate-500 uppercase tracking-widest mb-0.5">Exposure</span>
-                <span className="text-xs sm:text-sm font-black text-red-600 font-mono tabular-nums tracking-tight">
-                  ${isClient ? positions.reduce((acc, p) => acc + (p.investment || 0), 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
+                <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">Exposure</span>
+                <span className={cn(
+                  "text-xs sm:text-sm font-black font-mono tabular-nums tracking-tight transition-all duration-300",
+                  exposureFlash === "up" ? "text-red-500 scale-105 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]" :
+                  exposureFlash === "down" ? "text-emerald-500 scale-95" : "text-red-600"
+                )}>
+                  ₹{isClient ? currentExposure.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
+
+              {/* VIP Level Badge HUD */}
+              <div className="hidden sm:flex flex-col items-start leading-none pl-1">
+                <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">VIP Tier</span>
+                <span className="text-[10px] font-black text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded uppercase tracking-wider select-none">
+                  LVL {Math.floor((xp || 0) / 1000) + 1}
+                </span>
+              </div>
+
               <button 
                 onClick={() => setIsCashierOpen(true)}
                 className="hidden sm:block bg-gradient-to-r from-red-600 to-rose-600 hover:opacity-95 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-md transition-all ml-2 uppercase tracking-wider shadow-md active:scale-95 shadow-red-500/10"
@@ -255,6 +328,16 @@ export function Header() {
       <CashierModal isOpen={isCashierOpen} onClose={() => setIsCashierOpen(false)} />
       <PortfolioSidebar isOpen={isPortfolioOpen} onClose={() => setIsPortfolioOpen(false)} />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} initialView={authView} />
+
+      {/* Bottom Level Progress bar */}
+      {isLoggedIn && (
+        <div className="absolute bottom-0 left-0 w-full h-[3px] bg-slate-100 overflow-hidden">
+          <div 
+            className="h-full bg-gradient-to-r from-red-600 via-rose-500 to-yellow-500 transition-all duration-500"
+            style={{ width: `${((xp || 0) % 1000) / 10}%` }}
+          />
+        </div>
+      )}
     </header>
   );
 }

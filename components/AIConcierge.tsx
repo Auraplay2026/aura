@@ -78,7 +78,7 @@ export function AIConcierge() {
                 </>
               ) : (
                 <>
-                  <Gift className="w-4 h-4" /> Claim $50 VIP Drop
+                  <Gift className="w-4 h-4" /> Claim ₹4,000 VIP Drop
                 </>
               )}
             </button>
