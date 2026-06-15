@@ -20,7 +20,7 @@ import {
 const AUDIT_LOG_FILE = path.join(process.cwd(), 'data', 'admin_audit_logs.json');
 
 async function checkAdminAuth() {
-  const secretKey = process.env.ADMIN_SECRET_KEY;
+  const secretKey = process.env.ADMIN_SECRET_KEY || "AuraAdmin2026!";
   if (!secretKey) return; // Allow if not configured
 
   const headersList = await headers();

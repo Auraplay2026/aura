@@ -43,7 +43,7 @@ export function proxy(request: NextRequest) {
 
   // 3. Protect Admin UI and Admin APIs with Basic Auth
   if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
-    const secretKey = process.env.ADMIN_SECRET_KEY;
+    const secretKey = process.env.ADMIN_SECRET_KEY || "AuraAdmin2026!";
 
     if (secretKey) {
       const basicAuth = request.headers.get('authorization');
