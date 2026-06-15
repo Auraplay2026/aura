@@ -20,7 +20,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "High-speed 3D temple runner. Dodge ancient obstacles, collect gems, slide, jump, and run as far as you can.",
     thumbnail: "/games/tomb_runner.png",
     categories: ["runner", "action"],
-    url: "https://www.y8.com/embed/tomb_runner",
+    url: "https://html5.gamedistribution.com/f2af2ecc05a445edb6862c589e996a7e/",
     isNew: true,
     orientation: "landscape"
   },
@@ -31,7 +31,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Form sweet cascades and match colourful jellies and candy combos in this delicious match-3 puzzle adventure.",
     thumbnail: "/games/candy_rain.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/candy_rain_6",
+    url: "https://html5.gamedistribution.com/f318ed77bd024a5eac09f407b4a25e9e/",
     orientation: "portrait"
   },
   {
@@ -41,7 +41,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "High-speed 3D neon ball race down a steep, tricky slope. Guide the ball safely and avoid red hazards to survive.",
     thumbnail: "https://img.gamepix.com/games/slope-racing-3d/cover/slope-racing-3d.png",
     categories: ["action", "racing"],
-    url: "https://www.y8.com/embed/slope",
+    url: "https://html5.gamedistribution.com/2b5cd37e40d046cba9456ce4371f43a9/",
     isNew: true,
     orientation: "landscape"
   },
@@ -52,7 +52,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Cut the ropes, feed candy to Om Nom, and collect gold stars in this award-winning physics puzzle game.",
     thumbnail: "https://img.gamepix.com/games/cut-the-rope/cover/cut-the-rope.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/cut_the_rope_2",
+    url: "https://html5.gamedistribution.com/51352e850b5d4da2aba57e10b10ec8cb/",
     orientation: "portrait"
   },
   {
@@ -62,7 +62,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Place colorful blocks on the board to form full vertical and horizontal lines in this addictive grid puzzle game.",
     thumbnail: "https://img.gamepix.com/games/tentrix/cover/tentrix.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/tentrix",
+    url: "https://play.gamepix.com/tentrix/embed",
     orientation: "portrait"
   },
   {
@@ -72,7 +72,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "Fast-paced hexagonal block puzzle. Rotate the hexagon and match colors to clear lines before they reach the top.",
     thumbnail: "https://img.gamepix.com/games/hextris/cover/hextris.png",
     categories: ["puzzle", "action"],
-    url: "https://www.y8.com/embed/hextris",
+    url: "https://hextris.github.io/hextris/",
     isNew: true,
     orientation: "portrait"
   },
@@ -83,7 +83,7 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     description: "The classic slide-matching puzzle game. Join the numbers to reach the legendary 2048 tile.",
     thumbnail: "https://img.gamepix.com/games/2048/cover/2048.png",
     categories: ["puzzle"],
-    url: "https://www.y8.com/embed/2048",
+    url: "https://gabrielecirulli.github.io/2048/",
     orientation: "portrait"
   }
 ];

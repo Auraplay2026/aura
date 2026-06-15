@@ -203,8 +203,8 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
         isFullscreen
           ? "flex-1 border-none rounded-none w-full h-full bg-black flex items-center justify-center"
           : game.orientation === "portrait"
-            ? "aspect-[9/16] max-w-[480px] mx-auto rounded-3xl border-slate-200 shadow-xl"
-            : "w-full aspect-[4/3] sm:aspect-video rounded-3xl border-slate-200 shadow-xl"
+            ? "w-full max-w-[400px] mx-auto h-[500px] sm:h-[650px] rounded-3xl border-slate-200 shadow-xl"
+            : "w-full max-w-5xl mx-auto h-[450px] sm:h-[550px] lg:h-[650px] rounded-3xl border-slate-200 shadow-xl"
       }`}>
         
         {/* Splash Start Page */}
@@ -274,7 +274,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
         ) : (
           /* Actual Game Viewport */
           <div className={`relative w-full h-full flex items-center justify-center ${
-            isFullscreen && game.orientation === "portrait" ? "aspect-[9/16] max-w-[500px]" : "w-full h-full"
+            isFullscreen && game.orientation === "portrait" ? "w-full max-w-[500px] mx-auto h-full" : "w-full h-full"
           }`}>
             {isLoading && (
               <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 z-20">
