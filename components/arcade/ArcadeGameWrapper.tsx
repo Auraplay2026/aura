@@ -64,9 +64,8 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
           src={iframeSrc}
           className="w-full h-full border-0"
           onLoad={() => setIsLoading(false)}
-          allow="autoplay; fullscreen; gamepad"
+          allow="autoplay; fullscreen; gamepad; accelerometer; gyroscope; xr-spatial-tracking; clipboard-write"
           allowFullScreen
-          sandbox="allow-scripts allow-same-origin allow-forms allow-pointer-lock"
         />
 
         {isFullscreen && (
