@@ -9,10 +9,10 @@ export function proxy(request: NextRequest) {
   const ip = request.headers.get('x-forwarded-for') || 'unknown';
   const path = request.nextUrl.pathname;
 
-  // 1. Rate Limiting for Auth APIs (Prevent Brute Force)
-  if (path.startsWith('/api/auth')) {
+  // 1. Rate Limiting for Auth and Betting APIs (Prevent Brute Force & Spam)
+  if (path.startsWith('/api/auth') || path.startsWith('/api/casino') || path.startsWith('/api/deposit')) {
     const windowMs = 60 * 1000; // 1 minute
-    const maxRequests = 15; // 15 requests per minute
+    const maxRequests = 30; // 30 requests per minute
 
     const currentRecord = rateLimitMap.get(ip);
     const now = Date.now();
@@ -24,7 +24,7 @@ export function proxy(request: NextRequest) {
       } else {
         if (currentRecord.count >= maxRequests) {
           return new NextResponse(
-            JSON.stringify({ error: "Too many authentication requests. Please try again later." }),
+            JSON.stringify({ error: "Rate limit exceeded. Please wait before trying again." }),
             { status: 429, headers: { 'Content-Type': 'application/json' } }
           );
         }
@@ -41,13 +41,43 @@ export function proxy(request: NextRequest) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
+  // 3. Protect Admin UI and Admin APIs with Basic Auth
+  if (path.startsWith('/admin') || path.startsWith('/api/admin')) {
+    const secretKey = process.env.ADMIN_SECRET_KEY;
+
+    if (secretKey) {
+      const basicAuth = request.headers.get('authorization');
+      
+      if (basicAuth) {
+        const authValue = basicAuth.split(' ')[1];
+        const decoded = atob(authValue);
+        const [user, pwd] = decoded.split(':');
+
+        if (pwd === secretKey || user === secretKey) {
+          return NextResponse.next();
+        }
+      }
+
+      return new NextResponse('Unauthorized Admin Access', {
+        status: 401,
+        headers: {
+          'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
+        },
+      });
+    }
+  }
+
   return NextResponse.next();
 }
 
 export const config = {
   matcher: [
     '/api/auth/:path*',
+    '/api/casino/:path*',
+    '/api/deposit/:path*',
     '/data/:path*',
-    '/scripts/:path*'
+    '/scripts/:path*',
+    '/admin/:path*',
+    '/api/admin/:path*'
   ],
 };

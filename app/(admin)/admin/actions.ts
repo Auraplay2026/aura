@@ -7,6 +7,7 @@ import { getPaymentSettings, savePaymentSettings, PaymentSettings } from "@/lib/
 import { revalidatePath } from "next/cache";
 import fs from "fs";
 import path from "path";
+import { headers } from "next/headers";
 import { 
   getNotificationLogs, 
   sendTransactionNotification, 
@@ -17,6 +18,24 @@ import {
 } from "@/lib/notificationService";
 
 const AUDIT_LOG_FILE = path.join(process.cwd(), 'data', 'admin_audit_logs.json');
+
+async function checkAdminAuth() {
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  if (!secretKey) return; // Allow if not configured
+
+  const headersList = await headers();
+  const authHeader = headersList.get('authorization');
+  if (!authHeader) throw new Error("Unauthorized: Missing Admin Auth");
+
+  const authValue = authHeader.split(' ')[1];
+  const decoded = Buffer.from(authValue, 'base64').toString('utf-8');
+  const [user, pwd] = decoded.split(':');
+
+  if (pwd !== secretKey && user !== secretKey) {
+    throw new Error("Unauthorized: Invalid Admin Secret");
+  }
+}
+
 
 // ─────────────────────────────────────────────────────────────────────
 // Admin Security Audit Logger

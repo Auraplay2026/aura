@@ -8,8 +8,10 @@ export async function POST(request: Request) {
   try {
     const { email, amount, utr, upiId, screenshot, type = 'deposit', method = 'upi' } = await request.json();
 
-    if (!email || !amount || !upiId) {
-      return NextResponse.json({ error: 'Email, amount, and UPI ID/Sender Account are required.' }, { status: 400 });
+    const parsedAmount = Number(amount);
+
+    if (!email || isNaN(parsedAmount) || parsedAmount <= 0 || !upiId) {
+      return NextResponse.json({ error: 'Email, valid positive amount, and UPI ID/Sender Account are required.' }, { status: 400 });
     }
 
     if (type === 'deposit') {

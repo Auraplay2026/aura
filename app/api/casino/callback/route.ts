@@ -13,6 +13,10 @@ export async function POST(request: Request) {
     const gameId = body.gameId || body.game_id || "slot";
     const roundId = body.roundId || body.round_id;
 
+    if (amount < 0 || isNaN(amount)) {
+      return NextResponse.json({ status: "ERROR_INVALID_AMOUNT", message: "Amount must be a positive number." }, { status: 200 });
+    }
+
     if (!action) {
       return NextResponse.json({ status: "ERROR_INVALID_ACTION", message: "Action is required." }, { status: 200 });
     }
