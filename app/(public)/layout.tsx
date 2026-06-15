@@ -2,6 +2,7 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { Header } from "@/components/layout/Header";
 import { LiveChat } from "@/components/LiveChat";
 import { Footer } from "@/components/layout/Footer";
+import { LiveWinTicker } from "@/components/ui/LiveWinTicker";
 import { GlobalLoader } from "@/components/ui/GlobalLoader";
 import { CursorSpotlight } from "@/components/ui/CursorSpotlight";
 import { AIConcierge } from "@/components/AIConcierge";
@@ -35,6 +36,7 @@ export default function PublicLayout({
         
         <main className="flex-1 overflow-y-auto custom-scrollbar relative">
           {children}
+          <LiveWinTicker />
           <Footer />
         </main>
       </div>

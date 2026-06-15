@@ -1,6 +1,8 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { recordGameRound } from './recordRound';
+import { ACHIEVEMENTS } from './achievements';
+import { checkStreak } from './streakEngine';
 
 export interface Transaction {
   id: string;
@@ -68,6 +70,21 @@ interface TradingState {
   currentUser: UserProfile | null;
   isLoggedIn: boolean;
 
+  // Daily Streak
+  streakCount: number;
+  lastLoginDate: string | null;
+  claimedToday: boolean;
+  spinWheelClaimedToday: boolean;
+
+  // Achievements
+  unlockedAchievements: string[];
+  xp: number;
+  points: number;
+  latestAchievementUnlocked: any | null;
+  winStreakCount: number;
+  predictionWinStreak: number;
+  latestWinCelebration: { amount: number; gameTitle: string } | null;
+
   // Actions
   deposit: (amount: number, method?: string) => void;
   placeTrade: (marketId: string, marketTitle: string, side: 'yes' | 'no', investment: number, currentPrice: number) => void;
@@ -93,6 +110,14 @@ interface TradingState {
   playCasino: (wager: number, payout: number, gameTitle: string) => void;
   houseEdge: number;
   fetchSystemConfig: () => Promise<void>;
+
+  // Daily Streak & Spin Actions
+  checkDailyStreak: () => void;
+  claimDailyReward: () => void;
+  spinWheelClaimed: (prizeAmount: number, prizeName: string) => void;
+  unlockAchievement: (id: string) => void;
+  clearLatestAchievement: () => void;
+  clearLatestWinCelebration: () => void;
 }
 
 // Helper to determine VIP Level based on total wagered
@@ -204,6 +229,21 @@ export const useTradingStore = create<TradingState>()(
       currentUser: null,
       isLoggedIn: false, // Default to logged out
       houseEdge: 2.0, // Default 2% house edge
+
+      // Daily Streak & Spin states
+      streakCount: 0,
+      lastLoginDate: null,
+      claimedToday: false,
+      spinWheelClaimedToday: false,
+
+      // Achievements states
+      unlockedAchievements: [],
+      xp: 0,
+      points: 0,
+      latestAchievementUnlocked: null,
+      winStreakCount: 0,
+      predictionWinStreak: 0,
+      latestWinCelebration: null,
 
       // Backend-supported legacy login compatibility (logs in as demo user via API)
       login: async () => {
@@ -636,7 +676,73 @@ export const useTradingStore = create<TradingState>()(
         });
 
         const newTransactions = [tx, ...state.transactions];
-        return getSyncedStateAndSync(state, newBalance, newTransactions);
+        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
+
+        // Achievement check logic for sports betting
+        const toUnlock = new Set<string>();
+
+        if (stake >= 10000) toUnlock.add('high_roller');
+        if (stake === safeBalance) toUnlock.add('risk_taker');
+
+        const currentHour = new Date().getHours();
+        if (currentHour >= 0 && currentHour < 5) toUnlock.add('night_owl');
+        if (currentHour >= 5 && currentHour < 8) toUnlock.add('early_bird');
+
+        // Sports fanatic count
+        const sportsBetsCount = newTransactions.filter(t => t.type === 'trade' && t.details.includes('bet on')).length;
+        if (sportsBetsCount >= 10) toUnlock.add('sports_fanatic');
+
+        const totalWagersCount = newTransactions.filter(t => t.type === 'casino' || t.type === 'trade').length;
+        if (totalWagersCount >= 100) toUnlock.add('centurion');
+        if (newTotalWagered >= 100000) toUnlock.add('big_spender');
+
+        if (newVipLevel !== 'Bronze') toUnlock.add('vip_ascension');
+
+        let currentUnlocked = [...(state.unlockedAchievements || [])];
+        let addedXp = 0;
+        let addedPoints = 0;
+        let latestUnlocked: any = null;
+
+        for (const achId of toUnlock) {
+          if (!currentUnlocked.includes(achId)) {
+            currentUnlocked.push(achId);
+            const ach = ACHIEVEMENTS.find((a) => a.id === achId);
+            if (ach) {
+              addedXp += ach.xpReward;
+              addedPoints += ach.pointsReward;
+              latestUnlocked = ach;
+            }
+          }
+        }
+
+        if (latestUnlocked && typeof window !== 'undefined') {
+          setTimeout(() => {
+            try {
+              const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const osc = audioCtx.createOscillator();
+              const gainNode = audioCtx.createGain();
+              osc.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+              osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+              osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+              osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+              osc.start();
+              osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e) {}
+          }, 50);
+        }
+
+        return {
+          ...syncedState,
+          unlockedAchievements: currentUnlocked,
+          xp: (state.xp || 0) + addedXp,
+          points: (state.points || 0) + addedPoints,
+          latestAchievementUnlocked: latestUnlocked || state.latestAchievementUnlocked
+        };
       }),
 
       cancelSportsBet: (transactionId) => set((state) => {
@@ -682,7 +788,6 @@ export const useTradingStore = create<TradingState>()(
            safeBalance = isNaN(parsed) ? 100000 : parsed;
         }
 
-        // Security check: Prevent overdrafts and negative wagers/payouts
         if (wager <= 0 || wager > safeBalance || payout < 0) {
           console.error("Invalid wager/payout or insufficient balance");
           return state;
@@ -711,7 +816,86 @@ export const useTradingStore = create<TradingState>()(
         };
 
         const newTransactions = [tx, ...state.transactions];
-        return getSyncedStateAndSync(state, newBalance, newTransactions);
+        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
+
+        // Achievement check logic
+        const toUnlock = new Set<string>();
+        toUnlock.add('first_spin');
+
+        if (wager >= 10000) toUnlock.add('high_roller');
+        if (payout >= 50000) toUnlock.add('half_century');
+        if (wager === safeBalance) toUnlock.add('risk_taker');
+        if (payout >= wager * 100) toUnlock.add('jackpot_hunter');
+        if (payout >= wager * 10) toUnlock.add('lucky_break');
+
+        const currentHour = new Date().getHours();
+        if (currentHour >= 0 && currentHour < 5) toUnlock.add('night_owl');
+        if (currentHour >= 5 && currentHour < 8) toUnlock.add('early_bird');
+
+        const totalWagersCount = newTransactions.filter(t => t.type === 'casino' || t.type === 'trade').length;
+        if (totalWagersCount >= 100) toUnlock.add('centurion');
+        if (newTotalWagered >= 100000) toUnlock.add('big_spender');
+        if (newBalance >= 500000) toUnlock.add('wealthy_investor');
+
+        // Streak check
+        const won = payout > wager;
+        let newStreak = state.winStreakCount || 0;
+        if (won) {
+          newStreak += 1;
+          if (newStreak >= 5) toUnlock.add('hot_streak');
+        } else if (payout === 0) {
+          newStreak = 0;
+        }
+
+        if (newVipLevel !== 'Bronze') toUnlock.add('vip_ascension');
+
+        let currentUnlocked = [...(state.unlockedAchievements || [])];
+        let addedXp = 0;
+        let addedPoints = 0;
+        let latestUnlocked: any = null;
+
+        for (const achId of toUnlock) {
+          if (!currentUnlocked.includes(achId)) {
+            currentUnlocked.push(achId);
+            const ach = ACHIEVEMENTS.find((a) => a.id === achId);
+            if (ach) {
+              addedXp += ach.xpReward;
+              addedPoints += ach.pointsReward;
+              latestUnlocked = ach;
+            }
+          }
+        }
+
+        if (latestUnlocked && typeof window !== 'undefined') {
+          setTimeout(() => {
+            try {
+              const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const osc = audioCtx.createOscillator();
+              const gainNode = audioCtx.createGain();
+              osc.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+              osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+              osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+              osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+              osc.start();
+              osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e) {}
+          }, 50);
+        }
+
+        return {
+          ...syncedState,
+          winStreakCount: newStreak,
+          unlockedAchievements: currentUnlocked,
+          xp: (state.xp || 0) + addedXp,
+          points: (state.points || 0) + addedPoints,
+          latestAchievementUnlocked: latestUnlocked || state.latestAchievementUnlocked,
+          latestWinCelebration: payout >= 500 ? { amount: payout, gameTitle } : state.latestWinCelebration
+        };
       }),
 
       cashOut: (positionId, currentMarketPrice) => set((state) => {
@@ -750,7 +934,75 @@ export const useTradingStore = create<TradingState>()(
         });
 
         const newTransactions = [tx, ...state.transactions];
-        return getSyncedStateAndSync(state, newBalance, newTransactions, updatedPositions);
+        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions, updatedPositions);
+
+        // Achievement check logic for predictions
+        const toUnlock = new Set<string>();
+
+        // 1. Diamond Hands: held for 24+ hours
+        const holdTime = Date.now() - position.timestamp;
+        if (holdTime >= 24 * 60 * 60 * 1000) {
+          toUnlock.add('diamond_hands');
+        }
+
+        // 2. Sharpshooter prediction win streak
+        const won = currentValue > position.investment;
+        let newStreak = state.predictionWinStreak || 0;
+        if (won) {
+          newStreak += 1;
+          if (newStreak >= 3) toUnlock.add('sharpshooter');
+        } else {
+          newStreak = 0;
+        }
+
+        if (currentValue >= 50000) toUnlock.add('half_century');
+
+        let currentUnlocked = [...(state.unlockedAchievements || [])];
+        let addedXp = 0;
+        let addedPoints = 0;
+        let latestUnlocked: any = null;
+
+        for (const achId of toUnlock) {
+          if (!currentUnlocked.includes(achId)) {
+            currentUnlocked.push(achId);
+            const ach = ACHIEVEMENTS.find((a) => a.id === achId);
+            if (ach) {
+              addedXp += ach.xpReward;
+              addedPoints += ach.pointsReward;
+              latestUnlocked = ach;
+            }
+          }
+        }
+
+        if (latestUnlocked && typeof window !== 'undefined') {
+          setTimeout(() => {
+            try {
+              const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+              const osc = audioCtx.createOscillator();
+              const gainNode = audioCtx.createGain();
+              osc.connect(gainNode);
+              gainNode.connect(audioCtx.destination);
+              osc.type = 'sine';
+              osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+              osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+              osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+              osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+              osc.start();
+              osc.stop(audioCtx.currentTime + 0.5);
+            } catch(e) {}
+          }, 50);
+        }
+
+        return {
+          ...syncedState,
+          predictionWinStreak: newStreak,
+          unlockedAchievements: currentUnlocked,
+          xp: (state.xp || 0) + addedXp,
+          points: (state.points || 0) + addedPoints,
+          latestAchievementUnlocked: latestUnlocked || state.latestAchievementUnlocked
+        };
       }),
 
       repairState: () => set((state) => {
@@ -765,8 +1017,182 @@ export const useTradingStore = create<TradingState>()(
           : [];
         const safePositions = Array.isArray(state.positions) ? state.positions : [];
         
-        return getSyncedStateAndSync(state, safeBalance, safeTransactions, safePositions);
+        // Timezone-aware streak check
+        const streakResult = checkStreak(state.lastLoginDate, state.streakCount || 0);
+        let claimed = state.claimedToday;
+        let spinClaimed = state.spinWheelClaimedToday;
+        let streak = state.streakCount || 0;
+
+        if (streakResult.status === 'already_claimed') {
+          claimed = true;
+          streak = streakResult.newStreak;
+        } else if (streakResult.status === 'claim_available') {
+          claimed = false;
+          spinClaimed = false; // Reset spin too on a new day
+          streak = streakResult.newStreak;
+        } else if (streakResult.status === 'streak_broken') {
+          claimed = false;
+          spinClaimed = false;
+          streak = 1;
+        }
+
+        const synced = getSyncedStateAndSync(state, safeBalance, safeTransactions, safePositions);
+        return {
+          ...synced,
+          streakCount: streak,
+          claimedToday: claimed,
+          spinWheelClaimedToday: spinClaimed
+        };
       }),
+
+      checkDailyStreak: () => {
+        set((state) => {
+          const streakResult = checkStreak(state.lastLoginDate, state.streakCount || 0);
+          let claimed = state.claimedToday;
+          let spinClaimed = state.spinWheelClaimedToday;
+          let streak = state.streakCount || 0;
+
+          if (streakResult.status === 'already_claimed') {
+            claimed = true;
+            streak = streakResult.newStreak;
+          } else if (streakResult.status === 'claim_available') {
+            claimed = false;
+            spinClaimed = false;
+            streak = streakResult.newStreak;
+          } else if (streakResult.status === 'streak_broken') {
+            claimed = false;
+            spinClaimed = false;
+            streak = 1;
+          }
+          return {
+            streakCount: streak,
+            claimedToday: claimed,
+            spinWheelClaimedToday: spinClaimed
+          };
+        });
+      },
+
+      claimDailyReward: () => {
+        const state = get();
+        if (state.claimedToday) return;
+
+        const DAILY_REWARDS = [50, 100, 200, 350, 500, 1000, 5000];
+        const currentStreak = state.streakCount || 1;
+        const dayIndex = Math.min(6, Math.max(0, currentStreak - 1));
+        const rewardAmount = DAILY_REWARDS[dayIndex] || 50;
+
+        const newBalance = state.balance + rewardAmount;
+        const todayStr = new Date().toISOString().split('T')[0];
+
+        const tx: Transaction = {
+          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          type: 'deposit',
+          amount: rewardAmount,
+          balanceAfter: newBalance,
+          timestamp: Date.now(),
+          details: `Claimed Daily Reward (Day ${currentStreak} Streak)`,
+          status: 'Completed'
+        };
+
+        const newTransactions = [tx, ...state.transactions];
+        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
+
+        set({
+          ...syncedState,
+          claimedToday: true,
+          lastLoginDate: todayStr
+        });
+
+        // Trigger steady earner check
+        if (currentStreak >= 5) {
+          get().unlockAchievement('steady_earner');
+        }
+      },
+
+      spinWheelClaimed: (prizeAmount, prizeName) => {
+        const state = get();
+        if (state.spinWheelClaimedToday) return;
+
+        let newBalance = state.balance;
+        let details = `Spin the Wheel: ${prizeName}`;
+
+        if (prizeAmount > 0) {
+          newBalance += prizeAmount;
+        }
+
+        const tx: Transaction = {
+          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          type: 'deposit',
+          amount: prizeAmount,
+          balanceAfter: newBalance,
+          timestamp: Date.now(),
+          details,
+          status: 'Completed'
+        };
+
+        const newTransactions = [tx, ...state.transactions];
+        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
+
+        set({
+          ...syncedState,
+          spinWheelClaimedToday: true
+        });
+      },
+
+      unlockAchievement: (id) => {
+        const state = get();
+        if (state.unlockedAchievements?.includes(id)) return;
+
+        const ach = ACHIEVEMENTS.find((a) => a.id === id);
+        if (!ach) return;
+
+        const newUnlocked = [...(state.unlockedAchievements || []), id];
+        const newXp = (state.xp || 0) + ach.xpReward;
+        const newPoints = (state.points || 0) + ach.pointsReward;
+
+        set({
+          unlockedAchievements: newUnlocked,
+          xp: newXp,
+          points: newPoints,
+          latestAchievementUnlocked: ach
+        });
+
+        // Auto unlock aura legend if they reach 10 achievements
+        if (newUnlocked.length >= 10 && !newUnlocked.includes('aura_legend')) {
+          setTimeout(() => {
+            get().unlockAchievement('aura_legend');
+          }, 3000);
+        }
+
+        // Web Audio chime
+        try {
+          if (typeof window !== 'undefined') {
+            const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+            const osc = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+            osc.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+            
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+            osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+            osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+            osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3); // C6
+            
+            gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+            
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.5);
+          }
+        } catch (e) {
+          console.error("Audio achievement chime error:", e);
+        }
+      },
+
+      clearLatestAchievement: () => set({ latestAchievementUnlocked: null }),
+
+      clearLatestWinCelebration: () => set({ latestWinCelebration: null }),
 
       fetchSystemConfig: async () => {
         try {

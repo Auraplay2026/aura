@@ -132,76 +132,98 @@ export function Header() {
                 </span>
               )}
             </button>
-
             {/* Notification Bell */}
             <div className="relative hidden sm:block">
               <button 
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={cn(
-                  "relative transition-colors p-1.5 rounded-sm group",
-                  isNotificationsOpen ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
+                  "relative transition-colors p-2 rounded-full group cursor-pointer",
+                  isNotificationsOpen ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
                 <Bell className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-200" />
                 {isClient && currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (
-                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+                  <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-red-500 rounded-full text-[9px] font-black text-white flex items-center justify-center animate-bounce">
+                    {currentUser.notifications.filter((n: any) => !n.read).length}
+                  </span>
                 )}
               </button>
 
               {/* Notifications Dropdown */}
-              {isNotificationsOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
-                  <div className="absolute top-full mt-2 right-0 w-80 bg-white border border-slate-200 rounded-sm shadow-xl z-50 overflow-hidden">
-                    <div className="p-3 border-b border-exchange-border flex items-center justify-between bg-slate-50">
-                      <h3 className="text-xs font-bold text-exchange-text uppercase tracking-wider">Notifications</h3>
-                      {currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (
-                        <button 
-                          onClick={async () => {
-                            if (!currentUser.notifications) return;
-                            const updated = currentUser.notifications.map((n: any) => ({ ...n, read: true }));
-                            useTradingStore.getState().updateProfile({ notifications: updated });
-                          }}
-                          className="text-[10px] font-bold text-red-600 hover:underline cursor-pointer"
-                        >
-                          Mark all read
-                        </button>
-                      )}
-                    </div>
-                    <div className="max-h-[300px] overflow-y-auto custom-scrollbar">
-                      {!currentUser?.notifications || currentUser.notifications.length === 0 ? (
-                        <div className="p-6 text-center text-xs text-exchange-muted italic">No notifications yet.</div>
-                      ) : (
-                        currentUser.notifications.map((notif: any) => {
-                          const timeDesc = new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-                          return (
-                            <div 
-                              key={notif.id} 
-                              onClick={async () => {
-                                if (!notif.read && currentUser?.notifications) {
-                                  const updated = currentUser.notifications.map((n: any) => n.id === notif.id ? { ...n, read: true } : n);
-                                  useTradingStore.getState().updateProfile({ notifications: updated });
-                                }
-                              }}
-                              className={cn(
-                                "p-3 border-b border-exchange-border hover:bg-slate-50 hover:shadow-sm cursor-pointer transition-all relative",
-                                !notif.read ? "bg-slate-50/50" : "opacity-70"
-                              )}
-                            >
-                              {!notif.read && (
-                                <div className="absolute left-0 top-0 w-0.5 h-full bg-red-600" />
-                              )}
-                              <h4 className="text-xs font-bold text-exchange-text mb-1 pl-1">{notif.title || "Notification"}</h4>
-                              <p className="text-[11px] text-exchange-muted pl-1 leading-relaxed">{notif.message}</p>
-                              <span className="text-[9px] text-slate-600 font-bold block mt-1 pl-1">{timeDesc}</span>
-                            </div>
-                          );
-                        })
-                      )}
-                    </div>
-                  </div>
-                </>
-              )}
+              <AnimatePresence>
+                {isNotificationsOpen && (
+                  <>
+                    <div className="fixed inset-0 z-40" onClick={() => setIsNotificationsOpen(false)} />
+                    <motion.div
+                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
+                      animate={{ opacity: 1, scale: 1, y: 0 }}
+                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
+                      transition={{ type: "spring", damping: 20, stiffness: 300 }}
+                      className="absolute top-full mt-2 right-0 w-80 bg-white/95 backdrop-blur-xl border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden"
+                    >
+                      <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
+                        <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+                          <span>🔔</span> Notifications
+                        </h3>
+                        {currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (
+                          <button 
+                            onClick={async () => {
+                              if (!currentUser.notifications) return;
+                              const updated = currentUser.notifications.map((n: any) => ({ ...n, read: true }));
+                              useTradingStore.getState().updateProfile({ notifications: updated });
+                            }}
+                            className="text-[10px] font-black text-red-600 hover:text-red-500 cursor-pointer"
+                          >
+                            Mark all read
+                          </button>
+                        )}
+                      </div>
+                      <div className="max-h-[320px] overflow-y-auto custom-scrollbar divide-y divide-slate-100">
+                        {!currentUser?.notifications || currentUser.notifications.length === 0 ? (
+                          <div className="p-8 text-center text-xs text-slate-400 italic">No notifications yet.</div>
+                        ) : (
+                          currentUser.notifications.map((notif: any) => {
+                            const timeDesc = new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+                            const msgLower = notif.message.toLowerCase();
+                            let categoryIcon = "🔔";
+                            if (msgLower.includes("streak") || msgLower.includes("daily")) categoryIcon = "📅";
+                            else if (msgLower.includes("achievement") || msgLower.includes("unlocked")) categoryIcon = "🏆";
+                            else if (msgLower.includes("deposit") || msgLower.includes("payout") || msgLower.includes("won")) categoryIcon = "💰";
+
+                            return (
+                              <div 
+                                key={notif.id} 
+                                onClick={async () => {
+                                  if (!notif.read && currentUser?.notifications) {
+                                    const updated = currentUser.notifications.map((n: any) => n.id === notif.id ? { ...n, read: true } : n);
+                                    useTradingStore.getState().updateProfile({ notifications: updated });
+                                  }
+                                }}
+                                className={cn(
+                                  "p-3.5 hover:bg-slate-50/80 cursor-pointer transition-all relative flex gap-3",
+                                  !notif.read ? "bg-slate-50/30" : "opacity-60"
+                                )}
+                              >
+                                {!notif.read && (
+                                  <div className="absolute left-0 top-0 w-1 h-full bg-red-500" />
+                                )}
+                                <div className="shrink-0 w-8 h-8 rounded-lg bg-slate-100 border border-slate-200/50 flex items-center justify-center text-sm">
+                                  {categoryIcon}
+                                </div>
+                                <div className="flex-1 min-w-0">
+                                  <h4 className="text-xs font-black text-slate-800 truncate">{notif.title || "Notification"}</h4>
+                                  <p className="text-[11px] text-slate-500 leading-normal mt-0.5 break-words">{notif.message}</p>
+                                  <span className="text-[9px] text-slate-400 font-extrabold block mt-1">{timeDesc}</span>
+                                </div>
+                              </div>
+                            );
+                          })
+                        )}
+                      </div>
+                    </motion.div>
+                  </>
+                )}
+              </AnimatePresence>
             </div>
 
 

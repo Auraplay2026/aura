@@ -104,6 +104,33 @@ export function Footer() {
       <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-red-500/30 to-transparent" />
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
+        {/* Animated Statistics Row */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 p-8 rounded-3xl bg-slate-900 border border-slate-850 shadow-2xl relative overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-transparent pointer-events-none" />
+          <div className="text-center md:text-left">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Paid Out</span>
+            <h3 className="text-2xl sm:text-3xl font-black text-white font-mono mt-1 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">₹2.4Cr+</h3>
+            <p className="text-[10px] text-slate-500 mt-1">Processed instantly today</p>
+          </div>
+          <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Players Online</span>
+            <h3 className="text-2xl sm:text-3xl font-black text-white font-mono mt-1 flex items-center justify-center md:justify-start gap-2">
+              <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
+              14,208
+            </h3>
+            <p className="text-[10px] text-slate-500 mt-1">Active global traders</p>
+          </div>
+          <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Games Streamed</span>
+            <h3 className="text-2xl sm:text-3xl font-black text-white font-mono mt-1">942,800+</h3>
+            <p className="text-[10px] text-slate-500 mt-1">Via low-latency cloud nodes</p>
+          </div>
+          <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
+            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Provably Fair</span>
+            <h3 className="text-2xl sm:text-3xl font-black text-emerald-450 font-mono mt-1">100%</h3>
+            <p className="text-[10px] text-slate-500 mt-1">Cryptographic RNG verification</p>
+          </div>
+        </div>
 
         {/* Links Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-6 mb-16">
