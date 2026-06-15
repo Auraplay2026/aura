@@ -177,8 +177,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Premium Sidebar */}
       <aside 
-        className={`fixed inset-y-0 left-0 w-72 lg:w-68 border-r border-slate-200 bg-white/45 flex flex-col shrink-0 relative overflow-hidden backdrop-blur-2xl z-50 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 ${
-          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:static"
+        className={`fixed inset-y-0 left-0 z-50 w-72 lg:w-68 border-r border-slate-200 bg-white/45 flex flex-col shrink-0 overflow-hidden backdrop-blur-2xl transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:relative lg:translate-x-0 ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
