@@ -97,7 +97,7 @@ export default function AccountStatementPage() {
                     </td>
                     <td className="px-6 py-4 text-right whitespace-nowrap">
                       <span className="font-black text-slate-900 font-mono tracking-tighter text-base">
-                        ${tx.balanceAfter.toFixed(2)}
+                        ₹{tx.balanceAfter.toFixed(2)}
                       </span>
                     </td>
                   </tr>

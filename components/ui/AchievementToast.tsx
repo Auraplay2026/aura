@@ -4,9 +4,11 @@ import { useEffect } from "react";
 import { useTradingStore } from "@/lib/store";
 import { motion, AnimatePresence } from "framer-motion";
 import { Award, ShieldCheck } from "lucide-react";
+import { usePathname } from "next/navigation";
 
 export function AchievementToast() {
-  const { latestAchievementUnlocked, clearLatestAchievement } = useTradingStore();
+  const pathname = usePathname();
+  const { latestAchievementUnlocked, clearLatestAchievement, currentUser } = useTradingStore();
 
   useEffect(() => {
     if (latestAchievementUnlocked) {
@@ -16,6 +18,10 @@ export function AchievementToast() {
       return () => clearTimeout(timer);
     }
   }, [latestAchievementUnlocked, clearLatestAchievement]);
+
+  if (currentUser?.role === 'admin' || pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <AnimatePresence>

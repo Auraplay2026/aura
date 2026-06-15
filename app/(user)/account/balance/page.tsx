@@ -45,7 +45,7 @@ export default function BalanceOverviewPage() {
             <div>
               <span className={`text-sm font-bold uppercase tracking-widest mb-1 block ${isDemo ? 'text-amber-600/80' : 'text-emerald-600/80'}`}>Total Available</span>
               <div className={`text-6xl font-black tracking-tighter ${isDemo ? 'text-amber-900' : 'text-emerald-900'}`}>
-                ${balance.toFixed(2)}
+                ₹{balance.toFixed(2)}
               </div>
             </div>
           </div>

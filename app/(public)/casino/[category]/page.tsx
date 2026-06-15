@@ -168,7 +168,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 <div className="grid grid-cols-2 gap-4">
                   <button className="text-center text-exchange-muted hover:text-exchange-text font-black text-xl uppercase tracking-widest transition-colors py-4">Fold</button>
                   <button className="text-center text-exchange-muted hover:text-exchange-text font-black text-xl uppercase tracking-widest transition-colors py-4">Check</button>
-                  <button className="text-center text-red-600 hover:text-red-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Call $500</button>
+                  <button className="text-center text-red-600 hover:text-red-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Call ₹500</button>
                   <button className="text-center text-pink-600 hover:text-pink-800 font-black text-xl uppercase tracking-widest transition-colors py-4 col-span-2">Raise</button>
                 </div>
               </div>

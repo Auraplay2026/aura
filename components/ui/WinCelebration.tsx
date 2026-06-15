@@ -5,14 +5,17 @@ import { useTradingStore } from "@/lib/store";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy } from "lucide-react";
 import { ConfettiCanvas } from "./ConfettiCanvas";
+import { usePathname } from "next/navigation";
 
 export function WinCelebration() {
-  const { latestWinCelebration, clearLatestWinCelebration } = useTradingStore();
+  const pathname = usePathname();
+  const { latestWinCelebration, clearLatestWinCelebration, currentUser } = useTradingStore();
   const [active, setActive] = useState(false);
   const [tier, setTier] = useState<1 | 2 | 3>(1);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
   useEffect(() => {
+    if (currentUser?.role === 'admin' || pathname?.startsWith('/admin')) return;
     if (!latestWinCelebration) {
       setActive(false);
       return;
@@ -212,7 +215,7 @@ export function WinCelebration() {
     };
   }, [active, tier]);
 
-  if (!active || !latestWinCelebration) return null;
+  if (currentUser?.role === 'admin' || pathname?.startsWith('/admin') || !active || !latestWinCelebration) return null;
 
   return (
     <AnimatePresence>

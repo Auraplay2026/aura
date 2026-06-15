@@ -4,6 +4,8 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { BadgeCheck, Trophy, Banknote, Users, ShieldCheck, Flame, Zap } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { useTradingStore } from "@/lib/store";
 
 interface HypeMessage {
   id: string;
@@ -129,6 +131,8 @@ const generateHypeMessage = (): HypeMessage => {
 
 export function GlobalHypeFeed() {
   const [currentMessage, setCurrentMessage] = useState<HypeMessage | null>(null);
+  const pathname = usePathname();
+  const { currentUser } = useTradingStore();
 
   useEffect(() => {
     const triggerNext = () => {
@@ -154,6 +158,10 @@ export function GlobalHypeFeed() {
 
     return () => clearTimeout(initialTimer);
   }, []);
+
+  if (currentUser?.role === 'admin' || pathname?.startsWith('/admin')) {
+    return null;
+  }
 
   return (
     <div className="fixed bottom-6 left-6 z-[100] pointer-events-none flex flex-col justify-end">

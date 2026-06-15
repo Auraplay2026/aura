@@ -40,7 +40,7 @@ export default function PnLPage() {
           </div>
           <div>
             <div className={`text-4xl font-black tracking-tighter font-mono flex items-center gap-2 ${pnl >= 0 ? 'text-emerald-600' : 'text-red-600'}`}>
-              {pnl >= 0 ? '+' : '-'}${Math.abs(pnl).toFixed(2)}
+              {pnl >= 0 ? '+' : '-'}₹{Math.abs(pnl).toFixed(2)}
             </div>
             <p className="text-xs font-medium text-slate-500 mt-1">Excludes deposits & withdrawals</p>
           </div>
@@ -55,7 +55,7 @@ export default function PnLPage() {
           </div>
           <div>
             <div className="text-4xl font-black tracking-tighter font-mono text-slate-900">
-              ${(Math.abs(pnl) * 2.5 + 1500).toFixed(2)} {/* Mock wagered logic */}
+              ₹{(Math.abs(pnl) * 2.5 + 1500).toFixed(2)} {/* Mock wagered logic */}
             </div>
             <p className="text-xs font-medium text-slate-500 mt-1">Across all products</p>
           </div>
@@ -71,7 +71,7 @@ export default function PnLPage() {
           <div>
             <div className="text-4xl font-black tracking-tighter font-mono text-slate-900 flex items-center gap-2">
               <ArrowUpRight className="w-5 h-5 text-emerald-500" />
-              ${totalDeposits.toFixed(2)}
+              ₹{totalDeposits.toFixed(2)}
             </div>
             <p className="text-xs font-medium text-slate-500 mt-1">Total lifetime deposits</p>
           </div>

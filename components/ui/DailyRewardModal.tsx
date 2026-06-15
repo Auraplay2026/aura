@@ -5,10 +5,13 @@ import { useTradingStore } from "@/lib/store";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Gift, Sparkles, CheckCircle2, RotateCw } from "lucide-react";
 import { ConfettiCanvas } from "./ConfettiCanvas";
+import { usePathname } from "next/navigation";
 
 export function DailyRewardModal() {
+  const pathname = usePathname();
   const {
     isLoggedIn,
+    currentUser,
     streakCount,
     claimedToday,
     spinWheelClaimedToday,
@@ -26,6 +29,7 @@ export function DailyRewardModal() {
 
   // Trigger modal display automatically once daily login is detected
   useEffect(() => {
+    if (currentUser?.role === 'admin' || pathname?.startsWith('/admin')) return;
     if (isLoggedIn) {
       if (!claimedToday || !spinWheelClaimedToday) {
         // Delay slightly for premium entrance
@@ -145,7 +149,7 @@ export function DailyRewardModal() {
     }, 2500);
   };
 
-  if (!isOpen) return null;
+  if (currentUser?.role === 'admin' || pathname?.startsWith('/admin') || !isOpen) return null;
 
   return (
     <AnimatePresence>

@@ -6,6 +6,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { BackToTop } from "@/components/ui/BackToTop";
+import { useTradingStore, calculateVipLevel } from "@/lib/store";
 
 const NAV_ITEMS = [
   { name: "My Profile", href: "/account", icon: User },
@@ -20,6 +21,10 @@ const NAV_ITEMS = [
 
 export default function UserDashboardLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { currentUser } = useTradingStore();
+
+  const username = currentUser?.username || "PlayerOne";
+  const vipLevel = currentUser ? calculateVipLevel(currentUser.totalWagered || 0, currentUser.manualVipLevel) : "Gold";
 
   return (
     <div className="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 md:p-6 lg:p-10 md:pt-8">
@@ -45,9 +50,9 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
               </div>
             </div>
             <div>
-              <h2 className="font-black text-slate-900 tracking-tight">PlayerOne</h2>
+              <h2 className="font-black text-slate-900 tracking-tight">{username}</h2>
               <span className="text-xs font-bold text-neon-yellow uppercase tracking-widest flex items-center gap-1">
-                VIP Gold
+                VIP {vipLevel}
               </span>
             </div>
           </div>

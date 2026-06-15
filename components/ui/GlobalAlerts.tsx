@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Trophy, Star, Sparkles } from "lucide-react";
 import { usePathname } from "next/navigation";
+import { useTradingStore } from "@/lib/store";
 
 const GAMES = ["Sweet Bonanza", "Crash", "Gates of Olympus", "Crazy Time", "Lightning Roulette", "Arsenal vs Liverpool", "CS:GO Major"];
 const USERS = ["CryptoWhale", "Hidden**", "RahulK**", "Priya99", "VikramS", "DiamondHands", "LuckyStrike", "HighRoller99"];
@@ -10,10 +11,11 @@ const USERS = ["CryptoWhale", "Hidden**", "RahulK**", "Priya99", "VikramS", "Dia
 export function GlobalAlerts() {
   const pathname = usePathname();
   const [currentAlert, setCurrentAlert] = useState<any>(null);
+  const { currentUser } = useTradingStore();
 
   useEffect(() => {
-    // If we are on admin route, do not run alerts logic
-    if (!pathname || pathname.startsWith("/admin")) {
+    // If we are on admin route or admin user, do not run alerts logic
+    if (!pathname || pathname.startsWith("/admin") || currentUser?.role === 'admin') {
       setCurrentAlert(null);
       return;
     }
@@ -81,8 +83,8 @@ export function GlobalAlerts() {
     };
   }, [pathname]);
 
-  // Hide win/jackpot alerts on admin routes to prevent view obstruction
-  if (!pathname || pathname.startsWith("/admin")) {
+  // Hide win/jackpot alerts on admin routes or for administrators to prevent view obstruction
+  if (!pathname || pathname.startsWith("/admin") || currentUser?.role === 'admin') {
     return null;
   }
 

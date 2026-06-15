@@ -88,7 +88,7 @@ export default function MyBetsPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex flex-col">
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Stake</span>
-                    <span className="font-black text-slate-900 font-mono text-lg">${pos.investment.toFixed(2)}</span>
+                    <span className="font-black text-slate-900 font-mono text-lg">₹{pos.investment.toFixed(2)}</span>
                   </div>
                   <button className="px-4 py-2 bg-red-50 text-red-600 font-bold text-xs uppercase tracking-widest rounded-lg hover:bg-red-100 transition-colors">
                     Cash Out

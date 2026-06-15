@@ -354,7 +354,7 @@ export default function AccountSettingsPage() {
                     <CheckCircle2 className="w-3 h-3" /> Verified
                   </span>
                 </div>
-                <p className="text-xs text-slate-500 leading-relaxed font-medium">Deposit and withdraw crypto up to $2,000 per day. Trade on all sports markets instantly.</p>
+                <p className="text-xs text-slate-500 leading-relaxed font-medium">Deposit and withdraw crypto up to ₹1,50,000 per day. Trade on all sports markets instantly.</p>
               </div>
 
               <div className="flex items-center justify-center">

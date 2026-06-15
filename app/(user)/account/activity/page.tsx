@@ -11,7 +11,7 @@ export default function ActivityLogPage() {
     { id: 1, action: "Successful Login", device: "Chrome / Windows 11", location: "Bangalore, IN", ip: "103.44.xx.xx", time: "Just now", type: 'success' },
     { id: 2, action: "Account Context Switched", device: "Chrome / Windows 11", location: "Bangalore, IN", ip: "103.44.xx.xx", time: "2 hours ago", type: 'info' },
     { id: 3, action: "Withdrawal Requested", device: "Safari / iOS 17", location: "Bangalore, IN", ip: "103.44.xx.xx", time: "1 day ago", type: 'info' },
-    { id: 4, action: "Failed Login Attempt", device: "Firefox / Unknown", location: "Moscow, RU", ip: "45.12.xx.xx", time: "3 days ago", type: 'danger' },
+    { id: 4, action: "Failed Login Attempt", device: "Firefox / Unknown", location: "Mumbai, IN", ip: "103.88.xx.xx", time: "3 days ago", type: 'danger' },
   ];
 
   return (

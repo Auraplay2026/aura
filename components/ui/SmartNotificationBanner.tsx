@@ -4,14 +4,15 @@ import { useEffect, useState } from "react";
 import { useTradingStore } from "@/lib/store";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, TrendingUp, AlertTriangle, Gift, X } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 
 export function SmartNotificationBanner() {
-  const { balance, transactions, isLoggedIn } = useTradingStore();
+  const { balance, transactions, isLoggedIn, currentUser } = useTradingStore();
   const [visible, setVisible] = useState(false);
   const [bannerType, setBannerType] = useState<"inactivity" | "low_balance" | "loss" | "welcome" | null>(null);
   const [hasTriggeredLoss, setHasTriggeredLoss] = useState(false);
   const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     if (!isLoggedIn) return;
@@ -129,7 +130,7 @@ export function SmartNotificationBanner() {
     }
   };
 
-  if (!visible || !bannerType) return null;
+  if (!visible || !bannerType || currentUser?.role === 'admin' || pathname?.startsWith('/admin')) return null;
   const config = getBannerConfig();
 
   return (
