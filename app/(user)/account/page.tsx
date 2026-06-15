@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, Shield, Smartphone, Key, ShieldCheck, CheckCircle2, Wallet, Activity, Trophy, ArrowRight, Camera, AlertCircle, TrendingUp, TrendingDown } from "lucide-react";
+import { User, Mail, Shield, Smartphone, Key, ShieldCheck, CheckCircle2, Wallet, Activity, Trophy, ArrowRight, Camera, AlertCircle, TrendingUp, TrendingDown, Lock, Copy, X } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import Link from "next/link";
@@ -10,11 +10,33 @@ import { KYCVerificationFlow } from "@/components/KYCVerificationFlow";
 import { cn } from "@/lib/utils";
 
 export default function AccountSettingsPage() {
-  const { balance, positions, transactions, currentUser, updateProfile } = useTradingStore();
+  const { balance, positions, transactions, currentUser, updateProfile, changePassword, setup2fa, verifyAndEnable2fa, disable2fa } = useTradingStore();
   const liveMarkets = useLiveMarkets('sports');
 
   // Hydration fix
   const [isClient, setIsClient] = useState(false);
+
+  // Security modals state
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [show2faModal, setShow2faModal] = useState(false);
+
+  // Password fields
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState(false);
+  const [passwordLoading, setPasswordLoading] = useState(false);
+
+  // 2FA fields
+  const [twoFactorStep, setTwoFactorStep] = useState<'intro' | 'setup' | 'disable'>('intro');
+  const [twoFactorSecret, setTwoFactorSecret] = useState("");
+  const [twoFactorKeyUri, setTwoFactorKeyUri] = useState("");
+  const [twoFactorToken, setTwoFactorToken] = useState("");
+  const [twoFactorError, setTwoFactorError] = useState("");
+  const [twoFactorSuccess, setTwoFactorSuccess] = useState(false);
+  const [twoFactorLoading, setTwoFactorLoading] = useState(false);
+  const [copiedSecret, setCopiedSecret] = useState(false);
 
   // Local editable states
   const [username, setUsername] = useState("");
@@ -447,20 +469,54 @@ export default function AccountSettingsPage() {
                     <p className="text-xs text-slate-500 mt-0.5">Last changed 3 months ago</p>
                   </div>
                 </div>
-                <button className="text-xs font-black uppercase tracking-widest text-slate-950 bg-white px-5 py-2.5 rounded-lg hover:bg-slate-200 transition-colors w-full sm:w-auto">Update</button>
+                <button 
+                  onClick={() => {
+                    setCurrentPassword("");
+                    setNewPassword("");
+                    setConfirmPassword("");
+                    setPasswordError("");
+                    setPasswordSuccess(false);
+                    setShowPasswordModal(true);
+                  }}
+                  className="text-xs font-black uppercase tracking-widest text-slate-950 bg-white px-5 py-2.5 rounded-lg hover:bg-slate-200 border border-slate-200 transition-colors w-full sm:w-auto cursor-pointer"
+                >
+                  Update
+                </button>
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center justify-between p-5 bg-white/40 border border-slate-200 rounded-2xl group hover:border-slate-700 hover:shadow-md transition-all">
                 <div className="flex items-center gap-4 mb-4 sm:mb-0">
-                  <div className="w-12 h-12 rounded-full bg-neon-green/10 border border-neon-green/20 flex items-center justify-center group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(34,197,94,0.2)]">
-                    <Smartphone className="w-5 h-5 text-neon-green" />
+                  <div className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform border",
+                    currentUser?.twoFactorEnabled 
+                      ? "bg-neon-green/10 border-neon-green/20 shadow-[0_0_15px_rgba(34,197,94,0.2)]" 
+                      : "bg-slate-50 border-slate-200"
+                  )}>
+                    <Smartphone className={cn("w-5 h-5", currentUser?.twoFactorEnabled ? "text-neon-green" : "text-slate-600")} />
                   </div>
                   <div>
                     <h3 className="font-bold text-slate-900 text-sm">Two-Factor Authentication</h3>
-                    <p className="text-xs text-neon-green mt-0.5">Enabled via Authenticator App</p>
+                    <p className={cn("text-xs mt-0.5 font-bold", currentUser?.twoFactorEnabled ? "text-neon-green" : "text-slate-500")}>
+                      {currentUser?.twoFactorEnabled ? "Enabled via Authenticator App" : "Disabled"}
+                    </p>
                   </div>
                 </div>
-                <button className="text-xs font-black uppercase tracking-widest text-slate-600 border border-slate-700 px-5 py-2.5 rounded-lg hover:text-slate-900 hover:border-slate-500 transition-colors w-full sm:w-auto">Manage</button>
+                <button 
+                  onClick={() => {
+                    setTwoFactorToken("");
+                    setTwoFactorError("");
+                    setTwoFactorSuccess(false);
+                    if (currentUser?.twoFactorEnabled) {
+                      setTwoFactorStep('disable');
+                    } else {
+                      setTwoFactorStep('intro');
+                    }
+                    setShow2faModal(true);
+                  }}
+                  className="text-xs font-black uppercase tracking-widest text-slate-600 border border-slate-700 px-5 py-2.5 rounded-lg hover:text-slate-900 hover:border-slate-500 transition-colors w-full sm:w-auto cursor-pointer"
+                >
+                  Manage
+                </button>
               </div>
             </div>
           </motion.div>
@@ -611,6 +667,346 @@ export default function AccountSettingsPage() {
               store.setKycSubmittedAt(Date.now());
             }} 
           />
+        )}
+
+        {/* Change Password Modal */}
+        {showPasswordModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-white/70 backdrop-blur-md"
+              onClick={() => setShowPasswordModal(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 15 }}
+              className="relative w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-2xl z-10"
+            >
+              <button 
+                onClick={() => setShowPasswordModal(false)} 
+                className="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="mb-6 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-red-50 flex items-center justify-center border border-red-100">
+                  <Key className="w-4 h-4 text-red-600" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Security Center</h3>
+                  <h2 className="text-base font-black text-slate-900">Change Password</h2>
+                </div>
+              </div>
+
+              {passwordError && (
+                <div className="mb-4 bg-red-50 border border-red-100 text-red-600 rounded-xl p-3 text-xs font-bold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{passwordError}</span>
+                </div>
+              )}
+
+              {passwordSuccess ? (
+                <div className="space-y-4 text-center py-6">
+                  <div className="w-12 h-12 rounded-full bg-green-50 border border-green-100 flex items-center justify-center mx-auto text-neon-green">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-bold text-slate-900">Password Changed Successfully</h3>
+                  <p className="text-xs text-slate-500">Your security settings have been updated. Please use your new password next time you sign in.</p>
+                  <button 
+                    onClick={() => setShowPasswordModal(false)}
+                    className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Current Password</label>
+                    <input 
+                      type="password"
+                      value={currentPassword}
+                      onChange={e => setCurrentPassword(e.target.value)}
+                      placeholder="Enter current password"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">New Password</label>
+                    <input 
+                      type="password"
+                      value={newPassword}
+                      onChange={e => setNewPassword(e.target.value)}
+                      placeholder="Enter new password"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Confirm New Password</label>
+                    <input 
+                      type="password"
+                      value={confirmPassword}
+                      onChange={e => setConfirmPassword(e.target.value)}
+                      placeholder="Confirm new password"
+                      className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:border-red-600"
+                    />
+                  </div>
+                  <button 
+                    disabled={passwordLoading}
+                    onClick={async () => {
+                      if (!currentPassword || !newPassword || !confirmPassword) {
+                        setPasswordError("All fields are required.");
+                        return;
+                      }
+                      if (newPassword !== confirmPassword) {
+                        setPasswordError("New passwords do not match.");
+                        return;
+                      }
+                      if (newPassword.length < 6) {
+                        setPasswordError("Password must be at least 6 characters.");
+                        return;
+                      }
+                      setPasswordLoading(true);
+                      setPasswordError("");
+                      const res = await changePassword(currentPassword, newPassword);
+                      setPasswordLoading(false);
+                      if (res.success) {
+                        setPasswordSuccess(true);
+                      } else {
+                        setPasswordError(res.error || "Failed to update password.");
+                      }
+                    }}
+                    className="w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
+                  >
+                    {passwordLoading ? "Saving..." : "Change Password"}
+                  </button>
+                </div>
+              )}
+            </motion.div>
+          </div>
+        )}
+
+        {/* Two-Factor Authentication Modal */}
+        {show2faModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-white/70 backdrop-blur-md"
+              onClick={() => setShow2faModal(false)}
+            />
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.98, y: 15 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: 15 }}
+              className="relative w-full max-w-md bg-white rounded-3xl p-8 border border-slate-200 shadow-2xl z-10 select-none"
+            >
+              <button 
+                onClick={() => setShow2faModal(false)} 
+                className="absolute top-6 right-6 w-8 h-8 rounded-full bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors"
+              >
+                <X className="w-4 h-4" />
+              </button>
+
+              <div className="mb-6 flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-indigo-50 flex items-center justify-center border border-indigo-100">
+                  <Smartphone className="w-4.5 h-4.5 text-indigo-600" />
+                </div>
+                <div>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Security Center</h3>
+                  <h2 className="text-base font-black text-slate-900">Two-Factor Authentication</h2>
+                </div>
+              </div>
+
+              {twoFactorError && (
+                <div className="mb-4 bg-red-50 border border-red-100 text-red-600 rounded-xl p-3 text-xs font-bold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  <span>{twoFactorError}</span>
+                </div>
+              )}
+
+              {twoFactorSuccess ? (
+                <div className="space-y-4 text-center py-6">
+                  <div className={cn(
+                    "w-12 h-12 rounded-full flex items-center justify-center mx-auto border",
+                    twoFactorStep === 'disable' ? "bg-red-50 border-red-100 text-red-650" : "bg-green-50 border-green-100 text-neon-green"
+                  )}>
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
+                  <h3 className="font-bold text-slate-900">
+                    {twoFactorStep === 'disable' ? "2FA Disabled Successfully" : "2FA Activated Successfully"}
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {twoFactorStep === 'disable' 
+                      ? "Your account is no longer protected by Two-Factor Authentication code requests." 
+                      : "Your account is now fully secured with 2FA authenticator verification steps during sign-in."}
+                  </p>
+                  <button 
+                    onClick={() => setShow2faModal(false)}
+                    className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+                  >
+                    Done
+                  </button>
+                </div>
+              ) : (
+                <>
+                  {twoFactorStep === 'intro' && (
+                    <div className="space-y-6">
+                      <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+                        Add an extra layer of security. Logins will require a verification code from Google Authenticator, Microsoft Authenticator, or another compatible TOTP app.
+                      </p>
+                      <button 
+                        disabled={twoFactorLoading}
+                        onClick={async () => {
+                          setTwoFactorLoading(true);
+                          setTwoFactorError("");
+                          const res = await setup2fa();
+                          setTwoFactorLoading(false);
+                          if (res.success && res.secret && res.keyUri) {
+                            setTwoFactorSecret(res.secret);
+                            setTwoFactorKeyUri(res.keyUri);
+                            setTwoFactorStep('setup');
+                          } else {
+                            setTwoFactorError(res.error || "Failed to setup 2FA.");
+                          }
+                        }}
+                        className="w-full py-3.5 bg-indigo-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-indigo-700 transition-colors cursor-pointer"
+                      >
+                        {twoFactorLoading ? "Generating..." : "Enable 2FA"}
+                      </button>
+                    </div>
+                  )}
+
+                  {twoFactorStep === 'setup' && (
+                    <div className="space-y-6">
+                      <div className="flex justify-center py-2">
+                        {/* Beautiful inhouse styled Mock QR Code SVG */}
+                        <svg viewBox="0 0 100 100" className="w-40 h-40 border border-slate-200 p-2 rounded-2xl bg-white shadow-inner">
+                          <rect x="0" y="0" width="100" height="100" fill="white" />
+                          <rect x="10" y="10" width="25" height="25" fill="#4F46E5" />
+                          <rect x="15" y="15" width="15" height="15" fill="white" />
+                          <rect x="18" y="18" width="9" height="9" fill="#4F46E5" />
+                          
+                          <rect x="65" y="10" width="25" height="25" fill="#4F46E5" />
+                          <rect x="70" y="15" width="15" height="15" fill="white" />
+                          <rect x="73" y="18" width="9" height="9" fill="#4F46E5" />
+                          
+                          <rect x="10" y="65" width="25" height="25" fill="#4F46E5" />
+                          <rect x="15" y="70" width="15" height="15" fill="white" />
+                          <rect x="18" y="73" width="9" height="9" fill="#4F46E5" />
+                          
+                          <rect x="45" y="20" width="5" height="5" fill="#1E293B" />
+                          <rect x="50" y="25" width="5" height="5" fill="#1E293B" />
+                          <rect x="40" y="30" width="5" height="5" fill="#1E293B" />
+                          <rect x="45" y="35" width="5" height="5" fill="#1E293B" />
+                          <rect x="55" y="30" width="5" height="5" fill="#1E293B" />
+                          
+                          <rect x="65" y="45" width="5" height="5" fill="#1E293B" />
+                          <rect x="70" y="50" width="5" height="5" fill="#1E293B" />
+                          <rect x="60" y="55" width="5" height="5" fill="#1E293B" />
+                          
+                          <rect x="40" y="65" width="5" height="5" fill="#1E293B" />
+                          <rect x="45" y="70" width="5" height="5" fill="#1E293B" />
+                          <rect x="50" y="75" width="5" height="5" fill="#1E293B" />
+                          <rect x="55" y="65" width="5" height="5" fill="#1E293B" />
+                          
+                          <rect x="65" y="65" width="5" height="5" fill="#1E293B" />
+                          <rect x="75" y="70" width="5" height="5" fill="#1E293B" />
+                          <rect x="70" y="75" width="5" height="5" fill="#1E293B" />
+                          <rect x="80" y="80" width="5" height="5" fill="#4F46E5" />
+                        </svg>
+                      </div>
+
+                      <div className="space-y-2 text-center">
+                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Manual Account Secret Key</p>
+                        <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-mono text-slate-700">
+                          <span>{twoFactorSecret}</span>
+                          <button 
+                            onClick={() => {
+                              navigator.clipboard.writeText(twoFactorSecret);
+                              setCopiedSecret(true);
+                              setTimeout(() => setCopiedSecret(false), 2000);
+                            }}
+                            className="text-[10px] uppercase font-bold text-indigo-600 hover:text-indigo-700 cursor-pointer"
+                          >
+                            {copiedSecret ? "Copied!" : <Copy className="w-3.5 h-3.5" />}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-slate-500 leading-normal">
+                          Scan the QR code or enter this manual key into your authenticator app.
+                        </p>
+                      </div>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Authenticator Code</label>
+                        <input 
+                          type="text"
+                          maxLength={6}
+                          value={twoFactorToken}
+                          onChange={e => setTwoFactorToken(e.target.value.replace(/\D/g, ''))}
+                          placeholder="e.g. 123456"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:border-indigo-500 tracking-[0.2em] text-center"
+                        />
+                      </div>
+
+                      <button 
+                        disabled={twoFactorLoading || twoFactorToken.length !== 6}
+                        onClick={async () => {
+                          setTwoFactorLoading(true);
+                          setTwoFactorError("");
+                          const res = await verifyAndEnable2fa(twoFactorToken, twoFactorSecret);
+                          setTwoFactorLoading(false);
+                          if (res.success) {
+                            setTwoFactorSuccess(true);
+                          } else {
+                            setTwoFactorError(res.error || "Incorrect code. Please try again.");
+                          }
+                        }}
+                        className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-indigo-700 transition-colors disabled:opacity-50 cursor-pointer"
+                      >
+                        {twoFactorLoading ? "Activating..." : "Activate 2FA"}
+                      </button>
+                    </div>
+                  )}
+
+                  {twoFactorStep === 'disable' && (
+                    <div className="space-y-6">
+                      <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+                        To disable Two-Factor Authentication, please enter the current 6-digit code generated by your authenticator app.
+                      </p>
+
+                      <div className="space-y-1.5">
+                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Authenticator Code</label>
+                        <input 
+                          type="text"
+                          maxLength={6}
+                          value={twoFactorToken}
+                          onChange={e => setTwoFactorToken(e.target.value.replace(/\D/g, ''))}
+                          placeholder="e.g. 123456"
+                          className="w-full bg-white border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-900 font-bold focus:outline-none focus:border-red-600 tracking-[0.2em] text-center"
+                        />
+                      </div>
+
+                      <button 
+                        disabled={twoFactorLoading || twoFactorToken.length !== 6}
+                        onClick={async () => {
+                          setTwoFactorLoading(true);
+                          setTwoFactorError("");
+                          const res = await disable2fa(twoFactorToken);
+                          setTwoFactorLoading(false);
+                          if (res.success) {
+                            setTwoFactorSuccess(true);
+                          } else {
+                            setTwoFactorError(res.error || "Incorrect code. Failed to disable 2FA.");
+                          }
+                        }}
+                        className="w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
+                      >
+                        {twoFactorLoading ? "Deactivating..." : "Disable 2FA"}
+                      </button>
+                    </div>
+                  )}
+                </>
+              )}
+            </motion.div>
+          </div>
         )}
       </AnimatePresence>
     </div>

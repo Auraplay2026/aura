@@ -39,6 +39,8 @@ export interface UserProfile {
   fullName?: string;
   dob?: string;
   address?: string;
+  twoFactorEnabled?: boolean;
+  twoFactorSecret?: string;
   role?: 'user' | 'admin';
   kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
   kycDocumentUrl?: string;
@@ -112,11 +114,15 @@ interface TradingState {
   login: () => Promise<void>;
   logout: () => void;
   signUp: (username: string, email: string, passwordHash: string, accountType?: 'demo' | 'real', referralCode?: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithCredentials: (emailOrUsername: string, passwordHash: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithCredentials: (emailOrUsername: string, passwordHash: string, otp?: string) => Promise<{ success: boolean; error?: string; twoFactorRequired?: boolean }>;
+  changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
+  setup2fa: () => Promise<{ success: boolean; secret?: string; keyUri?: string; error?: string }>;
+  verifyAndEnable2fa: (token: string, secret: string) => Promise<{ success: boolean; error?: string }>;
+  disable2fa: (token: string) => Promise<{ success: boolean; error?: string }>;
   loginWithGoogle: (email: string, username: string) => Promise<{ success: boolean; error?: string }>;
   switchAccountType: (type: 'demo' | 'real') => Promise<void>;
   completeOnboarding: (phoneNumber?: string, gamingState?: string, upiId?: string) => Promise<void>;
-  updateProfile: (updates: { username?: string; phoneNumber?: string; upiId?: string; gamingState?: string; fullName?: string; dob?: string; address?: string; notifications?: { id: string; message: string; timestamp: number; read: boolean; title?: string }[] }) => Promise<boolean>;
+  updateProfile: (updates: { username?: string; phoneNumber?: string; upiId?: string; gamingState?: string; fullName?: string; dob?: string; address?: string; twoFactorEnabled?: boolean; notifications?: { id: string; message: string; timestamp: number; read: boolean; title?: string }[] }) => Promise<boolean>;
   setKycStatus: (status: 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED' | 'REJECTED') => void;
   setKycSubmittedAt: (time: number | null) => void;
   setGeoRestricted: (restricted: boolean) => void;
@@ -376,14 +382,17 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      loginWithCredentials: async (emailOrUsername, password) => {
+      loginWithCredentials: async (emailOrUsername, password, otp) => {
         try {
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ emailOrUsername, password })
+            body: JSON.stringify({ emailOrUsername, password, otp })
           });
           const data = await res.json();
+          if (data && data.twoFactorRequired) {
+            return { success: false, twoFactorRequired: true };
+          }
           if (!res.ok) {
             return { success: false, error: data.error || "Login failed." };
           }
@@ -398,6 +407,104 @@ export const useTradingStore = create<TradingState>()(
             kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
             geoRestricted: sanitizedUser?.geoRestricted || false,
             verifiedAge: sanitizedUser?.verifiedAge || 0,
+          });
+          return { success: true };
+        } catch (err) {
+          return { success: false, error: "Network error. Please try again." };
+        }
+      },
+
+      changePassword: async (currentPassword, newPassword) => {
+        const currentUser = get().currentUser;
+        if (!currentUser) return { success: false, error: "Not logged in." };
+        try {
+          const res = await fetch('/api/auth/change-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentUser.email, currentPassword, newPassword })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            return { success: false, error: data.error || "Failed to change password." };
+          }
+          return { success: true };
+        } catch (err) {
+          return { success: false, error: "Network error. Please try again." };
+        }
+      },
+
+      setup2fa: async () => {
+        const currentUser = get().currentUser;
+        if (!currentUser) return { success: false, error: "Not logged in." };
+        try {
+          const res = await fetch('/api/auth/2fa/setup', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentUser.email })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            return { success: false, error: data.error || "Failed to setup 2FA." };
+          }
+          return { success: true, secret: data.secret, keyUri: data.keyUri };
+        } catch (err) {
+          return { success: false, error: "Network error. Please try again." };
+        }
+      },
+
+      verifyAndEnable2fa: async (token, secret) => {
+        const currentUser = get().currentUser;
+        if (!currentUser) return { success: false, error: "Not logged in." };
+        try {
+          const res = await fetch('/api/auth/2fa/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentUser.email, token, secret, enable: true })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            return { success: false, error: data.error || "Failed to verify code." };
+          }
+          
+          set((state) => {
+            if (!state.currentUser) return {};
+            return {
+              currentUser: {
+                ...state.currentUser,
+                twoFactorEnabled: true,
+                twoFactorSecret: secret
+              }
+            };
+          });
+          return { success: true };
+        } catch (err) {
+          return { success: false, error: "Network error. Please try again." };
+        }
+      },
+
+      disable2fa: async (token) => {
+        const currentUser = get().currentUser;
+        if (!currentUser) return { success: false, error: "Not logged in." };
+        try {
+          const res = await fetch('/api/auth/2fa/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: currentUser.email, token, enable: false })
+          });
+          const data = await res.json();
+          if (!res.ok) {
+            return { success: false, error: data.error || "Failed to verify code." };
+          }
+          
+          set((state) => {
+            if (!state.currentUser) return {};
+            return {
+              currentUser: {
+                ...state.currentUser,
+                twoFactorEnabled: false,
+                twoFactorSecret: undefined
+              }
+            };
           });
           return { success: true };
         } catch (err) {
@@ -562,6 +669,7 @@ export const useTradingStore = create<TradingState>()(
             fullName: updates.fullName !== undefined ? updates.fullName : state.currentUser.fullName,
             dob: updates.dob !== undefined ? updates.dob : state.currentUser.dob,
             address: updates.address !== undefined ? updates.address : state.currentUser.address,
+            twoFactorEnabled: updates.twoFactorEnabled !== undefined ? updates.twoFactorEnabled : state.currentUser.twoFactorEnabled,
             notifications: updates.notifications !== undefined ? updates.notifications : state.currentUser.notifications
           };
           
@@ -580,6 +688,7 @@ export const useTradingStore = create<TradingState>()(
             fullName: updatedUser.fullName,
             dob: updatedUser.dob,
             address: updatedUser.address,
+            twoFactorEnabled: updatedUser.twoFactorEnabled,
             notifications: updatedUser.notifications
           };
           

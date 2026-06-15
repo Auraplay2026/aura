@@ -24,7 +24,8 @@ export async function POST(request: Request) {
       kycStatus,
       fullName,
       dob,
-      address
+      address,
+      twoFactorEnabled
     } = await request.json();
     
     if (!email) {
@@ -128,6 +129,7 @@ export async function POST(request: Request) {
     if (fullName !== undefined) updates.fullName = fullName;
     if (dob !== undefined) updates.dob = dob;
     if (address !== undefined) updates.address = address;
+    if (twoFactorEnabled !== undefined) updates.twoFactorEnabled = twoFactorEnabled;
     if (notifications !== undefined) updates.notifications = notifications;
     if (totalWagered !== undefined) updates.totalWagered = totalWagered;
     if (vipLevel !== undefined) updates.vipLevel = vipLevel;

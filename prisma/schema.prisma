@@ -28,6 +28,8 @@ model User {
   fullName               String?
   dob                    String?
   address                String?
+  twoFactorEnabled       Boolean  @default(false)
+  twoFactorSecret        String?
   
   affiliateCode          String?  @unique
   referredBy             String?

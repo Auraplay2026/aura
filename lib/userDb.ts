@@ -45,6 +45,8 @@ export interface UserProfile {
   fullName?: string;
   dob?: string;
   address?: string;
+  twoFactorEnabled?: boolean;
+  twoFactorSecret?: string;
   role?: 'user' | 'admin' | 'BANNED';
   kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
   kycDocumentUrl?: string;
@@ -92,6 +94,8 @@ export function sanitizeUserProfile(user: any): UserProfile {
     fullName: user.fullName || "",
     dob: user.dob || "",
     address: user.address || "",
+    twoFactorEnabled: !!user.twoFactorEnabled,
+    twoFactorSecret: user.twoFactorSecret || undefined,
   } as UserProfile;
 }
 
@@ -172,6 +176,8 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
     if (updates.fullName !== undefined) data.fullName = updates.fullName;
     if (updates.dob !== undefined) data.dob = updates.dob;
     if (updates.address !== undefined) data.address = updates.address;
+    if (updates.twoFactorEnabled !== undefined) data.twoFactorEnabled = updates.twoFactorEnabled;
+    if (updates.twoFactorSecret !== undefined) data.twoFactorSecret = updates.twoFactorSecret;
     if (updates.hasCompletedOnboarding !== undefined) data.hasCompletedOnboarding = updates.hasCompletedOnboarding;
     if (updates.phoneNumber !== undefined) data.phoneNumber = updates.phoneNumber;
     if (updates.gamingState !== undefined) data.gamingState = updates.gamingState;

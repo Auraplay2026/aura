@@ -16,6 +16,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [twoFactorRequired, setTwoFactorRequired] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
   const [accountType, setAccountType] = useState<'demo' | 'real'>('demo');
   const [referralCode, setReferralCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -24,6 +26,9 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
     setMounted(true);
+    setTwoFactorRequired(false);
+    setOtpCode("");
+    setError(null);
     // Check for referral code in URL
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
@@ -33,7 +38,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
         setView('signup'); // Default to signup if referred
       }
     }
-  }, [initialView]);
+  }, [initialView, view]);
 
   const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "61951094794-ice7e5fabt7indlo6clki10f7093hjiu.apps.googleusercontent.com";
 
@@ -44,10 +49,15 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
     
     try {
       if (view === 'login') {
-        const res = await loginWithCredentials(email, password);
+        const res = await loginWithCredentials(email, password, twoFactorRequired ? otpCode : undefined);
         setIsLoading(false);
         if (res.success) {
+          setTwoFactorRequired(false);
+          setOtpCode("");
           onClose();
+        } else if (res.twoFactorRequired) {
+          setTwoFactorRequired(true);
+          setError(null);
         } else {
           setError(res.error || "Login failed.");
         }
@@ -248,112 +258,137 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                 )}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                  {view === 'signup' && (
+                  {twoFactorRequired ? (
                     <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Username</label>
+                      <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">2FA Verification Code</label>
                       <div className="relative">
                         <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                          <User className="w-4 h-4" />
+                          <Lock className="w-4 h-4" />
                         </div>
                         <input 
                           type="text" 
                           required
-                          value={username}
-                          onChange={e => setUsername(e.target.value)}
-                          placeholder="johndoe123"
-                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                          maxLength={6}
+                          value={otpCode}
+                          onChange={e => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                          placeholder="000000"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors tracking-[0.5em] text-center font-black"
                         />
                       </div>
+                      <p className="text-[10px] text-slate-500 mt-1.5 ml-1 leading-normal font-semibold">
+                        Enter the 6-digit verification code from your authenticator app to complete signing in.
+                      </p>
                     </div>
-                  )}
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Email Address</label>
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                        <Mail className="w-4 h-4" />
-                      </div>
-                      <input 
-                        type="text"
-                        required
-                        value={email}
-                        onChange={e => setEmail(e.target.value)}
-                        placeholder={view === 'login' ? "Username or email" : "john@example.com"}
-                        className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1 flex justify-between">
-                      Password
-                      {view === 'login' && <span className="text-yellow-500 hover:underline cursor-pointer">Forgot?</span>}
-                    </label>
-                    <div className="relative">
-                      <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                        <Lock className="w-4 h-4" />
-                      </div>
-                      <input 
-                        type="password" 
-                        required
-                        value={password}
-                        onChange={e => setPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
-                      />
-                    </div>
-                  </div>
-
-                  {view === 'signup' && (
-                    <div>
-                      <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Referral Code (Optional)</label>
-                      <div className="relative">
-                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
-                          <Sparkles className="w-4 h-4" />
+                  ) : (
+                    <>
+                      {view === 'signup' && (
+                        <div>
+                          <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Username</label>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                              <User className="w-4 h-4" />
+                            </div>
+                            <input 
+                              type="text" 
+                              required
+                              value={username}
+                              onChange={e => setUsername(e.target.value)}
+                              placeholder="johndoe123"
+                              className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                            />
+                          </div>
                         </div>
-                        <input 
-                          type="text" 
-                          value={referralCode}
-                          onChange={e => setReferralCode(e.target.value)}
-                          placeholder="e.g. VIP2024"
-                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors uppercase"
-                        />
-                      </div>
-                    </div>
-                  )}
+                      )}
 
-                  {view === 'signup' && (
-                    <div className="space-y-2">
-                      <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">Account Mode</label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setAccountType('demo')}
-                          className={cn(
-                            "py-3.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer",
-                            accountType === 'demo'
-                              ? "bg-purple-600/15 border-purple-500 text-purple-600 shadow-[0_0_15px_rgba(168,85,247,0.1)]"
-                              : "bg-white border-slate-300 text-slate-600 hover:border-slate-700"
-                          )}
-                        >
-                          <span className="text-xs font-black">DEMO WALLET</span>
-                          <span className="text-[9px] opacity-75">₹100,000 Practice Credits</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setAccountType('real')}
-                          className={cn(
-                            "py-3.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer",
-                            accountType === 'real'
-                              ? "bg-emerald-500/15 border-emerald-500 text-emerald-600 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
-                              : "bg-white border-slate-300 text-slate-600 hover:border-slate-700"
-                          )}
-                        >
-                          <span className="text-xs font-black">REAL WALLET</span>
-                          <span className="text-[9px] opacity-75">₹0 Starting Balance</span>
-                        </button>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Email Address</label>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                            <Mail className="w-4 h-4" />
+                          </div>
+                          <input 
+                            type="text"
+                            required
+                            value={email}
+                            onChange={e => setEmail(e.target.value)}
+                            placeholder={view === 'login' ? "Username or email" : "john@example.com"}
+                            className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                          />
+                        </div>
                       </div>
-                    </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1 flex justify-between">
+                          Password
+                          {view === 'login' && <span className="text-yellow-500 hover:underline cursor-pointer">Forgot?</span>}
+                        </label>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                            <Lock className="w-4 h-4" />
+                          </div>
+                          <input 
+                            type="password" 
+                            required
+                            value={password}
+                            onChange={e => setPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                          />
+                        </div>
+                      </div>
+
+                      {view === 'signup' && (
+                        <div>
+                          <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Referral Code (Optional)</label>
+                          <div className="relative">
+                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                              <Sparkles className="w-4 h-4" />
+                            </div>
+                            <input 
+                              type="text" 
+                              value={referralCode}
+                              onChange={e => setReferralCode(e.target.value)}
+                              placeholder="e.g. VIP2024"
+                              className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors uppercase"
+                            />
+                          </div>
+                        </div>
+                      )}
+
+                      {view === 'signup' && (
+                        <div className="space-y-2">
+                          <label className="block text-xs font-bold text-slate-600 mb-1 ml-1">Account Mode</label>
+                          <div className="grid grid-cols-2 gap-3">
+                            <button
+                              type="button"
+                              onClick={() => setAccountType('demo')}
+                              className={cn(
+                                "py-3.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer",
+                                accountType === 'demo'
+                                  ? "bg-purple-600/15 border-purple-500 text-purple-600 shadow-[0_0_15px_rgba(168,85,247,0.1)]"
+                                  : "bg-white border-slate-300 text-slate-600 hover:border-slate-700"
+                              )}
+                            >
+                              <span className="text-xs font-black">DEMO WALLET</span>
+                              <span className="text-[9px] opacity-75">₹100,000 Practice Credits</span>
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setAccountType('real')}
+                              className={cn(
+                                "py-3.5 rounded-xl border flex flex-col items-center justify-center gap-1 transition-all cursor-pointer",
+                                accountType === 'real'
+                                  ? "bg-emerald-500/15 border-emerald-500 text-emerald-600 shadow-[0_0_15px_rgba(34,197,94,0.1)]"
+                                  : "bg-white border-slate-300 text-slate-600 hover:border-slate-700"
+                              )}
+                            >
+                              <span className="text-xs font-black">REAL WALLET</span>
+                              <span className="text-[9px] opacity-75">₹0 Starting Balance</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </>
                   )}
 
                   <button 
@@ -364,7 +399,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                     {isLoading ? (
                       <span className="w-5 h-5 border-2 border-slate-200/30 border-t-slate-900 rounded-full animate-spin" />
                     ) : (
-                      view === 'login' ? 'Sign In' : 'Create Account'
+                      view === 'login' ? (twoFactorRequired ? 'Verify & Sign In' : 'Sign In') : 'Create Account'
                     )}
                   </button>
                 </form>
