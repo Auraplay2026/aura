@@ -213,6 +213,21 @@ function calculateYesPrice(odds1: number, odds2: number): number {
 
 export function useLiveMarkets(categoryFilter?: string) {
   const [markets, setMarkets] = useState<Market[]>(globalMarkets);
+  const [latency, setLatency] = useState<number>(80);
+
+  // Simulate WebSocket price feed latency jitter
+  useEffect(() => {
+    const latInterval = setInterval(() => {
+      // 88% chance of healthy low latency (<150ms), 12% chance of networking spikes (>500ms)
+      const isSpike = Math.random() > 0.88;
+      const nextLatency = isSpike
+        ? Math.floor(Math.random() * 250) + 501 // 501ms - 750ms spike
+        : Math.floor(Math.random() * 60) + 40;  // 40ms - 100ms normal
+      setLatency(nextLatency);
+    }, 1500);
+
+    return () => clearInterval(latInterval);
+  }, []);
 
   // Fetch live sports matches and merge them into predictions state
   useEffect(() => {
@@ -323,14 +338,18 @@ export function useLiveMarkets(categoryFilter?: string) {
     return () => clearInterval(interval);
   }, []);
 
+  let filteredResult: Market[] = markets;
+
   if (categoryFilter) {
     const filterLower = categoryFilter.toLowerCase();
     if (filterLower === 'trending' || filterLower === 'featured') {
-      // Return a mix of popular markets for trending/featured
-      return markets.slice(0, 16); 
+      filteredResult = markets.slice(0, 16); 
+    } else {
+      filteredResult = markets.filter(m => m.category.toLowerCase() === filterLower);
     }
-    return markets.filter(m => m.category.toLowerCase() === filterLower);
   }
   
-  return markets;
+  const finalResult = [...filteredResult] as any;
+  finalResult.latency = latency;
+  return finalResult as Market[];
 }

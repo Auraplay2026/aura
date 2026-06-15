@@ -19,6 +19,8 @@ const SPORTS_NAV = [
 
 export function TraditionalSportsbookUI() {
   const liveMarkets = useLiveMarkets('sports');
+  const latency = (liveMarkets as any).latency || 80;
+  const isSuspended = latency > 500;
   const [activeTopNav, setActiveTopNav] = useState('All Sports');
   const [activeSport, setActiveSport] = useState('cricket');
   const [activeFilter, setActiveFilter] = useState('all'); // all, popular, tournament
@@ -43,9 +45,15 @@ export function TraditionalSportsbookUI() {
   };
 
   const handleOddsClick = (market: Market, side: 'yes' | 'no') => {
+    if (isSuspended) return; // Block placement during feed suspension
+
     if (isTurboBetEnabled) {
       if (balance >= 1000) {
-        placeTrade(market.id, market.title, side, 1000, side === 'yes' ? market.yes : market.no);
+        const transactionUuid = `UUID-${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
+        placeTrade(market.id, market.title, side, 1000, side === 'yes' ? market.yes : market.no, transactionUuid);
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+          navigator.vibrate([15, 30]);
+        }
       } else {
         alert("Insufficient balance for Turbo Bet (₹1,000)");
       }
@@ -75,19 +83,29 @@ export function TraditionalSportsbookUI() {
     <div className="flex flex-col w-full min-h-full bg-slate-50 text-slate-700 font-sans">
       
       {/* Top Main Nav */}
-      <div className="flex items-center gap-6 px-6 pt-6 border-b border-slate-200">
-        {['Featured', 'In-Play', 'All Sports', 'My Bets'].map(tab => (
-          <button 
-            key={tab} 
-            onClick={() => setActiveTopNav(tab)}
-            className={`pb-4 text-sm font-bold border-b-2 transition-colors relative ${activeTopNav === tab ? 'border-[#FFD700] text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
-          >
-            {tab}
-            {tab === 'My Bets' && positions.length > 0 && (
-              <span className="absolute top-0 -right-4 w-4 h-4 bg-slate-50 text-black text-[10px] rounded-full flex items-center justify-center">{positions.length}</span>
-            )}
-          </button>
-        ))}
+      <div className="flex items-center justify-between px-6 pt-6 border-b border-slate-200 bg-white">
+        <div className="flex items-center gap-6">
+          {['Featured', 'In-Play', 'All Sports', 'My Bets'].map(tab => (
+            <button 
+              key={tab} 
+              onClick={() => setActiveTopNav(tab)}
+              className={`pb-4 text-sm font-bold border-b-2 transition-colors relative ${activeTopNav === tab ? 'border-[#FFD700] text-slate-900' : 'border-transparent text-slate-500 hover:text-slate-700'}`}
+            >
+              {tab}
+              {tab === 'My Bets' && positions.length > 0 && (
+                <span className="absolute top-0 -right-4 w-4 h-4 bg-slate-50 text-black text-[10px] rounded-full flex items-center justify-center">{positions.length}</span>
+              )}
+            </button>
+          ))}
+        </div>
+        
+        {/* Latency Ticker HUD */}
+        <div className="flex items-center gap-2 text-xs font-mono pb-4">
+          <span className={`w-2 h-2 rounded-full ${isSuspended ? 'bg-red-500 animate-ping' : 'bg-[#16A34A]'}`} />
+          <span className={isSuspended ? 'text-red-600 font-bold' : 'text-slate-500'}>
+            {isSuspended ? `⚠️ Feed: ${latency}ms (Suspended)` : `⚡ Feed: ${latency}ms`}
+          </span>
+        </div>
       </div>
 
       {activeTopNav === 'My Bets' ? (
@@ -241,25 +259,39 @@ export function TraditionalSportsbookUI() {
                             {/* Right: Odds */}
                             <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
                               <button 
+                                disabled={isSuspended}
                                 onClick={() => handleOddsClick(market, 'yes')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#E0F2FE] hover:bg-[#c0e0fc] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-sky-500 ring-2 ring-sky-200' : 'border-sky-200/40'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 rounded-lg px-3 transition-colors border ${isSuspended ? 'bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400' : 'bg-[#E0F2FE] hover:bg-[#c0e0fc] border-sky-200/40 text-sky-850'} ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-sky-500 ring-2 ring-sky-200' : ''}`}
                               >
-                                <span className="text-sky-800 text-[10px] font-black uppercase tracking-wider">Back</span>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{yesOdds}</span>
-                                  {isYesTrendingUp ? <TrendingUp className="w-3 h-3 text-emerald-600" /> : <TrendingDown className="w-3 h-3 text-rose-600" />}
-                                </div>
+                                {isSuspended ? (
+                                  <span className="text-[10px] font-black uppercase text-slate-400 mx-auto">Suspended</span>
+                                ) : (
+                                  <>
+                                    <span className="text-sky-800 text-[10px] font-black uppercase tracking-wider">Back</span>
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{yesOdds}</span>
+                                      {isYesTrendingUp ? <TrendingUp className="w-3 h-3 text-emerald-600" /> : <TrendingDown className="w-3 h-3 text-rose-600" />}
+                                    </div>
+                                  </>
+                                )}
                               </button>
                               
                               <button 
+                                disabled={isSuspended}
                                 onClick={() => handleOddsClick(market, 'no')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#FCE7F3] hover:bg-[#f9cce4] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-pink-500 ring-2 ring-pink-200' : 'border-pink-200/40'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 rounded-lg px-3 transition-colors border ${isSuspended ? 'bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400' : 'bg-[#FCE7F3] hover:bg-[#f9cce4] border-pink-200/40 text-pink-850'} ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-pink-500 ring-2 ring-pink-200' : ''}`}
                               >
-                                <span className="text-pink-800 text-[10px] font-black uppercase tracking-wider">Lay</span>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{noOdds}</span>
-                                  {isNoTrendingUp ? <TrendingUp className="w-3 h-3 text-emerald-600" /> : <TrendingDown className="w-3 h-3 text-rose-600" />}
-                                </div>
+                                {isSuspended ? (
+                                  <span className="text-[10px] font-black uppercase text-slate-400 mx-auto">Suspended</span>
+                                ) : (
+                                  <>
+                                    <span className="text-pink-800 text-[10px] font-black uppercase tracking-wider">Lay</span>
+                                    <div className="flex items-center gap-1">
+                                      <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{noOdds}</span>
+                                      {isNoTrendingUp ? <TrendingUp className="w-3 h-3 text-emerald-600" /> : <TrendingDown className="w-3 h-3 text-rose-600" />}
+                                    </div>
+                                  </>
+                                )}
                               </button>
                             </div>
 
@@ -312,19 +344,33 @@ export function TraditionalSportsbookUI() {
                             {/* Right: Odds */}
                             <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
                               <button 
+                                disabled={isSuspended}
                                 onClick={() => handleOddsClick(market, 'yes')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#E0F2FE] hover:bg-[#c0e0fc] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-sky-500 ring-2 ring-sky-200' : 'border-sky-200/40'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 rounded-lg px-3 transition-colors border ${isSuspended ? 'bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400' : 'bg-[#E0F2FE] hover:bg-[#c0e0fc] border-sky-200/40 text-sky-850'} ${draftBet?.marketId === market.id && draftBet?.side === 'yes' ? 'border-sky-500 ring-2 ring-sky-200' : ''}`}
                               >
-                                <span className="text-sky-850 text-[10px] font-black uppercase tracking-wider">Back</span>
-                                <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{yesOdds}</span>
+                                {isSuspended ? (
+                                  <span className="text-[10px] font-black uppercase text-slate-400 mx-auto">Suspended</span>
+                                ) : (
+                                  <>
+                                    <span className="text-sky-850 text-[10px] font-black uppercase tracking-wider">Back</span>
+                                    <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{yesOdds}</span>
+                                  </>
+                                )}
                               </button>
                               
                               <button 
+                                disabled={isSuspended}
                                 onClick={() => handleOddsClick(market, 'no')}
-                                className={`flex items-center justify-between w-full md:w-[90px] h-12 bg-[#FCE7F3] hover:bg-[#f9cce4] rounded-lg px-3 transition-colors border ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-pink-500 ring-2 ring-pink-200' : 'border-pink-200/40'}`}
+                                className={`flex items-center justify-between w-full md:w-[90px] h-12 rounded-lg px-3 transition-colors border ${isSuspended ? 'bg-slate-100 border-slate-200 cursor-not-allowed text-slate-400' : 'bg-[#FCE7F3] hover:bg-[#f9cce4] border-pink-200/40 text-pink-850'} ${draftBet?.marketId === market.id && draftBet?.side === 'no' ? 'border-pink-500 ring-2 ring-pink-200' : ''}`}
                               >
-                                <span className="text-pink-850 text-[10px] font-black uppercase tracking-wider">Lay</span>
-                                <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{noOdds}</span>
+                                {isSuspended ? (
+                                  <span className="text-[10px] font-black uppercase text-slate-400 mx-auto">Suspended</span>
+                                ) : (
+                                  <>
+                                    <span className="text-pink-850 text-[10px] font-black uppercase tracking-wider">Lay</span>
+                                    <span className="text-sm font-black text-slate-950 font-mono tracking-tight">{noOdds}</span>
+                                  </>
+                                )}
                               </button>
                             </div>
 

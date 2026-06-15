@@ -98,41 +98,41 @@ export function LiveActionFeed() {
       </div>
 
       {/* Data Table */}
-      <div className="w-full overflow-x-auto custom-scrollbar overflow-hidden rounded-xl border border-slate-200 shadow-sm">
-        <table className="w-full text-left border-collapse min-w-[850px] bg-white">
-          <thead className="bg-slate-50">
-            <tr className="text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 border-b border-slate-200">
-              <th className="py-4 font-semibold px-4">Type</th>
-              <th className="py-4 font-semibold px-4">Game / Session</th>
-              <th className="py-4 font-semibold px-4">User</th>
-              <th className="py-4 font-semibold px-4">Time</th>
-              <th className="py-4 font-semibold px-4 text-right">Rate / Wager</th>
-              <th className="py-4 font-semibold px-4 text-right">Duration / Multiplier</th>
-              <th className="py-4 font-semibold px-4 text-right">Total Cost / Payout</th>
-            </tr>
-          </thead>
-          <tbody>
+      {/* Data Grid */}
+      <div className="w-full overflow-x-auto custom-scrollbar rounded-xl border border-slate-200 shadow-sm bg-white">
+        <div className="min-w-[850px]">
+          {/* Grid Header */}
+          <div className="grid grid-cols-7 bg-slate-50 text-[10px] sm:text-xs uppercase tracking-widest text-slate-500 border-b border-slate-200 py-4 px-4 font-semibold">
+            <div>Type</div>
+            <div>Game / Session</div>
+            <div>User</div>
+            <div>Time</div>
+            <div className="text-right">Rate / Wager</div>
+            <div className="text-right">Duration / Multiplier</div>
+            <div className="text-right">Total Cost / Payout</div>
+          </div>
+
+          {/* Grid Body */}
+          <div className="divide-y divide-slate-100">
             <AnimatePresence initial={false}>
               {activeTab === "My History" ? (
                 transactions.length === 0 ? (
-                  <tr>
-                    <td colSpan={7} className="py-8 text-center text-slate-500 font-bold text-sm uppercase tracking-widest">
-                      No transactions found. Start playing or renting to build history!
-                    </td>
-                  </tr>
+                  <div className="py-8 text-center text-slate-500 font-bold text-sm uppercase tracking-widest">
+                    No transactions found. Start playing or renting to build history!
+                  </div>
                 ) : (
                   transactions.slice(0, 15).map((tx) => {
                     const isRental = tx.details.includes('Played') && (tx.details.includes('Wager') && !tx.details.includes('Payout: ₹0') ? false : true); 
                     return (
-                      <motion.tr
+                      <motion.div
                         key={tx.id}
                         initial={{ opacity: 0, y: -20, backgroundColor: "rgba(234, 179, 8, 0.1)" }}
                         animate={{ opacity: 1, y: 0, backgroundColor: "transparent" }}
                         exit={{ opacity: 0, x: -20 }}
                         transition={{ duration: 0.4 }}
-                        className="border-b border-slate-100 hover:bg-slate-50 transition-colors group text-sm sm:text-base"
+                        className="grid grid-cols-7 hover:bg-slate-50 transition-colors group text-sm sm:text-base py-3 px-4 items-center"
                       >
-                        <td className="py-3 px-4 font-bold text-xs uppercase tracking-widest">
+                        <div className="font-bold text-xs uppercase tracking-widest">
                           {tx.type === 'casino' ? (isRental ? (
                             <span className="text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">Rental</span>
                           ) : (
@@ -140,29 +140,29 @@ export function LiveActionFeed() {
                           )) : (
                             <span className="text-slate-600 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">{tx.type}</span>
                           )}
-                        </td>
-                        <td className="py-3 px-4 font-medium text-slate-800 max-w-[200px] truncate" title={tx.details}>
+                        </div>
+                        <div className="font-medium text-slate-800 max-w-[200px] truncate" title={tx.details}>
                           {tx.details.split('(')[0].replace('Played ', '')}
-                        </td>
-                        <td className="py-3 px-4">
+                        </div>
+                        <div>
                           <span className="text-slate-600 flex items-center gap-2 text-sm font-semibold">
                             <User className="w-3 h-3" /> You
                           </span>
-                        </td>
-                        <td className="py-3 px-4 text-slate-500 text-xs font-mono">{new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</td>
-                        <td className="py-3 px-4 text-right text-slate-800 font-medium font-mono">
+                        </div>
+                        <div className="text-slate-500 text-xs font-mono">{new Date(tx.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' })}</div>
+                        <div className="text-right text-slate-800 font-medium font-mono">
                           ₹{tx.amount.toLocaleString()}
-                        </td>
-                        <td className="py-3 px-4 text-right font-black text-slate-500 font-mono">
-                          {tx.details.includes('Wager:') ? '-' : '-'}
-                        </td>
-                        <td className={cn(
-                          "py-3 px-4 text-right font-black font-mono",
+                        </div>
+                        <div className="text-right font-black text-slate-500 font-mono">
+                          -
+                        </div>
+                        <div className={cn(
+                          "text-right font-black font-mono",
                           tx.status === 'Completed' ? 'text-green-600' : 'text-yellow-600'
                         )}>
                           {tx.type === 'casino' ? `₹${tx.amount.toLocaleString()}` : tx.status}
-                        </td>
-                      </motion.tr>
+                        </div>
+                      </motion.div>
                     );
                   })
                 )
@@ -175,16 +175,16 @@ export function LiveActionFeed() {
                     return true;
                   })
                   .map((row) => (
-                    <motion.tr
+                    <motion.div
                       key={row.id}
                       initial={{ opacity: 0, y: -20, backgroundColor: row.type === 'rental' ? "rgba(59, 130, 246, 0.05)" : "rgba(234, 179, 8, 0.05)" }}
                       animate={{ opacity: 1, y: 0, backgroundColor: "transparent" }}
                       exit={{ opacity: 0, x: -20 }}
                       transition={{ duration: 0.4 }}
-                      className="border-b border-slate-100 hover:bg-slate-50 transition-colors group text-sm sm:text-base"
+                      className="grid grid-cols-7 hover:bg-slate-50 transition-colors group text-sm sm:text-base py-3 px-4 items-center"
                     >
                       {/* Column 1: Type Badge */}
-                      <td className="py-3 px-4 font-bold text-xs uppercase tracking-widest font-mono">
+                      <div className="font-bold text-xs uppercase tracking-widest font-mono">
                         {row.type === 'rental' ? (
                           <span className="flex items-center gap-1 w-max text-blue-600 bg-blue-50 px-2 py-0.5 rounded border border-blue-200">
                             <PlayCircle className="w-3.5 h-3.5" /> Rent
@@ -194,49 +194,49 @@ export function LiveActionFeed() {
                             <Coins className="w-3.5 h-3.5" /> Bet
                           </span>
                         )}
-                      </td>
+                      </div>
                       {/* Column 2: Game */}
-                      <td className="py-3 px-4 font-medium text-slate-800">{row.game}</td>
+                      <div className="font-medium text-slate-800">{row.game}</div>
                       {/* Column 3: User */}
-                      <td className="py-3 px-4">
+                      <div>
                         <button 
                           onClick={() => setSelectedUser(row.user)}
-                          className="text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2 group-hover:text-blue-600 font-medium"
+                          className="text-slate-600 hover:text-slate-900 transition-colors flex items-center gap-2 group-hover:text-blue-600 font-medium cursor-pointer"
                         >
                           <User className="w-3 h-3" />
                           {row.user}
                         </button>
-                      </td>
+                      </div>
                       {/* Column 4: Time */}
-                      <td className="py-3 px-4 text-slate-500 text-xs font-mono">{row.time}</td>
+                      <div className="text-slate-500 text-xs font-mono">{row.time}</div>
                       {/* Column 5: Rate or Wager */}
-                      <td className="py-3 px-4 text-right text-slate-800 font-medium font-mono">
+                      <div className="text-right text-slate-800 font-medium font-mono">
                         {row.type === 'rental' ? `₹${row.amount}/hr` : `₹${row.amount.toLocaleString()}`}
-                      </td>
+                      </div>
                       {/* Column 6: Duration or Multiplier */}
-                      <td className={cn(
-                        "py-3 px-4 text-right font-black font-mono",
+                      <div className={cn(
+                        "text-right font-black font-mono",
                         row.type === 'rental' 
                           ? (row.multi >= 8 ? 'text-blue-600 animate-pulse' : row.multi >= 4 ? 'text-yellow-600' : 'text-slate-500')
                           : (row.won ? 'text-yellow-600' : 'text-slate-600')
                       )}>
                         {row.type === 'rental' ? `${row.multi} hrs` : (row.won ? `${row.multi}x` : '0.00x')}
-                      </td>
+                      </div>
                       {/* Column 7: Total Cost or Payout */}
-                      <td className={cn(
-                        "py-3 px-4 text-right font-black font-mono",
+                      <div className={cn(
+                        "text-right font-black font-mono",
                         row.type === 'rental' 
                           ? 'text-blue-600' 
                           : (row.won ? 'text-green-600' : 'text-slate-600')
                       )}>
                         ₹{row.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                      </td>
-                    </motion.tr>
+                      </div>
+                    </motion.div>
                   ))
               )}
             </AnimatePresence>
-          </tbody>
-        </table>
+          </div>
+        </div>
       </div>
 
       {/* Interactive Player Profile Popover */}

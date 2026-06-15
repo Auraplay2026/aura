@@ -178,6 +178,7 @@ export async function GET(request: Request) {
     const gameFilter = searchParams.get('game');
 
     // Read REAL data from the game history store
+    await gameHistory.initialize();
     let rounds = gameHistory.getRounds(hours);
 
     // Optional game filter

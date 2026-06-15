@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getUsers, saveUsers, findUserByEmail, sanitizeUserProfile } from '@/lib/userDb';
+import { getUsers, updateUser, findUserByEmail, sanitizeUserProfile } from '@/lib/userDb';
 import { logAdminAction } from '@/app/(admin)/admin/actions';
 import { sendTransactionNotification } from '@/lib/notificationService';
 
@@ -204,8 +204,14 @@ export async function POST(request: Request) {
       });
     }
 
-    // Save updated users database to users.json
-    await saveUsers(users);
+    // Save updated user database via Prisma
+    await updateUser(email, {
+      realBalance: user.realBalance,
+      realTransactions: user.realTransactions,
+      balance: user.balance,
+      transactions: user.transactions,
+      notifications: user.notifications
+    });
 
     return NextResponse.json({ success: true, updatedBalance: user.realBalance }, { status: 200 });
   } catch (err) {

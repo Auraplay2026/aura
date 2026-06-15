@@ -29,56 +29,61 @@ const GLOBAL_KEY = '__aurabet_game_history__' as const;
 
 function getStore(): GameRound[] {
   if (!(globalThis as any)[GLOBAL_KEY]) {
-    const store: GameRound[] = [];
-    (globalThis as any)[GLOBAL_KEY] = store;
-    
-    // Load existing transactions and build game rounds to persist in history
-    try {
-      const dbFile = path.join(process.cwd(), 'data', 'users.json');
-      if (fs.existsSync(dbFile)) {
-        const data = fs.readFileSync(dbFile, 'utf-8');
-        const users = JSON.parse(data);
-        if (Array.isArray(users)) {
-          const uniqueTxIds = new Set<string>();
-          for (const user of users) {
-            const allTx = [
-              ...(user.realTransactions || [])
-            ];
-            
-            for (const tx of allTx) {
-              if (uniqueTxIds.has(tx.id)) continue;
-              uniqueTxIds.add(tx.id);
-              
-              if (tx.type === 'casino') {
-                const details = tx.details || '';
-                const gameMatch = details.match(/Played ([^(]+)/);
-                if (gameMatch) {
-                  const gameId = gameMatch[1].trim().toLowerCase();
-                  const { wager, payout } = parseCasinoDetails(details);
-                  store.push({
-                    id: `round_${tx.id}`,
-                    gameId,
-                    userId: user.email,
-                    wager,
-                    payout,
-                    multiplier: wager > 0 ? parseFloat((payout / wager).toFixed(2)) : 0,
-                    won: payout > wager,
-                    timestamp: tx.timestamp || Date.now()
-                  });
-                }
-              }
-            }
-          }
-        }
-      }
-    } catch (e) {
-      console.error("Failed to load and sync game history from users database", e);
-    }
+    (globalThis as any)[GLOBAL_KEY] = [];
   }
   return (globalThis as any)[GLOBAL_KEY];
 }
 
+let isInitialized = false;
+let initPromise: Promise<void> | null = null;
+
 export const gameHistory = {
+  /** Asynchronously load history records from database */
+  async initialize(): Promise<void> {
+    if (isInitialized) return;
+    if (initPromise) return initPromise;
+
+    initPromise = (async () => {
+      try {
+        const users = await getUsers();
+        const store = getStore();
+        const uniqueTxIds = new Set<string>(store.map(r => r.id.replace('round_', '')));
+        
+        for (const user of users) {
+          const allTx = user.realTransactions || [];
+          for (const tx of allTx) {
+            if (uniqueTxIds.has(tx.id)) continue;
+            uniqueTxIds.add(tx.id);
+            
+            if (tx.type === 'casino') {
+              const details = tx.details || '';
+              const gameMatch = details.match(/Played ([^(]+)/);
+              if (gameMatch) {
+                const gameId = gameMatch[1].trim().toLowerCase();
+                const { wager, payout } = parseCasinoDetails(details);
+                store.push({
+                  id: `round_${tx.id}`,
+                  gameId,
+                  userId: user.email,
+                  wager,
+                  payout,
+                  multiplier: wager > 0 ? parseFloat((payout / wager).toFixed(2)) : 0,
+                  won: payout > wager,
+                  timestamp: tx.timestamp || Date.now()
+                });
+              }
+            }
+          }
+        }
+        isInitialized = true;
+      } catch (e) {
+        console.error("Failed to async initialize game history from Prisma:", e);
+      }
+    })();
+
+    return initPromise;
+  },
+
   /** Record a completed game round */
   record(round: Omit<GameRound, 'id' | 'timestamp'>): GameRound {
     const store = getStore();
@@ -117,5 +122,7 @@ export const gameHistory = {
   /** Clear all history */
   clear(): void {
     (globalThis as any)[GLOBAL_KEY] = [];
+    isInitialized = false;
+    initPromise = null;
   },
 };

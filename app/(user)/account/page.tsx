@@ -2,11 +2,12 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, Shield, Smartphone, Key, ShieldCheck, CheckCircle2, Wallet, Activity, Trophy, ArrowRight, Camera, AlertCircle } from "lucide-react";
+import { User, Mail, Shield, Smartphone, Key, ShieldCheck, CheckCircle2, Wallet, Activity, Trophy, ArrowRight, Camera, AlertCircle, TrendingUp, TrendingDown } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import Link from "next/link";
 import { KYCVerificationFlow } from "@/components/KYCVerificationFlow";
+import { cn } from "@/lib/utils";
 
 export default function AccountSettingsPage() {
   const { balance, positions, transactions, currentUser, updateProfile } = useTradingStore();
@@ -97,6 +98,13 @@ export default function AccountSettingsPage() {
 
   const netWorth = balance + currentPortfolioValue;
 
+  // HFT HUD Math
+  const isReal = currentUser?.accountType === 'real';
+  const baseline = isReal ? (totalDeposits || 10000) : 100000;
+  const totalReturns = netWorth + totalWithdrawals;
+  const overallPnL = totalReturns - (isReal ? totalDeposits : 100000);
+  const roiPercentage = (overallPnL / baseline) * 100;
+
   return (
     <div className="space-y-8 max-w-6xl mx-auto">
       
@@ -124,7 +132,7 @@ export default function AccountSettingsPage() {
               <Trophy className="w-5 h-5 text-yellow-500" />
             </div>
           </div>
-
+ 
           {/* Profile Info */}
           <div className="flex-1 text-center md:text-left">
             <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">
@@ -159,37 +167,122 @@ export default function AccountSettingsPage() {
               )}
             </div>
           </div>
-
+ 
           {/* Quick Stats */}
           <div className="flex gap-6 shrink-0 mt-6 md:mt-0">
             <div className="text-center md:text-right">
               <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Net Worth</p>
-              <p className="text-3xl font-black text-slate-900 font-mono tracking-tight">₹{netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+              <p className="text-3xl font-black text-slate-900 font-mono tracking-tight font-bold">₹{netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
             </div>
           </div>
         </div>
       </motion.div>
 
-      {/* Logical Dashboard Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {[
-          { label: "Available Balance", value: `₹${balance.toLocaleString(undefined, { maximumFractionDigits: 0 })}`, icon: Wallet, color: "text-slate-900" },
-          { label: "Active Positions", value: positions.length.toString(), icon: Activity, color: "text-neon-green" },
-          { label: "Total Deposits", value: `₹${totalDeposits.toLocaleString()}`, icon: ArrowRight, color: "text-slate-700" },
-          { label: "Total Withdrawals", value: `₹${totalWithdrawals.toLocaleString()}`, icon: ShieldCheck, color: "text-slate-700" },
-        ].map((stat, i) => (
-          <motion.div 
-            key={stat.label}
-            initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-            className="bg-slate-50/40 border border-slate-200/80 rounded-2xl p-5 backdrop-blur-xl relative overflow-hidden group hover:-translate-y-1 hover:shadow-lg transition-all duration-200"
-          >
-            <div className="absolute top-0 right-0 p-4 opacity-10 group-hover:opacity-20 transition-opacity">
-              <stat.icon className={`w-12 h-12 ${stat.color}`} />
+      {/* Platform HFT HUD Dashboard */}
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        
+        {/* Wallet Balance Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
+          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Available Balance</p>
+              <h3 className="text-2xl font-black text-slate-900 font-mono mt-1">₹{balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h3>
             </div>
-            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-2 relative z-10">{stat.label}</p>
-            <p className={`text-2xl font-black font-mono relative z-10 ${stat.color}`}>{stat.value}</p>
-          </motion.div>
-        ))}
+            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+              <Wallet className="w-5 h-5 text-slate-700" />
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span className="text-slate-500">Portfolio Value:</span>
+            <span className="font-mono font-bold text-slate-750">₹{currentPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+          </div>
+        </motion.div>
+
+        {/* Net P&L Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
+          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Overall Net P&L</p>
+              <h3 className={cn(
+                "text-2xl font-black font-mono mt-1",
+                overallPnL >= 0 ? "text-[#16A34A]" : "text-red-600"
+              )}>
+                {overallPnL >= 0 ? "+" : ""}₹{overallPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              </h3>
+            </div>
+            <div className={cn(
+              "w-9 h-9 rounded-xl flex items-center justify-center border",
+              overallPnL >= 0 ? "bg-green-50 border-green-100 text-[#16A34A]" : "bg-red-50 border-red-100 text-red-600"
+            )}>
+              {overallPnL >= 0 ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span className="text-slate-500">Status:</span>
+            <span className={cn("font-bold", overallPnL >= 0 ? "text-[#16A34A]" : "text-red-600")}>
+              {overallPnL >= 0 ? "IN PROFIT" : "IN LOSS"}
+            </span>
+          </div>
+        </motion.div>
+
+        {/* ROI Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
+          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Return on Capital (ROI)</p>
+              <h3 className={cn(
+                "text-2xl font-black font-mono mt-1",
+                roiPercentage >= 0 ? "text-[#16A34A]" : "text-red-600"
+              )}>
+                {roiPercentage >= 0 ? "+" : ""}{roiPercentage.toFixed(2)}%
+              </h3>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+              <Trophy className="w-5 h-5 text-yellow-500" />
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
+            <span className="text-slate-500">Performance:</span>
+            <span className="font-bold text-slate-755">Excellent</span>
+          </div>
+        </motion.div>
+
+        {/* Turnover Ratio Card */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
+          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+        >
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Deposits vs Withdrawals</p>
+              <h3 className="text-2xl font-black text-slate-900 font-mono mt-1">₹{(totalDeposits + totalWithdrawals).toLocaleString(undefined, { maximumFractionDigits: 0 })}</h3>
+            </div>
+            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
+              <Activity className="w-5 h-5 text-indigo-500" />
+            </div>
+          </div>
+          <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
+            <div className="flex justify-between text-[10px] text-slate-500 font-bold">
+              <span>DEP: ₹{totalDeposits.toLocaleString()}</span>
+              <span>WIT: ₹{totalWithdrawals.toLocaleString()}</span>
+            </div>
+            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+              <div 
+                className="bg-indigo-650 h-full rounded-full" 
+                style={{ width: `${totalDeposits + totalWithdrawals > 0 ? (totalDeposits / (totalDeposits + totalWithdrawals)) * 100 : 50}%` }}
+              />
+            </div>
+          </div>
+        </motion.div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">

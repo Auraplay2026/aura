@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useTradingStore } from "@/lib/store";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Gift, Sparkles, CheckCircle2, RotateCw } from "lucide-react";
@@ -28,6 +28,16 @@ export function DailyRewardModal() {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [prizeWon, setPrizeWon] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+
+  const spinIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const spinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+      if (spinTimeoutRef.current) clearTimeout(spinTimeoutRef.current);
+    };
+  }, []);
 
   // Trigger modal display automatically once daily login is detected
   useEffect(() => {
@@ -102,13 +112,12 @@ export function DailyRewardModal() {
     setPrizeWon(null);
 
     // Play arcade tick-tick sound via Web Audio API while spinning
-    let tickInterval: NodeJS.Timeout;
     try {
       const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
       let ticks = 0;
-      tickInterval = setInterval(() => {
+      spinIntervalRef.current = setInterval(() => {
         if (ticks > 40) {
-          clearInterval(tickInterval);
+          if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
           return;
         }
         ticks++;
@@ -132,9 +141,9 @@ export function DailyRewardModal() {
     const newRotation = wheelRotation + 360 * 5 - prizeIndex * sectorAngle - sectorAngle / 2;
     setWheelRotation(newRotation);
 
-    setTimeout(() => {
+    spinTimeoutRef.current = setTimeout(() => {
       setIsSpinning(false);
-      clearInterval(tickInterval);
+      if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
 
       // Claim prize
       spinWheelClaimed(sector.prize, `Won ${sector.label} on Spin Wheel`);

@@ -39,6 +39,32 @@ export async function POST(request: Request) {
     // Fetch directly from DB using helper or select
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
+      // Security Check: Block unauthorized client-side KYC verified jumps
+      if (kycStatus !== undefined && 
+          (kycStatus === 'VERIFIED' || kycStatus === 'APPROVED') && 
+          existingUser.kycStatus !== 'PROCESSING' && 
+          existingUser.kycStatus !== 'PENDING' && 
+          existingUser.kycStatus !== 'VERIFIED' && 
+          existingUser.kycStatus !== 'APPROVED') {
+        return NextResponse.json({ error: 'Unauthorized KYC state transition detected.' }, { status: 400 });
+      }
+
+      // Security Check: Block arbitrary balance injections without matching transactions
+      if (balance !== undefined && accountType === 'real') {
+        const balanceDiff = balance - existingUser.realBalance;
+        if (balanceDiff > 0.01) {
+          const txs = transactions || [];
+          const explanatoryAmount = txs.filter((t: any) => 
+            t.status === 'Completed' && 
+            (t.type === 'deposit' || t.type === 'cashout' || t.type === 'casino' || t.type === 'refund')
+          ).reduce((sum: number, t: any) => sum + t.amount, 0);
+          
+          if (balanceDiff > explanatoryAmount + 5000) {
+            return NextResponse.json({ error: 'Client balance verification mismatch detected.' }, { status: 400 });
+          }
+        }
+      }
+
       if (accountType !== undefined && existingUser.accountType !== accountType) {
         await addActivityLog(email, {
           action: "Account Context Switched",

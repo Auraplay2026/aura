@@ -80,6 +80,7 @@ interface TradingState {
   verifiedAge: number;
   activityLogs: any[];
   kycSubmittedAt: number | null;
+  processedUuids: string[];
 
   // Daily Streak
   streakCount: number;
@@ -99,7 +100,7 @@ interface TradingState {
 
   // Actions
   deposit: (amount: number, method?: string) => void;
-  placeTrade: (marketId: string, marketTitle: string, side: 'yes' | 'no', investment: number, currentPrice: number) => void;
+  placeTrade: (marketId: string, marketTitle: string, side: 'yes' | 'no', investment: number, currentPrice: number, uuid?: string) => void;
   cashOut: (positionId: string, currentMarketPrice: number) => void;
   repairState: () => void;
   syncFromServer: () => Promise<void>;
@@ -120,11 +121,11 @@ interface TradingState {
   fetchActivityLogs: () => Promise<void>;
 
   // Sportsbook
-  placeSportsBet: (matchTitle: string, selection: string, odds: number, stake: number) => void;
+  placeSportsBet: (matchTitle: string, selection: string, odds: number, stake: number, side?: 'yes' | 'no', uuid?: string) => void;
   cancelSportsBet: (transactionId: string) => void;
 
   // Casino
-  playCasino: (wager: number, payout: number, gameTitle: string) => void;
+  playCasino: (wager: number, payout: number, gameTitle: string, uuid?: string) => void;
   houseEdge: number;
   fetchSystemConfig: () => Promise<void>;
 
@@ -192,6 +193,7 @@ function getSyncedStateAndSync(
   newTransactions: Transaction[],
   newPositions?: Position[]
 ) {
+  const roundedBalance = Math.round(newBalance * 100) / 100;
   const positionsToUse = newPositions !== undefined ? newPositions : state.positions;
   
   if (state.isLoggedIn && state.currentUser) {
@@ -201,7 +203,7 @@ function getSyncedStateAndSync(
     syncWithServer(
       state.currentUser.email, 
       accountType, 
-      newBalance, 
+      roundedBalance, 
       positionsToUse, 
       newTransactions, 
       hasCompletedOnboarding,
@@ -216,11 +218,11 @@ function getSyncedStateAndSync(
   }
   
   return {
-    balance: newBalance,
+    balance: roundedBalance,
     transactions: newTransactions,
     positions: positionsToUse,
     currentUser: state.currentUser 
-      ? { ...state.currentUser, balance: newBalance, transactions: newTransactions, positions: positionsToUse }
+      ? { ...state.currentUser, balance: roundedBalance, transactions: newTransactions, positions: positionsToUse }
       : null
   };
 }
@@ -260,6 +262,7 @@ export const useTradingStore = create<TradingState>()(
       verifiedAge: 0,
       activityLogs: [],
       kycSubmittedAt: null,
+      processedUuids: [],
       houseEdge: 2.0, // Default 2% house edge
 
       // Daily Streak & Spin states
@@ -627,17 +630,42 @@ export const useTradingStore = create<TradingState>()(
         return getSyncedStateAndSync(state, newBalance, newTransactions);
       }),
 
-      placeTrade: (marketId, marketTitle, side, investment, currentPrice) => set((state) => {
+      placeTrade: (marketId, marketTitle, side, investment, currentPrice, uuid) => set((state) => {
         let safeBalance = state.balance;
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
            safeBalance = isNaN(parsed) ? 100000 : parsed;
         }
 
+        // Idempotency check
+        if (uuid) {
+          if (state.processedUuids && state.processedUuids.includes(uuid)) {
+            console.warn(`[Idempotency Block] placeTrade already processed for UUID: ${uuid}`);
+            return state;
+          }
+        }
+
         // Security check: Prevent overdrafts and negative wagers
         if (investment <= 0 || investment > safeBalance) {
           console.error("Invalid investment amount or insufficient balance");
           return state;
+        }
+
+        // Anti-Arbitrage check: Look for mirror position in last 10 seconds
+        const tenSecondsAgo = Date.now() - 10000;
+        const mirrorPosition = state.positions.find(
+          p => p.marketId === marketId && p.side !== side && p.timestamp >= tenSecondsAgo
+        );
+        if (mirrorPosition) {
+          const alertMsg = `[Anti-Arbitrage Flag] User placed mirror prediction bets (YES and NO) on market "${marketTitle}" (ID: ${marketId}) within 10 seconds.`;
+          console.warn(alertMsg);
+          const newLog = {
+            id: `LOG-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+            type: 'ARBITRAGE_ALERT',
+            message: alertMsg,
+            timestamp: Date.now()
+          };
+          state.activityLogs = [newLog, ...(state.activityLogs || [])];
         }
 
         const shares = investment / (currentPrice / 100);
@@ -665,14 +693,16 @@ export const useTradingStore = create<TradingState>()(
           status: 'Completed'
         };
 
-        recordGameRound({
-          gameId: 'predictions',
-          userId: 'current-user',
-          wager: investment,
-          payout: 0, 
-          multiplier: 0,
-          won: false,
-        });
+        if (state.currentUser?.accountType === 'real') {
+          recordGameRound({
+            gameId: 'predictions',
+            userId: state.currentUser.email,
+            wager: investment,
+            payout: 0, 
+            multiplier: 0,
+            won: false,
+          });
+        }
 
         let newTotalWagered = state.currentUser?.totalWagered || 0;
         let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
@@ -688,53 +718,99 @@ export const useTradingStore = create<TradingState>()(
         const newTransactions = [tx, ...state.transactions];
         const newPositions = [newPosition, ...state.positions];
 
-        return getSyncedStateAndSync(state, newBalance, newTransactions, newPositions);
+        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions, newPositions);
+        const nextProcessed = uuid ? [...(state.processedUuids || []), uuid].slice(-200) : (state.processedUuids || []);
+        
+        return {
+          ...syncedState,
+          processedUuids: nextProcessed,
+          activityLogs: state.activityLogs
+        };
       }),
 
-      placeSportsBet: (matchTitle, selection, odds, stake) => set((state) => {
+      placeSportsBet: (matchTitle, selection, odds, stake, side, uuid) => set((state) => {
         let safeBalance = state.balance;
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
            safeBalance = isNaN(parsed) ? 100000 : parsed;
         }
 
+        // Idempotency check
+        if (uuid) {
+          if (state.processedUuids && state.processedUuids.includes(uuid)) {
+            console.warn(`[Idempotency Block] placeSportsBet already processed for UUID: ${uuid}`);
+            return state;
+          }
+        }
+
+        // Calculate potential liability and total balance requirement
+        // Lay bet liability: Liability = Stake * (Odds - 1)
+        const potentialLiability = side === 'no' ? stake * (odds - 1) : 0;
+        const totalRequired = stake + potentialLiability;
+
         // Security check: Prevent overdrafts and negative wagers
-        if (stake <= 0 || stake > safeBalance) {
-          console.error("Invalid stake amount or insufficient balance");
+        if (stake <= 0 || totalRequired > safeBalance) {
+          console.error("Invalid stake amount or insufficient balance for stake + liability");
           return state;
         }
 
-        const newBalance = safeBalance - stake;
+        // Anti-Arbitrage check: Look for mirror sports bet in last 10 seconds
+        const tenSecondsAgo = Date.now() - 10000;
+        const mirrorSportsBet = state.transactions.find(t => 
+          t.type === 'trade' && 
+          t.timestamp >= tenSecondsAgo && 
+          t.details.includes(matchTitle) && 
+          ((side === 'yes' && t.details.includes('Lay')) || (side === 'no' && (t.details.includes('Back') || t.details.includes('bet on'))))
+        );
+        if (mirrorSportsBet) {
+          const alertMsg = `[Anti-Arbitrage Flag] User placed mirror sports bets (Back and Lay) on match "${matchTitle}" within 10 seconds.`;
+          console.warn(alertMsg);
+          const newLog = {
+            id: `LOG-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+            type: 'ARBITRAGE_ALERT',
+            message: alertMsg,
+            timestamp: Date.now()
+          };
+          state.activityLogs = [newLog, ...(state.activityLogs || [])];
+        }
+
+        const newBalance = safeBalance - totalRequired;
         
         let newTotalWagered = state.currentUser?.totalWagered || 0;
         let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
         if (state.currentUser) {
           if (state.currentUser.accountType === 'real') {
-            newTotalWagered += stake;
+            newTotalWagered += totalRequired;
             newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
             state.currentUser.totalWagered = newTotalWagered;
             state.currentUser.vipLevel = newVipLevel;
           }
         }
 
+        const detailsStr = side === 'no'
+          ? `Placed ₹${stake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
+          : `Placed ₹${stake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`;
+
         const tx: Transaction = {
           id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
           type: 'trade',
-          amount: stake,
+          amount: totalRequired,
           balanceAfter: newBalance,
           timestamp: Date.now(),
-          details: `Placed ₹${stake} bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`,
+          details: detailsStr,
           status: 'Pending'
         };
 
-        recordGameRound({
-          gameId: 'sportsbook',
-          userId: 'current-user',
-          wager: stake,
-          payout: 0,
-          multiplier: odds,
-          won: false,
-        });
+        if (state.currentUser?.accountType === 'real') {
+          recordGameRound({
+            gameId: 'sportsbook',
+            userId: state.currentUser.email,
+            wager: totalRequired,
+            payout: 0,
+            multiplier: odds,
+            won: false,
+          });
+        }
 
         const newTransactions = [tx, ...state.transactions];
         const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
@@ -742,15 +818,15 @@ export const useTradingStore = create<TradingState>()(
         // Achievement check logic for sports betting
         const toUnlock = new Set<string>();
 
-        if (stake >= 10000) toUnlock.add('high_roller');
-        if (stake === safeBalance) toUnlock.add('risk_taker');
+        if (totalRequired >= 10000) toUnlock.add('high_roller');
+        if (totalRequired === safeBalance) toUnlock.add('risk_taker');
 
         const currentHour = new Date().getHours();
         if (currentHour >= 0 && currentHour < 5) toUnlock.add('night_owl');
         if (currentHour >= 5 && currentHour < 8) toUnlock.add('early_bird');
 
         // Sports fanatic count
-        const sportsBetsCount = newTransactions.filter(t => t.type === 'trade' && t.details.includes('bet on')).length;
+        const sportsBetsCount = newTransactions.filter(t => t.type === 'trade' && (t.details.includes('bet on') || t.details.includes('Back bet') || t.details.includes('Lay bet'))).length;
         if (sportsBetsCount >= 10) toUnlock.add('sports_fanatic');
 
         const totalWagersCount = newTransactions.filter(t => t.type === 'casino' || t.type === 'trade').length;
@@ -797,8 +873,12 @@ export const useTradingStore = create<TradingState>()(
           }, 50);
         }
 
+        const nextProcessed = uuid ? [...(state.processedUuids || []), uuid].slice(-200) : (state.processedUuids || []);
+
         return {
           ...syncedState,
+          processedUuids: nextProcessed,
+          activityLogs: state.activityLogs,
           unlockedAchievements: currentUnlocked,
           xp: (state.xp || 0) + addedXp,
           points: (state.points || 0) + addedPoints,
@@ -842,11 +922,19 @@ export const useTradingStore = create<TradingState>()(
         return getSyncedStateAndSync(state, newBalance, newTransactions);
       }),
 
-      playCasino: (wager, payout, gameTitle) => set((state) => {
+      playCasino: (wager, payout, gameTitle, uuid) => set((state) => {
         let safeBalance = state.balance;
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
            safeBalance = isNaN(parsed) ? 100000 : parsed;
+        }
+
+        // Idempotency check
+        if (uuid) {
+          if (state.processedUuids && state.processedUuids.includes(uuid)) {
+            console.warn(`[Idempotency Block] playCasino already processed for UUID: ${uuid}`);
+            return state;
+          }
         }
 
         if (wager <= 0 || wager > safeBalance || payout < 0) {
@@ -950,8 +1038,11 @@ export const useTradingStore = create<TradingState>()(
           }, 50);
         }
 
+        const nextProcessed = uuid ? [...(state.processedUuids || []), uuid].slice(-200) : (state.processedUuids || []);
+
         return {
           ...syncedState,
+          processedUuids: nextProcessed,
           winStreakCount: newStreak,
           unlockedAchievements: currentUnlocked,
           xp: (state.xp || 0) + addedXp,
@@ -987,14 +1078,16 @@ export const useTradingStore = create<TradingState>()(
           status: 'Completed'
         };
 
-        recordGameRound({
-          gameId: 'predictions_cashout',
-          userId: 'current-user',
-          wager: position.investment,
-          payout: currentValue,
-          multiplier: currentValue / position.investment,
-          won: currentValue > position.investment,
-        });
+        if (state.currentUser?.accountType === 'real') {
+          recordGameRound({
+            gameId: 'predictions_cashout',
+            userId: state.currentUser.email,
+            wager: position.investment,
+            payout: currentValue,
+            multiplier: currentValue / position.investment,
+            won: currentValue > position.investment,
+          });
+        }
 
         const newTransactions = [tx, ...state.transactions];
         const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions, updatedPositions);
@@ -1272,6 +1365,18 @@ export const useTradingStore = create<TradingState>()(
       },
 
       setKycStatus: (status) => set((state) => {
+        if (status === 'VERIFIED') {
+          if (!state.kycSubmittedAt) {
+            console.error("KYC violation: No active document review submission found.");
+            return state;
+          }
+          const elapsed = Date.now() - state.kycSubmittedAt;
+          if (elapsed < 10 * 60 * 1000 - 5000) {
+            console.error("KYC violation: Document verification is still pending automatic review.");
+            return state;
+          }
+        }
+
         if (state.currentUser) {
           const updatedUser = { ...state.currentUser, kycStatus: status };
           if (status === 'VERIFIED') {

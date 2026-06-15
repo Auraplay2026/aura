@@ -27,14 +27,24 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
   const { balance: rawBalance, placeSportsBet } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : 0;
 
-  const payout = stake * (draftBet?.odds || 0);
+  // Calculate lay bet liability: Liability = Stake * (Odds - 1)
+  const potentialLiability = draftBet?.side === 'no' ? stake * ((draftBet?.odds || 0) - 1) : 0;
+  const totalCost = stake + potentialLiability;
+  const payout = draftBet?.side === 'no' ? stake : stake * (draftBet?.odds || 0);
 
   const handlePlaceBet = () => {
-    if (!draftBet || stake <= 0 || balance < stake) return;
+    if (isProcessing || !draftBet || stake <= 0 || balance < totalCost) return;
     
     setIsProcessing(true);
     setTimeout(() => {
-      placeSportsBet(draftBet.marketTitle, draftBet.team, draftBet.odds, stake);
+      const transactionUuid = `UUID-${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
+      placeSportsBet(draftBet.marketTitle, draftBet.team, draftBet.odds, stake, draftBet.side, transactionUuid);
+      
+      // Haptic tactile vibration
+      if (typeof navigator !== "undefined" && navigator.vibrate) {
+        navigator.vibrate([15, 30]);
+      }
+      
       setIsProcessing(false);
       onClearBet();
     }, 1000);
@@ -43,7 +53,7 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
   if (!draftBet) return null;
 
   return (
-    <div className="fixed bottom-0 right-4 sm:right-8 z-50 w-full max-w-[340px]">
+    <div className="fixed bottom-0 left-0 right-0 sm:left-auto sm:right-8 z-50 w-full sm:max-w-[340px] px-3 sm:px-0 pb-3 sm:pb-0">
       {/* Drawer Header (Always visible when there is a draft bet) */}
       <div 
         onClick={() => setIsExpanded(!isExpanded)}
@@ -74,7 +84,7 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: "auto", opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="bg-white border-x border-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden"
+            className="bg-white border-x border-slate-200 shadow-[0_10px_30px_rgba(0,0,0,0.5)] overflow-hidden rounded-b-xl sm:rounded-b-none"
           >
             <div className="p-4">
               {/* Draft Bet Item */}
@@ -87,7 +97,9 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
                 </button>
                 <div className="flex justify-between items-start mb-2 pr-6">
                   <div>
-                    <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Winner</span>
+                    <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">
+                      {draftBet.side === 'no' ? 'Lay Winner' : 'Winner'}
+                    </span>
                     <p className="text-sm font-black text-slate-900">{draftBet.team}</p>
                   </div>
                   <div className="text-right">
@@ -114,21 +126,37 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
                 </div>
               </div>
 
+              {/* Potential Liability for Lay Bets */}
+              {draftBet.side === 'no' && (
+                <div className="flex justify-between items-center mb-2 text-xs">
+                  <span className="font-bold text-slate-600">Lay Liability</span>
+                  <span className="font-black text-red-600">₹{potentialLiability.toFixed(2)}</span>
+                </div>
+              )}
+
+              {/* Total Cost / Requirement */}
+              <div className="flex justify-between items-center mb-2 text-xs">
+                <span className="font-bold text-slate-600">Total Cost (Required)</span>
+                <span className="font-black text-slate-900">₹{totalCost.toFixed(2)}</span>
+              </div>
+
               {/* Potential Payout */}
               <div className="flex justify-between items-center mb-4">
-                <span className="text-xs font-bold text-slate-600">Total Payout</span>
-                <span className="text-sm font-black text-[#22c55e]">₹{isNaN(payout) ? "0.00" : payout.toFixed(2)}</span>
+                <span className="text-xs font-bold text-slate-600">Potential Profit</span>
+                <span className="text-sm font-black text-[#16A34A]">
+                  ₹{draftBet.side === 'no' ? stake.toFixed(2) : (payout - stake).toFixed(2)}
+                </span>
               </div>
 
               {/* Place Bet Button */}
               <button
                 onClick={handlePlaceBet}
-                disabled={isProcessing || stake <= 0 || balance < stake}
+                disabled={isProcessing || stake <= 0 || balance < totalCost}
                 className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black py-3 rounded-lg flex justify-center items-center gap-2 transition-all uppercase tracking-widest text-sm cursor-pointer"
               >
                 {isProcessing ? (
                   <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
-                ) : balance < stake ? (
+                ) : balance < totalCost ? (
                   "Insufficient Funds"
                 ) : (
                   "Place Bet"

@@ -25,6 +25,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'payout must be a non-negative number' }, { status: 400 });
     }
 
+    await gameHistory.initialize();
     const round = gameHistory.record({
       gameId,
       userId,
@@ -45,6 +46,7 @@ export async function GET(request: Request) {
   const hours = parseInt(searchParams.get('hours') || '24');
   const limit = parseInt(searchParams.get('limit') || '100');
 
+  await gameHistory.initialize();
   const rounds = gameHistory.getRounds(hours);
 
   return NextResponse.json({

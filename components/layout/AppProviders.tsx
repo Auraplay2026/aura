@@ -23,6 +23,14 @@ export function AppProviders({ children }: { children: ReactNode }) {
 
   // Global State Repair & Auto Sync
   useEffect(() => {
+    // 0. Register PWA Service Worker for mobile caching and offline resilience
+    if (typeof window !== "undefined" && "serviceWorker" in navigator) {
+      navigator.serviceWorker.register("/sw.js").then(
+        (reg) => console.log("AuraPlay Service Worker registered on scope:", reg.scope),
+        (err) => console.error("AuraPlay Service Worker registration failed:", err)
+      );
+    }
+
     // 1. Repair broken local storage on mount
     useTradingStore.getState().repairState();
 

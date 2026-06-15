@@ -30,7 +30,8 @@ type KYCPhase =
   | "AADHAAR_VERIFYING" 
   | "GEO_CHECKING" 
   | "SUCCESS" 
-  | "BLOCKED";
+  | "BLOCKED"
+  | "RECOVERY";
 
 export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
   const { currentUser, setKycStatus, setVerifiedAge, setGeoRestricted } = useTradingStore();
@@ -43,6 +44,14 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
   
   const [aadhaarNumber, setAadhaarNumber] = useState("");
   const [otpCode, setOtpCode] = useState("");
+
+  // KYC Recovery states
+  const [recoveryStep, setRecoveryStep] = useState(1);
+  const [recoveryFile, setRecoveryFile] = useState<File | null>(null);
+  const [recoveryPhone, setRecoveryPhone] = useState("");
+  const [recoveryTimeSlot, setRecoveryTimeSlot] = useState("Immediate (Within 15 mins)");
+  const [altIdType, setAltIdType] = useState("Driving License");
+  const [altIdNumber, setAltIdNumber] = useState("");
 
   // Error & Ticker states
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -358,6 +367,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                     placeholder="e.g. ABCDE1234F"
                     className="w-full bg-transparent border-0 outline-none text-slate-900 font-black tracking-widest text-sm py-1 font-mono uppercase"
                     maxLength={10}
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -371,6 +381,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                     onChange={e => setFullName(e.target.value)}
                     placeholder="Aarav Sharma"
                     className="w-full bg-transparent border-0 outline-none text-slate-900 font-bold text-sm py-1"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -384,6 +395,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                     onChange={e => setDob(e.target.value)}
                     placeholder="DD/MM/YYYY"
                     className="w-full bg-transparent border-0 outline-none text-slate-900 font-bold text-sm py-1 font-mono"
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -395,6 +407,20 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
               >
                 Proceed to Aadhaar <ArrowRight className="w-3.5 h-3.5" />
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrorMessage(null);
+                    setPhase("RECOVERY");
+                    setRecoveryStep(1);
+                  }}
+                  className="text-xs text-indigo-600 hover:text-indigo-850 font-bold underline"
+                >
+                  Problems verifying? Start alternative KYC recovery
+                </button>
+              </div>
             </motion.form>
           )}
 
@@ -451,6 +477,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                     placeholder="12 Digit Aadhaar Number"
                     className="w-full bg-transparent border-0 outline-none text-slate-900 font-black tracking-widest text-sm py-1 font-mono"
                     maxLength={12}
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -462,6 +489,20 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
               >
                 Verify Aadhaar Details <ArrowRight className="w-3.5 h-3.5" />
               </button>
+
+              <div className="text-center pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setErrorMessage(null);
+                    setPhase("RECOVERY");
+                    setRecoveryStep(1);
+                  }}
+                  className="text-xs text-indigo-600 hover:text-indigo-850 font-bold underline"
+                >
+                  Problems verifying? Start alternative KYC recovery
+                </button>
+              </div>
             </motion.form>
           )}
 
@@ -518,6 +559,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                     placeholder="######"
                     className="w-full bg-transparent border-0 outline-none text-slate-900 font-black tracking-widest text-base py-1 font-mono text-center"
                     maxLength={6}
+                    autoComplete="off"
                     required
                   />
                 </div>
@@ -621,6 +663,189 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
               >
                 Exit Verification
               </button>
+            </motion.div>
+          )}
+
+          {/* Phase 9: KYC RECOVERY */}
+          {phase === "RECOVERY" && (
+            <motion.div 
+              key="kyc_recovery"
+              initial={{ opacity: 0, x: -10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 10 }}
+              className="space-y-6 text-left"
+            >
+              <div className="space-y-1">
+                <h3 className="text-xl font-black text-slate-900">Alternative KYC Recovery</h3>
+                <p className="text-xs text-slate-400 font-medium">Step {recoveryStep} of 3</p>
+              </div>
+
+              {/* Recovery Progress Bar */}
+              <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+                <div 
+                  className="bg-indigo-600 h-full transition-all duration-300"
+                  style={{ width: `${(recoveryStep / 3) * 100}%` }}
+                />
+              </div>
+
+              {recoveryStep === 1 && (
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-slate-900">1. Upload Photo ID</h4>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">Upload a clear photo of your PAN, Aadhaar, Voter ID, or Driving License for manual verification.</p>
+                  </div>
+                  <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 flex flex-col items-center justify-center bg-slate-50 hover:bg-slate-100/50 transition-colors cursor-pointer relative">
+                    <FileText className="w-8 h-8 text-indigo-500 mb-2" />
+                    <span className="text-xs font-bold text-slate-700">
+                      {recoveryFile ? recoveryFile.name : "Click to select document photo"}
+                    </span>
+                    <span className="text-[10px] text-slate-400 mt-1">PNG, JPG, PDF up to 5MB</span>
+                    <input 
+                      type="file" 
+                      onChange={(e) => e.target.files && setRecoveryFile(e.target.files[0])}
+                      className="absolute inset-0 opacity-0 cursor-pointer" 
+                    />
+                  </div>
+                  <button 
+                    type="button"
+                    onClick={() => {
+                      setRecoveryStep(2);
+                    }}
+                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10"
+                  >
+                    Continue to Step 2 <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+
+              {recoveryStep === 2 && (
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-slate-900">2. Request Phone Audit</h4>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">An onboarding specialist will call you to verify your identity details over a secure call.</p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="relative border-b border-[#E4E7EB] focus-within:border-indigo-600 transition-colors py-1">
+                      <label className="block text-[9px] font-black uppercase text-slate-400 tracking-wider">Contact Number</label>
+                      <input 
+                        type="tel"
+                        value={recoveryPhone}
+                        onChange={e => setRecoveryPhone(e.target.value)}
+                        placeholder="e.g. +91 98765 43210"
+                        className="w-full bg-transparent border-0 outline-none text-slate-900 font-bold text-sm py-1"
+                        required
+                      />
+                    </div>
+                    <div className="relative border-b border-[#E4E7EB] py-1">
+                      <label className="block text-[9px] font-black uppercase text-slate-400 tracking-wider">Preferred Call Time</label>
+                      <select 
+                        value={recoveryTimeSlot}
+                        onChange={e => setRecoveryTimeSlot(e.target.value)}
+                        className="w-full bg-transparent border-0 outline-none text-slate-900 font-bold text-sm py-1 cursor-pointer"
+                      >
+                        <option>Immediate (Within 15 mins)</option>
+                        <option>Morning (09:00 AM - 12:00 PM)</option>
+                        <option>Afternoon (12:00 PM - 04:00 PM)</option>
+                        <option>Evening (04:00 PM - 08:00 PM)</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => setRecoveryStep(1)}
+                      className="w-1/3 py-3 border border-slate-200 text-slate-600 rounded-xl font-bold text-xs uppercase hover:bg-slate-50 cursor-pointer"
+                    >
+                      Back
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        if (!recoveryPhone || recoveryPhone.trim().length < 8) {
+                          alert("Please enter a valid phone number.");
+                          return;
+                        }
+                        setRecoveryStep(3);
+                      }}
+                      className="w-2/3 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10"
+                    >
+                      Continue to Step 3 <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
+                </div>
+              )}
+
+              {recoveryStep === 3 && (
+                <div className="space-y-4">
+                  <div className="space-y-1">
+                    <h4 className="text-sm font-bold text-slate-900">3. Alternate Identifier</h4>
+                    <p className="text-xs text-slate-500 font-medium leading-relaxed">Provide details for an alternative government identification document.</p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="relative border-b border-[#E4E7EB] py-1">
+                      <label className="block text-[9px] font-black uppercase text-slate-400 tracking-wider">Alternative ID Type</label>
+                      <select 
+                        value={altIdType}
+                        onChange={e => setAltIdType(e.target.value)}
+                        className="w-full bg-transparent border-0 outline-none text-slate-900 font-bold text-sm py-1 cursor-pointer"
+                      >
+                        <option>Driving License</option>
+                        <option>Voter ID Card</option>
+                        <option>Passport</option>
+                      </select>
+                    </div>
+                    <div className="relative border-b border-[#E4E7EB] focus-within:border-indigo-600 transition-colors py-1">
+                      <label className="block text-[9px] font-black uppercase text-slate-400 tracking-wider">Document ID Number</label>
+                      <input 
+                        type="text"
+                        value={altIdNumber}
+                        onChange={e => setAltIdNumber(e.target.value.toUpperCase())}
+                        placeholder="Document Number"
+                        className="w-full bg-transparent border-0 outline-none text-slate-900 font-black tracking-widest text-sm py-1 font-mono uppercase"
+                        required
+                      />
+                    </div>
+                  </div>
+                  <div className="flex gap-3">
+                    <button 
+                      type="button"
+                      onClick={() => setRecoveryStep(2)}
+                      className="w-1/3 py-3 border border-slate-200 text-slate-600 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-slate-50 cursor-pointer"
+                    >
+                      Back
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        if (!altIdNumber || altIdNumber.trim().length < 4) {
+                          alert("Please enter a valid document ID number.");
+                          return;
+                        }
+                        
+                        // Submit Recovery Form
+                        setKycStatus("PROCESSING");
+                        useTradingStore.getState().setKycSubmittedAt(Date.now());
+                        
+                        // Dispatch recovery submit notification
+                        const newNotif = {
+                          id: `NOTIF-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+                          message: `Your alternative KYC Recovery document (${altIdType}) has been received and is under manual agent review. Callback scheduled for ${recoveryTimeSlot}.`,
+                          timestamp: Date.now(),
+                          read: false
+                        };
+                        useTradingStore.getState().updateProfile({
+                          notifications: [...(currentUser?.notifications || []), newNotif]
+                        });
+
+                        setPhase("SUCCESS");
+                      }}
+                      className="w-2/3 py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-green-600/10"
+                    >
+                      Submit Recovery
+                    </button>
+                  </div>
+                </div>
+              )}
             </motion.div>
           )}
 

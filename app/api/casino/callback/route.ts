@@ -31,12 +31,14 @@ export async function POST(request: Request) {
     }
 
     const normalizedAction = String(action).toLowerCase();
+    const isReal = user.accountType === 'real';
+    const activeBalance = isReal ? user.realBalance : user.demoBalance;
 
     // 1. BALANCE CHECK
     if (normalizedAction === 'balance' || normalizedAction === 'get_balance' || normalizedAction === 'getbalance') {
       return NextResponse.json({
         status: "OK",
-        balance: user.realBalance,
+        balance: activeBalance,
         currency: "INR",
         username: user.username
       }, { status: 200 });
@@ -44,15 +46,15 @@ export async function POST(request: Request) {
 
     // 2. BET (DEBIT)
     if (normalizedAction === 'bet' || normalizedAction === 'debit' || normalizedAction === 'place_bet') {
-      if (user.realBalance < amount) {
+      if (activeBalance < amount) {
         return NextResponse.json({
           status: "ERROR_INSUFFICIENT_FUNDS",
-          balance: user.realBalance,
+          balance: activeBalance,
           message: "Insufficient wallet balance."
         }, { status: 200 });
       }
 
-      const newBalance = user.realBalance - amount;
+      const newBalance = activeBalance - amount;
       const newTxn: Transaction = {
         id: transactionId || `TX-BET-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
         type: 'casino',
@@ -64,13 +66,16 @@ export async function POST(request: Request) {
       };
 
       const updates: any = {
-        realBalance: newBalance,
-        realTransactions: [newTxn, ...user.realTransactions]
+        balance: newBalance,
+        transactions: [newTxn, ...user.transactions]
       };
 
-      if (user.accountType === 'real') {
-        updates.balance = newBalance;
-        updates.transactions = [newTxn, ...user.transactions];
+      if (isReal) {
+        updates.realBalance = newBalance;
+        updates.realTransactions = [newTxn, ...user.realTransactions];
+      } else {
+        updates.demoBalance = newBalance;
+        updates.demoTransactions = [newTxn, ...user.demoTransactions];
       }
 
       await updateUser(user.email, updates);
@@ -84,7 +89,7 @@ export async function POST(request: Request) {
 
     // 3. WIN (CREDIT)
     if (normalizedAction === 'win' || normalizedAction === 'credit' || normalizedAction === 'settle_win') {
-      const newBalance = user.realBalance + amount;
+      const newBalance = activeBalance + amount;
       const newTxn: Transaction = {
         id: transactionId || `TX-WIN-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
         type: 'casino',
@@ -96,13 +101,16 @@ export async function POST(request: Request) {
       };
 
       const updates: any = {
-        realBalance: newBalance,
-        realTransactions: [newTxn, ...user.realTransactions]
+        balance: newBalance,
+        transactions: [newTxn, ...user.transactions]
       };
 
-      if (user.accountType === 'real') {
-        updates.balance = newBalance;
-        updates.transactions = [newTxn, ...user.transactions];
+      if (isReal) {
+        updates.realBalance = newBalance;
+        updates.realTransactions = [newTxn, ...user.realTransactions];
+      } else {
+        updates.demoBalance = newBalance;
+        updates.demoTransactions = [newTxn, ...user.demoTransactions];
       }
 
       await updateUser(user.email, updates);
@@ -116,7 +124,7 @@ export async function POST(request: Request) {
 
     // 4. REFUND / ROLLBACK
     if (normalizedAction === 'refund' || normalizedAction === 'rollback' || normalizedAction === 'refund_bet') {
-      const newBalance = user.realBalance + amount;
+      const newBalance = activeBalance + amount;
       const newTxn: Transaction = {
         id: transactionId || `TX-RFD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
         type: 'casino',
@@ -128,13 +136,16 @@ export async function POST(request: Request) {
       };
 
       const updates: any = {
-        realBalance: newBalance,
-        realTransactions: [newTxn, ...user.realTransactions]
+        balance: newBalance,
+        transactions: [newTxn, ...user.transactions]
       };
 
-      if (user.accountType === 'real') {
-        updates.balance = newBalance;
-        updates.transactions = [newTxn, ...user.transactions];
+      if (isReal) {
+        updates.realBalance = newBalance;
+        updates.realTransactions = [newTxn, ...user.realTransactions];
+      } else {
+        updates.demoBalance = newBalance;
+        updates.demoTransactions = [newTxn, ...user.demoTransactions];
       }
 
       await updateUser(user.email, updates);

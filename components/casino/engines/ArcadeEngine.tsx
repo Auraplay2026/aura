@@ -281,9 +281,12 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
     setBootPct(0);
     setIsBooting(true);
 
+    let activeInterval: NodeJS.Timeout | null = null;
+    let activeTimeout: NodeJS.Timeout | null = null;
+
     const advance = () => {
       if (stepIdx >= BOOT_STEPS.length) {
-        setTimeout(() => setIsBooting(false), 600);
+        activeTimeout = setTimeout(() => setIsBooting(false), 600);
         return;
       }
       const step = BOOT_STEPS[stepIdx];
@@ -295,18 +298,23 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
       const ticks = 20;
       const increment = (target - current) / ticks;
       let tick = 0;
-      const pctInterval = setInterval(() => {
+      activeInterval = setInterval(() => {
         current += increment;
         tick++;
         setBootPct(Math.min(Math.round(current), target));
         if (tick >= ticks) {
-          clearInterval(pctInterval);
+          if (activeInterval) clearInterval(activeInterval);
           stepIdx++;
-          setTimeout(advance, stepIdx < BOOT_STEPS.length ? 200 : 800);
+          activeTimeout = setTimeout(advance, stepIdx < BOOT_STEPS.length ? 200 : 800);
         }
       }, duration / ticks);
     };
     advance();
+
+    return () => {
+      if (activeInterval) clearInterval(activeInterval);
+      if (activeTimeout) clearTimeout(activeTimeout);
+    };
   }, [engineKey]);
 
   // ── Live HUD Metrics ──────────────────────────────────────
