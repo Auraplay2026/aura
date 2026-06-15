@@ -752,6 +752,7 @@ export default function ClientUserAnalytics({
                 </h3>
 
                 <div className="overflow-x-auto">
+                <div className="w-full overflow-x-auto custom-scrollbar">
                   <table className="w-full text-left border-collapse text-xs">
                     <thead>
                       <tr className="border-b border-slate-200 text-slate-600 font-semibold">
@@ -834,6 +835,7 @@ export default function ClientUserAnalytics({
                     </tbody>
                   </table>
                 </div>
+                </div>
               </div>
             </>
           )}
@@ -862,6 +864,7 @@ export default function ClientUserAnalytics({
         {logsExpanded && (
           <div className="border-t border-slate-200/80 p-5 bg-slate-900/20 max-h-[400px] overflow-y-auto custom-scrollbar">
             <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse text-xs">
                 <thead>
                   <tr className="border-b border-slate-200 text-slate-600 font-semibold">
@@ -908,6 +911,7 @@ export default function ClientUserAnalytics({
                   )}
                 </tbody>
               </table>
+            </div>
             </div>
           </div>
         )}

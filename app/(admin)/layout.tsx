@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Shield, Activity, CreditCard, BarChart3, LogOut, ArrowDownLeft, Bell, Users, Sliders, ShieldAlert, Coins, MessageSquare, MessageCircle } from "lucide-react";
+import { Shield, Activity, CreditCard, BarChart3, LogOut, ArrowDownLeft, Bell, Users, Sliders, ShieldAlert, Coins, MessageSquare, MessageCircle, Menu, X } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -14,6 +14,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   const isLoggedIn = useTradingStore(state => state.isLoggedIn);
 
   const [pendingCount, setPendingCount] = useState(0);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // 1. Enforce Role-Based Access Control (RBAC)
   useEffect(() => {
@@ -156,17 +157,34 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   }
 
   return (
-    <div className="flex h-[100dvh] overflow-hidden bg-slate-50 w-full text-slate-800 font-sans antialiased selection:bg-indigo-500/30 selection:text-slate-900">
+    <div className="flex h-[100dvh] overflow-hidden bg-slate-50 w-full text-slate-800 font-sans antialiased selection:bg-indigo-500/30 selection:text-slate-900 relative">
       {/* Background cyber grid and radial ambient lights */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.08),rgba(255,255,255,0))]" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_80%_at_50%_-20%,rgba(99,102,241,0.08),rgba(255,255,255,0))] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.01)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)] pointer-events-none" />
       
+      {/* Mobile Sidebar Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Premium Sidebar */}
-      <aside className="w-68 border-r border-slate-200 bg-white/45 flex flex-col shrink-0 relative overflow-hidden backdrop-blur-2xl z-20">
+      <aside 
+        className={`fixed inset-y-0 left-0 w-72 lg:w-68 border-r border-slate-200 bg-white/45 flex flex-col shrink-0 relative overflow-hidden backdrop-blur-2xl z-50 transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] lg:translate-x-0 ${
+          isMobileMenuOpen ? "translate-x-0" : "-translate-x-full lg:static"
+        }`}
+      >
         <div className="absolute top-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-indigo-500/20 to-transparent" />
         
         {/* Admin Sidebar Branding */}
-        <div className="h-20 border-b border-slate-200 flex items-center justify-between px-6 relative z-10 w-full">
+        <div className="h-20 border-b border-slate-200 flex items-center justify-between px-6 relative z-10 w-full shrink-0">
           <div className="flex items-center">
             <div className="relative group">
               <div className="absolute -inset-1 rounded-xl bg-gradient-to-r from-indigo-500 via-purple-600 to-pink-500 opacity-60 blur-md group-hover:opacity-100 transition duration-1000 group-hover:duration-200" />
@@ -175,7 +193,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               </div>
             </div>
             <div className="ml-4">
-              <span className="font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-slate-400 uppercase text-sm block">Aura Core</span>
+              <span className="font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-slate-700 via-slate-800 to-slate-900 uppercase text-sm block">Aura Core</span>
               <span className="text-[9px] text-indigo-600 font-extrabold tracking-widest uppercase flex items-center gap-1.5 mt-0.5">
                 <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse-glow" />
                 L5 CLEARANCE
@@ -183,25 +201,39 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             </div>
           </div>
 
-          {/* Admin Alerts Bell */}
-          <div className="relative group cursor-pointer" title={`${pendingCount} Pending Requests Pending Review`}>
-            <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 hover:border-white/15 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all duration-300">
-              <Bell className={`w-4 h-4 ${pendingCount > 0 && 'text-yellow-600 animate-bounce'}`} />
+          <div className="flex items-center gap-2">
+            {/* Admin Alerts Bell */}
+            <div className="relative group cursor-pointer" title={`${pendingCount} Pending Requests Pending Review`}>
+              <div className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 hover:border-white/15 flex items-center justify-center text-slate-600 hover:text-slate-900 transition-all duration-300">
+                <Bell className={`w-4 h-4 ${pendingCount > 0 && 'text-yellow-600 animate-bounce'}`} />
+              </div>
+              {pendingCount > 0 && (
+                <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-red-500 text-[8px] font-black text-white flex items-center justify-center shadow-[0_0_8px_#ef4444]">
+                  {pendingCount}
+                </span>
+              )}
             </div>
-            {pendingCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-red-500 text-[8px] font-black text-white flex items-center justify-center shadow-[0_0_8px_#ef4444]">
-                {pendingCount}
-              </span>
-            )}
+            {/* Close Menu Button (Mobile Only) */}
+            <button 
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="w-8 h-8 rounded-lg bg-slate-50 border border-slate-200 flex items-center justify-center text-slate-600 lg:hidden"
+            >
+              <X className="w-4 h-4" />
+            </button>
           </div>
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex-1 p-4 space-y-2 z-10 relative mt-4">
+        <nav className="flex-1 p-4 space-y-2 z-10 relative mt-4 overflow-y-auto custom-scrollbar">
           {menuItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <Link key={item.href} href={item.href} className="relative block group">
+              <Link 
+                key={item.href} 
+                href={item.href} 
+                className="relative block group"
+                onClick={() => setIsMobileMenuOpen(false)}
+              >
                 {isActive && (
                   <motion.div
                     layoutId="active-nav-indicator"
@@ -217,7 +249,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   }`}
                 >
                   <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 ${
+                    className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 shrink-0 ${
                       isActive
                         ? `bg-gradient-to-br ${item.color} text-white shadow-[0_0_12px_${item.glowColor}]`
                         : "bg-slate-900/5 text-slate-600 group-hover:bg-slate-900/10 group-hover:text-slate-900"
@@ -225,7 +257,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   >
                     <item.icon className="w-4 h-4" />
                   </div>
-                  <span className="flex-1">{item.name}</span>
+                  <span className="flex-1 whitespace-nowrap overflow-hidden text-ellipsis">{item.name}</span>
                   {isActive && (
                     <motion.div
                       layoutId="active-dot"
@@ -239,9 +271,9 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         </nav>
 
         {/* Bottom Panel */}
-        <div className="p-4 z-10 relative border-t border-slate-200">
+        <div className="p-4 z-10 relative border-t border-slate-200 shrink-0">
           <Link href="/" className="flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 font-bold tracking-widest text-xs uppercase transition-all duration-300 border border-transparent hover:border-rose-500/10">
-            <div className="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600">
+            <div className="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600 shrink-0">
               <LogOut className="w-4 h-4" />
             </div>
             <span>Exit Admin</span>
@@ -250,8 +282,38 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       </aside>
 
       {/* Main Container */}
-      <main className="flex-1 overflow-y-auto custom-scrollbar relative z-10 bg-slate-100/60">
-        {children}
+      <main className="flex-1 flex flex-col h-[100dvh] overflow-hidden relative z-10 bg-slate-100/60">
+        {/* Mobile Header */}
+        <div className="h-16 lg:hidden border-b border-slate-200 bg-white/60 backdrop-blur-md flex items-center justify-between px-4 shrink-0 z-20">
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-700 shadow-sm"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+            <div className="flex items-center gap-2">
+              <Shield className="w-5 h-5 text-indigo-600" />
+              <span className="font-black tracking-widest text-slate-800 uppercase text-sm">Aura Core</span>
+            </div>
+          </div>
+          
+          <div className="relative group cursor-pointer">
+            <div className="w-10 h-10 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-slate-600 shadow-sm">
+              <Bell className={`w-5 h-5 ${pendingCount > 0 && 'text-yellow-600 animate-bounce'}`} />
+            </div>
+            {pendingCount > 0 && (
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-[9px] font-black text-white flex items-center justify-center shadow-[0_0_8px_#ef4444]">
+                {pendingCount}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {/* Page Content */}
+        <div className="flex-1 overflow-y-auto custom-scrollbar">
+          {children}
+        </div>
       </main>
     </div>
   );

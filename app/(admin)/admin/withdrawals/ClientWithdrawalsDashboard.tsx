@@ -276,6 +276,7 @@ export default function ClientWithdrawalsDashboard({ initialUsers, globalTransac
           </div>
         ) : (
           <div className="overflow-x-auto">
+          <div className="w-full overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-widest">
@@ -369,6 +370,7 @@ export default function ClientWithdrawalsDashboard({ initialUsers, globalTransac
                 )}
               </tbody>
             </table>
+          </div>
           </div>
         )}
 

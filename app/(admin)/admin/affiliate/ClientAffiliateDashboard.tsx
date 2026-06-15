@@ -131,6 +131,7 @@ export default function ClientAffiliateDashboard() {
           </div>
         ) : (
           <div className="overflow-x-auto">
+          <div className="w-full overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200/80 text-xs font-bold text-slate-600 uppercase tracking-wider">
@@ -180,6 +181,7 @@ export default function ClientAffiliateDashboard() {
                 ))}
               </tbody>
             </table>
+          </div>
           </div>
         )}
       </div>

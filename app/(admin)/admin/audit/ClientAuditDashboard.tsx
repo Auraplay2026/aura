@@ -480,6 +480,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
 
           {/* Table list */}
           <div className="overflow-x-auto">
+          <div className="w-full overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-900/20">
@@ -531,6 +532,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                 )}
               </tbody>
             </table>
+          </div>
           </div>
 
         </div>

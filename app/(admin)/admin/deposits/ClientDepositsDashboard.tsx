@@ -236,6 +236,7 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
           </div>
         ) : (
           <div className="overflow-x-auto">
+          <div className="w-full overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse text-xs">
               <thead>
                 <tr className="border-b border-slate-200 text-slate-600 font-extrabold uppercase tracking-widest">
@@ -308,6 +309,7 @@ export default function ClientDepositsDashboard({ initialUsers, globalTransactio
                 )}
               </tbody>
             </table>
+          </div>
           </div>
         )}
 

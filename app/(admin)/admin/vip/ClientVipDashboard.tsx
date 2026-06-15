@@ -122,6 +122,7 @@ export default function ClientVipDashboard({ initialUsers }: ClientVipDashboardP
 
       <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
         <div className="overflow-x-auto">
+        <div className="w-full overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-slate-50 border-b border-slate-200 text-xs uppercase tracking-wider text-slate-500 font-bold">
@@ -186,6 +187,7 @@ export default function ClientVipDashboard({ initialUsers }: ClientVipDashboardP
               )}
             </tbody>
           </table>
+        </div>
         </div>
       </div>
 

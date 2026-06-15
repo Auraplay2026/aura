@@ -286,7 +286,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
       </header>
 
       {/* Financial Overviews Row */}
-      <section className="grid grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
         {[
           { label: "Net House Margin", val: netProfit, icon: Coins, color: "text-emerald-600", border: "border-emerald-500/20" },
           { label: "Cumulative Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-600", border: "border-indigo-500/15" },
