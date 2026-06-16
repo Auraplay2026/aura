@@ -31,309 +31,309 @@ const GAME_MANIFEST: Record<string, {
 }> = {
   // ── FPS & SHOOTERS ─────────────────────────────────────────
   "fps-1": {
-    url: "https://play.gamepix.com/combat-online/embed",
-    genre: "FPS", resolution: "1920×1080", serverNode: "MUM-NODE-07",
+    url: "https://cykod.github.io/AlienInvasion/",
+    genre: "Space Shooter", resolution: "1920×1080", serverNode: "MUM-NODE-07",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim & Shoot", "R — Reload", "Shift — Sprint", "C — Crouch"]
+    controls: ["Left/Right Arrow — Move", "Space — Shoot & Destroy"]
   },
   "fps-2": {
-    url: "https://play.gamepix.com/bullet-force/embed",
-    genre: "FPS", resolution: "1920×1080", serverNode: "DEL-NODE-03",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D FPS", resolution: "1920×1080", serverNode: "DEL-NODE-03",
     nodeCity: "Delhi", gpuTier: "RTX 4080",
-    controls: ["WASD — Move", "Mouse — Aim", "Left Click — Shoot", "E — Interact", "Tab — Scoreboard"]
+    controls: ["WASD — Move", "Mouse — Aim & Shoot", "R — Reload", "Space — Jump"]
   },
   "fps-3": {
-    url: "https://play.gamepix.com/1v1-lol/embed",
-    genre: "Tactical Shooter", resolution: "1920×1080", serverNode: "BLR-NODE-12",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "Combat Arena", resolution: "1920×1080", serverNode: "BLR-NODE-12",
     nodeCity: "Bengaluru", gpuTier: "RTX 4070 Ti",
-    controls: ["WASD — Move", "Mouse — Aim", "B — Build", "G — Grenades", "1-4 — Weapons"]
+    controls: ["WASD — Move", "Mouse — Look & Shoot"]
   },
   "fps-4": {
-    url: "https://play.gamepix.com/ninja-clash-heroes/embed",
-    genre: "FPS", resolution: "1920×1080", serverNode: "HYD-NODE-04",
+    url: "https://cykod.github.io/AlienInvasion/",
+    genre: "Retro Arcade", resolution: "1920×1080", serverNode: "HYD-NODE-04",
     nodeCity: "Hyderabad", gpuTier: "RTX 4080",
-    controls: ["WASD — Move", "Mouse — Aim & Shoot", "Q/E — Roll", "F — Pick up", "Space — Jump"]
+    controls: ["Left/Right Arrow — Move", "Space — Fire"]
   },
   "fps-5": {
-    url: "https://play.gamepix.com/kart-fight-io/embed",
-    genre: "Action Racing", resolution: "1920×1080", serverNode: "CHE-NODE-08",
+    url: "https://ellisonleao.github.io/clumsy-bird/",
+    genre: "Pixel Runner", resolution: "1920×1080", serverNode: "CHE-NODE-08",
     nodeCity: "Chennai", gpuTier: "RTX 3090",
-    controls: ["Arrow Keys / WASD — Drive", "Mouse — Aim weapons", "Space — Boost"]
+    controls: ["Space / Click — Fly up"]
   },
   "fps-6": {
-    url: "https://html5.gamedistribution.com/f255cc3243bd46ceab90d3d5fcdbe2eb/",
-    genre: "Military FPS", resolution: "1920×1080", serverNode: "MUM-NODE-01",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D Sci-Fi FPS", resolution: "1920×1080", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim", "Left Click — Shoot", "Shift — Ads", "G — Grenade", "R — Reload"]
+    controls: ["WASD — Move", "Mouse — Aim & Fire", "R — Reload"]
   },
 
   // ── RACING & DRIVING ───────────────────────────────────────
   "driving-1": {
-    url: "https://play.gamepix.com/cyber-cars-punk-racing/embed",
-    genre: "Open World Driving", resolution: "2560×1440", serverNode: "MUM-NODE-11",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D Fast Racer", resolution: "2560×1440", serverNode: "MUM-NODE-11",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD / Arrow Keys — Steer & Throttle", "E — Change Environment", "M — Map View"]
+    controls: ["Arrow Keys / WASD — Steer & Accelerate"]
   },
   "driving-2": {
-    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
-    genre: "Stunt Racing", resolution: "1920×1080", serverNode: "PUN-NODE-05",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D Hyper Stunt", resolution: "1920×1080", serverNode: "PUN-NODE-05",
     nodeCity: "Pune", gpuTier: "RTX 4080",
-    controls: ["WASD — Drive", "Space — Handbrake", "Shift — Nitro", "C — Camera", "R — Reset"]
+    controls: ["WASD — Steer & Drive", "Space — Handbrake"]
   },
   "driving-3": {
-    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
-    genre: "Racing Simulator", resolution: "1920×1080", serverNode: "KOL-NODE-02",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D Track Racer", resolution: "1920×1080", serverNode: "KOL-NODE-02",
     nodeCity: "Kolkata", gpuTier: "RTX 4070",
-    controls: ["Arrow Keys — Steer", "↑ — Accelerate", "↓ — Brake", "Space — Handbrake"]
+    controls: ["Arrow Keys — Drive"]
   },
   "driving-4": {
-    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
-    genre: "Car Stunt", resolution: "1920×1080", serverNode: "DEL-NODE-06",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D Drift Sim", resolution: "1920×1080", serverNode: "DEL-NODE-06",
     nodeCity: "Delhi", gpuTier: "RTX 3080",
-    controls: ["Arrow Keys — Drive", "Space — Handbrake", "C — Camera Change"]
+    controls: ["WASD — Steer", "Space — Handbrake"]
   },
   "driving-5": {
-    url: "https://html5.gamedistribution.com/b97d2e38c9da4e10b271d4cb80ca2078/",
-    genre: "Motorsport Sim", resolution: "2560×1440", serverNode: "MUM-NODE-07",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D Motorsport", resolution: "2560×1440", serverNode: "MUM-NODE-07",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Drive", "Space — Handbrake", "Shift — Nitro Boost", "R — Reset Car", "C — Camera"]
+    controls: ["Arrow Keys — Steer & Speed"]
   },
 
   // ── ACTION & OPEN-WORLD ───────────────────────────────────
   "action-1": {
-    url: "https://play.gamepix.com/grand-action-simulator/embed",
-    genre: "Open World Action", resolution: "1920×1080", serverNode: "MUM-NODE-03",
+    url: "https://ellisonleao.github.io/clumsy-bird/",
+    genre: "Casual Action", resolution: "1920×1080", serverNode: "MUM-NODE-03",
     nodeCity: "Mumbai", gpuTier: "RTX 4080",
-    controls: ["WASD — Move", "Mouse — Camera", "Click — Interact"]
+    controls: ["Click/Space — Flap wings"]
   },
   "action-2": {
-    url: "https://play.gamepix.com/sheriff-shootout/embed",
-    genre: "Open World", resolution: "1920×1080", serverNode: "HYD-NODE-09",
+    url: "https://cykod.github.io/AlienInvasion/",
+    genre: "Arcade Adventure", resolution: "1920×1080", serverNode: "HYD-NODE-09",
     nodeCity: "Hyderabad", gpuTier: "RTX 3090",
-    controls: ["Arrow Keys / WASD — Move", "P — Pause"]
+    controls: ["Arrow Keys — Move", "Space — Action"]
   },
   "action-3": {
-    url: "https://play.gamepix.com/magic-arena/embed",
-    genre: "Action Adventure", resolution: "1920×1080", serverNode: "BLR-NODE-01",
+    url: "https://hextris.github.io/hextris/",
+    genre: "Hex Matcher", resolution: "1920×1080", serverNode: "BLR-NODE-01",
     nodeCity: "Bengaluru", gpuTier: "RTX 3090",
-    controls: ["Mouse — Steer", "Click / Space — Boost"]
+    controls: ["Left/Right Arrow — Rotate Hexagon"]
   },
   "action-4": {
-    url: "https://play.gamepix.com/hero-knight/embed",
-    genre: "Open World RPG", resolution: "1920×1080", serverNode: "CHE-NODE-11",
+    url: "https://chvin.github.io/react-tetris/",
+    genre: "Classic Tetris", resolution: "1920×1080", serverNode: "CHE-NODE-11",
     nodeCity: "Chennai", gpuTier: "RTX 4070",
-    controls: ["Mouse — Move", "Space — Split", "W — Eject mass"]
+    controls: ["Arrow Keys — Rotate & Move blocks"]
   },
   "action-5": {
-    url: "https://play.gamepix.com/archers-io/embed",
-    genre: "Action Adventure", resolution: "1920×1080", serverNode: "MUM-NODE-05",
+    url: "https://ellisonleao.github.io/clumsy-bird/",
+    genre: "Retro Runner", resolution: "1920×1080", serverNode: "MUM-NODE-05",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Swing", "Left Click — Web Left", "Right Click — Web Right", "Space — Jump"]
+    controls: ["Click — Flap"]
   },
 
   // ── AAA TITLES ─────────────────────────────────────────────
   "aaa-1": {
-    url: "https://play.gamepix.com/tomb-runner/embed",
-    genre: "Open World RPG", resolution: "2560×1440", serverNode: "MUM-NODE-01",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D AAA Racer", resolution: "2560×1440", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Look", "F — Interact", "Tab — Map", "I — Inventory", "E — Enter Vehicle"]
+    controls: ["Arrow Keys / WASD — Drive"]
   },
   "aaa-2": {
-    url: "https://play.gamepix.com/magic-and-mayhem/embed",
-    genre: "Action RPG", resolution: "2560×1440", serverNode: "BLR-NODE-08",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D AAA RPG", resolution: "2560×1440", serverNode: "BLR-NODE-08",
     nodeCity: "Bengaluru", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Camera", "Left Click — Attack", "Right Click — Block", "1–6 — Skills", "M — Map"]
+    controls: ["WASD — Move", "Mouse — Aim"]
   },
   "aaa-3": {
-    url: "https://play.gamepix.com/tomb-runner/embed",
-    genre: "Action RPG", resolution: "2560×1440", serverNode: "DEL-NODE-01",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D AAA Adventure", resolution: "2560×1440", serverNode: "DEL-NODE-01",
     nodeCity: "Delhi", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Camera & Attack", "Space — Dodge", "E — Skill", "R — Ultimate"]
+    controls: ["Arrow Keys — Steer"]
   },
   "aaa-4": {
-    url: "https://play.gamepix.com/archers-io/embed",
-    genre: "Open World Action", resolution: "2560×1440", serverNode: "MUM-NODE-02",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D AAA Action", resolution: "2560×1440", serverNode: "MUM-NODE-02",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Swing & Camera", "Space — Jump", "Shift — Run", "Ctrl — Crouch"]
+    controls: ["WASD — Move", "Mouse — Shoot"]
   },
   "aaa-5": {
-    url: "https://play.gamepix.com/tomb-runner/embed",
-    genre: "Sci-Fi Action", resolution: "2560×1440", serverNode: "MUM-NODE-06",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D Sci-Fi Shooter", resolution: "2560×1440", serverNode: "MUM-NODE-06",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim", "Left Click — Shoot", "F — Interact", "Tab — Map"]
+    controls: ["WASD — Move", "Mouse — Aim"]
   },
   "aaa-6": {
-    url: "https://play.gamepix.com/madalin-stunt-cars-2/embed",
-    genre: "Street Racing", resolution: "2560×1440", serverNode: "MUM-NODE-04",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D Stunt Sim", resolution: "2560×1440", serverNode: "MUM-NODE-04",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Steer & Throttle", "Space — Handbrake", "Shift — Nitrous", "C — Camera", "R — Reset"]
+    controls: ["Arrow Keys — Steer"]
   },
 
   // ── PUZZLE & STRATEGY ─────────────────────────────────────
   "puzzle-1": {
-    url: "https://play.gamepix.com/candy-rain-7/embed",
-    genre: "Strategy", resolution: "1920×1080", serverNode: "PUN-NODE-03",
+    url: "https://gabrielecirulli.github.io/2048/",
+    genre: "Slide Puzzle", resolution: "1920×1080", serverNode: "PUN-NODE-03",
     nodeCity: "Pune", gpuTier: "RTX 3080",
-    controls: ["Mouse — Select & Command", "Scroll — Zoom", "Space — End Turn"]
+    controls: ["Arrow Keys — Slide tiles"]
   },
   "puzzle-2": {
-    url: "https://play.gamepix.com/candy-rain-7/embed",
-    genre: "Co-op Puzzle", resolution: "1920×1080", serverNode: "KOL-NODE-07",
+    url: "https://hextris.github.io/hextris/",
+    genre: "Hex Matcher", resolution: "1920×1080", serverNode: "KOL-NODE-07",
     nodeCity: "Kolkata", gpuTier: "RTX 3070",
-    controls: ["Arrow Keys — Watergirl", "WASD — Fireboy", "Reach the door to complete level"]
+    controls: ["Left/Right Arrow — Rotate"]
   },
   "puzzle-3": {
-    url: "https://play.gamepix.com/candy-rain-7/embed",
-    genre: "Puzzle Strategy", resolution: "1920×1080", serverNode: "HYD-NODE-02",
+    url: "https://chvin.github.io/react-tetris/",
+    genre: "Block Puzzle", resolution: "1920×1080", serverNode: "HYD-NODE-02",
     nodeCity: "Hyderabad", gpuTier: "RTX 3070",
-    controls: ["Mouse — Click & Drag", "Scroll — Zoom Map"]
+    controls: ["Arrow Keys — Rotate Block"]
   },
 
   // ── CASUAL ────────────────────────────────────────────────
   "boring-1": {
-    url: "https://play.gamepix.com/candy-rain-7/embed",
-    genre: "Simulation", resolution: "1920×1080", serverNode: "CHE-NODE-06",
+    url: "https://gabrielecirulli.github.io/2048/",
+    genre: "Chill Board Game", resolution: "1920×1080", serverNode: "CHE-NODE-06",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Mouse — Click to interact", "Drag items to merge"]
+    controls: ["Arrow Keys — Slide numbers"]
   },
   "casual-1": {
-    url: "https://play.gamepix.com/tomb-runner/embed",
-    genre: "Casual", resolution: "1920×1080", serverNode: "CHE-NODE-04",
+    url: "https://ellisonleao.github.io/clumsy-bird/",
+    genre: "Flap Physics", resolution: "1920×1080", serverNode: "CHE-NODE-04",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Mouse / Touch — Draw path", "Watch your character run it!"]
+    controls: ["Space / Click — Flap wings"]
   },
 
   // --- NEW 20 HIGH-END PREMIUM GAMES ---
   "orig-16": {
-    url: "https://play.gamepix.com/classic-bowling/embed",
+    url: "https://ellisonleao.github.io/clumsy-bird/",
     genre: "Sports/Casual", resolution: "1920×1080", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Mouse — Aim, Drag & Release to bowl"]
+    controls: ["Space / Click — Action"]
   },
   "orig-17": {
-    url: "https://play.gamepix.com/8-ball-billiards-classic/embed",
-    genre: "Sports/Casual", resolution: "1920×1080", serverNode: "DEL-NODE-03",
+    url: "https://gabrielecirulli.github.io/2048/",
+    genre: "Board Game", resolution: "1920×1080", serverNode: "DEL-NODE-03",
     nodeCity: "Delhi", gpuTier: "RTX 4080",
-    controls: ["Mouse — Aim cue, Hold & Release to strike"]
+    controls: ["Arrow Keys — Play"]
   },
   "orig-18": {
-    url: "https://play.gamepix.com/gold-miner-classic/embed",
+    url: "https://chvin.github.io/react-tetris/",
     genre: "Casual/Puzzle", resolution: "1920×1080", serverNode: "BLR-NODE-12",
     nodeCity: "Bengaluru", gpuTier: "RTX 4070 Ti",
-    controls: ["Down Arrow / Tap — Deploy claw"]
+    controls: ["Arrow Keys — Drop blocks"]
   },
   "orig-19": {
-    url: "https://play.gamepix.com/roulette-royal/embed",
+    url: "https://hextris.github.io/hextris/",
     genre: "Table Game", resolution: "1920×1080", serverNode: "HYD-NODE-04",
     nodeCity: "Hyderabad", gpuTier: "RTX 4080",
-    controls: ["Mouse — Place chips & Spin wheel"]
+    controls: ["Arrow Keys — Spin"]
   },
   "orig-20": {
-    url: "https://play.gamepix.com/blackjack-blackjack/embed",
+    url: "https://chvin.github.io/react-tetris/",
     genre: "Table Game", resolution: "1920×1080", serverNode: "CHE-NODE-08",
     nodeCity: "Chennai", gpuTier: "RTX 3090",
-    controls: ["Mouse — Place wagers, Hit, Stand or Double"]
+    controls: ["Arrow Keys — Play"]
   },
   "aaa-7": {
-    url: "https://play.gamepix.com/city-car-stunt-4/embed",
-    genre: "Open World Racing", resolution: "2560×1440", serverNode: "MUM-NODE-07",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D AAA Racer", resolution: "2560×1440", serverNode: "MUM-NODE-07",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD/Arrow Keys — Drive", "Space — Handbrake", "F — Nitro Boost"]
+    controls: ["Arrow Keys / WASD — Drive"]
   },
   "aaa-8": {
-    url: "https://play.gamepix.com/ninja-clash-heroes/embed",
-    genre: "Action/Stealth", resolution: "2560×1440", serverNode: "BLR-NODE-08",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D AAA Stealth", resolution: "2560×1440", serverNode: "BLR-NODE-08",
     nodeCity: "Bengaluru", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim & Shoot", "Space — Jump", "E — Special Ability"]
+    controls: ["WASD — Move", "Mouse — Aim"]
   },
   "aaa-9": {
-    url: "https://play.gamepix.com/hero-knight/embed",
-    genre: "Action RPG", resolution: "2560×1440", serverNode: "DEL-NODE-01",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D AAA RPG", resolution: "2560×1440", serverNode: "DEL-NODE-01",
     nodeCity: "Delhi", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Swing Sword", "Space — Dodge/Roll", "1-3 — Combat Skills"]
+    controls: ["WASD — Move", "Mouse — Aim"]
   },
   "aaa-10": {
-    url: "https://play.gamepix.com/combat-online/embed",
-    genre: "First Person Shooter", resolution: "2560×1440", serverNode: "MUM-NODE-02",
+    url: "https://playcanv.as/p/JH5cr9rL/",
+    genre: "3D AAA Action", resolution: "2560×1440", serverNode: "MUM-NODE-02",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim & Shoot", "R — Reload", "Shift — Sprint"]
+    controls: ["WASD — Move", "Mouse — Shoot"]
   },
   "aaa-11": {
-    url: "https://play.gamepix.com/cyber-cars-punk-racing/embed",
-    genre: "Cyberpunk Action", resolution: "2560×1440", serverNode: "MUM-NODE-06",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "3D AAA Racer", resolution: "2560×1440", serverNode: "MUM-NODE-06",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Steer & Accelerate", "Shift — Nitrous", "Space — Drift"]
+    controls: ["Arrow Keys / WASD — Drive"]
   },
   "slot-20": {
-    url: "https://play.gamepix.com/neon-road/embed",
+    url: "https://gabrielecirulli.github.io/2048/",
     genre: "Casino Slot", resolution: "1920×1080", serverNode: "PUN-NODE-03",
     nodeCity: "Pune", gpuTier: "RTX 3080",
-    controls: ["Mouse — Adjust bet & Spin reels"]
+    controls: ["Mouse — Spin"]
   },
   "slot-21": {
-    url: "https://play.gamepix.com/candy-rain-7/embed",
+    url: "https://hextris.github.io/hextris/",
     genre: "Casino Slot", resolution: "1920×1080", serverNode: "KOL-NODE-07",
     nodeCity: "Kolkata", gpuTier: "RTX 3070",
-    controls: ["Mouse — Adjust bet & Spin reels"]
+    controls: ["Mouse — Spin"]
   },
   "slot-22": {
-    url: "https://play.gamepix.com/tomb-runner/embed",
+    url: "https://chvin.github.io/react-tetris/",
     genre: "Casino Slot", resolution: "1920×1080", serverNode: "HYD-NODE-02",
     nodeCity: "Hyderabad", gpuTier: "RTX 3070",
-    controls: ["Mouse — Adjust bet & Spin reels"]
+    controls: ["Mouse — Spin"]
   },
   "slot-23": {
-    url: "https://play.gamepix.com/fruit-connect/embed",
+    url: "https://ellisonleao.github.io/clumsy-bird/",
     genre: "Casino Slot", resolution: "1920×1080", serverNode: "CHE-NODE-06",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Mouse — Adjust bet & Spin reels"]
+    controls: ["Mouse — Spin"]
   },
   "slot-24": {
-    url: "https://play.gamepix.com/cyber-cars-punk-racing/embed",
+    url: "https://hexgl.bkcore.com/play/",
     genre: "Casino Slot", resolution: "1920×1080", serverNode: "CHE-NODE-04",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Mouse — Adjust bet & Spin reels"]
+    controls: ["Mouse — Spin"]
   },
   "live-8": {
-    url: "https://play.gamepix.com/wheel-of-fortune/embed",
+    url: "https://gabrielecirulli.github.io/2048/",
     genre: "Live Game Show", resolution: "1920×1080", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Mouse — Select sectors & Place bets"]
+    controls: ["Mouse — Wager"]
   },
   "live-9": {
-    url: "https://play.gamepix.com/blackjack-blackjack/embed",
-    genre: "Live Table Game", resolution: "1920×1080", serverNode: "BLR-NODE-08",
+    url: "https://hextris.github.io/hextris/",
+    genre: "Live Table", resolution: "1920×1080", serverNode: "BLR-NODE-08",
     nodeCity: "Bengaluru", gpuTier: "RTX 4090",
-    controls: ["Mouse — Choose blackjack box & Wager"]
+    controls: ["Mouse — Play"]
   },
   "live-10": {
-    url: "https://play.gamepix.com/card-match-game/embed",
+    url: "https://chvin.github.io/react-tetris/",
     genre: "Live Card Game", resolution: "1920×1080", serverNode: "DEL-NODE-01",
     nodeCity: "Delhi", gpuTier: "RTX 4090",
-    controls: ["Mouse — Choose side & Place bets"]
+    controls: ["Mouse — Wager"]
   },
   "live-11": {
-    url: "https://play.gamepix.com/wheel-of-fortune/embed",
+    url: "https://ellisonleao.github.io/clumsy-bird/",
     genre: "Live Game Show", resolution: "1920×1080", serverNode: "MUM-NODE-02",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Mouse — Select bets on wheel board"]
+    controls: ["Mouse — Wager"]
   },
   "live-12": {
-    url: "https://play.gamepix.com/roulette-royal/embed",
-    genre: "Live Table Game", resolution: "1920×1080", serverNode: "MUM-NODE-06",
+    url: "https://hexgl.bkcore.com/play/",
+    genre: "Live Table", resolution: "1920×1080", serverNode: "MUM-NODE-06",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Mouse — Choose numbers/colors on table grid"]
+    controls: ["Mouse — Play"]
   },
 };
 
 // Fallback by category
 function getGameUrl(gameId: string, categories: string[]): string {
   if (GAME_MANIFEST[gameId]) return GAME_MANIFEST[gameId].url;
-  if (categories.includes("fps") || categories.includes("action")) return "https://krunker.io/";
-  if (categories.includes("driving") || categories.includes("racing")) return "https://slowroads.io/";
-  if (categories.includes("aaa") || categories.includes("3d")) return "https://hordes.io/";
-  if (categories.includes("puzzle")) return "https://play.gamepix.com/candy-rain-7/embed";
-  return "https://play.gamepix.com/tomb-runner/embed";
+  if (categories.includes("fps") || categories.includes("action")) return "https://playcanv.as/p/JH5cr9rL/";
+  if (categories.includes("driving") || categories.includes("racing")) return "https://hexgl.bkcore.com/play/";
+  if (categories.includes("aaa") || categories.includes("3d")) return "https://hexgl.bkcore.com/play/";
+  if (categories.includes("puzzle")) return "https://hextris.github.io/hextris/";
+  return "https://gabrielecirulli.github.io/2048/";
 }
 
 // ─────────────────────────────────────────────────────────────

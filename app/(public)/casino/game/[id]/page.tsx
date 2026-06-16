@@ -453,7 +453,11 @@ export default function GamePlayerPage() {
   };
 
   // DYNAMIC ROUTER
-  const isArcade = game.categories.some(cat => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat));
+  const isArcade = game.categories.some(cat => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat)) &&
+    !game.categories.includes("slots") &&
+    !game.categories.includes("live") &&
+    !game.categories.includes("shows") &&
+    !game.categories.includes("table");
 
   const renderEngine = () => {
     // === EXTERNAL GAMES (Cinematic Loading Simulation) ===
@@ -500,6 +504,21 @@ export default function GamePlayerPage() {
     }
     if (game.id === "orig-15" || game.title.toLowerCase().includes("neon horizon")) {
       return <NeonHorizon3DEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-16" || game.title.toLowerCase().includes("bowling")) {
+      return <PenaltyEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-17" || game.title.toLowerCase().includes("billiards")) {
+      return <DiceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-18" || game.title.toLowerCase().includes("space miner")) {
+      return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-19" || game.title.toLowerCase().includes("cyber roulette")) {
+      return <RouletteEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-20" || game.title.toLowerCase().includes("blackjack pro")) {
+      return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {
