@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GAMES } from "@/lib/games";
-import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Circle, Power, Clock, Flame, Activity, Users, Coins } from "lucide-react";
+import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Circle, Power, Clock, Flame, Activity, Users, Coins, Shield, Lock, Hand } from "lucide-react";
 import { recordGameRound } from "@/lib/recordRound";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -257,7 +257,8 @@ export default function GamePlayerPage() {
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
   const [betAmount, setBetAmount] = useState(100);
   const [customBetVal, setCustomBetVal] = useState("");
-  const [isTurbo, setIsTurbo] = useState(false);
+  const [playMode, setPlayMode] = useState<"manual" | "auto">("manual");
+  const [autoplayWarning, setAutoplayWarning] = useState(false);
   const [isMultiplayer, setIsMultiplayer] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
   const [winAmount, setWinAmount] = useState<number | null>(null);
@@ -537,7 +538,7 @@ export default function GamePlayerPage() {
     if (isCascade) return <SlotEngineCascade isPlaying={isSpinning} theme={theme} onComplete={handleEngineComplete} />;
     if (isBubble) return <SlotEngineBubble isPlaying={isSpinning} theme={theme} onComplete={handleEngineComplete} />;
 
-    return <SlotEngine isPlaying={isSpinning} isTurbo={isTurbo} theme={theme} onComplete={handleEngineComplete} />;
+    return <SlotEngine isPlaying={isSpinning} isTurbo={playMode === "auto"} theme={theme} onComplete={handleEngineComplete} />;
   };
 
   return (
@@ -773,6 +774,65 @@ export default function GamePlayerPage() {
                               </div>
                             </div>
 
+                            {/* Play Mode Control — Manual Only by Default */}
+                            <div className="relative">
+                              <div className="flex items-center justify-between mb-2">
+                                <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Play Mode</span>
+                                <div className="flex items-center gap-1">
+                                  <Shield className="w-3 h-3 text-emerald-500" />
+                                  <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Protected</span>
+                                </div>
+                              </div>
+                              <div className="grid grid-cols-2 gap-2">
+                                {/* Manual Mode — Always Active */}
+                                <button
+                                  onClick={() => { setPlayMode("manual"); setAutoplayWarning(false); }}
+                                  className={`relative overflow-hidden group flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 ${
+                                    playMode === "manual"
+                                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
+                                      : "bg-white text-slate-600 border-slate-200 hover:border-emerald-300"
+                                  }`}
+                                >
+                                  {playMode === "manual" && (
+                                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -skew-x-12 animate-[shimmer_2s_infinite]" />
+                                  )}
+                                  <Hand className="w-5 h-5 relative z-10" />
+                                  <span className="relative z-10">Manual</span>
+                                  {playMode === "manual" && (
+                                    <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full animate-pulse" />
+                                  )}
+                                </button>
+
+                                {/* Auto Mode — Locked with Warning */}
+                                <button
+                                  onClick={() => {
+                                    setAutoplayWarning(true);
+                                    setTimeout(() => setAutoplayWarning(false), 3000);
+                                  }}
+                                  className="relative flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
+                                >
+                                  <Lock className="w-5 h-5" />
+                                  <span>Auto</span>
+                                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md">OFF</span>
+                                </button>
+                              </div>
+
+                              {/* Autoplay Warning Toast */}
+                              <AnimatePresence>
+                                {autoplayWarning && (
+                                  <motion.div
+                                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                                    exit={{ opacity: 0, y: 4, scale: 0.95 }}
+                                    className="absolute -bottom-14 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-xl shadow-lg flex items-center gap-2"
+                                  >
+                                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Autoplay is disabled. Manual play only.</span>
+                                  </motion.div>
+                                )}
+                              </AnimatePresence>
+                            </div>
+
                             <div className="mt-auto pt-4 border-t border-slate-200 md:border-none md:pt-0">
                               <button 
                                 onClick={handlePlay}
@@ -810,25 +870,38 @@ export default function GamePlayerPage() {
                             </div>
                           </div>
 
-                          {/* Multiplayer Toggle Mode */}
-                          <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
-                            <div className="flex items-center gap-2">
-                              <Users className="w-4 h-4 text-cyan-400" />
-                              <span className="text-[10px] md:text-xs font-black uppercase text-slate-300 hidden sm:inline">Lobby</span>
+                          {/* Manual Mode Badge + Multiplayer Toggle */}
+                          <div className="flex items-center gap-2">
+                            {/* Manual Mode Indicator */}
+                            <div className="flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg">
+                              <Hand className="w-3 h-3 text-emerald-400" />
+                              <span className="text-[9px] font-black uppercase tracking-wider text-emerald-400">Manual</span>
+                              <span className="relative flex h-1.5 w-1.5">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
+                              </span>
                             </div>
-                            <button 
-                              onClick={() => setIsMultiplayer(!isMultiplayer)}
-                              className={cn(
-                                "relative w-10 h-5 md:w-12 md:h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
-                                isMultiplayer ? "bg-neon-green" : "bg-slate-700"
-                              )}
-                            >
-                              <motion.div 
-                                layout
-                                className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full"
-                                style={{ marginLeft: isMultiplayer ? (typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : '24px') : '0px' }}
-                              />
-                            </button>
+
+                            {/* Multiplayer Toggle */}
+                            <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
+                              <div className="flex items-center gap-2">
+                                <Users className="w-4 h-4 text-cyan-400" />
+                                <span className="text-[10px] md:text-xs font-black uppercase text-slate-300 hidden sm:inline">Lobby</span>
+                              </div>
+                              <button 
+                                onClick={() => setIsMultiplayer(!isMultiplayer)}
+                                className={cn(
+                                  "relative w-10 h-5 md:w-12 md:h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
+                                  isMultiplayer ? "bg-neon-green" : "bg-slate-700"
+                                )}
+                              >
+                                <motion.div 
+                                  layout
+                                  className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full"
+                                  style={{ marginLeft: isMultiplayer ? (typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : '24px') : '0px' }}
+                                />
+                              </button>
+                            </div>
                           </div>
                         </div>
                       )}
