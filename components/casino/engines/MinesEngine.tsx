@@ -8,12 +8,13 @@ import { playGameSound } from "@/lib/audio";
 interface MinesEngineProps {
   isPlaying: boolean;
   betAmount?: number;
+  onLiveTick?: (multiplier: number, clickCount: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
 type GameState = "idle" | "playing" | "busted" | "cashed_out";
 
-export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngineProps) {
+export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete }: MinesEngineProps) {
   const [minesCount, setMinesCount] = useState(3);
   const [gameState, setGameState] = useState<GameState>("idle");
   const [revealed, setRevealed] = useState<boolean[]>(Array(25).fill(false));
@@ -30,6 +31,9 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
+  const onLiveTickRef = useRef(onLiveTick);
+  useEffect(() => { onLiveTickRef.current = onLiveTick; }, [onLiveTick]);
+
   // Auto start game
   useEffect(() => {
     if (!isPlaying) {
@@ -39,7 +43,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
     startGame();
   }, [isPlaying]);
 
-  // Hook into keyboard cashout
+  // Hook into keyboard and sidebar cashout
   useEffect(() => {
     const handleTriggerCashout = () => {
       if (gameState === "playing" && clickCount > 0) {
@@ -47,7 +51,11 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
       }
     };
     window.addEventListener("trigger-cashout", handleTriggerCashout);
-    return () => window.removeEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
   }, [gameState, clickCount]);
 
   const nextMultiplier = useMemo(() => {
@@ -75,6 +83,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
     setRevealed(Array(25).fill(false));
     setActiveMultiplier(1.00);
     setClickCount(0);
+    onLiveTickRef.current?.(1.00, 0);
     setBustedIndex(null);
     setShowCoinShower(false);
     setGameState("playing");
@@ -113,10 +122,12 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
       setBustedIndex(index);
       setGameState("busted");
       setRevealed(Array(25).fill(true));
+      onLiveTickRef.current?.(0, 0);
       setTimeout(() => onCompleteRef.current(0, false), 1500);
     } else {
       playGameSound('win');
       setActiveMultiplier(nextMultiplier);
+      onLiveTickRef.current?.(nextMultiplier, currentClick);
       const safeRevealedCount = newRevealed.filter((v, i) => v && (!mineLocations.includes(i) || (scheduledOutcome && !scheduledOutcome.isWin))).length;
       
       if (safeRevealedCount === 25 - minesCount) {
@@ -133,6 +144,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
     setShowCoinShower(true);
     setGameState("cashed_out");
     setRevealed(Array(25).fill(true));
+    onLiveTickRef.current?.(activeMultiplier, 0);
     onCompleteRef.current(activeMultiplier, true);
   };
 

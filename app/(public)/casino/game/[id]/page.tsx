@@ -395,6 +395,9 @@ export default function GamePlayerPage() {
   const [autoplayWarning, setAutoplayWarning] = useState(false);
   const [isMultiplayer, setIsMultiplayer] = useState(false);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [autoCashoutVal, setAutoCashoutVal] = useState<number | "">("");
+  const [liveMultiplier, setLiveMultiplier] = useState<number | null>(null);
+  const [activePicksCount, setActivePicksCount] = useState(0);
   const [winAmount, setWinAmount] = useState<number | null>(null);
   const [isMegaWin, setIsMegaWin] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(true);
@@ -609,6 +612,17 @@ export default function GamePlayerPage() {
     setSessionTimeLeft(0);
   };
 
+  const handleLiveTick = useCallback((mult: number, picksCount?: number) => {
+    setLiveMultiplier(mult);
+    if (typeof picksCount === "number") {
+      setActivePicksCount(picksCount);
+    }
+  }, []);
+
+  const handleSidebarCashout = () => {
+    window.dispatchEvent(new CustomEvent("sidebar-trigger-cashout"));
+  };
+
   // Casino Mode Actions
   const handlePlay = () => {
     if (isSpinning) return;
@@ -622,6 +636,8 @@ export default function GamePlayerPage() {
       window.dispatchEvent(new CustomEvent("open-cashier"));
       return;
     }
+    setLiveMultiplier(1.0);
+    setActivePicksCount(0);
     setIsSpinning(true);
     playGameSound('spin');
     setWinAmount(null);
@@ -630,6 +646,8 @@ export default function GamePlayerPage() {
 
   const handleEngineComplete = useCallback((multiplierOrWon: number | boolean, wonBool?: boolean) => {
     setIsSpinning(false);
+    setLiveMultiplier(null);
+    setActivePicksCount(0);
     if (isCloudRenting) return; // Cloud streams don't credit/wager payouts
     
     let won = false;
@@ -812,7 +830,7 @@ export default function GamePlayerPage() {
 
     // === ORIGINALS — each gets its own unique engine ===
     if (game.id === "orig-7" || game.title.toLowerCase().includes("tower")) {
-      return <TowerEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+      return <TowerEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-2" || game.title.toLowerCase().includes("limbo")) {
       return <LimboEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -821,7 +839,7 @@ export default function GamePlayerPage() {
       return <PlinkoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-4" || game.title.toLowerCase().includes("mines")) {
-      return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+      return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-6" || game.title.toLowerCase().includes("keno")) {
       return <KenoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -857,7 +875,7 @@ export default function GamePlayerPage() {
       return <DiceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-18" || game.title.toLowerCase().includes("space miner")) {
-      return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+      return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-19" || game.title.toLowerCase().includes("cyber roulette")) {
       return <RouletteEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -868,10 +886,10 @@ export default function GamePlayerPage() {
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {
       if (game.id === "orig-1" || game.title.toLowerCase() === "crash") {
-        return <ClassicCrashEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+        return <ClassicCrashEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
       }
       if (game.id === "crash-1" || game.title.toLowerCase().includes("aviator") || game.title.toLowerCase().includes("aviamasters")) {
-        return <AviatorEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+        return <AviatorEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
       }
       if (game.id === "live-6" || game.title.toLowerCase().includes("balloon")) {
         return <BalloonRaceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -879,7 +897,7 @@ export default function GamePlayerPage() {
       if (game.title.toLowerCase().includes("coin flip") || game.title.toLowerCase().includes("crazy coin")) {
         return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
       }
-      return <CrashEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+      return <CrashEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
     }
     // === TABLE / CARD GAMES ===
     if (game.categories.includes("poker") || game.categories.includes("table") || game.id.includes("blackjack") || game.id.includes("poker")) {
@@ -909,6 +927,17 @@ export default function GamePlayerPage() {
 
     return <SlotEngine isPlaying={isSpinning} isTurbo={playMode === "auto"} theme={theme} onComplete={handleEngineComplete} />;
   };
+
+  const isCrashGame = game && game.categories && game.categories.includes("crash");
+  const isMinesGame = game && (game.id === "orig-4" || game.title.toLowerCase().includes("mines") || game.id === "orig-18" || game.title.toLowerCase().includes("space miner"));
+  const isTowerGame = game && (game.id === "orig-7" || game.title.toLowerCase().includes("tower"));
+  const isCashoutGame = isCrashGame || isMinesGame || isTowerGame;
+
+  const isCashoutActive = isSpinning && (
+    isCrashGame || 
+    (isMinesGame && activePicksCount > 0) || 
+    (isTowerGame && activePicksCount > 0)
+  );
 
   return (
     <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
@@ -1163,6 +1192,39 @@ export default function GamePlayerPage() {
                                     </div>
                                   </div>
 
+                                  {/* Auto Cashout multiplier input (For Crash games only) */}
+                                  {game.categories.includes("crash") && (
+                                    <div className="flex flex-col gap-2">
+                                      <div className="flex justify-between items-center">
+                                        <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Auto Cashout</span>
+                                        {autoCashoutVal !== "" && (
+                                          <span className="text-xs font-black text-slate-900">{autoCashoutVal.toFixed(2)}x</span>
+                                        )}
+                                      </div>
+                                      <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500 transition-all">
+                                        <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-12">
+                                          <span className="text-slate-400 font-bold text-xs">Auto Cashout</span>
+                                        </div>
+                                        <input 
+                                          type="number" 
+                                          step="0.01"
+                                          min="1.01"
+                                          placeholder="1.01 (Optional)"
+                                          value={autoCashoutVal} 
+                                          onChange={(e) => {
+                                            const v = e.target.value === "" ? "" : parseFloat(e.target.value);
+                                            setAutoCashoutVal(v);
+                                          }}
+                                          disabled={isSpinning}
+                                          className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-3 h-12 focus:outline-none focus:ring-0 text-right pr-2"
+                                        />
+                                        <div className="flex items-center pr-3">
+                                          <span className="text-slate-400 font-bold text-sm">x</span>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  )}
+
                                   {/* Play Mode Control — Manual Only by Default */}
                                   <div className="relative">
                                     <div className="flex items-center justify-between mb-2">
@@ -1301,11 +1363,21 @@ export default function GamePlayerPage() {
 
                             <div className="mt-auto pt-4 border-t border-slate-200 md:border-none md:pt-0 shrink-0">
                               <button 
-                                onClick={handlePlay}
-                                disabled={isSpinning}
-                                className={`w-full py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-widest transition-all ${isSpinning ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95' : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95`}`}
+                                onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
+                                disabled={isSpinning && !isCashoutActive}
+                                className={`w-full py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-widest transition-all ${
+                                  isSpinning && isCashoutActive
+                                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
+                                    : isSpinning
+                                      ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95 cursor-not-allowed'
+                                      : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95 cursor-pointer`
+                                }`}
                               >
-                                {isSpinning ? "PLAYING..." : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
+                                {isSpinning && isCashoutActive
+                                  ? `CASHOUT (₹${(betAmount * (liveMultiplier || 1.0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
+                                  : isSpinning
+                                    ? "PLAYING..."
+                                    : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
                               </button>
                             </div>
                           </div>

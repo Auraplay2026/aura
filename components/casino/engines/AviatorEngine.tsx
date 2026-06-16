@@ -9,10 +9,12 @@ import { cn } from "@/lib/utils";
 interface AviatorEngineProps {
   isPlaying: boolean;
   betAmount?: number;
+  autoCashout?: number;
+  onLiveTick?: (multiplier: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function AviatorEngine({ isPlaying, betAmount = 1000, onComplete }: AviatorEngineProps) {
+export function AviatorEngine({ isPlaying, betAmount = 1000, autoCashout, onLiveTick, onComplete }: AviatorEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [multiplier, setMultiplier] = useState(1.0);
   const [fled, setFled] = useState(false);
@@ -29,6 +31,11 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, onComplete }: Aviat
   useEffect(() => {
     hasCashedOutRef.current = hasCashedOut;
   }, [hasCashedOut]);
+
+  const onLiveTickRef = useRef(onLiveTick);
+  useEffect(() => {
+    onLiveTickRef.current = onLiveTick;
+  }, [onLiveTick]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -67,11 +74,19 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, onComplete }: Aviat
         }
       } else {
         setMultiplier(current);
+        onLiveTickRef.current?.(current);
+
+        // Auto cashout check!
+        if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
+          clearInterval(interval);
+          setHasCashedOut(true);
+          onCompleteRef.current(current, true);
+        }
       }
     }, 60);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, autoCashout, houseEdge]);
 
   const handleCashout = () => {
     if (fled || hasCashedOut || !isPlaying) return;
@@ -87,7 +102,11 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, onComplete }: Aviat
       }
     };
     window.addEventListener("trigger-cashout", handleTriggerCashout);
-    return () => window.removeEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
   }, [isPlaying, fled, hasCashedOut, multiplier]);
 
   return (

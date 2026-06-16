@@ -7,10 +7,12 @@ import { useTradingStore } from "@/lib/store";
 interface ClassicCrashEngineProps {
   isPlaying: boolean;
   betAmount?: number;
+  autoCashout?: number;
+  onLiveTick?: (multiplier: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function ClassicCrashEngine({ isPlaying, betAmount = 10, onComplete }: ClassicCrashEngineProps) {
+export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick, onComplete }: ClassicCrashEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [multiplier, setMultiplier] = useState(1.0);
   const [crashed, setCrashed] = useState(false);
@@ -21,6 +23,17 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, onComplete }: Cl
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
+  const [hasCashedOut, setHasCashedOut] = useState(false);
+  const hasCashedOutRef = useRef(hasCashedOut);
+  useEffect(() => {
+    hasCashedOutRef.current = hasCashedOut;
+  }, [hasCashedOut]);
+
+  const onLiveTickRef = useRef(onLiveTick);
+  useEffect(() => {
+    onLiveTickRef.current = onLiveTick;
+  }, [onLiveTick]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -59,23 +72,40 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, onComplete }: Cl
         }
       } else {
         setMultiplier(current);
+        onLiveTickRef.current?.(current);
+
+        // Auto cashout check!
+        if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
+          clearInterval(interval);
+          setHasCashedOut(true);
+          onCompleteRef.current(current, true);
+        }
       }
     }, 60);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
-
-  const [hasCashedOut, setHasCashedOut] = useState(false);
-  const hasCashedOutRef = useRef(hasCashedOut);
-  useEffect(() => {
-    hasCashedOutRef.current = hasCashedOut;
-  }, [hasCashedOut]);
+  }, [isPlaying, autoCashout, houseEdge]);
 
   const handleCashout = () => {
     if (crashed || hasCashedOut || !isPlaying) return;
     setHasCashedOut(true);
     onCompleteRef.current(multiplier, true);
   };
+
+  // Keyboard and event cashout hotkey
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (isPlaying && !crashed && !hasCashedOut) {
+        handleCashout();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
+  }, [isPlaying, crashed, hasCashedOut, multiplier]);
 
   return (
     <div ref={containerRef} className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-inner">

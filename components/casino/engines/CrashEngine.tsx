@@ -8,10 +8,12 @@ import { startCrashAudio, updateCrashPitch, stopCrashAudio } from "@/lib/audio";
 interface CrashEngineProps {
   isPlaying: boolean;
   betAmount?: number;
+  autoCashout?: number;
+  onLiveTick?: (multiplier: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngineProps) {
+export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick, onComplete }: CrashEngineProps) {
   const [multiplier, setMultiplier] = useState(1.0);
   const [crashed, setCrashed] = useState(false);
   const [hasCashedOut, setHasCashedOut] = useState(false);
@@ -22,6 +24,16 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
+  const hasCashedOutRef = useRef(hasCashedOut);
+  useEffect(() => {
+    hasCashedOutRef.current = hasCashedOut;
+  }, [hasCashedOut]);
+
+  const onLiveTickRef = useRef(onLiveTick);
+  useEffect(() => {
+    onLiveTickRef.current = onLiveTick;
+  }, [onLiveTick]);
 
   useEffect(() => {
     if (!isPlaying) {
@@ -61,6 +73,15 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
         }
       } else {
         setMultiplier(current);
+        onLiveTickRef.current?.(current);
+
+        // Auto cashout check!
+        if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
+          clearInterval(interval);
+          setHasCashedOut(true);
+          stopCrashAudio(false);
+          onCompleteRef.current(current, true);
+        }
       }
     }, 50);
 
@@ -68,12 +89,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
       clearInterval(interval);
       stopCrashAudio(false);
     };
-  }, [isPlaying]);
-
-  const hasCashedOutRef = useRef(hasCashedOut);
-  useEffect(() => {
-    hasCashedOutRef.current = hasCashedOut;
-  }, [hasCashedOut]);
+  }, [isPlaying, autoCashout]);
 
   const handleCashout = () => {
     if (crashed || hasCashedOut || !isPlaying) return;
@@ -82,7 +98,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
     onCompleteRef.current(multiplier, true);
   };
 
-  // Keyboard cashout hotkey
+  // Keyboard and event cashout hotkey
   useEffect(() => {
     const handleTriggerCashout = () => {
       if (isPlaying && !crashed && !hasCashedOut) {
@@ -90,7 +106,11 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
       }
     };
     window.addEventListener("trigger-cashout", handleTriggerCashout);
-    return () => window.removeEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
   }, [isPlaying, crashed, hasCashedOut, multiplier]);
 
   return (

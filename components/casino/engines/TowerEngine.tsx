@@ -7,6 +7,7 @@ import { ShieldCheck, Skull, Star } from "lucide-react";
 interface TowerEngineProps {
   isPlaying: boolean;
   betAmount?: number;
+  onLiveTick?: (multiplier: number, clickCount: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
@@ -20,7 +21,7 @@ const MULTIPLIERS = [
 
 type TileState = 'hidden' | 'safe' | 'bomb';
 
-export function TowerEngine({ isPlaying, betAmount = 10, onComplete }: TowerEngineProps) {
+export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete }: TowerEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   
   const [activeRow, setActiveRow] = useState(0);
@@ -35,6 +36,11 @@ export function TowerEngine({ isPlaying, betAmount = 10, onComplete }: TowerEngi
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
+  const onLiveTickRef = useRef(onLiveTick);
+  useEffect(() => {
+    onLiveTickRef.current = onLiveTick;
+  }, [onLiveTick]);
+
   // Reset or initialize game
   useEffect(() => {
     if (!isPlaying) {
@@ -42,6 +48,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onComplete }: TowerEngi
       setGrid(Array(ROWS).fill(Array(COLS).fill('hidden')));
       setIsCrashed(false);
       setIsCashedOut(false);
+      onLiveTickRef.current?.(1.0, 0);
       return;
     }
 
@@ -54,7 +61,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onComplete }: TowerEngi
     
     // Create new fresh grid (deep copy so rows are independent)
     setGrid(Array.from({ length: ROWS }, () => Array(COLS).fill('hidden')));
-
+    onLiveTickRef.current?.(1.0, 0);
   }, [isPlaying]);
 
   const handleTileClick = (rowIndex: number, colIndex: number) => {
@@ -82,14 +89,18 @@ export function TowerEngine({ isPlaying, betAmount = 10, onComplete }: TowerEngi
       newGrid[rowIndex] = revealedRow;
       setGrid(newGrid);
       setIsCrashed(true);
+      onLiveTickRef.current?.(0, 0);
       onCompleteRef.current(0, false);
     } else {
       // Advance to next row
       if (rowIndex === ROWS - 1) {
         setIsCashedOut(true);
+        onLiveTickRef.current?.(MULTIPLIERS[ROWS - 1], 0);
         onCompleteRef.current(MULTIPLIERS[ROWS - 1], true);
       } else {
+        const nextMult = MULTIPLIERS[activeRow];
         setActiveRow(activeRow + 1);
+        onLiveTickRef.current?.(nextMult, activeRow + 1);
       }
     }
   };
@@ -98,8 +109,24 @@ export function TowerEngine({ isPlaying, betAmount = 10, onComplete }: TowerEngi
     if (!isPlaying || isCrashed || isCashedOut || activeRow === 0) return;
     setIsCashedOut(true);
     const mult = MULTIPLIERS[activeRow - 1];
+    onLiveTickRef.current?.(mult, 0);
     onCompleteRef.current(mult, true);
   };
+
+  // Keyboard and event cashout hotkeys
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (isPlaying && !isCrashed && !isCashedOut && activeRow > 0) {
+        handleCashout();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
+  }, [isPlaying, isCrashed, isCashedOut, activeRow]);
 
   const currentMultiplier = activeRow > 0 ? MULTIPLIERS[activeRow - 1] : 1.0;
 

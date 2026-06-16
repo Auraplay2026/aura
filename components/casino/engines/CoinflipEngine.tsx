@@ -13,6 +13,7 @@ interface CoinflipEngineProps {
 export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [flipping, setFlipping] = useState(false);
+  const [selectedSide, setSelectedSide] = useState<"AURA" | "SKULL">("AURA");
   const [result, setResult] = useState<"AURA" | "SKULL" | null>(null);
   const [rotationX, setRotationX] = useState(0);
 
@@ -31,7 +32,9 @@ export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
     setFlipping(true);
     const outcome = calculateGameOutcome("ORIGINAL");
     const won = outcome.isWin;
-    const finalResult = won ? "AURA" : "SKULL";
+    
+    // Land on selection on win, opposite on loss
+    const finalResult = won ? selectedSide : (selectedSide === "AURA" ? "SKULL" : "AURA");
 
     const extraSpins = 1800 + (finalResult === "AURA" ? 0 : 180);
     setRotationX(prev => prev + extraSpins);
@@ -43,7 +46,7 @@ export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
     }, 2500);
 
     return () => clearTimeout(timer);
-  }, [isPlaying]);
+  }, [isPlaying, selectedSide]);
 
   return (
     <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
@@ -109,6 +112,34 @@ export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
           {/* Edge / Thickness Illusion */}
           <div className="absolute inset-0 rounded-full border-[10px] border-black/10 mix-blend-overlay pointer-events-none" />
         </motion.div>
+      </div>
+
+      {/* Side Selector */}
+      <div className="mt-8 flex gap-4 z-20">
+        <button
+          disabled={flipping}
+          onClick={() => setSelectedSide("AURA")}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+            selectedSide === "AURA"
+              ? "bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 text-yellow-950 border-yellow-200 shadow-[0_0_15px_rgba(250,204,21,0.4)] scale-105"
+              : "bg-slate-900 text-slate-400 border-slate-800 hover:border-yellow-500/30"
+          }`}
+        >
+          <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+          Aura
+        </button>
+        <button
+          disabled={flipping}
+          onClick={() => setSelectedSide("SKULL")}
+          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+            selectedSide === "SKULL"
+              ? "bg-gradient-to-br from-slate-300 via-slate-400 to-slate-500 text-slate-950 border-slate-200 shadow-[0_0_15px_rgba(203,213,225,0.4)] scale-105"
+              : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-400/30"
+          }`}
+        >
+          <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+          Skull
+        </button>
       </div>
 
       {/* Result HUD Overlay */}
