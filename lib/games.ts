@@ -91,14 +91,14 @@ export const FEATURED_GAMES: Game[] = [
   // ==========================================
   // ROYAL GAMING LIVE CASINO FUSION MATRIX
   // ==========================================
-  { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1541252260730-0412e8e2108e?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
-  { id: "royal-1-20", title: "Teen Patti 20-20", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "poker"], rtp: 98.4, players: 24000, isNew: true },
+  { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "/games/teen_patti_cover.png", categories: ["live", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
+  { id: "royal-1-20", title: "Teen Patti 20-20", provider: "Royal Gaming", image: "/games/teen_patti_cover.png", categories: ["live", "table", "poker"], rtp: 98.4, players: 24000, isNew: true },
   { id: "royal-2", title: "Super Over Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 98.8, players: 14000, isNew: true },
-  { id: "royal-3", title: "Andar Bahar Traditional", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
-  { id: "royal-3-vr", title: "Andar Bahar VR", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 97.6, players: 18000, isNew: true },
+  { id: "royal-3", title: "Andar Bahar Traditional", provider: "Royal Gaming", image: "/games/andar_bahar_cover.png", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
+  { id: "royal-3-vr", title: "Andar Bahar VR", provider: "Royal Gaming", image: "/games/andar_bahar_cover.png", categories: ["live", "table"], rtp: 97.6, players: 18000, isNew: true },
   { id: "royal-4", title: "32 Cards Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 96.5, players: 9000, isNew: true },
   { id: "royal-5", title: "Lightning 7 Up & Down Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 97.2, players: 18000, isNew: true },
-  { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 96.2, players: 41000, isNew: true },
+  { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "/games/dragon_tiger_cover.png", categories: ["live", "table"], rtp: 96.2, players: 41000, isNew: true },
   { id: "royal-7", title: "European Roulette", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "roulette"], rtp: 97.3, players: 12500, isNew: true },
 
   // --- AAA CLOUD RENTALS (Premium High Price Tier) ---
@@ -145,8 +145,8 @@ export const FEATURED_GAMES: Game[] = [
   // --- NEW 20 HIGH-END PREMIUM GAMES ---
   // Originals
   { id: "orig-16", title: "3D Cyber Bowling", provider: "Originals", image: "https://images.unsplash.com/photo-1538510121173-07e7efd29037?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 12000, isNew: true },
-  { id: "orig-17", title: "3D Neon Billiards", provider: "Originals", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 8400, isNew: true },
-  { id: "orig-18", title: "3D Space Miner", provider: "Originals", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "puzzle", "adventure"], rtp: 99.0, players: 15400, isNew: true },
+  { id: "orig-17", title: "3D Neon Billiards", provider: "Originals", image: "/games/neon_billiards_cover.png", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 8400, isNew: true },
+  { id: "orig-18", title: "3D Space Miner", provider: "Originals", image: "/games/space_miner_cover.png", categories: ["originals", "3d", "puzzle", "adventure"], rtp: 99.0, players: 15400, isNew: true },
   { id: "orig-19", title: "3D Cyber Roulette", provider: "Originals", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "roulette"], rtp: 99.0, players: 21000, isNew: true },
   { id: "orig-20", title: "3D Blackjack Pro", provider: "Originals", image: "https://images.unsplash.com/photo-1570649236495-42fa5fe3c48b?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "blackjack"], rtp: 99.5, players: 14200, isNew: true },
 
