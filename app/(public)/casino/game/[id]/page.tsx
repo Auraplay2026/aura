@@ -1633,123 +1633,180 @@ export default function GamePlayerPage() {
             </AnimatePresence>
           </motion.div>
 
-          {/* Detailed Leaderboard & Scoreboards */}
-          {/* Detailed Leaderboard & Scoreboards */}
+          {/* Detailed Leaderboard & Scoreboards — Premium Mobile-First GPU-Accelerated */}
           {!game.id.startsWith("royal-") && (() => {
             const isCrash = game.categories.includes("crash") || game.title.toLowerCase().includes("aviator") || game.id.includes("crash") || game.id === "aviator";
+            const rankBadge = (idx: number) => {
+              if (idx === 0) return { bg: "from-amber-400 to-yellow-600", text: "text-amber-950", glow: "shadow-[0_0_20px_rgba(251,191,36,0.5)]", label: "#1" };
+              if (idx === 1) return { bg: "from-slate-300 to-slate-400", text: "text-slate-800", glow: "shadow-[0_0_14px_rgba(148,163,184,0.4)]", label: "#2" };
+              if (idx === 2) return { bg: "from-amber-600 to-orange-700", text: "text-amber-100", glow: "shadow-[0_0_14px_rgba(217,119,6,0.4)]", label: "#3" };
+              return { bg: "from-slate-700 to-slate-800", text: "text-slate-300", glow: "", label: `#${idx + 1}` };
+            };
             return (
-              <div className="bg-[#090d16] border border-slate-800/80 rounded-3xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.8)] w-full mt-6 relative overflow-hidden backdrop-blur-xl">
-                {/* SVGator-inspired vector background path drawing */}
-                <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.08]">
-                  <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
-                    <path 
-                      d="M -100,100 C 150,50 300,150 450,80 T 1000,120" 
-                      fill="none" 
-                      stroke="#e11d48" 
-                      strokeWidth="2"
-                      className="animate-draw"
-                      style={{ strokeDasharray: 1000, strokeDashoffset: 1000 }}
-                    />
-                    <path 
-                      d="M -50,150 C 200,80 350,220 500,110 T 1100,160" 
-                      fill="none" 
-                      stroke="#10b981" 
-                      strokeWidth="1.5"
-                      className="animate-draw"
-                      style={{ strokeDasharray: 800, strokeDashoffset: 800, animationDelay: '-5s' }}
-                    />
+              <div 
+                className="bg-[#060a14] border border-slate-800/60 rounded-[28px] p-4 sm:p-6 w-full mt-6 relative overflow-hidden backdrop-blur-xl"
+                style={{ 
+                  willChange: 'transform', 
+                  transform: 'translateZ(0)', 
+                  contentVisibility: 'auto' as any,
+                  containIntrinsicSize: '0 500px' as any,
+                  boxShadow: '0 25px 80px -12px rgba(0,0,0,0.9), 0 0 1px rgba(225,29,72,0.15), inset 0 1px 0 rgba(255,255,255,0.03)'
+                }}
+              >
+                {/* Multi-layer SVGator background with GPU compositing */}
+                <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.06]" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
+                  <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+                    <defs>
+                      <linearGradient id="sb-grad-rose" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#e11d48" stopOpacity="0" />
+                        <stop offset="50%" stopColor="#e11d48" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#e11d48" stopOpacity="0" />
+                      </linearGradient>
+                      <linearGradient id="sb-grad-emerald" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#10b981" stopOpacity="0" />
+                        <stop offset="50%" stopColor="#10b981" stopOpacity="1" />
+                        <stop offset="100%" stopColor="#10b981" stopOpacity="0" />
+                      </linearGradient>
+                      <linearGradient id="sb-grad-violet" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stopColor="#8b5cf6" stopOpacity="0" />
+                        <stop offset="50%" stopColor="#8b5cf6" stopOpacity="0.8" />
+                        <stop offset="100%" stopColor="#8b5cf6" stopOpacity="0" />
+                      </linearGradient>
+                    </defs>
+                    <path d="M -100,80 C 120,30 280,130 420,60 S 700,100 900,50 T 1200,90" fill="none" stroke="url(#sb-grad-rose)" strokeWidth="2.5" className="sb-animate-draw" style={{ strokeDasharray: 1200, strokeDashoffset: 1200 }} />
+                    <path d="M -60,140 C 180,60 320,200 480,100 S 750,160 950,80 T 1300,130" fill="none" stroke="url(#sb-grad-emerald)" strokeWidth="2" className="sb-animate-draw" style={{ strokeDasharray: 1000, strokeDashoffset: 1000, animationDelay: '-7s' }} />
+                    <path d="M -30,50 C 200,120 350,20 500,90 S 800,30 1000,100 T 1400,60" fill="none" stroke="url(#sb-grad-violet)" strokeWidth="1.5" className="sb-animate-draw" style={{ strokeDasharray: 900, strokeDashoffset: 900, animationDelay: '-13s' }} />
                   </svg>
                 </div>
 
-                {/* Inline Styles for Anime/SVGator/Jetter effects */}
+                {/* Ambient glow */}
+                <div className="absolute top-0 left-1/4 w-1/2 h-32 bg-gradient-to-b from-rose-500/[0.04] to-transparent rounded-full blur-3xl pointer-events-none z-0" />
+                <div className="absolute bottom-0 right-1/4 w-1/3 h-24 bg-gradient-to-t from-emerald-500/[0.03] to-transparent rounded-full blur-3xl pointer-events-none z-0" />
+
+                {/* Keyframes — GPU-optimized with transform-only animations */}
                 <style dangerouslySetInnerHTML={{__html: `
-                  @keyframes drawPath {
-                    0% { stroke-dashoffset: 1000; }
+                  @keyframes sbDrawPath {
+                    0% { stroke-dashoffset: 1200; }
                     50% { stroke-dashoffset: 0; }
-                    100% { stroke-dashoffset: -1000; }
+                    100% { stroke-dashoffset: -1200; }
                   }
-                  @keyframes heartbeat {
-                    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(225,29,72,0.4)); }
-                    50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(225,29,72,0.7)); }
+                  @keyframes sbHeartbeat {
+                    0%, 100% { transform: scale(1) translateZ(0); filter: drop-shadow(0 0 4px rgba(225,29,72,0.4)); }
+                    50% { transform: scale(1.1) translateZ(0); filter: drop-shadow(0 0 14px rgba(225,29,72,0.7)); }
                   }
-                  @keyframes spinSlow {
-                    0% { transform: rotate(0deg); }
-                    100% { transform: rotate(360deg); }
+                  @keyframes sbSpinSlow {
+                    from { transform: rotate(0deg) translateZ(0); }
+                    to { transform: rotate(360deg) translateZ(0); }
                   }
-                  .animate-draw {
-                    animation: drawPath 25s linear infinite;
+                  @keyframes sbShimmer {
+                    0% { background-position: -200% 0; }
+                    100% { background-position: 200% 0; }
                   }
-                  .animate-heartbeat {
-                    animation: heartbeat 2s ease-in-out infinite;
+                  @keyframes sbPulseGlow {
+                    0%, 100% { box-shadow: 0 0 0 0 rgba(225,29,72,0.3); }
+                    50% { box-shadow: 0 0 0 6px rgba(225,29,72,0); }
                   }
-                  .animate-spin-slow {
-                    animation: spinSlow 15s linear infinite;
+                  @keyframes sbFadeSlideUp {
+                    from { opacity: 0; transform: translateY(16px) translateZ(0); }
+                    to { opacity: 1; transform: translateY(0) translateZ(0); }
                   }
+                  @keyframes sbSwipeHint {
+                    0%, 100% { transform: translateX(0); }
+                    50% { transform: translateX(4px); }
+                  }
+                  .sb-animate-draw { animation: sbDrawPath 22s linear infinite; will-change: stroke-dashoffset; }
+                  .sb-animate-heartbeat { animation: sbHeartbeat 2s ease-in-out infinite; will-change: transform, filter; }
+                  .sb-animate-spin-slow { animation: sbSpinSlow 12s linear infinite; will-change: transform; }
+                  .sb-shimmer-bar {
+                    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.06) 40%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.06) 60%, transparent 100%);
+                    background-size: 200% 100%;
+                    animation: sbShimmer 3s ease-in-out infinite;
+                  }
+                  .sb-row-enter { animation: sbFadeSlideUp 0.35s cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, opacity; }
+                  .sb-swipe-hint { animation: sbSwipeHint 2s ease-in-out infinite; }
+                  @media (prefers-reduced-motion: reduce) {
+                    .sb-animate-draw, .sb-animate-heartbeat, .sb-animate-spin-slow, .sb-shimmer-bar, .sb-row-enter, .sb-swipe-hint { animation: none !important; }
+                  }
+                  .sb-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+                  .sb-scrollbar::-webkit-scrollbar-track { background: transparent; }
+                  .sb-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.08); border-radius: 4px; }
+                  .sb-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.15); }
                 `}} />
 
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-4 mb-6 gap-4 font-sans relative z-10">
-                  <div className="flex items-center gap-3">
+                {/* Header — responsive layout */}
+                <div className="flex flex-col gap-3 sm:gap-0 sm:flex-row sm:items-center justify-between border-b border-slate-800/50 pb-4 mb-4 sm:mb-6 relative z-10">
+                  <div className="flex items-center gap-3 min-w-0">
                     {scoreboardTab === "top-one-percent" ? (
-                      /* Flame Icon (Pulse & Heartbeat) */
-                      <div className="relative flex items-center justify-center shrink-0 w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-[#e11d48] animate-heartbeat">
+                      <div className="relative flex items-center justify-center shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-rose-500/15 to-rose-900/10 border border-rose-500/25 text-[#e11d48] sb-animate-heartbeat">
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 2C12 2 17 6.5 17 10.5C17 14.5 14 18 12 22C10 18 7 14.5 7 10.5C7 6.5 12 2 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="rgba(225, 29, 72, 0.1)" />
+                          <path d="M12 2C12 2 17 6.5 17 10.5C17 14.5 14 18 12 22C10 18 7 14.5 7 10.5C7 6.5 12 2 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="rgba(225, 29, 72, 0.15)" />
                           <path d="M12 9C12 9 14.5 11.5 14.5 13.5C14.5 15.5 13 17 12 19C11 17 9.5 15.5 9.5 13.5C9.5 11.5 12 9 12 9Z" stroke="#f43f5e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                         </svg>
+                        {/* Pulse ring */}
+                        <div className="absolute inset-0 rounded-2xl border border-rose-500/20 animate-ping opacity-30" style={{ animationDuration: '3s' }} />
                       </div>
                     ) : (
-                      /* Live Radar Icon (Spinning & Pulsing) */
-                      <div className="relative flex items-center justify-center shrink-0 w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                      <div className="relative flex items-center justify-center shrink-0 w-10 h-10 sm:w-11 sm:h-11 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-emerald-900/10 border border-emerald-500/25 text-emerald-400">
                         <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3" className="animate-spin-slow" />
+                          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3" className="sb-animate-spin-slow" />
                           <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          <circle cx="12" cy="12" r="2" fill="currentColor" className="animate-ping" />
+                          <circle cx="12" cy="12" r="2" fill="currentColor" className="animate-ping" style={{ animationDuration: '2s' }} />
                         </svg>
+                        <div className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-400 rounded-full border-2 border-[#060a14]" />
                       </div>
                     )}
-                    <div>
-                      <h2 className="text-base font-black text-white">
+                    <div className="min-w-0">
+                      <h2 className="text-sm sm:text-base font-black text-white truncate flex items-center gap-2">
                         {isCrash ? (scoreboardTab === "top-one-percent" ? "Crash High Reaches" : "Live Crash Activities") : "Game Leaderboard & Session Log"}
+                        {scoreboardTab === "recent-runs" && (
+                          <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
+                            <span className="relative flex h-1.5 w-1.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" /></span>
+                            Live
+                          </span>
+                        )}
                       </h2>
-                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
+                      <p className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5 truncate">
                         {isCrash ? "Top 1% crash outliers & live session wagers" : "Highest multipliers & live session activities"}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex bg-[#030712] border border-slate-800/60 p-1.5 rounded-2xl shrink-0 self-start sm:self-auto relative z-10">
+                  {/* Tab Switcher — touch-optimized with swipe hint */}
+                  <div className="flex bg-[#030712]/80 border border-slate-800/40 p-1 sm:p-1.5 rounded-2xl shrink-0 self-stretch sm:self-auto relative z-10 backdrop-blur-sm">
                     <button 
                       onClick={() => setScoreboardTab("top-one-percent")}
                       className={cn(
-                        "px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer relative",
+                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
                         scoreboardTab === "top-one-percent" 
                           ? "text-white" 
-                          : "text-slate-400 hover:text-slate-200"
+                          : "text-slate-400 hover:text-slate-200 active:text-white"
                       )}
                     >
                       {scoreboardTab === "top-one-percent" && (
                         <motion.div 
                           layoutId="activeScoreboardTab"
-                          className="absolute inset-0 bg-[#e11d48] rounded-xl -z-10 shadow-[0_0_15px_rgba(225,29,72,0.4)]"
-                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                          className="absolute inset-0 bg-gradient-to-r from-[#e11d48] to-[#be123c] rounded-xl -z-10"
+                          style={{ boxShadow: '0 0 20px rgba(225,29,72,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' }}
+                          transition={{ type: "spring", stiffness: 400, damping: 28 }}
                         />
                       )}
-                      {isCrash ? "🏆 Top 1% Reach (24h)" : "🏆 Top Multipliers (24h)"}
+                      {isCrash ? "🏆 Top 1% Reach" : "🏆 Top Multipliers"}
                     </button>
                     <button 
                       onClick={() => setScoreboardTab("recent-runs")}
                       className={cn(
-                        "px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer relative",
+                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
                         scoreboardTab === "recent-runs" 
                           ? "text-white" 
-                          : "text-slate-400 hover:text-slate-200"
+                          : "text-slate-400 hover:text-slate-200 active:text-white"
                       )}
                     >
                       {scoreboardTab === "recent-runs" && (
                         <motion.div 
                           layoutId="activeScoreboardTab"
-                          className="absolute inset-0 bg-[#e11d48] rounded-xl -z-10 shadow-[0_0_15px_rgba(225,29,72,0.4)]"
-                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                          className="absolute inset-0 bg-gradient-to-r from-[#e11d48] to-[#be123c] rounded-xl -z-10"
+                          style={{ boxShadow: '0 0 20px rgba(225,29,72,0.4), inset 0 1px 0 rgba(255,255,255,0.1)' }}
+                          transition={{ type: "spring", stiffness: 400, damping: 28 }}
                         />
                       )}
                       ⚡ Live Activities
@@ -1757,124 +1814,353 @@ export default function GamePlayerPage() {
                   </div>
                 </div>
 
+                {/* Shimmer divider */}
+                <div className="w-full h-px sb-shimmer-bar rounded-full mb-4 sm:mb-5" />
+
                 <div className="relative z-10">
                   {scoreboardTab === "top-one-percent" ? (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs font-bold border-collapse">
-                        <thead>
-                          <tr className="text-slate-500 border-b border-slate-800/80 uppercase tracking-widest text-[9px]">
-                            <th className="pb-3 pr-4">User</th>
-                            <th className="pb-3 pr-4 text-right">Bet Size</th>
-                            <th className="pb-3 pr-4 text-center">
-                              {isCrash ? "Cashout Multiplier" : "Win Multiplier"}
-                            </th>
-                            <th className="pb-3 pr-4 text-center">
-                              {isCrash ? "Max Crash Point" : "Game Multiplier"}
-                            </th>
-                            <th className="pb-3 text-right">Total Payout</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/40 font-semibold text-slate-300">
-                          {highReaches.map((row, idx) => (
-                            <motion.tr 
-                              key={row.id} 
-                              initial={{ opacity: 0, x: -20 }}
-                              animate={{ opacity: 1, x: 0 }}
-                              transition={{ duration: 0.3, delay: idx * 0.04 }}
-                              className={cn(
-                                "hover:bg-slate-800/20 transition-colors", 
-                                row.user === "You" && "bg-gradient-to-r from-red-500/10 via-transparent to-transparent border-l-2 border-red-500"
-                              )}
-                            >
-                              <td className="py-3.5 flex items-center gap-2">
-                                {/* Golden Crown Iconsax Style */}
-                                <div className="shrink-0 flex items-center justify-center">
-                                  <svg className="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M2 19.5H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                                    <path d="M3 19.5L5 8.5L9.5 13.5L12 5L14.5 13.5L19 8.5L21 19.5H3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="rgba(251, 191, 36, 0.15)" />
-                                  </svg>
-                                </div>
-                                <span className={cn(row.user === "You" ? "text-red-500 font-extrabold" : "text-slate-100")}>{row.user}</span>
-                              </td>
-                              <td className="py-3.5 text-right font-mono text-slate-400">₹{row.bet.toLocaleString()}</td>
-                              <td className="py-3.5 text-center font-mono">
-                                {row.cashout > 0 ? (
-                                  <span className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg font-mono font-bold shadow-[0_0_10px_rgba(16,185,129,0.1)]">{row.cashout.toFixed(2)}x</span>
-                                ) : (
-                                  <span className="text-rose-500 bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-lg font-mono font-bold">0.00x</span>
-                                )}
-                              </td>
-                              <td className="py-3.5 text-center font-mono font-black text-amber-400">
-                                <span className="bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-lg shadow-[0_0_10px_rgba(245,158,11,0.1)]">{row.crashPoint.toFixed(2)}x</span>
-                              </td>
-                              <td className="py-3.5 text-right font-mono font-black text-emerald-400">
-                                {row.payout > 0 ? `+₹${row.payout.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "₹0.00"}
-                              </td>
-                            </motion.tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  ) : (
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-left text-xs font-bold border-collapse">
-                        <thead>
-                          <tr className="text-slate-500 border-b border-slate-800/80 uppercase tracking-widest text-[9px]">
-                            <th className="pb-3 pr-4">User</th>
-                            <th className="pb-3 pr-4 text-right">Wager</th>
-                            <th className="pb-3 pr-4 text-center">Cashout Point</th>
-                            <th className="pb-3 pr-4 text-center">
-                              {isCrash ? "Crash Point" : "Outcome Point"}
-                            </th>
-                            <th className="pb-3 text-right">Payout</th>
-                          </tr>
-                        </thead>
-                        <tbody className="divide-y divide-slate-800/40 font-semibold text-slate-300">
-                          {recentActivities.length === 0 ? (
-                            <tr>
-                              <td colSpan={5} className="py-8 text-center text-slate-500">No session wagers yet. Place a bet to begin!</td>
+                    <>
+                      {/* Desktop Table — hidden on mobile */}
+                      <div className="hidden sm:block overflow-x-auto sb-scrollbar">
+                        <table className="w-full text-left text-xs font-bold border-collapse" style={{ transform: 'translateZ(0)' }}>
+                          <thead>
+                            <tr className="text-slate-500 border-b border-slate-800/50 uppercase tracking-widest text-[9px]">
+                              <th className="pb-3 pr-2 w-8 text-center">#</th>
+                              <th className="pb-3 pr-4">User</th>
+                              <th className="pb-3 pr-4 text-right">Bet Size</th>
+                              <th className="pb-3 pr-4 text-center">{isCrash ? "Cashout ×" : "Win ×"}</th>
+                              <th className="pb-3 pr-4 text-center">{isCrash ? "Max Crash" : "Game ×"}</th>
+                              <th className="pb-3 pr-4 text-center">Time</th>
+                              <th className="pb-3 text-right">Total Payout</th>
                             </tr>
-                          ) : (
-                            recentActivities.map((act, idx) => (
-                              <motion.tr 
-                                key={act.id} 
-                                initial={{ opacity: 0, y: 12 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                transition={{ duration: 0.3, delay: idx * 0.02 }}
-                                className={cn(
-                                  "hover:bg-slate-800/20 transition-colors", 
-                                  act.username === "You" && "bg-gradient-to-r from-red-500/10 via-transparent to-transparent border-l-2 border-red-500"
-                                )}
-                              >
-                                <td className="py-3.5 pr-4 flex items-center gap-2">
-                                  {/* Pulsing indicator dot */}
-                                  <div className="relative w-2 h-2 shrink-0">
-                                    <div className={cn("absolute inset-0 rounded-full animate-ping opacity-75", act.status === "cashed_out" ? "bg-emerald-500" : "bg-rose-500")} />
-                                    <div className={cn("relative w-2 h-2 rounded-full", act.status === "cashed_out" ? "bg-emerald-500" : "bg-rose-500")} />
-                                  </div>
-                                  <span className={cn(act.username === "You" ? "text-red-500 font-extrabold" : "text-slate-100")}>{act.username}</span>
-                                </td>
-                                <td className="py-3.5 pr-4 text-right font-mono text-slate-400">₹{act.bet.toLocaleString()}</td>
-                                <td className="py-3.5 pr-4 text-center font-mono">
-                                  {act.multiplier ? (
-                                    <span className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md font-black">{act.multiplier.toFixed(2)}x</span>
-                                  ) : (
-                                    <span className="text-rose-500 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-md font-bold">Crashed</span>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800/30 font-semibold text-slate-300">
+                            {highReaches.map((row, idx) => {
+                              const badge = rankBadge(idx);
+                              return (
+                                <motion.tr 
+                                  key={row.id} 
+                                  initial={{ opacity: 0, x: -16 }}
+                                  animate={{ opacity: 1, x: 0 }}
+                                  transition={{ duration: 0.35, delay: idx * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                                  className={cn(
+                                    "hover:bg-white/[0.02] transition-colors group", 
+                                    row.user === "You" && "bg-gradient-to-r from-rose-500/8 via-transparent to-transparent border-l-2 border-rose-500",
+                                    idx < 3 && "relative"
                                   )}
+                                >
+                                  <td className="py-3.5 text-center">
+                                    <span className={cn(
+                                      "inline-flex items-center justify-center w-6 h-6 rounded-lg text-[10px] font-black bg-gradient-to-br",
+                                      badge.bg, badge.text, badge.glow
+                                    )}>
+                                      {badge.label}
+                                    </span>
+                                  </td>
+                                  <td className="py-3.5 pr-4">
+                                    <div className="flex items-center gap-2.5">
+                                      <div className="shrink-0 flex items-center justify-center">
+                                        <svg className={cn("w-4.5 h-4.5", idx < 3 ? "text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" : "text-slate-600")} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                          <path d="M2 19.5H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                          <path d="M3 19.5L5 8.5L9.5 13.5L12 5L14.5 13.5L19 8.5L21 19.5H3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill={idx < 3 ? "rgba(251,191,36,0.15)" : "rgba(100,116,139,0.1)"} />
+                                        </svg>
+                                      </div>
+                                      <span className={cn(
+                                        "font-bold text-xs",
+                                        row.user === "You" ? "text-rose-400 font-extrabold" : "text-slate-100"
+                                      )}>
+                                        {row.user}
+                                        {row.user === "You" && <span className="ml-1.5 text-[8px] bg-rose-500/20 text-rose-400 px-1.5 py-0.5 rounded-full uppercase tracking-widest border border-rose-500/20">You</span>}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="py-3.5 pr-4 text-right font-mono text-slate-400 text-[11px]">₹{row.bet.toLocaleString()}</td>
+                                  <td className="py-3.5 pr-4 text-center font-mono">
+                                    {row.cashout > 0 ? (
+                                      <span className="inline-flex items-center text-emerald-400 bg-emerald-500/10 border border-emerald-500/15 px-2.5 py-1 rounded-lg font-mono font-bold text-[11px]" style={{ boxShadow: '0 0 12px rgba(16,185,129,0.08)' }}>{row.cashout.toFixed(2)}×</span>
+                                    ) : (
+                                      <span className="text-rose-500 bg-rose-500/10 border border-rose-500/15 px-2.5 py-1 rounded-lg font-mono font-bold text-[11px]">0.00×</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3.5 pr-4 text-center font-mono font-black text-amber-400">
+                                    <span className="bg-amber-500/8 border border-amber-500/15 px-2.5 py-1 rounded-lg text-[11px]" style={{ boxShadow: '0 0 12px rgba(245,158,11,0.08)' }}>{row.crashPoint.toFixed(2)}×</span>
+                                  </td>
+                                  <td className="py-3.5 pr-4 text-center text-[10px] text-slate-500 font-mono">{row.time}</td>
+                                  <td className="py-3.5 text-right font-mono font-black text-[11px]">
+                                    <span className={cn(row.payout > 0 ? "text-emerald-400" : "text-slate-500")}>
+                                      {row.payout > 0 ? `+₹${row.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "₹0"}
+                                    </span>
+                                  </td>
+                                </motion.tr>
+                              );
+                            })}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Mobile Card Layout — visible only on small screens */}
+                      <div className="sm:hidden space-y-2.5">
+                        {highReaches.map((row, idx) => {
+                          const badge = rankBadge(idx);
+                          return (
+                            <motion.div 
+                              key={row.id}
+                              initial={{ opacity: 0, y: 12 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.3, delay: idx * 0.04, ease: [0.22, 1, 0.36, 1] }}
+                              className={cn(
+                                "relative rounded-2xl p-3.5 border transition-colors",
+                                row.user === "You"
+                                  ? "bg-gradient-to-br from-rose-500/10 via-[#0c1020] to-[#0c1020] border-rose-500/25"
+                                  : idx < 3 
+                                    ? "bg-gradient-to-br from-amber-500/[0.04] via-[#0c1020] to-[#0c1020] border-slate-800/40"
+                                    : "bg-[#0c1020] border-slate-800/30"
+                              )}
+                              style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+                            >
+                              {/* Top row: rank + user + time */}
+                              <div className="flex items-center justify-between mb-3">
+                                <div className="flex items-center gap-2.5 min-w-0">
+                                  <span className={cn(
+                                    "inline-flex items-center justify-center w-7 h-7 rounded-xl text-[10px] font-black bg-gradient-to-br shrink-0",
+                                    badge.bg, badge.text, badge.glow
+                                  )}>
+                                    {badge.label}
+                                  </span>
+                                  <div className="flex items-center gap-1.5 min-w-0">
+                                    {idx < 3 && (
+                                      <svg className="w-3.5 h-3.5 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M3 19.5L5 8.5L9.5 13.5L12 5L14.5 13.5L19 8.5L21 19.5H3Z" stroke="currentColor" strokeWidth="1.5" fill="rgba(251,191,36,0.15)" />
+                                      </svg>
+                                    )}
+                                    <span className={cn(
+                                      "text-xs font-bold truncate",
+                                      row.user === "You" ? "text-rose-400 font-extrabold" : "text-slate-100"
+                                    )}>
+                                      {row.user}
+                                    </span>
+                                  </div>
+                                </div>
+                                <span className="text-[9px] text-slate-500 font-mono shrink-0">{row.time}</span>
+                              </div>
+
+                              {/* Data grid */}
+                              <div className="grid grid-cols-2 gap-2">
+                                <div className="bg-white/[0.02] rounded-xl px-3 py-2">
+                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Bet</span>
+                                  <span className="text-xs font-bold font-mono text-slate-300 mt-0.5 block">₹{row.bet.toLocaleString()}</span>
+                                </div>
+                                <div className="bg-white/[0.02] rounded-xl px-3 py-2">
+                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{isCrash ? "Cashout" : "Win ×"}</span>
+                                  <span className={cn(
+                                    "text-xs font-black font-mono mt-0.5 block",
+                                    row.cashout > 0 ? "text-emerald-400" : "text-rose-500"
+                                  )}>
+                                    {row.cashout > 0 ? `${row.cashout.toFixed(2)}×` : "0.00×"}
+                                  </span>
+                                </div>
+                                <div className="bg-white/[0.02] rounded-xl px-3 py-2">
+                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{isCrash ? "Crash" : "Game ×"}</span>
+                                  <span className="text-xs font-black font-mono text-amber-400 mt-0.5 block">{row.crashPoint.toFixed(2)}×</span>
+                                </div>
+                                <div className="bg-white/[0.02] rounded-xl px-3 py-2">
+                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Payout</span>
+                                  <span className={cn(
+                                    "text-xs font-black font-mono mt-0.5 block",
+                                    row.payout > 0 ? "text-emerald-400" : "text-slate-500"
+                                  )}>
+                                    {row.payout > 0 ? `+₹${(row.payout / 1000).toFixed(1)}K` : "₹0"}
+                                  </span>
+                                </div>
+                              </div>
+
+                              {/* Shimmer overlay for top 3 */}
+                              {idx < 3 && <div className="absolute inset-0 rounded-2xl sb-shimmer-bar pointer-events-none opacity-30" />}
+                            </motion.div>
+                          );
+                        })}
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      {/* Desktop Table for Live Activities */}
+                      <div className="hidden sm:block overflow-x-auto sb-scrollbar">
+                        <table className="w-full text-left text-xs font-bold border-collapse" style={{ transform: 'translateZ(0)' }}>
+                          <thead>
+                            <tr className="text-slate-500 border-b border-slate-800/50 uppercase tracking-widest text-[9px]">
+                              <th className="pb-3 pr-4">Status</th>
+                              <th className="pb-3 pr-4">User</th>
+                              <th className="pb-3 pr-4 text-right">Wager</th>
+                              <th className="pb-3 pr-4 text-center">Cashout Point</th>
+                              <th className="pb-3 pr-4 text-center">{isCrash ? "Crash Point" : "Outcome"}</th>
+                              <th className="pb-3 text-right">Payout</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-slate-800/30 font-semibold text-slate-300">
+                            {recentActivities.length === 0 ? (
+                              <tr>
+                                <td colSpan={6} className="py-12 text-center">
+                                  <div className="flex flex-col items-center gap-3">
+                                    <div className="w-12 h-12 rounded-2xl bg-slate-800/50 flex items-center justify-center">
+                                      <Activity className="w-5 h-5 text-slate-600" />
+                                    </div>
+                                    <span className="text-slate-500 text-xs font-bold">No session wagers yet. Place a bet to begin!</span>
+                                  </div>
                                 </td>
-                                <td className="py-3.5 pr-4 text-center font-mono text-slate-400 font-semibold">
-                                  {act.crashPoint ? `${act.crashPoint.toFixed(2)}x` : "-"}
-                                </td>
-                                <td className={cn("py-3.5 text-right font-mono font-black", act.payout > 0 ? "text-emerald-400" : "text-slate-500")}>
-                                  {act.payout > 0 ? `₹${act.payout.toFixed(2)}` : "₹0.00"}
-                                </td>
-                              </motion.tr>
-                            ))
-                          )}
-                        </tbody>
-                      </table>
-                    </div>
+                              </tr>
+                            ) : (
+                              recentActivities.map((act, idx) => (
+                                <motion.tr 
+                                  key={act.id} 
+                                  initial={{ opacity: 0, y: 10 }}
+                                  animate={{ opacity: 1, y: 0 }}
+                                  transition={{ duration: 0.3, delay: Math.min(idx * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
+                                  className={cn(
+                                    "hover:bg-white/[0.02] transition-colors", 
+                                    act.username === "You" && "bg-gradient-to-r from-rose-500/8 via-transparent to-transparent border-l-2 border-rose-500"
+                                  )}
+                                >
+                                  <td className="py-3.5 pr-4">
+                                    <div className={cn(
+                                      "inline-flex items-center gap-1.5 px-2 py-1 rounded-lg text-[9px] font-black uppercase tracking-wider",
+                                      act.status === "cashed_out" 
+                                        ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15" 
+                                        : "bg-rose-500/10 text-rose-400 border border-rose-500/15"
+                                    )}>
+                                      <span className="relative flex h-1.5 w-1.5">
+                                        <span className={cn("animate-ping absolute inline-flex h-full w-full rounded-full opacity-60", act.status === "cashed_out" ? "bg-emerald-400" : "bg-rose-400")} style={{ animationDuration: '2s' }} />
+                                        <span className={cn("relative inline-flex rounded-full h-1.5 w-1.5", act.status === "cashed_out" ? "bg-emerald-400" : "bg-rose-400")} />
+                                      </span>
+                                      {act.status === "cashed_out" ? "Won" : "Lost"}
+                                    </div>
+                                  </td>
+                                  <td className="py-3.5 pr-4">
+                                    <span className={cn(
+                                      "text-xs",
+                                      act.username === "You" ? "text-rose-400 font-extrabold" : "text-slate-100 font-bold"
+                                    )}>
+                                      {act.username}
+                                    </span>
+                                  </td>
+                                  <td className="py-3.5 pr-4 text-right font-mono text-slate-400 text-[11px]">₹{act.bet.toLocaleString()}</td>
+                                  <td className="py-3.5 pr-4 text-center font-mono">
+                                    {act.multiplier ? (
+                                      <span className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/15 px-2.5 py-1 rounded-lg font-black text-[11px]">{act.multiplier.toFixed(2)}×</span>
+                                    ) : (
+                                      <span className="text-rose-400 bg-rose-500/10 border border-rose-500/15 px-2.5 py-1 rounded-lg font-bold text-[11px]">Crashed</span>
+                                    )}
+                                  </td>
+                                  <td className="py-3.5 pr-4 text-center font-mono text-slate-500 text-[11px]">
+                                    {act.crashPoint ? `${act.crashPoint.toFixed(2)}×` : "—"}
+                                  </td>
+                                  <td className={cn("py-3.5 text-right font-mono font-black text-[11px]", act.payout > 0 ? "text-emerald-400" : "text-slate-500")}>
+                                    {act.payout > 0 ? `+₹${act.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "₹0"}
+                                  </td>
+                                </motion.tr>
+                              ))
+                            )}
+                          </tbody>
+                        </table>
+                      </div>
+
+                      {/* Mobile Card Layout for Live Activities */}
+                      <div className="sm:hidden space-y-2">
+                        {recentActivities.length === 0 ? (
+                          <div className="flex flex-col items-center justify-center py-10 gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-800/50 flex items-center justify-center">
+                              <Activity className="w-5 h-5 text-slate-600" />
+                            </div>
+                            <span className="text-slate-500 text-xs font-bold text-center">No session wagers yet.<br />Place a bet to begin!</span>
+                          </div>
+                        ) : (
+                          recentActivities.map((act, idx) => (
+                            <motion.div
+                              key={act.id}
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.25, delay: Math.min(idx * 0.02, 0.2), ease: [0.22, 1, 0.36, 1] }}
+                              className={cn(
+                                "relative rounded-2xl p-3 border transition-colors",
+                                act.username === "You"
+                                  ? "bg-gradient-to-br from-rose-500/8 via-[#0c1020] to-[#0c1020] border-rose-500/20"
+                                  : "bg-[#0c1020] border-slate-800/30"
+                              )}
+                              style={{ willChange: 'transform', transform: 'translateZ(0)' }}
+                            >
+                              {/* Header: status + user + time */}
+                              <div className="flex items-center justify-between mb-2.5">
+                                <div className="flex items-center gap-2 min-w-0">
+                                  <div className={cn(
+                                    "inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider shrink-0",
+                                    act.status === "cashed_out"
+                                      ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/15"
+                                      : "bg-rose-500/10 text-rose-400 border border-rose-500/15"
+                                  )}>
+                                    <span className={cn("w-1.5 h-1.5 rounded-full", act.status === "cashed_out" ? "bg-emerald-400" : "bg-rose-400")} />
+                                    {act.status === "cashed_out" ? "Won" : "Lost"}
+                                  </div>
+                                  <span className={cn(
+                                    "text-xs truncate",
+                                    act.username === "You" ? "text-rose-400 font-extrabold" : "text-slate-100 font-bold"
+                                  )}>
+                                    {act.username}
+                                  </span>
+                                </div>
+                                <span className="text-[9px] text-slate-500 font-mono shrink-0">{act.time}</span>
+                              </div>
+
+                              {/* Data row */}
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="flex items-center gap-3">
+                                  <div>
+                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Wager</span>
+                                    <span className="text-[11px] font-bold font-mono text-slate-300">₹{act.bet.toLocaleString()}</span>
+                                  </div>
+                                  <div className="w-px h-6 bg-slate-800/50" />
+                                  <div>
+                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Cashout</span>
+                                    <span className={cn("text-[11px] font-black font-mono", act.multiplier ? "text-emerald-400" : "text-rose-400")}>
+                                      {act.multiplier ? `${act.multiplier.toFixed(2)}×` : "—"}
+                                    </span>
+                                  </div>
+                                  {act.crashPoint > 0 && (
+                                    <>
+                                      <div className="w-px h-6 bg-slate-800/50" />
+                                      <div>
+                                        <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Crash</span>
+                                        <span className="text-[11px] font-bold font-mono text-slate-400">{act.crashPoint.toFixed(2)}×</span>
+                                      </div>
+                                    </>
+                                  )}
+                                </div>
+                                <div className="text-right shrink-0">
+                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Payout</span>
+                                  <span className={cn("text-xs font-black font-mono", act.payout > 0 ? "text-emerald-400" : "text-slate-500")}>
+                                    {act.payout > 0 ? `+₹${act.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "₹0"}
+                                  </span>
+                                </div>
+                              </div>
+                            </motion.div>
+                          ))
+                        )}
+                      </div>
+                    </>
                   )}
+                </div>
+
+                {/* Bottom stats bar */}
+                <div className="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-slate-800/40 flex items-center justify-between relative z-10">
+                  <div className="flex items-center gap-2 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                    <Shield className="w-3.5 h-3.5 text-slate-600" />
+                    <span>Provably Fair · Verified</span>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className="text-[9px] text-slate-500 font-mono font-bold">
+                      {scoreboardTab === "top-one-percent" ? `${highReaches.length} Records` : `${recentActivities.length} Wagers`}
+                    </span>
+                    <div className="w-1 h-1 bg-slate-700 rounded-full" />
+                    <span className="text-[9px] text-slate-500 font-mono font-bold">24h Window</span>
+                  </div>
                 </div>
               </div>
             );
