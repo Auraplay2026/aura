@@ -902,7 +902,7 @@ export default function GamePlayerPage() {
     // === TABLE / CARD GAMES ===
     if (game.categories.includes("poker") || game.categories.includes("table") || game.id.includes("blackjack") || game.id.includes("poker")) {
       if (game.id.startsWith("royal-") || game.provider === "Royal Gaming") {
-        return <RoyalGamingEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
+        return <RoyalGamingEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
       }
       if (game.id.includes("blackjack") || game.title.toLowerCase().includes("blackjack") || game.id === "orig-8") {
         return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;

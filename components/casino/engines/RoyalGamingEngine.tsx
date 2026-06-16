@@ -12,7 +12,8 @@ import { validateTransactionIdempotency } from "@/lib/mathEngine";
 
 interface RoyalGamingProps {
   isPlaying: boolean;
-  onComplete: (won: boolean) => void;
+  betAmount?: number;
+  onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
   gameId: string;
   gameTitle: string;
 }
@@ -190,7 +191,7 @@ const playSynthSound = (type: 'tick' | 'beep' | 'win', isMuted: boolean) => {
   }
 };
 
-export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: RoyalGamingProps) {
+export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, gameId, gameTitle }: RoyalGamingProps) {
   const { balance: rawBalance, playCasino } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
 
@@ -217,6 +218,92 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
   
   // Scroller matrix loop tracking past round outputs
   const [historyList, setHistoryList] = useState<string[]>([]);
+
+  // Manual betting / target selector states
+  const [selectedTarget, setSelectedTarget] = useState<string>("");
+  const [sidebarBetActive, setSidebarBetActive] = useState(false);
+  const [sidebarBetAmount, setSidebarBetAmount] = useState(0);
+  const [sidebarBetTarget, setSidebarBetTarget] = useState<string | null>(null);
+
+  const onCompleteRef = useRef(onComplete);
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  // Prevent stale closures in interval
+  const sidebarBetActiveRef = useRef(sidebarBetActive);
+  const sidebarBetTargetRef = useRef(sidebarBetTarget);
+  const sidebarBetAmountRef = useRef(sidebarBetAmount);
+
+  useEffect(() => {
+    sidebarBetActiveRef.current = sidebarBetActive;
+    sidebarBetTargetRef.current = sidebarBetTarget;
+    sidebarBetAmountRef.current = sidebarBetAmount;
+  }, [sidebarBetActive, sidebarBetTarget, sidebarBetAmount]);
+
+  // Set default selection when game/config changes
+  useEffect(() => {
+    if (currentConfig && currentConfig.targets.length > 0) {
+      setSelectedTarget(currentConfig.targets[0].id);
+    }
+  }, [configKey, currentConfig]);
+
+  // Listen to parent page sidebar isPlaying trigger
+  useEffect(() => {
+    if (isPlaying && !sidebarBetActive) {
+      if (phase !== 'open') {
+        // Bets closed, instantly complete with 0 to reset state
+        setFeedMsg("BETS CLOSED • WAIT FOR NEXT ROUND");
+        setTimeout(() => {
+          onCompleteRef.current(0, false);
+        }, 1200);
+        return;
+      }
+      
+      const targetId = selectedTarget || (currentConfig.targets[0]?.id || "");
+      if (!targetId) return;
+
+      setSidebarBetActive(true);
+      setSidebarBetAmount(betAmount);
+      setSidebarBetTarget(targetId);
+
+      // Add to internal wagers
+      setBets(prev => ({
+        ...prev,
+        [targetId]: (prev[targetId] || 0) + betAmount
+      }));
+
+      // Add visual chip to screen
+      const targetIdx = currentConfig.targets.findIndex(t => t.id === targetId);
+      const total = currentConfig.targets.length;
+      let chipX = 50;
+      let chipY = 50;
+      if (targetIdx !== -1) {
+        chipX = 15 + (targetIdx / (total - 1 || 1)) * 70 + (Math.random() - 0.5) * 8;
+        chipY = 45 + (Math.random() - 0.5) * 10;
+      }
+      setPlacedChips(prev => [
+        ...prev,
+        {
+          id: `chip_sidebar_${Date.now()}`,
+          targetId,
+          value: betAmount,
+          xPct: chipX,
+          yPct: chipY
+        }
+      ]);
+      playSynthSound('tick', isMuted);
+    }
+  }, [isPlaying, phase, selectedTarget, betAmount, currentConfig, isMuted]);
+
+  // Reset states when isPlaying resets
+  useEffect(() => {
+    if (!isPlaying && sidebarBetActive) {
+      setSidebarBetActive(false);
+      setSidebarBetAmount(0);
+      setSidebarBetTarget(null);
+    }
+  }, [isPlaying, sidebarBetActive]);
   
   // Simulation visual elements (zero-reflow Dealer Text & Feed)
   const [feedMsg, setFeedMsg] = useState("PLACE YOUR CHIPS");
@@ -480,8 +567,30 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
             const netProfit = totalPayout - totalWager;
             const didWin = totalPayout > 0;
 
-            if (totalWager > 0) {
-              playCasino(totalWager, totalPayout, currentConfig.label);
+            // Adjust internal reporting to prevent double-wagering of sidebar bet
+            let wagerToReport = totalWager;
+            let payoutToReport = totalPayout;
+
+            if (sidebarBetActiveRef.current && sidebarBetTargetRef.current) {
+              const sbTarget = sidebarBetTargetRef.current;
+              const sbAmount = sidebarBetAmountRef.current;
+
+              wagerToReport = Math.max(0, wagerToReport - sbAmount);
+              if (winningTarget.id === sbTarget) {
+                const target = currentConfig.targets.find(t => t.id === sbTarget);
+                const sbOdds = target ? target.odds : 2.0;
+                payoutToReport = Math.max(0, payoutToReport - (sbAmount * sbOdds));
+              }
+
+              // Fire parent complete!
+              const target = currentConfig.targets.find(t => t.id === sbTarget);
+              const sbOdds = target ? target.odds : 2.0;
+              const isSbWin = winningTarget.id === sbTarget;
+              onCompleteRef.current(isSbWin ? sbOdds : 0, isSbWin);
+            }
+
+            if (wagerToReport > 0) {
+              playCasino(wagerToReport, payoutToReport, currentConfig.label);
               setPreviousBets(bets);
               setPayoutOverlay({
                 active: true,
@@ -914,8 +1023,16 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
                   return (
                     <button
                       key={`overlay-${target.id}`}
-                      onClick={(e) => handleBetPlacement(target.id, e)}
-                      className="bg-black/45 hover:bg-white/10 border border-white/10 hover:border-white/30 backdrop-blur-md rounded-xl p-1.5 xs:p-2 sm:p-3 flex flex-col justify-between items-center h-[54px] xs:h-[64px] sm:h-[72px] text-white hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer pointer-events-auto shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+                      onClick={(e) => {
+                        setSelectedTarget(target.id);
+                        handleBetPlacement(target.id, e);
+                      }}
+                      className={cn(
+                        "border backdrop-blur-md rounded-xl p-1.5 xs:p-2 sm:p-3 flex flex-col justify-between items-center h-[54px] xs:h-[64px] sm:h-[72px] text-white hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer pointer-events-auto shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]",
+                        selectedTarget === target.id 
+                          ? "bg-red-500/35 border-red-500 ring-2 ring-red-500/30" 
+                          : "bg-black/45 border-white/10 hover:border-white/30"
+                      )}
                     >
                       <div className="flex justify-between items-center w-full leading-none">
                         <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-100">{target.name}</span>
@@ -924,7 +1041,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
                       
                       <span className={cn(
                         "text-[7.5px] xs:text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none",
-                        activeWager > 0 ? "text-rose-400 font-black animate-pulse" : "text-white/40"
+                        activeWager > 0 ? "text-rose-450 font-black animate-pulse" : "text-white/40"
                       )}>
                         {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "PLACE CHIP"}
                       </span>
@@ -1145,9 +1262,13 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
             return (
               <button
                 key={target.id}
-                onClick={(e) => handleBetPlacement(target.id, e)}
+                onClick={(e) => {
+                  setSelectedTarget(target.id);
+                  handleBetPlacement(target.id, e);
+                }}
                 className={cn(
-                  "border rounded-sm p-2.5 sm:p-3.5 flex flex-col justify-between items-center transition-all relative overflow-hidden h-[72px] sm:h-[86px] bg-white border-slate-200 text-[#0F172A] hover:border-slate-450",
+                  "border rounded-sm p-2.5 sm:p-3.5 flex flex-col justify-between items-center transition-all relative overflow-hidden h-[72px] sm:h-[86px] text-[#0F172A] hover:border-slate-450",
+                  selectedTarget === target.id ? "bg-red-50/50 border-red-500 ring-2 ring-red-500/20 shadow-md font-black" : "bg-white border-slate-200",
                   isWinner && "ring-4 ring-emerald-500 scale-102 font-black",
                   phase !== 'open' && "opacity-85"
                 )}
