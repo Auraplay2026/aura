@@ -61,7 +61,7 @@ export interface UserProfile {
   affiliateEarnings?: number;
   totalWagered?: number;
   vipLevel?: string;
-  manualVipLevel?: string;
+  manualVipLevel?: string | null;
   vipRewardsClaimed?: Record<string, boolean>;
 }
 

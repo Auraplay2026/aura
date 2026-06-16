@@ -135,7 +135,9 @@ export default function ClientVipDashboard({ initialUsers }: ClientVipDashboardP
             </thead>
             <tbody className="divide-y divide-slate-100">
               {filteredUsers.map(user => {
-                const effectiveLevel = user.manualVipLevel || calculateVipLevel(user.totalWagered || 0);
+                const effectiveLevel = (user.manualVipLevel && user.manualVipLevel !== 'Auto') 
+                  ? user.manualVipLevel 
+                  : calculateVipLevel(user.totalWagered || 0);
                 
                 return (
                   <tr key={user.email} className="hover:bg-slate-50/50 transition">
@@ -157,7 +159,7 @@ export default function ClientVipDashboard({ initialUsers }: ClientVipDashboardP
                         effectiveLevel === 'Silver' ? 'bg-slate-100 text-slate-700 border-slate-300' :
                         'bg-orange-50 text-orange-700 border-orange-200'
                       }`}>
-                        {effectiveLevel} {user.manualVipLevel && <span className="ml-1 opacity-50 text-[9px]">(Manual)</span>}
+                        {effectiveLevel} {user.manualVipLevel && user.manualVipLevel !== 'Auto' && <span className="ml-1 opacity-50 text-[9px]">(Manual)</span>}
                       </span>
                     </td>
                     <td className="p-4 flex items-center justify-end gap-2">

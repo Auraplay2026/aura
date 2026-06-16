@@ -90,10 +90,14 @@ export async function adminUpdateVip(email: string, totalWagered: number, manual
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
+  const resolvedVipLevel = manualVipLevel !== "Auto" 
+    ? manualVipLevel 
+    : (totalWagered >= 5000000 ? 'Diamond' : totalWagered >= 1000000 ? 'Platinum' : totalWagered >= 250000 ? 'Gold' : totalWagered >= 50000 ? 'Silver' : 'Bronze');
+
   await updateUser(email, {
     totalWagered: totalWagered,
-    manualVipLevel: manualVipLevel === "Auto" ? undefined : manualVipLevel,
-    vipLevel: manualVipLevel !== "Auto" ? manualVipLevel : user.vipLevel // Note: real vipLevel will recalculate on next play if Auto, but we set it here if manual
+    manualVipLevel: manualVipLevel === "Auto" ? null : manualVipLevel,
+    vipLevel: resolvedVipLevel
   });
 
   await logAdminAction(adminEmail, "VIP_UPDATE", email, `Updated VIP: Wagered ₹${totalWagered}, Level: ${manualVipLevel}`);

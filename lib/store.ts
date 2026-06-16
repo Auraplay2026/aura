@@ -56,10 +56,9 @@ export interface UserProfile {
   referralCount?: number;
   affiliateEarnings?: number;
   
-  // VIP System
   totalWagered?: number;
   vipLevel?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
-  manualVipLevel?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
+  manualVipLevel?: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' | null;
   vipRewardsClaimed?: Record<string, boolean>;
   
   // Wallet states
@@ -149,9 +148,8 @@ interface TradingState {
   dismissDailyModal: () => void;
 }
 
-// Helper to determine VIP Level based on total wagered
-export function calculateVipLevel(wagered: number, manualLevel?: string) {
-  if (manualLevel) return manualLevel;
+export function calculateVipLevel(wagered: number, manualLevel?: string | null) {
+  if (manualLevel && manualLevel !== 'Auto') return manualLevel;
   if (wagered >= 5000000) return 'Diamond';
   if (wagered >= 1000000) return 'Platinum';
   if (wagered >= 250000) return 'Gold';
@@ -172,7 +170,7 @@ function syncWithServer(
   upiId?: string,
   totalWagered?: number,
   vipLevel?: string,
-  manualVipLevel?: string,
+  manualVipLevel?: string | null,
   vipRewardsClaimed?: Record<string, boolean>
 ) {
   fetch('/api/auth/sync', {
