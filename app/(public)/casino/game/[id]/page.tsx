@@ -60,14 +60,31 @@ interface ActivityLog {
   time: string;
 }
 
-const NAMES = ["Roo_VIP", "AlphaBet", "CryptoGamer", "LuckyJack", "ZenRoll", "SpinNinja", "DegenZero", "DiceQueen", "RiskTaker", "BullRun", "CrashSniper", "HighMultiplier"];
+const NAMES = [
+  "Roo_VIP", "AlphaBet", "CryptoGamer", "LuckyJack", "ZenRoll", "SpinNinja", "DegenZero", "DiceQueen",
+  "RiskTaker", "BullRun", "CrashSniper", "HighMultiplier", "DiamondHands", "MoonShot", "WhaleAlert",
+  "SatoshiKing", "NeonTrader", "AceHigh", "PhantomBet", "ViperStrike", "TurboMax", "GoldRush",
+  "ShadowFox", "IronStake", "CosmicDegen", "QuantumBet", "BlitzKing", "OmegaWhale", "VelvetAce",
+  "ThunderBolt", "NovaCrash", "SilverBullet", "PlatinumVIP", "RocketFuel", "ZeroGravity",
+  "AuraElite", "StormChaser", "CrystalEdge", "InfinityBet", "TitanWager"
+];
 
 const INITIAL_HIGH_REACHES: HighReachOutcome[] = [
-  { id: "hr-1", user: "RooKing_88", bet: 500, cashout: 320.40, crashPoint: 324.50, payout: 160200, time: "08:42 AM", isTopOnePercent: true },
-  { id: "hr-2", user: "AlphaTrader", bet: 1000, cashout: 250.00, crashPoint: 256.40, payout: 250000, time: "07:15 AM", isTopOnePercent: true },
-  { id: "hr-3", user: "Hidden", bet: 250, cashout: 114.80, crashPoint: 114.80, payout: 28700, time: "06:30 AM", isTopOnePercent: true },
-  { id: "hr-4", user: "AuraVibe", bet: 1200, cashout: 200.00, crashPoint: 204.80, payout: 240000, time: "05:12 AM", isTopOnePercent: true },
-  { id: "hr-5", user: "RooSuper", bet: 100, cashout: 412.50, crashPoint: 412.50, payout: 41250, time: "02:19 AM", isTopOnePercent: true },
+  { id: "hr-1",  user: "🐋 OmegaWhale",     bet: 25000, cashout: 1847.20, crashPoint: 1847.20, payout: 46180000, time: "10:47 PM", isTopOnePercent: true },
+  { id: "hr-2",  user: "DiamondHands_VIP",   bet: 10000, cashout: 942.80,  crashPoint: 942.80,  payout: 9428000,  time: "10:12 PM", isTopOnePercent: true },
+  { id: "hr-3",  user: "SatoshiKing",        bet: 5000,  cashout: 721.50,  crashPoint: 738.90,  payout: 3607500,  time: "09:38 PM", isTopOnePercent: true },
+  { id: "hr-4",  user: "🔥 RooKing_88",      bet: 2500,  cashout: 512.40,  crashPoint: 524.50,  payout: 1281000,  time: "08:55 PM", isTopOnePercent: true },
+  { id: "hr-5",  user: "AlphaTrader",        bet: 8000,  cashout: 468.00,  crashPoint: 468.00,  payout: 3744000,  time: "08:14 PM", isTopOnePercent: true },
+  { id: "hr-6",  user: "💎 PlatinumVIP",     bet: 15000, cashout: 387.60,  crashPoint: 402.10,  payout: 5814000,  time: "07:42 PM", isTopOnePercent: true },
+  { id: "hr-7",  user: "NeonTrader",         bet: 3500,  cashout: 324.40,  crashPoint: 324.50,  payout: 1135400,  time: "06:19 PM", isTopOnePercent: true },
+  { id: "hr-8",  user: "AuraElite_777",      bet: 1200,  cashout: 285.90,  crashPoint: 312.80,  payout: 343080,   time: "05:30 PM", isTopOnePercent: true },
+  { id: "hr-9",  user: "🚀 MoonShot",        bet: 20000, cashout: 256.40,  crashPoint: 256.40,  payout: 5128000,  time: "04:08 PM", isTopOnePercent: true },
+  { id: "hr-10", user: "PhantomBet",         bet: 500,   cashout: 214.80,  crashPoint: 214.80,  payout: 107400,   time: "03:25 PM", isTopOnePercent: true },
+  { id: "hr-11", user: "Hidden",             bet: 7500,  cashout: 198.50,  crashPoint: 204.80,  payout: 1488750,  time: "02:11 PM", isTopOnePercent: true },
+  { id: "hr-12", user: "⚡ TurboMax",        bet: 4000,  cashout: 175.20,  crashPoint: 182.30,  payout: 700800,   time: "12:45 PM", isTopOnePercent: true },
+  { id: "hr-13", user: "CrashSniper_Pro",    bet: 50,    cashout: 412.50,  crashPoint: 412.50,  payout: 20625,    time: "11:58 AM", isTopOnePercent: true },
+  { id: "hr-14", user: "🏆 GoldRush",        bet: 12000, cashout: 148.90,  crashPoint: 162.40,  payout: 1786800,  time: "09:30 AM", isTopOnePercent: true },
+  { id: "hr-15", user: "VelvetAce",          bet: 6000,  cashout: 132.60,  crashPoint: 132.60,  payout: 795600,   time: "07:12 AM", isTopOnePercent: true },
 ];
 
 // VIP LIVE RENTERS & BETS SIDEBAR
