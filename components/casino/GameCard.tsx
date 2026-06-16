@@ -24,6 +24,7 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
   if (category === "action") badgeColor = "bg-purple-50 text-purple-600 border-purple-100";
   if (category === "aaa" || category === "3d") badgeColor = "bg-amber-50 text-amber-600 border-amber-100";
   if (category === "orig" || category === "originals") badgeColor = "bg-slate-900 text-white border-slate-700";
+  if (category === "live") badgeColor = "bg-purple-50 text-purple-600 border-purple-100";
   
   // Format players with 'k' suffix
   const formattedPlayers = players ? (players > 1000 ? (players / 1000).toFixed(1) + 'k' : players) : null;
@@ -65,6 +66,11 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
           <span className={cn("w-max px-2.5 py-1 text-[9px] font-black uppercase tracking-widest rounded-lg border shadow-sm backdrop-blur-md", badgeColor)}>
             {category}
           </span>
+          {category === "live" && (
+            <span className="w-max px-2 py-0.5 bg-purple-600 text-white text-[8px] font-black uppercase tracking-widest rounded shadow-sm border border-purple-700 animate-pulse">
+              Live Fee 3%
+            </span>
+          )}
         </div>
 
         {rtp && (

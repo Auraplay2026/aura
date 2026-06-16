@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GAMES } from "@/lib/games";
-import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Circle, Power, Clock, Flame, Activity, Users, Coins, Shield, Lock, Hand } from "lucide-react";
+import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Circle, Power, Clock, Flame, Activity, Users, Coins, Shield, Lock, Hand, BadgeInfo } from "lucide-react";
 import { recordGameRound } from "@/lib/recordRound";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -388,8 +388,13 @@ export default function GamePlayerPage() {
   // Casino Mode Actions
   const handlePlay = () => {
     if (isSpinning) return;
-    if (balance < betAmount) {
-      alert("Insufficient balance to place this bet. Please deposit funds or adjust your stake.");
+    const isLiveCasino = game && game.categories && game.categories.includes("live");
+    const finalCost = isLiveCasino ? betAmount * 1.03 : betAmount;
+    if (balance < finalCost) {
+      alert(isLiveCasino 
+        ? `Insufficient balance to place this bet (Stake: ₹${betAmount} + ₹${(betAmount * 0.03).toFixed(2)} Live Fee). Please deposit funds.`
+        : "Insufficient balance to place this bet. Please deposit funds or adjust your stake."
+      );
       window.dispatchEvent(new CustomEvent("open-cashier"));
       return;
     }

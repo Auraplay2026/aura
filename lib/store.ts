@@ -3,6 +3,7 @@ import { persist } from 'zustand/middleware';
 import { recordGameRound } from './recordRound';
 import { ACHIEVEMENTS } from './achievements';
 import { checkStreak } from './streakEngine';
+import { GAMES } from './games';
 
 export interface Transaction {
   id: string;
@@ -1055,12 +1056,46 @@ export const useTradingStore = create<TradingState>()(
           }
         }
 
-        if (wager <= 0 || wager > safeBalance || payout < 0) {
-          console.error("Invalid wager/payout or insufficient balance");
+        // Check if this is a Live Casino game
+        let isLiveCasino = false;
+        const cleanTitle = gameTitle.replace(/\s*\(Wager\)|\s*\(Payout\)/i, '').trim().toLowerCase();
+        
+        // Find in GAMES registry
+        const matchedGame = GAMES.find(g => 
+          g.title.toLowerCase() === cleanTitle || 
+          g.title.toLowerCase().includes(cleanTitle) || 
+          cleanTitle.includes(g.title.toLowerCase()) ||
+          g.id.toLowerCase() === cleanTitle
+        );
+        
+        if (matchedGame && matchedGame.categories && matchedGame.categories.includes('live')) {
+          isLiveCasino = true;
+        }
+
+        let commission = 0;
+        if (isLiveCasino && wager > 0) {
+          const vipLevel = state.currentUser?.vipLevel || 'Bronze';
+          let feeRate = 0.03;
+          if (vipLevel === 'Silver') feeRate = 0.02;
+          else if (vipLevel === 'Gold') feeRate = 0.01;
+          else if (vipLevel === 'Platinum') feeRate = 0.005;
+          else if (vipLevel === 'Diamond') feeRate = 0.0;
+          commission = Math.round(wager * feeRate * 100) / 100;
+        }
+
+        const totalDeduction = wager + commission;
+
+        if (wager < 0 || payout < 0 || (wager === 0 && payout === 0)) {
+          console.error("Invalid wager/payout parameters");
           return state;
         }
 
-        const netChange = payout - wager;
+        if (totalDeduction > safeBalance) {
+          console.error("Insufficient balance for wager and commission");
+          return state;
+        }
+
+        const netChange = payout - totalDeduction;
         const newBalance = safeBalance + netChange;
 
         let newTotalWagered = state.currentUser?.totalWagered || 0;
@@ -1080,7 +1115,9 @@ export const useTradingStore = create<TradingState>()(
           amount: Math.abs(netChange),
           balanceAfter: newBalance,
           timestamp: Date.now(),
-          details: `Played ${gameTitle} (Wager: ₹${wager}, Payout: ₹${payout})`,
+          details: commission > 0 
+            ? `Played ${gameTitle} (Wager: ₹${wager} + ₹${commission.toFixed(2)} Live Fee, Payout: ₹${payout})`
+            : `Played ${gameTitle} (Wager: ₹${wager}, Payout: ₹${payout})`,
           status: 'Completed'
         };
 
