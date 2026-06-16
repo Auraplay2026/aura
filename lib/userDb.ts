@@ -151,6 +151,7 @@ export async function addUser(user: UserProfile): Promise<void> {
       realBalance: user.realBalance,
       role: user.role || 'user',
       affiliateCode: user.affiliateCode || undefined,
+      referredBy: user.referredBy || undefined,
     }
   });
 }
@@ -184,6 +185,8 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
     if (updates.upiId !== undefined) data.upiId = updates.upiId;
     if (updates.manualVipLevel !== undefined) data.manualVipLevel = updates.manualVipLevel;
     if (updates.vipRewardsClaimed !== undefined) data.vipRewardsClaimed = updates.vipRewardsClaimed;
+    if (updates.affiliateCode !== undefined) data.affiliateCode = updates.affiliateCode;
+    if (updates.referredBy !== undefined) data.referredBy = updates.referredBy;
 
     const txToProcess = [
       ...(updates.realTransactions || []),

@@ -8,3 +8,9 @@ services:
       name: data-storage
       mountPath: /opt/render/project/src/data
       sizeGB: 1
+
+  - type: worker
+    name: referral-worker
+    env: python
+    buildCommand: pip install -r scripts/requirements.txt
+    startCommand: python scripts/referral_worker.py
