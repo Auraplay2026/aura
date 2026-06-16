@@ -209,3 +209,73 @@ body {
   50% { height: 14px; }
 }
 
+@keyframes heartbeat-glow {
+  0%, 100% { box-shadow: 0 0 10px 1px rgba(239, 68, 68, 0.4); }
+  50% { box-shadow: 0 0 20px 4px rgba(239, 68, 68, 0.8), 0 0 4px 1px rgba(250, 204, 21, 0.4); }
+}
+
+@keyframes particle-fade {
+  0% { transform: scale(1) translate(0, 0); opacity: 1; }
+  100% { transform: scale(0) translate(var(--tw-translate-x, 0px), var(--tw-translate-y, 0px)); opacity: 0; }
+}
+
+@keyframes shimmer-gold {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+
+@keyframes rocket-thruster {
+  0%, 100% { transform: scaleY(1) skewX(0deg); opacity: 0.9; }
+  50% { transform: scaleY(1.3) skewX(2deg); opacity: 1; filter: brightness(1.2); }
+}
+
+@keyframes camera-shake-1 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  25% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+  50% { transform: translate(1px, -1px) rotate(0.5deg); }
+  75% { transform: translate(-1px, -1px) rotate(-0.5deg); }
+}
+
+@keyframes camera-shake-2 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  20% { transform: translate(-2px, 2px) rotate(-1deg); }
+  40% { transform: translate(2px, -2px) rotate(1deg); }
+  60% { transform: translate(-2px, -2px) rotate(-1deg); }
+  80% { transform: translate(2px, 2px) rotate(1deg); }
+}
+
+@keyframes camera-shake-3 {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  10% { transform: translate(-4px, 4px) rotate(-2deg); }
+  30% { transform: translate(4px, -4px) rotate(2deg); }
+  50% { transform: translate(-4px, -4px) rotate(-2deg); }
+  70% { transform: translate(4px, 4px) rotate(2deg); }
+  90% { transform: translate(-4px, 2px) rotate(-1deg); }
+}
+
+.animate-heartbeat-glow {
+  animation: heartbeat-glow 1s ease-in-out infinite;
+}
+
+.animate-shimmer-gold {
+  background: linear-gradient(90deg, #f59e0b 25%, #fbbf24 50%, #f59e0b 75%);
+  background-size: 200% 100%;
+  animation: shimmer-gold 1.5s infinite linear;
+}
+
+.animate-thruster {
+  animation: rocket-thruster 0.15s infinite ease-in-out;
+}
+
+.shake-level-1 {
+  animation: camera-shake-1 0.2s infinite ease-in-out;
+}
+
+.shake-level-2 {
+  animation: camera-shake-2 0.15s infinite ease-in-out;
+}
+
+.shake-level-3 {
+  animation: camera-shake-3 0.1s infinite ease-in-out;
+}
+

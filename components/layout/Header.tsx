@@ -23,7 +23,7 @@ export function Header() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isAudioOpen, setIsAudioOpen] = useState(false);
 
-  const { balance, positions, isLoggedIn, currentUser, xp, soundEnabled, setSoundEnabled, sfxVolume, setSfxVolume, ambientEnabled, setAmbientEnabled } = useTradingStore();
+  const { balance, positions, isLoggedIn, currentUser, xp, soundEnabled, setSoundEnabled, sfxVolume, setSfxVolume, ambientEnabled, setAmbientEnabled, ambientPreset, setAmbientPreset } = useTradingStore();
 
   // IST digital clock time string
   const [timeStr, setTimeStr] = useState("");
@@ -79,13 +79,13 @@ export function Header() {
   
   const [isClient, setIsClient] = useState(false);
   
-  // Start ambient lounge track on mount
+  // Start ambient lounge track on mount & preset changes
   useEffect(() => {
     if (soundEnabled !== false && ambientEnabled !== false) {
       const timer = setTimeout(() => {
         try {
           const { startAmbientMusic } = require("@/lib/audio");
-          startAmbientMusic();
+          startAmbientMusic(ambientPreset);
         } catch (e) {}
       }, 2000);
       return () => {
@@ -96,7 +96,7 @@ export function Header() {
         } catch (e) {}
       };
     }
-  }, [soundEnabled, ambientEnabled]);
+  }, [soundEnabled, ambientEnabled, ambientPreset]);
 
   useEffect(() => {
     setIsClient(true);
@@ -327,6 +327,29 @@ export function Header() {
                                 ambientEnabled ? "translate-x-4" : "translate-x-0"
                               )} />
                             </button>
+                          </div>
+                        )}
+
+                        {/* Ambient Preset Selection */}
+                        {soundEnabled !== false && ambientEnabled && (
+                          <div className="space-y-1.5 border-t border-slate-100 pt-3">
+                            <span className="text-xs font-bold text-slate-600 block">Ambience Preset</span>
+                            <div className="grid grid-cols-3 gap-1">
+                              {(['default', 'tension', 'cyber'] as const).map((preset) => (
+                                <button
+                                  key={preset}
+                                  onClick={() => setAmbientPreset(preset)}
+                                  className={cn(
+                                    "px-1.5 py-1 text-[10px] font-black uppercase rounded-sm border transition-all cursor-pointer",
+                                    ambientPreset === preset 
+                                      ? "bg-slate-900 border-slate-900 text-white" 
+                                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
+                                  )}
+                                >
+                                  {preset === 'default' ? 'Lobby' : preset === 'tension' ? 'Tension' : 'Arcade'}
+                                </button>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>

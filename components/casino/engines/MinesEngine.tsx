@@ -25,6 +25,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
   const [scheduledOutcome, setScheduledOutcome] = useState<GameOutcome | null>(null);
   const [clickCount, setClickCount] = useState(0);
   const [riggedBustClick, setRiggedBustClick] = useState(0);
+  const [showCoinShower, setShowCoinShower] = useState(false);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
@@ -37,6 +38,17 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
     }
     startGame();
   }, [isPlaying]);
+
+  // Hook into keyboard cashout
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (gameState === "playing" && clickCount > 0) {
+        cashOut();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    return () => window.removeEventListener("trigger-cashout", handleTriggerCashout);
+  }, [gameState, clickCount]);
 
   const nextMultiplier = useMemo(() => {
     const safeRevealed = revealed.filter((v, i) => v && !mineLocations.includes(i)).length;
@@ -64,6 +76,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
     setActiveMultiplier(1.00);
     setClickCount(0);
     setBustedIndex(null);
+    setShowCoinShower(false);
     setGameState("playing");
   };
 
@@ -117,6 +130,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
   const cashOut = () => {
     if (gameState !== "playing") return;
     playGameSound('jackpot');
+    setShowCoinShower(true);
     setGameState("cashed_out");
     setRevealed(Array(25).fill(true));
     onCompleteRef.current(activeMultiplier, true);
@@ -176,7 +190,11 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
 
         {/* 3D Mines Grid Container */}
         <div className="relative flex-1 flex items-center justify-center perspective-[1200px]">
-          <div className="grid grid-cols-5 gap-3 w-full max-w-[450px] aspect-square p-4 bg-slate-900/40 rounded-[2rem] border border-slate-800/80 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] transform-style-3d rotate-x-[15deg]">
+          <div className={`grid grid-cols-5 gap-3 w-full max-w-[450px] aspect-square p-4 bg-slate-900/40 rounded-[2rem] border transition-all duration-300 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] transform-style-3d rotate-x-[15deg] ${
+            (gameState === "playing" && clickCount >= 4)
+              ? "border-rose-500/50 shadow-[0_0_30px_rgba(244,63,94,0.4)] animate-[heartbeat-glow_1.2s_infinite_ease-in-out]" 
+              : "border-slate-800/80"
+          }`}>
             <AnimatePresence>
               {Array(25).fill(0).map((_, i) => {
                 const isRevealed = revealed[i];
@@ -209,6 +227,36 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
                       <div className="absolute inset-0 backface-hidden rounded-2xl overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1/2 bg-white/5" />
                       </div>
+
+                      {/* Sparkles / Burst particles on safe tiles */}
+                      {isRevealed && !isMine && (
+                        <div className="absolute inset-0 z-50 pointer-events-none overflow-visible">
+                          {Array(8).fill(0).map((_, sIdx) => {
+                            const angle = (Math.PI / 4) * sIdx;
+                            const tx = Math.cos(angle) * 35;
+                            const ty = Math.sin(angle) * 35;
+                            return (
+                              <motion.div
+                                key={sIdx}
+                                initial={{ x: 0, y: 0, scale: 1, opacity: 1 }}
+                                animate={{ x: tx, y: ty, scale: 0, opacity: 0 }}
+                                transition={{ duration: 0.6, ease: "easeOut" }}
+                                className="absolute top-1/2 left-1/2 -ml-1 -mt-1 w-2.5 h-2.5 bg-yellow-400 rounded-full shadow-[0_0_8px_rgba(250,204,21,1)]"
+                              />
+                            );
+                          })}
+                        </div>
+                      )}
+
+                      {/* Shockwave Rings on reveal */}
+                      {isRevealed && (
+                        <motion.div
+                          initial={{ scale: 0.2, opacity: 1 }}
+                          animate={{ scale: 2.2, opacity: 0 }}
+                          transition={{ duration: 0.5, ease: "easeOut" }}
+                          className={`absolute inset-0 rounded-2xl border-2 pointer-events-none z-45 ${isMine ? "border-red-500/85" : "border-emerald-400/85"}`}
+                        />
+                      )}
 
                       {/* Back of tile (the result) */}
                       {isRevealed && (
@@ -280,6 +328,28 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
           )}
         </AnimatePresence>
       </motion.div>
+
+      {/* Coin Shower */}
+      {showCoinShower && (
+        <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
+          {Array(15).fill(0).map((_, idx) => {
+            const startX = Math.random() * 100;
+            const delay = Math.random() * 0.8;
+            const duration = 1.0 + Math.random() * 0.8;
+            return (
+              <motion.div
+                key={idx}
+                initial={{ y: -50, x: `${startX}%`, opacity: 1, scale: 0.8, rotate: 0 }}
+                animate={{ y: 650, rotate: 360, opacity: 0 }}
+                transition={{ duration, delay, ease: "linear" }}
+                className="absolute text-yellow-400 font-bold text-lg"
+              >
+                🪙
+              </motion.div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

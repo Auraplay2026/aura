@@ -82,8 +82,33 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
     onCompleteRef.current(multiplier, true);
   };
 
+  // Keyboard cashout hotkey
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (isPlaying && !crashed && !hasCashedOut) {
+        handleCashout();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    return () => window.removeEventListener("trigger-cashout", handleTriggerCashout);
+  }, [isPlaying, crashed, hasCashedOut, multiplier]);
+
   return (
-    <div className="w-full h-full min-h-[500px] bg-[#0a0f1c] rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]">
+    <motion.div 
+      animate={
+        crashed ? { x: 0, y: 0 } :
+        isPlaying ? {
+          x: multiplier > 20 ? [-3, 3, -3, 3, 0] :
+             multiplier > 10 ? [-2, 2, -2, 2, 0] :
+             multiplier > 5  ? [-1, 1, -1, 1, 0] : [0],
+          y: multiplier > 20 ? [-3, 3, -3, 3, 0] :
+             multiplier > 10 ? [-2, 2, -2, 2, 0] :
+             multiplier > 5  ? [-1, 1, -1, 1, 0] : [0],
+        } : { x: 0, y: 0 }
+      }
+      transition={isPlaying ? { repeat: Infinity, duration: 0.08 } : {}}
+      className="w-full h-full min-h-[500px] bg-[#0a0f1c] rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]"
+    >
       
       {/* Photorealistic Deep Space Nebula Background */}
       <div 
@@ -216,11 +241,13 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
                 {/* Fire Plume Particle Emitters */}
                 <motion.div 
                   className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 w-8 h-24 bg-gradient-to-t from-transparent via-orange-500 to-yellow-300 rounded-full blur-md opacity-80"
+                  style={{ transform: `scale(${Math.min(2.5, 1.0 + (multiplier - 1.0) * 0.1)}) translateX(-50%)`, transformOrigin: 'top center' }}
                   animate={{ scaleY: [1, 1.3, 1], opacity: [0.8, 1, 0.8] }}
                   transition={{ repeat: Infinity, duration: 0.1 }}
                 />
                 <motion.div 
                   className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-4 h-12 bg-white rounded-full blur-sm"
+                  style={{ transform: `scale(${Math.min(2.2, 1.0 + (multiplier - 1.0) * 0.08)}) translateX(-50%)`, transformOrigin: 'top center' }}
                   animate={{ scaleY: [1, 1.2, 1] }}
                   transition={{ repeat: Infinity, duration: 0.05 }}
                 />
@@ -243,6 +270,6 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
         </AnimatePresence>
       </div>
 
-    </div>
+    </motion.div>
   );
 }

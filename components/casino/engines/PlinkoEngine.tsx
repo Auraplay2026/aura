@@ -104,6 +104,11 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
   return (
     <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-4 relative overflow-hidden flex flex-col shadow-2xl">
       
+      {/* Outer Lane Tension Vignette */}
+      {balls.some(b => b.binIndex === 0 || b.binIndex === 1 || b.binIndex === 9 || b.binIndex === 10) && (
+        <div className="absolute inset-0 border-[6px] border-amber-500/40 rounded-3xl pointer-events-none z-30 animate-[heartbeat-glow_1.5s_infinite_ease-in-out]" />
+      )}
+
       {/* 3D Deep Grid Background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
       <div 
@@ -162,7 +167,7 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
             <div key={rIndex} className="flex justify-center" style={{ marginTop: rIndex === 0 ? 0 : '24px' }}>
               {Array.from({ length: rIndex + 3 }).map((_, pIndex) => (
                 <div key={pIndex} className="w-9 h-3 flex items-center justify-center relative">
-                  <div className="w-3 h-3 rounded-full bg-slate-700 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.8),0_2px_5px_rgba(255,255,255,0.1)] border border-slate-600 z-20" />
+                  <div className={`w-3 h-3 rounded-full bg-slate-700 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.8),0_2px_5px_rgba(255,255,255,0.1)] border border-slate-600 z-20 transition-all duration-100 ${isPlaying ? "shadow-[0_0_8px_rgba(99,102,241,0.4)] border-slate-500" : ""}`} />
                   <div className="absolute inset-0 bg-blue-500/20 blur-md rounded-full opacity-0 transition-opacity duration-100 hover:opacity-100" />
                 </div>
               ))}
@@ -208,9 +213,19 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
               <motion.div
                 key={i}
                 animate={isActive ? { y: 10, scale: 1.1 } : { y: 0, scale: 1 }}
-                className={`flex-1 h-12 flex items-center justify-center rounded-lg font-black text-[10px] md:text-xs bg-gradient-to-b border transition-all duration-300 ${multColor(mult)} ${isActive ? 'brightness-150 z-50' : 'z-10'}`}
+                className={`flex-1 h-12 flex items-center justify-center rounded-lg font-black text-[10px] md:text-xs bg-gradient-to-b border transition-all duration-300 relative ${multColor(mult)} ${isActive ? 'brightness-150 z-50' : 'z-10'}`}
               >
                 {mult}x
+                {/* Expanding Fountain/Ripple Splash on Active Bucket */}
+                {isActive && (
+                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-8 h-12 pointer-events-none overflow-visible z-50 flex items-end justify-center">
+                    <div className={`w-1 bg-gradient-to-t rounded-full animate-[particle-fade_0.6s_ease-out] ${
+                      mult >= 10 ? "from-yellow-400 to-transparent h-16 w-3" : 
+                      mult >= 2 ? "from-orange-450 to-transparent h-12 w-2" : "from-blue-450 to-transparent h-8 w-1"
+                    }`} />
+                    <div className="absolute inset-x-0 bottom-0 h-4 bg-white/20 rounded-full animate-ping" />
+                  </div>
+                )}
               </motion.div>
             );
           })}

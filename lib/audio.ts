@@ -292,65 +292,149 @@ let ambientInterval: NodeJS.Timeout | null = null;
 let ambientOscs: OscillatorNode[] = [];
 let ambientGains: GainNode[] = [];
 
-export function startAmbientMusic() {
+export function startAmbientMusic(preset: 'default' | 'tension' | 'cyber' = 'default') {
   const ctx = getAudioContext();
   if (!ctx) return;
 
   // Stop current scheduling loop
   stopAmbientMusic();
 
-  // A beautiful C-major pentatonic scale to play gentle casino chime drops
-  const scale = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
-
-  const playNextNote = () => {
-    // Re-check dynamic enabled status
+  const getStoreState = () => {
     try {
-      const store = useTradingStore.getState();
+      return useTradingStore.getState();
+    } catch (e) {
+      return { soundEnabled: true, ambientEnabled: true };
+    }
+  };
+
+  const scaleDefault = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25, 587.33, 659.25, 783.99, 880.00];
+  const scaleTensionBass = [65.41, 73.42, 87.31]; // C2, D2, F2
+  const scaleTensionChime = [1046.50, 1244.51, 1567.98, 1864.66]; // C6, Eb6, G6, Bb6
+
+  if (preset === 'default') {
+    const playNextNote = () => {
+      const store = getStoreState();
       if (store.soundEnabled === false || store.ambientEnabled === false) {
         stopAmbientMusic();
         return;
       }
-    } catch (e) {
-      return;
-    }
+      const currentCtx = getAudioContext();
+      if (!currentCtx) return;
+      const freq = scaleDefault[Math.floor(Math.random() * scaleDefault.length)];
+      const now = currentCtx.currentTime;
+      const osc = currentCtx.createOscillator();
+      const gain = currentCtx.createGain();
+      osc.type = "sine";
+      osc.frequency.setValueAtTime(freq, now);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.004, now + 0.5);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.0);
+      osc.connect(gain);
+      gain.connect(currentCtx.destination);
+      osc.start(now);
+      osc.stop(now + 3.0);
+      ambientOscs.push(osc);
+      ambientGains.push(gain);
+      if (ambientOscs.length > 25) {
+        ambientOscs = ambientOscs.slice(-10);
+        ambientGains = ambientGains.slice(-10);
+      }
+    };
+    ambientInterval = setInterval(playNextNote, 3500) as any;
+    playNextNote();
+  } else if (preset === 'tension') {
+    const playTension = () => {
+      const store = getStoreState();
+      if (store.soundEnabled === false || store.ambientEnabled === false) {
+        stopAmbientMusic();
+        return;
+      }
+      const currentCtx = getAudioContext();
+      if (!currentCtx) return;
+      const now = currentCtx.currentTime;
 
-    const currentCtx = getAudioContext();
-    if (!currentCtx) return;
+      // Play low bass drone
+      const bassFreq = scaleTensionBass[Math.floor(Math.random() * scaleTensionBass.length)];
+      const oscBass = currentCtx.createOscillator();
+      const gainBass = currentCtx.createGain();
+      oscBass.type = "sine";
+      oscBass.frequency.setValueAtTime(bassFreq, now);
+      gainBass.gain.setValueAtTime(0, now);
+      gainBass.gain.linearRampToValueAtTime(0.008, now + 1.0);
+      gainBass.gain.linearRampToValueAtTime(0.008, now + 3.0);
+      gainBass.gain.exponentialRampToValueAtTime(0.0001, now + 4.5);
+      oscBass.connect(gainBass);
+      gainBass.connect(currentCtx.destination);
+      oscBass.start(now);
+      oscBass.stop(now + 4.5);
+      ambientOscs.push(oscBass);
+      ambientGains.push(gainBass);
 
-    // Pick random note from scale
-    const freq = scale[Math.floor(Math.random() * scale.length)];
-    const now = currentCtx.currentTime;
+      // Infrequent high-tension chime
+      if (Math.random() > 0.4) {
+        const chimeFreq = scaleTensionChime[Math.floor(Math.random() * scaleTensionChime.length)];
+        const oscChime = currentCtx.createOscillator();
+        const gainChime = currentCtx.createGain();
+        oscChime.type = "sine";
+        oscChime.frequency.setValueAtTime(chimeFreq, now + 1.0 + Math.random());
+        gainChime.gain.setValueAtTime(0, now + 1.0);
+        gainChime.gain.linearRampToValueAtTime(0.003, now + 1.2);
+        gainChime.gain.exponentialRampToValueAtTime(0.0001, now + 3.5);
+        oscChime.connect(gainChime);
+        gainChime.connect(currentCtx.destination);
+        oscChime.start(now + 1.0);
+        oscChime.stop(now + 3.5);
+        ambientOscs.push(oscChime);
+        ambientGains.push(gainChime);
+      }
 
-    const osc = currentCtx.createOscillator();
-    const gain = currentCtx.createGain();
+      if (ambientOscs.length > 25) {
+        ambientOscs = ambientOscs.slice(-10);
+        ambientGains = ambientGains.slice(-10);
+      }
+    };
+    ambientInterval = setInterval(playTension, 4000) as any;
+    playTension();
+  } else if (preset === 'cyber') {
+    let step = 0;
+    const cyberSequence = [130.81, 164.81, 196.00, 220.00, 261.63, 329.63, 392.00, 440.00]; // C3, E3, G3, A3, C4, E4, G4, A4
+    const playCyber = () => {
+      const store = getStoreState();
+      if (store.soundEnabled === false || store.ambientEnabled === false) {
+        stopAmbientMusic();
+        return;
+      }
+      const currentCtx = getAudioContext();
+      if (!currentCtx) return;
+      const now = currentCtx.currentTime;
+      const freq = cyberSequence[step % cyberSequence.length];
+      step++;
 
-    osc.type = "sine";
-    osc.frequency.setValueAtTime(freq, now);
+      const osc = currentCtx.createOscillator();
+      const gain = currentCtx.createGain();
+      osc.type = "triangle";
+      osc.frequency.setValueAtTime(freq, now);
 
-    // Slow, soft fade in and out for a dreamlike chime pad
-    gain.gain.setValueAtTime(0, now);
-    gain.gain.linearRampToValueAtTime(0.004, now + 0.5); // Very quiet
-    gain.gain.exponentialRampToValueAtTime(0.0001, now + 3.0);
+      gain.gain.setValueAtTime(0, now);
+      gain.gain.linearRampToValueAtTime(0.003, now + 0.05);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.3);
 
-    osc.connect(gain);
-    gain.connect(currentCtx.destination);
+      osc.connect(gain);
+      gain.connect(currentCtx.destination);
+      osc.start(now);
+      osc.stop(now + 0.3);
 
-    osc.start(now);
-    osc.stop(now + 3.0);
+      ambientOscs.push(osc);
+      ambientGains.push(gain);
 
-    ambientOscs.push(osc);
-    ambientGains.push(gain);
-
-    // Prune collections
-    if (ambientOscs.length > 25) {
-      ambientOscs = ambientOscs.slice(-10);
-      ambientGains = ambientGains.slice(-10);
-    }
-  };
-
-  // Schedule note drop every 3.5 seconds
-  ambientInterval = setInterval(playNextNote, 3500);
-  playNextNote();
+      if (ambientOscs.length > 25) {
+        ambientOscs = ambientOscs.slice(-10);
+        ambientGains = ambientGains.slice(-10);
+      }
+    };
+    ambientInterval = setInterval(playCyber, 300) as any;
+    playCyber();
+  }
 }
 
 export function stopAmbientMusic() {

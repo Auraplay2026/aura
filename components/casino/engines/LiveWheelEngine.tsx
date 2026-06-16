@@ -30,6 +30,8 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
   const [isSpinning, setIsSpinning] = useState(false);
   const [pointerTick, setPointerTick] = useState(0);
 
+  const [winningIndex, setWinningIndex] = useState<number | null>(null);
+
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -39,10 +41,12 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
     if (!isPlaying) {
       setIsSpinning(false);
       setWinningSector(null);
+      setWinningIndex(null);
       return;
     }
 
     setIsSpinning(true);
+    setWinningIndex(null);
     const outcome = calculateGameOutcome("TABLE");
     const won = outcome.isWin;
     const targetMult = outcome.multiplier;
@@ -64,26 +68,36 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
     
     setRotation(prev => prev + finalRotation);
 
-    // Simulate pointer ticking physically
-    let ticks = 0;
-    const tickInterval = setInterval(() => {
-      setPointerTick(prev => (prev === 0 ? -15 : 0));
+    // Simulate pointer ticking with physical deceleration
+    let tickDelay = 50;
+    let keepTicking = true;
+    
+    const triggerTick = () => {
+      if (!keepTicking) return;
+      setPointerTick(prev => (prev === 0 ? -12 : 0));
       playGameSound('tick');
-      ticks++;
-      if (ticks > 40) clearInterval(tickInterval);
-    }, 150); // fast ticking initially
+      
+      tickDelay = tickDelay * 1.11; // exponential deceleration
+      if (tickDelay < 750) {
+        setTimeout(triggerTick, tickDelay);
+      } else {
+        setPointerTick(0);
+      }
+    };
+    setTimeout(triggerTick, tickDelay);
 
     const timer = setTimeout(() => {
-      clearInterval(tickInterval);
+      keepTicking = false;
       setPointerTick(0);
       setWinningSector(result);
+      setWinningIndex(sectorIdx);
       setIsSpinning(false);
       onCompleteRef.current(result.mult, won);
     }, 6000); // 6 second heavy spin
 
     return () => {
       clearTimeout(timer);
-      clearInterval(tickInterval);
+      keepTicking = false;
     };
   }, [isPlaying]);
 
@@ -134,17 +148,17 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
                 style={{ transform: `rotate(${angle}deg)` }}
               >
                 {/* Sector Background color span */}
-                <div className={`absolute inset-0 ${sec.color} opacity-90 clip-sector`} style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
+                <div className={`absolute inset-0 ${sec.color} opacity-90 clip-sector transition-all duration-300 ${winningIndex === i && !isSpinning ? "brightness-125 saturate-150" : ""}`} style={{ clipPath: 'polygon(50% 100%, 0 0, 100% 0)' }} />
                 
                 {/* Label */}
                 <div className="relative z-10 flex flex-col items-center justify-start pt-2">
-                  <span className={`text-sm md:text-xl font-black font-mono drop-shadow-md ${sec.val === 'CRAZY' ? 'text-[10px] md:text-sm tracking-tighter' : ''}`}>
+                  <span className={`text-sm md:text-xl font-black font-mono drop-shadow-md ${sec.val === 'CRAZY' ? 'text-[10px] md:text-sm tracking-tighter' : ''} ${winningIndex === i && !isSpinning ? "text-yellow-300 scale-110 drop-shadow-[0_0_8px_rgba(250,204,21,0.8)]" : ""}`}>
                     {sec.val}
                   </span>
                 </div>
 
                 {/* Pegs on the edge */}
-                <div className="absolute top-1 right-0 w-3 h-3 bg-white rounded-full shadow-[0_2px_5px_rgba(0,0,0,0.5)] translate-x-1/2 z-20 border border-slate-300" />
+                <div className={`absolute top-1 right-0 w-3 h-3 rounded-full shadow-[0_2px_5px_rgba(0,0,0,0.5)] translate-x-1/2 z-20 border transition-all duration-300 ${winningIndex === i && !isSpinning ? "bg-yellow-300 border-yellow-250 animate-[heartbeat-glow_1s_infinite_ease-in-out] shadow-[0_0_10px_rgba(250,204,21,1)]" : "bg-white border-slate-300"}`} />
               </div>
             );
           })}

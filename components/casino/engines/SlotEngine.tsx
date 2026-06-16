@@ -14,6 +14,7 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
   const [spinStops, setSpinStops] = useState<boolean[]>(Array(theme.cols).fill(true));
   const generateGrid = () => Array(theme.cols).fill(0).map(() => Array(theme.rows).fill(0).map(() => theme.symbols[Math.floor(Math.random() * theme.symbols.length)]));
   const [reels, setReels] = useState<string[][]>(generateGrid());
+  const [history, setHistory] = useState<{ mult: number; won: boolean }[]>([]);
 
   const hasStartedSpin = useRef(false);
 
@@ -71,6 +72,7 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
 
     const timer = setTimeout(() => {
       onCompleteRef.current(multiplier, isWin);
+      setHistory(prev => [{ mult: multiplier, won: isWin }, ...prev].slice(0, 8));
     }, baseTime + (theme.cols * staggerTime) + 300);
     timeouts.push(timer);
 
@@ -80,9 +82,30 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
   return (
     <div className={`w-full max-w-5xl mx-auto h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-b from-slate-800 to-[#09090b] rounded-[3rem] border-8 ${theme.borderClass} p-4 md:p-8 shadow-[0_40px_100px_rgba(0,0,0,0.8),inset_0_2px_10px_rgba(255,255,255,0.2)] relative overflow-hidden flex flex-col justify-center perspective-[1200px]`}>
       
+      {/* Neon Gold Cabinet Overlay during Spin */}
+      {!spinStops.every(v => v) && (
+        <div className="absolute inset-0 border-[6px] border-yellow-400/30 rounded-[3rem] pointer-events-none z-30 animate-[heartbeat-glow_1s_infinite_ease-in-out]" />
+      )}
+
       {/* Premium Metallic Cabinet Illusion */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.1),_transparent_50%)] pointer-events-none z-0" />
       <div className="absolute inset-2 border-2 border-slate-700/50 rounded-[2.5rem] pointer-events-none z-0 shadow-inner" />
+
+      {/* Ticker History */}
+      <div className="flex gap-2 justify-center mb-4 z-10 shrink-0 h-6">
+        {history.map((h, idx) => (
+          <div
+            key={idx}
+            className={`px-3 py-0.5 rounded-full text-[9px] font-black font-mono border shadow-sm ${
+              h.won
+                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
+                : "bg-slate-800/60 text-slate-400 border-slate-700"
+            }`}
+          >
+            {h.mult.toFixed(1)}x
+          </div>
+        ))}
+      </div>
 
       {/* Reel Container */}
       <div 
@@ -94,6 +117,11 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
             {/* Dark gradient mask on top and bottom for realistic cylindrical drum effect */}
             <div className="absolute top-0 left-0 right-0 h-1/4 bg-gradient-to-b from-black via-black/80 to-transparent z-20 pointer-events-none" />
             <div className="absolute bottom-0 left-0 right-0 h-1/4 bg-gradient-to-t from-black via-black/80 to-transparent z-20 pointer-events-none" />
+            
+            {/* Dust puff effect below reel stop */}
+            {spinStops[cIdx] && (
+              <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-8 h-4 bg-white/10 rounded-full blur-sm animate-[particle-fade_0.4s_ease-out] z-30 pointer-events-none" />
+            )}
             
             {/* Spinning Reel Content */}
             <motion.div 

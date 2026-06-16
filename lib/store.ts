@@ -4,6 +4,12 @@ import { recordGameRound } from './recordRound';
 import { ACHIEVEMENTS } from './achievements';
 import { checkStreak } from './streakEngine';
 import { GAMES } from './games';
+export interface GameSessionStats {
+  wagers: number[];
+  payouts: number[];
+  multipliers: number[];
+  timestamps: number[];
+}
 
 export interface Transaction {
   id: string;
@@ -108,6 +114,10 @@ interface TradingState {
   setSfxVolume: (vol: number) => void;
   ambientEnabled: boolean;
   setAmbientEnabled: (enabled: boolean) => void;
+  ambientPreset: 'default' | 'tension' | 'cyber';
+  setAmbientPreset: (preset: 'default' | 'tension' | 'cyber') => void;
+  sessionStats: Record<string, GameSessionStats>;
+  recordSessionRound: (gameId: string, wager: number, payout: number, multiplier: number) => void;
 
   // Actions
   deposit: (amount: number, method?: string) => void;
@@ -314,11 +324,40 @@ export const useTradingStore = create<TradingState>()(
         try {
           const { startAmbientMusic, stopAmbientMusic } = require('./audio');
           if (enabled && get().soundEnabled) {
-            startAmbientMusic();
+            startAmbientMusic(get().ambientPreset);
           } else {
             stopAmbientMusic();
           }
         } catch (e) {}
+      },
+      ambientPreset: 'default',
+      setAmbientPreset: (preset) => {
+        set({ ambientPreset: preset });
+        try {
+          const { startAmbientMusic, stopAmbientMusic } = require('./audio');
+          if (get().ambientEnabled && get().soundEnabled) {
+            startAmbientMusic(preset);
+          }
+        } catch (e) {}
+      },
+      sessionStats: {},
+      recordSessionRound: (gameId, wager, payout, multiplier) => {
+        set((state) => {
+          const stats = state.sessionStats || {};
+          const gameStats = stats[gameId] || { wagers: [], payouts: [], multipliers: [], timestamps: [] };
+          const newGameStats = {
+            wagers: [...gameStats.wagers, wager].slice(-50),
+            payouts: [...gameStats.payouts, payout].slice(-50),
+            multipliers: [...gameStats.multipliers, multiplier].slice(-50),
+            timestamps: [...gameStats.timestamps, Date.now()].slice(-50),
+          };
+          return {
+            sessionStats: {
+              ...stats,
+              [gameId]: newGameStats
+            }
+          };
+        });
       },
 
       // Backend-supported legacy login compatibility (logs in as demo user via API)

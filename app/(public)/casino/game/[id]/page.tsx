@@ -230,6 +230,79 @@ function RollingCounter({ target }: { target: number }) {
 
 const STAKE_PRESETS = [100, 500, 1000, 5000, 10000, 50000];
 
+function SVGProfitChart({ history }: { history: number[] }) {
+  if (history.length <= 1) {
+    return (
+      <div className="h-24 flex items-center justify-center border border-dashed border-white/10 rounded-xl text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+        No round history yet
+      </div>
+    );
+  }
+
+  const minProfit = Math.min(...history);
+  const maxProfit = Math.max(...history);
+  const profitRange = maxProfit - minProfit || 100;
+  const padMin = minProfit - profitRange * 0.1;
+  const padMax = maxProfit + profitRange * 0.1;
+  const padRange = padMax - padMin;
+
+  const width = 300;
+  const height = 120;
+  const points = history.map((val, idx) => {
+    const x = (idx / (history.length - 1)) * width;
+    const y = height - ((val - padMin) / padRange) * height;
+    return `${x},${y}`;
+  }).join(" ");
+
+  const netProfit = history[history.length - 1] - history[0];
+
+  return (
+    <div className="relative w-full bg-[#0a0f16]/90 border border-white/5 p-3 rounded-xl shadow-inner">
+      <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-24 overflow-visible">
+        {padMin < 0 && padMax > 0 && (
+          <line
+            x1="0"
+            y1={height - ((0 - padMin) / padRange) * height}
+            x2={width}
+            y2={height - ((0 - padMin) / padRange) * height}
+            stroke="rgba(255,255,255,0.15)"
+            strokeDasharray="4 4"
+            strokeWidth="1.5"
+          />
+        )}
+        <polyline
+          fill="none"
+          stroke="url(#gradient-profit)"
+          strokeWidth="3.5"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          points={points}
+        />
+        <defs>
+          <linearGradient id="gradient-profit" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0%" stopColor="#ef4444" />
+            <stop offset="50%" stopColor="#eab308" />
+            <stop offset="100%" stopColor="#22c55e" />
+          </linearGradient>
+        </defs>
+        <circle
+          cx={width}
+          cy={height - ((history[history.length - 1] - padMin) / padRange) * height}
+          r="4.5"
+          className="fill-yellow-400"
+        />
+      </svg>
+      <div className="flex justify-between items-center text-[9px] font-bold text-slate-500 mt-1 font-mono uppercase">
+        <span>Min: ₹{minProfit.toFixed(0)}</span>
+        <span className={netProfit >= 0 ? "text-emerald-400" : "text-rose-400"}>
+          Net: ₹{netProfit >= 0 ? "+" : ""}{netProfit.toFixed(0)}
+        </span>
+        <span>Max: ₹{maxProfit.toFixed(0)}</span>
+      </div>
+    </div>
+  );
+}
+
 export default function GamePlayerPage() {
   const params = useParams();
   const router = useRouter();
@@ -256,7 +329,7 @@ export default function GamePlayerPage() {
   }, []);
   
   // Game UX State
-  const { balance: rawBalance, playCasino, currentUser } = useTradingStore();
+  const { balance: rawBalance, playCasino, currentUser, sessionStats, recordSessionRound, setAmbientPreset } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
   const [betAmount, setBetAmount] = useState(100);
   const [customBetVal, setCustomBetVal] = useState("");
@@ -266,6 +339,8 @@ export default function GamePlayerPage() {
   const [isSpinning, setIsSpinning] = useState(false);
   const [winAmount, setWinAmount] = useState<number | null>(null);
   const [isMegaWin, setIsMegaWin] = useState(false);
+  const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(true);
+  const [sidebarTab, setSidebarTab] = useState<'stakes' | 'strategy'>('stakes');
   
   const [isDemoLimitReached, setIsDemoLimitReached] = useState(false);
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
@@ -327,6 +402,93 @@ export default function GamePlayerPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, [isSessionActive, sessionTimeLeft]);
+
+  // Set ambient audio preset based on game category
+  useEffect(() => {
+    if (!game) return;
+    const titleLower = game.title.toLowerCase();
+    const isMinesOrLimbo = titleLower.includes("mines") || titleLower.includes("limbo") || game.id === "orig-4" || game.id === "orig-2";
+    const isCrashOrSlots = game.categories.includes("crash") || game.categories.includes("slots") || titleLower.includes("crash") || titleLower.includes("slot");
+    
+    if (isMinesOrLimbo) {
+      setAmbientPreset("tension");
+    } else if (isCrashOrSlots) {
+      setAmbientPreset("cyber");
+    } else {
+      setAmbientPreset("default");
+    }
+    
+    return () => {
+      setAmbientPreset("default");
+    };
+  }, [game, setAmbientPreset]);
+
+  // Compute live session stats
+  const stats = useMemo(() => {
+    if (!game) {
+      return {
+        wagers: [],
+        payouts: [],
+        multipliers: [],
+        totalWagered: 0,
+        netProfit: 0,
+        winsCount: 0,
+        lossesCount: 0,
+        maxMultiplier: 0,
+        profitHistory: [0],
+        winRatio: 0,
+        lossRatio: 0,
+        totalRounds: 0
+      };
+    }
+    const gameStats = sessionStats?.[game.id] || { wagers: [], payouts: [], multipliers: [], timestamps: [] };
+    const wagers = gameStats.wagers;
+    const payouts = gameStats.payouts;
+    const multipliers = gameStats.multipliers;
+
+    let totalWagered = 0;
+    let totalPayout = 0;
+    let winsCount = 0;
+    let lossesCount = 0;
+    let maxMultiplier = 0;
+    let profitHistory: number[] = [0];
+
+    for (let i = 0; i < wagers.length; i++) {
+      const wager = wagers[i];
+      const payout = payouts[i];
+      const mult = multipliers[i];
+      
+      totalWagered += wager;
+      totalPayout += payout;
+      if (payout > 0) winsCount++;
+      else lossesCount++;
+      
+      if (mult > maxMultiplier) maxMultiplier = mult;
+
+      const currentProfit = totalPayout - totalWagered;
+      profitHistory.push(currentProfit);
+    }
+
+    const netProfit = totalPayout - totalWagered;
+    const totalRounds = winsCount + lossesCount;
+    const winRatio = totalRounds > 0 ? (winsCount / totalRounds) * 100 : 0;
+    const lossRatio = totalRounds > 0 ? (lossesCount / totalRounds) * 100 : 0;
+
+    return {
+      wagers,
+      payouts,
+      multipliers,
+      totalWagered,
+      netProfit,
+      winsCount,
+      lossesCount,
+      maxMultiplier,
+      profitHistory,
+      winRatio,
+      lossRatio,
+      totalRounds
+    };
+  }, [sessionStats, game?.id]);
 
   if (!game) {
     return (
@@ -422,6 +584,7 @@ export default function GamePlayerPage() {
 
     const payout = won ? betAmount * mult : 0;
     playCasino(betAmount, payout, game.title);
+    recordSessionRound(game.id, betAmount, payout, mult);
 
     if (won) {
       setWinAmount(payout);
@@ -450,7 +613,34 @@ export default function GamePlayerPage() {
         won: false,
       });
     }
-  }, [betAmount, playCasino, game, isCloudRenting]);
+  }, [betAmount, playCasino, game, isCloudRenting, recordSessionRound]);
+
+  // Keyboard wagers & cashout shortcuts
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      const activeEl = document.activeElement;
+      if (activeEl) {
+        const tagName = activeEl.tagName.toLowerCase();
+        if (tagName === "input" || tagName === "textarea" || activeEl.hasAttribute("contenteditable")) {
+          return;
+        }
+      }
+
+      if (e.code === "Space") {
+        e.preventDefault();
+        handlePlay();
+      } else if (e.code === "KeyC") {
+        e.preventDefault();
+        window.dispatchEvent(new CustomEvent("trigger-cashout"));
+      } else if (e.code === "Escape") {
+        e.preventDefault();
+        setIsAnalyticsOpen(false);
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [handlePlay]);
 
   const handleLaunchStream = () => {
     if (isSpinning) return;
@@ -768,109 +958,206 @@ export default function GamePlayerPage() {
                           </div>
                         ) : (
                           <div className="p-4 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar">
-                            
-                            {/* Bet Amount Control */}
-                            <div className="flex flex-col gap-2">
-                              <div className="flex justify-between items-center">
-                                <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Bet Amount</span>
-                                <span className="text-xs font-black text-slate-900">₹{betAmount.toLocaleString()}</span>
-                              </div>
-                              
-                              <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-neon-purple focus-within:border-neon-purple transition-all">
-                                <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-12">
-                                  <span className="text-slate-400 font-bold">₹</span>
-                                </div>
-                                <input 
-                                  type="number" 
-                                  value={betAmount} 
-                                  onChange={(e) => setBetAmount(Number(e.target.value))}
-                                  className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-3 h-12 focus:outline-none focus:ring-0"
-                                />
-                                <div className="flex items-center bg-slate-50 border-l border-slate-200 h-12">
-                                  <button onClick={() => { setBetAmount(prev => prev / 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
-                                  <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors">2x</button>
-                                </div>
-                              </div>
-                              
-                              <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1 px-1">
-                                <span>Chip Selector</span>
-                                <span>Double click to 2x</span>
-                              </div>
-                              <div className="grid grid-cols-6 gap-1 mt-1.5">
-                                {STAKE_PRESETS.map((amount) => (
-                                  <button
-                                    key={amount}
-                                    onClick={() => { setBetAmount(amount); playGameSound('click'); }}
-                                    onDoubleClick={() => { setBetAmount(amount * 2); playGameSound('click'); }}
-                                    className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-55 hover:border-slate-350'}`}
-                                    title="Double click to double bet"
-                                  >
-                                    ₹{amount >= 1000 ? `${amount/1000}k` : amount}
-                                  </button>
-                                ))}
-                              </div>
+                            {/* Control Panel Tabs */}
+                            <div className="flex border-b border-slate-200 gap-1 bg-slate-100 p-1 rounded-xl shrink-0">
+                              {(['stakes', 'strategy'] as const).map((tab) => (
+                                <button
+                                  key={tab}
+                                  onClick={() => setSidebarTab(tab)}
+                                  className={cn(
+                                    "flex-1 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all cursor-pointer",
+                                    sidebarTab === tab
+                                      ? "bg-white text-slate-900 shadow-sm"
+                                      : "text-slate-500 hover:text-slate-800"
+                                  )}
+                                >
+                                  {tab === 'stakes' ? 'Stake' : 'Strategy'}
+                                </button>
+                              ))}
                             </div>
 
-                            {/* Play Mode Control — Manual Only by Default */}
-                            <div className="relative">
-                              <div className="flex items-center justify-between mb-2">
-                                <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Play Mode</span>
-                                <div className="flex items-center gap-1">
-                                  <Shield className="w-3 h-3 text-emerald-500" />
-                                  <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Protected</span>
+                            <div className="flex-1 flex flex-col gap-6">
+                              {sidebarTab === 'stakes' ? (
+                                <>
+                                  {/* Bet Amount Control */}
+                                  <div className="flex flex-col gap-2">
+                                    <div className="flex justify-between items-center">
+                                      <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Bet Amount</span>
+                                      <span className="text-xs font-black text-slate-900">₹{betAmount.toLocaleString()}</span>
+                                    </div>
+                                    
+                                    <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-neon-purple focus-within:border-neon-purple transition-all">
+                                      <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-12">
+                                        <span className="text-slate-400 font-bold">₹</span>
+                                      </div>
+                                      <input 
+                                        type="number" 
+                                        value={betAmount} 
+                                        onChange={(e) => setBetAmount(Number(e.target.value))}
+                                        className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-3 h-12 focus:outline-none focus:ring-0"
+                                      />
+                                      <div className="flex items-center bg-slate-50 border-l border-slate-200 h-12">
+                                        <button onClick={() => { setBetAmount(prev => prev / 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
+                                        <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">2x</button>
+                                      </div>
+                                    </div>
+                                    
+                                    <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1 px-1">
+                                      <span>Chip Selector</span>
+                                      <span>Double click to 2x</span>
+                                    </div>
+                                    <div className="grid grid-cols-6 gap-1 mt-1.5">
+                                      {STAKE_PRESETS.map((amount) => (
+                                        <button
+                                          key={amount}
+                                          onClick={() => { setBetAmount(amount); playGameSound('click'); }}
+                                          onDoubleClick={() => { setBetAmount(amount * 2); playGameSound('click'); }}
+                                          className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-55 hover:border-slate-350'}`}
+                                          title="Double click to double bet"
+                                        >
+                                          ₹{amount >= 1000 ? `${amount/1000}k` : amount}
+                                        </button>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  {/* Play Mode Control — Manual Only by Default */}
+                                  <div className="relative">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Play Mode</span>
+                                      <div className="flex items-center gap-1">
+                                        <Shield className="w-3 h-3 text-emerald-500" />
+                                        <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Protected</span>
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      {/* Manual Mode — Always Active */}
+                                      <button
+                                        onClick={() => { setPlayMode("manual"); setAutoplayWarning(false); }}
+                                        className={`relative overflow-hidden group flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 ${
+                                          playMode === "manual"
+                                            ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
+                                            : "bg-white text-slate-600 border-slate-200 hover:border-emerald-300"
+                                        }`}
+                                      >
+                                        {playMode === "manual" && (
+                                          <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -skew-x-12 animate-[shimmer_2s_infinite]" />
+                                        )}
+                                        <Hand className="w-5 h-5 relative z-10" />
+                                        <span className="relative z-10">Manual</span>
+                                        {playMode === "manual" && (
+                                          <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full animate-pulse" />
+                                        )}
+                                      </button>
+
+                                      {/* Auto Mode — Locked with Warning */}
+                                      <button
+                                        onClick={() => {
+                                          setAutoplayWarning(true);
+                                          setTimeout(() => setAutoplayWarning(false), 3000);
+                                        }}
+                                        className="relative flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
+                                      >
+                                        <Lock className="w-5 h-5" />
+                                        <span>Auto</span>
+                                        <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md">OFF</span>
+                                      </button>
+                                    </div>
+
+                                    {/* Autoplay Warning Toast */}
+                                    <AnimatePresence>
+                                      {autoplayWarning && (
+                                        <motion.div
+                                          initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                                          exit={{ opacity: 0, y: 4, scale: 0.95 }}
+                                          className="absolute -bottom-14 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-xl shadow-lg flex items-center gap-2"
+                                        >
+                                          <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                                          <span>Autoplay is disabled. Manual play only.</span>
+                                        </motion.div>
+                                      )}
+                                    </AnimatePresence>
+                                  </div>
+                                </>
+                              ) : (
+                                <div className="flex flex-col gap-5">
+                                  {/* Martingale Card */}
+                                  <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-purple-600 text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg">High Risk</div>
+                                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+                                      <span>📈</span> Martingale Sequence
+                                    </h4>
+                                    <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                                      Double stake on loss. Win recovers all losses and gains 1 unit of original bet.
+                                    </p>
+                                    <div className="bg-slate-50 border border-slate-200/50 p-2.5 rounded-xl space-y-1.5">
+                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Projection (6 Losses)</span>
+                                      <div className="flex items-center gap-1 flex-wrap">
+                                        {[1, 2, 4, 8, 16, 32].map((mult, idx) => (
+                                          <div key={idx} className="bg-white border border-slate-200 px-1.5 py-1 rounded text-[9px] font-mono font-bold text-slate-700">
+                                            ₹{(betAmount * mult).toFixed(0)}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mt-2">Required Bankroll: <strong className="text-slate-700 font-mono">₹{(betAmount * 63).toFixed(0)}</strong></span>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        const baseBet = Math.max(10, Math.floor(balance / 100));
+                                        setBetAmount(baseBet);
+                                        playGameSound('click');
+                                      }}
+                                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
+                                    >
+                                      Apply Safe Base Bet (1% Bankroll)
+                                    </button>
+                                  </div>
+
+                                  {/* Fibonacci Card */}
+                                  <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg">Med Risk</div>
+                                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+                                      <span>📉</span> Fibonacci Sequence
+                                    </h4>
+                                    <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                                      Stake uses Fibonacci numbers (1, 1, 2, 3, 5, 8...). 1 step forward on loss, 2 steps back on win.
+                                    </p>
+                                    <div className="bg-slate-50 border border-slate-200/50 p-2.5 rounded-xl space-y-1.5">
+                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Projection (6 Losses)</span>
+                                      <div className="flex items-center gap-1 flex-wrap">
+                                        {[1, 1, 2, 3, 5, 8].map((mult, idx) => (
+                                          <div key={idx} className="bg-white border border-slate-200 px-1.5 py-1 rounded text-[9px] font-mono font-bold text-slate-700">
+                                            ₹{(betAmount * mult).toFixed(0)}
+                                          </div>
+                                        ))}
+                                      </div>
+                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mt-2">Required Bankroll: <strong className="text-slate-700 font-mono">₹{(betAmount * 20).toFixed(0)}</strong></span>
+                                    </div>
+                                    <button
+                                      onClick={() => {
+                                        const baseBet = Math.max(10, Math.floor(balance / 50));
+                                        setBetAmount(baseBet);
+                                        playGameSound('click');
+                                      }}
+                                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
+                                    >
+                                      Apply Safe Base Bet (2% Bankroll)
+                                    </button>
+                                  </div>
+                                  
+                                  {/* Info Disclaimer */}
+                                  <div className="flex items-start gap-2 bg-amber-50 border border-amber-200/55 p-2 rounded-xl">
+                                    <BadgeInfo className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                    <p className="text-[9px] text-amber-700 font-semibold leading-normal">
+                                      Strategies do not change game odds. Play responsibly and manage your bankroll.
+                                    </p>
+                                  </div>
                                 </div>
-                              </div>
-                              <div className="grid grid-cols-2 gap-2">
-                                {/* Manual Mode — Always Active */}
-                                <button
-                                  onClick={() => { setPlayMode("manual"); setAutoplayWarning(false); }}
-                                  className={`relative overflow-hidden group flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 ${
-                                    playMode === "manual"
-                                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
-                                      : "bg-white text-slate-600 border-slate-200 hover:border-emerald-300"
-                                  }`}
-                                >
-                                  {playMode === "manual" && (
-                                    <div className="absolute inset-0 bg-gradient-to-r from-white/0 via-white/20 to-white/0 -skew-x-12 animate-[shimmer_2s_infinite]" />
-                                  )}
-                                  <Hand className="w-5 h-5 relative z-10" />
-                                  <span className="relative z-10">Manual</span>
-                                  {playMode === "manual" && (
-                                    <span className="absolute top-1 right-1 w-2 h-2 bg-white rounded-full animate-pulse" />
-                                  )}
-                                </button>
-
-                                {/* Auto Mode — Locked with Warning */}
-                                <button
-                                  onClick={() => {
-                                    setAutoplayWarning(true);
-                                    setTimeout(() => setAutoplayWarning(false), 3000);
-                                  }}
-                                  className="relative flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
-                                >
-                                  <Lock className="w-5 h-5" />
-                                  <span>Auto</span>
-                                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md">OFF</span>
-                                </button>
-                              </div>
-
-                              {/* Autoplay Warning Toast */}
-                              <AnimatePresence>
-                                {autoplayWarning && (
-                                  <motion.div
-                                    initial={{ opacity: 0, y: 8, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 4, scale: 0.95 }}
-                                    className="absolute -bottom-14 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-xl shadow-lg flex items-center gap-2"
-                                  >
-                                    <AlertCircle className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Autoplay is disabled. Manual play only.</span>
-                                  </motion.div>
-                                )}
-                              </AnimatePresence>
+                              )}
                             </div>
 
-                            <div className="mt-auto pt-4 border-t border-slate-200 md:border-none md:pt-0">
+                            <div className="mt-auto pt-4 border-t border-slate-200 md:border-none md:pt-0 shrink-0">
                               <button 
                                 onClick={handlePlay}
                                 disabled={isSpinning}
@@ -1093,6 +1380,84 @@ export default function GamePlayerPage() {
                             )
                           )}
                         </div>
+
+                        {/* Analytics Panel Drawer */}
+                        {!isCloudRenting && !game.id.startsWith("royal-") && (
+                          <div className="flex flex-col gap-4 relative z-15 shrink-0 justify-center">
+                            {/* Toggle Button */}
+                            <button
+                              onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
+                              className="absolute top-4 -left-12 bg-white/10 hover:bg-white/20 text-white border border-white/10 p-2.5 rounded-l-xl z-20 shadow-md backdrop-blur-md flex items-center justify-center focus:outline-none cursor-pointer"
+                              title={isAnalyticsOpen ? "Hide Analytics" : "Show Analytics"}
+                            >
+                              <Activity className={cn("w-4.5 h-4.5 transition-transform duration-300", isAnalyticsOpen ? "rotate-180 text-emerald-400" : "text-slate-300")} />
+                            </button>
+
+                            <AnimatePresence>
+                              {isAnalyticsOpen && (
+                                <motion.div
+                                  initial={{ width: 0, opacity: 0 }}
+                                  animate={{ width: 320, opacity: 1 }}
+                                  exit={{ width: 0, opacity: 0 }}
+                                  transition={{ type: "spring", stiffness: 260, damping: 26 }}
+                                  className="w-[320px] bg-slate-900/90 border border-white/10 rounded-3xl p-5 flex flex-col gap-5 shadow-2xl backdrop-blur-xl max-h-[600px] overflow-y-auto custom-scrollbar"
+                                >
+                                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                                    <span className="text-white font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                                      <Activity className="w-4 h-4 text-emerald-400" />
+                                      Session Analytics
+                                    </span>
+                                    <span className="text-[10px] text-slate-400 font-bold font-mono">
+                                      {stats.totalRounds} ROUNDS
+                                    </span>
+                                  </div>
+
+                                  {/* Line Chart */}
+                                  <div className="space-y-2">
+                                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
+                                    <SVGProfitChart history={stats.profitHistory} />
+                                  </div>
+
+                                  {/* Ratio Bar */}
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                                      <span>Win vs Loss Ratio</span>
+                                      <span className="text-emerald-400">{stats.winRatio.toFixed(0)}% Win</span>
+                                    </div>
+                                    <div className="w-full h-3 bg-rose-500 rounded-full overflow-hidden flex">
+                                      <div 
+                                        className="h-full bg-emerald-500 transition-all duration-500" 
+                                        style={{ width: `${stats.winRatio}%` }}
+                                      />
+                                    </div>
+                                    <div className="flex justify-between items-center text-[9px] font-bold text-slate-500 font-mono">
+                                      <span>{stats.winsCount} WINS</span>
+                                      <span>{stats.lossesCount} LOSSES</span>
+                                    </div>
+                                  </div>
+
+                                  {/* Stats Grid */}
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-3 text-center">
+                                      <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Wagered</span>
+                                      <span className="text-xs font-black text-slate-200 font-mono block mt-1">₹{stats.totalWagered.toLocaleString()}</span>
+                                    </div>
+                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-3 text-center">
+                                      <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Net Profit</span>
+                                      <span className={cn("text-xs font-black font-mono block mt-1", stats.netProfit >= 0 ? "text-emerald-400" : "text-rose-400")}>
+                                        ₹{stats.netProfit >= 0 ? "+" : ""}{stats.netProfit.toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-3 text-center col-span-2">
+                                      <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Highest Multiplier</span>
+                                      <span className="text-sm font-black text-neon-yellow font-mono block mt-1">{stats.maxMultiplier.toFixed(2)}x</span>
+                                    </div>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        )}
 
                         {/* Multiplayer Lobby Side Panel */}
                         {isMultiplayer && (
