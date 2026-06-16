@@ -7,7 +7,7 @@ import {
   ArrowRight, Trophy, Zap, Gamepad2, TrendingUp, ShieldCheck, Flame, Star, 
   Activity, Crown, Percent, Gift, ChevronRight, ChevronLeft, X, CheckCircle2, AlertCircle 
 } from "lucide-react";
-import { getGamesByCategory } from "@/lib/games";
+import { getGamesByCategory, GAMES } from "@/lib/games";
 import { ARCADE_GAMES } from "@/lib/arcade-games";
 import { GameCard } from "@/components/casino/GameCard";
 import { LiveActionFeed } from "@/components/casino/LiveActionFeed";
@@ -96,6 +96,12 @@ export default function GlobalHomepage() {
   const featuredArcade = ARCADE_GAMES.slice(0, 4);
   const originals = getGamesByCategory("originals").slice(0, 4);
   const liveDealers = getGamesByCategory("live").slice(0, 4);
+  const highGraphicsGames = GAMES.filter(g => 
+    ["orig-15", "orig-16", "orig-17", "orig-18", "orig-19", "orig-20", 
+     "aaa-7", "aaa-8", "aaa-9", "aaa-10", "aaa-11", 
+     "slot-20", "slot-21", "slot-22", "slot-23", "slot-24", 
+     "live-8", "live-9", "live-10", "live-11", "live-12"].includes(g.id)
+  );
 
   // Carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -366,6 +372,33 @@ export default function GlobalHomepage() {
       </div>
 
       <div className="h-6" /> {/* Spacer */}
+
+      {/* NEW HIGH-GRAPHICS 3D & AAA RELEASES */}
+      <motion.section 
+        initial={{ opacity: 0, y: 20 }} 
+        whileInView={{ opacity: 1, y: 0 }} 
+        viewport={{ once: true, margin: "-50px" }} 
+        transition={{ duration: 0.5 }} 
+        className="w-full mt-4"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2">
+            <Flame className="w-5 h-5 text-red-500 animate-pulse" />
+            <h2 className="text-lg font-black text-slate-900 uppercase tracking-wide">
+              New Premium 3D & AAA Releases
+            </h2>
+          </div>
+          <Link href="/casino" className="text-xs font-bold text-slate-500 hover:text-slate-900 uppercase tracking-widest transition-colors">
+            View Casino Lobby
+          </Link>
+        </div>
+
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {highGraphicsGames.map(game => (
+            <GameCard key={game.id} {...game} />
+          ))}
+        </div>
+      </motion.section>
 
       {/* 8. LIVE ACTION FEED & ACTIVITY */}
       <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.25 }} className="w-full mt-8 border-t border-slate-200 pt-8">
