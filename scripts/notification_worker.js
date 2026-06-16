@@ -1,7 +1,5 @@
-const fs = require('fs');
-const path = require('path');
-
-const DB_FILE = path.join(__dirname, "..", "data", "users.json");
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 
 const NOTIFICATION_TEMPLATES = [
   // VIP / Promos
@@ -52,62 +50,82 @@ const NOTIFICATION_TEMPLATES = [
 ];
 
 function runWorker() {
-  console.log("Starting notification worker daemon (45s intervals)...");
+  console.log("Starting DB-backed notification worker daemon (45s intervals)...");
 
-  // Send first notification immediately on start after 5 seconds
+  // Send first notification immediately on start after 10 seconds (wait for DB connections)
   setTimeout(() => {
     triggerNotification();
-  }, 5000);
+  }, 10000);
 
   setInterval(() => {
     triggerNotification();
   }, 45000); // every 45 seconds
 }
 
-function triggerNotification() {
+async function triggerNotification() {
   try {
-    if (!fs.existsSync(DB_FILE)) {
-      console.log("Database file users.json not found yet.");
-      return;
-    }
-
-    const raw = fs.readFileSync(DB_FILE, 'utf-8');
-    const users = JSON.parse(raw);
-
-    if (!Array.isArray(users) || users.length === 0) return;
-
-    // Select a random template
-    const template = NOTIFICATION_TEMPLATES[Math.floor(Math.random() * NOTIFICATION_TEMPLATES.length)];
-    const notifId = `notif_${Date.now()}_${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
-
-    users.forEach(user => {
-      // Skip banned users
-      if (user.role === 'BANNED') return;
-
-      if (!user.notifications) user.notifications = [];
-
-      // Insert new notification at the beginning
-      user.notifications.unshift({
-        id: notifId,
-        title: template.title,
-        message: template.message,
-        timestamp: Date.now(),
-        read: false
-      });
-
-      // Cap at 20 notifications to prevent users.json bloat
-      user.notifications = user.notifications.slice(0, 20);
-
-      // Update legacy pointer balance/transactions if active
-      if (user.accountType === 'real') {
-        user.balance = user.realBalance;
+    // 1. Fetch all active users
+    const users = await prisma.user.findMany({
+      where: {
+        NOT: {
+          role: 'BANNED'
+        }
+      },
+      select: {
+        id: true,
+        username: true
       }
     });
 
-    fs.writeFileSync(DB_FILE, JSON.stringify(users, null, 2), 'utf-8');
-    console.log(`[Worker] Sent notification: "${template.title}" to ${users.length} users.`);
+    if (users.length === 0) {
+      console.log("[Worker] No active users found in DB.");
+      return;
+    }
+
+    // Select a random template
+    const template = NOTIFICATION_TEMPLATES[Math.floor(Math.random() * NOTIFICATION_TEMPLATES.length)];
+    const combinedMsg = `**${template.title}**\n${template.message}`;
+    const timestamp = Date.now();
+
+    console.log(`[Worker] Dispatching notification: "${template.title}" to ${users.length} users.`);
+
+    // 2. Insert notifications for all active users
+    for (const user of users) {
+      try {
+        await prisma.notification.create({
+          data: {
+            message: combinedMsg,
+            timestamp: timestamp,
+            userId: user.id,
+            read: false
+          }
+        });
+
+        // 3. Cap notifications at 20 per user to prevent DB bloat
+        const count = await prisma.notification.count({
+          where: { userId: user.id }
+        });
+
+        if (count > 20) {
+          const oldest = await prisma.notification.findMany({
+            where: { userId: user.id },
+            orderBy: { timestamp: 'asc' },
+            take: count - 20,
+            select: { id: true }
+          });
+
+          await prisma.notification.deleteMany({
+            where: {
+              id: { in: oldest.map(n => n.id) }
+            }
+          });
+        }
+      } catch (err) {
+        console.error(`[Worker Error] Failed to process user ${user.username || user.id}:`, err);
+      }
+    }
   } catch (err) {
-    console.error("[Worker Error]", err);
+    console.error("[Worker Fatal Error] Database query failed:", err);
   }
 }
 

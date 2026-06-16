@@ -1,0 +1,34 @@
+[
+  {
+    "id": "log_1781118358431_IVFK",
+    "adminEmail": "admin@aurabet.io",
+    "action": "BROADCAST_GLOBAL_ALERT",
+    "targetUser": "ALL_USERS",
+    "details": "Sent broadcast message to 3 users: 'hi'",
+    "timestamp": 1781118358431
+  },
+  {
+    "id": "log_1781114805251_BM3U",
+    "adminEmail": "admin@aurabet.io",
+    "action": "CLEAR_SIMULATED_ACTIVITY",
+    "targetUser": "SYSTEM",
+    "details": "Cleared 1 wagers from platform log.",
+    "timestamp": 1781114805251
+  },
+  {
+    "id": "log_1781114801254_VE1Y",
+    "adminEmail": "admin@aurabet.io",
+    "action": "SIMULATE_WAGER",
+    "targetUser": "crackencall@gmail.com",
+    "details": "Simulated gameplay: Cloud Rental: Hyper Racer AAA (3 Hours @ ₹199/hr)",
+    "timestamp": 1781114801254
+  },
+  {
+    "id": "log_1781114800094_7KJ1",
+    "adminEmail": "admin@aurabet.io",
+    "action": "SPORTS_CRAWL_SYNC",
+    "targetUser": "SYSTEM",
+    "details": "Forced live sports scraper crawl sync.",
+    "timestamp": 1781114800094
+  }
+]

@@ -1,0 +1,51 @@
+{
+  "houseEdge": 2,
+  "games": {
+    "dice": {
+      "disabled": false,
+      "name": "Dice"
+    },
+    "mines": {
+      "disabled": false,
+      "name": "Mines"
+    },
+    "plinko": {
+      "disabled": false,
+      "name": "Plinko"
+    },
+    "limbo": {
+      "disabled": false,
+      "name": "Limbo"
+    },
+    "crash": {
+      "disabled": false,
+      "name": "Crash"
+    },
+    "keno": {
+      "disabled": false,
+      "name": "Keno"
+    },
+    "coinflip": {
+      "disabled": false,
+      "name": "Coin Flip"
+    },
+    "blackjack": {
+      "disabled": false,
+      "name": "Blackjack"
+    }
+  },
+  "paymentMethods": {
+    "upi": {
+      "disabled": false,
+      "name": "UPI Transfer"
+    },
+    "bank": {
+      "disabled": false,
+      "name": "Direct Bank Transfer"
+    },
+    "crypto": {
+      "disabled": false,
+      "name": "Crypto Transfer"
+    }
+  }
+}
