@@ -116,10 +116,12 @@ export default function ClientUserAnalytics({
   const [actionLoading, setActionLoading] = useState(false);
 
   // Sync input value when user changes
+  const [walletSelection, setWalletSelection] = useState<'real' | 'demo'>('real');
   const activeUser = users.find(u => u.email.toLowerCase() === selectedEmail.toLowerCase());
   const [lastSelectedEmail, setLastSelectedEmail] = useState("");
   if (activeUser && activeUser.email !== lastSelectedEmail) {
     setNotesInput(activeUser.adminNotes || "");
+    setWalletSelection(activeUser.accountType);
     setLastSelectedEmail(activeUser.email);
   }
 
@@ -214,9 +216,9 @@ export default function ClientUserAnalytics({
 
     setActionLoading(true);
     try {
-      const res = await adminCreditUser(activeUser.email, amount, currentUser?.email || "admin@aurabet.io");
+      const res = await adminCreditUser(activeUser.email, amount, currentUser?.email || "admin@aurabet.io", walletSelection);
       if (res.success) {
-        showToast(`Successfully credited ₹${amount.toLocaleString()} to ${activeUser.username}`, "success");
+        showToast(`Successfully credited ₹${amount.toLocaleString()} to ${activeUser.username}'s ${walletSelection} wallet`, "success");
         setCreditModalOpen(false);
         setAmountInput("");
         setTimeout(() => window.location.reload(), 1200);
@@ -238,16 +240,17 @@ export default function ClientUserAnalytics({
       showToast("Please enter a valid debit amount", "error");
       return;
     }
-    if (amount > activeUser.realBalance) {
-      showToast("Cannot debit more than user's real balance", "error");
+    const currentBalance = walletSelection === 'real' ? activeUser.realBalance : activeUser.demoBalance;
+    if (amount > currentBalance) {
+      showToast(`Cannot debit more than user's ${walletSelection} balance`, "error");
       return;
     }
 
     setActionLoading(true);
     try {
-      const res = await adminDebitUser(activeUser.email, amount, currentUser?.email || "admin@aurabet.io");
+      const res = await adminDebitUser(activeUser.email, amount, currentUser?.email || "admin@aurabet.io", walletSelection);
       if (res.success) {
-        showToast(`Successfully debited ₹${amount.toLocaleString()} from ${activeUser.username}`, "success");
+        showToast(`Successfully debited ₹${amount.toLocaleString()} from ${activeUser.username}'s ${walletSelection} wallet`, "success");
         setDebitModalOpen(false);
         setAmountInput("");
         setTimeout(() => window.location.reload(), 1200);
@@ -272,9 +275,9 @@ export default function ClientUserAnalytics({
 
     setActionLoading(true);
     try {
-      const res = await adminOverrideBalance(activeUser.email, target, currentUser?.email || "admin@aurabet.io");
+      const res = await adminOverrideBalance(activeUser.email, target, currentUser?.email || "admin@aurabet.io", walletSelection);
       if (res.success) {
-        showToast(`Successfully overrode balance to ₹${target.toLocaleString()} for ${activeUser.username}`, "success");
+        showToast(`Successfully overrode ${walletSelection} balance to ₹${target.toLocaleString()} for ${activeUser.username}`, "success");
         setOverrideModalOpen(false);
         setAmountInput("");
         setTimeout(() => window.location.reload(), 1200);
@@ -441,9 +444,14 @@ export default function ClientUserAnalytics({
                       <span className="text-slate-600">
                         Turnover: <span className="text-slate-700 font-mono font-bold">₹{totalWagers.toLocaleString('en-IN')}</span>
                       </span>
-                      <span className="text-emerald-600 font-mono font-bold">
-                        ₹{user.realBalance.toLocaleString('en-IN')}
-                      </span>
+                      <div className="flex flex-col items-end gap-0.5">
+                        <span className="text-emerald-600 font-mono font-bold">
+                          R: ₹{user.realBalance.toLocaleString('en-IN')}
+                        </span>
+                        <span className="text-slate-500 font-mono font-semibold text-[8px]">
+                          D: ₹{user.demoBalance.toLocaleString('en-IN')}
+                        </span>
+                      </div>
                     </div>
                   </button>
                 );
@@ -500,10 +508,18 @@ export default function ClientUserAnalytics({
                   </div>
                 </div>
 
-                <div className="flex flex-col items-end gap-1 shrink-0">
-                  <div className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">Real Wallet Balance</div>
-                  <div className="text-2xl font-black text-emerald-600 font-mono tracking-tight">
-                    ₹{activeUser.realBalance.toLocaleString('en-IN')}
+                <div className="flex gap-4 shrink-0">
+                  <div className="flex flex-col items-end gap-0.5">
+                    <div className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">Real Wallet Balance</div>
+                    <div className="text-2xl font-black text-emerald-600 font-mono tracking-tight">
+                      ₹{activeUser.realBalance.toLocaleString('en-IN')}
+                    </div>
+                  </div>
+                  <div className="flex flex-col items-end gap-0.5 border-l border-slate-200/60 pl-4">
+                    <div className="text-[10px] text-slate-600 uppercase tracking-wider font-semibold">Demo Wallet Balance</div>
+                    <div className="text-2xl font-black text-slate-600 font-mono tracking-tight">
+                      ₹{activeUser.demoBalance.toLocaleString('en-IN')}
+                    </div>
                   </div>
                 </div>
               </div>
@@ -929,8 +945,28 @@ export default function ClientUserAnalytics({
                 <button onClick={() => setCreditModalOpen(false)} className="text-slate-600 hover:text-slate-900 cursor-pointer"><X className="w-5 h-5" /></button>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Inject real funds into <span className="text-slate-900 font-bold">{activeUser.username}</span>'s wallet. Current balance: <span className="text-emerald-600 font-bold font-mono">₹{activeUser.realBalance.toLocaleString()}</span>.
+                Inject funds into <span className="text-slate-900 font-bold">{activeUser.username}</span>'s wallet.
               </p>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="block text-[9px] font-bold text-slate-600 uppercase">Target Wallet</label>
+                <div className="flex gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setWalletSelection('real')}
+                    className={`flex-1 py-1.5 text-[10px] font-extrabold rounded-lg text-center transition cursor-pointer ${walletSelection === 'real' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
+                    Real (₹{activeUser.realBalance.toLocaleString()})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWalletSelection('demo')}
+                    className={`flex-1 py-1.5 text-[10px] font-extrabold rounded-lg text-center transition cursor-pointer ${walletSelection === 'demo' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
+                    Demo (₹{activeUser.demoBalance.toLocaleString()})
+                  </button>
+                </div>
+              </div>
               
               <div>
                 <label className="block text-[9px] font-bold text-slate-600 uppercase mb-1.5">Amount (₹)</label>
@@ -978,8 +1014,28 @@ export default function ClientUserAnalytics({
                 <button onClick={() => setDebitModalOpen(false)} className="text-slate-600 hover:text-slate-900 cursor-pointer"><X className="w-5 h-5" /></button>
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Deduct funds from <span className="text-slate-900 font-bold">{activeUser.username}</span>'s wallet. Available: <span className="text-emerald-600 font-bold font-mono">₹{activeUser.realBalance.toLocaleString()}</span>.
+                Deduct funds from <span className="text-slate-900 font-bold">{activeUser.username}</span>'s wallet.
               </p>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="block text-[9px] font-bold text-slate-600 uppercase">Target Wallet</label>
+                <div className="flex gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => setWalletSelection('real')}
+                    className={`flex-1 py-1.5 text-[10px] font-extrabold rounded-lg text-center transition cursor-pointer ${walletSelection === 'real' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
+                    Real (₹{activeUser.realBalance.toLocaleString()})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setWalletSelection('demo')}
+                    className={`flex-1 py-1.5 text-[10px] font-extrabold rounded-lg text-center transition cursor-pointer ${walletSelection === 'demo' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
+                    Demo (₹{activeUser.demoBalance.toLocaleString()})
+                  </button>
+                </div>
+              </div>
               
               <div>
                 <label className="block text-[9px] font-bold text-slate-600 uppercase mb-1.5">Amount (₹)</label>
@@ -997,7 +1053,7 @@ export default function ClientUserAnalytics({
                 {[0.25, 0.5, 0.75, 1.0].map(frac => (
                   <button
                     key={frac}
-                    onClick={() => setAmountInput((Math.floor(activeUser.realBalance * frac)).toString())}
+                    onClick={() => setAmountInput((Math.floor((walletSelection === 'real' ? activeUser.realBalance : activeUser.demoBalance) * frac)).toString())}
                     className="bg-slate-50 hover:bg-slate-100 border border-slate-200 py-1.5 rounded-lg font-mono text-[10px] text-slate-600 cursor-pointer"
                   >
                     {frac * 100}%
@@ -1029,6 +1085,32 @@ export default function ClientUserAnalytics({
               <p className="text-xs text-slate-600 leading-relaxed">
                 Forcefully set <span className="text-slate-900 font-bold">{activeUser.username}</span>'s balance. This directly overwrites current values, writing a correction transaction log.
               </p>
+
+              <div className="flex flex-col gap-1.5">
+                <label className="block text-[9px] font-bold text-slate-600 uppercase">Target Wallet</label>
+                <div className="flex gap-2 p-1 bg-slate-100 rounded-xl border border-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWalletSelection('real');
+                      setAmountInput(activeUser.realBalance.toString());
+                    }}
+                    className={`flex-1 py-1.5 text-[10px] font-extrabold rounded-lg text-center transition cursor-pointer ${walletSelection === 'real' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
+                    Real (₹{activeUser.realBalance.toLocaleString()})
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setWalletSelection('demo');
+                      setAmountInput(activeUser.demoBalance.toString());
+                    }}
+                    className={`flex-1 py-1.5 text-[10px] font-extrabold rounded-lg text-center transition cursor-pointer ${walletSelection === 'demo' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-900'}`}
+                  >
+                    Demo (₹{activeUser.demoBalance.toLocaleString()})
+                  </button>
+                </div>
+              </div>
               
               <div>
                 <label className="block text-[9px] font-bold text-slate-600 uppercase mb-1.5">New Balance Target (₹)</label>

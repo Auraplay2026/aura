@@ -108,77 +108,101 @@ export async function adminUpdateVip(email: string, totalWagered: number, manual
 // ─────────────────────────────────────────────────────────────────────
 // Balance Adjustments (God-Mode & Credit/Debit)
 // ─────────────────────────────────────────────────────────────────────
-export async function adminCreditUser(email: string, amount: number, adminEmail: string = "system@aurabet.io") {
+export async function adminCreditUser(email: string, amount: number, adminEmail: string = "system@aurabet.io", walletType: 'real' | 'demo' = 'real') {
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
-  const newBalance = user.realBalance + amount;
+  const isReal = walletType === 'real';
+  const oldBalance = isReal ? user.realBalance : user.demoBalance;
+  const newBalance = oldBalance + amount;
+
   const transaction: Transaction = {
     id: `tx_admin_credit_${Date.now()}`,
     type: 'deposit',
     amount: amount,
     balanceAfter: newBalance,
     timestamp: Date.now(),
-    details: 'Admin System Credit Inject',
+    details: `Admin System Credit Inject (${isReal ? 'Real' : 'Demo'})`,
     status: 'Completed'
   };
 
-  await updateUser(email, {
-    realBalance: newBalance,
-    realTransactions: [transaction, ...user.realTransactions],
-    balance: newBalance
-  });
+  const updates: any = {};
+  if (isReal) {
+    updates.realBalance = newBalance;
+    updates.realTransactions = [transaction, ...user.realTransactions];
+  } else {
+    updates.demoBalance = newBalance;
+    updates.demoTransactions = [transaction, ...user.demoTransactions];
+  }
+
+  if (user.accountType === walletType) {
+    updates.balance = newBalance;
+  }
+
+  await updateUser(email, updates);
   
-  await logAdminAction(adminEmail, "CREDIT_USER", email, `Injected credit of ₹${amount.toLocaleString()}. Balance: ${user.realBalance} -> ${newBalance}`);
+  await logAdminAction(adminEmail, "CREDIT_USER", email, `Injected credit of ₹${amount.toLocaleString()} into ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`);
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };
 }
 
-export async function adminDebitUser(email: string, amount: number, adminEmail: string = "system@aurabet.io") {
+export async function adminDebitUser(email: string, amount: number, adminEmail: string = "system@aurabet.io", walletType: 'real' | 'demo' = 'real') {
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
-  if (user.realBalance < amount) return { success: false, error: "Insufficient balance" };
+  const isReal = walletType === 'real';
+  const oldBalance = isReal ? user.realBalance : user.demoBalance;
+  if (oldBalance < amount) return { success: false, error: "Insufficient balance" };
 
-  const newBalance = user.realBalance - amount;
+  const newBalance = oldBalance - amount;
   const transaction: Transaction = {
     id: `tx_admin_debit_${Date.now()}`,
     type: 'withdraw',
     amount: amount,
     balanceAfter: newBalance,
     timestamp: Date.now(),
-    details: 'Admin System Debit Deduct',
+    details: `Admin System Debit Deduct (${isReal ? 'Real' : 'Demo'})`,
     status: 'Completed'
   };
 
-  await updateUser(email, {
-    realBalance: newBalance,
-    realTransactions: [transaction, ...user.realTransactions],
-    balance: newBalance
-  });
+  const updates: any = {};
+  if (isReal) {
+    updates.realBalance = newBalance;
+    updates.realTransactions = [transaction, ...user.realTransactions];
+  } else {
+    updates.demoBalance = newBalance;
+    updates.demoTransactions = [transaction, ...user.demoTransactions];
+  }
+
+  if (user.accountType === walletType) {
+    updates.balance = newBalance;
+  }
+
+  await updateUser(email, updates);
   
-  await logAdminAction(adminEmail, "DEBIT_USER", email, `Deducted balance of ₹${amount.toLocaleString()}. Balance: ${user.realBalance} -> ${newBalance}`);
+  await logAdminAction(adminEmail, "DEBIT_USER", email, `Deducted balance of ₹${amount.toLocaleString()} from ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`);
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };
 }
 
 // God-Mode Balance Override
-export async function adminOverrideBalance(email: string, newBalance: number, adminEmail: string) {
+export async function adminOverrideBalance(email: string, newBalance: number, adminEmail: string, walletType: 'real' | 'demo' = 'real') {
   if (newBalance < 0) return { success: false, error: "Balance cannot be negative" };
   
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
-  const oldBalance = user.realBalance;
+  const isReal = walletType === 'real';
+  const oldBalance = isReal ? user.realBalance : user.demoBalance;
   const difference = newBalance - oldBalance;
   
   if (Math.abs(difference) < 0.01) {
@@ -191,17 +215,26 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
     amount: Math.abs(difference),
     balanceAfter: newBalance,
     timestamp: Date.now(),
-    details: `Admin Force Override (Ref: ${adminEmail.split('@')[0]})`,
+    details: `Admin Force Override (${isReal ? 'Real' : 'Demo'} · Ref: ${adminEmail.split('@')[0]})`,
     status: 'Completed'
   };
 
-  await updateUser(email, {
-    realBalance: newBalance,
-    realTransactions: [transaction, ...user.realTransactions],
-    balance: newBalance
-  });
+  const updates: any = {};
+  if (isReal) {
+    updates.realBalance = newBalance;
+    updates.realTransactions = [transaction, ...user.realTransactions];
+  } else {
+    updates.demoBalance = newBalance;
+    updates.demoTransactions = [transaction, ...user.demoTransactions];
+  }
 
-  await logAdminAction(adminEmail, "BALANCE_OVERRIDE", email, `Force override balance. Balance: ₹${oldBalance.toLocaleString()} -> ₹${newBalance.toLocaleString()} (Diff: ₹${difference.toLocaleString()})`);
+  if (user.accountType === walletType) {
+    updates.balance = newBalance;
+  }
+
+  await updateUser(email, updates);
+
+  await logAdminAction(adminEmail, "BALANCE_OVERRIDE", email, `Force override balance in ${walletType} wallet. Balance: ₹${oldBalance.toLocaleString()} -> ₹${newBalance.toLocaleString()} (Diff: ₹${difference.toLocaleString()})`);
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };

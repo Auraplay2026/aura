@@ -92,7 +92,7 @@ export async function POST(request: Request) {
       const isPredictionBet = tx.type === 'trade' && tx.details.includes('Bought') && tx.details.includes('shares');
       const isSettlementPayout = tx.type === 'deposit' && tx.details.toLowerCase().includes('settle:');
 
-      if (isCasino || isSportsBet || isPredictionBet || isSettlementPayout) {
+      if (accountType === 'real' && (isCasino || isSportsBet || isPredictionBet || isSettlementPayout)) {
         let marketName = '';
         let selectionName = '';
         let stake = tx.amount;

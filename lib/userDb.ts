@@ -256,6 +256,96 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
       }
     }
 
+    // Sync Real Positions if updates.realPositions is provided
+    if (updates.realPositions !== undefined) {
+      const existingRealPos = await tx.position.findMany({ 
+        where: { userId: existing.id, walletType: 'real' } 
+      });
+      const existingRealIds = new Set(existingRealPos.map(p => p.id));
+      const incomingRealIds = new Set(updates.realPositions.map(p => p.id));
+
+      // 1. Delete removed real positions
+      for (const ep of existingRealPos) {
+        if (!incomingRealIds.has(ep.id)) {
+          await tx.position.delete({ where: { id: ep.id } });
+        }
+      }
+
+      // 2. Create or update real positions
+      for (const ip of updates.realPositions) {
+        if (!existingRealIds.has(ip.id)) {
+          await tx.position.create({
+            data: {
+              id: ip.id,
+              userId: existing.id,
+              walletType: 'real',
+              marketId: ip.marketId,
+              marketTitle: ip.marketTitle,
+              side: ip.side,
+              shares: ip.shares,
+              buyPrice: ip.buyPrice,
+              investment: ip.investment,
+              timestamp: ip.timestamp
+            }
+          });
+        } else {
+          await tx.position.update({
+            where: { id: ip.id },
+            data: {
+              shares: ip.shares,
+              buyPrice: ip.buyPrice,
+              investment: ip.investment
+            }
+          });
+        }
+      }
+    }
+
+    // Sync Demo Positions if updates.demoPositions is provided
+    if (updates.demoPositions !== undefined) {
+      const existingDemoPos = await tx.position.findMany({ 
+        where: { userId: existing.id, walletType: 'demo' } 
+      });
+      const existingDemoIds = new Set(existingDemoPos.map(p => p.id));
+      const incomingDemoIds = new Set(updates.demoPositions.map(p => p.id));
+
+      // 1. Delete removed demo positions
+      for (const ep of existingDemoPos) {
+        if (!incomingDemoIds.has(ep.id)) {
+          await tx.position.delete({ where: { id: ep.id } });
+        }
+      }
+
+      // 2. Create or update demo positions
+      for (const ip of updates.demoPositions) {
+        if (!existingDemoIds.has(ip.id)) {
+          await tx.position.create({
+            data: {
+              id: ip.id,
+              userId: existing.id,
+              walletType: 'demo',
+              marketId: ip.marketId,
+              marketTitle: ip.marketTitle,
+              side: ip.side,
+              shares: ip.shares,
+              buyPrice: ip.buyPrice,
+              investment: ip.investment,
+              timestamp: ip.timestamp
+            }
+          });
+        } else {
+          await tx.position.update({
+            where: { id: ip.id },
+            data: {
+              shares: ip.shares,
+              buyPrice: ip.buyPrice,
+              investment: ip.investment
+            }
+          });
+        }
+      }
+    }
+
     const updatedUser = await tx.user.update({
       where: { email },
       data,
