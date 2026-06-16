@@ -1638,133 +1638,244 @@ export default function GamePlayerPage() {
           {!game.id.startsWith("royal-") && (() => {
             const isCrash = game.categories.includes("crash") || game.title.toLowerCase().includes("aviator") || game.id.includes("crash") || game.id === "aviator";
             return (
-              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xl w-full mt-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-6 gap-4 font-sans">
+              <div className="bg-[#090d16] border border-slate-800/80 rounded-3xl p-6 shadow-[0_25px_60px_rgba(0,0,0,0.8)] w-full mt-6 relative overflow-hidden backdrop-blur-xl">
+                {/* SVGator-inspired vector background path drawing */}
+                <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.08]">
+                  <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg">
+                    <path 
+                      d="M -100,100 C 150,50 300,150 450,80 T 1000,120" 
+                      fill="none" 
+                      stroke="#e11d48" 
+                      strokeWidth="2"
+                      className="animate-draw"
+                      style={{ strokeDasharray: 1000, strokeDashoffset: 1000 }}
+                    />
+                    <path 
+                      d="M -50,150 C 200,80 350,220 500,110 T 1100,160" 
+                      fill="none" 
+                      stroke="#10b981" 
+                      strokeWidth="1.5"
+                      className="animate-draw"
+                      style={{ strokeDasharray: 800, strokeDashoffset: 800, animationDelay: '-5s' }}
+                    />
+                  </svg>
+                </div>
+
+                {/* Inline Styles for Anime/SVGator/Jetter effects */}
+                <style dangerouslySetInnerHTML={{__html: `
+                  @keyframes drawPath {
+                    0% { stroke-dashoffset: 1000; }
+                    50% { stroke-dashoffset: 0; }
+                    100% { stroke-dashoffset: -1000; }
+                  }
+                  @keyframes heartbeat {
+                    0%, 100% { transform: scale(1); filter: drop-shadow(0 0 4px rgba(225,29,72,0.4)); }
+                    50% { transform: scale(1.08); filter: drop-shadow(0 0 10px rgba(225,29,72,0.7)); }
+                  }
+                  @keyframes spinSlow {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                  }
+                  .animate-draw {
+                    animation: drawPath 25s linear infinite;
+                  }
+                  .animate-heartbeat {
+                    animation: heartbeat 2s ease-in-out infinite;
+                  }
+                  .animate-spin-slow {
+                    animation: spinSlow 15s linear infinite;
+                  }
+                `}} />
+
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-800/80 pb-4 mb-6 gap-4 font-sans relative z-10">
                   <div className="flex items-center gap-3">
-                    <Flame className="w-5 h-5 text-[#e11d48] animate-pulse" />
+                    {scoreboardTab === "top-one-percent" ? (
+                      /* Flame Icon (Pulse & Heartbeat) */
+                      <div className="relative flex items-center justify-center shrink-0 w-10 h-10 rounded-xl bg-rose-500/10 border border-rose-500/20 text-[#e11d48] animate-heartbeat">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 2C12 2 17 6.5 17 10.5C17 14.5 14 18 12 22C10 18 7 14.5 7 10.5C7 6.5 12 2 12 2Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="rgba(225, 29, 72, 0.1)" />
+                          <path d="M12 9C12 9 14.5 11.5 14.5 13.5C14.5 15.5 13 17 12 19C11 17 9.5 15.5 9.5 13.5C9.5 11.5 12 9 12 9Z" stroke="#f43f5e" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                        </svg>
+                      </div>
+                    ) : (
+                      /* Live Radar Icon (Spinning & Pulsing) */
+                      <div className="relative flex items-center justify-center shrink-0 w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400">
+                        <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" strokeDasharray="3 3" className="animate-spin-slow" />
+                          <path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          <circle cx="12" cy="12" r="2" fill="currentColor" className="animate-ping" />
+                        </svg>
+                      </div>
+                    )}
                     <div>
-                      <h2 className="text-base font-black text-slate-950">
-                        {isCrash ? "Crash Activities & High Reaches" : "Game Leaderboard & Session Log"}
+                      <h2 className="text-base font-black text-white">
+                        {isCrash ? (scoreboardTab === "top-one-percent" ? "Crash High Reaches" : "Live Crash Activities") : "Game Leaderboard & Session Log"}
                       </h2>
-                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">
                         {isCrash ? "Top 1% crash outliers & live session wagers" : "Highest multipliers & live session activities"}
                       </p>
                     </div>
                   </div>
                   
-                  <div className="flex bg-slate-100 border border-slate-200/50 p-1 rounded-xl shrink-0 self-start sm:self-auto">
+                  <div className="flex bg-[#030712] border border-slate-800/60 p-1.5 rounded-2xl shrink-0 self-start sm:self-auto relative z-10">
                     <button 
                       onClick={() => setScoreboardTab("top-one-percent")}
                       className={cn(
-                        "px-4 py-2 rounded-lg text-xs font-black transition-all cursor-pointer",
+                        "px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer relative",
                         scoreboardTab === "top-one-percent" 
-                          ? "bg-white text-slate-950 shadow-sm" 
-                          : "text-slate-500 hover:text-slate-800"
+                          ? "text-white" 
+                          : "text-slate-400 hover:text-slate-200"
                       )}
                     >
+                      {scoreboardTab === "top-one-percent" && (
+                        <motion.div 
+                          layoutId="activeScoreboardTab"
+                          className="absolute inset-0 bg-[#e11d48] rounded-xl -z-10 shadow-[0_0_15px_rgba(225,29,72,0.4)]"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
                       {isCrash ? "🏆 Top 1% Reach (24h)" : "🏆 Top Multipliers (24h)"}
                     </button>
                     <button 
                       onClick={() => setScoreboardTab("recent-runs")}
                       className={cn(
-                        "px-4 py-2 rounded-lg text-xs font-black transition-all cursor-pointer",
+                        "px-4 py-2 rounded-xl text-xs font-black transition-all cursor-pointer relative",
                         scoreboardTab === "recent-runs" 
-                          ? "bg-white text-slate-950 shadow-sm" 
-                          : "text-slate-500 hover:text-slate-800"
+                          ? "text-white" 
+                          : "text-slate-400 hover:text-slate-200"
                       )}
                     >
+                      {scoreboardTab === "recent-runs" && (
+                        <motion.div 
+                          layoutId="activeScoreboardTab"
+                          className="absolute inset-0 bg-[#e11d48] rounded-xl -z-10 shadow-[0_0_15px_rgba(225,29,72,0.4)]"
+                          transition={{ type: "spring", stiffness: 380, damping: 30 }}
+                        />
+                      )}
                       ⚡ Live Activities
                     </button>
                   </div>
                 </div>
 
-                {scoreboardTab === "top-one-percent" ? (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs font-bold border-collapse">
-                      <thead>
-                        <tr className="text-slate-400 border-b border-slate-100 uppercase tracking-widest text-[9px]">
-                          <th className="pb-3 pr-4">User</th>
-                          <th className="pb-3 pr-4 text-right">Bet Size</th>
-                          <th className="pb-3 pr-4 text-center">
-                            {isCrash ? "Cashout Multiplier" : "Win Multiplier"}
-                          </th>
-                          <th className="pb-3 pr-4 text-center">
-                            {isCrash ? "Max Crash Point" : "Game Multiplier"}
-                          </th>
-                          <th className="pb-3 text-right">Total Payout</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-50 font-semibold text-slate-700">
-                        {highReaches.map((row) => (
-                          <tr key={row.id} className="hover:bg-slate-50/40 transition-colors">
-                            <td className="py-3.5 flex items-center gap-2">
-                              <div className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-[10px] font-black shrink-0">👑</div>
-                              <span className={cn(row.user === "You" ? "text-red-500 font-extrabold" : "text-slate-900")}>{row.user}</span>
-                            </td>
-                            <td className="py-3.5 text-right font-mono text-slate-500">₹{row.bet.toLocaleString()}</td>
-                            <td className="py-3.5 text-center font-mono">
-                              {row.cashout > 0 ? (
-                                <span className="text-green-600 bg-green-500/10 px-2 py-0.5 rounded-sm">{row.cashout.toFixed(2)}x</span>
-                              ) : (
-                                <span className="text-red-500 bg-red-500/10 px-2 py-0.5 rounded-sm">0.00x</span>
+                <div className="relative z-10">
+                  {scoreboardTab === "top-one-percent" ? (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs font-bold border-collapse">
+                        <thead>
+                          <tr className="text-slate-500 border-b border-slate-800/80 uppercase tracking-widest text-[9px]">
+                            <th className="pb-3 pr-4">User</th>
+                            <th className="pb-3 pr-4 text-right">Bet Size</th>
+                            <th className="pb-3 pr-4 text-center">
+                              {isCrash ? "Cashout Multiplier" : "Win Multiplier"}
+                            </th>
+                            <th className="pb-3 pr-4 text-center">
+                              {isCrash ? "Max Crash Point" : "Game Multiplier"}
+                            </th>
+                            <th className="pb-3 text-right">Total Payout</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/40 font-semibold text-slate-300">
+                          {highReaches.map((row, idx) => (
+                            <motion.tr 
+                              key={row.id} 
+                              initial={{ opacity: 0, x: -20 }}
+                              animate={{ opacity: 1, x: 0 }}
+                              transition={{ duration: 0.3, delay: idx * 0.04 }}
+                              className={cn(
+                                "hover:bg-slate-800/20 transition-colors", 
+                                row.user === "You" && "bg-gradient-to-r from-red-500/10 via-transparent to-transparent border-l-2 border-red-500"
                               )}
-                            </td>
-                            <td className="py-3.5 text-center font-mono font-black text-amber-600">{row.crashPoint.toFixed(2)}x</td>
-                            <td className="py-3.5 text-right font-mono font-black text-green-600">
-                              {row.payout > 0 ? `+₹${row.payout.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "₹0.00"}
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                ) : (
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-left text-xs font-bold border-collapse">
-                      <thead>
-                        <tr className="text-slate-400 border-b border-slate-100 uppercase tracking-widest text-[9px]">
-                          <th className="pb-3 pr-4">User</th>
-                          <th className="pb-3 pr-4 text-right">Wager</th>
-                          <th className="pb-3 pr-4 text-center">Cashout Point</th>
-                          <th className="pb-3 pr-4 text-center">
-                            {isCrash ? "Crash Point" : "Outcome Point"}
-                          </th>
-                          <th className="pb-3 text-right">Payout</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-50 font-semibold text-slate-700">
-                        {recentActivities.length === 0 ? (
-                          <tr>
-                            <td colSpan={5} className="py-8 text-center text-slate-400">No session wagers yet. Place a bet to begin!</td>
-                          </tr>
-                        ) : (
-                          recentActivities.map((act) => (
-                            <tr key={act.id} className={cn("hover:bg-slate-50/40 transition-colors", act.username === "You" && "bg-red-50/10")}>
-                              <td className="py-3 pr-4 flex items-center gap-2">
-                                <div className={cn("w-2 h-2 rounded-full shrink-0", act.status === "cashed_out" ? "bg-green-500" : "bg-red-500")} />
-                                <span className={cn(act.username === "You" ? "text-red-500 font-extrabold" : "text-slate-900")}>{act.username}</span>
+                            >
+                              <td className="py-3.5 flex items-center gap-2">
+                                {/* Golden Crown Iconsax Style */}
+                                <div className="shrink-0 flex items-center justify-center">
+                                  <svg className="w-5 h-5 text-amber-400 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M2 19.5H22" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                                    <path d="M3 19.5L5 8.5L9.5 13.5L12 5L14.5 13.5L19 8.5L21 19.5H3Z" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" fill="rgba(251, 191, 36, 0.15)" />
+                                  </svg>
+                                </div>
+                                <span className={cn(row.user === "You" ? "text-red-500 font-extrabold" : "text-slate-100")}>{row.user}</span>
                               </td>
-                              <td className="py-3 pr-4 text-right font-mono text-slate-500">₹{act.bet.toLocaleString()}</td>
-                              <td className="py-3 pr-4 text-center font-mono">
-                                {act.multiplier ? (
-                                  <span className="text-green-600 bg-green-500/10 px-2 py-0.5 rounded-sm font-black">{act.multiplier.toFixed(2)}x</span>
+                              <td className="py-3.5 text-right font-mono text-slate-400">₹{row.bet.toLocaleString()}</td>
+                              <td className="py-3.5 text-center font-mono">
+                                {row.cashout > 0 ? (
+                                  <span className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2.5 py-0.5 rounded-lg font-mono font-bold shadow-[0_0_10px_rgba(16,185,129,0.1)]">{row.cashout.toFixed(2)}x</span>
                                 ) : (
-                                  <span className="text-red-500 bg-red-500/10 px-2 py-0.5 rounded-sm font-bold">Crashed</span>
+                                  <span className="text-rose-500 bg-rose-500/10 border border-rose-500/20 px-2.5 py-0.5 rounded-lg font-mono font-bold">0.00x</span>
                                 )}
                               </td>
-                              <td className="py-3 pr-4 text-center font-mono text-slate-600 font-semibold">
-                                {act.crashPoint ? `${act.crashPoint.toFixed(2)}x` : "-"}
+                              <td className="py-3.5 text-center font-mono font-black text-amber-400">
+                                <span className="bg-amber-500/10 border border-amber-500/20 px-2.5 py-0.5 rounded-lg shadow-[0_0_10px_rgba(245,158,11,0.1)]">{row.crashPoint.toFixed(2)}x</span>
                               </td>
-                              <td className={cn("py-3 text-right font-mono font-black", act.payout > 0 ? "text-green-600" : "text-slate-400")}>
-                                {act.payout > 0 ? `₹${act.payout.toFixed(2)}` : "₹0.00"}
+                              <td className="py-3.5 text-right font-mono font-black text-emerald-400">
+                                {row.payout > 0 ? `+₹${row.payout.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "₹0.00"}
                               </td>
+                            </motion.tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  ) : (
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-left text-xs font-bold border-collapse">
+                        <thead>
+                          <tr className="text-slate-500 border-b border-slate-800/80 uppercase tracking-widest text-[9px]">
+                            <th className="pb-3 pr-4">User</th>
+                            <th className="pb-3 pr-4 text-right">Wager</th>
+                            <th className="pb-3 pr-4 text-center">Cashout Point</th>
+                            <th className="pb-3 pr-4 text-center">
+                              {isCrash ? "Crash Point" : "Outcome Point"}
+                            </th>
+                            <th className="pb-3 text-right">Payout</th>
+                          </tr>
+                        </thead>
+                        <tbody className="divide-y divide-slate-800/40 font-semibold text-slate-300">
+                          {recentActivities.length === 0 ? (
+                            <tr>
+                              <td colSpan={5} className="py-8 text-center text-slate-500">No session wagers yet. Place a bet to begin!</td>
                             </tr>
-                          ))
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
+                          ) : (
+                            recentActivities.map((act, idx) => (
+                              <motion.tr 
+                                key={act.id} 
+                                initial={{ opacity: 0, y: 12 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                transition={{ duration: 0.3, delay: idx * 0.02 }}
+                                className={cn(
+                                  "hover:bg-slate-800/20 transition-colors", 
+                                  act.username === "You" && "bg-gradient-to-r from-red-500/10 via-transparent to-transparent border-l-2 border-red-500"
+                                )}
+                              >
+                                <td className="py-3.5 pr-4 flex items-center gap-2">
+                                  {/* Pulsing indicator dot */}
+                                  <div className="relative w-2 h-2 shrink-0">
+                                    <div className={cn("absolute inset-0 rounded-full animate-ping opacity-75", act.status === "cashed_out" ? "bg-emerald-500" : "bg-rose-500")} />
+                                    <div className={cn("relative w-2 h-2 rounded-full", act.status === "cashed_out" ? "bg-emerald-500" : "bg-rose-500")} />
+                                  </div>
+                                  <span className={cn(act.username === "You" ? "text-red-500 font-extrabold" : "text-slate-100")}>{act.username}</span>
+                                </td>
+                                <td className="py-3.5 pr-4 text-right font-mono text-slate-400">₹{act.bet.toLocaleString()}</td>
+                                <td className="py-3.5 pr-4 text-center font-mono">
+                                  {act.multiplier ? (
+                                    <span className="text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-md font-black">{act.multiplier.toFixed(2)}x</span>
+                                  ) : (
+                                    <span className="text-rose-500 bg-rose-500/10 border border-rose-500/20 px-2 py-0.5 rounded-md font-bold">Crashed</span>
+                                  )}
+                                </td>
+                                <td className="py-3.5 pr-4 text-center font-mono text-slate-400 font-semibold">
+                                  {act.crashPoint ? `${act.crashPoint.toFixed(2)}x` : "-"}
+                                </td>
+                                <td className={cn("py-3.5 text-right font-mono font-black", act.payout > 0 ? "text-emerald-400" : "text-slate-500")}>
+                                  {act.payout > 0 ? `₹${act.payout.toFixed(2)}` : "₹0.00"}
+                                </td>
+                              </motion.tr>
+                            ))
+                          )}
+                        </tbody>
+                      </table>
+                    </div>
+                  )}
+                </div>
               </div>
             );
           })()}
