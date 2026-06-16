@@ -126,30 +126,30 @@ export function Sidebar() {
           {isLoggedIn && (
             <div 
               onClick={triggerRewardsModal}
-              className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900 border border-indigo-500/20 rounded-xl p-4 cursor-pointer transition-all duration-300 group hover:shadow-[0_0_15px_rgba(99,102,241,0.25)] hover:border-indigo-500/40 select-none shrink-0"
+              className="relative overflow-hidden bg-white border border-red-200/80 rounded-xl p-4 cursor-pointer transition-all duration-300 group hover:shadow-[0_0_15px_rgba(239,68,68,0.12)] hover:border-red-300 select-none shrink-0"
             >
               {/* Shimmer Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-red-500/5 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-1000" />
               
-              <div className="flex justify-between items-center mb-1.5 text-indigo-200 text-xs font-bold">
+              <div className="flex justify-between items-center mb-1.5 text-slate-750 text-xs font-bold">
                 <span className="font-mono">LEVEL {level}</span>
-                <span className="font-mono text-purple-300 bg-purple-500/10 px-1.5 py-0.5 rounded-sm">{Math.round(progressPercent)}%</span>
+                <span className="font-mono text-red-600 bg-red-50 px-1.5 py-0.5 rounded-sm">{Math.round(progressPercent)}%</span>
               </div>
               
-              <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden mb-2 relative">
+              <div className="w-full h-1.5 bg-slate-100 rounded-full overflow-hidden mb-2 relative">
                 <div 
                   style={{ width: `${progressPercent}%` }}
-                  className="h-full bg-gradient-to-r from-[#7148ff] to-fuchsia-500 transition-all duration-500 shadow-[0_0_8px_rgba(113,72,255,0.6)]"
+                  className="h-full bg-gradient-to-r from-red-500 to-emerald-500 transition-all duration-500 shadow-[0_0_8px_rgba(239,68,68,0.25)]"
                 />
               </div>
               
-              <div className="text-[10px] text-slate-400 font-medium flex justify-between select-none font-mono">
+              <div className="text-[10px] text-slate-500 font-medium flex justify-between select-none font-mono">
                 <span>{nextLevelXp} XP remaining</span>
-                <span className="font-extrabold text-[8px] uppercase tracking-wider text-purple-400">Loyalty Status</span>
+                <span className="font-extrabold text-[8px] uppercase tracking-wider text-red-650">Loyalty Status</span>
               </div>
 
               {/* Missions / Claim Indicators */}
-              <div className="space-y-1.5 pt-2.5 mt-2.5 border-t border-white/5">
+              <div className="space-y-1.5 pt-2.5 mt-2.5 border-t border-slate-100">
                 {!claimedToday && (
                   <div className="flex items-center gap-1.5 text-[10px] text-yellow-300 font-bold animate-pulse">
                     <span>🎁</span> <span>Claim Daily Streak!</span>

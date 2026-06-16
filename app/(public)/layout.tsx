@@ -25,8 +25,8 @@ export default function PublicLayout({
 
       {/* Animated Aurora Background Mesh (Safari Optimized) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-white">
-        <div className="absolute -top-[40%] -left-[10%] w-[70%] h-[70%] bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.08)_0%,transparent_70%)]" />
-        <div className="absolute top-[20%] -right-[20%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(168,85,247,0.08)_0%,transparent_70%)]" />
+        <div className="absolute -top-[40%] -left-[10%] w-[70%] h-[70%] bg-[radial-gradient(circle_at_center,rgba(239,68,68,0.06)_0%,transparent_70%)]" />
+        <div className="absolute top-[20%] -right-[20%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(16,185,129,0.04)_0%,transparent_70%)]" />
       </div>
 
       <Sidebar />

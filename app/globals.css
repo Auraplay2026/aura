@@ -7,16 +7,145 @@
   --color-exchange-muted: #64748B;
   --color-exchange-border: #e4e7eb;
   
-  --color-back-bg: #e0f2fe;
-  --color-back-text: #0369a1;
-  --color-lay-bg: #fce7f3;
-  --color-lay-text: #b91c1c;
+  --color-back-bg: #fef2f2;
+  --color-back-text: #dc2626;
+  --color-lay-bg: #fee2e2;
+  --color-lay-text: #991b1b;
 
-  --color-neon-purple: #8b5cf6;
+  --color-neon-purple: #ef4444;
   --color-neon-green: #10b981;
-  --color-neon-yellow: #f59e0b;
-  --color-neon-cyan: #0ea5e9;
-  --color-neon-pink: #ec4899;
+  --color-neon-yellow: #059669;
+  --color-neon-cyan: #fcfcfc;
+  --color-neon-pink: #dc2626;
+
+  /* Override Indigo to Red */
+  --color-indigo-50: #fef2f2;
+  --color-indigo-100: #fee2e2;
+  --color-indigo-200: #fecaca;
+  --color-indigo-300: #fca5a5;
+  --color-indigo-400: #f87171;
+  --color-indigo-500: #ef4444;
+  --color-indigo-600: #dc2626;
+  --color-indigo-700: #b91c1c;
+  --color-indigo-800: #991b1b;
+  --color-indigo-900: #7f1d1d;
+  --color-indigo-950: #450a0a;
+
+  /* Override Purple to Red */
+  --color-purple-50: #fef2f2;
+  --color-purple-100: #fee2e2;
+  --color-purple-200: #fecaca;
+  --color-purple-300: #fca5a5;
+  --color-purple-400: #f87171;
+  --color-purple-500: #ef4444;
+  --color-purple-600: #dc2626;
+  --color-purple-700: #b91c1c;
+  --color-purple-800: #991b1b;
+  --color-purple-900: #7f1d1d;
+  --color-purple-950: #450a0a;
+
+  /* Override Violet to Red */
+  --color-violet-50: #fef2f2;
+  --color-violet-100: #fee2e2;
+  --color-violet-200: #fecaca;
+  --color-violet-300: #fca5a5;
+  --color-violet-400: #f87171;
+  --color-violet-500: #ef4444;
+  --color-violet-600: #dc2626;
+  --color-violet-700: #b91c1c;
+  --color-violet-800: #991b1b;
+  --color-violet-900: #7f1d1d;
+  --color-violet-950: #450a0a;
+
+  /* Override Fuchsia to Red */
+  --color-fuchsia-50: #fef2f2;
+  --color-fuchsia-100: #fee2e2;
+  --color-fuchsia-200: #fecaca;
+  --color-fuchsia-300: #fca5a5;
+  --color-fuchsia-400: #f87171;
+  --color-fuchsia-500: #ef4444;
+  --color-fuchsia-600: #dc2626;
+  --color-fuchsia-700: #b91c1c;
+  --color-fuchsia-800: #991b1b;
+  --color-fuchsia-900: #7f1d1d;
+  --color-fuchsia-950: #450a0a;
+
+  /* Override Pink to Red */
+  --color-pink-50: #fef2f2;
+  --color-pink-100: #fee2e2;
+  --color-pink-200: #fecaca;
+  --color-pink-300: #fca5a5;
+  --color-pink-400: #f87171;
+  --color-pink-500: #ef4444;
+  --color-pink-600: #dc2626;
+  --color-pink-700: #b91c1c;
+  --color-pink-800: #991b1b;
+  --color-pink-900: #7f1d1d;
+  --color-pink-950: #450a0a;
+
+  /* Override Blue to Red */
+  --color-blue-50: #fef2f2;
+  --color-blue-100: #fee2e2;
+  --color-blue-200: #fecaca;
+  --color-blue-300: #fca5a5;
+  --color-blue-400: #f87171;
+  --color-blue-500: #ef4444;
+  --color-blue-600: #dc2626;
+  --color-blue-700: #b91c1c;
+  --color-blue-800: #991b1b;
+  --color-blue-900: #7f1d1d;
+  --color-blue-950: #450a0a;
+
+  /* Override Sky to Red */
+  --color-sky-50: #fef2f2;
+  --color-sky-100: #fee2e2;
+  --color-sky-200: #fecaca;
+  --color-sky-300: #fca5a5;
+  --color-sky-400: #f87171;
+  --color-sky-500: #ef4444;
+  --color-sky-600: #dc2626;
+  --color-sky-700: #b91c1c;
+  --color-sky-800: #991b1b;
+  --color-sky-900: #7f1d1d;
+  --color-sky-950: #450a0a;
+
+  /* Override Cyan to Red */
+  --color-cyan-50: #fef2f2;
+  --color-cyan-100: #fee2e2;
+  --color-cyan-200: #fecaca;
+  --color-cyan-300: #fca5a5;
+  --color-cyan-400: #f87171;
+  --color-cyan-500: #ef4444;
+  --color-cyan-600: #dc2626;
+  --color-cyan-700: #b91c1c;
+  --color-cyan-800: #991b1b;
+  --color-cyan-900: #7f1d1d;
+  --color-cyan-950: #450a0a;
+
+  /* Override Green/Emerald to Premium Money Green */
+  --color-emerald-50: #ecfdf5;
+  --color-emerald-100: #d1fae5;
+  --color-emerald-200: #a7f3d0;
+  --color-emerald-300: #6ee7b7;
+  --color-emerald-400: #34d399;
+  --color-emerald-500: #10b981;
+  --color-emerald-600: #059669;
+  --color-emerald-700: #047857;
+  --color-emerald-800: #065f46;
+  --color-emerald-900: #064e3b;
+  --color-emerald-950: #022c22;
+
+  --color-green-50: #ecfdf5;
+  --color-green-100: #d1fae5;
+  --color-green-200: #a7f3d0;
+  --color-green-300: #6ee7b7;
+  --color-green-400: #34d399;
+  --color-green-500: #10b981;
+  --color-green-600: #059669;
+  --color-green-700: #047857;
+  --color-green-800: #065f46;
+  --color-green-900: #064e3b;
+  --color-green-950: #022c22;
   
   --animate-shimmer: shimmer 2s linear infinite;
   --animate-flash-green: flash-green 0.5s ease-out;
