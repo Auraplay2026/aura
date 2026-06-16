@@ -5,7 +5,7 @@ import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface BaccaratEngineProps {
   isPlaying: boolean;
-  onComplete: (won: boolean) => void;
+  onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
 }
 
 const DECK = [
@@ -23,6 +23,7 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
   const [bankerHand, setBankerHand] = useState<typeof DECK>([]);
   const [dealt, setDealt] = useState(false);
   const [resultMsg, setResultMsg] = useState("");
+  const [selectedSide, setSelectedSide] = useState<string>("PLAYER");
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -41,36 +42,89 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
     const outcome = calculateGameOutcome("TABLE");
     const won = outcome.isWin;
     
+    // Deterministic hands generation based on user's selection & result
+    const targetPlayerHand: typeof DECK = [];
+    const targetBankerHand: typeof DECK = [];
+
+    const isTie = (selectedSide === "TIE" && won) || (selectedSide !== "TIE" && !won && Math.random() > 0.85);
+    const isPlayerWinner = (selectedSide === "PLAYER" && won) || (selectedSide === "BANKER" && !won && !isTie);
+
+    if (isTie) {
+      targetPlayerHand.push(
+        { val: "4", suit: "♠", color: "text-slate-900", score: 4 },
+        { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
+      ); // modulo score: 6
+      targetBankerHand.push(
+        { val: "A", suit: "♥️", color: "text-red-600", score: 1 },
+        { val: "5", suit: "♣️", color: "text-slate-900", score: 5 }
+      ); // modulo score: 6
+    } else if (isPlayerWinner) {
+      targetPlayerHand.push(
+        { val: "8", suit: "♠", color: "text-slate-900", score: 8 },
+        { val: "K", suit: "♦️", color: "text-red-600", score: 0 }
+      ); // modulo score: 8
+      targetBankerHand.push(
+        { val: "2", suit: "♥️", color: "text-red-600", score: 2 },
+        { val: "3", suit: "♣️", color: "text-slate-900", score: 3 }
+      ); // modulo score: 5
+    } else {
+      // Banker wins
+      targetPlayerHand.push(
+        { val: "A", suit: "♠", color: "text-slate-900", score: 1 },
+        { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
+      ); // modulo score: 3
+      targetBankerHand.push(
+        { val: "9", suit: "♥️", color: "text-red-600", score: 9 },
+        { val: "10", suit: "♣️", color: "text-slate-900", score: 0 }
+      ); // modulo score: 9
+    }
+
     let count = 0;
     const interval = setInterval(() => {
       count++;
       if (count === 1) {
-        setPlayerHand(p => [...p, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setPlayerHand([targetPlayerHand[0]]);
       } else if (count === 2) {
-        setBankerHand(b => [...b, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setBankerHand([targetBankerHand[0]]);
       } else if (count === 3) {
-        setPlayerHand(p => [...p, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setPlayerHand([targetPlayerHand[0], targetPlayerHand[1]]);
       } else if (count === 4) {
-        setBankerHand(b => [...b, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setBankerHand([targetBankerHand[0], targetBankerHand[1]]);
         clearInterval(interval);
         
+        let odds = 2.0;
+        if (selectedSide === "BANKER") odds = 1.95;
+        else if (selectedSide === "TIE") odds = 9.0;
+
         setTimeout(() => {
           setDealt(true);
-          const pScore = playerHand.reduce((acc, c) => acc + c.score, 0) % 10;
-          const bScore = bankerHand.reduce((acc, c) => acc + c.score, 0) % 10;
-          if (won) setResultMsg("Player Wins!");
-          else if (bScore > pScore) setResultMsg("Banker Wins");
-          else setResultMsg("Tie");
-          onCompleteRef.current(won);
+          if (isTie) {
+            setResultMsg("Tie Hand!");
+          } else if (isPlayerWinner) {
+            setResultMsg("Player Wins!");
+          } else {
+            setResultMsg("Banker Wins!");
+          }
+          onCompleteRef.current(won ? odds : 0, won);
         }, 1200);
       }
-    }, 500);
+    }, 450);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, selectedSide]);
 
-  const playerScore = playerHand.reduce((acc, c) => acc + c.score, 0) % 10;
-  const bankerScore = bankerHand.reduce((acc, c) => acc + c.score, 0) % 10;
+  const getBaccaratScore = (hand: typeof DECK) => {
+    const sum = hand.reduce((acc, c) => {
+      const val = c.val;
+      if (["10", "J", "Q", "K"].includes(val)) return acc;
+      if (val === "A") return acc + 1;
+      return acc + (parseInt(val) || 0);
+    }, 0);
+    return sum % 10;
+  };
+
+  const playerScore = getBaccaratScore(playerHand);
+  const bankerScore = getBaccaratScore(bankerHand);
 
   return (
     <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-950 rounded-3xl border border-teal-900 shadow-2xl relative flex flex-col items-center justify-center overflow-hidden perspective-[1000px]">
@@ -85,7 +139,7 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
       {/* Table Decals */}
       <div className="absolute top-8 text-center opacity-40 select-none">
         <h2 className="text-yellow-500 font-black text-2xl md:text-4xl tracking-[0.3em] uppercase drop-shadow-md">AURA BACCARAT</h2>
-        <span className="text-yellow-600 text-[10px] md:text-xs font-bold tracking-[0.5em] mt-1 block">PAYS 8 TO 1 ON TIE</span>
+        <span className="text-yellow-600 text-[10px] md:text-xs font-bold tracking-[0.5em] mt-1 block">PAYS 9 TO 1 ON TIE</span>
       </div>
 
       <div className="relative z-10 w-full flex flex-col md:flex-row gap-8 md:gap-20 justify-center mt-12 px-6 transform-style-3d rotate-x-[15deg]">
@@ -146,6 +200,49 @@ export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
           )}
         </div>
       </div>
+
+      {/* Selected Bet Indicator Overlay during play */}
+      {isPlaying && (
+        <div className="absolute top-4 left-4 flex items-center bg-black/60 border border-teal-500/30 rounded-full px-4 py-1.5 shadow-lg backdrop-blur-md z-30 select-none">
+          <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">BET ON: {selectedSide}</span>
+        </div>
+      )}
+
+      {/* Side Selector (Shown when not playing) */}
+      {!isPlaying && (
+        <div className="mt-8 flex gap-4 z-20">
+          <button
+            onClick={() => setSelectedSide("PLAYER")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+              selectedSide === "PLAYER"
+                ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105"
+                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-blue-500/30"
+            }`}
+          >
+            Player (2x)
+          </button>
+          <button
+            onClick={() => setSelectedSide("BANKER")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+              selectedSide === "BANKER"
+                ? "bg-gradient-to-br from-red-550 to-red-650 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
+                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-red-500/30"
+            }`}
+          >
+            Banker (1.95x)
+          </button>
+          <button
+            onClick={() => setSelectedSide("TIE")}
+            className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+              selectedSide === "TIE"
+                ? "bg-gradient-to-br from-yellow-500 to-yellow-650 text-yellow-950 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-105"
+                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-yellow-500/30"
+            }`}
+          >
+            Tie (9x)
+          </button>
+        </div>
+      )}
 
       {/* Results HUD Overlay */}
       <AnimatePresence>

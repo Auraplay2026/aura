@@ -5,7 +5,7 @@ import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface BlackjackVIPEngineProps {
   isPlaying: boolean;
-  onComplete: (won: boolean) => void;
+  onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
 }
 
 const DECK = [
@@ -24,6 +24,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
   const [dealt, setDealt] = useState(false);
   const [resultMsg, setResultMsg] = useState("");
   const [betCountdown, setBetCountdown] = useState(15);
+  const [selectedSide, setSelectedSide] = useState<string>("PLAYER");
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -57,40 +58,79 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
     const outcome = calculateGameOutcome("TABLE");
     const won = outcome.isWin;
     
+    // Deterministic hands based on selection & outcome
+    const targetPlayerHand: typeof DECK = [];
+    const targetDealerHand: typeof DECK = [];
+
+    const isPlayerWinner = (selectedSide === "PLAYER" && won) || (selectedSide === "DEALER" && !won);
+
+    if (isPlayerWinner) {
+      targetPlayerHand.push(
+        { val: "A", suit: "♠", color: "text-slate-900", score: 11 },
+        { val: "J", suit: "♦️", color: "text-red-600", score: 10 }
+      ); // score: 21 (Natural Blackjack)
+      targetDealerHand.push(
+        { val: "K", suit: "♥️", color: "text-red-600", score: 10 },
+        { val: "8", suit: "♣️", color: "text-slate-900", score: 8 }
+      ); // score: 18
+    } else {
+      targetPlayerHand.push(
+        { val: "10", suit: "♠", color: "text-slate-900", score: 10 },
+        { val: "7", suit: "♦️", color: "text-red-600", score: 7 }
+      ); // score: 17
+      targetDealerHand.push(
+        { val: "A", suit: "♥️", color: "text-red-600", score: 11 },
+        { val: "9", suit: "♣️", color: "text-slate-900", score: 9 }
+      ); // score: 20
+    }
+
     // Deal sequence
     let count = 0;
     const interval = setInterval(() => {
       count++;
       if (count === 1) {
-        setPlayerHand(p => [...p, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setPlayerHand([targetPlayerHand[0]]);
       } else if (count === 2) {
-        setDealerHand(d => [...d, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setDealerHand([targetDealerHand[0]]);
       } else if (count === 3) {
-        setPlayerHand(p => [...p, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setPlayerHand([targetPlayerHand[0], targetPlayerHand[1]]);
       } else if (count === 4) {
-        setDealerHand(d => [...d, DECK[Math.floor(Math.random() * DECK.length)]]);
+        setDealerHand([targetDealerHand[0], targetDealerHand[1]]);
         clearInterval(interval);
         
         setTimeout(() => {
           setDealt(true);
-          const pScore = playerHand.reduce((acc, c) => acc + c.score, 0);
-          const dScore = dealerHand.reduce((acc, c) => acc + c.score, 0);
-          
-          if (won) setResultMsg("Player Wins!");
-          else if (pScore > 21) setResultMsg("Player Busts");
-          else if (dScore > pScore && dScore <= 21) setResultMsg("Dealer Wins");
-          else setResultMsg("Push");
-          
-          onCompleteRef.current(won);
+          if (isPlayerWinner) {
+            setResultMsg("Player Wins!");
+          } else {
+            setResultMsg("Dealer Wins!");
+          }
+          onCompleteRef.current(won ? 2.0 : 0, won);
         }, 1200);
       }
-    }, 500);
+    }, 450);
 
     return () => clearInterval(interval);
-  }, [isPlaying]);
+  }, [isPlaying, selectedSide]);
 
-  const playerScore = playerHand.reduce((acc, c) => acc + c.score, 0);
-  const dealerScore = dealerHand.reduce((acc, c) => acc + c.score, 0);
+  const getBlackjackScore = (hand: typeof DECK) => {
+    let sum = hand.reduce((acc, c) => {
+      const val = c.val;
+      if (["J", "Q", "K"].includes(val)) return acc + 10;
+      if (val === "A") return acc + 11;
+      return acc + (parseInt(val) || 0);
+    }, 0);
+    
+    let aceCount = hand.filter(c => c.val === "A").length;
+    while (sum > 21 && aceCount > 0) {
+      sum -= 10;
+      aceCount--;
+    }
+    return sum;
+  };
+
+  const playerScore = getBlackjackScore(playerHand);
+  const dealerScore = getBlackjackScore(dealerHand);
 
   return (
     <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-[#111115] via-[#1a1a24] to-[#070709] rounded-3xl border border-[#27272a] shadow-2xl relative flex flex-col items-center justify-center overflow-hidden perspective-[1000px]">
@@ -108,7 +148,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
         }}
       />
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.05),_transparent_60%)] pointer-events-none" />
-
+      
       {/* Table Border illusion */}
       <div className="absolute inset-4 rounded-[2.5rem] border-2 border-slate-800/50 pointer-events-none" />
 
@@ -199,6 +239,39 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
           )}
         </div>
       </div>
+
+      {/* Selected Bet Indicator Overlay during play */}
+      {isPlaying && (
+        <div className="absolute top-4 left-4 flex items-center bg-black/60 border border-slate-700/30 rounded-full px-4 py-1.5 shadow-lg backdrop-blur-md z-30 select-none">
+          <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">BET ON: {selectedSide}</span>
+        </div>
+      )}
+
+      {/* Side Selector (Shown when not playing) */}
+      {!isPlaying && (
+        <div className="mt-8 flex gap-4 z-20">
+          <button
+            onClick={() => setSelectedSide("PLAYER")}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+              selectedSide === "PLAYER"
+                ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-105"
+                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-emerald-500/30"
+            }`}
+          >
+            Bet Player (2x)
+          </button>
+          <button
+            onClick={() => setSelectedSide("DEALER")}
+            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+              selectedSide === "DEALER"
+                ? "bg-gradient-to-br from-red-550 to-red-650 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
+                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-red-500/30"
+            }`}
+          >
+            Bet Dealer (2x)
+          </button>
+        </div>
+      )}
 
       {/* Results HUD Overlay */}
       <AnimatePresence>
