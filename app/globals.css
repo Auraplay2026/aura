@@ -195,3 +195,17 @@ body {
   will-change: opacity;
 }
 
+/* Audio Visualizer Animations */
+@keyframes visualizer1 {
+  0%, 100% { height: 4px; }
+  50% { height: 12px; }
+}
+@keyframes visualizer2 {
+  0%, 100% { height: 6px; }
+  50% { height: 10px; }
+}
+@keyframes visualizer3 {
+  0%, 100% { height: 3px; }
+  50% { height: 14px; }
+}
+

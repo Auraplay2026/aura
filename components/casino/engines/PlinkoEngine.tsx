@@ -3,6 +3,7 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
 import { useTradingStore } from "@/lib/store";
+import { playGameSound } from "@/lib/audio";
 
 interface PlinkoEngineProps {
   isPlaying: boolean;
@@ -76,6 +77,13 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
     const newBall = { id: ballId, pathX, pathY, multiplier, binIndex: targetBinIndex };
     setBalls(prev => [...prev, newBall]);
     setBallId(prev => prev + 1);
+
+    // Play synchronized tick sounds for peg collisions
+    for (let r = 1; r <= ROWS; r++) {
+      setTimeout(() => {
+        playGameSound('tick');
+      }, r * 250);
+    }
 
     const animDuration = ROWS * 250;
     setTimeout(() => {

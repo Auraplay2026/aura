@@ -3,6 +3,7 @@ import { useState, useEffect, useRef, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bomb, Gem, Skull, Sparkles } from "lucide-react";
 import { calculateGameOutcome, GameOutcome } from "@/lib/casino-math";
+import { playGameSound } from "@/lib/audio";
 
 interface MinesEngineProps {
   isPlaying: boolean;
@@ -95,11 +96,13 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
     setRevealed(newRevealed);
 
     if (isBust) {
+      playGameSound('lose');
       setBustedIndex(index);
       setGameState("busted");
       setRevealed(Array(25).fill(true));
       setTimeout(() => onCompleteRef.current(0, false), 1500);
     } else {
+      playGameSound('win');
       setActiveMultiplier(nextMultiplier);
       const safeRevealedCount = newRevealed.filter((v, i) => v && (!mineLocations.includes(i) || (scheduledOutcome && !scheduledOutcome.isWin))).length;
       
@@ -113,6 +116,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onComplete }: MinesEngi
 
   const cashOut = () => {
     if (gameState !== "playing") return;
+    playGameSound('jackpot');
     setGameState("cashed_out");
     setRevealed(Array(25).fill(true));
     onCompleteRef.current(activeMultiplier, true);

@@ -219,6 +219,19 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
             }
           });
           existingIds.add(newTx.id);
+        } else {
+          // Sync changes in transaction details, status, or balanceAfter (e.g. from Pending to Completed/Failed)
+          const currentTxInDb = existingTx.find(t => t.id === newTx.id);
+          if (currentTxInDb && (currentTxInDb.status !== newTx.status || currentTxInDb.details !== newTx.details || currentTxInDb.balanceAfter !== newTx.balanceAfter)) {
+            await tx.transaction.update({
+              where: { id: newTx.id },
+              data: {
+                status: newTx.status,
+                details: newTx.details,
+                balanceAfter: newTx.balanceAfter
+              }
+            });
+          }
         }
       }
     }

@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
+import { playGameSound } from "@/lib/audio";
 
 interface LiveWheelEngineProps {
   isPlaying: boolean;
@@ -67,6 +68,7 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
     let ticks = 0;
     const tickInterval = setInterval(() => {
       setPointerTick(prev => (prev === 0 ? -15 : 0));
+      playGameSound('tick');
       ticks++;
       if (ticks > 40) clearInterval(tickInterval);
     }, 150); // fast ticking initially

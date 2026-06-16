@@ -8,6 +8,7 @@ import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Ci
 import { recordGameRound } from "@/lib/recordRound";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { playGameSound } from "@/lib/audio";
 import { SlotEngine } from "@/components/casino/engines/SlotEngine";
 import { SlotEngineClassic } from "@/components/casino/engines/SlotEngineClassic";
 import { SlotEngineCascade } from "@/components/casino/engines/SlotEngineCascade";
@@ -399,6 +400,7 @@ export default function GamePlayerPage() {
       return;
     }
     setIsSpinning(true);
+    playGameSound('spin');
     setWinAmount(null);
     setIsMegaWin(false);
   };
@@ -423,7 +425,12 @@ export default function GamePlayerPage() {
 
     if (won) {
       setWinAmount(payout);
-      if (mult >= 10) setIsMegaWin(true);
+      if (mult >= 10) {
+        playGameSound('jackpot');
+        setIsMegaWin(true);
+      } else {
+        playGameSound('win');
+      }
       recordGameRound({
         gameId: game.id,
         userId: 'current-user',
@@ -433,6 +440,7 @@ export default function GamePlayerPage() {
         won: true,
       });
     } else {
+      playGameSound('lose');
       recordGameRound({
         gameId: game.id,
         userId: 'current-user',
@@ -779,8 +787,8 @@ export default function GamePlayerPage() {
                                   className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-3 h-12 focus:outline-none focus:ring-0"
                                 />
                                 <div className="flex items-center bg-slate-50 border-l border-slate-200 h-12">
-                                  <button onClick={() => setBetAmount(prev => prev / 2)} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
-                                  <button onClick={() => setBetAmount(prev => prev * 2)} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors">2x</button>
+                                  <button onClick={() => { setBetAmount(prev => prev / 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
+                                  <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 transition-colors">2x</button>
                                 </div>
                               </div>
                               
@@ -792,9 +800,9 @@ export default function GamePlayerPage() {
                                 {STAKE_PRESETS.map((amount) => (
                                   <button
                                     key={amount}
-                                    onClick={() => setBetAmount(amount)}
-                                    onDoubleClick={() => setBetAmount(amount * 2)}
-                                    className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-350'}`}
+                                    onClick={() => { setBetAmount(amount); playGameSound('click'); }}
+                                    onDoubleClick={() => { setBetAmount(amount * 2); playGameSound('click'); }}
+                                    className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-55 hover:border-slate-350'}`}
                                     title="Double click to double bet"
                                   >
                                     ₹{amount >= 1000 ? `${amount/1000}k` : amount}

@@ -9,7 +9,7 @@ import { usePathname } from "next/navigation";
 
 export function WinCelebration() {
   const pathname = usePathname();
-  const { latestWinCelebration, clearLatestWinCelebration, currentUser } = useTradingStore();
+  const { latestWinCelebration, clearLatestWinCelebration, currentUser, soundEnabled } = useTradingStore();
   const [active, setActive] = useState(false);
   const [tier, setTier] = useState<1 | 2 | 3>(1);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -34,80 +34,82 @@ export function WinCelebration() {
     setActive(true);
 
     // Audio context sounds based on tier
-    try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      if (currentTier === 1) {
-        // Gold flash chime
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
-        osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // A5
-        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.4);
-      } else if (currentTier === 2) {
-        // Fanfare chord
-        const freqs = [261.63, 329.63, 392.00, 523.25]; // C major chord
-        freqs.forEach((f) => {
+    if (soundEnabled !== false) {
+      try {
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        if (currentTier === 1) {
+          // Gold flash chime
           const osc = audioCtx.createOscillator();
           const gain = audioCtx.createGain();
           osc.connect(gain);
           gain.connect(audioCtx.destination);
-          osc.type = "triangle";
-          osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-          osc.frequency.setValueAtTime(f * 1.5, audioCtx.currentTime + 0.2);
-          gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+          osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+          osc.frequency.setValueAtTime(880.00, audioCtx.currentTime + 0.1); // A5
+          gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
           osc.start();
-          osc.stop(audioCtx.currentTime + 0.8);
-        });
-      } else {
-        // Epic fireworks synth and pops!
-        const duration = 2.5;
-        const freqs = [196.00, 293.66, 392.00, 587.33, 783.99]; // G chord
-        freqs.forEach((f) => {
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.type = "sawtooth";
-          osc.frequency.setValueAtTime(f, audioCtx.currentTime);
-          osc.frequency.exponentialRampToValueAtTime(f * 2, audioCtx.currentTime + 1.5);
-          gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-          osc.start();
-          osc.stop(audioCtx.currentTime + duration);
-        });
+          osc.stop(audioCtx.currentTime + 0.4);
+        } else if (currentTier === 2) {
+          // Fanfare chord
+          const freqs = [261.63, 329.63, 392.00, 523.25]; // C major chord
+          freqs.forEach((f) => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = "triangle";
+            osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+            osc.frequency.setValueAtTime(f * 1.5, audioCtx.currentTime + 0.2);
+            gain.gain.setValueAtTime(0.08, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.8);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.8);
+          });
+        } else {
+          // Epic fireworks synth and pops!
+          const duration = 2.5;
+          const freqs = [196.00, 293.66, 392.00, 587.33, 783.99]; // G chord
+          freqs.forEach((f) => {
+            const osc = audioCtx.createOscillator();
+            const actualGain = audioCtx.createGain();
+            osc.connect(actualGain);
+            actualGain.connect(audioCtx.destination);
+            osc.type = "sawtooth";
+            osc.frequency.setValueAtTime(f, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(f * 2, audioCtx.currentTime + 1.5);
+            actualGain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            actualGain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
+            osc.start();
+            osc.stop(audioCtx.currentTime + duration);
+          });
 
-        // Add firework pop noises at random intervals
-        for (let j = 0; j < 6; j++) {
-          const delay = j * 0.3 + Math.random() * 0.2;
-          setTimeout(() => {
-            try {
-              const popOsc = audioCtx.createOscillator();
-              const popGain = audioCtx.createGain();
-              popOsc.connect(popGain);
-              popGain.connect(audioCtx.destination);
-              popOsc.type = "sine";
-              popOsc.frequency.setValueAtTime(150 + Math.random() * 100, audioCtx.currentTime);
-              popOsc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
-              popGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
-              popGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
-              popOsc.start();
-              popOsc.stop(audioCtx.currentTime + 0.15);
-            } catch (e) {}
-          }, delay * 1000);
-        }
+          // Add firework pop noises at random intervals
+          for (let j = 0; j < 6; j++) {
+            const delay = j * 0.3 + Math.random() * 0.2;
+            setTimeout(() => {
+              try {
+                const popOsc = audioCtx.createOscillator();
+                const popGain = audioCtx.createGain();
+                popOsc.connect(popGain);
+                popGain.connect(audioCtx.destination);
+                popOsc.type = "sine";
+                popOsc.frequency.setValueAtTime(150 + Math.random() * 100, audioCtx.currentTime);
+                popOsc.frequency.exponentialRampToValueAtTime(40, audioCtx.currentTime + 0.15);
+                popGain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+                popGain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+                popOsc.start();
+                popOsc.stop(audioCtx.currentTime + 0.15);
+              } catch (e) {}
+            }, delay * 1000);
+          }
 
-        // Vibrate mobile device
-        if (typeof navigator !== "undefined" && navigator.vibrate) {
-          navigator.vibrate([100, 50, 100, 50, 300]);
+          // Vibrate mobile device
+          if (typeof navigator !== "undefined" && navigator.vibrate) {
+            navigator.vibrate([100, 50, 100, 50, 300]);
+          }
         }
-      }
-    } catch (e) {}
+      } catch (e) {}
+    }
 
     // Auto clear win celebration after 4.5 seconds
     const dismissTimer = setTimeout(() => {

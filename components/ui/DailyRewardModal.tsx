@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { X, Calendar, Gift, Sparkles, CheckCircle2, RotateCw } from "lucide-react";
 import { ConfettiCanvas } from "./ConfettiCanvas";
 import { usePathname } from "next/navigation";
+import { playGameSound } from "@/lib/audio";
 
 export function DailyRewardModal() {
   const pathname = usePathname();
@@ -19,7 +20,8 @@ export function DailyRewardModal() {
     spinWheelClaimed,
     unlockAchievement,
     dailyModalLastDismissedDate,
-    dismissDailyModal
+    dismissDailyModal,
+    soundEnabled
   } = useTradingStore();
 
   const [isOpen, setIsOpen] = useState(false);
@@ -112,27 +114,29 @@ export function DailyRewardModal() {
     setPrizeWon(null);
 
     // Play arcade tick-tick sound via Web Audio API while spinning
-    try {
-      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-      let ticks = 0;
-      spinIntervalRef.current = setInterval(() => {
-        if (ticks > 40) {
-          if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
-          return;
-        }
-        ticks++;
-        const osc = audioCtx.createOscillator();
-        const gain = audioCtx.createGain();
-        osc.connect(gain);
-        gain.connect(audioCtx.destination);
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(800 - ticks * 10, audioCtx.currentTime);
-        gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-        osc.start();
-        osc.stop(audioCtx.currentTime + 0.05);
-      }, 120);
-    } catch (e) {}
+    if (soundEnabled !== false) {
+      try {
+        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+        let ticks = 0;
+        spinIntervalRef.current = setInterval(() => {
+          if (ticks > 40) {
+            if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+            return;
+          }
+          ticks++;
+          const osc = audioCtx.createOscillator();
+          const gain = audioCtx.createGain();
+          osc.connect(gain);
+          gain.connect(audioCtx.destination);
+          osc.type = "sine";
+          osc.frequency.setValueAtTime(800 - ticks * 10, audioCtx.currentTime);
+          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+          osc.start();
+          osc.stop(audioCtx.currentTime + 0.05);
+        }, 120);
+      } catch (e) {}
+    }
 
     const prizeIndex = Math.floor(Math.random() * WHEEL_SECTORS.length);
     const sector = WHEEL_SECTORS[prizeIndex];
@@ -153,6 +157,7 @@ export function DailyRewardModal() {
 
       setPrizeWon(sector.label);
       setShowConfetti(true);
+      playGameSound(sector.prize >= 1000 ? 'jackpot' : 'win');
 
       // Achievements triggers
       if (sector.prize >= 5000) {
@@ -164,6 +169,7 @@ export function DailyRewardModal() {
   const handleClaimDaily = () => {
     claimDailyReward();
     setShowConfetti(true);
+    playGameSound('win');
     setTimeout(() => {
       if (!spinWheelClaimedToday) {
         setActiveTab("wheel");

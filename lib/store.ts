@@ -102,6 +102,12 @@ interface TradingState {
   winStreakCount: number;
   predictionWinStreak: number;
   latestWinCelebration: { amount: number; gameTitle: string } | null;
+  soundEnabled: boolean;
+  setSoundEnabled: (enabled: boolean) => void;
+  sfxVolume: number;
+  setSfxVolume: (vol: number) => void;
+  ambientEnabled: boolean;
+  setAmbientEnabled: (enabled: boolean) => void;
 
   // Actions
   deposit: (amount: number, method?: string) => void;
@@ -288,6 +294,32 @@ export const useTradingStore = create<TradingState>()(
       winStreakCount: 0,
       predictionWinStreak: 0,
       latestWinCelebration: null,
+      soundEnabled: true,
+      setSoundEnabled: (enabled) => {
+        set({ soundEnabled: enabled });
+        try {
+          const { startAmbientMusic, stopAmbientMusic } = require('./audio');
+          if (enabled && get().ambientEnabled) {
+            startAmbientMusic();
+          } else {
+            stopAmbientMusic();
+          }
+        } catch (e) {}
+      },
+      sfxVolume: 50,
+      setSfxVolume: (vol) => set({ sfxVolume: vol }),
+      ambientEnabled: true,
+      setAmbientEnabled: (enabled) => {
+        set({ ambientEnabled: enabled });
+        try {
+          const { startAmbientMusic, stopAmbientMusic } = require('./audio');
+          if (enabled && get().soundEnabled) {
+            startAmbientMusic();
+          } else {
+            stopAmbientMusic();
+          }
+        } catch (e) {}
+      },
 
       // Backend-supported legacy login compatibility (logs in as demo user via API)
       login: async () => {
@@ -969,7 +1001,7 @@ export const useTradingStore = create<TradingState>()(
           }
         }
 
-        if (latestUnlocked && typeof window !== 'undefined') {
+        if (latestUnlocked && typeof window !== 'undefined' && state.soundEnabled !== false) {
           setTimeout(() => {
             try {
               const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
@@ -1283,7 +1315,7 @@ export const useTradingStore = create<TradingState>()(
           }
         }
 
-        if (latestUnlocked && typeof window !== 'undefined') {
+        if (latestUnlocked && typeof window !== 'undefined' && state.soundEnabled !== false) {
           setTimeout(() => {
             try {
               const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();

@@ -3,6 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
 import { AlertTriangle, Crosshair } from "lucide-react";
+import { startCrashAudio, updateCrashPitch, stopCrashAudio } from "@/lib/audio";
 
 interface CrashEngineProps {
   isPlaying: boolean;
@@ -28,8 +29,11 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
       setCrashed(false);
       setHasCashedOut(false);
       setYPos(0);
+      stopCrashAudio(false);
       return;
     }
+
+    startCrashAudio();
 
     const outcome = calculateGameOutcome("CRASH");
     const target = outcome.multiplier;
@@ -38,6 +42,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
     let current = 1.0;
     const interval = setInterval(() => {
       current += 0.01 + (current * 0.015);
+      updateCrashPitch(current);
       
       // Calculate Y position for graph (logarithmic curve simulation)
       // Max height approx 60vh
@@ -49,6 +54,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
         clearInterval(interval);
         setMultiplier(target);
         setCrashed(true);
+        stopCrashAudio(true);
         // If they already cashed out manually, we don't call onComplete again here as a loss
         if (!hasCashedOutRef.current) {
           onCompleteRef.current(target, false);
@@ -58,7 +64,10 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
       }
     }, 50);
 
-    return () => clearInterval(interval);
+    return () => {
+      clearInterval(interval);
+      stopCrashAudio(false);
+    };
   }, [isPlaying]);
 
   const hasCashedOutRef = useRef(hasCashedOut);
@@ -69,6 +78,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, onComplete }: CrashEngi
   const handleCashout = () => {
     if (crashed || hasCashedOut || !isPlaying) return;
     setHasCashedOut(true);
+    stopCrashAudio(false);
     onCompleteRef.current(multiplier, true);
   };
 
