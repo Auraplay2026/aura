@@ -124,7 +124,7 @@ const GAME_CONFIGS: Record<string, {
   }
 };
 
-const COIN_VALUES = [50, 100, 500, 1000, 5000, 10000];
+const COIN_VALUES = [100, 500, 1000, 5000, 10000, 50000];
 
 export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: RoyalGamingProps) {
   const { balance: rawBalance, playCasino } = useTradingStore();
@@ -478,230 +478,333 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
   const totalActiveBet = Object.values(bets).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="w-full h-full min-h-[580px] bg-white border border-[#E2E8F0] rounded-2xl relative flex flex-col justify-between overflow-hidden p-4 font-sans text-[#0F172A]">
+    <div className="w-full flex flex-col xl:flex-row gap-6 items-start font-sans text-[#0F172A] bg-white p-2">
       
-      {/* 1. Header Information Status Row (Pure White Light Theme) */}
-      <div className="flex items-center justify-between border-b border-[#E2E8F0] pb-2.5 shrink-0">
-        <div className="flex items-center gap-2">
-          <Activity onClick={() => setShowMaintenance(true)} className="w-4 h-4 text-[#0F172A] animate-pulse cursor-pointer" />
-          <span className="text-xs font-black tracking-widest text-[#0F172A] uppercase">{currentConfig.label}</span>
-          <span className="bg-[#E2E8F0] text-[#0F172A] text-[8px] font-black uppercase px-2 py-0.5 rounded leading-none">
-            WHIP WHEP Live
-          </span>
-        </div>
-        <div className="flex items-center gap-4">
-          <div className="text-right">
-            <span className="text-[9px] text-slate-400 font-bold block uppercase leading-none">Total Bet</span>
-            <span className="text-xs font-black text-[#0F172A] leading-none">₹{totalActiveBet.toLocaleString()}</span>
+      {/* COLUMN A: INTERACTIVE BETTING HUD (LEFT COLUMN) */}
+      <div className="w-full xl:w-[350px] shrink-0 flex flex-col gap-4">
+        
+        {/* BET AMOUNT MODULE */}
+        <div className="bg-white border border-slate-200 rounded-sm p-4 flex flex-col gap-2">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Bet Amount</span>
+            <span className="text-xs font-bold text-slate-900">₹{selectedCoin.toLocaleString('en-IN')}</span>
           </div>
-          <div className="flex items-center gap-1.5 bg-[#F8F9FA] px-2.5 py-1.5 rounded-lg border border-[#E2E8F0]">
-            <Clock className={cn("w-3.5 h-3.5", phase === 'open' ? 'text-indigo-600' : 'text-rose-500 animate-spin')} />
-            <span className="text-xs font-black tracking-widest leading-none min-w-[15px]">
-              {countdown}s
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* 2. WebRTC Live Video Stream & Interactive Canvas overlay */}
-      <div ref={containerRef} className="relative flex-1 w-full bg-slate-100 border border-[#E2E8F0] rounded-xl my-3 flex flex-col justify-between p-4 shadow-sm overflow-hidden min-h-[240px]">
-        {/* HTML5 WebRTC Video Node */}
-        <video
-          ref={streamRef}
-          autoPlay
-          playsInline
-          muted
-          controls={false}
-          className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
-          style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: "transform, opacity" }}
-        />
-
-        {/* 2D Interactive Canvas Overlay */}
-        <canvas
-          ref={canvasRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-10"
-        />
-
-        {/* HUD Layer content */}
-        <div className="flex justify-between items-center z-20 w-full relative">
-          <span className="text-[9px] font-bold text-white bg-black/40 px-2 py-0.5 rounded uppercase tracking-widest">
-            Dealer Room: Kylie #702
-          </span>
-          <div className="flex items-center gap-1.5 bg-black/40 px-2 py-0.5 rounded">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[9px] font-bold text-emerald-400 uppercase tracking-widest">Sub-300ms WHIP</span>
+          
+          <div className="flex items-center bg-white border border-slate-200 rounded-sm overflow-hidden focus-within:border-slate-400 transition-all">
+            <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-10">
+              <span className="text-slate-400 font-bold">₹</span>
+            </div>
+            <input 
+              type="text" 
+              readOnly
+              value={selectedCoin} 
+              className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-2 h-10 focus:outline-none focus:ring-0"
+            />
+            <div className="flex items-center bg-slate-50 border-l border-slate-200 h-10">
+              <button 
+                onClick={() => {
+                  const halved = Math.max(50, Math.floor(selectedCoin / 2));
+                  setSelectedCoin(halved);
+                }} 
+                className="px-3 h-full text-xs font-bold text-slate-500 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors"
+              >
+                1/2
+              </button>
+              <button 
+                onClick={() => {
+                  const doubled = selectedCoin * 2;
+                  if (balance >= doubled) {
+                    setSelectedCoin(doubled);
+                  } else {
+                    setShowLowBalance(true);
+                  }
+                }} 
+                className="px-3 h-full text-xs font-bold text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors"
+              >
+                2x
+              </button>
+            </div>
           </div>
         </div>
 
-        {/* Deal visual center based on phase */}
-        <div className="flex flex-col items-center justify-center text-center my-auto z-20 relative">
-          <AnimatePresence mode="wait">
-            {phase === 'open' && (
-              <motion.div
-                key="open"
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                className="flex flex-col items-center gap-2"
-              >
-                <div className="text-xs font-black uppercase text-white bg-black/60 px-3 py-1.5 rounded-lg tracking-wider">
-                  {feedMsg}
-                </div>
-              </motion.div>
-            )}
+        {/* TOKEN TRAY (CHIP SELECTOR) */}
+        <div className="bg-white border border-slate-200 rounded-sm p-4 flex flex-col gap-3">
+          <div className="flex justify-between items-center">
+            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Chip Selector</span>
+            <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">DOUBLE CLICK TO 2X</span>
+          </div>
 
-            {phase === 'closed' && (
-              <motion.div
-                key="closed"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                className="flex flex-col items-center gap-3"
-              >
-                <div className="text-xs font-black text-rose-500 uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded-lg animate-pulse">
-                  {feedMsg}
-                </div>
-              </motion.div>
-            )}
-
-            {phase === 'settled' && (
-              <motion.div
-                key="settled"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="flex flex-col items-center gap-2"
-              >
-                <div className="text-xs font-black text-indigo-400 uppercase tracking-widest bg-black/60 px-3 py-1.5 rounded-lg">
-                  {feedMsg}
-                </div>
-                {payoutOverlay.active && (
-                  <div className={cn(
-                    "px-4 py-1.5 rounded-full font-black text-xs uppercase shadow-lg border leading-none mt-1.5",
-                    payoutOverlay.won 
-                      ? "bg-emerald-50 border-emerald-200 text-emerald-800" 
-                      : "bg-rose-50 border-rose-200 text-rose-800"
-                  )}>
-                    {payoutOverlay.won ? `Payout: +₹${payoutOverlay.profit}` : `Settled: -₹${Math.abs(payoutOverlay.profit)}`}
-                  </div>
-                )}
-              </motion.div>
-            )}
-          </AnimatePresence>
-        </div>
-
-        {/* Statistical Scorecard Roadmap Grid */}
-        <div className="border-t border-white/20 pt-2 shrink-0 flex items-center gap-2 justify-between z-20 w-full relative bg-black/40 px-3 py-1 rounded-lg">
-          <span className="text-[8px] font-black text-slate-350 uppercase tracking-wider">Statistical Roadmap scorecard</span>
-          <div className="flex gap-1 overflow-x-hidden max-w-[80%] items-center">
-            {historyList.map((val, idx) => (
-              <span 
-                key={idx}
+          {/* Chips Grid (Inline single row of 6 preset values) */}
+          <div className="grid grid-cols-6 gap-1">
+            {COIN_VALUES.map(val => (
+              <button
+                key={val}
+                onClick={() => {
+                  if (balance < val) {
+                    setShowLowBalance(true);
+                    return;
+                  }
+                  setSelectedCoin(val);
+                }}
                 className={cn(
-                  "w-4 h-4 rounded-full text-[8.5px] font-black flex items-center justify-center border shadow-sm shrink-0",
-                  val === 'A' || val === '8' || val === 'D' || val === 'U' || val === '7'
-                    ? "bg-blue-100 border-blue-200 text-blue-800" 
-                    : val === 'B' || val === '9' || val === 'T' || val === 'W'
-                    ? "bg-red-100 border-red-200 text-red-800"
-                    : "bg-slate-100 border-slate-200 text-slate-800"
+                  "py-2 px-0.5 rounded-full font-bold text-[10px] transition-all border text-center leading-none",
+                  selectedCoin === val
+                    ? "bg-[#6B21A8] border-[#6B21A8] text-white font-extrabold shadow-sm"
+                    : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-300"
                 )}
               >
-                {val}
-              </span>
+                ₹{val >= 1000 ? `${val/1000}k` : val}
+              </button>
             ))}
           </div>
+
+          {/* Typography Quick Actions */}
+          <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-0.5">
+            <button
+              onClick={handleUndo}
+              disabled={phase !== 'open' || betHistory.length === 0}
+              className="text-[10px] font-bold text-slate-500 hover:text-slate-900 disabled:opacity-40 uppercase tracking-wider transition-colors"
+            >
+              Undo
+            </button>
+            <button
+              onClick={handleDouble}
+              disabled={phase !== 'open' || totalActiveBet === 0}
+              className="text-[10px] font-bold text-slate-500 hover:text-slate-900 disabled:opacity-40 uppercase tracking-wider transition-colors"
+            >
+              Double
+            </button>
+            <button
+              onClick={handleClearAll}
+              disabled={phase !== 'open' || totalActiveBet === 0}
+              className="text-[10px] font-bold text-[#E11D48] hover:text-red-800 disabled:opacity-40 uppercase tracking-wider transition-colors"
+            >
+              Clear
+            </button>
+          </div>
         </div>
 
-      </div>
-
-      {/* 3. Interactive Betting Matrix Layout */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 shrink-0 my-1">
-        {currentConfig.targets.map(target => {
-          const activeWager = bets[target.id] || 0;
-          const isWinner = phase === 'settled' && roundWinner === target.id;
-          
-          return (
-            <button
-              key={target.id}
-              onClick={(e) => handleBetPlacement(target.id, e)}
-              className={cn(
-                "border rounded-xl p-3 flex flex-col justify-between items-center transition-all relative overflow-hidden h-[74px] bg-canvas border-[#E2E8F0] text-[#0F172A]",
-                isWinner && "ring-4 ring-[#0F172A] scale-102 font-black",
-                phase !== 'open' && "opacity-85"
-              )}
-            >
-              <div className="flex justify-between items-center w-full">
-                <span className="text-xs font-black uppercase tracking-wider">{target.name}</span>
-                <span className="text-[10px] font-bold text-slate-400 font-mono">x{target.odds.toFixed(2)}</span>
+        {/* TRUST OR AFFILIATE FOOTER */}
+        {gameId.startsWith("royal-1") ? (
+          <div className="bg-[#1E293B] text-slate-200 border border-slate-700/40 rounded-sm p-4 flex flex-col gap-1.5 relative overflow-hidden select-none">
+            <div className="flex items-start gap-2.5 z-10 relative">
+              <span className="text-sm">🤝</span>
+              <div className="flex-1">
+                <span className="text-[10px] font-extrabold text-[#C084FC] uppercase tracking-widest block mb-0.5">Affiliate Earnings</span>
+                <p className="text-[11px] text-slate-300 leading-snug font-medium">
+                  <span className="text-white font-bold">GoldenAce</span> earned <span className="text-emerald-400 font-extrabold">₹85,000</span> in commission today!
+                </p>
               </div>
-              
-              <span className="text-[8.5px] text-slate-400 font-bold uppercase tracking-widest leading-none mb-1">
-                {activeWager > 0 ? `Bet: ₹${activeWager}` : "Bet Here"}
-              </span>
+            </div>
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
+              className="text-[9px] font-extrabold text-[#C084FC] hover:text-[#D8B4FE] transition-colors mt-1.5 uppercase tracking-wider text-left z-10 relative w-fit hover:underline"
+            >
+              Refer & Earn →
             </button>
-          );
-        })}
+          </div>
+        ) : (
+          <div className="bg-[#1E293B] text-slate-200 border border-slate-700/40 rounded-sm p-4 flex flex-col gap-1.5 relative overflow-hidden select-none">
+            <div className="flex items-start gap-2.5 z-10 relative">
+              <span className="text-sm">🛡️</span>
+              <div className="flex-1">
+                <span className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest block mb-0.5">Platform Trust</span>
+                <p className="text-[11px] text-slate-300 leading-snug font-medium">
+                  Instant UPI withdrawals processed in &lt; 2 mins.
+                </p>
+              </div>
+            </div>
+            <div className="text-[9px] font-extrabold text-emerald-400 uppercase tracking-wider mt-1.5 z-10 relative">
+              Verified Provably Fair
+            </div>
+          </div>
+        )}
+
       </div>
 
-      {/* 4. Bottom-Docked Tactile Coin Selector Carousel */}
-      <div className="border-t border-[#E2E8F0] pt-3 flex flex-col sm:flex-row items-center justify-between gap-3 shrink-0">
+      {/* COLUMN B: THE NAVY BOARD (CENTER/RIGHT) */}
+      <div className="flex-1 w-full bg-[#0F172A] border border-slate-800 rounded-sm p-4 relative flex flex-col justify-between overflow-hidden min-h-[560px]">
         
-        {/* Fast Action Buttons */}
-        <div className="flex items-center gap-1.5 shrink-0 w-full sm:w-auto justify-between sm:justify-start">
-          <button
-            onClick={handleUndo}
-            disabled={phase !== 'open' || betHistory.length === 0}
-            className="flex items-center gap-1 border border-[#E2E8F0] hover:bg-[#F8F9FA] disabled:opacity-40 disabled:hover:bg-transparent rounded px-3 py-2 text-[10px] font-black text-[#0F172A] uppercase leading-none tracking-wider transition-colors"
-          >
-            <RotateCcw className="w-3 h-3" />
-            Undo
-          </button>
-          <button
-            onClick={handleDouble}
-            disabled={phase !== 'open' || totalActiveBet === 0}
-            className="flex items-center gap-1 border border-[#E2E8F0] hover:bg-[#F8F9FA] disabled:opacity-40 disabled:hover:bg-transparent rounded px-3 py-2 text-[10px] font-black text-[#0F172A] uppercase leading-none tracking-wider transition-colors"
-          >
-            <Zap className="w-3 h-3" />
-            Double (2x)
-          </button>
-          <button
-            onClick={handleClearAll}
-            disabled={phase !== 'open' || totalActiveBet === 0}
-            className="flex items-center gap-1 border border-rose-200 bg-rose-50 hover:bg-rose-100 disabled:opacity-40 disabled:hover:bg-transparent rounded px-3 py-2 text-[10px] font-black text-rose-700 uppercase leading-none tracking-wider transition-colors"
-          >
-            Clear
-          </button>
+        {/* Game Title & Header Row */}
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0 mb-4">
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-black tracking-wider text-white uppercase">{currentConfig.label}</span>
+            <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[8px] font-extrabold text-emerald-400 uppercase tracking-widest">Live Betting</span>
+            </div>
+          </div>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 bg-slate-800/40 border border-slate-700/50 px-2.5 py-1 rounded-sm">
+              <span className="text-[10px] font-bold uppercase text-slate-300">Lobby</span>
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent("open-lobby"))}
+                className="w-8 h-4 bg-slate-650 rounded-full p-0.5 relative transition-colors"
+              >
+                <div className="w-3 h-3 bg-white rounded-full transition-transform" />
+              </button>
+            </div>
+          </div>
         </div>
 
-        {/* Token selection tray */}
-        <div className="flex items-center gap-2 shrink-0 overflow-x-auto py-1 max-w-full custom-scrollbar">
-          {COIN_VALUES.map(val => (
-            <button
-              key={val}
-              onClick={() => {
-                if (balance < val) {
-                  setShowLowBalance(true);
-                  return;
-                }
-                setSelectedCoin(val);
-              }}
-              style={{ willChange: "transform" }}
-              className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center text-[9px] font-black border shadow shrink-0 transition-transform active:scale-95 leading-none",
-                selectedCoin === val
-                  ? "scale-110 ring-4 ring-[#0F172A]/20 shadow-[0_0_12px_rgba(0,0,0,0.15)] z-10 font-black border-[#0F172A]"
-                  : "hover:scale-105 border-[#E2E8F0]",
-                val === 50 && "bg-[#F8F9FA] text-[#0F172A]",
-                val === 100 && "bg-[#E2E8F0] text-[#0F172A]",
-                val === 500 && "bg-[#E0F2FE] text-[#0369A1] border-blue-200",
-                val === 1000 && "bg-[#FCE7F3] text-[#BE185D] border-pink-200",
-                val === 5000 && "bg-amber-50 text-yellow-800 border-yellow-200",
-                val === 10000 && "bg-emerald-50 text-emerald-800 border-emerald-200"
+        {/* WebRTC Video Stream & Interactive Canvas box */}
+        <div ref={containerRef} className="relative flex-1 w-full bg-slate-950 border border-slate-850 rounded-sm flex flex-col justify-between p-3 overflow-hidden min-h-[280px]">
+          {/* HTML5 WebRTC Video Node */}
+          <video
+            ref={streamRef}
+            autoPlay
+            playsInline
+            muted
+            controls={false}
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+            style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: "transform, opacity" }}
+          />
+
+          {/* 2D Interactive Canvas Overlay */}
+          <canvas
+            ref={canvasRef}
+            className="absolute inset-0 w-full h-full pointer-events-none z-10"
+          />
+
+          {/* Overlays */}
+          <div className="flex justify-between items-center z-20 w-full relative">
+            <span className="text-[9px] font-black text-white bg-black/60 px-2 py-1 rounded-sm uppercase tracking-widest">
+              DEALER ROOM: KYLIE #702
+            </span>
+            <div className="flex items-center gap-1.5 bg-black/60 px-2 py-1 rounded-sm">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">SUB-300MS WHIP</span>
+            </div>
+          </div>
+
+          {/* Middle Overlay: Bets phase */}
+          <div className="flex flex-col items-center justify-center text-center my-auto z-20 relative">
+            <AnimatePresence mode="wait">
+              {phase === 'open' && (
+                <motion.div
+                  key="open"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="text-xs font-black uppercase text-white bg-black/65 px-4 py-2 rounded-sm tracking-wider">
+                    {feedMsg}
+                  </div>
+                </motion.div>
               )}
-            >
-              ₹{val >= 1000 ? `${(val/1000).toFixed(0)}K` : val}
-            </button>
-          ))}
+
+              {phase === 'closed' && (
+                <motion.div
+                  key="closed"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="flex flex-col items-center gap-3"
+                >
+                  <div className="text-xs font-black text-rose-500 uppercase tracking-widest bg-black/65 px-4 py-2 rounded-sm animate-pulse">
+                    BETS CLOSED
+                  </div>
+                </motion.div>
+              )}
+
+              {phase === 'settled' && (
+                <motion.div
+                  key="settled"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.95 }}
+                  className="flex flex-col items-center gap-2"
+                >
+                  <div className="text-xs font-black text-indigo-300 uppercase tracking-widest bg-black/65 px-4 py-2 rounded-sm">
+                    {feedMsg}
+                  </div>
+                  {payoutOverlay.active && (
+                    <div className={cn(
+                      "px-4 py-1.5 rounded-sm font-black text-xs uppercase shadow-lg border leading-none mt-1.5",
+                      payoutOverlay.won 
+                        ? "bg-emerald-950/80 border-emerald-500/30 text-emerald-300" 
+                        : "bg-rose-950/80 border-rose-500/30 text-rose-300"
+                    )}>
+                      {payoutOverlay.won ? `Payout: +₹${payoutOverlay.profit}` : `Settled: -₹${Math.abs(payoutOverlay.profit)}`}
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </div>
+
+          {/* Stream Bottom Box: Header details and scorecard roadmap */}
+          <div className="border-t border-white/10 pt-2 shrink-0 flex items-center justify-between z-20 w-full relative bg-slate-950/80 p-2.5 rounded-sm border border-white/5">
+            <div className="flex flex-col items-start gap-1">
+              <span className="text-[10px] font-black text-slate-200 uppercase tracking-wider leading-none">{currentConfig.label}</span>
+              <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">WHIP WHEP Live</span>
+            </div>
+            
+            {/* Scorecard circles */}
+            <div className="flex gap-1 overflow-x-hidden max-w-[50%] items-center">
+              {historyList.map((val, idx) => (
+                <span 
+                  key={idx}
+                  className={cn(
+                    "w-4 h-4 rounded-full text-[8.5px] font-black flex items-center justify-center shrink-0 border-0",
+                    val === 'A' || val === '8' || val === 'D' || val === 'U' || val === '7'
+                      ? "bg-blue-600 text-white" 
+                      : val === 'B' || val === '9' || val === 'T' || val === 'W'
+                      ? "bg-red-600 text-white"
+                      : "bg-slate-700 text-slate-200"
+                  )}
+                >
+                  {val}
+                </span>
+              ))}
+            </div>
+
+            {/* Total bet and timer */}
+            <div className="flex items-center gap-3">
+              <div className="text-right">
+                <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
+                <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
+              </div>
+              <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2 py-1 rounded-sm text-white">
+                <Clock className="w-3.5 h-3.5 text-blue-450" />
+                <span className="text-xs font-black font-mono leading-none min-w-[15px]">{countdown}s</span>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        {/* Interactive Betting Matrix Targets */}
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 shrink-0 mt-4">
+          {currentConfig.targets.map(target => {
+            const activeWager = bets[target.id] || 0;
+            const isWinner = phase === 'settled' && roundWinner === target.id;
+            
+            return (
+              <button
+                key={target.id}
+                onClick={(e) => handleBetPlacement(target.id, e)}
+                className={cn(
+                  "border rounded-sm p-3.5 flex flex-col justify-between items-center transition-all relative overflow-hidden h-[86px] bg-white border-slate-200 text-[#0F172A] hover:border-slate-450",
+                  isWinner && "ring-4 ring-emerald-500 scale-102 font-black",
+                  phase !== 'open' && "opacity-85"
+                )}
+              >
+                <div className="flex justify-between items-center w-full">
+                  <span className="text-xs font-black uppercase tracking-wider text-slate-800">{target.name}</span>
+                  <span className="text-[10px] font-bold text-slate-500 font-mono">x{target.odds.toFixed(2)}</span>
+                </div>
+                
+                <span className={cn(
+                  "text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1",
+                  activeWager > 0 ? "text-[#E11D48]" : "text-slate-400"
+                )}>
+                  {activeWager > 0 ? `Bet: ₹${activeWager.toLocaleString('en-IN')}` : "BET HERE"}
+                </span>
+              </button>
+            );
+          })}
         </div>
 
       </div>
@@ -737,7 +840,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
         {showConnectionLost && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
             <div className="bg-white border border-[#E2E8F0] max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4">
-              <RefreshCw className="w-12 h-12 text-indigo-600 mx-auto animate-spin" />
+              <RefreshCw className="w-12 h-12 text-indigo-650 mx-auto animate-spin" />
               <h4 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">Connection Lost</h4>
               <p className="text-xs text-slate-500 leading-normal">
                 Connection Lost: Attempting to reconnect to live dealer room...

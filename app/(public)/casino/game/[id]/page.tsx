@@ -708,7 +708,7 @@ export default function GamePlayerPage() {
                   <div className="relative z-10 w-full flex-1 flex flex-col md:flex-row">
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
-                    {tutorialDismissed && (
+                    {tutorialDismissed && !game.id.startsWith("royal-") && (
                       <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)]">
                         {isCloudRenting ? (
                           <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
@@ -764,7 +764,7 @@ export default function GamePlayerPage() {
                                     key={amount}
                                     onClick={() => setBetAmount(amount)}
                                     onDoubleClick={() => setBetAmount(amount * 2)}
-                                    className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-300'}`}
+                                    className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-50 hover:border-slate-350'}`}
                                     title="Double click to double bet"
                                   >
                                     ₹{amount >= 1000 ? `${amount/1000}k` : amount}
@@ -788,50 +788,58 @@ export default function GamePlayerPage() {
                     )}
 
                     {/* RIGHT AREA (Game Canvas) */}
-                    <div className="flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden bg-[#0f1923] p-2 md:p-6 md:pl-8">
+                    <div className={cn(
+                      "flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
+                      game.id.startsWith("royal-") ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
+                    )}>
                       
                       {/* Header Overlay */}
-                      <div className="w-full flex justify-between items-center z-20 mb-4 bg-white/5 backdrop-blur-md border border-white/10 p-2 md:p-3 rounded-2xl shadow-xl">
-                        <div className="flex items-center gap-3">
-                          <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover shadow-md shrink-0 border border-white/10" />
-                          <div className="flex-1">
-                            <p className="text-white font-black text-xs md:text-sm uppercase tracking-wider leading-none truncate max-w-[150px] sm:max-w-none">{game.title}</p>
-                            <p className="text-cyan-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                              <span className="relative flex h-2 w-2 shrink-0">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                              </span>
-                              {isCloudRenting ? "Cloud Stream" : "Live Betting"}
-                            </p>
+                      {!game.id.startsWith("royal-") && (
+                        <div className="w-full flex justify-between items-center z-20 mb-4 bg-white/5 backdrop-blur-md border border-white/10 p-2 md:p-3 rounded-2xl shadow-xl">
+                          <div className="flex items-center gap-3">
+                            <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover shadow-md shrink-0 border border-white/10" />
+                            <div className="flex-1">
+                              <p className="text-white font-black text-xs md:text-sm uppercase tracking-wider leading-none truncate max-w-[150px] sm:max-w-none">{game.title}</p>
+                              <p className="text-cyan-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
+                                <span className="relative flex h-2 w-2 shrink-0">
+                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
+                                </span>
+                                {isCloudRenting ? "Cloud Stream" : "Live Betting"}
+                              </p>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Multiplayer Toggle Mode */}
-                        <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
-                          <div className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-cyan-400" />
-                            <span className="text-[10px] md:text-xs font-black uppercase text-slate-300 hidden sm:inline">Lobby</span>
+                          {/* Multiplayer Toggle Mode */}
+                          <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
+                            <div className="flex items-center gap-2">
+                              <Users className="w-4 h-4 text-cyan-400" />
+                              <span className="text-[10px] md:text-xs font-black uppercase text-slate-300 hidden sm:inline">Lobby</span>
+                            </div>
+                            <button 
+                              onClick={() => setIsMultiplayer(!isMultiplayer)}
+                              className={cn(
+                                "relative w-10 h-5 md:w-12 md:h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
+                                isMultiplayer ? "bg-neon-green" : "bg-slate-700"
+                              )}
+                            >
+                              <motion.div 
+                                layout
+                                className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full"
+                                style={{ marginLeft: isMultiplayer ? (typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : '24px') : '0px' }}
+                              />
+                            </button>
                           </div>
-                          <button 
-                            onClick={() => setIsMultiplayer(!isMultiplayer)}
-                            className={cn(
-                              "relative w-10 h-5 md:w-12 md:h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
-                              isMultiplayer ? "bg-neon-green" : "bg-slate-700"
-                            )}
-                          >
-                            <motion.div 
-                              layout
-                              className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full"
-                              style={{ marginLeft: isMultiplayer ? (typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : '24px') : '0px' }}
-                            />
-                          </button>
                         </div>
-                      </div>
+                      )}
 
                       {/* Central Canvas Area */}
                       <div className="flex-1 w-full flex flex-col md:flex-row gap-6 relative z-10 min-h-[500px] md:min-h-[600px]">
                         
-                        <div className="flex-1 flex items-center justify-center relative bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5">
+                        <div className={cn(
+                          "flex-1 flex items-center justify-center relative",
+                          game.id.startsWith("royal-") ? "bg-transparent border-none" : "bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+                        )}>
                           {!isCloudRenting ? (
                             <div className="relative w-full h-full flex items-center justify-center">
                               {renderEngine()}

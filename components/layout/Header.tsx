@@ -101,7 +101,7 @@ export function Header() {
   }, [isLoggedIn, syncFromServer]);
 
   return (
-    <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white border-b border-slate-200 shadow-[0_1px_3px_rgba(0,0,0,0.02)] flex items-center justify-between px-4 sm:px-6 transition-all relative">
+    <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white border-b border-[#E2E8F0] flex items-center justify-between px-4 sm:px-6 transition-all relative">
       
       {/* Mobile Menu Toggle */}
       <div className="flex items-center lg:hidden mr-3">
@@ -122,8 +122,8 @@ export function Header() {
           onFocus={() => setIsSearchFocused(true)}
           onBlur={() => setIsSearchFocused(false)}
           className={cn(
-            "relative hidden md:flex items-center rounded-lg overflow-hidden transition-all duration-300 border bg-slate-50/50 cursor-pointer shadow-sm group",
-            isSearchFocused ? "border-slate-300 w-72 ring-2 ring-slate-100" : "border-slate-200/60 w-56 hover:border-slate-300 hover:bg-slate-50"
+            "relative hidden md:flex items-center rounded-sm overflow-hidden transition-all duration-300 border bg-slate-50/50 cursor-pointer group",
+            isSearchFocused ? "border-slate-300 w-72" : "border-slate-200/60 w-56 hover:border-slate-300 hover:bg-slate-50"
           )}
         >
           <div className="pl-3 py-1.5 transition-colors group-hover:text-slate-600">
@@ -133,14 +133,17 @@ export function Header() {
             Search games & markets...
           </span>
           <div className="hidden lg:flex items-center gap-0.5 pr-2">
-            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md px-1.5 py-0.5 shadow-sm">⌘</kbd>
-            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-md px-1.5 py-0.5 shadow-sm">K</kbd>
+            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-sm px-1.5 py-0.5">⌘</kbd>
+            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-sm px-1.5 py-0.5">K</kbd>
           </div>
         </button>
 
         {/* IST Digital Clock */}
-        <div className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-lg text-[10px] font-black text-slate-500 font-mono tracking-wider ml-2 shadow-sm select-none">
-          <Clock className="w-3.5 h-3.5 text-red-650 animate-pulse" />
+        <div className="hidden lg:flex items-center gap-2 px-3 py-1 bg-[#F8FAFC] border border-[#E2E8F0] rounded-full text-[11px] font-bold text-slate-700 font-mono select-none">
+          <span className="relative flex h-1.5 w-1.5">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-650"></span>
+          </span>
           <span>{timeStr}</span>
         </div>
       </div>
@@ -155,38 +158,38 @@ export function Header() {
               <div className="flex flex-col items-end leading-none">
                 <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">Balance</span>
                 <span className={cn(
-                  "text-xs sm:text-sm font-black font-mono tabular-nums tracking-tight transition-all duration-300",
-                  balanceFlash === "up" ? "text-emerald-500 scale-105 drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]" :
-                  balanceFlash === "down" ? "text-rose-500 scale-95 animate-bounce" : "text-slate-900"
+                  "text-xs sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
+                  balanceFlash === "up" ? "text-emerald-600 scale-105" :
+                  balanceFlash === "down" ? "text-rose-600 scale-95" : "text-[#1E293B]"
                 )}>
-                  ₹{isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
+                  ₹{isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
               <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
               <div className="flex flex-col items-end leading-none">
                 <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">Exposure</span>
                 <span className={cn(
-                  "text-xs sm:text-sm font-black font-mono tabular-nums tracking-tight transition-all duration-300",
-                  exposureFlash === "up" ? "text-red-500 scale-105 drop-shadow-[0_0_10px_rgba(220,38,38,0.5)]" :
-                  exposureFlash === "down" ? "text-emerald-500 scale-95" : "text-red-600"
+                  "text-xs sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
+                  exposureFlash === "up" ? "text-red-500 scale-105" :
+                  exposureFlash === "down" ? "text-emerald-650 scale-95" : "text-[#E11D48]"
                 )}>
-                  ₹{isClient ? currentExposure.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
+                  ₹{isClient ? currentExposure.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "0.00"}
                 </span>
               </div>
 
               {/* VIP Level Badge HUD */}
               <div className="hidden sm:flex flex-col items-start leading-none pl-1">
                 <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">VIP Tier</span>
-                <span className="text-[10px] font-black text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded uppercase tracking-wider select-none">
+                <span className="text-[10px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-sm uppercase tracking-wider select-none">
                   LVL {Math.floor((xp || 0) / 1000) + 1}
                 </span>
               </div>
 
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="bg-gradient-to-r from-red-600 to-rose-600 hover:opacity-95 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-md transition-all ml-2 uppercase tracking-wider shadow-md active:scale-95 shadow-red-500/10"
+                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-bold px-4 py-2 uppercase tracking-wide rounded-sm ml-2 text-xs transition-all"
               >
-                Deposit
+                DEPOSIT
               </button>
             </div>
 
