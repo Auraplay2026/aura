@@ -121,7 +121,7 @@ function HoverCanvasPreview({ type }: { type: string }) {
 
       if (type === "crash" || type === "originals") {
         // Rocket path
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.8)";
+        ctx.strokeStyle = "rgba(6, 182, 212, 0.9)";
         ctx.lineWidth = 3;
         ctx.beginPath();
         ctx.moveTo(w * 0.1, h * 0.8);
@@ -136,12 +136,12 @@ function HoverCanvasPreview({ type }: { type: string }) {
         ctx.stroke();
 
         if (progress < 0.94) {
-          ctx.fillStyle = "#22c55e";
+          ctx.fillStyle = "#16a34a"; // readable green
           ctx.beginPath();
           ctx.arc(w * 0.1 + progress * w * 0.8, h * 0.8 - progress * curveHeight, 5, 0, Math.PI * 2);
           ctx.fill();
         } else {
-          ctx.fillStyle = "#ef4444";
+          ctx.fillStyle = "#dc2626"; // readable red
           ctx.beginPath();
           ctx.arc(w * 0.1 + progress * w * 0.8, h * 0.8 - progress * curveHeight, 10 * ((frame % 8) / 8), 0, Math.PI * 2);
           ctx.fill();
@@ -158,11 +158,11 @@ function HoverCanvasPreview({ type }: { type: string }) {
             const idx = c + r * cols;
             const isFlipped = Math.floor(frame / 35) % 9 === idx;
             if (isFlipped) {
-              ctx.fillStyle = idx % 4 === 0 ? "rgba(239, 68, 68, 0.25)" : "rgba(34, 197, 94, 0.25)";
-              ctx.strokeStyle = idx % 4 === 0 ? "#ef4444" : "#22c55e";
+              ctx.fillStyle = idx % 4 === 0 ? "rgba(220, 38, 38, 0.15)" : "rgba(22, 163, 74, 0.15)";
+              ctx.strokeStyle = idx % 4 === 0 ? "#dc2626" : "#16a34a";
             } else {
-              ctx.fillStyle = "rgba(15, 23, 42, 0.6)";
-              ctx.strokeStyle = "rgba(51, 65, 85, 0.3)";
+              ctx.fillStyle = "rgba(241, 245, 249, 0.9)";
+              ctx.strokeStyle = "rgba(203, 213, 225, 0.6)";
             }
             ctx.lineWidth = 1;
             ctx.beginPath();
@@ -172,8 +172,8 @@ function HoverCanvasPreview({ type }: { type: string }) {
           }
         }
       } else if (type === "plinko") {
-        // pegs
-        ctx.fillStyle = "rgba(255, 255, 255, 0.4)";
+        // pegs (darker for light theme)
+        ctx.fillStyle = "rgba(100, 116, 139, 0.4)";
         const pegRows = 6;
         for (let r = 0; r < pegRows; r++) {
           const count = r + 3;
@@ -189,12 +189,12 @@ function HoverCanvasPreview({ type }: { type: string }) {
         let ballX = w / 2;
         let ballY = h * 0.1 + t * h * 0.65;
         if (t > 0.2) ballX += Math.sin(t * 12) * 10;
-        ctx.fillStyle = "#ec4899";
+        ctx.fillStyle = "#db2777";
         ctx.beginPath();
         ctx.arc(ballX, ballY, 4, 0, Math.PI * 2);
         ctx.fill();
       } else if (type === "limbo") {
-        ctx.fillStyle = "rgba(34, 197, 94, 0.95)";
+        ctx.fillStyle = "#16a34a"; // readable green
         ctx.font = "bold 22px monospace";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
@@ -217,7 +217,7 @@ function HoverCanvasPreview({ type }: { type: string }) {
     return () => cancelAnimationFrame(animationId);
   }, [type]);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-slate-950/85 backdrop-blur-[1px]" />;
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-[1px]" />;
 }
 
 function NeonHorizonHeroPreview() {
@@ -250,7 +250,10 @@ function NeonHorizonHeroPreview() {
       if (!ctx || !canvas) return;
       const w = canvas.width;
       const h = canvas.height;
-      ctx.clearRect(0, 0, w, h);
+      
+      // Light background gradient
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillRect(0, 0, w, h);
 
       if (state === "run") {
         currMultiplier += 0.008 + (currMultiplier * 0.006);
@@ -268,7 +271,7 @@ function NeonHorizonHeroPreview() {
         }
 
         // 3D Perspective Road lines
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.35)";
+        ctx.strokeStyle = "rgba(14, 165, 233, 0.4)"; // Sky blue
         ctx.lineWidth = 1.5;
         const horizonY = h * 0.45;
         const horizonW = w * 0.15;
@@ -289,7 +292,7 @@ function NeonHorizonHeroPreview() {
         ctx.stroke();
 
         // lane dash
-        ctx.strokeStyle = "rgba(168, 85, 247, 0.5)";
+        ctx.strokeStyle = "rgba(219, 39, 119, 0.6)"; // Pink
         ctx.lineWidth = 2;
         ctx.setLineDash([15, 25]);
         ctx.beginPath();
@@ -300,8 +303,8 @@ function NeonHorizonHeroPreview() {
         ctx.stroke();
         ctx.setLineDash([]);
 
-        // stars
-        ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+        // stars (darker specs in light sky)
+        ctx.fillStyle = "rgba(100, 116, 139, 0.25)";
         for (let i = 0; i < 15; i++) {
           const sx = ((Math.sin(i * 85) + 1) / 2) * w;
           const sy = ((Math.cos(i * 45) + 1) / 2) * horizonY;
@@ -313,8 +316,8 @@ function NeonHorizonHeroPreview() {
         const py = h * 0.78;
         const cw = 50;
         const ch = 16;
-        ctx.fillStyle = "rgba(6, 182, 212, 0.2)";
-        ctx.strokeStyle = "#06b6d4";
+        ctx.fillStyle = "rgba(14, 165, 233, 0.15)";
+        ctx.strokeStyle = "#0ea5e9";
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.roundRect(px - cw / 2, py - ch / 2, cw, ch, 4);
@@ -322,11 +325,11 @@ function NeonHorizonHeroPreview() {
         ctx.stroke();
 
         // spoiler
-        ctx.fillStyle = "#ec4899";
+        ctx.fillStyle = "#db2777";
         ctx.fillRect(px - cw / 2 + 4, py - ch / 2 - 3, cw - 8, 3);
 
         // grid horizontal bars
-        ctx.strokeStyle = "rgba(6, 182, 212, 0.15)";
+        ctx.strokeStyle = "rgba(14, 165, 233, 0.18)";
         ctx.lineWidth = 1;
         for (let i = 0; i < 7; i++) {
           const t = ((i * 45 + frame * 3.5) % 250) / 250;
@@ -338,15 +341,15 @@ function NeonHorizonHeroPreview() {
           ctx.stroke();
         }
       } else {
-        // crash flash
-        ctx.fillStyle = "rgba(239, 68, 68, 0.1)";
+        // crash flash (reddish light)
+        ctx.fillStyle = "rgba(239, 68, 68, 0.15)";
         ctx.fillRect(0, 0, w, h);
-        ctx.fillStyle = "#ef4444";
+        ctx.fillStyle = "#dc2626";
         ctx.font = "italic bold 26px font-black tracking-widest";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         ctx.fillText("CRASHED!", w / 2, h / 2 - 15);
-        ctx.fillStyle = "rgba(255, 255, 255, 0.7)";
+        ctx.fillStyle = "rgba(15, 23, 42, 0.8)";
         ctx.font = "bold 16px monospace";
         ctx.fillText(`@ ${multiplier.toFixed(2)}x`, w / 2, h / 2 + 18);
       }
@@ -357,11 +360,11 @@ function NeonHorizonHeroPreview() {
   }, []);
 
   return (
-    <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-950 flex items-center justify-center">
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-slate-900/40 opacity-70 z-10" />
+    <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-50 flex items-center justify-center">
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-100 via-slate-50/10 to-white/40 opacity-70 z-10" />
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       <div className="absolute top-4 left-4 z-20 flex flex-col gap-1 pointer-events-none">
-        <span className="text-[9px] bg-cyan-500/10 border border-cyan-500/35 text-cyan-400 font-bold px-2 py-0.5 rounded tracking-widest uppercase">
+        <span className="text-[9px] bg-sky-100 border border-sky-200 text-sky-700 font-bold px-2 py-0.5 rounded tracking-widest uppercase">
           AURA ENGINE v1.1
         </span>
         <span className="text-[8px] text-slate-500 font-mono">
@@ -369,14 +372,14 @@ function NeonHorizonHeroPreview() {
         </span>
       </div>
       <div className="absolute top-4 right-4 z-20 pointer-events-none">
-        <span className="flex items-center gap-1.5 px-3 py-1 bg-black/60 border border-white/10 text-white text-[9px] font-black uppercase tracking-widest rounded-full backdrop-blur-md">
+        <span className="flex items-center gap-1.5 px-3 py-1 bg-white/80 border border-slate-200 text-slate-700 text-[9px] font-black uppercase tracking-widest rounded-full backdrop-blur-md shadow-sm">
           <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
           ACTIVE TEST LAB
         </span>
       </div>
       <div className="absolute z-20 flex flex-col items-center pointer-events-none">
-        <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest">MULTIPLIER</span>
-        <span className={`text-4xl font-black font-mono tracking-tight drop-shadow-[0_2px_10px_rgba(6,182,212,0.4)] ${gameState === 'crash' ? 'text-red-500 scale-95' : 'text-cyan-400 scale-105'} transition-all duration-300`}>
+        <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">MULTIPLIER</span>
+        <span className={`text-4xl font-black font-mono tracking-tight drop-shadow-sm ${gameState === 'crash' ? 'text-red-600 scale-95' : 'text-sky-600 scale-105'} transition-all duration-300`}>
           {multiplier.toFixed(2)}x
         </span>
       </div>
@@ -748,6 +751,7 @@ export default function GlobalHomepage() {
       <div className="h-6" /> {/* Spacer */}
 
       {/* 4. PREMIUM 3D & AAA HIGH-MOTION LOBBY (TOP 1% OVERHAUL) */}
+       {/* 4. PREMIUM 3D & AAA HIGH-MOTION LOBBY (TOP 1% LIGHT OVERHAUL) */}
       
       {/* ========================================== */}
       {/* CATEGORY 1: AURA PLAY IN-HOUSE ORIGINALS */}
@@ -757,24 +761,24 @@ export default function GlobalHomepage() {
         whileInView={{ opacity: 1, y: 0 }} 
         viewport={{ once: true, margin: "-50px" }} 
         transition={{ duration: 0.6 }} 
-        className="w-full mt-4 bg-slate-950/45 border border-slate-900 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-2xl"
+        className="w-full mt-4 bg-white border border-slate-200/80 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
       >
-        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-cyan-500/5 blur-[120px] rounded-full pointer-events-none" />
         
         {/* Section Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-900 pb-5">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-100 pb-5">
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] bg-cyan-500/10 border border-cyan-500/35 text-cyan-400 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
-              <Zap className="w-3 h-3 text-cyan-400" /> 99.0% RTP PROVABLY FAIR
+            <span className="text-[9px] bg-cyan-50 border border-cyan-200 text-cyan-700 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
+              <Zap className="w-3 h-3 text-cyan-600 animate-pulse" /> 99.0% RTP PROVABLY FAIR
             </span>
-            <h2 className="text-xl md:text-2xl font-black text-white tracking-tight uppercase leading-none mt-2">
-              AuraPlay <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-400 to-blue-500 drop-shadow-[0_2px_10px_rgba(6,182,212,0.3)]">In-House Originals</span>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
+              AuraPlay <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600 drop-shadow-sm">In-House Originals</span>
             </h2>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
               Ultra High-Frame-Rate physics-based games operating on verifiably fair seed hashes.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-500 hover:text-cyan-400 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-cyan-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             All Casino <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -783,29 +787,29 @@ export default function GlobalHomepage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative z-10">
           
           {/* Flagship Hero Panel (Neon Horizon 3D) */}
-          <div className="col-span-1 lg:col-span-2 relative min-h-[300px] lg:min-h-auto rounded-[2rem] overflow-hidden border border-slate-800 bg-slate-950 flex flex-col md:flex-row group shadow-xl">
+          <div className="col-span-1 lg:col-span-2 relative min-h-[300px] lg:min-h-auto rounded-[2rem] overflow-hidden border border-slate-200 bg-white flex flex-col md:flex-row group shadow-md">
             {/* Live 3D Canvas Preview */}
-            <div className="w-full md:w-[60%] relative h-[200px] md:h-auto overflow-hidden border-b md:border-b-0 md:border-r border-slate-900">
+            <div className="w-full md:w-[60%] relative h-[200px] md:h-auto overflow-hidden border-b md:border-b-0 md:border-r border-slate-100">
               <NeonHorizonHeroPreview />
             </div>
 
             {/* Launch Settings Panel */}
-            <div className="w-full md:w-[40%] p-6 flex flex-col justify-between bg-slate-950/90 relative z-20 backdrop-blur-md">
+            <div className="w-full md:w-[40%] p-6 flex flex-col justify-between bg-slate-50/60 relative z-20 backdrop-blur-md">
               <div>
-                <span className="text-[8px] font-black text-cyan-400 tracking-[0.2em] uppercase">FLAGSHIP RELEASE</span>
-                <h3 className="text-white font-black text-xl tracking-tight uppercase mt-1">Neon Horizon 3D</h3>
-                <p className="text-slate-400 text-xs mt-2 leading-relaxed font-semibold">
+                <span className="text-[8px] font-black text-cyan-600 tracking-[0.2em] uppercase">FLAGSHIP RELEASE</span>
+                <h3 className="text-slate-900 font-black text-xl tracking-tight uppercase mt-1">Neon Horizon 3D</h3>
+                <p className="text-slate-600 text-xs mt-2 leading-relaxed font-semibold">
                   Race a cyber supercar down a neon obstacle course. Outcomes sync with compliance math and trigger hyperspace cashouts.
                 </p>
 
                 <div className="grid grid-cols-2 gap-3 mt-4">
-                  <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-2.5">
-                    <span className="block text-[8px] text-slate-500 font-bold uppercase tracking-wider">RTP RATE</span>
-                    <span className="text-[11px] text-emerald-400 font-black font-mono">99.0%</span>
+                  <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+                    <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">RTP RATE</span>
+                    <span className="text-[11px] text-emerald-600 font-black font-mono">99.0%</span>
                   </div>
-                  <div className="bg-slate-900/40 border border-slate-800/80 rounded-xl p-2.5">
-                    <span className="block text-[8px] text-slate-500 font-bold uppercase tracking-wider">MAX WIN</span>
-                    <span className="text-[11px] text-purple-400 font-black font-mono">10,000x</span>
+                  <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
+                    <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">MAX WIN</span>
+                    <span className="text-[11px] text-purple-600 font-black font-mono">10,000x</span>
                   </div>
                 </div>
               </div>
@@ -813,7 +817,7 @@ export default function GlobalHomepage() {
               <div className="mt-6">
                 <Link 
                   href="/casino/game/orig-15"
-                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-[0_4px_20px_rgba(6,182,212,0.3)] hover:shadow-[0_4px_25px_rgba(6,182,212,0.55)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-[0_4px_15px_rgba(6,182,212,0.2)] hover:shadow-[0_4px_20px_rgba(6,182,212,0.4)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
                 >
                   LAUNCH MISSION <Play className="w-3 h-3 fill-white" />
                 </Link>
@@ -824,41 +828,40 @@ export default function GlobalHomepage() {
           {/* Side Column: Other Originals Cards */}
           <div className="grid grid-cols-2 gap-4">
             {inHouseOriginals.filter(g => g.id !== "orig-15").slice(0, 4).map(game => {
-              const textGrad = "from-cyan-400 to-blue-500";
-              const isOrig = true;
+              const textGrad = "from-cyan-600 to-blue-600";
               return (
                 <div key={game.id} className="relative group">
                   <Link 
                     href={`/casino/game/${game.id}`}
-                    className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-900 border border-slate-800/80 transition-all duration-500 hover:-translate-y-1.5 hover:border-cyan-500/50 hover:shadow-[0_0_20px_rgba(6,182,212,0.15)] relative"
+                    className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-150 transition-all duration-500 hover:-translate-y-1.5 hover:border-cyan-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
                   >
                     <HoverCanvasPreview type={game.id.split('-')[1]} />
                     <img 
                       src={game.image} 
                       alt={game.title}
                       loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-65 group-hover:opacity-30"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
                     <div className="absolute top-3 inset-x-3 flex justify-between items-center z-20 pointer-events-none">
-                      <span className="flex items-center gap-1 px-2 py-0.5 bg-black/60 border border-white/5 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                      <span className="flex items-center gap-1 px-2 py-0.5 bg-white/80 border border-slate-200/80 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
                         <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                         {(game.players || 1200) > 1000 ? ((game.players || 1200) / 1000).toFixed(1) + 'k' : game.players} LIVE
                       </span>
                     </div>
 
-                    <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent pt-8">
+                    <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
                       <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
                         ORIGINAL
                       </span>
-                      <h4 className="text-white font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-cyan-400 transition-colors">
+                      <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-cyan-600 transition-colors">
                         {game.title}
                       </h4>
-                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                        <p className="text-[7px] text-slate-500 font-bold uppercase">RTP {game.rtp}%</p>
-                        <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-950 text-[8px] font-black uppercase tracking-widest rounded-full">
-                          PLAY <Play className="w-1.5 h-1.5 fill-slate-950" />
+                      <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                        <p className="text-[7px] text-slate-400 font-bold uppercase">RTP {game.rtp}%</p>
+                        <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                          PLAY <Play className="w-1.5 h-1.5 fill-white" />
                         </div>
                       </div>
                     </div>
@@ -871,34 +874,34 @@ export default function GlobalHomepage() {
         </div>
 
         {/* Live Wins Ticker & Seed Verifier Sandbox */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-8 border-t border-slate-900 relative z-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 pt-8 border-t border-slate-100 relative z-10">
           
           {/* Live win feed */}
-          <div className="bg-slate-950/60 border border-slate-900 rounded-3xl p-5 flex flex-col justify-between">
+          <div className="bg-slate-50 border border-slate-200/80 rounded-3xl p-5 flex flex-col justify-between shadow-sm">
             <div>
               <div className="flex items-center gap-2 mb-4">
                 <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                <h4 className="text-xs font-black text-white uppercase tracking-wider">Live Platform Payouts</h4>
+                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Live Platform Payouts</h4>
               </div>
               
               <div className="space-y-2.5">
                 {liveWins.map((win) => (
-                  <div key={win.id} className="flex items-center justify-between border border-slate-900/60 bg-slate-900/20 rounded-xl px-4 py-2 hover:bg-slate-900/40 transition-colors">
+                  <div key={win.id} className="flex items-center justify-between border border-slate-200 bg-white rounded-xl px-4 py-2 hover:bg-slate-50 transition-colors shadow-sm">
                     <div className="flex items-center gap-3">
-                      <div className="w-7 h-7 rounded-lg bg-cyan-950/40 border border-cyan-800/20 flex items-center justify-center text-cyan-400 font-black text-[9px] uppercase italic">
+                      <div className="w-7 h-7 rounded-lg bg-cyan-50 border border-cyan-200 flex items-center justify-center text-cyan-600 font-black text-[9px] uppercase italic">
                         {win.gameTitle.split(" ")[0].substring(0, 2)}
                       </div>
                       <div className="flex flex-col">
-                        <span className="text-xs font-black text-white">{win.username}</span>
+                        <span className="text-xs font-black text-slate-800">{win.username}</span>
                         <span className="text-[9px] text-slate-500 font-bold uppercase">{win.gameTitle}</span>
                       </div>
                     </div>
                     <div className="flex items-center gap-4 text-right">
                       <div className="flex flex-col">
-                        <span className="text-xs font-black text-emerald-400 font-mono">₹{win.profit}</span>
-                        <span className="text-[8px] text-slate-500 font-bold uppercase">Multiplier: {win.multiplier.toFixed(2)}x</span>
+                        <span className="text-xs font-black text-emerald-600 font-mono">₹{win.profit}</span>
+                        <span className="text-[8px] text-slate-500 font-bold uppercase font-mono">Mult: {win.multiplier.toFixed(2)}x</span>
                       </div>
-                      <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{win.time}</span>
+                      <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{win.time}</span>
                     </div>
                   </div>
                 ))}
@@ -907,11 +910,11 @@ export default function GlobalHomepage() {
           </div>
 
           {/* Seed Verifier tool */}
-          <div className="bg-slate-950/60 border border-slate-900 rounded-3xl p-5 flex flex-col justify-between">
+          <div className="bg-slate-50 border border-slate-200/80 rounded-3xl p-5 flex flex-col justify-between shadow-sm">
             <div>
               <div className="flex items-center gap-2 mb-4">
-                <Shield className="w-4 h-4 text-cyan-400" />
-                <h4 className="text-xs font-black text-white uppercase tracking-wider">Provably Fair Verifier Sandbox</h4>
+                <Shield className="w-4 h-4 text-cyan-600" />
+                <h4 className="text-xs font-black text-slate-800 uppercase tracking-wider">Provably Fair Verifier Sandbox</h4>
               </div>
 
               <div className="space-y-3">
@@ -922,7 +925,7 @@ export default function GlobalHomepage() {
                       type="text" 
                       value={clientSeed}
                       onChange={(e) => setClientSeed(e.target.value)}
-                      className="bg-slate-900/60 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono font-bold focus:outline-none focus:border-cyan-500/50"
+                      className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-mono font-bold focus:outline-none focus:border-cyan-500"
                     />
                   </div>
                   <div className="flex flex-col gap-1">
@@ -932,11 +935,11 @@ export default function GlobalHomepage() {
                         type="number" 
                         value={nonce}
                         onChange={(e) => setNonce(parseInt(e.target.value) || 1)}
-                        className="bg-slate-900/60 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white font-mono font-bold focus:outline-none focus:border-cyan-500/50 w-20"
+                        className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-xs text-slate-800 font-mono font-bold focus:outline-none focus:border-cyan-500 w-20"
                       />
                       <button 
                         onClick={() => setNonce(prev => prev + 1)}
-                        className="px-2.5 bg-slate-900 hover:bg-slate-800 border border-slate-800 rounded-lg text-slate-400 hover:text-white transition-colors"
+                        className="px-2.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-500 hover:text-slate-950 transition-colors cursor-pointer"
                       >
                         +1
                       </button>
@@ -950,18 +953,18 @@ export default function GlobalHomepage() {
                     type="text" 
                     value={serverSeed}
                     onChange={(e) => setServerSeed(e.target.value)}
-                    className="bg-slate-900/60 border border-slate-800 rounded-lg px-2.5 py-1.5 text-[10px] text-white font-mono font-bold focus:outline-none focus:border-cyan-500/50 w-full"
+                    className="bg-white border border-slate-200 rounded-lg px-2.5 py-1.5 text-[10px] text-slate-800 font-mono font-bold focus:outline-none focus:border-cyan-500 w-full"
                   />
                 </div>
 
                 {calculatedHash && (
-                  <div className="bg-slate-900/30 border border-slate-800 rounded-xl p-3 space-y-1">
-                    <span className="block text-[8px] text-slate-500 font-black uppercase tracking-widest">RESULTING COMBINED HASH</span>
-                    <span className="block text-[9px] text-slate-400 font-mono break-all font-semibold select-all">{calculatedHash}</span>
+                  <div className="bg-white border border-slate-200 rounded-xl p-3 space-y-1 shadow-sm">
+                    <span className="block text-[8px] text-slate-400 font-black uppercase tracking-widest">RESULTING COMBINED HASH</span>
+                    <span className="block text-[9px] text-slate-700 font-mono break-all font-semibold select-all">{calculatedHash}</span>
                     {calculatedMultiplier && (
-                      <div className="pt-2 border-t border-slate-900 mt-2 flex justify-between items-center">
-                        <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest">VERIFIED OUTCOME</span>
-                        <span className="text-xs text-emerald-400 font-black font-mono">{calculatedMultiplier.toFixed(2)}x</span>
+                      <div className="pt-2 border-t border-slate-100 mt-2 flex justify-between items-center">
+                        <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest">VERIFIED OUTCOME</span>
+                        <span className="text-xs text-emerald-600 font-black font-mono">{calculatedMultiplier.toFixed(2)}x</span>
                       </div>
                     )}
                   </div>
@@ -973,7 +976,7 @@ export default function GlobalHomepage() {
               <button 
                 onClick={handleVerify}
                 disabled={isVerifying}
-                className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-cyan-400 hover:text-cyan-300 font-black text-[10px] uppercase tracking-widest rounded-xl border border-cyan-500/20 transition-all flex items-center justify-center gap-1.5"
+                className="w-full py-2.5 bg-white hover:bg-slate-50 text-cyan-600 hover:text-cyan-700 font-black text-[10px] uppercase tracking-widest rounded-xl border border-cyan-200 shadow-sm transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${isVerifying ? 'animate-spin' : ''}`} />
                 RUN CRYPTOGRAPHIC SHUFFLE
@@ -993,24 +996,24 @@ export default function GlobalHomepage() {
         whileInView={{ opacity: 1, y: 0 }} 
         viewport={{ once: true, margin: "-50px" }} 
         transition={{ duration: 0.6 }} 
-        className="w-full mt-6 bg-slate-950/45 border border-slate-900 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-2xl"
+        className="w-full mt-6 bg-white border border-slate-200/80 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
       >
         <div className="absolute top-0 right-0 w-80 h-80 bg-purple-500/5 blur-[120px] rounded-full pointer-events-none" />
         
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-900 pb-5">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-100 pb-5">
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] bg-purple-500/10 border border-purple-500/35 text-purple-400 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5 animate-pulse">
-              <Cpu className="w-3 h-3 text-purple-400 animate-spin" /> NVIDIA RTX 4090 DEDICATED
+            <span className="text-[9px] bg-purple-50 border border-purple-250 text-purple-700 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
+              <Cpu className="w-3 h-3 text-purple-600 animate-spin" /> NVIDIA RTX 4090 DEDICATED
             </span>
-            <h2 className="text-xl md:text-2xl font-black text-white tracking-tight uppercase leading-none mt-2">
-              AAA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-fuchsia-500 drop-shadow-[0_2px_10px_rgba(168,85,247,0.3)]">Cloud Rentals</span>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
+              AAA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-fuchsia-600 drop-shadow-sm">Cloud Rentals</span>
             </h2>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
               Instantly rent high-end gaming rigs. WebRTC 4K streams with less than 1ms node latency.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-500 hover:text-purple-400 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-purple-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             Enter Cloud Arena <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -1018,42 +1021,42 @@ export default function GlobalHomepage() {
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5 relative z-10">
           {aaaCloudRentals.slice(0, 5).map(game => {
-            const textGrad = "from-purple-400 to-fuchsia-500";
+            const textGrad = "from-purple-600 to-fuchsia-600";
             return (
               <div key={game.id} className="relative group">
                 <Link 
                   href={`/casino/game/${game.id}`}
-                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-900 border border-slate-800/80 transition-all duration-500 hover:-translate-y-1.5 hover:border-purple-500/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)] relative"
+                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-150 transition-all duration-500 hover:-translate-y-1.5 hover:border-purple-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
                 >
                   <img 
                     src={game.image} 
                     alt={game.title}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-65 group-hover:opacity-35"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
                   <div className="absolute top-3 inset-x-3 flex justify-between items-center z-20 pointer-events-none">
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-black/60 border border-white/5 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/80 border border-slate-200/80 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
                       <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                       {(game.players || 4500) > 1000 ? ((game.players || 4500) / 1000).toFixed(1) + 'k' : game.players} LIVE
                     </span>
-                    <span className="px-2 py-0.5 bg-purple-500/15 border border-purple-500/30 text-purple-400 text-[8px] font-black uppercase tracking-widest rounded-full">
+                    <span className="px-2 py-0.5 bg-purple-50 border border-purple-200 text-purple-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
                       ₹{game.hourlyRate}/HR
                     </span>
                   </div>
 
-                  <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent pt-8">
+                  <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
                     <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
                       CLOUD RENTAL
                     </span>
-                    <h4 className="text-white font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-purple-400 transition-colors">
+                    <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-purple-600 transition-colors">
                       {game.title}
                     </h4>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-500 font-bold uppercase">GPU RTX 4090</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-950 text-[8px] font-black uppercase tracking-widest rounded-full">
-                        RENT <Play className="w-1.5 h-1.5 fill-slate-950" />
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                      <p className="text-[7px] text-slate-400 font-bold uppercase">GPU RTX 4090</p>
+                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                        RENT <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
                     </div>
                   </div>
@@ -1072,24 +1075,24 @@ export default function GlobalHomepage() {
         whileInView={{ opacity: 1, y: 0 }} 
         viewport={{ once: true, margin: "-50px" }} 
         transition={{ duration: 0.6 }} 
-        className="w-full mt-6 bg-slate-950/45 border border-slate-900 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-2xl"
+        className="w-full mt-6 bg-white border border-slate-200/80 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
       >
         <div className="absolute top-0 right-0 w-80 h-80 bg-rose-500/5 blur-[120px] rounded-full pointer-events-none" />
         
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-900 pb-5">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-100 pb-5">
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] bg-rose-500/10 border border-rose-500/35 text-rose-400 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
-              <Star className="w-3 h-3 text-rose-400" /> CASCADE & CLUSTERS
+            <span className="text-[9px] bg-rose-50 border border-rose-250 text-rose-700 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
+              <Star className="w-3 h-3 text-rose-600" /> CASCADE & CLUSTERS
             </span>
-            <h2 className="text-xl md:text-2xl font-black text-white tracking-tight uppercase leading-none mt-2">
-              Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-400 to-rose-500 drop-shadow-[0_2px_10px_rgba(244,63,94,0.3)]">3D Slots</span>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
+              Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-600 drop-shadow-sm">3D Slots</span>
             </h2>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
               Stunning visual effects, rolling multipliers, and huge free spin trigger potentials.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-500 hover:text-rose-400 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-rose-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             All Slots <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -1097,42 +1100,42 @@ export default function GlobalHomepage() {
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5 relative z-10">
           {slots3d.slice(0, 5).map(game => {
-            const textGrad = "from-pink-400 to-rose-500";
+            const textGrad = "from-pink-600 to-rose-600";
             return (
               <div key={game.id} className="relative group">
                 <Link 
                   href={`/casino/game/${game.id}`}
-                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-900 border border-slate-800/80 transition-all duration-500 hover:-translate-y-1.5 hover:border-pink-500/50 hover:shadow-[0_0_20px_rgba(244,63,94,0.15)] relative"
+                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-155 transition-all duration-500 hover:-translate-y-1.5 hover:border-pink-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
                 >
                   <img 
                     src={game.image} 
                     alt={game.title}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-65 group-hover:opacity-35"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
                   <div className="absolute top-3 inset-x-3 flex justify-between items-center z-20 pointer-events-none">
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-black/60 border border-white/5 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/80 border border-slate-200/80 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
                       <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                       {(game.players || 18000) > 1000 ? ((game.players || 18000) / 1000).toFixed(1) + 'k' : game.players} LIVE
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[8px] font-black uppercase tracking-widest rounded-full">
+                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-250 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
                       RTP {game.rtp || 96.5}%
                     </span>
                   </div>
 
-                  <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent pt-8">
+                  <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
                     <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
                       VIDEO SLOT
                     </span>
-                    <h4 className="text-white font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-pink-400 transition-colors">
+                    <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-pink-600 transition-colors">
                       {game.title}
                     </h4>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-500 font-bold uppercase">3D RENDERED</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-950 text-[8px] font-black uppercase tracking-widest rounded-full">
-                        SPIN <Play className="w-1.5 h-1.5 fill-slate-950" />
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                      <p className="text-[7px] text-slate-400 font-bold uppercase">3D RENDERED</p>
+                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                        SPIN <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
                     </div>
                   </div>
@@ -1151,24 +1154,24 @@ export default function GlobalHomepage() {
         whileInView={{ opacity: 1, y: 0 }} 
         viewport={{ once: true, margin: "-50px" }} 
         transition={{ duration: 0.6 }} 
-        className="w-full mt-6 bg-slate-950/45 border border-slate-900 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-2xl"
+        className="w-full mt-6 bg-white border border-slate-200/80 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
       >
         <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 blur-[120px] rounded-full pointer-events-none" />
         
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-900 pb-5">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-100 pb-5">
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] bg-amber-500/10 border border-amber-500/35 text-amber-400 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
-              <Radio className="w-3 h-3 text-amber-400" /> ULTRA-LOW LATENCY STREAM
+            <span className="text-[9px] bg-amber-50 border border-amber-250 text-amber-700 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
+              <Radio className="w-3 h-3 text-amber-600" /> ULTRA-LOW LATENCY STREAM
             </span>
-            <h2 className="text-xl md:text-2xl font-black text-white tracking-tight uppercase leading-none mt-2">
-              Live <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-amber-500 drop-shadow-[0_2px_10px_rgba(245,158,11,0.3)]">VR Casino</span>
+            <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
+              Live <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-600 drop-shadow-sm">VR Casino</span>
             </h2>
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
               Interact with real dealers. 4K WebRTC feed broadcasts with physical table integrations.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-500 hover:text-amber-400 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-amber-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             Enter Live Arena <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -1176,42 +1179,42 @@ export default function GlobalHomepage() {
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5 relative z-10">
           {liveVR.slice(0, 5).map(game => {
-            const textGrad = "from-yellow-400 to-amber-500";
+            const textGrad = "from-yellow-650 to-amber-600";
             return (
               <div key={game.id} className="relative group">
                 <Link 
                   href={`/casino/game/${game.id}`}
-                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-900 border border-slate-800/80 transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-500/50 hover:shadow-[0_0_20px_rgba(245,158,11,0.15)] relative"
+                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-55 border border-slate-150 transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
                 >
                   <img 
                     src={game.image} 
                     alt={game.title}
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-65 group-hover:opacity-35"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-950/20 to-transparent z-10" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
                   <div className="absolute top-3 inset-x-3 flex justify-between items-center z-20 pointer-events-none">
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-black/60 border border-white/5 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/80 border border-slate-200/80 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
                       <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
                       {(game.players || 24000) > 1000 ? ((game.players || 24000) / 1000).toFixed(1) + 'k' : game.players} LIVE
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-500/15 border border-emerald-500/30 text-emerald-400 text-[8px] font-black uppercase tracking-widest rounded-full">
+                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-250 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
                       RTP {game.rtp || 97.2}%
                     </span>
                   </div>
 
-                  <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-slate-950 via-slate-950/95 to-transparent pt-8">
-                    <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
+                  <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
+                    <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-slate-500`}>
                       LIVE DEALER
                     </span>
-                    <h4 className="text-white font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-yellow-400 transition-colors">
+                    <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-amber-600 transition-colors">
                       {game.title}
                     </h4>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-white/5 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-500 font-bold uppercase">4K WebRTC</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-950 text-[8px] font-black uppercase tracking-widest rounded-full">
-                        JOIN <Play className="w-1.5 h-1.5 fill-slate-950" />
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                      <p className="text-[7px] text-slate-400 font-bold uppercase">4K WebRTC</p>
+                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                        JOIN <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
                     </div>
                   </div>
