@@ -94,8 +94,28 @@ const CAROUSEL_SLIDES = [
 
 function HoverCanvasPreview({ type }: { type: string }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const parent = canvas.parentElement;
+    if (!parent) return;
+
+    const handleEnter = () => setIsHovered(true);
+    const handleLeave = () => setIsHovered(false);
+
+    parent.addEventListener("mouseenter", handleEnter);
+    parent.addEventListener("mouseleave", handleLeave);
+    
+    return () => {
+      parent.removeEventListener("mouseenter", handleEnter);
+      parent.removeEventListener("mouseleave", handleLeave);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isHovered) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -215,17 +235,33 @@ function HoverCanvasPreview({ type }: { type: string }) {
     };
     render();
     return () => cancelAnimationFrame(animationId);
-  }, [type]);
+  }, [isHovered, type]);
 
   return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none z-10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-white/90 backdrop-blur-[1px]" />;
 }
 
 function NeonHorizonHeroPreview() {
+  const containerRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const [multiplier, setMultiplier] = useState(1.00);
-  const [gameState, setGameState] = useState<"run" | "crash">("run");
+  const multiplierTextRef = useRef<HTMLSpanElement>(null);
+  const labelRef = useRef<HTMLSpanElement>(null);
+  const [isVisible, setIsVisible] = useState(true);
 
   useEffect(() => {
+    const container = containerRef.current;
+    if (!container) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsVisible(entry.isIntersecting);
+      },
+      { threshold: 0.05 }
+    );
+    observer.observe(container);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    if (!isVisible) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext("2d");
@@ -257,16 +293,39 @@ function NeonHorizonHeroPreview() {
 
       if (state === "run") {
         currMultiplier += 0.008 + (currMultiplier * 0.006);
-        setMultiplier(currMultiplier);
+        
+        // Update direct DOM Node content (Virtual DOM bypass)
+        if (multiplierTextRef.current) {
+          multiplierTextRef.current.textContent = currMultiplier.toFixed(2) + "x";
+        }
 
         if (currMultiplier >= crashPoint) {
           state = "crash";
-          setGameState("crash");
+          
+          if (multiplierTextRef.current) {
+            multiplierTextRef.current.textContent = currMultiplier.toFixed(2) + "x";
+            multiplierTextRef.current.classList.add("text-red-650", "scale-95");
+            multiplierTextRef.current.classList.remove("text-sky-600", "scale-105");
+          }
+          if (labelRef.current) {
+            labelRef.current.textContent = "CRASHED";
+            labelRef.current.classList.add("text-red-500");
+            labelRef.current.classList.remove("text-slate-500");
+          }
+
           setTimeout(() => {
             state = "run";
             currMultiplier = 1.00;
             crashPoint = 1.8 + Math.random() * 5.0;
-            setGameState("run");
+            if (multiplierTextRef.current) {
+              multiplierTextRef.current.classList.remove("text-red-650", "scale-95");
+              multiplierTextRef.current.classList.add("text-sky-600", "scale-105");
+            }
+            if (labelRef.current) {
+              labelRef.current.textContent = "MULTIPLIER";
+              labelRef.current.classList.remove("text-red-500");
+              labelRef.current.classList.add("text-slate-500");
+            }
           }, 2200);
         }
 
@@ -351,16 +410,16 @@ function NeonHorizonHeroPreview() {
         ctx.fillText("CRASHED!", w / 2, h / 2 - 15);
         ctx.fillStyle = "rgba(15, 23, 42, 0.8)";
         ctx.font = "bold 16px monospace";
-        ctx.fillText(`@ ${multiplier.toFixed(2)}x`, w / 2, h / 2 + 18);
+        ctx.fillText(`@ ${currMultiplier.toFixed(2)}x`, w / 2, h / 2 + 18);
       }
       animationId = requestAnimationFrame(render);
     };
     render();
     return () => cancelAnimationFrame(animationId);
-  }, []);
+  }, [isVisible]);
 
   return (
-    <div className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-50 flex items-center justify-center">
+    <div ref={containerRef} className="absolute inset-0 w-full h-full z-0 overflow-hidden bg-slate-50 flex items-center justify-center">
       <div className="absolute inset-0 bg-gradient-to-t from-slate-100 via-slate-50/10 to-white/40 opacity-70 z-10" />
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
       <div className="absolute top-4 left-4 z-20 flex flex-col gap-1 pointer-events-none">
@@ -378,9 +437,9 @@ function NeonHorizonHeroPreview() {
         </span>
       </div>
       <div className="absolute z-20 flex flex-col items-center pointer-events-none">
-        <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest">MULTIPLIER</span>
-        <span className={`text-4xl font-black font-mono tracking-tight drop-shadow-sm ${gameState === 'crash' ? 'text-red-600 scale-95' : 'text-sky-600 scale-105'} transition-all duration-300`}>
-          {multiplier.toFixed(2)}x
+        <span ref={labelRef} className="text-[9px] text-slate-500 font-bold uppercase tracking-widest transition-colors duration-300">MULTIPLIER</span>
+        <span ref={multiplierTextRef} className="text-4xl font-black font-mono tracking-tight drop-shadow-sm text-sky-600 scale-105 transition-all duration-300">
+          1.00x
         </span>
       </div>
     </div>
