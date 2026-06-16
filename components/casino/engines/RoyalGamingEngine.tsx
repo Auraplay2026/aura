@@ -2,7 +2,10 @@
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Clock, Zap, RotateCcw, AlertTriangle, RefreshCw, Volume2, Shield } from "lucide-react";
+import { 
+  Activity, Clock, Zap, RotateCcw, AlertTriangle, RefreshCw, 
+  Volume2, VolumeX, Shield, Eye, EyeOff 
+} from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { validateTransactionIdempotency } from "@/lib/mathEngine";
@@ -18,8 +21,10 @@ interface PlacedChip {
   id: string;
   targetId: string;
   value: number;
-  x: number;
-  y: number;
+  xPct: number;
+  yPct: number;
+  x?: number;
+  y?: number;
 }
 
 // 9 Royal Gaming Categories Config
@@ -126,6 +131,65 @@ const GAME_CONFIGS: Record<string, {
 
 const COIN_VALUES = [100, 500, 1000, 5000, 10000, 50000];
 
+// Web Audio API Sound Synthesizer (Zero external file dependencies)
+const playSynthSound = (type: 'tick' | 'beep' | 'win', isMuted: boolean) => {
+  if (isMuted) return;
+  try {
+    const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+    if (!AudioContextClass) return;
+    const ctx = new AudioContextClass();
+    
+    if (type === 'tick') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.frequency.setValueAtTime(1500, ctx.currentTime);
+      osc.frequency.exponentialRampToValueAtTime(100, ctx.currentTime + 0.05);
+      gain.gain.setValueAtTime(0.08, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.05);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.05);
+    } else if (type === 'beep') {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      gain.gain.setValueAtTime(0.05, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.15);
+    } else if (type === 'win') {
+      const osc1 = ctx.createOscillator();
+      const osc2 = ctx.createOscillator();
+      const gain1 = ctx.createGain();
+      const gain2 = ctx.createGain();
+      osc1.connect(gain1);
+      gain1.connect(ctx.destination);
+      osc2.connect(gain2);
+      gain2.connect(ctx.destination);
+      
+      osc1.type = 'triangle';
+      osc1.frequency.setValueAtTime(659.25, ctx.currentTime);
+      gain1.gain.setValueAtTime(0.1, ctx.currentTime);
+      gain1.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.2);
+      osc1.start(ctx.currentTime);
+      osc1.stop(ctx.currentTime + 0.2);
+      
+      osc2.type = 'triangle';
+      osc2.frequency.setValueAtTime(880, ctx.currentTime + 0.1);
+      gain2.gain.setValueAtTime(0.1, ctx.currentTime + 0.1);
+      gain2.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+      osc2.start(ctx.currentTime + 0.1);
+      osc2.stop(ctx.currentTime + 0.3);
+    }
+  } catch (e) {
+    console.warn("Web Audio API blocked or not supported", e);
+  }
+};
+
 export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: RoyalGamingProps) {
   const { balance: rawBalance, playCasino } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
@@ -142,6 +206,13 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
   const [bets, setBets] = useState<Record<string, number>>({});
   const [betHistory, setBetHistory] = useState<Record<string, number>[]>([]);
   const [placedChips, setPlacedChips] = useState<PlacedChip[]>([]);
+  
+  // HUD toggleable view states
+  const [showOverlay, setShowOverlay] = useState(true);
+  const [isMuted, setIsMuted] = useState(false);
+
+  const toggleMute = () => setIsMuted(prev => !prev);
+  const toggleOverlay = () => setShowOverlay(prev => !prev);
   const [roundWinner, setRoundWinner] = useState<string | null>(null);
   
   // Scroller matrix loop tracking past round outputs
@@ -155,6 +226,50 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
   const [showLowBalance, setShowLowBalance] = useState(false);
   const [showConnectionLost, setShowConnectionLost] = useState(false);
   const [showMaintenance, setShowMaintenance] = useState(false);
+
+  // New live WebRTC and gamification overlay states
+  const [ping, setPing] = useState(28);
+  const [previousBets, setPreviousBets] = useState<Record<string, number>>({});
+  const [dealerCards, setDealerCards] = useState<{ id: string; suit: string; val: string; target: string; anim: boolean }[]>([]);
+
+  // Latency Fluctuation loop (locks wagers if latency > 500ms)
+  useEffect(() => {
+    const interval = setInterval(() => {
+      const isSpike = Math.random() > 0.96;
+      const nextPing = isSpike ? Math.floor(Math.random() * 250) + 450 : Math.floor(Math.random() * 30) + 15;
+      setPing(nextPing);
+    }, 2000);
+    return () => clearInterval(interval);
+  }, []);
+
+  // Dealer physical reveal overlays
+  useEffect(() => {
+    if (phase === 'open') {
+      setDealerCards([]);
+    } else if (phase === 'closed') {
+      const suits = ['♠', '♥', '♦', '♣'];
+      const values = ['A', 'K', 'Q', 'J', '10', '9', '8'];
+
+      const t1 = setTimeout(() => {
+        const suit = suits[Math.floor(Math.random() * suits.length)];
+        const val = values[Math.floor(Math.random() * values.length)];
+        const target = currentConfig.targets[0]?.id || 'player_a';
+        setDealerCards(prev => [...prev, { id: 'c1', suit, val, target, anim: true }]);
+      }, 1200);
+
+      const t2 = setTimeout(() => {
+        const suit = suits[Math.floor(Math.random() * suits.length)];
+        const val = values[Math.floor(Math.random() * values.length)];
+        const target = currentConfig.targets[1]?.id || 'player_b';
+        setDealerCards(prev => [...prev, { id: 'c2', suit, val, target, anim: true }]);
+      }, 2800);
+
+      return () => {
+        clearTimeout(t1);
+        clearTimeout(t2);
+      };
+    }
+  }, [phase, currentConfig]);
 
   // WebRTC & Canvas Refs
   const streamRef = useRef<HTMLVideoElement | null>(null);
@@ -248,9 +363,13 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
 
       // Render Floating Chips coordinate overlays
       placedChips.forEach(chip => {
+        // Calculate dynamic coordinates from percentage (with legacy fallbacks if needed)
+        const x = chip.xPct !== undefined ? (chip.xPct / 100) * canvas.width : (chip.x || 0);
+        const y = chip.yPct !== undefined ? (chip.yPct / 100) * canvas.height : (chip.y || 0);
+
         // Chip circular container
         ctx.beginPath();
-        ctx.arc(chip.x, chip.y, 16, 0, 2 * Math.PI);
+        ctx.arc(x, y, 16, 0, 2 * Math.PI);
         ctx.fillStyle = chip.value === 50 ? "#1E293B" :
                         chip.value === 100 ? "#0284C7" :
                         chip.value === 500 ? "#059669" :
@@ -263,7 +382,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
 
         // Inner dashed ring
         ctx.beginPath();
-        ctx.arc(chip.x, chip.y, 11, 0, 2 * Math.PI);
+        ctx.arc(x, y, 11, 0, 2 * Math.PI);
         ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
         ctx.setLineDash([3, 2]);
         ctx.stroke();
@@ -275,7 +394,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
         const label = chip.value >= 1000 ? `${chip.value / 1000}K` : `${chip.value}`;
-        ctx.fillText(label, chip.x, chip.y);
+        ctx.fillText(label, x, y);
       });
 
       // Render digital OCR drawn card representation during closed/dealing phase
@@ -328,6 +447,11 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
   useEffect(() => {
     const interval = setInterval(() => {
       setCountdown(c => {
+        // Play warning beep under 4 seconds in open bets phase
+        if (phase === 'open' && c <= 4 && c > 1) {
+          playSynthSound('beep', isMuted);
+        }
+
         if (c <= 1) {
           // Transition phases
           if (phase === 'open') {
@@ -358,11 +482,15 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
 
             if (totalWager > 0) {
               playCasino(totalWager, totalPayout, currentConfig.label);
+              setPreviousBets(bets);
               setPayoutOverlay({
                 active: true,
                 profit: Math.round(netProfit),
                 won: didWin
               });
+              if (didWin) {
+                playSynthSound('win', isMuted);
+              }
             }
 
             setHistoryList(prev => [...prev.slice(1), winningTarget.name.charAt(0)]);
@@ -392,6 +520,10 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
       setTimeout(() => setFeedMsg("BETS CLOSED • DEALING CARDS"), 1000);
       return;
     }
+    if (ping > 500) {
+      setFeedMsg("LATENCY SYNC IN PROGRESS");
+      return;
+    }
 
     const currentTotalPlaced = Object.values(bets).reduce((a, b) => a + b, 0);
     const target = currentConfig.targets.find(t => t.id === targetId);
@@ -407,8 +539,29 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
     const container = containerRef.current;
     if (container) {
       const rect = container.getBoundingClientRect();
-      const chipX = event.clientX - rect.left;
-      const chipY = event.clientY - rect.top;
+      
+      // Check if click was inside container or came from bottom buttons
+      const isInside = 
+        event.clientX >= rect.left && 
+        event.clientX <= rect.right && 
+        event.clientY >= rect.top && 
+        event.clientY <= rect.bottom;
+
+      let chipX = 50;
+      let chipY = 50;
+
+      if (isInside) {
+        chipX = ((event.clientX - rect.left) / rect.width) * 100;
+        chipY = ((event.clientY - rect.top) / rect.height) * 100;
+      } else {
+        // Position chip in corresponding visual target column
+        const targetIdx = currentConfig.targets.findIndex(t => t.id === targetId);
+        const total = currentConfig.targets.length;
+        if (targetIdx !== -1) {
+          chipX = 15 + (targetIdx / (total - 1 || 1)) * 70 + (Math.random() - 0.5) * 8;
+          chipY = 45 + (Math.random() - 0.5) * 10;
+        }
+      }
 
       setPlacedChips(prev => [
         ...prev,
@@ -416,10 +569,11 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
           id: `chip_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
           targetId,
           value: selectedCoin,
-          x: chipX,
-          y: chipY
+          xPct: chipX,
+          yPct: chipY
         }
       ]);
+      playSynthSound('tick', isMuted);
     }
 
     setBetHistory(prev => [...prev, { ...bets }]);
@@ -430,6 +584,34 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
   };
 
   // Modifier Actions
+  const handleRepeatBet = () => {
+    if (phase !== 'open' || ping > 500) return;
+    const previousTotal = Object.values(previousBets).reduce((a, b) => a + b, 0);
+    if (previousTotal <= 0) return;
+    const validation = validateTransactionIdempotency(balance, previousTotal, 2.0, 'back');
+    if (!validation.success) {
+      setShowLowBalance(true);
+      return;
+    }
+    
+    setBetHistory(prev => [...prev, { ...bets }]);
+    setBets(previousBets);
+
+    // Recreate visual chips at target zones
+    const newChips: PlacedChip[] = [];
+    Object.entries(previousBets).forEach(([targetId, value]) => {
+      newChips.push({
+        id: `chip_repeat_${Date.now()}_${targetId}_${Math.random().toString(36).substring(2, 6)}`,
+        targetId,
+        value,
+        xPct: 30 + Math.random() * 40,
+        yPct: 40 + Math.random() * 30
+      });
+    });
+    setPlacedChips(newChips);
+    playSynthSound('tick', isMuted);
+  };
+
   const handleUndo = () => {
     if (phase !== 'open') return;
     if (betHistory.length === 0) return;
@@ -437,6 +619,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
     setBets(previous);
     setPlacedChips(prev => prev.slice(0, -1));
     setBetHistory(prev => prev.slice(0, -1));
+    playSynthSound('tick', isMuted);
   };
 
   const handleDouble = () => {
@@ -464,15 +647,19 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
       prev.map(chip => ({
         ...chip,
         id: `chip_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
+        xPct: chip.xPct,
+        yPct: chip.yPct,
         value: chip.value * 2
       }))
     );
+    playSynthSound('tick', isMuted);
   };
 
   const handleClearAll = () => {
     setBets({});
     setPlacedChips([]);
     setBetHistory([]);
+    playSynthSound('tick', isMuted);
   };
 
   const totalActiveBet = Object.values(bets).reduce((a, b) => a + b, 0);
@@ -481,7 +668,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
     <div className="w-full flex flex-col xl:flex-row gap-6 items-start font-sans text-[#0F172A] bg-white p-2">
       
       {/* COLUMN A: INTERACTIVE BETTING HUD (LEFT COLUMN) */}
-      <div className="w-full xl:w-[350px] shrink-0 flex flex-col gap-4">
+      <div className="w-full xl:w-[350px] shrink-0 flex flex-col gap-4 order-2 xl:order-1">
         
         {/* BET AMOUNT MODULE */}
         <div className="bg-white border border-slate-200 rounded-sm p-4 flex flex-col gap-2">
@@ -531,53 +718,80 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
         <div className="bg-white border border-slate-200 rounded-sm p-4 flex flex-col gap-3">
           <div className="flex justify-between items-center">
             <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Chip Selector</span>
-            <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">DOUBLE CLICK TO 2X</span>
+            <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">TAP CHIP TO BET</span>
           </div>
 
-          {/* Chips Grid (Inline single row of 6 preset values) */}
-          <div className="grid grid-cols-6 gap-1">
-            {COIN_VALUES.map(val => (
-              <button
-                key={val}
-                onClick={() => {
-                  if (balance < val) {
-                    setShowLowBalance(true);
-                    return;
-                  }
-                  setSelectedCoin(val);
-                }}
-                className={cn(
-                  "py-2 px-0.5 rounded-full font-bold text-[10px] transition-all border text-center leading-none",
-                  selectedCoin === val
-                    ? "bg-[#6B21A8] border-[#6B21A8] text-white font-extrabold shadow-sm"
-                    : "bg-white border-slate-200 text-slate-650 hover:bg-slate-50 hover:border-slate-300"
-                )}
-              >
-                ₹{val >= 1000 ? `${val/1000}k` : val}
-              </button>
-            ))}
+          {/* Chips Grid (tactile 3D casino chips) */}
+          <div className="grid grid-cols-6 gap-1.5 py-1">
+            {COIN_VALUES.map(val => {
+              // Circular 3D style configs for each value
+              const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
+                100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-white", shadow: "shadow-sky-500/40" },
+                500: { bg: "from-emerald-500 to-emerald-700", border: "border-emerald-350", text: "text-white", shadow: "shadow-emerald-500/40" },
+                1000: { bg: "from-amber-500 to-amber-700", border: "border-amber-350", text: "text-white", shadow: "shadow-amber-500/40" },
+                5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-white", shadow: "shadow-rose-500/40" },
+                10000: { bg: "from-purple-500 to-purple-700", border: "border-purple-350", text: "text-white", shadow: "shadow-purple-500/40" },
+                50050: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-white", shadow: "shadow-slate-700/40" } // Fallback match
+              };
+              const config = styles[val] || { bg: "from-purple-600 to-purple-800", border: "border-purple-400", text: "text-white", shadow: "shadow-purple-500/40" };
+              const isSelected = selectedCoin === val;
+
+              return (
+                <button
+                  key={val}
+                  onClick={() => {
+                    if (balance < val) {
+                      setShowLowBalance(true);
+                      return;
+                    }
+                    setSelectedCoin(val);
+                    playSynthSound('tick', isMuted);
+                  }}
+                  className={cn(
+                    "aspect-square rounded-full flex flex-col items-center justify-center font-black text-[8.5px] sm:text-[9.5px] transition-all border-2 border-dashed shadow-md active:scale-90 select-none cursor-pointer relative bg-gradient-to-br",
+                    config.bg,
+                    config.border,
+                    config.text,
+                    isSelected 
+                      ? `scale-110 ring-2 ring-slate-800 ring-offset-1 ${config.shadow} shadow-lg opacity-100` 
+                      : "opacity-80 hover:opacity-100 hover:scale-105"
+                  )}
+                >
+                  <div className="absolute inset-[1.5px] rounded-full border border-white/20 flex items-center justify-center">
+                    <span className="leading-none">{val >= 1000 ? `${val/1000}k` : val}</span>
+                  </div>
+                </button>
+              );
+            })}
           </div>
 
           {/* Typography Quick Actions */}
-          <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-0.5">
+          <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-0.5 font-mono text-[9px] font-black uppercase tracking-wider">
             <button
               onClick={handleUndo}
               disabled={phase !== 'open' || betHistory.length === 0}
-              className="text-[10px] font-bold text-slate-500 hover:text-slate-900 disabled:opacity-40 uppercase tracking-wider transition-colors"
+              className="text-slate-500 hover:text-slate-900 disabled:opacity-40 transition-colors"
             >
               Undo
             </button>
             <button
+              onClick={handleRepeatBet}
+              disabled={phase !== 'open' || Object.keys(previousBets).length === 0}
+              className="text-slate-500 hover:text-slate-900 disabled:opacity-40 transition-colors"
+            >
+              Repeat
+            </button>
+            <button
               onClick={handleDouble}
               disabled={phase !== 'open' || totalActiveBet === 0}
-              className="text-[10px] font-bold text-slate-500 hover:text-slate-900 disabled:opacity-40 uppercase tracking-wider transition-colors"
+              className="text-slate-500 hover:text-slate-900 disabled:opacity-40 transition-colors"
             >
               Double
             </button>
             <button
               onClick={handleClearAll}
               disabled={phase !== 'open' || totalActiveBet === 0}
-              className="text-[10px] font-bold text-[#E11D48] hover:text-red-800 disabled:opacity-40 uppercase tracking-wider transition-colors"
+              className="text-[#E11D48] hover:text-red-800 disabled:opacity-40 transition-colors"
             >
               Clear
             </button>
@@ -623,7 +837,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
       </div>
 
       {/* COLUMN B: THE NAVY BOARD (CENTER/RIGHT) */}
-      <div className="flex-1 w-full bg-[#0F172A] border border-slate-800 rounded-sm p-4 relative flex flex-col justify-between overflow-hidden min-h-[560px]">
+      <div className="flex-1 w-full bg-[#0F172A] border border-slate-800 rounded-sm p-4 relative flex flex-col justify-between overflow-hidden min-h-[560px] order-1 xl:order-2">
         
         {/* Game Title & Header Row */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0 mb-4">
@@ -647,8 +861,12 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
           </div>
         </div>
 
-        {/* WebRTC Video Stream & Interactive Canvas box */}
-        <div ref={containerRef} className="relative flex-1 w-full bg-slate-950 border border-slate-850 rounded-sm flex flex-col justify-between p-3 overflow-hidden min-h-[280px]">
+        {/* WebRTC Video Stream & Interactive Canvas box (Locked to 16:9 Aspect Ratio with transform acceleration) */}
+        <div 
+          ref={containerRef} 
+          className="relative aspect-video w-full bg-slate-950 border border-slate-850 rounded-sm flex flex-col justify-between p-3 overflow-hidden transform-gpu"
+          style={{ transform: 'translateZ(0)' }}
+        >
           {/* HTML5 WebRTC Video Node */}
           <video
             ref={streamRef}
@@ -660,25 +878,172 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
             style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: "transform, opacity" }}
           />
 
-          {/* 2D Interactive Canvas Overlay */}
+          {/* 2D Interactive Canvas Overlay (Click-through visual chips layer) */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full pointer-events-none z-10"
           />
 
-          {/* Overlays */}
-          <div className="flex justify-between items-center z-20 w-full relative">
-            <span className="text-[9px] font-black text-white bg-black/60 px-2 py-1 rounded-sm uppercase tracking-widest">
-              DEALER ROOM: KYLIE #702
-            </span>
-            <div className="flex items-center gap-1.5 bg-black/60 px-2 py-1 rounded-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">SUB-300MS WHIP</span>
+          {/* Sequential Live Dealer Physical Card Reveals */}
+          <div className="absolute inset-0 pointer-events-none z-15 flex items-center justify-center gap-2 sm:gap-4">
+            {dealerCards.map((card) => (
+              <motion.div
+                key={card.id}
+                initial={{ x: 150, y: -200, scale: 0, rotate: 180 }}
+                animate={{ x: 0, y: 0, scale: 1, rotate: 0 }}
+                transition={{ type: "spring", stiffness: 100, damping: 13 }}
+                className="w-10 h-14 sm:w-14 sm:h-20 bg-white rounded-lg shadow-2xl flex flex-col justify-between p-1 sm:p-1.5 border border-slate-200 font-mono text-[9px] sm:text-xs font-black select-none text-slate-900 animate-in fade-in duration-300"
+              >
+                <div className="flex justify-between items-start leading-none">
+                  <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900'}>{card.val}</span>
+                  <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900'}>{card.suit}</span>
+                </div>
+                <div className={cn("text-lg sm:text-2xl text-center leading-none", card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900')}>
+                  {card.suit}
+                </div>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
+          {phase === 'open' && ping <= 500 && showOverlay && (
+            <div className="absolute inset-0 bg-transparent flex items-center justify-center p-2 xs:p-3 sm:p-6 z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 xs:gap-2 sm:gap-3 w-full max-w-lg">
+                {currentConfig.targets.map(target => {
+                  const activeWager = bets[target.id] || 0;
+                  return (
+                    <button
+                      key={`overlay-${target.id}`}
+                      onClick={(e) => handleBetPlacement(target.id, e)}
+                      className="bg-black/45 hover:bg-white/10 border border-white/10 hover:border-white/30 backdrop-blur-md rounded-xl p-1.5 xs:p-2 sm:p-3 flex flex-col justify-between items-center h-[54px] xs:h-[64px] sm:h-[72px] text-white hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer pointer-events-auto shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]"
+                    >
+                      <div className="flex justify-between items-center w-full leading-none">
+                        <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-100">{target.name}</span>
+                        <span className="text-[7.5px] xs:text-[8px] sm:text-[9px] font-bold text-indigo-300 font-mono">x{target.odds.toFixed(2)}</span>
+                      </div>
+                      
+                      <span className={cn(
+                        "text-[7.5px] xs:text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none",
+                        activeWager > 0 ? "text-rose-400 font-black animate-pulse" : "text-white/40"
+                      )}>
+                        {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "PLACE CHIP"}
+                      </span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Live HUD Header: Dealer info, Latency indicator, and circular timer */}
+          <div className="absolute top-2 sm:top-3 inset-x-2 sm:inset-x-3 flex justify-between items-start z-20 pointer-events-none">
+            {/* Left: Real-time Trust Dealer Status */}
+            <div className="flex flex-col gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5">
+              <span className="text-[8px] sm:text-[9px] font-black text-white uppercase tracking-widest leading-none">
+                DEALER: KYLIE #702
+              </span>
+              <span className="hidden sm:block text-[8px] font-bold text-slate-350 leading-none">
+                Shift: Night A • Live Status: Verified
+              </span>
+            </div>
+
+            {/* Middle: Sound & HUD Controls */}
+            <div className="flex items-center gap-1 sm:gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg sm:rounded-xl border border-white/5 pointer-events-auto">
+              <button 
+                onClick={toggleMute}
+                className="p-0.5 rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                title={isMuted ? "Unmute sounds" : "Mute sounds"}
+              >
+                {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-slate-300" />}
+              </button>
+              <button 
+                onClick={toggleOverlay}
+                className="p-0.5 rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                title={showOverlay ? "Hide Overlay Grid" : "Show Overlay Grid"}
+              >
+                {showOverlay ? <Eye className="w-3.5 h-3.5 text-emerald-450" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+              </button>
+            </div>
+
+            {/* Right: Latency Safety Meter & Circular Countdown Timer HUD */}
+            <div className="flex items-center gap-2 sm:gap-3">
+              {/* Ping Meter */}
+              <div className="flex flex-col items-end gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5 font-mono text-right font-bold">
+                <span className={cn("text-[8px] sm:text-[9px] font-black uppercase tracking-widest leading-none", ping > 500 ? "text-rose-400 animate-pulse" : "text-emerald-400")}>
+                  {ping > 500 ? "HIGH JITTER" : "SUB-300MS WHIP"}
+                </span>
+                <span className="hidden sm:block text-[8px] font-bold text-slate-350 leading-none">
+                  Ping: {ping}ms
+                </span>
+                <span className="block sm:hidden text-[8px] font-bold text-slate-350 leading-none">
+                  {ping}ms
+                </span>
+              </div>
+
+              {/* Circular Timer HUD */}
+              <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-black/65 backdrop-blur-md rounded-full border border-white/10">
+                <svg className="absolute w-full h-full transform -rotate-90">
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="14"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="2"
+                    fill="transparent"
+                    className="block sm:hidden"
+                  />
+                  <circle
+                    cx="18"
+                    cy="18"
+                    r="14"
+                    stroke={countdown <= 4 ? "#EF4444" : "#3B82F6"}
+                    strokeWidth="2"
+                    fill="transparent"
+                    strokeDasharray={2 * Math.PI * 14}
+                    strokeDashoffset={2 * Math.PI * 14 - (countdown / 15) * 2 * Math.PI * 14}
+                    className="transition-all duration-1000 ease-linear block sm:hidden"
+                  />
+                  <circle
+                    cx="22"
+                    cy="22"
+                    r="17"
+                    stroke="rgba(255, 255, 255, 0.1)"
+                    strokeWidth="2.5"
+                    fill="transparent"
+                    className="hidden sm:block"
+                  />
+                  <circle
+                    cx="22"
+                    cy="22"
+                    r="17"
+                    stroke={countdown <= 4 ? "#EF4444" : "#3B82F6"}
+                    strokeWidth="2.5"
+                    fill="transparent"
+                    strokeDasharray={2 * Math.PI * 17}
+                    strokeDashoffset={2 * Math.PI * 17 - (countdown / 15) * 2 * Math.PI * 17}
+                    className="transition-all duration-1000 ease-linear hidden sm:block"
+                  />
+                </svg>
+                <span className={cn("text-[10px] sm:text-[11px] font-black font-mono leading-none", countdown <= 4 ? "text-red-500 animate-pulse" : "text-white")}>
+                  {countdown}s
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* Middle Overlay: Bets phase */}
-          <div className="flex flex-col items-center justify-center text-center my-auto z-20 relative">
+          {/* Network Safety Overlay: locks bets if ping exceeds threshold */}
+          {ping > 500 && (
+            <div className="absolute inset-0 bg-black/75 backdrop-blur-md z-40 flex flex-col items-center justify-center text-center gap-3">
+              <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
+              <div>
+                <h4 className="text-sm font-black text-white uppercase tracking-wider">Syncing Live Feed...</h4>
+                <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Latency: {ping}ms (Limit: 500ms). Betting targets locked.</p>
+              </div>
+            </div>
+          )}
+
+          {/* Middle Overlay: Bets phase announcements */}
+          <div className="flex flex-col items-center justify-center text-center my-auto z-20 relative pointer-events-none">
             <AnimatePresence mode="wait">
               {phase === 'open' && (
                 <motion.div
@@ -694,7 +1059,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
                 </motion.div>
               )}
 
-              {phase === 'closed' && (
+              {phase === 'closed' && dealerCards.length === 0 && (
                 <motion.div
                   key="closed"
                   initial={{ opacity: 0, scale: 0.95 }}
@@ -741,13 +1106,16 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
               <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">WHIP WHEP Live</span>
             </div>
             
-            {/* Scorecard circles */}
-            <div className="flex gap-1 overflow-x-hidden max-w-[50%] items-center">
-              {historyList.map((val, idx) => (
+            {/* Scorecard circles (Swipeable Roadmap) */}
+            <div 
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="flex gap-1 overflow-x-auto max-w-[45%] sm:max-w-[60%] items-center touch-pan-x flex-row-reverse py-0.5 select-none"
+            >
+              {historyList.slice().reverse().map((val, idx) => (
                 <span 
                   key={idx}
                   className={cn(
-                    "w-4 h-4 rounded-full text-[8.5px] font-black flex items-center justify-center shrink-0 border-0",
+                    "w-4 h-4 rounded-full text-[8.5px] font-black flex items-center justify-center shrink-0 border-0 shadow-sm transition-transform active:scale-95",
                     val === 'A' || val === '8' || val === 'D' || val === 'U' || val === '7'
                       ? "bg-blue-600 text-white" 
                       : val === 'B' || val === '9' || val === 'T' || val === 'W'
@@ -760,19 +1128,12 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
               ))}
             </div>
 
-            {/* Total bet and timer */}
-            <div className="flex items-center gap-3">
-              <div className="text-right">
-                <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
-                <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
-              </div>
-              <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-700 px-2 py-1 rounded-sm text-white">
-                <Clock className="w-3.5 h-3.5 text-blue-450" />
-                <span className="text-xs font-black font-mono leading-none min-w-[15px]">{countdown}s</span>
-              </div>
+            {/* Total bet info */}
+            <div className="text-right">
+              <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
+              <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
             </div>
           </div>
-
         </div>
 
         {/* Interactive Betting Matrix Targets */}
@@ -786,7 +1147,7 @@ export function RoyalGamingEngine({ isPlaying, onComplete, gameId, gameTitle }: 
                 key={target.id}
                 onClick={(e) => handleBetPlacement(target.id, e)}
                 className={cn(
-                  "border rounded-sm p-3.5 flex flex-col justify-between items-center transition-all relative overflow-hidden h-[86px] bg-white border-slate-200 text-[#0F172A] hover:border-slate-450",
+                  "border rounded-sm p-2.5 sm:p-3.5 flex flex-col justify-between items-center transition-all relative overflow-hidden h-[72px] sm:h-[86px] bg-white border-slate-200 text-[#0F172A] hover:border-slate-450",
                   isWinner && "ring-4 ring-emerald-500 scale-102 font-black",
                   phase !== 'open' && "opacity-85"
                 )}

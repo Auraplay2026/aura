@@ -42,6 +42,60 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   const [pendingDepositsCount, setPendingDepositsCount] = useState(0);
   const [pendingWithdrawalsCount, setPendingWithdrawalsCount] = useState(0);
 
+  // Live Telemetry states
+  const [telemetryHistory, setTelemetryHistory] = useState<any[]>([]);
+  const [riskAlerts, setRiskAlerts] = useState<string[]>([]);
+  const [holdStats, setHoldStats] = useState<{ holdPercent: number; deviationFlag: boolean }>({ holdPercent: 12.5, deviationFlag: false });
+  const [isSuspended, setIsSuspended] = useState(false);
+
+  // Telemetry Polling Effect
+  useEffect(() => {
+    if (!currentUser || currentUser.role !== 'admin') return;
+    
+    const fetchTelemetry = async () => {
+      try {
+        const res = await fetch(`/api/admin/telemetry?email=${encodeURIComponent(currentUser.email)}`);
+        const data = await res.json();
+        if (res.ok && data.success) {
+          setTelemetryHistory(data.telemetry || []);
+          setRiskAlerts(data.riskAlerts || []);
+          setHoldStats(data.holdStats || { holdPercent: 12.5, deviationFlag: false });
+          setIsSuspended(!!data.isSuspended);
+        }
+      } catch (err) {
+        console.error("Telemetry fetch failed:", err);
+      }
+    };
+
+    fetchTelemetry();
+    const interval = setInterval(fetchTelemetry, 1500);
+    return () => clearInterval(interval);
+  }, [currentUser]);
+
+  // Reset circuit breaker handler
+  const handleResetBreaker = async () => {
+    if (!currentUser) return;
+    try {
+      setLoading(true);
+      const res = await fetch('/api/admin/telemetry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ adminEmail: currentUser.email, action: 'reset_breaker' })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast("Circuit breaker reset successfully. Settlements resumed.", "success");
+        setIsSuspended(false);
+      } else {
+        showToast(`Reset failed: ${data.error || 'Unknown error'}`, "error");
+      }
+    } catch (err: any) {
+      showToast(`Reset failed: ${err.message}`, "error");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleSimulateWager = async () => {
     if (!currentUser) return;
     try {
@@ -262,6 +316,28 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         ))}
       </div>
 
+      {/* Risk Suspension Banner */}
+      {isSuspended && (
+        <div className="bg-rose-100 border border-rose-500/35 text-rose-800 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10 animate-pulse">
+          <div className="flex items-center gap-3">
+            <AlertTriangle className="w-6 h-6 text-rose-650 shrink-0" />
+            <div>
+              <h4 className="text-sm font-black uppercase tracking-wider">Settlement Engine Suspended</h4>
+              <p className="text-xs text-rose-700 mt-1">
+                {riskAlerts[0] || "System circuit breaker tripped due to abnormal wager velocity on an outcome selection."}
+              </p>
+            </div>
+          </div>
+          <button 
+            onClick={handleResetBreaker}
+            disabled={loading}
+            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase px-5 py-3 rounded-xl transition cursor-pointer shadow-lg active:scale-95 disabled:opacity-50 shrink-0"
+          >
+            Reset Circuit Breaker & Resume
+          </button>
+        </div>
+      )}
+
       {/* Dashboard Top bar */}
       <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/30 border border-slate-200/80 rounded-2xl p-6 backdrop-blur-md relative z-10">
         <div>
@@ -286,7 +362,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
       </header>
 
       {/* Financial Overviews Row */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 relative z-10">
+      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
         {[
           { label: "Net House Margin", val: netProfit, icon: Coins, color: "text-emerald-600", border: "border-emerald-500/20" },
           { label: "Cumulative Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-600", border: "border-indigo-500/15" },
@@ -301,6 +377,37 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
             <p className="text-2xl font-black font-mono text-slate-900 mt-3 tracking-tight">₹{card.val.toLocaleString('en-IN')}</p>
           </div>
         ))}
+
+        {/* Live Hold % Dial Card */}
+        <div className={`bg-white/60 border p-5 rounded-2xl backdrop-blur-md transition-all duration-300 ${
+          holdStats.deviationFlag 
+            ? 'border-rose-500 bg-rose-50/50 shadow-[0_0_15px_rgba(244,63,94,0.1)] animate-pulse' 
+            : 'border-indigo-500/15 bg-white/60'
+        }`}>
+          <div className="flex items-center justify-between text-slate-650 text-[10px] font-black uppercase tracking-widest">
+            <span>Platform Hold %</span>
+            <Activity className={`w-4 h-4 ${holdStats.deviationFlag ? 'text-rose-605 animate-spin' : 'text-indigo-600'}`} />
+          </div>
+          <div className="flex items-baseline gap-1.5 mt-3">
+            <p className={`text-2xl font-black font-mono tracking-tight ${holdStats.deviationFlag ? 'text-rose-600' : 'text-slate-900'}`}>
+              {holdStats.holdPercent}%
+            </p>
+            {holdStats.deviationFlag && (
+              <span className="text-[8px] font-black bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded uppercase leading-none">
+                RISK ALERT
+              </span>
+            )}
+          </div>
+          {holdStats.deviationFlag ? (
+            <p className="text-[9px] font-bold text-rose-700 mt-2 uppercase tracking-wider leading-none">
+              ⚠️ OUT OF BOUNDS! HUMAN REVIEW REQ
+            </p>
+          ) : (
+            <p className="text-[9px] text-slate-500 font-bold mt-2 uppercase tracking-wider leading-none">
+              ✅ Optimal hold (Limit: 3% - 22%)
+            </p>
+          )}
+        </div>
       </section>
 
       {/* Main Grid split */}
@@ -474,6 +581,92 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         </div>
 
       </div>
+
+      {/* Forensic Audit Telemetry Feed Table */}
+      <section className="bg-white/60 border border-slate-200 p-6 rounded-2xl backdrop-blur-md relative z-10 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <div className="flex items-center gap-1.5 text-indigo-650 font-bold text-xs tracking-wider uppercase">
+              <Shield className="w-4 h-4 text-indigo-600" /> Channel A: Real-Time Forensic Settlement Telemetry
+            </div>
+            <p className="text-[10px] text-slate-500 mt-1">
+              Forensic audit logs streamed directly from secure daily GPG-encrypted log files.
+            </p>
+          </div>
+          <div className="flex items-center gap-6">
+            <div className="text-right">
+              <span className="text-[9px] font-black text-slate-650 uppercase tracking-widest block leading-none mb-1">Liability Variance</span>
+              <span className={`font-mono text-sm font-black ${
+                telemetryHistory.reduce((sum, item) => sum + (item.netProfitRupees || 0), 0) >= 0 
+                  ? 'text-emerald-600' 
+                  : 'text-rose-600'
+              }`}>
+                {telemetryHistory.reduce((sum, item) => sum + (item.netProfitRupees || 0), 0) >= 0 ? '+' : ''}
+                ₹{telemetryHistory.reduce((sum, item) => sum + (item.netProfitRupees || 0), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+            <div className="text-right">
+              <span className="text-[9px] font-black text-slate-650 uppercase tracking-widest block leading-none mb-1">Telemetry Volume</span>
+              <span className="font-mono text-sm font-black text-indigo-600">
+                ₹{telemetryHistory.reduce((sum, item) => sum + (item.stake || 0), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-600 text-[10px] uppercase font-black tracking-wider">
+                <th className="py-2.5 px-3">Time</th>
+                <th className="py-2.5 px-3">Transaction ID</th>
+                <th className="py-2.5 px-3">User ID</th>
+                <th className="py-2.5 px-3">Market</th>
+                <th className="py-2.5 px-3">Selection</th>
+                <th className="py-2.5 px-3 text-right">Stake</th>
+                <th className="py-2.5 px-3 text-right">Odds</th>
+                <th className="py-2.5 px-3 text-right">Outcome</th>
+                <th className="py-2.5 px-3 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 font-mono text-[11px] text-slate-700">
+              {telemetryHistory.length === 0 ? (
+                <tr>
+                  <td colSpan={9} className="py-8 text-center text-slate-600 italic">
+                    No active settlements recorded in the daily audit vault ledger.
+                  </td>
+                </tr>
+              ) : (
+                telemetryHistory.map((item, idx) => (
+                  <tr key={`${item.transactionId}-${idx}`} className="hover:bg-slate-50/50 transition">
+                    <td className="py-2.5 px-3 text-slate-600">{item.timestampStr || new Date(item.timestamp).toLocaleTimeString()}</td>
+                    <td className="py-2.5 px-3 text-slate-600 font-bold">{item.transactionId}</td>
+                    <td className="py-2.5 px-3 text-slate-800 font-bold">{item.userId}</td>
+                    <td className="py-2.5 px-3 text-slate-800 font-bold">{item.marketName}</td>
+                    <td className="py-2.5 px-3 text-slate-700">{item.selectionName}</td>
+                    <td className="py-2.5 px-3 text-right text-slate-900 font-bold">₹{item.stake.toFixed(2)}</td>
+                    <td className="py-2.5 px-3 text-right text-slate-600">{item.odds.toFixed(2)}</td>
+                    <td className="py-2.5 px-3 text-right font-bold">
+                      <span className={item.outcome.toLowerCase() === 'won' || item.outcome.toLowerCase() === 'success' ? 'text-emerald-600' : 'text-slate-600'}>
+                        {item.outcome}
+                      </span>
+                    </td>
+                    <td className="py-2.5 px-3 text-center">
+                      <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${
+                        item.status === 'SUCCESS' 
+                          ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' 
+                          : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                      }`}>
+                        {item.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
     </div>
   );

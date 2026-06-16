@@ -1,7 +1,15 @@
 import { NextResponse } from 'next/server';
 import { updateUser, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
-import { prisma } from '@/lib/prisma'; // If prisma is imported, wait: let's verify if prisma is imported. Let's look: lib/userDb imports prisma. Wait, let's import prisma from '@/lib/prisma' or check userDb.ts. Yes, userDb.ts imports prisma from '@/lib/prisma' or is it local? Let's check how prisma is exported.
+import { prisma } from '@/lib/prisma';
+import { 
+  checkCircuitBreaker, 
+  isMarketSuspended, 
+  computeIdempotencyHash, 
+  isSettlementProcessed, 
+  writeAuditLogEntry,
+  SettlementEvent 
+} from '@/lib/settlementEngine';
 
 export async function POST(request: Request) {
   try {
@@ -41,7 +49,126 @@ export async function POST(request: Request) {
 
     // Read current state to audit changes
     // Fetch directly from DB using helper or select
-    const existingUser = await prisma.user.findUnique({ where: { email } });
+    const existingUser = await prisma.user.findUnique({ 
+      where: { email },
+      include: { transactions: true }
+    });
+
+    // Extract and process any new wagers/settlements through the Settlement Engine
+    const existingIds = new Set<string>();
+    if (existingUser) {
+      existingUser.transactions.forEach((t: any) => existingIds.add(t.id));
+    }
+
+    const txs = transactions || [];
+    const newTxs = txs.filter((t: any) => !existingIds.has(t.id));
+
+    for (const tx of newTxs) {
+      const isCasino = tx.type === 'casino';
+      const isSportsBet = tx.type === 'trade' && (tx.details.includes('Back bet') || tx.details.includes('Lay bet') || tx.details.includes('Placed'));
+      const isPredictionBet = tx.type === 'trade' && tx.details.includes('Bought') && tx.details.includes('shares');
+      const isSettlementPayout = tx.type === 'deposit' && tx.details.toLowerCase().includes('settle:');
+
+      if (isCasino || isSportsBet || isPredictionBet || isSettlementPayout) {
+        let marketName = '';
+        let selectionName = '';
+        let stake = tx.amount;
+        let odds = 1.0;
+        let outcome = 'Pending';
+        let targetId = '';
+
+        if (isCasino) {
+          const match = tx.details.match(/Played\s+(.*?)\s+\(Wager:\s*₹?([\d.]+),\s*Payout:\s*₹?([\d.]+)\)/i);
+          if (match) {
+            marketName = 'Casino';
+            selectionName = match[1];
+            stake = parseFloat(match[2]);
+            const payout = parseFloat(match[3]);
+            odds = stake > 0 ? parseFloat((payout / stake).toFixed(2)) : 1.0;
+            outcome = payout > 0 ? 'Won' : 'Lost';
+            targetId = `casino-${selectionName.replace(/\s+/g, '-').toLowerCase()}`;
+          } else {
+            marketName = 'Casino';
+            selectionName = 'Casino Game';
+            targetId = 'casino-generic';
+          }
+        } else if (isSportsBet) {
+          const match = tx.details.match(/Placed\s+₹?([\d.]+)\s+(?:Back|Lay)\s+bet\s+(?:\(Liability:\s*₹?[\d.]+\)\s+)?on\s+(.*?)\s+@\s+([\d.]+)\s+\((.*?)\)/i);
+          if (match) {
+            stake = parseFloat(match[1]);
+            selectionName = match[2];
+            odds = parseFloat(match[3]);
+            marketName = match[4];
+            targetId = `sports-${marketName.replace(/\s+/g, '-').toLowerCase()}-${selectionName.replace(/\s+/g, '-').toLowerCase()}`;
+          } else {
+            marketName = 'Sportsbook';
+            selectionName = 'Sports Bet';
+            targetId = 'sports-generic';
+          }
+          outcome = tx.status === 'Completed' ? 'Won' : (tx.status === 'Failed' ? 'Lost' : 'Pending');
+        } else if (isPredictionBet) {
+          const match = tx.details.match(/Bought\s+([\d.]+)\s+shares\s+of\s+(.*?)\s+\((.*?)\)/i);
+          if (match) {
+            selectionName = match[3];
+            marketName = match[2];
+            targetId = `prediction-${marketName.replace(/\s+/g, '-').toLowerCase()}-${selectionName.replace(/\s+/g, '-').toLowerCase()}`;
+          } else {
+            marketName = 'Prediction';
+            selectionName = 'Prediction Bet';
+            targetId = 'prediction-generic';
+          }
+          outcome = tx.status === 'Completed' ? 'Won' : (tx.status === 'Failed' ? 'Lost' : 'Pending');
+        } else if (isSettlementPayout) {
+          const cleanMarket = tx.details.replace(/SETTLE:\s*/i, '').replace(/\s*Deposit/i, '');
+          marketName = 'Sportsbook Settlement';
+          selectionName = cleanMarket;
+          stake = 0;
+          odds = 0;
+          outcome = 'Won';
+          targetId = `settle-${cleanMarket.replace(/\s+/g, '-').toLowerCase()}`;
+        }
+
+        // Circuit breaker check (for wagers)
+        if (stake > 0) {
+          if (isMarketSuspended()) {
+            return NextResponse.json({ 
+              error: 'MARKET_SUSPENDED: The market is currently suspended due to active risk controls.' 
+            }, { status: 400 });
+          }
+          const cbResult = checkCircuitBreaker(targetId, stake);
+          if (cbResult.tripped) {
+            return NextResponse.json({ 
+              error: `CIRCUIT_BREAKER_TRIPPED: ${cbResult.alertMessage}` 
+            }, { status: 400 });
+          }
+        }
+
+        // Idempotency check
+        const roundId = isSettlementPayout ? `payout-${tx.id}` : `round-${tx.id}`;
+        const hash = computeIdempotencyHash(tx.id, roundId);
+        if (isSettlementProcessed(hash)) {
+          return NextResponse.json({ 
+            error: `DUPLICATE_TRANSACTION: Settlement already processed for transaction ID ${tx.id}.` 
+          }, { status: 400 });
+        }
+
+        // Write audit log entry (which also broadcasts telemetry)
+        const event: SettlementEvent = {
+          marketId: targetId,
+          marketName,
+          selectionName,
+          stake,
+          odds,
+          outcome,
+          userId: email,
+          transactionId: tx.id,
+          roundId,
+          timestamp: tx.timestamp || Date.now()
+        };
+        writeAuditLogEntry(event, hash);
+      }
+    }
+
     if (existingUser) {
       // Security Check: Block unauthorized client-side KYC verified jumps
       if (kycStatus !== undefined && 
