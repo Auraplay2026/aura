@@ -31,31 +31,31 @@ const GAME_MANIFEST: Record<string, {
 }> = {
   // ── FPS & SHOOTERS ─────────────────────────────────────────
   "fps-1": {
-    url: "https://krunker.io/",
+    url: "https://play.gamepix.com/combat-online/embed",
     genre: "FPS", resolution: "1920×1080", serverNode: "MUM-NODE-07",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Aim & Shoot", "R — Reload", "Shift — Sprint", "C — Crouch"]
   },
   "fps-2": {
-    url: "https://venge.io/",
+    url: "https://play.gamepix.com/bullet-force/embed",
     genre: "FPS", resolution: "1920×1080", serverNode: "DEL-NODE-03",
     nodeCity: "Delhi", gpuTier: "RTX 4080",
     controls: ["WASD — Move", "Mouse — Aim", "Left Click — Shoot", "E — Interact", "Tab — Scoreboard"]
   },
   "fps-3": {
-    url: "https://1v1.lol/",
+    url: "https://play.gamepix.com/1v1-lol/embed",
     genre: "Tactical Shooter", resolution: "1920×1080", serverNode: "BLR-NODE-12",
     nodeCity: "Bengaluru", gpuTier: "RTX 4070 Ti",
     controls: ["WASD — Move", "Mouse — Aim", "B — Build", "G — Grenades", "1-4 — Weapons"]
   },
   "fps-4": {
-    url: "https://shellshock.io/",
+    url: "https://play.gamepix.com/ninja-clash-heroes/embed",
     genre: "FPS", resolution: "1920×1080", serverNode: "HYD-NODE-04",
     nodeCity: "Hyderabad", gpuTier: "RTX 4080",
     controls: ["WASD — Move", "Mouse — Aim & Shoot", "Q/E — Roll", "F — Pick up", "Space — Jump"]
   },
   "fps-5": {
-    url: "https://smashkarts.io/",
+    url: "https://play.gamepix.com/kart-fight-io/embed",
     genre: "Action Racing", resolution: "1920×1080", serverNode: "CHE-NODE-08",
     nodeCity: "Chennai", gpuTier: "RTX 3090",
     controls: ["Arrow Keys / WASD — Drive", "Mouse — Aim weapons", "Space — Boost"]
@@ -69,7 +69,7 @@ const GAME_MANIFEST: Record<string, {
 
   // ── RACING & DRIVING ───────────────────────────────────────
   "driving-1": {
-    url: "https://slowroads.io/",
+    url: "https://play.gamepix.com/cyber-cars-punk-racing/embed",
     genre: "Open World Driving", resolution: "2560×1440", serverNode: "MUM-NODE-11",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["WASD / Arrow Keys — Steer & Throttle", "E — Change Environment", "M — Map View"]
@@ -101,25 +101,25 @@ const GAME_MANIFEST: Record<string, {
 
   // ── ACTION & OPEN-WORLD ───────────────────────────────────
   "action-1": {
-    url: "https://hole-io.com/",
+    url: "https://play.gamepix.com/grand-action-simulator/embed",
     genre: "Open World Action", resolution: "1920×1080", serverNode: "MUM-NODE-03",
     nodeCity: "Mumbai", gpuTier: "RTX 4080",
     controls: ["WASD — Move", "Mouse — Camera", "Click — Interact"]
   },
   "action-2": {
-    url: "https://paper-io.com/",
+    url: "https://play.gamepix.com/sheriff-shootout/embed",
     genre: "Open World", resolution: "1920×1080", serverNode: "HYD-NODE-09",
     nodeCity: "Hyderabad", gpuTier: "RTX 3090",
     controls: ["Arrow Keys / WASD — Move", "P — Pause"]
   },
   "action-3": {
-    url: "https://slither.io/",
+    url: "https://play.gamepix.com/magic-arena/embed",
     genre: "Action Adventure", resolution: "1920×1080", serverNode: "BLR-NODE-01",
     nodeCity: "Bengaluru", gpuTier: "RTX 3090",
     controls: ["Mouse — Steer", "Click / Space — Boost"]
   },
   "action-4": {
-    url: "https://agar.io/",
+    url: "https://play.gamepix.com/hero-knight/embed",
     genre: "Open World RPG", resolution: "1920×1080", serverNode: "CHE-NODE-11",
     nodeCity: "Chennai", gpuTier: "RTX 4070",
     controls: ["Mouse — Move", "Space — Split", "W — Eject mass"]
@@ -139,7 +139,7 @@ const GAME_MANIFEST: Record<string, {
     controls: ["WASD — Move", "Mouse — Look", "F — Interact", "Tab — Map", "I — Inventory", "E — Enter Vehicle"]
   },
   "aaa-2": {
-    url: "https://hordes.io/",
+    url: "https://play.gamepix.com/magic-and-mayhem/embed",
     genre: "Action RPG", resolution: "2560×1440", serverNode: "BLR-NODE-08",
     nodeCity: "Bengaluru", gpuTier: "RTX 4090",
     controls: ["WASD — Move", "Mouse — Camera", "Left Click — Attack", "Right Click — Block", "1–6 — Skills", "M — Map"]

@@ -35,6 +35,7 @@ import { PenaltyEngine } from "@/components/casino/engines/PenaltyEngine";
 import { ExternalEngine } from "@/components/casino/engines/ExternalEngine";
 import { GameTutorialOverlay } from "@/components/GameTutorialOverlay";
 import { RoyalGamingEngine } from "@/components/casino/engines/RoyalGamingEngine";
+import { NeonHorizon3DEngine } from "@/components/casino/engines/NeonHorizon3DEngine";
 
 
 // VIP LIVE RENTERS & BETS SIDEBAR
@@ -181,7 +182,8 @@ const THEME_PROFILES: Record<string, any> = {
   "zeus-vs-hades-gods-of-war": { cols: 5, rows: 5, symbols: ["⚡", "🔥", "🔱", "🦅", "🐕", "🌋", "🔵"], primaryColor: "purple-500", bgGradient: "from-red-950/40 via-rose-950/40 to-[#050914]", buttonGradient: "from-red-600 via-rose-600 to-amber-600", buttonHover: "hover:from-red-500 hover:to-rose-500", borderClass: "border-purple-500/40", shadowClass: "shadow-[0_0_80px_rgba(239,68,68,0.2)]", animationType: "spin", slotBg: "bg-slate-50/40" },
   "madame-destiny-megaways": { cols: 6, rows: 4, symbols: ["🔮", "🃏", "🦉", "🐈", "🕯️", "🪙", "🧿"], primaryColor: "violet-500", bgGradient: "from-rose-950/50 via-[#050914] to-black", buttonGradient: "from-red-600 via-rose-700 to-red-700", buttonHover: "hover:from-red-500 hover:to-red-600", borderClass: "border-violet-500/40", shadowClass: "shadow-[0_0_80px_rgba(139,92,246,0.3)]", animationType: "spin", slotBg: "bg-red-100" },
   "gemhalla-xtreme": { cols: 6, rows: 5, symbols: ["🪓", "🛡️", "🍺", "🐺", "⚡", "🪙", "🍀"], primaryColor: "emerald-500", bgGradient: "from-emerald-950/40 via-slate-900/95 to-[#050914]", buttonGradient: "from-emerald-600 via-green-600 to-teal-500", buttonHover: "hover:from-emerald-500 hover:to-teal-400", borderClass: "border-emerald-500/40", shadowClass: "shadow-[0_0_80px_rgba(16,185,129,0.2)]", animationType: "tumble", slotBg: "bg-emerald-100" },
-  "fishing-time-deluxe": { cols: 5, rows: 4, symbols: ["🐟", "🐠", "🐡", "🎣", "🛥️", "🪙", "🐙"], primaryColor: "teal-500", bgGradient: "from-teal-950/50 via-[#050914] to-black", buttonGradient: "from-teal-500 via-emerald-500 to-green-600", buttonHover: "hover:from-teal-400 hover:to-green-400", borderClass: "border-teal-500/40", shadowClass: "shadow-[0_0_80px_rgba(20,184,166,0.3)]", animationType: "spin", slotBg: "bg-teal-100" }
+  "fishing-time-deluxe": { cols: 5, rows: 4, symbols: ["🐟", "🐠", "🐡", "🎣", "🛥️", "🪙", "🐙"], primaryColor: "teal-500", bgGradient: "from-teal-950/50 via-[#050914] to-black", buttonGradient: "from-teal-500 via-emerald-500 to-green-600", buttonHover: "hover:from-teal-400 hover:to-green-400", borderClass: "border-teal-500/40", shadowClass: "shadow-[0_0_80px_rgba(20,184,166,0.3)]", animationType: "spin", slotBg: "bg-teal-100" },
+  "neon-horizon-3d": { primaryColor: "cyan-500", bgGradient: "from-cyan-950/40 via-purple-950/80 to-[#050914]", buttonGradient: "from-cyan-500 via-purple-500 to-fuchsia-500", buttonHover: "hover:from-cyan-400 hover:to-fuchsia-400", borderClass: "border-cyan-500/40", shadowClass: "shadow-[0_0_80px_rgba(6,182,212,0.35)]", animationType: "spin" }
 };
 
 const PROCEDURAL_COLORS = [
@@ -495,6 +497,9 @@ export default function GamePlayerPage() {
     }
     if (game.id === "orig-14" || game.title.toLowerCase().includes("penalty") || game.title.toLowerCase().includes("shootout")) {
       return <PenaltyEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    }
+    if (game.id === "orig-15" || game.title.toLowerCase().includes("neon horizon")) {
+      return <NeonHorizon3DEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {

@@ -34,6 +34,8 @@ export const FEATURED_GAMES: Game[] = [
   { id: "orig-12", title: "TradeX", provider: "Originals", image: "/games/trade_thumbnail.png", categories: ["originals", "casual"], rtp: 99.0, players: 18500, isNew: true },
   { id: "orig-13", title: "HiLo", provider: "Originals", image: "/games/hilo_thumbnail.png", categories: ["originals", "table"], rtp: 99.0, players: 22100, isNew: true },
   { id: "orig-14", title: "Penalty Shootout", provider: "Originals", image: "/games/penalty_thumbnail.png", categories: ["originals", "sports"], rtp: 99.0, players: 15400, isNew: true },
+  { id: "orig-15", title: "Neon Horizon 3D", provider: "Originals", image: "/games/two_stunt_supercars.png", categories: ["originals", "3d", "racing", "crash"], rtp: 99.0, players: 32000, isNew: true },
+
 
   // --- PREMIUM CRASH ---
   { id: "crash-1", title: "Aviator", provider: "Spribe", image: "/games/spribe_aviator-7zuT5hj-B.jpeg", categories: ["crash"], players: 50000 },
