@@ -54,6 +54,29 @@ export async function POST(request: Request) {
       include: { transactions: true }
     });
 
+    // Validate transaction ledger integrity and block client-side injection/tampering
+    if (existingUser) {
+      const dbTxMap = new Map<string, any>();
+      existingUser.transactions.forEach((t: any) => dbTxMap.set(t.id, t));
+
+      for (const tx of transactions || []) {
+        if (tx.type === 'deposit' || tx.type === 'withdraw') {
+          const dbTx = dbTxMap.get(tx.id);
+          if (dbTx && dbTx.amount !== tx.amount) {
+            return NextResponse.json({ error: `Unauthorized transaction amount change detected for transaction ${tx.id}.` }, { status: 400 });
+          }
+          if (tx.status === 'Completed' || tx.status === 'Failed') {
+            if (!dbTx) {
+              return NextResponse.json({ error: 'Unauthorized completed transaction injection detected.' }, { status: 400 });
+            }
+            if (dbTx.status !== tx.status) {
+              return NextResponse.json({ error: `Unauthorized transaction status change detected for transaction ${tx.id}.` }, { status: 400 });
+            }
+          }
+        }
+      }
+    }
+
     // Extract and process any new wagers/settlements through the Settlement Engine
     const existingIds = new Set<string>();
     if (existingUser) {

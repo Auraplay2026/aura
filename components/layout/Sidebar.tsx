@@ -64,6 +64,7 @@ const NAV_SECTIONS = [
       { name: "Profit & Loss", href: "/account/pnl", icon: LineChart, color: "text-exchange-muted" },
       { name: "Activity Log", href: "/account/activity", icon: Zap, color: "text-exchange-muted" },
       { name: "Refer & Earn", href: "/refer", icon: Gift, color: "text-exchange-muted" },
+      { name: "Provably Fair", href: "/casino/verify", icon: Shield, color: "text-indigo-400" },
       { name: "Safe Play", href: "/rg", icon: Shield, color: "text-slate-400" },
       { name: "Support Desk", href: "/support", icon: HeadphonesIcon, color: "text-exchange-muted" },
     ]
