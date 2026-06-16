@@ -101,7 +101,7 @@ export async function POST(request: Request) {
         let targetId = '';
 
         if (isCasino) {
-          const match = tx.details.match(/Played\s+(.*?)\s+\(Wager:\s*₹?([\d.]+),\s*Payout:\s*₹?([\d.]+)\)/i);
+          const match = tx.details.match(/Played\s+(.*?)\s+\(Wager:\s*₹?([\d.]+)(?:\s*\+\s*₹?[\d.]+\s+Live\s+Fee)?,\s*Payout:\s*₹?([\d.]+)\)/i);
           if (match) {
             marketName = 'Casino';
             selectionName = match[1];
