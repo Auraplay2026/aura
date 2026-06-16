@@ -58,7 +58,14 @@ export function calculateGameOutcome(
   if (gameType === "CRASH") {
     if (isWin) {
       // If win, the crash multiplier goes high enough to make players feel good
-      multiplier = 2.0 + (getSecureRandom() * 8.0); // Crashes between 2.0x and 10.0x
+      const jackpotRoll = getSecureRandom();
+      if (jackpotRoll < 0.05) { // 5% chance of hitting a massive outlier (100.00x - 500.00x)
+        multiplier = 100.0 + (getSecureRandom() * 400.0);
+      } else if (jackpotRoll < 0.15) { // 10% chance of a high outlier (10.00x - 99.00x)
+        multiplier = 10.0 + (getSecureRandom() * 89.0);
+      } else {
+        multiplier = 2.0 + (getSecureRandom() * 8.0); // Crashes between 2.0x and 10.0x
+      }
     } else {
       // If loss, crash happens VERY early
       if (isNearMiss) {

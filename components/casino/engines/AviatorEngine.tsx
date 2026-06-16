@@ -7,13 +7,15 @@ import { useTradingStore } from "@/lib/store";
 
 interface AviatorEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
+export function AviatorEngine({ isPlaying, betAmount = 1000, onComplete }: AviatorEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [multiplier, setMultiplier] = useState(1.0);
   const [fled, setFled] = useState(false);
+  const [hasCashedOut, setHasCashedOut] = useState(false);
   const [xPos, setXPos] = useState(0);
   const [yPos, setYPos] = useState(350);
 
@@ -22,10 +24,16 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
+  const hasCashedOutRef = useRef(hasCashedOut);
+  useEffect(() => {
+    hasCashedOutRef.current = hasCashedOut;
+  }, [hasCashedOut]);
+
   useEffect(() => {
     if (!isPlaying) {
       setMultiplier(1.0);
       setFled(false);
+      setHasCashedOut(false);
       setXPos(0);
       setYPos(350);
       return;
@@ -53,7 +61,9 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
         clearInterval(interval);
         setMultiplier(target);
         setFled(true);
-        onCompleteRef.current(target, willWin);
+        if (!hasCashedOutRef.current) {
+          onCompleteRef.current(target, false);
+        }
       } else {
         setMultiplier(current);
       }
@@ -61,6 +71,23 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
 
     return () => clearInterval(interval);
   }, [isPlaying]);
+
+  const handleCashout = () => {
+    if (fled || hasCashedOut || !isPlaying) return;
+    setHasCashedOut(true);
+    onCompleteRef.current(multiplier, true);
+  };
+
+  // Keyboard and event cashout hotkey
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (isPlaying && !fled && !hasCashedOut) {
+        handleCashout();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    return () => window.removeEventListener("trigger-cashout", handleTriggerCashout);
+  }, [isPlaying, fled, hasCashedOut, multiplier]);
 
   return (
     <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border-4 border-[#e11d48]/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]">
@@ -82,8 +109,12 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
       </div>
 
       {/* Big Multiplier */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20">
-        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter ${fled ? "text-slate-600" : "text-slate-900"}`}>
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20 flex flex-col items-center w-full">
+        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter ${
+          fled ? "text-slate-600" : 
+          hasCashedOut ? "text-green-600 drop-shadow-[0_0_20px_rgba(22,163,74,0.3)]" : 
+          "text-slate-900"
+        }`}>
           {multiplier.toFixed(2)}x
         </h1>
         {fled && (
@@ -91,6 +122,19 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
             <AlertCircle className="w-4 h-4" /> FLEW AWAY
           </div>
         )}
+        <AnimatePresence>
+          {hasCashedOut && !fled && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0 }}
+              className="mt-2 px-6 py-2 bg-green-500/10 border border-green-500/30 rounded-xl backdrop-blur-md flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.1)]"
+            >
+              <span className="text-green-600 text-xs font-bold uppercase tracking-widest">Secured</span>
+              <span className="text-green-700 font-black text-xl font-mono">₹{(betAmount * multiplier).toFixed(2)}</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
       {/*Propeller Plane Vector */}
@@ -123,6 +167,25 @@ export function AviatorEngine({ isPlaying, onComplete }: AviatorEngineProps) {
             </motion.div>
           </motion.div>
         )}
+      {/* Manual Cashout Interaction Panel */}
+      <AnimatePresence>
+        {isPlaying && !fled && !hasCashedOut && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.8, y: 20 }}
+            className="absolute bottom-8 z-50 w-[90%] max-w-[300px]"
+          >
+            <button
+              onClick={handleCashout}
+              className="w-full py-4 bg-gradient-to-r from-red-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(225,29,72,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 cursor-pointer active:scale-95 border border-red-500/20"
+            >
+              <span>Cashout</span>
+              <span className="bg-black/20 px-3 py-1 rounded-lg font-mono text-base">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
       </div>
 
     </div>

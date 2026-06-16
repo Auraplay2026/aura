@@ -38,6 +38,37 @@ import { GameTutorialOverlay } from "@/components/GameTutorialOverlay";
 import { RoyalGamingEngine } from "@/components/casino/engines/RoyalGamingEngine";
 import { NeonHorizon3DEngine } from "@/components/casino/engines/NeonHorizon3DEngine";
 
+interface HighReachOutcome {
+  id: string;
+  user: string;
+  bet: number;
+  cashout: number;
+  crashPoint: number;
+  payout: number;
+  time: string;
+  isTopOnePercent: boolean;
+}
+
+interface ActivityLog {
+  id: string;
+  username: string;
+  bet: number;
+  multiplier: number | null;
+  crashPoint: number;
+  payout: number;
+  status: "playing" | "cashed_out" | "crashed";
+  time: string;
+}
+
+const NAMES = ["Roo_VIP", "AlphaBet", "CryptoGamer", "LuckyJack", "ZenRoll", "SpinNinja", "DegenZero", "DiceQueen", "RiskTaker", "BullRun", "CrashSniper", "HighMultiplier"];
+
+const INITIAL_HIGH_REACHES: HighReachOutcome[] = [
+  { id: "hr-1", user: "RooKing_88", bet: 500, cashout: 320.40, crashPoint: 324.50, payout: 160200, time: "08:42 AM", isTopOnePercent: true },
+  { id: "hr-2", user: "AlphaTrader", bet: 1000, cashout: 250.00, crashPoint: 256.40, payout: 250000, time: "07:15 AM", isTopOnePercent: true },
+  { id: "hr-3", user: "Hidden", bet: 250, cashout: 114.80, crashPoint: 114.80, payout: 28700, time: "06:30 AM", isTopOnePercent: true },
+  { id: "hr-4", user: "AuraVibe", bet: 1200, cashout: 200.00, crashPoint: 204.80, payout: 240000, time: "05:12 AM", isTopOnePercent: true },
+  { id: "hr-5", user: "RooSuper", bet: 100, cashout: 412.50, crashPoint: 412.50, payout: 41250, time: "02:19 AM", isTopOnePercent: true },
+];
 
 // VIP LIVE RENTERS & BETS SIDEBAR
 function VIPLiveBetsFeed({ gameTitle }: { gameTitle: string }) {
@@ -341,6 +372,9 @@ export default function GamePlayerPage() {
   const [isMegaWin, setIsMegaWin] = useState(false);
   const [isAnalyticsOpen, setIsAnalyticsOpen] = useState(true);
   const [sidebarTab, setSidebarTab] = useState<'stakes' | 'strategy'>('stakes');
+  const [highReaches, setHighReaches] = useState<HighReachOutcome[]>(INITIAL_HIGH_REACHES);
+  const [recentActivities, setRecentActivities] = useState<ActivityLog[]>([]);
+  const [scoreboardTab, setScoreboardTab] = useState<"top-one-percent" | "recent-runs">("top-one-percent");
   
   const [isDemoLimitReached, setIsDemoLimitReached] = useState(false);
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
@@ -586,6 +620,87 @@ export default function GamePlayerPage() {
     playCasino(betAmount, payout, game.title);
     recordSessionRound(game.id, betAmount, payout, mult);
 
+    // Record user wager to recent activities list
+    const userActivity: ActivityLog = {
+      id: `act-user-${Date.now()}`,
+      username: "You",
+      bet: betAmount,
+      multiplier: won ? mult : null,
+      crashPoint: mult,
+      payout,
+      status: won ? "cashed_out" : "crashed",
+      time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+    };
+
+    // If it's a crash/aviator game, simulate other player wagers and outcomes
+    let roundActivities: ActivityLog[] = [];
+    const isCrashGame = game.categories.includes("crash") || game.title.toLowerCase().includes("aviator") || game.id.includes("crash") || game.id === "aviator";
+    if (isCrashGame) {
+      const simulatedCount = Math.floor(Math.random() * 3) + 2; // 2 to 4 other players
+      for (let i = 0; i < simulatedCount; i++) {
+        const username = NAMES[Math.floor(Math.random() * NAMES.length)] + "_" + Math.floor(Math.random() * 9000 + 1000);
+        const simBet = Math.floor(Math.random() * 5) * 100 + 100;
+        const simWon = Math.random() < 0.65; // 65% chance of cashing out
+        const simMult = simWon ? parseFloat((1.05 + Math.random() * (Math.max(1.10, mult) - 1.05)).toFixed(2)) : 0;
+        const simPayout = simWon ? simBet * simMult : 0;
+        
+        roundActivities.push({
+          id: `act-sim-${Math.random()}`,
+          username,
+          bet: simBet,
+          multiplier: simWon ? simMult : null,
+          crashPoint: mult,
+          payout: simPayout,
+          status: simWon ? "cashed_out" : "crashed",
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        });
+      }
+    }
+
+    setRecentActivities(prev => [userActivity, ...roundActivities, ...prev].slice(0, 40));
+
+    // Qualify for highest reach board
+    if (isCrashGame && mult >= 100.00) {
+      const newHighReaches: HighReachOutcome[] = [];
+      
+      // Add user record if user won
+      if (won) {
+        newHighReaches.push({
+          id: `hr-user-${Date.now()}`,
+          user: "You",
+          bet: betAmount,
+          cashout: mult,
+          crashPoint: mult,
+          payout,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isTopOnePercent: true
+        });
+      }
+      
+      // Also add 1-2 simulated players who hit high cashouts in this same high-crash round
+      const simCount = Math.floor(Math.random() * 2) + 1; // 1 or 2 players
+      for (let i = 0; i < simCount; i++) {
+        const username = NAMES[Math.floor(Math.random() * NAMES.length)] + "_" + Math.floor(Math.random() * 9000 + 1000);
+        const simBet = Math.floor(Math.random() * 8) * 100 + 300; // ₹300 - ₹1000
+        // Cashout multiplier is randomly between 100.00 and mult
+        const simCashout = parseFloat((100.00 + Math.random() * (mult - 100.00)).toFixed(2));
+        const simPayout = simBet * simCashout;
+        
+        newHighReaches.push({
+          id: `hr-sim-${Math.random()}`,
+          user: username,
+          bet: simBet,
+          cashout: simCashout,
+          crashPoint: mult,
+          payout: simPayout,
+          time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          isTopOnePercent: true
+        });
+      }
+      
+      setHighReaches(prev => [...newHighReaches, ...prev].slice(0, 15));
+    }
+
     if (won) {
       setWinAmount(payout);
       if (mult >= 10) {
@@ -729,7 +844,7 @@ export default function GamePlayerPage() {
         return <ClassicCrashEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
       }
       if (game.id === "crash-1" || game.title.toLowerCase().includes("aviator") || game.title.toLowerCase().includes("aviamasters")) {
-        return <AviatorEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+        return <AviatorEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
       }
       if (game.id === "live-6" || game.title.toLowerCase().includes("balloon")) {
         return <BalloonRaceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -1517,6 +1632,142 @@ export default function GamePlayerPage() {
               )}
             </AnimatePresence>
           </motion.div>
+
+          {/* Detailed Leaderboard & Scoreboards */}
+          {/* Detailed Leaderboard & Scoreboards */}
+          {!game.id.startsWith("royal-") && (() => {
+            const isCrash = game.categories.includes("crash") || game.title.toLowerCase().includes("aviator") || game.id.includes("crash") || game.id === "aviator";
+            return (
+              <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xl w-full mt-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-slate-100 pb-4 mb-6 gap-4 font-sans">
+                  <div className="flex items-center gap-3">
+                    <Flame className="w-5 h-5 text-[#e11d48] animate-pulse" />
+                    <div>
+                      <h2 className="text-base font-black text-slate-950">
+                        {isCrash ? "Crash Activities & High Reaches" : "Game Leaderboard & Session Log"}
+                      </h2>
+                      <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                        {isCrash ? "Top 1% crash outliers & live session wagers" : "Highest multipliers & live session activities"}
+                      </p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex bg-slate-100 border border-slate-200/50 p-1 rounded-xl shrink-0 self-start sm:self-auto">
+                    <button 
+                      onClick={() => setScoreboardTab("top-one-percent")}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-xs font-black transition-all cursor-pointer",
+                        scoreboardTab === "top-one-percent" 
+                          ? "bg-white text-slate-950 shadow-sm" 
+                          : "text-slate-500 hover:text-slate-800"
+                      )}
+                    >
+                      {isCrash ? "🏆 Top 1% Reach (24h)" : "🏆 Top Multipliers (24h)"}
+                    </button>
+                    <button 
+                      onClick={() => setScoreboardTab("recent-runs")}
+                      className={cn(
+                        "px-4 py-2 rounded-lg text-xs font-black transition-all cursor-pointer",
+                        scoreboardTab === "recent-runs" 
+                          ? "bg-white text-slate-950 shadow-sm" 
+                          : "text-slate-500 hover:text-slate-800"
+                      )}
+                    >
+                      ⚡ Live Activities
+                    </button>
+                  </div>
+                </div>
+
+                {scoreboardTab === "top-one-percent" ? (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs font-bold border-collapse">
+                      <thead>
+                        <tr className="text-slate-400 border-b border-slate-100 uppercase tracking-widest text-[9px]">
+                          <th className="pb-3 pr-4">User</th>
+                          <th className="pb-3 pr-4 text-right">Bet Size</th>
+                          <th className="pb-3 pr-4 text-center">
+                            {isCrash ? "Cashout Multiplier" : "Win Multiplier"}
+                          </th>
+                          <th className="pb-3 pr-4 text-center">
+                            {isCrash ? "Max Crash Point" : "Game Multiplier"}
+                          </th>
+                          <th className="pb-3 text-right">Total Payout</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50 font-semibold text-slate-700">
+                        {highReaches.map((row) => (
+                          <tr key={row.id} className="hover:bg-slate-50/40 transition-colors">
+                            <td className="py-3.5 flex items-center gap-2">
+                              <div className="w-6 h-6 rounded-full bg-amber-500/10 text-amber-600 flex items-center justify-center text-[10px] font-black shrink-0">👑</div>
+                              <span className={cn(row.user === "You" ? "text-red-500 font-extrabold" : "text-slate-900")}>{row.user}</span>
+                            </td>
+                            <td className="py-3.5 text-right font-mono text-slate-500">₹{row.bet.toLocaleString()}</td>
+                            <td className="py-3.5 text-center font-mono">
+                              {row.cashout > 0 ? (
+                                <span className="text-green-600 bg-green-500/10 px-2 py-0.5 rounded-sm">{row.cashout.toFixed(2)}x</span>
+                              ) : (
+                                <span className="text-red-500 bg-red-500/10 px-2 py-0.5 rounded-sm">0.00x</span>
+                              )}
+                            </td>
+                            <td className="py-3.5 text-center font-mono font-black text-amber-600">{row.crashPoint.toFixed(2)}x</td>
+                            <td className="py-3.5 text-right font-mono font-black text-green-600">
+                              {row.payout > 0 ? `+₹${row.payout.toLocaleString(undefined, { minimumFractionDigits: 2 })}` : "₹0.00"}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs font-bold border-collapse">
+                      <thead>
+                        <tr className="text-slate-400 border-b border-slate-100 uppercase tracking-widest text-[9px]">
+                          <th className="pb-3 pr-4">User</th>
+                          <th className="pb-3 pr-4 text-right">Wager</th>
+                          <th className="pb-3 pr-4 text-center">Cashout Point</th>
+                          <th className="pb-3 pr-4 text-center">
+                            {isCrash ? "Crash Point" : "Outcome Point"}
+                          </th>
+                          <th className="pb-3 text-right">Payout</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-slate-50 font-semibold text-slate-700">
+                        {recentActivities.length === 0 ? (
+                          <tr>
+                            <td colSpan={5} className="py-8 text-center text-slate-400">No session wagers yet. Place a bet to begin!</td>
+                          </tr>
+                        ) : (
+                          recentActivities.map((act) => (
+                            <tr key={act.id} className={cn("hover:bg-slate-50/40 transition-colors", act.username === "You" && "bg-red-50/10")}>
+                              <td className="py-3 pr-4 flex items-center gap-2">
+                                <div className={cn("w-2 h-2 rounded-full shrink-0", act.status === "cashed_out" ? "bg-green-500" : "bg-red-500")} />
+                                <span className={cn(act.username === "You" ? "text-red-500 font-extrabold" : "text-slate-900")}>{act.username}</span>
+                              </td>
+                              <td className="py-3 pr-4 text-right font-mono text-slate-500">₹{act.bet.toLocaleString()}</td>
+                              <td className="py-3 pr-4 text-center font-mono">
+                                {act.multiplier ? (
+                                  <span className="text-green-600 bg-green-500/10 px-2 py-0.5 rounded-sm font-black">{act.multiplier.toFixed(2)}x</span>
+                                ) : (
+                                  <span className="text-red-500 bg-red-500/10 px-2 py-0.5 rounded-sm font-bold">Crashed</span>
+                                )}
+                              </td>
+                              <td className="py-3 pr-4 text-center font-mono text-slate-600 font-semibold">
+                                {act.crashPoint ? `${act.crashPoint.toFixed(2)}x` : "-"}
+                              </td>
+                              <td className={cn("py-3 text-right font-mono font-black", act.payout > 0 ? "text-green-600" : "text-slate-400")}>
+                                {act.payout > 0 ? `₹${act.payout.toFixed(2)}` : "₹0.00"}
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            );
+          })()}
         </div> {/* End Main Content Col */}
         
         {/* Right Sidebar: VIP Live Feed */}
