@@ -8,12 +8,20 @@ import { calculateGameOutcome } from "@/lib/casino-math";
 interface CoinflipEngineProps {
   isPlaying: boolean;
   onComplete: (multiplier: number, won: boolean) => void;
+  selectedTarget?: string;
+  setSelectedTarget?: (t: string) => void;
 }
 
-export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
+export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelectedTarget }: CoinflipEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [flipping, setFlipping] = useState(false);
-  const [selectedSide, setSelectedSide] = useState<"AURA" | "SKULL">("AURA");
+  const [localSide, setLocalSide] = useState<"AURA" | "SKULL">("AURA");
+  
+  const selectedSide = selectedTarget === "AURA" || selectedTarget === "SKULL" ? (selectedTarget as "AURA" | "SKULL") : localSide;
+  const setSelectedSide = (side: "AURA" | "SKULL") => {
+    setLocalSide(side);
+    if (setSelectedTarget) setSelectedTarget(side);
+  };
   const [result, setResult] = useState<"AURA" | "SKULL" | null>(null);
   const [rotationX, setRotationX] = useState(0);
 

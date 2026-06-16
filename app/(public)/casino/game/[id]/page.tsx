@@ -405,6 +405,7 @@ export default function GamePlayerPage() {
   const [highReaches, setHighReaches] = useState<HighReachOutcome[]>(INITIAL_HIGH_REACHES);
   const [recentActivities, setRecentActivities] = useState<ActivityLog[]>([]);
   const [scoreboardTab, setScoreboardTab] = useState<"top-one-percent" | "recent-runs">("top-one-percent");
+  const [selectedTarget, setSelectedTarget] = useState<string>("");
   
   const [isDemoLimitReached, setIsDemoLimitReached] = useState(false);
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
@@ -851,7 +852,7 @@ export default function GamePlayerPage() {
       return <DiceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-9" || game.title.toLowerCase().includes("coin")) {
-      return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
     }
     if (game.id === "orig-10" || game.categories.includes("shows") || game.title.toLowerCase().includes("wheel") || game.title.toLowerCase().includes("time") || game.title.toLowerCase().includes("funky") || game.title.toLowerCase().includes("monopoly") || game.title.toLowerCase().includes("dream catcher")) {
       return <LiveWheelEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -895,20 +896,20 @@ export default function GamePlayerPage() {
         return <BalloonRaceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
       }
       if (game.title.toLowerCase().includes("coin flip") || game.title.toLowerCase().includes("crazy coin")) {
-        return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+        return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
       return <CrashEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
     }
     // === TABLE / CARD GAMES ===
     if (game.categories.includes("poker") || game.categories.includes("table") || game.id.includes("blackjack") || game.id.includes("poker")) {
       if (game.id.startsWith("royal-") || game.provider === "Royal Gaming") {
-        return <RoyalGamingEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
+        return <RoyalGamingEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
       if (game.id.includes("blackjack") || game.title.toLowerCase().includes("blackjack") || game.id === "orig-8") {
         return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
       }
       if (game.id.includes("baccarat") || game.title.toLowerCase().includes("baccarat") || game.id === "table-3") {
-        return <BaccaratEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+        return <BaccaratEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
       return <CardEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
     }
@@ -1224,6 +1225,92 @@ export default function GamePlayerPage() {
                                       </div>
                                     </div>
                                   )}
+
+                                  {/* Target Selector */}
+                                  {(() => {
+                                    const titleLower = game.title.toLowerCase();
+                                    const idLower = game.id.toLowerCase();
+                                    const isCoin = titleLower.includes("coin") || idLower.includes("coin");
+                                    const isAndar = titleLower.includes("andar") || idLower.includes("andar");
+                                    const isDragon = titleLower.includes("dragon") || idLower.includes("dragon");
+                                    const isTeenPatti = titleLower.includes("teen patti") || idLower.includes("patti");
+                                    const isRoulette = titleLower.includes("roulette");
+                                    const isBaccarat = titleLower.includes("baccarat");
+                                    const isDice = titleLower.includes("dice");
+                                    
+                                    let options: { id: string; name: string }[] = [];
+                                    
+                                    if (isCoin) {
+                                      options = [
+                                        { id: "AURA", name: "Aura" },
+                                        { id: "SKULL", name: "Skull" }
+                                      ];
+                                    } else if (isAndar) {
+                                      options = [
+                                        { id: "andar", name: "Andar" },
+                                        { id: "bahar", name: "Bahar" }
+                                      ];
+                                    } else if (isDragon) {
+                                      options = [
+                                        { id: "dragon", name: "Dragon" },
+                                        { id: "tiger", name: "Tiger" },
+                                        { id: "tie", name: "Tie" }
+                                      ];
+                                    } else if (isTeenPatti) {
+                                      options = [
+                                        { id: "player_a", name: "Player A" },
+                                        { id: "player_b", name: "Player B" },
+                                        { id: "tie", name: "Tie" }
+                                      ];
+                                    } else if (isRoulette) {
+                                      options = [
+                                        { id: "red", name: "Red" },
+                                        { id: "black", name: "Black" },
+                                        { id: "zero", name: "Zero" }
+                                      ];
+                                    } else if (isBaccarat) {
+                                      options = [
+                                        { id: "PLAYER", name: "Player" },
+                                        { id: "BANKER", name: "Banker" },
+                                        { id: "TIE", name: "Tie" }
+                                      ];
+                                    } else if (isDice) {
+                                      options = [
+                                        { id: "over", name: "Over 50.5" },
+                                        { id: "under", name: "Under 50.5" }
+                                      ];
+                                    }
+
+                                    if (options.length === 0) return null;
+
+                                    return (
+                                      <div className="flex flex-col gap-2">
+                                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Bet Target Selector</span>
+                                        <div className="grid grid-cols-2 gap-2">
+                                          {options.map((opt) => {
+                                            const isActive = selectedTarget === opt.id;
+                                            return (
+                                              <button
+                                                key={opt.id}
+                                                onClick={() => {
+                                                  setSelectedTarget(opt.id);
+                                                  playGameSound('click');
+                                                }}
+                                                className={cn(
+                                                  "py-3.5 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 text-center",
+                                                  isActive 
+                                                    ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-red-500 shadow-md scale-[1.02]`
+                                                    : "bg-white text-slate-700 border-slate-200 hover:border-slate-350 hover:bg-slate-50"
+                                                )}
+                                              >
+                                                {opt.name}
+                                              </button>
+                                            );
+                                          })}
+                                        </div>
+                                      </div>
+                                    );
+                                  })()}
 
                                   {/* Play Mode Control — Manual Only by Default */}
                                   <div className="relative">

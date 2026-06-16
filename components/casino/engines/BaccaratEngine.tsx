@@ -6,6 +6,8 @@ import { calculateGameOutcome } from "@/lib/casino-math";
 interface BaccaratEngineProps {
   isPlaying: boolean;
   onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
+  selectedTarget?: string;
+  setSelectedTarget?: (t: string) => void;
 }
 
 const DECK = [
@@ -18,12 +20,17 @@ const DECK = [
   { val: "8", suit: "♦️", color: "text-red-600", score: 8 }
 ];
 
-export function BaccaratEngine({ isPlaying, onComplete }: BaccaratEngineProps) {
+export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelectedTarget }: BaccaratEngineProps) {
   const [playerHand, setPlayerHand] = useState<typeof DECK>([]);
   const [bankerHand, setBankerHand] = useState<typeof DECK>([]);
   const [dealt, setDealt] = useState(false);
   const [resultMsg, setResultMsg] = useState("");
-  const [selectedSide, setSelectedSide] = useState<string>("PLAYER");
+  const [localSide, setLocalSide] = useState<string>("PLAYER");
+  const selectedSide = selectedTarget === "PLAYER" || selectedTarget === "BANKER" || selectedTarget === "TIE" ? selectedTarget : localSide;
+  const setSelectedSide = (side: string) => {
+    setLocalSide(side);
+    if (setSelectedTarget) setSelectedTarget(side);
+  };
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {

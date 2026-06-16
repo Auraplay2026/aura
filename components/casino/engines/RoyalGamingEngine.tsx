@@ -16,6 +16,8 @@ interface RoyalGamingProps {
   onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
   gameId: string;
   gameTitle: string;
+  selectedTarget?: string;
+  setSelectedTarget?: (t: string) => void;
 }
 
 interface PlacedChip {
@@ -191,7 +193,7 @@ const playSynthSound = (type: 'tick' | 'beep' | 'win', isMuted: boolean) => {
   }
 };
 
-export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, gameId, gameTitle }: RoyalGamingProps) {
+export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, gameId, gameTitle, selectedTarget: externalTarget, setSelectedTarget: setExternalTarget }: RoyalGamingProps) {
   const { balance: rawBalance, playCasino } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
 
@@ -224,6 +226,20 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
   const [sidebarBetActive, setSidebarBetActive] = useState(false);
   const [sidebarBetAmount, setSidebarBetAmount] = useState(0);
   const [sidebarBetTarget, setSidebarBetTarget] = useState<string | null>(null);
+
+  // Sync external target prop to local state
+  useEffect(() => {
+    if (externalTarget && externalTarget !== selectedTarget) {
+      setSelectedTarget(externalTarget);
+    }
+  }, [externalTarget]);
+
+  // Sync local state changes back to external prop
+  useEffect(() => {
+    if (selectedTarget && setExternalTarget) {
+      setExternalTarget(selectedTarget);
+    }
+  }, [selectedTarget]);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
