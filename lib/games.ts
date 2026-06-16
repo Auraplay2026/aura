@@ -91,15 +91,15 @@ export const FEATURED_GAMES: Game[] = [
   // ==========================================
   // ROYAL GAMING LIVE CASINO FUSION MATRIX
   // ==========================================
-  { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
-  { id: "royal-1-20", title: "Teen Patti 20-20", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table", "poker"], rtp: 98.4, players: 24000, isNew: true },
-  { id: "royal-2", title: "Super Over Fusion", provider: "Royal Gaming", image: "/games/orig_cover_plinko.png", categories: ["live", "table"], rtp: 98.8, players: 14000, isNew: true },
-  { id: "royal-3", title: "Andar Bahar Traditional", provider: "Royal Gaming", image: "/games/hilo_thumbnail.png", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
-  { id: "royal-3-vr", title: "Andar Bahar VR", provider: "Royal Gaming", image: "/games/hilo_thumbnail.png", categories: ["live", "table"], rtp: 97.6, players: 18000, isNew: true },
-  { id: "royal-4", title: "32 Cards Fusion", provider: "Royal Gaming", image: "/games/orig_cover_plinko.png", categories: ["live", "table"], rtp: 96.5, players: 9000, isNew: true },
-  { id: "royal-5", title: "Lightning 7 Up & Down Fusion", provider: "Royal Gaming", image: "/games/penalty_thumbnail.png", categories: ["live", "table"], rtp: 97.2, players: 18000, isNew: true },
-  { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "/games/orig_cover_mines.png", categories: ["live", "table"], rtp: 96.2, players: 41000, isNew: true },
-  { id: "royal-7", title: "European Roulette", provider: "Royal Gaming", image: "/games/housegames_roulette-M5fn8z7Db.png", categories: ["live", "table", "roulette"], rtp: 97.3, players: 12500, isNew: true },
+  { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1541252260730-0412e8e2108e?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
+  { id: "royal-1-20", title: "Teen Patti 20-20", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "poker"], rtp: 98.4, players: 24000, isNew: true },
+  { id: "royal-2", title: "Super Over Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 98.8, players: 14000, isNew: true },
+  { id: "royal-3", title: "Andar Bahar Traditional", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1522069169874-c58ec4b76be5?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
+  { id: "royal-3-vr", title: "Andar Bahar VR", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1593508512255-86ab42a8e620?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 97.6, players: 18000, isNew: true },
+  { id: "royal-4", title: "32 Cards Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 96.5, players: 9000, isNew: true },
+  { id: "royal-5", title: "Lightning 7 Up & Down Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 97.2, players: 18000, isNew: true },
+  { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 96.2, players: 41000, isNew: true },
+  { id: "royal-7", title: "European Roulette", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "roulette"], rtp: 97.3, players: 12500, isNew: true },
 
   // --- AAA CLOUD RENTALS (Premium High Price Tier) ---
   { id: "aaa-1", title: "Cyberpunk 2077", provider: "CD Projekt Red", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg", categories: ["aaa", "open-world", "3d"], isNew: true, hourlyRate: 399, players: 4500 },
@@ -144,32 +144,32 @@ export const FEATURED_GAMES: Game[] = [
 
   // --- NEW 20 HIGH-END PREMIUM GAMES ---
   // Originals
-  { id: "orig-16", title: "3D Cyber Bowling", provider: "Originals", image: "/games/orig_cover_mines.png", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 12000, isNew: true },
-  { id: "orig-17", title: "3D Neon Billiards", provider: "Originals", image: "/games/orig_cover_plinko.png", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 8400, isNew: true },
-  { id: "orig-18", title: "3D Space Miner", provider: "Originals", image: "/games/orig_cover_mines.png", categories: ["originals", "3d", "puzzle", "adventure"], rtp: 99.0, players: 15400, isNew: true },
-  { id: "orig-19", title: "3D Cyber Roulette", provider: "Originals", image: "/games/housegames_roulette-M5fn8z7Db.png", categories: ["originals", "3d", "table", "roulette"], rtp: 99.0, players: 21000, isNew: true },
-  { id: "orig-20", title: "3D Blackjack Pro", provider: "Originals", image: "/games/housegames_blackjack-H4SSRgE2t.jpeg", categories: ["originals", "3d", "table", "blackjack"], rtp: 99.5, players: 14200, isNew: true },
+  { id: "orig-16", title: "3D Cyber Bowling", provider: "Originals", image: "https://images.unsplash.com/photo-1538510121173-07e7efd29037?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 12000, isNew: true },
+  { id: "orig-17", title: "3D Neon Billiards", provider: "Originals", image: "https://images.unsplash.com/photo-1544367567-0f2fcb009e0b?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 8400, isNew: true },
+  { id: "orig-18", title: "3D Space Miner", provider: "Originals", image: "https://images.unsplash.com/photo-1451187580459-43490279c0fa?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "puzzle", "adventure"], rtp: 99.0, players: 15400, isNew: true },
+  { id: "orig-19", title: "3D Cyber Roulette", provider: "Originals", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "roulette"], rtp: 99.0, players: 21000, isNew: true },
+  { id: "orig-20", title: "3D Blackjack Pro", provider: "Originals", image: "https://images.unsplash.com/photo-1570649236495-42fa5fe3c48b?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "blackjack"], rtp: 99.5, players: 14200, isNew: true },
 
   // AAA Cloud Rentals
-  { id: "aaa-7", title: "Grand Theft Auto VI", provider: "Rockstar Games", image: "/games/two_stunt_supercars.png", categories: ["aaa", "action", "open-world", "3d"], isNew: true, hourlyRate: 999, players: 45000 },
-  { id: "aaa-8", title: "Assassin's Creed Shadows", provider: "Ubisoft", image: "/games/roobetlabs_trex-dragon-lady-T2sVg9NRb.jpeg", categories: ["aaa", "action", "3d"], isNew: true, hourlyRate: 699, players: 28000 },
-  { id: "aaa-9", title: "The Witcher 4: Polaris", provider: "CD Projekt Red", image: "/games/gamingcorps_NorthVsGiant-TsvdHyYnO.jpeg", categories: ["aaa", "adventure", "3d"], isNew: true, hourlyRate: 899, players: 34000 },
-  { id: "aaa-10", title: "DOOM Eternal", provider: "id Software", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg", categories: ["aaa", "action", "3d"], isNew: true, hourlyRate: 399, players: 18000 },
-  { id: "aaa-11", title: "Cyberpunk Orion", provider: "CD Projekt Red", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg", categories: ["aaa", "action", "open-world", "3d"], isNew: true, hourlyRate: 999, players: 22000 },
+  { id: "aaa-7", title: "Grand Theft Auto VI", provider: "Rockstar Games", image: "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?q=80&w=600&auto=format&fit=crop", categories: ["aaa", "action", "open-world", "3d"], isNew: true, hourlyRate: 999, players: 45000 },
+  { id: "aaa-8", title: "Assassin's Creed Shadows", provider: "Ubisoft", image: "https://images.unsplash.com/photo-1508739773434-c26b3d09e071?q=80&w=600&auto=format&fit=crop", categories: ["aaa", "action", "3d"], isNew: true, hourlyRate: 699, players: 28000 },
+  { id: "aaa-9", title: "The Witcher 4: Polaris", provider: "CD Projekt Red", image: "https://images.unsplash.com/photo-1518005020951-eccb494ad742?q=80&w=600&auto=format&fit=crop", categories: ["aaa", "adventure", "3d"], isNew: true, hourlyRate: 899, players: 34000 },
+  { id: "aaa-10", title: "DOOM Eternal", provider: "id Software", image: "https://images.unsplash.com/photo-1608962776073-a5198b030f24?q=80&w=600&auto=format&fit=crop", categories: ["aaa", "action", "3d"], isNew: true, hourlyRate: 399, players: 18000 },
+  { id: "aaa-11", title: "Cyberpunk Orion", provider: "CD Projekt Red", image: "https://images.unsplash.com/photo-1515621061946-eff1c2a352bd?q=80&w=600&auto=format&fit=crop", categories: ["aaa", "action", "open-world", "3d"], isNew: true, hourlyRate: 999, players: 22000 },
 
   // Premium Slots
-  { id: "slot-20", title: "Glow Horizon 3D Slot", provider: "Aura Play", image: "/games/slot_cover_sweet.png", categories: ["slots", "3d"], isNew: true, players: 18500 },
-  { id: "slot-21", title: "Sweet Cascade 3D", provider: "Aura Play", image: "/games/slot_cover_sweet.png", categories: ["slots", "3d"], isNew: true, players: 29000 },
-  { id: "slot-22", title: "Temple of Doom Megaways", provider: "Hacksaw Gaming", image: "/games/slot_cover_book.png", categories: ["slots", "adventure"], isNew: true, players: 16500 },
-  { id: "slot-23", title: "Fruit Party Deluxe", provider: "Pragmatic Play", image: "/games/pragmatic_vs20fruitswx.jpg", categories: ["slots", "casual"], isNew: true, players: 11200 },
-  { id: "slot-24", title: "Cyber Strike Megaways", provider: "Aura Studios", image: "/games/action_thumbnail_1780932122747.png", categories: ["slots", "action", "3d"], isNew: true, players: 25000 },
+  { id: "slot-20", title: "Glow Horizon 3D Slot", provider: "Aura Play", image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600&auto=format&fit=crop", categories: ["slots", "3d"], isNew: true, players: 18500 },
+  { id: "slot-21", title: "Sweet Cascade 3D", provider: "Aura Play", image: "https://images.unsplash.com/photo-1551817958-c115383e9c21?q=80&w=600&auto=format&fit=crop", categories: ["slots", "3d"], isNew: true, players: 29000 },
+  { id: "slot-22", title: "Temple of Doom Megaways", provider: "Hacksaw Gaming", image: "https://images.unsplash.com/photo-1518638150340-f706e86654de?q=80&w=600&auto=format&fit=crop", categories: ["slots", "adventure"], isNew: true, players: 16500 },
+  { id: "slot-23", title: "Fruit Party Deluxe", provider: "Pragmatic Play", image: "https://images.unsplash.com/photo-1619546813926-a78fa6372cd2?q=80&w=600&auto=format&fit=crop", categories: ["slots", "casual"], isNew: true, players: 11200 },
+  { id: "slot-24", title: "Cyber Strike Megaways", provider: "Aura Studios", image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop", categories: ["slots", "action", "3d"], isNew: true, players: 25000 },
 
   // Live Shows & Tables
-  { id: "live-8", title: "Mega Wheel Live 3D", provider: "Evolution", image: "/games/live_cover_crazy.png", categories: ["live", "shows"], isNew: true, players: 32000 },
-  { id: "live-9", title: "Lightning Blackjack 3D", provider: "Evolution", image: "/games/live_cover_blackjack.png", categories: ["live", "table", "blackjack"], isNew: true, players: 15000 },
-  { id: "live-10", title: "Teen Patti VR Live", provider: "Royal Gaming", image: "/games/hilo_thumbnail.png", categories: ["live", "table", "poker"], isNew: true, players: 24000 },
-  { id: "live-11", title: "Dream Catcher 3D Live", provider: "Evolution", image: "/games/live_cover_crazy.png", categories: ["live", "shows"], isNew: true, players: 19800 },
-  { id: "live-12", title: "Bollywood Roulette Live", provider: "Evolution", image: "/games/live_cover_roulette.png", categories: ["live", "table", "roulette"], isNew: true, players: 31200 }
+  { id: "live-8", title: "Mega Wheel Live 3D", provider: "Evolution", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["live", "shows"], isNew: true, players: 32000 },
+  { id: "live-9", title: "Lightning Blackjack 3D", provider: "Evolution", image: "https://images.unsplash.com/photo-1511193311914-0346f16efe90?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "blackjack"], isNew: true, players: 15000 },
+  { id: "live-10", title: "Teen Patti VR Live", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "poker"], isNew: true, players: 24000 },
+  { id: "live-11", title: "Dream Catcher 3D Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1600861195091-690c92f1d2cc?q=80&w=600&auto=format&fit=crop", categories: ["live", "shows"], isNew: true, players: 19800 },
+  { id: "live-12", title: "Bollywood Roulette Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "roulette"], isNew: true, players: 31200 }
 ];
 
 export const GAMES: Game[] = FEATURED_GAMES;
