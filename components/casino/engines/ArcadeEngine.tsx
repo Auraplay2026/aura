@@ -202,6 +202,128 @@ const GAME_MANIFEST: Record<string, {
     nodeCity: "Chennai", gpuTier: "RTX 3060",
     controls: ["Mouse / Touch — Draw path", "Watch your character run it!"]
   },
+
+  // --- NEW 20 HIGH-END PREMIUM GAMES ---
+  "orig-16": {
+    url: "https://play.gamepix.com/classic-bowling/embed",
+    genre: "Sports/Casual", resolution: "1920×1080", serverNode: "MUM-NODE-01",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["Mouse — Aim, Drag & Release to bowl"]
+  },
+  "orig-17": {
+    url: "https://play.gamepix.com/8-ball-billiards-classic/embed",
+    genre: "Sports/Casual", resolution: "1920×1080", serverNode: "DEL-NODE-03",
+    nodeCity: "Delhi", gpuTier: "RTX 4080",
+    controls: ["Mouse — Aim cue, Hold & Release to strike"]
+  },
+  "orig-18": {
+    url: "https://play.gamepix.com/gold-miner-classic/embed",
+    genre: "Casual/Puzzle", resolution: "1920×1080", serverNode: "BLR-NODE-12",
+    nodeCity: "Bengaluru", gpuTier: "RTX 4070 Ti",
+    controls: ["Down Arrow / Tap — Deploy claw"]
+  },
+  "orig-19": {
+    url: "https://play.gamepix.com/roulette-royal/embed",
+    genre: "Table Game", resolution: "1920×1080", serverNode: "HYD-NODE-04",
+    nodeCity: "Hyderabad", gpuTier: "RTX 4080",
+    controls: ["Mouse — Place chips & Spin wheel"]
+  },
+  "orig-20": {
+    url: "https://play.gamepix.com/blackjack-blackjack/embed",
+    genre: "Table Game", resolution: "1920×1080", serverNode: "CHE-NODE-08",
+    nodeCity: "Chennai", gpuTier: "RTX 3090",
+    controls: ["Mouse — Place wagers, Hit, Stand or Double"]
+  },
+  "aaa-7": {
+    url: "https://play.gamepix.com/city-car-stunt-4/embed",
+    genre: "Open World Racing", resolution: "2560×1440", serverNode: "MUM-NODE-07",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["WASD/Arrow Keys — Drive", "Space — Handbrake", "F — Nitro Boost"]
+  },
+  "aaa-8": {
+    url: "https://play.gamepix.com/ninja-clash-heroes/embed",
+    genre: "Action/Stealth", resolution: "2560×1440", serverNode: "BLR-NODE-08",
+    nodeCity: "Bengaluru", gpuTier: "RTX 4090",
+    controls: ["WASD — Move", "Mouse — Aim & Shoot", "Space — Jump", "E — Special Ability"]
+  },
+  "aaa-9": {
+    url: "https://play.gamepix.com/hero-knight/embed",
+    genre: "Action RPG", resolution: "2560×1440", serverNode: "DEL-NODE-01",
+    nodeCity: "Delhi", gpuTier: "RTX 4090",
+    controls: ["WASD — Move", "Mouse — Swing Sword", "Space — Dodge/Roll", "1-3 — Combat Skills"]
+  },
+  "aaa-10": {
+    url: "https://play.gamepix.com/combat-online/embed",
+    genre: "First Person Shooter", resolution: "2560×1440", serverNode: "MUM-NODE-02",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["WASD — Move", "Mouse — Aim & Shoot", "R — Reload", "Shift — Sprint"]
+  },
+  "aaa-11": {
+    url: "https://play.gamepix.com/cyber-cars-punk-racing/embed",
+    genre: "Cyberpunk Action", resolution: "2560×1440", serverNode: "MUM-NODE-06",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["WASD — Steer & Accelerate", "Shift — Nitrous", "Space — Drift"]
+  },
+  "slot-20": {
+    url: "https://play.gamepix.com/neon-road/embed",
+    genre: "Casino Slot", resolution: "1920×1080", serverNode: "PUN-NODE-03",
+    nodeCity: "Pune", gpuTier: "RTX 3080",
+    controls: ["Mouse — Adjust bet & Spin reels"]
+  },
+  "slot-21": {
+    url: "https://play.gamepix.com/candy-rain-7/embed",
+    genre: "Casino Slot", resolution: "1920×1080", serverNode: "KOL-NODE-07",
+    nodeCity: "Kolkata", gpuTier: "RTX 3070",
+    controls: ["Mouse — Adjust bet & Spin reels"]
+  },
+  "slot-22": {
+    url: "https://play.gamepix.com/tomb-runner/embed",
+    genre: "Casino Slot", resolution: "1920×1080", serverNode: "HYD-NODE-02",
+    nodeCity: "Hyderabad", gpuTier: "RTX 3070",
+    controls: ["Mouse — Adjust bet & Spin reels"]
+  },
+  "slot-23": {
+    url: "https://play.gamepix.com/fruit-connect/embed",
+    genre: "Casino Slot", resolution: "1920×1080", serverNode: "CHE-NODE-06",
+    nodeCity: "Chennai", gpuTier: "RTX 3060",
+    controls: ["Mouse — Adjust bet & Spin reels"]
+  },
+  "slot-24": {
+    url: "https://play.gamepix.com/cyber-cars-punk-racing/embed",
+    genre: "Casino Slot", resolution: "1920×1080", serverNode: "CHE-NODE-04",
+    nodeCity: "Chennai", gpuTier: "RTX 3060",
+    controls: ["Mouse — Adjust bet & Spin reels"]
+  },
+  "live-8": {
+    url: "https://play.gamepix.com/wheel-of-fortune/embed",
+    genre: "Live Game Show", resolution: "1920×1080", serverNode: "MUM-NODE-01",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["Mouse — Select sectors & Place bets"]
+  },
+  "live-9": {
+    url: "https://play.gamepix.com/blackjack-blackjack/embed",
+    genre: "Live Table Game", resolution: "1920×1080", serverNode: "BLR-NODE-08",
+    nodeCity: "Bengaluru", gpuTier: "RTX 4090",
+    controls: ["Mouse — Choose blackjack box & Wager"]
+  },
+  "live-10": {
+    url: "https://play.gamepix.com/card-match-game/embed",
+    genre: "Live Card Game", resolution: "1920×1080", serverNode: "DEL-NODE-01",
+    nodeCity: "Delhi", gpuTier: "RTX 4090",
+    controls: ["Mouse — Choose side & Place bets"]
+  },
+  "live-11": {
+    url: "https://play.gamepix.com/wheel-of-fortune/embed",
+    genre: "Live Game Show", resolution: "1920×1080", serverNode: "MUM-NODE-02",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["Mouse — Select bets on wheel board"]
+  },
+  "live-12": {
+    url: "https://play.gamepix.com/roulette-royal/embed",
+    genre: "Live Table Game", resolution: "1920×1080", serverNode: "MUM-NODE-06",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["Mouse — Choose numbers/colors on table grid"]
+  },
 };
 
 // Fallback by category
