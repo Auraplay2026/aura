@@ -78,6 +78,7 @@ export function sanitizeUserProfile(user: any): UserProfile {
   return {
     ...user,
     accountType,
+    balance: accountType === 'real' ? (user.realBalance ?? 0) : (user.demoBalance ?? 100000),
     positions: accountType === 'real' ? realPositions : demoPositions,
     transactions: accountType === 'real' ? realTransactions : demoTransactions,
     demoPositions,

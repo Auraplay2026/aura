@@ -246,7 +246,15 @@ function getSyncedStateAndSync(
     transactions: newTransactions,
     positions: positionsToUse,
     currentUser: state.currentUser 
-      ? { ...state.currentUser, balance: roundedBalance, transactions: newTransactions, positions: positionsToUse }
+      ? { 
+          ...state.currentUser, 
+          balance: roundedBalance, 
+          transactions: newTransactions, 
+          positions: positionsToUse,
+          ...(state.currentUser.accountType === 'real'
+            ? { realBalance: roundedBalance, realTransactions: newTransactions, realPositions: positionsToUse }
+            : { demoBalance: roundedBalance, demoTransactions: newTransactions, demoPositions: positionsToUse })
+        }
       : null
   };
 }
@@ -263,11 +271,14 @@ export function mapKycStatus(status?: string): 'UNVERIFIED' | 'PROCESSING' | 'VE
 export function sanitizeClientUserProfile(user: any): UserProfile | null {
   if (!user) return null;
   const coerce = (val: any) => typeof val === 'number' ? val : (parseFloat(String(val)) || 0);
+  const accountType = user.accountType === 'real' ? 'real' : 'demo';
+  const realBalance = coerce(user.realBalance);
+  const demoBalance = coerce(user.demoBalance);
   return {
     ...user,
-    balance: coerce(user.balance),
-    demoBalance: coerce(user.demoBalance),
-    realBalance: coerce(user.realBalance),
+    balance: coerce(accountType === 'real' ? realBalance : demoBalance),
+    demoBalance,
+    realBalance,
     totalWagered: coerce(user.totalWagered),
     affiliateEarnings: coerce(user.affiliateEarnings),
   };

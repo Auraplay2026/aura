@@ -55,7 +55,7 @@ export async function POST(request: Request) {
     });
 
     // Validate transaction ledger integrity and block client-side injection/tampering
-    if (existingUser) {
+    if (existingUser && accountType === 'real') {
       const dbTxMap = new Map<string, any>();
       existingUser.transactions.forEach((t: any) => dbTxMap.set(t.id, t));
 
