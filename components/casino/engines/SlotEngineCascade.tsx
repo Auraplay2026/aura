@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface SlotEngineCascadeProps {
   isPlaying: boolean;
@@ -30,8 +31,9 @@ export function SlotEngineCascade({ isPlaying, theme, onComplete }: SlotEngineCa
     setCascading(true);
     setWinSymbols([]);
 
-    const won = Math.random() < 0.35;
-    const mult = won ? 4.0 : 0;
+    const outcome = calculateGameOutcome("SLOTS");
+    const won = outcome.isWin;
+    const mult = won ? outcome.multiplier : 0;
 
     // Simulate falling elements in sequence
     const timer = setTimeout(() => {

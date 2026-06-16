@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
+import { motion } from "framer-motion";
 
 interface SlotEngineClassicProps {
   isPlaying: boolean;
@@ -31,8 +32,9 @@ export function SlotEngineClassic({ isPlaying, theme, onComplete }: SlotEngineCl
     setLeverPulled(true);
     setSpinning([true, true, true]);
 
-    const isWin = Math.random() < 0.35;
-    const mult = isWin ? 5 : 0;
+    const outcome = calculateGameOutcome("SLOTS");
+    const isWin = outcome.isWin;
+    const mult = isWin ? outcome.multiplier : 0;
 
     const finalReels = [
       [theme.symbols[0], theme.symbols[1], theme.symbols[2]],

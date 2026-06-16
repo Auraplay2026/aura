@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface LiveWheelEngineProps {
   isPlaying: boolean;
@@ -41,10 +42,19 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
     }
 
     setIsSpinning(true);
-    const won = Math.random() < 0.40; 
-    const sectorIdx = won
-      ? Math.floor(Math.random() * (WHEEL_SECTORS.length - 1)) 
-      : Math.floor(Math.random() * WHEEL_SECTORS.length);
+    const outcome = calculateGameOutcome("TABLE");
+    const won = outcome.isWin;
+    const targetMult = outcome.multiplier;
+    
+    // Find sectors matching the outcome multiplier
+    let matchingSectors = WHEEL_SECTORS.map((s, idx) => ({ s, idx })).filter(x => x.s.mult === targetMult);
+    if (matchingSectors.length === 0) {
+      matchingSectors = WHEEL_SECTORS.map((s, idx) => ({ s, idx })).sort((a,b) => Math.abs(a.s.mult - targetMult) - Math.abs(b.s.mult - targetMult)).slice(0, 1);
+    }
+    
+    const sectorIdx = won 
+      ? matchingSectors[Math.floor(Math.random() * matchingSectors.length)].idx
+      : WHEEL_SECTORS.map((s, idx) => ({ s, idx })).filter(x => x.s.mult === 0 || x.s.mult === 1)[Math.floor(Math.random() * 2)].idx;
 
     const result = WHEEL_SECTORS[sectorIdx];
     const segmentAngle = 360 / WHEEL_SECTORS.length;

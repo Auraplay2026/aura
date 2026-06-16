@@ -1,6 +1,7 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface CardEngineProps {
   isPlaying: boolean;
@@ -43,7 +44,8 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
       return;
     }
 
-    const won = Math.random() < 0.45; // 45% win rate for live cards
+    const outcome = calculateGameOutcome("TABLE");
+    const won = outcome.isWin;
     let interval: NodeJS.Timeout;
 
     // Simulate dealing blackjack/baccarat vs poker hands

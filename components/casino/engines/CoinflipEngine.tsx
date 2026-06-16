@@ -3,6 +3,8 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
 
+import { calculateGameOutcome } from "@/lib/casino-math";
+
 interface CoinflipEngineProps {
   isPlaying: boolean;
   onComplete: (multiplier: number, won: boolean) => void;
@@ -27,9 +29,8 @@ export function CoinflipEngine({ isPlaying, onComplete }: CoinflipEngineProps) {
     }
 
     setFlipping(true);
-    // Math-correct Coinflip win chance (50% fair rate adjusted for houseEdge)
-    const winChance = 0.50 * (1 - houseEdge / 100);
-    const won = Math.random() < winChance;
+    const outcome = calculateGameOutcome("ORIGINAL");
+    const won = outcome.isWin;
     const finalResult = won ? "AURA" : "SKULL";
 
     const extraSpins = 1800 + (finalResult === "AURA" ? 0 : 180);
