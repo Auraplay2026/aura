@@ -2,13 +2,13 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, ChevronDown, Activity, User, ShieldCheck, X, TrendingUp, TrendingDown, CheckCircle2 } from "lucide-react";
-import { Market } from "@/hooks/useLiveMarkets";
+import { Market, addCustomMarket } from "@/hooks/useLiveMarkets";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { useState, useMemo } from "react";
 
 const CATEGORIES = [
-  "Trending", "Featured", "Politics", "Crypto", "Finance", 
+  "Trending", "Featured", "Predict Anything", "Politics", "Crypto", "Finance", 
   "Geopolitics", "Earnings", "Tech", "Culture", "World", "Economy", "Trump", "Elections"
 ];
 
@@ -26,6 +26,8 @@ const CATEGORY_IMAGES: Record<string, string> = {
   elections: "/predictions/elections.png",
   trending: "/predictions/crypto.png",
   featured: "/predictions/finance.png",
+  "predict anything": "/predictions/world.png",
+  "predict-anything": "/predictions/world.png",
 };
 
 const SORT_OPTIONS = ["24hr Volume", "Newest", "Highest Yes%", "Lowest Yes%", "Alphabetical"];
@@ -50,6 +52,41 @@ export function RoobetPredictionsUI({ categoryName, predictions, balance, placeT
   const [tradeModal, setTradeModal] = useState<{ market: Market; optionId: string; optionName: string; side: "yes" | "no"; price: number } | null>(null);
   const [tradeAmount, setTradeAmount] = useState("100");
   const [tradeSuccess, setTradeSuccess] = useState(false);
+
+  // Create Custom Market Modal states
+  const [createModalOpen, setCreateModalOpen] = useState(false);
+  const [customTitle, setCustomTitle] = useState("");
+  const [customCategory, setCustomCategory] = useState("Predict Anything");
+  const [customOptionName, setCustomOptionName] = useState("Yes / No");
+  const [customYesPrice, setCustomYesPrice] = useState("50");
+
+  function handleCreateMarket() {
+    if (!customTitle.trim()) return;
+
+    const yesPriceVal = parseInt(customYesPrice);
+    if (isNaN(yesPriceVal) || yesPriceVal < 1 || yesPriceVal > 99) return;
+
+    const newMarket: Market = {
+      id: `custom-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
+      category: customCategory.toLowerCase().replace(/\s+/g, '-'),
+      title: customTitle.trim(),
+      volume: "₹0 Vol.",
+      yes: yesPriceVal,
+      no: 100 - yesPriceVal,
+      history: [yesPriceVal - 1, yesPriceVal],
+      status: 'live',
+      options: [
+        { id: "opt1", name: customOptionName.trim() || "Yes", yes: yesPriceVal, no: 100 - yesPriceVal }
+      ]
+    };
+
+    addCustomMarket(newMarket);
+
+    setCreateModalOpen(false);
+    setCustomTitle("");
+    setCustomYesPrice("50");
+    setCustomOptionName("Yes / No");
+  }
 
   // Normalize category
   const activeCategory = CATEGORIES.find(c => c.toLowerCase() === categoryName.toLowerCase()) || categoryName;
@@ -198,7 +235,7 @@ export function RoobetPredictionsUI({ categoryName, predictions, balance, placeT
             onClick={() => {
               setVisibleCount(8);
               setSearchQuery("");
-              router.push(`/predictions/${cat.toLowerCase()}`);
+              router.push(`/predictions/${cat.toLowerCase().replace(/\s+/g, '-')}`);
             }}
             className={cn(
               "px-5 py-2.5 rounded-xl text-sm font-bold whitespace-nowrap transition-all",
@@ -211,6 +248,27 @@ export function RoobetPredictionsUI({ categoryName, predictions, balance, placeT
           </button>
         ))}
       </div>
+
+      {/* Premium Create Market Banner for "Predict Anything" */}
+      {activeCategory === "Predict Anything" && (
+        <div className="w-full max-w-6xl mx-auto bg-gradient-to-r from-violet-600/10 via-fuchsia-600/10 to-indigo-600/10 border border-[#7148ff]/20 rounded-2xl p-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4 relative overflow-hidden backdrop-blur-md">
+          <div className="absolute top-0 right-1/4 w-32 h-32 bg-violet-500/10 blur-[50px] rounded-full pointer-events-none" />
+          <div className="relative z-10">
+            <h2 className="text-lg font-black text-slate-900 mb-1 flex items-center gap-2">
+              💡 Predict Absolutely Anything!
+            </h2>
+            <p className="text-xs text-slate-600 max-w-2xl leading-relaxed">
+              Can't find a topic you want? Propose your own custom prediction market. Specify the starting options and odds, and it will instantly go live for all players to trade on!
+            </p>
+          </div>
+          <button 
+            onClick={() => setCreateModalOpen(true)}
+            className="relative z-10 bg-[#7148ff] hover:bg-[#5b36ff] transition-all px-6 py-3 rounded-xl text-xs font-black text-slate-900 shadow-lg shadow-[#7148ff]/30 uppercase tracking-wider cursor-pointer whitespace-nowrap"
+          >
+            Create a Market
+          </button>
+        </div>
+      )}
 
       {/* Filters Bar */}
       <div className="flex flex-col md:flex-row gap-4 mb-8">
@@ -517,6 +575,99 @@ export function RoobetPredictionsUI({ categoryName, predictions, balance, placeT
                   </p>
                 </>
               )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ===== CREATE MARKET MODAL ===== */}
+      <AnimatePresence>
+        {createModalOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-white/70 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
+            onClick={() => setCreateModalOpen(false)}
+          >
+            <motion.div 
+              initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white border border-slate-200 rounded-3xl p-8 w-full max-w-md shadow-2xl"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Predict Anything</p>
+                  <h3 className="text-xl font-black text-slate-900 leading-tight">Create Custom Prediction</h3>
+                </div>
+                <button onClick={() => setCreateModalOpen(false)} className="text-slate-500 hover:text-slate-900 transition-colors cursor-pointer">
+                  <X className="w-6 h-6" />
+                </button>
+              </div>
+
+              <div className="flex flex-col gap-4">
+                {/* Title */}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 block">Prediction Question / Topic</label>
+                  <input
+                    type="text"
+                    value={customTitle}
+                    onChange={e => setCustomTitle(e.target.value)}
+                    placeholder="e.g., Will GTA 6 release by October 2026?"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-900 outline-none focus:border-[#7148ff] transition-colors"
+                  />
+                </div>
+
+                {/* Category Selection */}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 block">Category</label>
+                  <select
+                    value={customCategory}
+                    onChange={e => setCustomCategory(e.target.value)}
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-900 outline-none focus:border-[#7148ff] transition-colors font-bold"
+                  >
+                    {CATEGORIES.filter(c => c !== "Trending" && c !== "Featured" && c !== "Predict Anything").map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Option Name */}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 block">Option Name</label>
+                  <input
+                    type="text"
+                    value={customOptionName}
+                    onChange={e => setCustomOptionName(e.target.value)}
+                    placeholder="e.g., Yes / No"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs text-slate-900 outline-none focus:border-[#7148ff] transition-colors"
+                  />
+                </div>
+
+                {/* Yes price (starting odds) */}
+                <div>
+                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1.5 block">Starting Implied Probability / YES Price (1¢ - 99¢)</label>
+                  <div className="flex items-center gap-4">
+                    <input
+                      type="range"
+                      min="1"
+                      max="99"
+                      value={customYesPrice}
+                      onChange={e => setCustomYesPrice(e.target.value)}
+                      className="flex-1 accent-[#7148ff] h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                    />
+                    <span className="text-xl font-mono font-black text-slate-900 shrink-0 w-12 text-right">{customYesPrice}¢</span>
+                  </div>
+                </div>
+
+                {/* Action button */}
+                <button
+                  onClick={handleCreateMarket}
+                  disabled={!customTitle.trim()}
+                  className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-[#7148ff] hover:from-violet-500 hover:to-[#5b36ff] text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-[#7148ff]/20 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed mt-4"
+                >
+                  Publish Prediction Market
+                </button>
+              </div>
             </motion.div>
           </motion.div>
         )}

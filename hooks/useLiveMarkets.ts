@@ -200,6 +200,35 @@ const INITIAL_MARKETS: Market[] = [
 let globalMarkets = [...INITIAL_MARKETS];
 let isSportsScraped = false;
 
+// Load custom user prediction markets from localStorage
+if (typeof window !== 'undefined') {
+  try {
+    const saved = localStorage.getItem('AuraBet-custom-markets');
+    if (saved) {
+      const parsed = JSON.parse(saved);
+      globalMarkets = [...parsed, ...globalMarkets];
+    }
+  } catch (err) {
+    console.error("Failed to load custom markets from localStorage", err);
+  }
+}
+
+// Pub-sub listener system to notify hooks of new custom markets
+const marketListeners = new Set<(markets: Market[]) => void>();
+
+export function addCustomMarket(market: Market) {
+  globalMarkets = [market, ...globalMarkets];
+  if (typeof window !== 'undefined') {
+    try {
+      const customOnly = globalMarkets.filter(m => m.id.startsWith('custom-'));
+      localStorage.setItem('AuraBet-custom-markets', JSON.stringify(customOnly));
+    } catch (err) {
+      console.error("Failed to save custom market to localStorage", err);
+    }
+  }
+  marketListeners.forEach(listener => listener([...globalMarkets]));
+}
+
 // Helper to convert decimal odds to implied probability (YES price: 1-99)
 function calculateYesPrice(odds1: number, odds2: number): number {
   if (!odds1 || !odds2) return 50;
@@ -213,6 +242,18 @@ function calculateYesPrice(odds1: number, odds2: number): number {
 
 export function useLiveMarkets(categoryFilter?: string) {
   const [markets, setMarkets] = useState<Market[]>(globalMarkets);
+
+  // Register pub-sub listener
+  useEffect(() => {
+    const listener = (newMarkets: Market[]) => {
+      setMarkets(newMarkets);
+    };
+    marketListeners.add(listener);
+    return () => {
+      marketListeners.delete(listener);
+    };
+  }, []);
+
   const [latency, setLatency] = useState<number>(80);
 
   // Simulate WebSocket price feed latency jitter
