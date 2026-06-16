@@ -114,10 +114,7 @@ export function Header() {
       <div className="flex-1 flex items-center gap-4">
         {/* Mobile Logo (Only visible when sidebar is hidden) */}
         <div className="lg:hidden flex items-center gap-2">
-          <div className="w-6 h-6 bg-red-600 rounded-sm flex items-center justify-center">
-            <span className="text-white font-black text-[10px]">AP</span>
-          </div>
-          <span className="text-slate-900 font-black tracking-widest uppercase text-xs hidden sm:block">AuraPlay</span>
+          <span className="text-slate-900 font-black tracking-widest uppercase text-xs">AuraPlay</span>
         </div>
 
         <button 
@@ -187,7 +184,7 @@ export function Header() {
 
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="hidden sm:block bg-gradient-to-r from-red-600 to-rose-600 hover:opacity-95 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-md transition-all ml-2 uppercase tracking-wider shadow-md active:scale-95 shadow-red-500/10"
+                className="bg-gradient-to-r from-red-600 to-rose-600 hover:opacity-95 text-white text-[10px] sm:text-xs font-black py-1.5 px-3 rounded-md transition-all ml-2 uppercase tracking-wider shadow-md active:scale-95 shadow-red-500/10"
               >
                 Deposit
               </button>
@@ -206,7 +203,7 @@ export function Header() {
               )}
             </button>
             {/* Notification Bell */}
-            <div className="relative hidden sm:block">
+            <div className="relative">
               <button 
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={cn(
