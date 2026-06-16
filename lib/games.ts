@@ -14,7 +14,7 @@ export interface Game {
   isExternal?: boolean; // If true, opens the cinematic launcher instead of an internal engine
 }
 
-import generatedGamesData from "./generatedGames.json";
+
 
 export const FEATURED_GAMES: Game[] = [
   // ==========================================
@@ -172,7 +172,7 @@ export const FEATURED_GAMES: Game[] = [
   { id: "live-12", title: "Bollywood Roulette Live", provider: "Evolution", image: "/games/live_cover_roulette.png", categories: ["live", "table", "roulette"], isNew: true, players: 31200 }
 ];
 
-export const GAMES: Game[] = [...FEATURED_GAMES, ...(generatedGamesData as unknown as Game[])];
+export const GAMES: Game[] = FEATURED_GAMES;
 
 export const getGamesByCategory = (categoryId: CategoryId) => {
   return GAMES.filter(game => game.categories.includes(categoryId));
