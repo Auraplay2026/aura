@@ -963,7 +963,7 @@ export default function GamePlayerPage() {
           <motion.div 
             animate={isMegaWin ? { x: [-10, 10, -10, 10, -5, 5, 0], y: [-5, 5, -5, 5, 0] } : {}}
             transition={{ duration: 0.6 }}
-            className={`relative w-full h-[350px] sm:h-[480px] md:h-[600px] min-h-[320px] sm:min-h-[500px] md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
+            className={`relative w-full h-[350px] sm:h-[480px] md:h-auto min-h-[320px] sm:min-h-[500px] md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence mode="wait">
               {!currentUser ? (
