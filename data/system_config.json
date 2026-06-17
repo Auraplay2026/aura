@@ -1,5 +1,6 @@
 {
   "houseEdge": 2,
+  "strategyFrequency": 30,
   "games": {
     "dice": {
       "disabled": false,

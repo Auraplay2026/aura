@@ -17,6 +17,7 @@ export interface SystemConfig {
   paymentMethods: Record<string, PaymentConfig>;
   demoWinRate: number;
   realWinRate: number;
+  strategyFrequency: number;
 }
 
 const CONFIG_DIR = path.join(process.cwd(), 'data');
@@ -26,6 +27,7 @@ const DEFAULT_CONFIG: SystemConfig = {
   houseEdge: 2.0,
   demoWinRate: 80,
   realWinRate: 30,
+  strategyFrequency: 30,
   games: {
     dice: { disabled: false, name: "Dice" },
     mines: { disabled: false, name: "Mines" },

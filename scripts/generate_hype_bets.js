@@ -113,7 +113,9 @@ function main() {
   };
   fs.writeFileSync(FILE_PATH, JSON.stringify(payload, null, 2));
 
-  setInterval(() => {
+  const SYSTEM_CONFIG_PATH = path.join(__dirname, "..", "data", "system_config.json");
+  
+  function runLoop() {
     const newItem = generateFeedItem();
     bets.unshift(newItem);
     bets = bets.slice(0, 15);
@@ -137,7 +139,7 @@ function main() {
       stats: {
         totalWagered: `₹${total_rented_hours}M`,
         maxWin: `₹${max_duration}M`,
-        activePlayers: active_streams.toLocaleString()
+        activePlayers: `${active_streams}`
       }
     };
     
@@ -147,7 +149,36 @@ function main() {
     } catch (e) {
       console.error(`Error writing to file: ${e}`);
     }
-  }, 60000); // exactly 60 seconds
+    
+    // Read next interval from system config
+    let nextInterval = 30000; // default to 30 seconds
+    try {
+      if (fs.existsSync(SYSTEM_CONFIG_PATH)) {
+        const sysConfig = JSON.parse(fs.readFileSync(SYSTEM_CONFIG_PATH, 'utf-8'));
+        if (typeof sysConfig.strategyFrequency === 'number') {
+          nextInterval = sysConfig.strategyFrequency * 1000;
+        }
+      }
+    } catch (err) {
+      console.error("Failed to read system_config.json for strategyFrequency:", err);
+    }
+    
+    setTimeout(runLoop, nextInterval);
+  }
+
+  // Start the loop with initial strategyFrequency
+  let initialInterval = 30000;
+  try {
+    if (fs.existsSync(SYSTEM_CONFIG_PATH)) {
+      const sysConfig = JSON.parse(fs.readFileSync(SYSTEM_CONFIG_PATH, 'utf-8'));
+      if (typeof sysConfig.strategyFrequency === 'number') {
+        initialInterval = sysConfig.strategyFrequency * 1000;
+      }
+    }
+  } catch (e) {}
+  
+  console.log(`Starting dynamic activity generator (initial interval: ${initialInterval}ms)...`);
+  setTimeout(runLoop, initialInterval);
 }
 
 main();

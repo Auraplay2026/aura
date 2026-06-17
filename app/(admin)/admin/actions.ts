@@ -788,3 +788,19 @@ export async function adminUpdateWinRates(demoWinRate: number, realWinRate: numb
   revalidatePath("/admin");
   return { success: true, config };
 }
+
+export async function adminUpdateStrategyFrequency(frequency: number, adminEmail: string) {
+  if (frequency < 5 || frequency > 300) {
+    return { success: false, error: "Frequency must be between 5 and 300 seconds" };
+  }
+  
+  const config = getSystemConfig();
+  const oldFreq = config.strategyFrequency ?? 30;
+  config.strategyFrequency = frequency;
+  saveSystemConfig(config);
+  
+  await logAdminAction(adminEmail, "UPDATE_STRATEGY_FREQUENCY", "SYSTEM", `Updated strategy simulation frequency: ${oldFreq}s -> ${frequency}s`);
+  
+  revalidatePath("/admin");
+  return { success: true, config };
+}

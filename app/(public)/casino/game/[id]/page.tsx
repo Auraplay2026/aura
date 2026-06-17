@@ -942,7 +942,7 @@ export default function GamePlayerPage() {
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-2 sm:p-6 lg:p-8">
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-4">
@@ -963,7 +963,7 @@ export default function GamePlayerPage() {
           <motion.div 
             animate={isMegaWin ? { x: [-10, 10, -10, 10, -5, 5, 0], y: [-5, 5, -5, 5, 0] } : {}}
             transition={{ duration: 0.6 }}
-            className={`relative w-full h-auto min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
+            className={`relative w-full h-[350px] sm:h-[480px] md:h-[600px] min-h-[320px] sm:min-h-[500px] md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence mode="wait">
               {!currentUser ? (
@@ -1163,7 +1163,7 @@ export default function GamePlayerPage() {
                             </button>
                           </div>
                         ) : (
-                          <div className="p-4 flex flex-col gap-6 h-full overflow-y-auto custom-scrollbar">
+                          <div className="p-3 sm:p-4 flex flex-col gap-3.5 sm:gap-6 h-full overflow-y-auto custom-scrollbar">
                             {/* Control Panel Tabs */}
                             <div className="flex border-b border-slate-200 gap-1 bg-slate-100 p-1 rounded-xl shrink-0">
                               {(['stakes', 'strategy'] as const).map((tab) => (
@@ -1212,18 +1212,37 @@ export default function GamePlayerPage() {
                                       <span>Chip Selector</span>
                                       <span>Double click to 2x</span>
                                     </div>
-                                    <div className="grid grid-cols-6 gap-1 mt-1.5">
-                                      {STAKE_PRESETS.map((amount) => (
-                                        <button
-                                          key={amount}
-                                          onClick={() => { setBetAmount(amount); playGameSound('click'); }}
-                                          onDoubleClick={() => { setBetAmount(amount * 2); playGameSound('click'); }}
-                                          className={`py-1.5 sm:py-2 px-1 rounded-lg font-black text-[8px] sm:text-[9px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-55 hover:border-slate-350'}`}
-                                          title="Double click to double bet"
-                                        >
-                                          ₹{amount >= 1000 ? `${amount/1000}k` : amount}
-                                        </button>
-                                      ))}
+                                    <div className="flex items-center justify-between gap-1 mt-1.5 overflow-x-auto py-1.5 scrollbar-none">
+                                      {[
+                                        { amount: 100, label: "100", color: "from-red-650 to-red-700 border-red-500" },
+                                        { amount: 500, label: "500", color: "from-teal-650 to-teal-700 border-teal-500" },
+                                        { amount: 1000, label: "1k", color: "from-amber-500 to-amber-600 border-amber-400" },
+                                        { amount: 5000, label: "5k", color: "from-pink-500 to-pink-650 border-pink-400" },
+                                        { amount: 10000, label: "10k", color: "from-rose-500 to-rose-600 border-rose-450" },
+                                        { amount: 50000, label: "50k", color: "from-red-800 to-red-900 border-red-700" }
+                                      ].map((chip) => {
+                                        const isSelected = betAmount === chip.amount;
+                                        return (
+                                          <button
+                                            key={chip.amount}
+                                            onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }}
+                                            onDoubleClick={() => { setBetAmount(chip.amount * 2); playGameSound('click'); }}
+                                            className={cn(
+                                              "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-white shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none",
+                                              isSelected ? "scale-110 ring-2 ring-slate-900 ring-offset-1 ring-offset-white z-10 opacity-100" : "hover:scale-105 opacity-80 hover:opacity-100",
+                                              `bg-gradient-to-br ${chip.color}`
+                                            )}
+                                            title="Double click to double bet"
+                                          >
+                                            {/* Inner dotted ring to look like a real casino chip */}
+                                            <div className="absolute inset-[2px] rounded-full border border-dashed border-white/45 flex items-center justify-center">
+                                              <span className="text-[9px] sm:text-[10px] font-black tracking-tight drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]">
+                                                {chip.label}
+                                              </span>
+                                            </div>
+                                          </button>
+                                        );
+                                      })}
                                     </div>
                                   </div>
 
@@ -1461,7 +1480,7 @@ export default function GamePlayerPage() {
                               <button 
                                 onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
                                 disabled={isSpinning && !isCashoutActive}
-                                className={`w-full py-3 sm:py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-widest transition-all ${
+                                className={`w-full py-2.5 sm:py-4 rounded-lg sm:rounded-xl font-black text-xs sm:text-sm md:text-base uppercase tracking-widest transition-all ${
                                   isSpinning && isCashoutActive
                                     ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
                                     : isSpinning

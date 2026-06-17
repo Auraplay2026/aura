@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTradingStore } from "@/lib/store";
 import { SystemConfig } from "@/lib/systemConfig";
 import { 
-  adminUpdateGameStatus, adminUpdatePaymentStatus, adminUpdateHouseEdge, adminUpdateWinRates 
+  adminUpdateGameStatus, adminUpdatePaymentStatus, adminUpdateHouseEdge, adminUpdateWinRates, adminUpdateStrategyFrequency 
 } from "../actions";
 import { 
   Shield, Sliders, CheckCircle, AlertTriangle, Activity, DollarSign, RefreshCw,
@@ -29,6 +29,7 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
   const [houseEdge, setHouseEdge] = useState(initialSystemConfig.houseEdge);
   const [demoWinRate, setDemoWinRate] = useState(initialSystemConfig.demoWinRate ?? 80);
   const [realWinRate, setRealWinRate] = useState(initialSystemConfig.realWinRate ?? 30);
+  const [strategyFrequency, setStrategyFrequency] = useState(initialSystemConfig.strategyFrequency ?? 30);
   const [isProcessing, setIsProcessing] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -119,6 +120,27 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
       showToast("Network error updating win rates", "error");
       setDemoWinRate(config.demoWinRate ?? 80);
       setRealWinRate(config.realWinRate ?? 30);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  // Strategy frequency submission
+  const handleStrategyFrequencySubmit = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      const res = await adminUpdateStrategyFrequency(strategyFrequency, adminEmail);
+      if (res.success && res.config) {
+        showToast(`Successfully updated Simulated Bet Frequency to ${strategyFrequency} seconds`, "success");
+        setConfig(res.config);
+      } else {
+        showToast(res.error || "Failed to update strategy frequency", "error");
+        setStrategyFrequency(config.strategyFrequency ?? 30);
+      }
+    } catch {
+      showToast("Network error updating strategy frequency", "error");
+      setStrategyFrequency(config.strategyFrequency ?? 30);
     } finally {
       setIsProcessing(false);
     }
@@ -221,9 +243,8 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
               💡 <strong>System Note:</strong> The global house edge modifies the payout coefficient return values for casino games (Mines, Dice, Plinko, etc.) in real-time. Changes are applied instantly to player rounds without requiring game registry restarts.
             </p>
           </div>
-
-          {/* Win Rates configuration */}
-          <div className="border-t border-slate-200 mt-6 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Win Rates & Strategy Frequency configuration */}
+          <div className="border-t border-slate-200 mt-6 pt-6 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="flex flex-col gap-3">
               <div className="flex justify-between items-center">
                 <div>
@@ -273,8 +294,33 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest shrink-0">0% to 100%</span>
               </div>
             </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Simulated Bet Frequency</h4>
+                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Controls the interval between background hype bets/simulation wagers.</p>
+                </div>
+                <span className="font-mono text-xs font-black text-indigo-600 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200">{strategyFrequency}s</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="5"
+                  max="300"
+                  step="5"
+                  value={strategyFrequency}
+                  onChange={(e) => setStrategyFrequency(parseInt(e.target.value))}
+                  onMouseUp={handleStrategyFrequencySubmit}
+                  onTouchEnd={handleStrategyFrequencySubmit}
+                  disabled={isProcessing}
+                  className="w-full h-1.5 bg-slate-50 rounded-lg appearance-none cursor-pointer accent-indigo-500 focus:outline-none"
+                />
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest shrink-0">5s to 300s</span>
+              </div>
+            </div>
           </div>
-        </div>
+          </div>
 
         {/* Game Switches Widget */}
         <div className="bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl">
