@@ -1622,7 +1622,7 @@ export default function GamePlayerPage() {
                       )}
 
                       {/* Central Canvas Area */}
-                      <div className="flex-1 w-full flex flex-col md:flex-row gap-6 relative z-10 min-h-[500px] md:min-h-[600px]">
+                      <div className="flex-1 w-full flex flex-col md:flex-row gap-4 md:gap-6 relative z-10 min-h-[280px] sm:min-h-[400px] md:min-h-[600px]">
                         
                         <div className={cn(
                           "flex-1 flex items-center justify-center relative",
