@@ -1181,7 +1181,7 @@ export default function GamePlayerPage() {
                               ))}
                             </div>
 
-                            <div className="flex-1 flex flex-col gap-6">
+                            <div className="flex-1 flex flex-col gap-3.5 sm:gap-6">
                               {sidebarTab === 'stakes' ? (
                                 <>
                                   {/* Bet Amount Control */}
@@ -1192,18 +1192,18 @@ export default function GamePlayerPage() {
                                     </div>
                                     
                                     <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-neon-purple focus-within:border-neon-purple transition-all">
-                                      <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-12">
+                                      <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-10 sm:h-12">
                                         <span className="text-slate-400 font-bold">₹</span>
                                       </div>
                                       <input 
                                         type="number" 
                                         value={betAmount} 
                                         onChange={(e) => setBetAmount(Number(e.target.value))}
-                                        className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-3 h-12 focus:outline-none focus:ring-0"
+                                        className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs sm:text-sm px-3 py-2 h-10 sm:h-12 focus:outline-none focus:ring-0"
                                       />
-                                      <div className="flex items-center bg-slate-50 border-l border-slate-200 h-12">
-                                        <button onClick={() => { setBetAmount(prev => prev / 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
-                                        <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} className="px-3 h-full text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">2x</button>
+                                      <div className="flex items-center bg-slate-50 border-l border-slate-200 h-10 sm:h-12">
+                                        <button onClick={() => { setBetAmount(prev => prev / 2); playGameSound('click'); }} className="px-2.5 sm:px-3 h-full text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
+                                        <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} className="px-2.5 sm:px-3 h-full text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">2x</button>
                                       </div>
                                     </div>
                                     
@@ -1217,7 +1217,7 @@ export default function GamePlayerPage() {
                                           key={amount}
                                           onClick={() => { setBetAmount(amount); playGameSound('click'); }}
                                           onDoubleClick={() => { setBetAmount(amount * 2); playGameSound('click'); }}
-                                          className={`py-2 px-1 rounded-lg font-black text-[8px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-55 hover:border-slate-350'}`}
+                                          className={`py-1.5 sm:py-2 px-1 rounded-lg font-black text-[8px] sm:text-[9px] transition-all truncate text-center ${betAmount === amount ? `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-md` : 'bg-white border border-slate-200 text-slate-600 hover:bg-slate-55 hover:border-slate-350'}`}
                                           title="Double click to double bet"
                                         >
                                           ₹{amount >= 1000 ? `${amount/1000}k` : amount}
@@ -1236,7 +1236,7 @@ export default function GamePlayerPage() {
                                         )}
                                       </div>
                                       <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500 transition-all">
-                                        <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-12">
+                                        <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-10 sm:h-12">
                                           <span className="text-slate-400 font-bold text-xs">Auto Cashout</span>
                                         </div>
                                         <input 
@@ -1250,10 +1250,10 @@ export default function GamePlayerPage() {
                                             setAutoCashoutVal(v);
                                           }}
                                           disabled={isSpinning}
-                                          className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-3 h-12 focus:outline-none focus:ring-0 text-right pr-2"
+                                          className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs sm:text-sm px-3 py-2 h-10 sm:h-12 focus:outline-none focus:ring-0 text-right pr-2"
                                         />
                                         <div className="flex items-center pr-3">
-                                          <span className="text-slate-400 font-bold text-sm">x</span>
+                                          <span className="text-slate-400 font-bold text-xs sm:text-sm">x</span>
                                         </div>
                                       </div>
                                     </div>
@@ -1330,7 +1330,7 @@ export default function GamePlayerPage() {
                                                   playGameSound('click');
                                                 }}
                                                 className={cn(
-                                                  "py-3.5 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 text-center",
+                                                  "py-2 sm:py-3.5 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 text-center",
                                                   isActive 
                                                     ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-red-500 shadow-md scale-[1.02]`
                                                     : "bg-white text-slate-700 border-slate-200 hover:border-slate-350 hover:bg-slate-50"
@@ -1358,7 +1358,7 @@ export default function GamePlayerPage() {
                                       {/* Manual Mode — Always Active */}
                                       <button
                                         onClick={() => { setPlayMode("manual"); setAutoplayWarning(false); }}
-                                        className={`relative overflow-hidden group flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 ${
+                                        className={`relative overflow-hidden group flex flex-col items-center justify-center gap-1.5 py-2 sm:py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 ${
                                           playMode === "manual"
                                             ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
                                             : "bg-white text-slate-600 border-slate-200 hover:border-emerald-300"
@@ -1380,7 +1380,7 @@ export default function GamePlayerPage() {
                                           setAutoplayWarning(true);
                                           setTimeout(() => setAutoplayWarning(false), 3000);
                                         }}
-                                        className="relative flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
+                                        className="relative flex flex-col items-center justify-center gap-1.5 py-2 sm:py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
                                       >
                                         <Lock className="w-5 h-5" />
                                         <span>Auto</span>
@@ -1485,7 +1485,7 @@ export default function GamePlayerPage() {
                               <button 
                                 onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
                                 disabled={isSpinning && !isCashoutActive}
-                                className={`w-full py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-widest transition-all ${
+                                className={`w-full py-3 sm:py-4 rounded-xl font-black text-sm md:text-base uppercase tracking-widest transition-all ${
                                   isSpinning && isCashoutActive
                                     ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
                                     : isSpinning
