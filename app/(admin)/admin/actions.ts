@@ -770,3 +770,21 @@ export async function adminBroadcastNotificationAction(adminEmail: string, messa
     return { success: false, error: err?.message || "Failed to broadcast alert" };
   }
 }
+
+export async function adminUpdateWinRates(demoWinRate: number, realWinRate: number, adminEmail: string) {
+  if (demoWinRate < 0 || demoWinRate > 100 || realWinRate < 0 || realWinRate > 100) {
+    return { success: false, error: "Win rates must be between 0% and 100%" };
+  }
+  
+  const config = getSystemConfig();
+  const oldDemo = config.demoWinRate ?? 80;
+  const oldReal = config.realWinRate ?? 30;
+  config.demoWinRate = demoWinRate;
+  config.realWinRate = realWinRate;
+  saveSystemConfig(config);
+  
+  await logAdminAction(adminEmail, "UPDATE_WIN_RATES", "SYSTEM", `Updated win rates: Demo: ${oldDemo}% -> ${demoWinRate}%, Real: ${oldReal}% -> ${realWinRate}%`);
+  
+  revalidatePath("/admin");
+  return { success: true, config };
+}

@@ -152,6 +152,8 @@ interface TradingState {
   // Casino
   playCasino: (wager: number, payout: number, gameTitle: string, uuid?: string) => void;
   houseEdge: number;
+  demoWinRate: number;
+  realWinRate: number;
   fetchSystemConfig: () => Promise<void>;
 
   // Daily Streak & Spin Actions
@@ -299,6 +301,8 @@ export const useTradingStore = create<TradingState>()(
       kycSubmittedAt: null,
       processedUuids: [],
       houseEdge: 2.0, // Default 2% house edge
+      demoWinRate: 80,
+      realWinRate: 30,
 
       // Daily Streak & Spin states
       streakCount: 0,
@@ -1591,7 +1595,11 @@ export const useTradingStore = create<TradingState>()(
           if (res.ok) {
             const data = await res.json();
             if (data.success && typeof data.houseEdge === 'number') {
-              set({ houseEdge: data.houseEdge });
+              set({ 
+                houseEdge: data.houseEdge,
+                demoWinRate: data.demoWinRate ?? 80,
+                realWinRate: data.realWinRate ?? 30
+              });
             }
           }
         } catch (err) {

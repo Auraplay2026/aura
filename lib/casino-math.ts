@@ -14,6 +14,8 @@ function getSecureRandom(): number {
   return Math.random();
 }
 
+import { useTradingStore } from './store';
+
 export interface GameOutcome {
   isWin: boolean;
   multiplier: number;
@@ -24,8 +26,14 @@ export function calculateGameOutcome(
   gameType: "SLOTS" | "CRASH" | "TABLE" | "ORIGINAL", 
   userTargetMultiplier?: number
 ): GameOutcome {
-  // Global mandate: 20% win rate (2 out of 10)
-  const WIN_RATE = 0.20;
+  // Read win rates and user profile dynamically from the store
+  const state = useTradingStore.getState();
+  const currentUser = state.currentUser;
+  const isDemo = !currentUser || currentUser.accountType === 'demo';
+  
+  // Set WIN_RATE based on account type
+  const winPercent = isDemo ? (state.demoWinRate ?? 80) : (state.realWinRate ?? 30);
+  const WIN_RATE = winPercent / 100;
   
   const roll = getSecureRandom();
   const isWin = roll < WIN_RATE;

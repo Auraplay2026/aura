@@ -194,7 +194,7 @@ const playSynthSound = (type: 'tick' | 'beep' | 'win', isMuted: boolean) => {
 };
 
 export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, gameId, gameTitle, selectedTarget: externalTarget, setSelectedTarget: setExternalTarget }: RoyalGamingProps) {
-  const { balance: rawBalance, playCasino } = useTradingStore();
+  const { balance: rawBalance, playCasino, currentUser } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
 
   const configKey = GAME_CONFIGS[gameId] ? gameId : "royal-6";
@@ -564,8 +564,33 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           } else if (phase === 'closed') {
             setPhase('settled');
             
-            // Randomly select winning target
-            const winningTarget = currentConfig.targets[Math.floor(Math.random() * currentConfig.targets.length)];
+            // Determine outcome based on admin settings
+            const isDemo = !currentUser || currentUser.accountType === 'demo';
+            const winRate = isDemo ? (useTradingStore.getState().demoWinRate ?? 80) : (useTradingStore.getState().realWinRate ?? 30);
+            
+            let winningTarget;
+            const bettedTargets = Object.keys(bets).filter(tid => bets[tid] > 0);
+            const nonBettedTargets = currentConfig.targets.filter(t => !bettedTargets.includes(t.id));
+
+            if (bettedTargets.length > 0) {
+              const roll = Math.random() * 100;
+              if (roll < winRate) {
+                // User wins! Select a target they placed bets on
+                winningTarget = currentConfig.targets.find(t => t.id === bettedTargets[Math.floor(Math.random() * bettedTargets.length)]);
+              } else {
+                // User loses! Select a target they did not place bets on
+                if (nonBettedTargets.length > 0) {
+                  winningTarget = nonBettedTargets[Math.floor(Math.random() * nonBettedTargets.length)];
+                } else {
+                  winningTarget = currentConfig.targets[Math.floor(Math.random() * currentConfig.targets.length)];
+                }
+              }
+            }
+            
+            if (!winningTarget) {
+              winningTarget = currentConfig.targets[Math.floor(Math.random() * currentConfig.targets.length)];
+            }
+
             setRoundWinner(winningTarget.id);
             setFeedMsg(`ROUND WINNER: ${winningTarget.name.toUpperCase()}`);
 
@@ -790,10 +815,10 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
   const totalActiveBet = Object.values(bets).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="w-full flex flex-col xl:flex-row gap-6 items-start font-sans text-[#0F172A] bg-white p-2">
+    <div className="w-full grid grid-cols-1 xl:grid-cols-[350px_1fr] gap-6 items-start font-sans text-[#0F172A] bg-white p-2">
       
       {/* COLUMN A: INTERACTIVE BETTING HUD (LEFT COLUMN) */}
-      <div className="w-full xl:w-[350px] shrink-0 flex flex-col gap-4 order-2 xl:order-1">
+      <div className="w-full xl:w-[350px] shrink-0 flex flex-col gap-4 order-2 xl:col-start-1 xl:row-start-1 xl:row-span-2">
         
         {/* BET AMOUNT MODULE */}
         <div className="bg-white border border-slate-200 rounded-sm p-4 flex flex-col gap-2">
@@ -922,8 +947,10 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
             </button>
           </div>
         </div>
+      </div>
 
-        {/* TRUST OR AFFILIATE FOOTER */}
+      {/* TRUST OR AFFILIATE FOOTER */}
+      <div className="w-full order-5 xl:col-start-1 xl:row-start-3">
         {gameId.startsWith("royal-1") ? (
           <div className="bg-[#1E293B] text-slate-200 border border-slate-700/40 rounded-sm p-4 flex flex-col gap-1.5 relative overflow-hidden select-none">
             <div className="flex items-start gap-2.5 z-10 relative">
@@ -958,11 +985,10 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
             </div>
           </div>
         )}
-
       </div>
 
       {/* COLUMN B: THE NAVY BOARD (CENTER/RIGHT) */}
-      <div className="flex-1 w-full bg-[#0F172A] border border-slate-800 rounded-sm p-4 relative flex flex-col justify-between overflow-hidden min-h-[560px] order-1 xl:order-2">
+      <div className="w-full bg-[#0F172A] border border-slate-800 rounded-sm p-4 relative flex flex-col justify-between overflow-hidden min-h-[560px] order-1 xl:col-start-2 xl:row-start-1">
         
         {/* Game Title & Header Row */}
         <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0 mb-4">
@@ -1239,28 +1265,6 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
               <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">WHIP WHEP Live</span>
             </div>
             
-            {/* Scorecard circles (Swipeable Roadmap) */}
-            <div 
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              className="flex gap-1 overflow-x-auto max-w-[45%] sm:max-w-[60%] items-center touch-pan-x flex-row-reverse py-0.5 select-none"
-            >
-              {historyList.slice().reverse().map((val, idx) => (
-                <span 
-                  key={idx}
-                  className={cn(
-                    "w-4 h-4 rounded-full text-[8.5px] font-black flex items-center justify-center shrink-0 border-0 shadow-sm transition-transform active:scale-95",
-                    val === 'A' || val === '8' || val === 'D' || val === 'U' || val === '7'
-                      ? "bg-blue-600 text-white" 
-                      : val === 'B' || val === '9' || val === 'T' || val === 'W'
-                      ? "bg-red-600 text-white"
-                      : "bg-slate-700 text-slate-200"
-                  )}
-                >
-                  {val}
-                </span>
-              ))}
-            </div>
-
             {/* Total bet info */}
             <div className="text-right">
               <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
@@ -1268,9 +1272,10 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
             </div>
           </div>
         </div>
+      </div>
 
         {/* Interactive Betting Matrix Targets */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 shrink-0 mt-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 shrink-0 order-3 xl:col-start-2 xl:row-start-2 mt-4 w-full">
           {currentConfig.targets.map(target => {
             const activeWager = bets[target.id] || 0;
             const isWinner = phase === 'settled' && roundWinner === target.id;
@@ -1305,7 +1310,36 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           })}
         </div>
 
-      </div>
+        {/* Scorecard Roadmap (Analytics) - Placed below the betting matrix targets */}
+        <div className="bg-slate-900 border border-slate-800 rounded-sm p-4 mt-4 select-none order-4 xl:col-start-2 xl:row-start-3 w-full">
+          <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
+            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-emerald-400" />
+              Game Roadmap & Analytics
+            </span>
+            <span className="text-[9px] text-slate-500 font-extrabold uppercase">Last 15 Rounds</span>
+          </div>
+          <div 
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            className="flex gap-2 overflow-x-auto items-center touch-pan-x flex-row-reverse py-1 select-none"
+          >
+            {historyList.slice().reverse().map((val, idx) => (
+              <span 
+                key={idx}
+                className={cn(
+                  "w-7 h-7 rounded-full text-[11px] font-black flex items-center justify-center shrink-0 border border-white/5 shadow-md transition-transform active:scale-95",
+                  val === 'A' || val === '8' || val === 'D' || val === 'U' || val === '7'
+                    ? "bg-blue-600 text-white shadow-blue-500/20" 
+                    : val === 'B' || val === '9' || val === 'T' || val === 'W'
+                    ? "bg-red-600 text-white shadow-red-500/20"
+                    : "bg-slate-700 text-slate-200"
+                )}
+              >
+                {val}
+              </span>
+            ))}
+          </div>
+        </div>
 
       {/* Exception Warning Dialog Modals */}
       <AnimatePresence>

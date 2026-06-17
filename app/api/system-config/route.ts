@@ -7,7 +7,9 @@ export async function GET() {
     return NextResponse.json({
       success: true,
       houseEdge: config.houseEdge,
-      games: config.games
+      games: config.games,
+      demoWinRate: config.demoWinRate ?? 80,
+      realWinRate: config.realWinRate ?? 30
     }, { status: 200 });
   } catch (err) {
     console.error("Failed to read system config:", err);

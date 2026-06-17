@@ -965,7 +965,40 @@ export default function GamePlayerPage() {
             className={`relative w-full h-auto min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence mode="wait">
-              {!hasTransferred ? (
+              {!currentUser ? (
+                <motion.div
+                  key="auth-gate"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-md"
+                >
+                  <div className="bg-slate-950 border border-slate-800 shadow-2xl w-full max-w-md rounded-3xl overflow-hidden p-8 text-center relative">
+                    <div className="absolute top-0 left-1/4 w-1/2 h-32 bg-gradient-to-b from-rose-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
+                    
+                    <Lock className="w-16 h-16 text-rose-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
+                    <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Authentication Required</h2>
+                    <p className="text-slate-400 text-sm font-medium mb-8">
+                      To ensure fair play and secure transaction recording, you must login or register a Demo / Real account to start playing.
+                    </p>
+                    
+                    <div className="flex flex-col gap-3">
+                      <button 
+                        onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
+                        className="w-full py-4 font-black text-slate-950 bg-white hover:bg-slate-100 rounded-xl transition-all uppercase tracking-wider text-sm shadow-lg shadow-white/5"
+                      >
+                        Sign In
+                      </button>
+                      <button 
+                        onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
+                        className="w-full py-4 font-black text-white bg-red-600 hover:bg-red-700 border border-red-500/30 rounded-xl transition-all uppercase tracking-wider text-sm"
+                      >
+                        Create Demo/Real Account
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              ) : !hasTransferred ? (
                 <motion.div 
                   key="modal"
                   exit={{ opacity: 0, scale: 0.95 }}
@@ -1549,7 +1582,8 @@ export default function GamePlayerPage() {
                                     initial={{ scale: 0.5, opacity: 0 }} 
                                     animate={{ scale: 1, opacity: 1 }} 
                                     exit={{ scale: 1.5, opacity: 0 }} 
-                                    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md rounded-3xl"
+                                    onClick={() => setWinAmount(null)}
+                                    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md rounded-3xl cursor-pointer select-none"
                                   >
                                     <motion.h2 
                                       animate={isMegaWin ? { scale: [1, 1.2, 1] } : {}}
@@ -1563,6 +1597,7 @@ export default function GamePlayerPage() {
                                     >
                                       ₹<RollingCounter target={winAmount} />
                                     </motion.div>
+                                    <span className="text-[10px] uppercase font-black tracking-widest text-white/50 mt-6 animate-pulse">Tap anywhere to close</span>
                                   </motion.div>
                                 )}
                               </AnimatePresence>

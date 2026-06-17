@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTradingStore } from "@/lib/store";
 import { SystemConfig } from "@/lib/systemConfig";
 import { 
-  adminUpdateGameStatus, adminUpdatePaymentStatus, adminUpdateHouseEdge 
+  adminUpdateGameStatus, adminUpdatePaymentStatus, adminUpdateHouseEdge, adminUpdateWinRates 
 } from "../actions";
 import { 
   Shield, Sliders, CheckCircle, AlertTriangle, Activity, DollarSign, RefreshCw,
@@ -27,6 +27,8 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
 
   const [config, setConfig] = useState<SystemConfig>(initialSystemConfig);
   const [houseEdge, setHouseEdge] = useState(initialSystemConfig.houseEdge);
+  const [demoWinRate, setDemoWinRate] = useState(initialSystemConfig.demoWinRate ?? 80);
+  const [realWinRate, setRealWinRate] = useState(initialSystemConfig.realWinRate ?? 30);
   const [isProcessing, setIsProcessing] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
 
@@ -94,6 +96,29 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
     } catch {
       showToast("Network error updating house edge", "error");
       setHouseEdge(config.houseEdge);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
+  
+  // Win rate submission
+  const handleWinRatesSubmit = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    try {
+      const res = await adminUpdateWinRates(demoWinRate, realWinRate, adminEmail);
+      if (res.success && res.config) {
+        showToast(`Successfully updated win rates to Demo: ${demoWinRate}%, Real: ${realWinRate}%`, "success");
+        setConfig(res.config);
+      } else {
+        showToast(res.error || "Failed to update win rates", "error");
+        setDemoWinRate(config.demoWinRate ?? 80);
+        setRealWinRate(config.realWinRate ?? 30);
+      }
+    } catch {
+      showToast("Network error updating win rates", "error");
+      setDemoWinRate(config.demoWinRate ?? 80);
+      setRealWinRate(config.realWinRate ?? 30);
     } finally {
       setIsProcessing(false);
     }
@@ -195,6 +220,59 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
             <p className="text-[10px] text-slate-600 font-medium leading-relaxed max-w-2xl bg-white/[0.01] p-3 rounded-lg border border-white/[0.02]">
               💡 <strong>System Note:</strong> The global house edge modifies the payout coefficient return values for casino games (Mines, Dice, Plinko, etc.) in real-time. Changes are applied instantly to player rounds without requiring game registry restarts.
             </p>
+          </div>
+
+          {/* Win Rates configuration */}
+          <div className="border-t border-slate-200 mt-6 pt-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Demo Account Win Frequency</h4>
+                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Controls winning probability for guest/demo simulators.</p>
+                </div>
+                <span className="font-mono text-xs font-black text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-lg border border-emerald-200">{demoWinRate}%</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={demoWinRate}
+                  onChange={(e) => setDemoWinRate(parseInt(e.target.value))}
+                  onMouseUp={handleWinRatesSubmit}
+                  onTouchEnd={handleWinRatesSubmit}
+                  disabled={isProcessing}
+                  className="w-full h-1.5 bg-slate-50 rounded-lg appearance-none cursor-pointer accent-emerald-500 focus:outline-none"
+                />
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest shrink-0">0% to 100%</span>
+              </div>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider">Real Account Win Frequency</h4>
+                  <p className="text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-0.5">Controls winning probability for real money wagering.</p>
+                </div>
+                <span className="font-mono text-xs font-black text-rose-600 bg-rose-50 px-2.5 py-1 rounded-lg border border-rose-200">{realWinRate}%</span>
+              </div>
+              <div className="flex items-center gap-3">
+                <input
+                  type="range"
+                  min="0"
+                  max="100"
+                  step="1"
+                  value={realWinRate}
+                  onChange={(e) => setRealWinRate(parseInt(e.target.value))}
+                  onMouseUp={handleWinRatesSubmit}
+                  onTouchEnd={handleWinRatesSubmit}
+                  disabled={isProcessing}
+                  className="w-full h-1.5 bg-slate-50 rounded-lg appearance-none cursor-pointer accent-rose-500 focus:outline-none"
+                />
+                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest shrink-0">0% to 100%</span>
+              </div>
+            </div>
           </div>
         </div>
 

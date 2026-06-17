@@ -173,11 +173,24 @@ export function GlobalHypeFeed() {
             animate={{ opacity: 1, x: 0, scale: 1 }}
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: "spring", stiffness: 350, damping: 22 }}
-            className={`pointer-events-auto backdrop-blur-xl border rounded-[20px] p-4 shadow-2xl max-w-sm w-full mb-3 cursor-pointer hover:scale-105 transition-transform duration-300 ${currentMessage.color}`}
+            className={`pointer-events-auto backdrop-blur-xl border rounded-[20px] p-4 shadow-2xl max-w-sm w-full mb-3 cursor-pointer hover:scale-105 transition-transform duration-300 relative ${currentMessage.color}`}
           >
+            {/* Close Button */}
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                e.preventDefault();
+                setCurrentMessage(null);
+              }}
+              className="absolute top-3 right-3 text-slate-400 hover:text-white transition-colors cursor-pointer p-1 rounded-full hover:bg-white/10 z-50 flex items-center justify-center w-5 h-5"
+              title="Dismiss notification"
+            >
+              <span className="text-[10px] font-black leading-none">✕</span>
+            </button>
+
             {/* If it's an affiliate message, wrap in Link */}
             {currentMessage.type === "AFFILIATE" ? (
-              <Link href="/affiliate" className="block">
+              <Link href="/affiliate" className="block pr-4">
                 <div className="flex items-start gap-3">
                   <div className={`w-10 h-10 rounded-full border flex items-center justify-center shrink-0 font-extrabold text-xs shadow-md ${currentMessage.avatarColor}`}>
                     {currentMessage.userInitials}
