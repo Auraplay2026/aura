@@ -82,43 +82,44 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
             rotateX: rotationX,
             y: [-20, -150, -20, 0],
             scale: [1, 1.5, 0.8, 1]
-          } : { rotateX: rotationX % 360, y: 0, scale: 1 }}
+          } : { rotateX: selectedSide === "AURA" ? 0 : 180, y: 0, scale: 1 }}
           transition={{ duration: 2.5, ease: [0.32, 0.72, 0, 1] }}
-          className="w-40 h-40 relative font-black drop-shadow-[0_20px_20px_rgba(0,0,0,0.8)]"
+          className="w-40 h-40 relative font-black drop-shadow-[0_20px_25px_rgba(0,0,0,0.85)]"
           style={{ transformStyle: "preserve-3d" }}
         >
           {/* Side A (AURA) */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 border-[6px] border-yellow-200 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]" 
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-amber-300 via-yellow-400 to-amber-600 border-[6px] border-yellow-200 shadow-[inset_0_0_25px_rgba(0,0,0,0.6)]" 
             style={{ backfaceVisibility: "hidden" }}
           >
-            <div className="absolute inset-2 rounded-full border-2 border-yellow-700/30 border-dashed animate-spin-slow opacity-50" />
+            <div className="absolute inset-2 rounded-full border-2 border-yellow-600/30 border-dashed animate-spin-slow opacity-60" />
             <svg className="w-16 h-16 text-yellow-900 drop-shadow-[0_2px_0_rgba(255,255,255,0.4)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <polygon points="12 2 2 7 12 12 22 7 12 2" />
               <polyline points="2 17 12 22 22 17" />
               <polyline points="2 12 12 17 22 12" />
             </svg>
-            <span className="text-[10px] text-yellow-900 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">AURA</span>
+            <span className="text-[10px] text-yellow-950 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(255,255,255,0.5)]">AURA</span>
           </div>
 
           {/* Side B (SKULL) */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-300 via-slate-400 to-slate-600 border-[6px] border-slate-200 shadow-[inset_0_0_20px_rgba(0,0,0,0.5)]"
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950 border-[6px] border-slate-500 shadow-[inset_0_0_25px_rgba(0,0,0,0.8)]"
             style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
           >
-            <div className="absolute inset-2 rounded-full border-2 border-slate-700/30 border-dashed animate-[spin_4s_linear_infinite_reverse] opacity-50" />
-            <svg className="w-16 h-16 text-slate-800 drop-shadow-[0_2px_0_rgba(255,255,255,0.8)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="9" cy="12" r="1" />
-              <circle cx="15" cy="12" r="1" />
-              <path d="M8 20v2h8v-2" />
-              <path d="m12.5 17-.5-1-.5 1h1z" />
-              <path d="M16 20a2 2 0 0 0 1.56-3.25 8 8 0 1 0-11.12 0A2 2 0 0 0 8 20" />
+            <div className="absolute inset-2 rounded-full border-2 border-slate-600/30 border-dashed animate-[spin_4s_linear_infinite_reverse] opacity-50" />
+            <svg className="w-16 h-16 text-slate-200 drop-shadow-[0_0_12px_rgba(244,63,94,0.85)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2C7.03 2 3 6.03 3 11c0 2.76 1.25 5.23 3.22 6.88L6 22l4-2 2 1 2-1 4 2-.22-4.12C19.75 16.23 21 13.76 21 11c0-4.97-4.03-9-9-9z" fill="currentColor" fillOpacity="0.15" />
+              <circle cx="8.5" cy="11" r="1.75" fill="#f43f5e" className="animate-pulse" stroke="none" />
+              <circle cx="15.5" cy="11" r="1.75" fill="#f43f5e" className="animate-pulse" stroke="none" />
+              <polygon points="12,13 11,14.5 13,14.5" fill="#0f172a" stroke="none" />
+              <path d="M9 17.5h6v1.2H9z" fill="#0f172a" stroke="none" />
+              <path d="M10.5 17.5v1.2 M12 17.5v1.2 M13.5 17.5v1.2" stroke="#475569" strokeWidth="1" />
             </svg>
-            <span className="text-[10px] text-slate-800 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(255,255,255,0.8)]">SKULL</span>
+            <span className="text-[10px] text-slate-300 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(0,0,0,0.5)]">SKULL</span>
           </div>
 
           {/* Edge / Thickness Illusion */}
-          <div className="absolute inset-0 rounded-full border-[10px] border-black/10 mix-blend-overlay pointer-events-none" />
+          <div className="absolute inset-0 rounded-full border-[10px] border-black/20 mix-blend-overlay pointer-events-none" />
         </motion.div>
       </div>
 
@@ -127,25 +128,38 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
         <button
           disabled={flipping}
           onClick={() => setSelectedSide("AURA")}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+          className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "AURA"
               ? "bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 text-yellow-950 border-yellow-200 shadow-[0_0_15px_rgba(250,204,21,0.4)] scale-105"
               : "bg-slate-900 text-slate-400 border-slate-800 hover:border-yellow-500/30"
           }`}
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-yellow-400" />
+          {/* Miniature Gold Coin Preview */}
+          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 border border-yellow-200 shadow-sm flex items-center justify-center scale-95">
+            <svg className="w-2.5 h-2.5 text-yellow-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+              <polygon points="12 2 2 7 12 12 22 7 12 2" />
+              <polyline points="2 12 12 17 22 12" />
+            </svg>
+          </div>
           Aura
         </button>
         <button
           disabled={flipping}
           onClick={() => setSelectedSide("SKULL")}
-          className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
+          className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "SKULL"
               ? "bg-gradient-to-br from-slate-300 via-slate-400 to-slate-500 text-slate-950 border-slate-200 shadow-[0_0_15px_rgba(203,213,225,0.4)] scale-105"
               : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-400/30"
           }`}
         >
-          <span className="w-2.5 h-2.5 rounded-full bg-slate-300" />
+          {/* Miniature Silver Coin Preview */}
+          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 border border-slate-200 shadow-sm flex items-center justify-center scale-95">
+            <svg className="w-2.5 h-2.5 text-red-500" viewBox="0 0 24 24" fill="currentColor">
+              <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1" />
+              <circle cx="9" cy="11" r="1.5" fill="currentColor" />
+              <circle cx="15" cy="11" r="1.5" fill="currentColor" />
+            </svg>
+          </div>
           Skull
         </button>
       </div>
