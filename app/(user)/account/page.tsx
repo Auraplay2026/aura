@@ -50,6 +50,7 @@ export default function AccountSettingsPage() {
   const [saveError, setSaveError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [showKYC, setShowKYC] = useState(false);
+  const [activeTab, setActiveTab] = useState<'personal' | 'security' | 'verification' | 'admin'>('personal');
 
   useEffect(() => {
     setIsClient(true);
@@ -206,6 +207,30 @@ export default function AccountSettingsPage() {
         </div>
       </motion.div>
 
+      {/* Mobile Tab Chooser Selector (lg:hidden) */}
+      <div className="flex lg:hidden overflow-x-auto gap-1.5 p-1 bg-slate-100 rounded-2xl mb-6 scrollbar-none sticky top-14 z-20 shadow-sm border border-slate-200/55 backdrop-blur-xl">
+        {(currentUser?.role === 'admin' 
+          ? (['personal', 'security', 'verification', 'admin'] as const) 
+          : (['personal', 'security', 'verification'] as const)
+        ).map((tab) => {
+          const isActive = activeTab === tab;
+          return (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "flex-1 py-2.5 px-3 rounded-xl font-black text-[11px] uppercase tracking-wider transition-all whitespace-nowrap text-center cursor-pointer",
+                isActive 
+                  ? "bg-white text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)] scale-102"
+                  : "text-slate-500 hover:text-slate-800"
+              )}
+            >
+              {tab === 'personal' ? 'Profile' : tab === 'security' ? 'Security' : tab === 'verification' ? 'Identity' : 'Admin'}
+            </button>
+          );
+        })}
+      </div>
+
       {/* Platform HFT HUD Dashboard */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         
@@ -321,7 +346,7 @@ export default function AccountSettingsPage() {
           {/* Personal Details */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-            className="bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden"
+            className={cn("bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'personal' && 'hidden lg:block')}
           >
             <div className="absolute -left-32 top-0 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full pointer-events-none" />
             
@@ -455,7 +480,7 @@ export default function AccountSettingsPage() {
           {/* Security */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
-            className="bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl"
+            className={cn("bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl", activeTab !== 'security' && 'hidden lg:block')}
           >
             <h2 className="text-xl font-black text-slate-900 flex items-center gap-3 mb-8">
               <div className="w-10 h-10 rounded-xl bg-neon-green/20 flex items-center justify-center border border-neon-green/30">
@@ -533,7 +558,7 @@ export default function AccountSettingsPage() {
           
           <motion.div 
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
-            className="bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden"
+            className={cn("bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'verification' && 'hidden lg:block')}
           >
             <div className="absolute -right-20 -bottom-20 w-48 h-48 bg-yellow-500/10 blur-[60px] rounded-full pointer-events-none" />
 
@@ -623,7 +648,7 @@ export default function AccountSettingsPage() {
           {currentUser?.role === 'admin' && (
             <motion.div 
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}
-              className="bg-slate-50/60 border border-yellow-500/30 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden"
+              className={cn("bg-slate-50/60 border border-yellow-500/30 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'admin' && 'hidden lg:block')}
             >
               <div className="absolute -left-32 top-0 w-64 h-64 bg-yellow-500/5 blur-[80px] rounded-full pointer-events-none" />
               

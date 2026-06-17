@@ -178,11 +178,11 @@ export function Header() {
         {isLoggedIn ? (
           <>
             {/* Wallet Balance Widget */}
-            <div className="flex items-center gap-2 sm:gap-4 pr-1 sm:pr-2">
+            <div className="flex items-center gap-1 sm:gap-4 pr-1 sm:pr-2">
               <div className="flex flex-col items-end leading-none">
-                <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">Balance</span>
+                <span className="text-[7px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-0.5">Balance</span>
                 <span className={cn(
-                  "text-xs sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
+                  "text-[10px] sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
                   balanceFlash === "up" ? "text-emerald-600 scale-105" :
                   balanceFlash === "down" ? "text-rose-600 scale-95" : "text-[#1E293B]"
                 )}>
@@ -191,9 +191,9 @@ export function Header() {
               </div>
               <div className="hidden sm:block w-[1px] h-6 bg-slate-200 shrink-0" />
               <div className="hidden sm:flex flex-col items-end leading-none">
-                <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">Exposure</span>
+                <span className="text-[7px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-0.5">Exposure</span>
                 <span className={cn(
-                  "text-xs sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
+                  "text-[10px] sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
                   exposureFlash === "up" ? "text-red-500 scale-105" :
                   exposureFlash === "down" ? "text-emerald-650 scale-95" : "text-[#E11D48]"
                 )}>
@@ -203,15 +203,15 @@ export function Header() {
 
               {/* VIP Level Badge HUD */}
               <div className="hidden sm:flex flex-col items-start leading-none pl-1">
-                <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">VIP Tier</span>
-                <span className="text-[10px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-sm uppercase tracking-wider select-none">
+                <span className="text-[7px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-0.5">VIP Tier</span>
+                <span className="text-[9px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-sm uppercase tracking-wider select-none">
                   LVL {Math.floor((xp || 0) / 1000) + 1}
                 </span>
               </div>
 
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-bold px-4 py-2 uppercase tracking-wide rounded-sm ml-2 text-xs transition-all"
+                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-black px-2.5 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-1 sm:ml-2 text-[9px] sm:text-xs transition-all shadow-sm"
               >
                 DEPOSIT
               </button>
