@@ -134,7 +134,7 @@ export default function AccountSettingsPage() {
       {/* Profile Banner */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
-        className="relative bg-slate-50 border border-slate-200 rounded-[2rem] p-8 overflow-hidden"
+        className="relative bg-slate-50 border border-slate-200 rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 overflow-hidden"
       >
         {/* Abstract Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-neon-purple/20 via-blue-600/10 to-transparent" />
@@ -232,53 +232,53 @@ export default function AccountSettingsPage() {
       </div>
 
       {/* Platform HFT HUD Dashboard */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
         
         {/* Wallet Balance Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Available Balance</p>
-              <h3 className="text-2xl font-black text-slate-900 font-mono mt-1">₹{balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h3>
+            <div className="min-w-0 flex-1 pr-1.5">
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Available Balance</p>
+              <h3 className="text-sm sm:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate">₹{balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h3>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-              <Wallet className="w-5 h-5 text-slate-700" />
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+              <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span className="text-slate-500">Portfolio Value:</span>
-            <span className="font-mono font-bold text-slate-750">₹{currentPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
+          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] sm:text-xs">
+            <span className="text-slate-500 truncate">Portfolio:</span>
+            <span className="font-mono font-bold text-slate-750 truncate ml-1">₹{currentPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
           </div>
         </motion.div>
 
         {/* Net P&L Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Overall Net P&L</p>
+            <div className="min-w-0 flex-1 pr-1.5">
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Overall Net P&L</p>
               <h3 className={cn(
-                "text-2xl font-black font-mono mt-1",
-                overallPnL >= 0 ? "text-[#16A34A]" : "text-red-600"
+                "text-sm sm:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
+                overallPnL >= 0 ? "text-[#16A34A]" : "text-red-650"
               )}>
                 {overallPnL >= 0 ? "+" : ""}₹{overallPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}
               </h3>
             </div>
             <div className={cn(
-              "w-9 h-9 rounded-xl flex items-center justify-center border",
-              overallPnL >= 0 ? "bg-green-50 border-green-100 text-[#16A34A]" : "bg-red-50 border-red-100 text-red-600"
+              "w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl flex items-center justify-center border shrink-0",
+              overallPnL >= 0 ? "bg-green-50 border-green-100 text-[#16A34A]" : "bg-red-50 border-red-100 text-red-650"
             )}>
-              {overallPnL >= 0 ? <TrendingUp className="w-5 h-5" /> : <TrendingDown className="w-5 h-5" />}
+              {overallPnL >= 0 ? <TrendingUp className="w-4 h-4 sm:w-5 sm:h-5" /> : <TrendingDown className="w-4 h-4 sm:w-5 sm:h-5" />}
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span className="text-slate-500">Status:</span>
-            <span className={cn("font-bold", overallPnL >= 0 ? "text-[#16A34A]" : "text-red-600")}>
+          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] sm:text-xs">
+            <span className="text-slate-500 truncate">Status:</span>
+            <span className={cn("font-bold truncate ml-1", overallPnL >= 0 ? "text-[#16A34A]" : "text-red-650")}>
               {overallPnL >= 0 ? "IN PROFIT" : "IN LOSS"}
             </span>
           </div>
@@ -287,48 +287,48 @@ export default function AccountSettingsPage() {
         {/* ROI Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Return on Capital (ROI)</p>
+            <div className="min-w-0 flex-1 pr-1.5">
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Return on Capital</p>
               <h3 className={cn(
-                "text-2xl font-black font-mono mt-1",
-                roiPercentage >= 0 ? "text-[#16A34A]" : "text-red-600"
+                "text-sm sm:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
+                roiPercentage >= 0 ? "text-[#16A34A]" : "text-red-650"
               )}>
-                {roiPercentage >= 0 ? "+" : ""}{roiPercentage.toFixed(2)}%
+                {roiPercentage >= 0 ? "+" : ""}{roiPercentage.toFixed(1)}%
               </h3>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-              <Trophy className="w-5 h-5 text-yellow-500" />
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+              <Trophy className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-500" />
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 flex justify-between items-center text-xs">
-            <span className="text-slate-500">Performance:</span>
-            <span className="font-bold text-slate-755">Excellent</span>
+          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] sm:text-xs">
+            <span className="text-slate-500 truncate">Performance:</span>
+            <span className="font-bold text-slate-750 truncate ml-1">Excellent</span>
           </div>
         </motion.div>
 
         {/* Turnover Ratio Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="bg-white border border-slate-200/80 rounded-[1.5rem] p-6 shadow-sm flex flex-col justify-between"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
-            <div>
-              <p className="text-[10px] font-black uppercase text-slate-400 tracking-wider">Deposits vs Withdrawals</p>
-              <h3 className="text-2xl font-black text-slate-900 font-mono mt-1">₹{(totalDeposits + totalWithdrawals).toLocaleString(undefined, { maximumFractionDigits: 0 })}</h3>
+            <div className="min-w-0 flex-1 pr-1.5">
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Deposits/Withdrawals</p>
+              <h3 className="text-sm sm:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate">₹{(totalDeposits + totalWithdrawals).toLocaleString(undefined, { maximumFractionDigits: 0 })}</h3>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center">
-              <Activity className="w-5 h-5 text-indigo-500" />
+            <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
+              <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />
             </div>
           </div>
-          <div className="mt-4 pt-3 border-t border-slate-100 space-y-2">
-            <div className="flex justify-between text-[10px] text-slate-500 font-bold">
-              <span>DEP: ₹{totalDeposits.toLocaleString()}</span>
-              <span>WIT: ₹{totalWithdrawals.toLocaleString()}</span>
+          <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 space-y-1.5">
+            <div className="flex justify-between text-[8px] sm:text-[10px] text-slate-500 font-bold gap-1">
+              <span className="truncate">DEP: ₹{totalDeposits.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
+              <span className="truncate">WIT: ₹{totalWithdrawals.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
             </div>
-            <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
+            <div className="w-full bg-slate-100 h-1 sm:h-1.5 rounded-full overflow-hidden">
               <div 
                 className="bg-indigo-650 h-full rounded-full" 
                 style={{ width: `${totalDeposits + totalWithdrawals > 0 ? (totalDeposits / (totalDeposits + totalWithdrawals)) * 100 : 50}%` }}
@@ -338,15 +338,15 @@ export default function AccountSettingsPage() {
         </motion.div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:gap-8">
         
         {/* Left Column: Forms */}
-        <div className="lg:col-span-2 space-y-8">
+        <div className={cn("lg:col-span-2 space-y-6 lg:space-y-8", activeTab !== 'personal' && activeTab !== 'security' && 'hidden lg:block')}>
           
           {/* Personal Details */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 }}
-            className={cn("bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'personal' && 'hidden lg:block')}
+            className={cn("bg-slate-50/60 border border-slate-200 rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'personal' && 'hidden lg:block')}
           >
             <div className="absolute -left-32 top-0 w-64 h-64 bg-red-500/5 blur-[80px] rounded-full pointer-events-none" />
             
@@ -480,7 +480,7 @@ export default function AccountSettingsPage() {
           {/* Security */}
           <motion.div 
             initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.3 }}
-            className={cn("bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl", activeTab !== 'security' && 'hidden lg:block')}
+            className={cn("bg-slate-50/60 border border-slate-200 rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 backdrop-blur-2xl", activeTab !== 'security' && 'hidden lg:block')}
           >
             <h2 className="text-xl font-black text-slate-900 flex items-center gap-3 mb-8">
               <div className="w-10 h-10 rounded-xl bg-neon-green/20 flex items-center justify-center border border-neon-green/30">
@@ -554,11 +554,11 @@ export default function AccountSettingsPage() {
         </div>
 
         {/* Right Column: Verification & Status */}
-        <div className="space-y-8">
+        <div className={cn("space-y-6 lg:space-y-8", activeTab !== 'verification' && activeTab !== 'admin' && 'hidden lg:block')}>
           
           <motion.div 
             initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.4 }}
-            className={cn("bg-slate-50/60 border border-slate-200 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'verification' && 'hidden lg:block')}
+            className={cn("bg-slate-50/60 border border-slate-200 rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'verification' && 'hidden lg:block')}
           >
             <div className="absolute -right-20 -bottom-20 w-48 h-48 bg-yellow-500/10 blur-[60px] rounded-full pointer-events-none" />
 
@@ -648,7 +648,7 @@ export default function AccountSettingsPage() {
           {currentUser?.role === 'admin' && (
             <motion.div 
               initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}
-              className={cn("bg-slate-50/60 border border-yellow-500/30 rounded-[2rem] p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'admin' && 'hidden lg:block')}
+              className={cn("bg-slate-50/60 border border-yellow-500/30 rounded-2xl sm:rounded-[2rem] p-5 sm:p-8 backdrop-blur-2xl relative overflow-hidden", activeTab !== 'admin' && 'hidden lg:block')}
             >
               <div className="absolute -left-32 top-0 w-64 h-64 bg-yellow-500/5 blur-[80px] rounded-full pointer-events-none" />
               

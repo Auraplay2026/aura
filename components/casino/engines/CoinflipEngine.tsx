@@ -107,15 +107,15 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
             style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
           >
             <div className="absolute inset-2 rounded-full border-2 border-slate-600/30 border-dashed animate-[spin_4s_linear_infinite_reverse] opacity-50" />
-            <svg className="w-16 h-16 text-slate-200 drop-shadow-[0_0_12px_rgba(244,63,94,0.85)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2C7.03 2 3 6.03 3 11c0 2.76 1.25 5.23 3.22 6.88L6 22l4-2 2 1 2-1 4 2-.22-4.12C19.75 16.23 21 13.76 21 11c0-4.97-4.03-9-9-9z" fill="currentColor" fillOpacity="0.15" />
-              <circle cx="8.5" cy="11" r="1.75" fill="#f43f5e" className="animate-pulse" stroke="none" />
-              <circle cx="15.5" cy="11" r="1.75" fill="#f43f5e" className="animate-pulse" stroke="none" />
-              <polygon points="12,13 11,14.5 13,14.5" fill="#0f172a" stroke="none" />
-              <path d="M9 17.5h6v1.2H9z" fill="#0f172a" stroke="none" />
-              <path d="M10.5 17.5v1.2 M12 17.5v1.2 M13.5 17.5v1.2" stroke="#475569" strokeWidth="1" />
+            <svg className="w-16 h-16 text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.95)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z" fill="rgba(244,63,94,0.15)" />
+              <circle cx="8.5" cy="11" r="2" fill="#f43f5e" className="animate-pulse" stroke="none" />
+              <circle cx="15.5" cy="11" r="2" fill="#f43f5e" className="animate-pulse" stroke="none" />
+              <polygon points="12,13 11,14.5 13,14.5" fill="#f43f5e" stroke="none" />
+              <path d="M9 17.5h6" stroke="#f43f5e" strokeWidth="1.5" />
+              <path d="M10.5 17.5v2.5M12 17.5v2.5M13.5 17.5v2.5" stroke="#f43f5e" strokeWidth="1.5" />
             </svg>
-            <span className="text-[10px] text-slate-300 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(0,0,0,0.5)]">SKULL</span>
+            <span className="text-[10px] text-slate-350 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(0,0,0,0.5)]">SKULL</span>
           </div>
 
           {/* Edge / Thickness Illusion */}
@@ -154,10 +154,10 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
         >
           {/* Miniature Silver Coin Preview */}
           <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 border border-slate-200 shadow-sm flex items-center justify-center scale-95">
-            <svg className="w-2.5 h-2.5 text-red-500" viewBox="0 0 24 24" fill="currentColor">
-              <circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" strokeWidth="1" />
-              <circle cx="9" cy="11" r="1.5" fill="currentColor" />
-              <circle cx="15" cy="11" r="1.5" fill="currentColor" />
+            <svg className="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z"/>
+              <circle cx="9" cy="11" r="1" fill="currentColor"/>
+              <circle cx="15" cy="11" r="1" fill="currentColor"/>
             </svg>
           </div>
           Skull

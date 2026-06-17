@@ -147,7 +147,7 @@ export function Header() {
           className="md:hidden p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
           aria-label="Search"
         >
-          <Search className="w-4.5 h-4.5" />
+          <Search className="w-5 h-5" />
         </button>
 
         <button 

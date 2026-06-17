@@ -30,6 +30,7 @@ import { LimboEngine } from "@/components/casino/engines/LimboEngine";
 import { MinesEngine } from "@/components/casino/engines/MinesEngine";
 import { KenoEngine } from "@/components/casino/engines/KenoEngine";
 import { PlinkoEngine } from "@/components/casino/engines/PlinkoEngine";
+import { GAME_STRATEGIES, getGameStrategyKey } from "@/lib/game-strategies";
 import { TradeXEngine } from "@/components/casino/engines/TradeXEngine";
 import { HiLoEngine } from "@/components/casino/engines/HiLoEngine";
 import { PenaltyEngine } from "@/components/casino/engines/PenaltyEngine";
@@ -1404,81 +1405,56 @@ export default function GamePlayerPage() {
                                     </AnimatePresence>
                                   </div>
                                 </>
-                              ) : (
-                                <div className="flex flex-col gap-5">
-                                  {/* Martingale Card */}
-                                  <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 bg-purple-600 text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg">High Risk</div>
-                                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
-                                      <span>📈</span> Martingale Sequence
-                                    </h4>
-                                    <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                                      Double stake on loss. Win recovers all losses and gains 1 unit of original bet.
-                                    </p>
-                                    <div className="bg-slate-50 border border-slate-200/50 p-2.5 rounded-xl space-y-1.5">
-                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Projection (6 Losses)</span>
-                                      <div className="flex items-center gap-1 flex-wrap">
-                                        {[1, 2, 4, 8, 16, 32].map((mult, idx) => (
-                                          <div key={idx} className="bg-white border border-slate-200 px-1.5 py-1 rounded text-[9px] font-mono font-bold text-slate-700">
-                                            ₹{(betAmount * mult).toFixed(0)}
+                              ) : (() => {
+                                const strategyKey = game ? getGameStrategyKey(game) : "default";
+                                const strategies = GAME_STRATEGIES[strategyKey] || GAME_STRATEGIES["default"];
+                                return (
+                                  <div className="flex flex-col gap-5">
+                                    {strategies.map((strat, idx) => {
+                                      const riskBg = strat.risk === "Low" ? "bg-emerald-500" : strat.risk === "Med" ? "bg-amber-500" : "bg-rose-500";
+                                      const recommendedBet = Math.max(10, Math.round((balance * strat.recommendedBetPercent) / 100));
+                                      return (
+                                        <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
+                                          <div className={`absolute top-0 right-0 ${riskBg} text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg`}>
+                                            {strat.risk} Risk
                                           </div>
-                                        ))}
-                                      </div>
-                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mt-2">Required Bankroll: <strong className="text-slate-700 font-mono">₹{(betAmount * 63).toFixed(0)}</strong></span>
-                                    </div>
-                                    <button
-                                      onClick={() => {
-                                        const baseBet = Math.max(10, Math.floor(balance / 100));
-                                        setBetAmount(baseBet);
-                                        playGameSound('click');
-                                      }}
-                                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
-                                    >
-                                      Apply Safe Base Bet (1% Bankroll)
-                                    </button>
-                                  </div>
-
-                                  {/* Fibonacci Card */}
-                                  <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
-                                    <div className="absolute top-0 right-0 bg-indigo-500 text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg">Med Risk</div>
-                                    <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
-                                      <span>📉</span> Fibonacci Sequence
-                                    </h4>
-                                    <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
-                                      Stake uses Fibonacci numbers (1, 1, 2, 3, 5, 8...). 1 step forward on loss, 2 steps back on win.
-                                    </p>
-                                    <div className="bg-slate-50 border border-slate-200/50 p-2.5 rounded-xl space-y-1.5">
-                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Projection (6 Losses)</span>
-                                      <div className="flex items-center gap-1 flex-wrap">
-                                        {[1, 1, 2, 3, 5, 8].map((mult, idx) => (
-                                          <div key={idx} className="bg-white border border-slate-200 px-1.5 py-1 rounded text-[9px] font-mono font-bold text-slate-700">
-                                            ₹{(betAmount * mult).toFixed(0)}
+                                          <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
+                                            <span>{strat.emoji}</span> {strat.name}
+                                          </h4>
+                                          <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                                            {strat.description}
+                                          </p>
+                                          <div className="bg-slate-50 border border-slate-200/50 p-2.5 rounded-xl space-y-1.5">
+                                            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Target / Tip</span>
+                                            <p className="text-[10px] text-slate-700 font-medium leading-relaxed font-semibold">{strat.tip}</p>
+                                            <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-200/50 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                                              <span>Rec. Rounds: <strong className="text-slate-700 font-mono">{strat.recommendedRounds}</strong></span>
+                                              <span>Rec. Bet: <strong className="text-slate-700 font-mono">₹{recommendedBet} ({strat.recommendedBetPercent}%)</strong></span>
+                                            </div>
                                           </div>
-                                        ))}
-                                      </div>
-                                      <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block mt-2">Required Bankroll: <strong className="text-slate-700 font-mono">₹{(betAmount * 20).toFixed(0)}</strong></span>
+                                          <button
+                                            onClick={() => {
+                                              setBetAmount(recommendedBet);
+                                              playGameSound('click');
+                                            }}
+                                            className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
+                                          >
+                                            Apply Recommended Bet (₹{recommendedBet})
+                                          </button>
+                                        </div>
+                                      );
+                                    })}
+                                    
+                                    {/* Info Disclaimer */}
+                                    <div className="flex items-start gap-2 bg-amber-50 border border-amber-200/55 p-2 rounded-xl">
+                                      <BadgeInfo className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
+                                      <p className="text-[9px] text-amber-700 font-semibold leading-normal">
+                                        Strategies do not change game odds. Play responsibly and manage your bankroll.
+                                      </p>
                                     </div>
-                                    <button
-                                      onClick={() => {
-                                        const baseBet = Math.max(10, Math.floor(balance / 50));
-                                        setBetAmount(baseBet);
-                                        playGameSound('click');
-                                      }}
-                                      className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
-                                    >
-                                      Apply Safe Base Bet (2% Bankroll)
-                                    </button>
                                   </div>
-                                  
-                                  {/* Info Disclaimer */}
-                                  <div className="flex items-start gap-2 bg-amber-50 border border-amber-200/55 p-2 rounded-xl">
-                                    <BadgeInfo className="w-3.5 h-3.5 text-amber-600 shrink-0 mt-0.5" />
-                                    <p className="text-[9px] text-amber-700 font-semibold leading-normal">
-                                      Strategies do not change game odds. Play responsibly and manage your bankroll.
-                                    </p>
-                                  </div>
-                                </div>
-                              )}
+                                );
+                              })()}
                             </div>
 
                             <div className="mt-auto pt-4 border-t border-slate-200 md:border-none md:pt-0 shrink-0">
