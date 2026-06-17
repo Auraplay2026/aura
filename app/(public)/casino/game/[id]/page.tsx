@@ -1500,6 +1500,63 @@ export default function GamePlayerPage() {
                                     : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
                               </button>
                             </div>
+
+                            {/* Session Analytics directly below Bet/Spin button */}
+                            {!isCloudRenting && !game.id.startsWith("royal-") && (
+                              <div className="border-t border-slate-200 pt-4 flex flex-col gap-4 shrink-0">
+                                <div className="flex items-center justify-between">
+                                  <span className="text-slate-800 font-black text-xs uppercase tracking-widest flex items-center gap-2">
+                                    <Activity className="w-4 h-4 text-emerald-600" />
+                                    Session Analytics
+                                  </span>
+                                  <span className="text-[10px] text-slate-500 font-bold font-mono">
+                                    {stats.totalRounds} ROUNDS
+                                  </span>
+                                </div>
+
+                                {/* Line Chart */}
+                                <div className="space-y-2">
+                                  <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
+                                  <SVGProfitChart history={stats.profitHistory} />
+                                </div>
+
+                                {/* Ratio Bar */}
+                                <div className="space-y-2">
+                                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                    <span>Win vs Loss Ratio</span>
+                                    <span className="text-emerald-600">{stats.winRatio.toFixed(0)}% Win</span>
+                                  </div>
+                                  <div className="w-full h-3 bg-rose-200 rounded-full overflow-hidden flex">
+                                    <div 
+                                      className="h-full bg-emerald-500 transition-all duration-500" 
+                                      style={{ width: `${stats.winRatio}%` }}
+                                    />
+                                  </div>
+                                  <div className="flex justify-between items-center text-[9px] font-bold text-slate-450 font-mono">
+                                    <span>{stats.winsCount} WINS</span>
+                                    <span>{stats.lossesCount} LOSSES</span>
+                                  </div>
+                                </div>
+
+                                {/* Stats Grid */}
+                                <div className="grid grid-cols-2 gap-3">
+                                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
+                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Wagered</span>
+                                    <span className="text-xs font-black text-slate-800 font-mono block mt-1">₹{stats.totalWagered.toLocaleString()}</span>
+                                  </div>
+                                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
+                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Net Profit</span>
+                                    <span className={cn("text-xs font-black font-mono block mt-1", stats.netProfit >= 0 ? "text-emerald-600" : "text-rose-600")}>
+                                      ₹{stats.netProfit >= 0 ? "+" : ""}{stats.netProfit.toLocaleString()}
+                                    </span>
+                                  </div>
+                                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center col-span-2">
+                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Highest Multiplier</span>
+                                    <span className="text-sm font-black text-emerald-650 font-mono block mt-1">{stats.maxMultiplier.toFixed(2)}x</span>
+                                  </div>
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1717,83 +1774,7 @@ export default function GamePlayerPage() {
                           )}
                         </div>
 
-                        {/* Analytics Panel Drawer */}
-                        {!isCloudRenting && !game.id.startsWith("royal-") && (
-                          <div className="flex flex-col gap-4 relative z-15 shrink-0 justify-center">
-                            {/* Toggle Button */}
-                            <button
-                              onClick={() => setIsAnalyticsOpen(!isAnalyticsOpen)}
-                              className="absolute top-4 -left-12 bg-white/10 hover:bg-white/20 text-white border border-white/10 p-2.5 rounded-l-xl z-20 shadow-md backdrop-blur-md flex items-center justify-center focus:outline-none cursor-pointer"
-                              title={isAnalyticsOpen ? "Hide Analytics" : "Show Analytics"}
-                            >
-                              <Activity className={cn("w-4.5 h-4.5 transition-transform duration-300", isAnalyticsOpen ? "rotate-180 text-emerald-400" : "text-slate-300")} />
-                            </button>
 
-                            <AnimatePresence>
-                              {isAnalyticsOpen && (
-                                <motion.div
-                                  initial={{ width: 0, opacity: 0 }}
-                                  animate={{ width: 320, opacity: 1 }}
-                                  exit={{ width: 0, opacity: 0 }}
-                                  transition={{ type: "spring", stiffness: 260, damping: 26 }}
-                                  className="w-[320px] bg-slate-900/90 border border-white/10 rounded-3xl p-5 flex flex-col gap-5 shadow-2xl backdrop-blur-xl max-h-[600px] overflow-y-auto custom-scrollbar"
-                                >
-                                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                                    <span className="text-white font-black text-xs uppercase tracking-widest flex items-center gap-2">
-                                      <Activity className="w-4 h-4 text-emerald-400" />
-                                      Session Analytics
-                                    </span>
-                                    <span className="text-[10px] text-slate-400 font-bold font-mono">
-                                      {stats.totalRounds} ROUNDS
-                                    </span>
-                                  </div>
-
-                                  {/* Line Chart */}
-                                  <div className="space-y-2">
-                                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
-                                    <SVGProfitChart history={stats.profitHistory} />
-                                  </div>
-
-                                  {/* Ratio Bar */}
-                                  <div className="space-y-2">
-                                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                                      <span>Win vs Loss Ratio</span>
-                                      <span className="text-emerald-400">{stats.winRatio.toFixed(0)}% Win</span>
-                                    </div>
-                                    <div className="w-full h-3 bg-rose-500 rounded-full overflow-hidden flex">
-                                      <div 
-                                        className="h-full bg-emerald-500 transition-all duration-500" 
-                                        style={{ width: `${stats.winRatio}%` }}
-                                      />
-                                    </div>
-                                    <div className="flex justify-between items-center text-[9px] font-bold text-slate-500 font-mono">
-                                      <span>{stats.winsCount} WINS</span>
-                                      <span>{stats.lossesCount} LOSSES</span>
-                                    </div>
-                                  </div>
-
-                                  {/* Stats Grid */}
-                                  <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-3 text-center">
-                                      <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Wagered</span>
-                                      <span className="text-xs font-black text-slate-200 font-mono block mt-1">₹{stats.totalWagered.toLocaleString()}</span>
-                                    </div>
-                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-3 text-center">
-                                      <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Net Profit</span>
-                                      <span className={cn("text-xs font-black font-mono block mt-1", stats.netProfit >= 0 ? "text-emerald-400" : "text-rose-400")}>
-                                        ₹{stats.netProfit >= 0 ? "+" : ""}{stats.netProfit.toLocaleString()}
-                                      </span>
-                                    </div>
-                                    <div className="bg-white/5 border border-white/5 rounded-2xl p-3 text-center col-span-2">
-                                      <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider block">Highest Multiplier</span>
-                                      <span className="text-sm font-black text-neon-yellow font-mono block mt-1">{stats.maxMultiplier.toFixed(2)}x</span>
-                                    </div>
-                                  </div>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        )}
 
                         {/* Multiplayer Lobby Side Panel */}
                         {isMultiplayer && (

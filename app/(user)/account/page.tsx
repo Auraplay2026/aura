@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { User, Mail, Shield, Smartphone, Key, ShieldCheck, CheckCircle2, Wallet, Activity, Trophy, ArrowRight, Camera, AlertCircle, TrendingUp, TrendingDown, Lock, Copy, X } from "lucide-react";
+import { User, Mail, Shield, Smartphone, Key, ShieldCheck, CheckCircle2, Wallet, Activity, Trophy, ArrowRight, Camera, AlertCircle, TrendingUp, TrendingDown, Lock, Copy, X, LogOut } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { useLiveMarkets } from "@/hooks/useLiveMarkets";
 import Link from "next/link";
@@ -10,7 +10,7 @@ import { KYCVerificationFlow } from "@/components/KYCVerificationFlow";
 import { cn } from "@/lib/utils";
 
 export default function AccountSettingsPage() {
-  const { balance, positions, transactions, currentUser, updateProfile, changePassword, setup2fa, verifyAndEnable2fa, disable2fa } = useTradingStore();
+  const { balance, positions, transactions, currentUser, updateProfile, changePassword, setup2fa, verifyAndEnable2fa, disable2fa, logout } = useTradingStore();
   const liveMarkets = useLiveMarkets('sports');
 
   // Hydration fix
@@ -157,8 +157,14 @@ export default function AccountSettingsPage() {
  
           {/* Profile Info */}
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2">
-              {currentUser?.username || "Player"}
+            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2 flex flex-col sm:flex-row sm:items-center gap-3 justify-center md:justify-start">
+              <span>{currentUser?.username || "Player"}</span>
+              <button 
+                onClick={() => logout()}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase text-red-600 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 active:scale-95 transition-all cursor-pointer w-fit mx-auto sm:mx-0 shadow-sm"
+              >
+                <LogOut className="w-3.5 h-3.5" /> Log Out
+              </button>
             </h1>
             <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-bold">
               {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (

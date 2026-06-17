@@ -136,10 +136,17 @@ export function SmartNotificationBanner() {
   return (
     <AnimatePresence>
       <motion.div
+        drag="x"
+        dragConstraints={{ left: -200, right: 200 }}
+        onDragEnd={(event, info) => {
+          if (Math.abs(info.offset.x) > 100) {
+            setVisible(false);
+          }
+        }}
         initial={{ opacity: 0, y: -50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        className={`fixed top-24 right-4 z-40 w-[92%] max-w-sm bg-slate-900/90 backdrop-blur-md border rounded-2xl p-4 shadow-xl ${config.color} pointer-events-auto`}
+        className={`fixed top-24 right-4 z-40 w-[92%] max-w-sm bg-slate-900/90 backdrop-blur-md border rounded-2xl p-4 shadow-xl ${config.color} pointer-events-auto cursor-grab active:cursor-grabbing select-none`}
       >
         <div className="flex gap-3">
           <div className="shrink-0 w-10 h-10 rounded-xl bg-slate-800/80 border border-slate-700/50 flex items-center justify-center">
@@ -159,20 +166,8 @@ export function SmartNotificationBanner() {
               >
                 {config.cta}
               </button>
-              <button
-                onClick={() => setVisible(false)}
-                className="px-3 py-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-800 text-slate-400 hover:text-slate-200 font-bold text-xs transition-colors cursor-pointer"
-              >
-                Dismiss
-              </button>
             </div>
           </div>
-          <button
-            onClick={() => setVisible(false)}
-            className="shrink-0 text-slate-500 hover:text-slate-300 transition-colors self-start"
-          >
-            <X className="w-4 h-4" />
-          </button>
         </div>
       </motion.div>
     </AnimatePresence>

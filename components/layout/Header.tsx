@@ -189,8 +189,8 @@ export function Header() {
                   ₹{isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
-              <div className="w-[1px] h-6 bg-slate-200 shrink-0" />
-              <div className="flex flex-col items-end leading-none">
+              <div className="hidden sm:block w-[1px] h-6 bg-slate-200 shrink-0" />
+              <div className="hidden sm:flex flex-col items-end leading-none">
                 <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-1">Exposure</span>
                 <span className={cn(
                   "text-xs sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
@@ -229,135 +229,6 @@ export function Header() {
                 </span>
               )}
             </button>
-            {/* Sound Control HUD dropdown */}
-            <div className="relative">
-              <button 
-                onClick={() => setIsAudioOpen(!isAudioOpen)}
-                className={cn(
-                  "relative flex items-center justify-center text-slate-500 hover:text-slate-900 transition-colors p-1.5 rounded-full hover:bg-slate-50 group cursor-pointer",
-                  isAudioOpen && "bg-slate-100 text-slate-900"
-                )}
-                title="Audio Settings"
-              >
-                {soundEnabled !== false ? (
-                  <Volume2 className="w-5 h-5 group-hover:scale-110 transition-transform duration-200" />
-                ) : (
-                  <VolumeX className="w-5 h-5 group-hover:scale-110 text-rose-500 transition-transform duration-200" />
-                )}
-                
-                {/* CSS Audio Wave Visualizer */}
-                {soundEnabled !== false && (
-                  <div className="flex items-end gap-[1.5px] h-2.5 w-3 ml-1 pointer-events-none select-none">
-                    <div className="w-[1.5px] bg-emerald-500 rounded-full animate-[visualizer1_1s_infinite_ease-in-out]" style={{ animationDelay: '0.1s' }} />
-                    <div className="w-[1.5px] bg-emerald-500 rounded-full animate-[visualizer2_1.2s_infinite_ease-in-out]" style={{ animationDelay: '0.4s' }} />
-                    <div className="w-[1.5px] bg-emerald-500 rounded-full animate-[visualizer3_0.8s_infinite_ease-in-out]" style={{ animationDelay: '0.2s' }} />
-                  </div>
-                )}
-              </button>
-
-              {/* Audio Settings Dropdown */}
-              <AnimatePresence>
-                {isAudioOpen && (
-                  <>
-                    <div className="fixed inset-0 z-40" onClick={() => setIsAudioOpen(false)} />
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                      transition={{ type: "spring", damping: 20, stiffness: 300 }}
-                      className="absolute top-full mt-2 right-0 w-64 bg-white border border-slate-200 rounded-2xl shadow-2xl z-50 overflow-hidden p-4 space-y-4"
-                    >
-                      <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
-                        <span>🔊</span> Audio Settings
-                      </h3>
-                      
-                      <div className="space-y-3">
-                        {/* Global Mute Toggle */}
-                        <div className="flex items-center justify-between">
-                          <span className="text-xs font-bold text-slate-600">Enable Sounds</span>
-                          <button 
-                            onClick={() => setSoundEnabled(soundEnabled !== false ? false : true)}
-                            className={cn(
-                              "w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
-                              soundEnabled !== false ? "bg-emerald-500" : "bg-slate-200"
-                            )}
-                          >
-                            <div className={cn(
-                              "bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300",
-                              soundEnabled !== false ? "translate-x-4" : "translate-x-0"
-                            )} />
-                          </button>
-                        </div>
-
-                        {/* Volume Control */}
-                        {soundEnabled !== false && (
-                          <div className="space-y-1.5 border-t border-slate-100 pt-3">
-                            <div className="flex justify-between items-center text-[10px] font-bold text-slate-500">
-                              <span>SFX Volume</span>
-                              <span>{sfxVolume}%</span>
-                            </div>
-                            <input 
-                              type="range"
-                              min="0"
-                              max="100"
-                              step="5"
-                              value={sfxVolume}
-                              onChange={(e) => setSfxVolume(Number(e.target.value))}
-                              className="w-full accent-emerald-500 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                          </div>
-                        )}
-
-                        {/* Ambiance Control */}
-                        {soundEnabled !== false && (
-                          <div className="flex items-center justify-between border-t border-slate-100 pt-3">
-                            <div className="flex flex-col">
-                              <span className="text-xs font-bold text-slate-600">Lobby Ambience</span>
-                              <span className="text-[9px] text-slate-400 font-medium leading-none mt-0.5">Gentle generative chimes</span>
-                            </div>
-                            <button 
-                              onClick={() => setAmbientEnabled(!ambientEnabled)}
-                              className={cn(
-                                "w-10 h-6 flex items-center rounded-full p-1 cursor-pointer transition-colors duration-300",
-                                ambientEnabled ? "bg-indigo-500" : "bg-slate-200"
-                              )}
-                            >
-                              <div className={cn(
-                                "bg-white w-4 h-4 rounded-full shadow-md transform transition-transform duration-300",
-                                ambientEnabled ? "translate-x-4" : "translate-x-0"
-                              )} />
-                            </button>
-                          </div>
-                        )}
-
-                        {/* Ambient Preset Selection */}
-                        {soundEnabled !== false && ambientEnabled && (
-                          <div className="space-y-1.5 border-t border-slate-100 pt-3">
-                            <span className="text-xs font-bold text-slate-600 block">Ambience Preset</span>
-                            <div className="grid grid-cols-3 gap-1">
-                              {(['default', 'tension', 'cyber'] as const).map((preset) => (
-                                <button
-                                  key={preset}
-                                  onClick={() => setAmbientPreset(preset)}
-                                  className={cn(
-                                    "px-1.5 py-1 text-[10px] font-black uppercase rounded-sm border transition-all cursor-pointer",
-                                    ambientPreset === preset 
-                                      ? "bg-slate-900 border-slate-900 text-white" 
-                                      : "bg-slate-50 border-slate-200 text-slate-600 hover:bg-slate-100"
-                                  )}
-                                >
-                                  {preset === 'default' ? 'Lobby' : preset === 'tension' ? 'Tension' : 'Arcade'}
-                                </button>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </motion.div>
-                  </>
-                )}
-              </AnimatePresence>
-            </div>
             {/* Notification Bell */}
             <div className="relative">
               <button 
