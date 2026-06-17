@@ -7,8 +7,8 @@ import { X, Mail, Lock, User, Sparkles } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: boolean; onClose: () => void; initialView?: 'login' | 'signup' }) {
-  const [view, setView] = useState<'login' | 'signup'>(initialView);
+export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: boolean; onClose: () => void; initialView?: 'login' | 'signup' | 'forgot' | 'reset' }) {
+  const [view, setView] = useState<'login' | 'signup' | 'forgot' | 'reset'>(initialView);
   const signUp = useTradingStore(state => state.signUp);
   const loginWithCredentials = useTradingStore(state => state.loginWithCredentials);
   const loginWithGoogle = useTradingStore(state => state.loginWithGoogle);
@@ -22,6 +22,10 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
   const [referralCode, setReferralCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [resetCode, setResetCode] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [demoResetCode, setDemoResetCode] = useState<string | null>(null);
 
   const [mounted, setMounted] = useState(false);
   useEffect(() => {
@@ -29,6 +33,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
     setTwoFactorRequired(false);
     setOtpCode("");
     setError(null);
+    setSuccessMessage(null);
+    setDemoResetCode(null);
     // Check for referral code in URL
     const urlParams = new URLSearchParams(window.location.search);
     const refCode = urlParams.get('ref');
@@ -46,6 +52,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
     e.preventDefault();
     setIsLoading(true);
     setError(null);
+    setSuccessMessage(null);
     
     try {
       if (view === 'login') {
@@ -61,13 +68,50 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
         } else {
           setError(res.error || "Login failed.");
         }
-      } else {
+      } else if (view === 'signup') {
         const res = await signUp(username, email, password, accountType, referralCode);
         setIsLoading(false);
         if (res.success) {
           onClose();
         } else {
           setError(res.error || "Registration failed.");
+        }
+      } else if (view === 'forgot') {
+        const res = await fetch('/api/auth/forgot-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email })
+        });
+        const data = await res.json();
+        setIsLoading(false);
+        if (res.ok && data.success) {
+          setSuccessMessage(data.message || "Reset code has been generated.");
+          if (data.debugCode) {
+            setDemoResetCode(data.debugCode);
+          }
+        } else {
+          setError(data.error || "Failed to process forgot password request.");
+        }
+      } else if (view === 'reset') {
+        const res = await fetch('/api/auth/reset-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, code: resetCode, newPassword })
+        });
+        const data = await res.json();
+        setIsLoading(false);
+        if (res.ok && data.success) {
+          setSuccessMessage("Password reset successfully! Redirecting to login...");
+          setDemoResetCode(null);
+          setResetCode("");
+          setNewPassword("");
+          setTimeout(() => {
+            setView('login');
+            setSuccessMessage(null);
+            setError(null);
+          }, 2000);
+        } else {
+          setError(data.error || "Failed to reset password.");
         }
       }
     } catch (err) {
@@ -231,7 +275,10 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
               <div className="flex justify-between items-center p-6 border-b border-slate-200">
                 <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-yellow-500" />
-                  {view === 'login' ? 'Welcome Back' : 'Create Account'}
+                  {view === 'login' && 'Welcome Back'}
+                  {view === 'signup' && 'Create Account'}
+                  {view === 'forgot' && 'Reset Password'}
+                  {view === 'reset' && 'Create New Password'}
                 </h2>
                 <button
                   onClick={onClose}
@@ -253,7 +300,48 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                   </motion.div>
                 )}
 
-                {view === 'login' && !error && (
+                {successMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 p-3 bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 rounded-xl text-xs font-semibold flex items-center gap-2"
+                  >
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0" />
+                    {successMessage}
+                  </motion.div>
+                )}
+
+                {demoResetCode && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/30 text-slate-900 rounded-xl text-xs font-bold flex flex-col gap-2 relative overflow-hidden"
+                  >
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
+                      <span>DEMO ENVIRONMENT SIMULATION</span>
+                    </div>
+                    <p className="text-[11px] text-slate-700 font-medium leading-relaxed">
+                      A password reset request was initiated. Copy your simulated 6-digit code below and click the "Next (Enter Code)" button to proceed:
+                    </p>
+                    <div className="bg-white border border-yellow-500/20 rounded-lg p-2.5 flex items-center justify-between mt-1 select-all font-mono text-center text-sm font-black text-yellow-600 tracking-wider">
+                      {demoResetCode}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setView('reset');
+                        setError(null);
+                        setSuccessMessage(null);
+                      }}
+                      className="mt-1 w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-2 rounded-lg text-[10px] uppercase transition-all flex justify-center items-center gap-1 shadow-sm"
+                    >
+                      Next (Enter Code) →
+                    </button>
+                  </motion.div>
+                )}
+
+                {view === 'login' && !error && !successMessage && (
                   <div className="mb-4"></div>
                 )}
 
@@ -279,6 +367,63 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                         Enter the 6-digit verification code from your authenticator app to complete signing in.
                       </p>
                     </div>
+                  ) : view === 'forgot' ? (
+                    <div>
+                      <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Email Address</label>
+                      <div className="relative">
+                        <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                          <Mail className="w-4 h-4" />
+                        </div>
+                        <input 
+                          type="email"
+                          required
+                          value={email}
+                          onChange={e => setEmail(e.target.value)}
+                          placeholder="john@example.com"
+                          className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                        />
+                      </div>
+                      <p className="text-[10px] text-slate-500 mt-1.5 ml-1 leading-normal font-semibold">
+                        Enter your account email address and we will generate a recovery verification code.
+                      </p>
+                    </div>
+                  ) : view === 'reset' ? (
+                    <>
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">Verification Code</label>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                            <Sparkles className="w-4 h-4" />
+                          </div>
+                          <input 
+                            type="text" 
+                            required
+                            maxLength={6}
+                            value={resetCode}
+                            onChange={e => setResetCode(e.target.value.replace(/\D/g, ''))}
+                            placeholder="123456"
+                            className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors tracking-widest text-center font-bold"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">New Password</label>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                            <Lock className="w-4 h-4" />
+                          </div>
+                          <input 
+                            type="password" 
+                            required
+                            value={newPassword}
+                            onChange={e => setNewPassword(e.target.value)}
+                            placeholder="••••••••"
+                            className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-yellow-500 transition-colors"
+                          />
+                        </div>
+                      </div>
+                    </>
                   ) : (
                     <>
                       {view === 'signup' && (
@@ -320,7 +465,19 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                       <div>
                         <label className="block text-xs font-bold text-slate-600 mb-1.5 ml-1 flex justify-between">
                           Password
-                          {view === 'login' && <span className="text-yellow-500 hover:underline cursor-pointer">Forgot?</span>}
+                          {view === 'login' && (
+                            <span 
+                              onClick={() => {
+                                setView('forgot');
+                                setError(null);
+                                setSuccessMessage(null);
+                                setDemoResetCode(null);
+                              }}
+                              className="text-yellow-500 hover:underline cursor-pointer"
+                            >
+                              Forgot?
+                            </span>
+                          )}
                         </label>
                         <div className="relative">
                           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
@@ -399,75 +556,112 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                     {isLoading ? (
                       <span className="w-5 h-5 border-2 border-slate-200/30 border-t-slate-900 rounded-full animate-spin" />
                     ) : (
-                      view === 'login' ? (twoFactorRequired ? 'Verify & Sign In' : 'Sign In') : 'Create Account'
+                      view === 'login' ? (twoFactorRequired ? 'Verify & Sign In' : 'Sign In') :
+                      view === 'signup' ? 'Create Account' :
+                      view === 'forgot' ? 'Send Reset Code' : 'Reset Password'
                     )}
                   </button>
                 </form>
 
-                <div className="mt-6 flex items-center gap-4">
-                  <div className="h-px bg-slate-200 flex-1"></div>
-                  <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Or</span>
-                  <div className="h-px bg-slate-200 flex-1"></div>
-                </div>
-
-                <div className="mt-4 flex flex-col items-center gap-3">
-                  {googleClientId ? (
-                    /* Real production Google Sign-In SDK button container */
-                    <div className="flex flex-col items-center gap-2 w-full">
-                      <div id="google-real-btn-container" className="flex justify-center w-full min-h-[44px]"></div>
-                      <span className="text-[10px] text-green-500 font-bold tracking-wider uppercase flex items-center gap-1">
-                        ● Secure Google Authentication Active
-                      </span>
+                {(view === 'login' || view === 'signup') && (
+                  <>
+                    <div className="mt-6 flex items-center gap-4">
+                      <div className="h-px bg-slate-200 flex-1"></div>
+                      <span className="text-xs font-bold text-slate-500 uppercase tracking-widest">Or</span>
+                      <div className="h-px bg-slate-200 flex-1"></div>
                     </div>
-                  ) : (
-                    /* Sandbox fallback Google and GitHub login triggers */
-                    <div className="w-full flex flex-col gap-2">
-                      <div className="flex gap-3 w-full">
-                        <button 
-                          type="button"
-                          onClick={handleSocialLoginFallback}
-                          disabled={isLoading}
-                          className="flex-1 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 text-slate-900 font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
-                        >
-                          <svg className="w-4 h-4" viewBox="0 0 24 24">
-                            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
-                            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
-                            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
-                            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
-                          </svg>
-                          Google
-                        </button>
-                        <button 
-                          type="button"
-                          onClick={handleSocialLoginFallback}
-                          disabled={isLoading}
-                          className="flex-1 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 text-slate-900 font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
-                        >
-                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                            <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
-                          </svg>
-                          GitHub
-                        </button>
-                      </div>
 
+                    <div className="mt-4 flex flex-col items-center gap-3">
+                      {googleClientId ? (
+                        /* Real production Google Sign-In SDK button container */
+                        <div className="flex flex-col items-center gap-2 w-full">
+                          <div id="google-real-btn-container" className="flex justify-center w-full min-h-[44px]"></div>
+                          <span className="text-[10px] text-green-500 font-bold tracking-wider uppercase flex items-center gap-1">
+                            ● Secure Google Authentication Active
+                          </span>
+                        </div>
+                      ) : (
+                        /* Sandbox fallback Google and GitHub login triggers */
+                        <div className="w-full flex flex-col gap-2">
+                          <div className="flex gap-3 w-full">
+                            <button 
+                              type="button"
+                              onClick={handleSocialLoginFallback}
+                              disabled={isLoading}
+                              className="flex-1 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 text-slate-900 font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24">
+                                <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4" />
+                                <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853" />
+                                <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" fill="#FBBC05" />
+                                <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335" />
+                              </svg>
+                              Google
+                            </button>
+                            <button 
+                              type="button"
+                              onClick={handleSocialLoginFallback}
+                              disabled={isLoading}
+                              className="flex-1 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 text-slate-900 font-bold py-3 rounded-xl transition-colors flex justify-center items-center gap-2 disabled:opacity-50 text-sm"
+                            >
+                              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+                                <path fillRule="evenodd" clipRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.531 1.032 1.531 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" />
+                              </svg>
+                              GitHub
+                            </button>
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                </div>
+                  </>
+                )}
 
                 <p className="mt-8 text-center text-sm text-slate-600">
-                  {view === 'login' ? "Don't have an account? " : "Already have an account? "}
-                  <button 
-                    onClick={() => {
-                      setView(view === 'login' ? 'signup' : 'login');
-                      setError(null);
-                      setUsername("");
-                      setEmail("");
-                      setPassword("");
-                    }}
-                    className="text-yellow-500 font-bold hover:underline"
-                  >
-                    {view === 'login' ? 'Sign Up' : 'Log In'}
-                  </button>
+                  {view === 'login' && (
+                    <>
+                      Don't have an account?{" "}
+                      <button 
+                        onClick={() => {
+                          setView('signup');
+                          setError(null);
+                          setSuccessMessage(null);
+                          setDemoResetCode(null);
+                        }}
+                        className="text-yellow-500 font-bold hover:underline font-black"
+                      >
+                        Sign Up
+                      </button>
+                    </>
+                  )}
+                  {view === 'signup' && (
+                    <>
+                      Already have an account?{" "}
+                      <button 
+                        onClick={() => {
+                          setView('login');
+                          setError(null);
+                          setSuccessMessage(null);
+                          setDemoResetCode(null);
+                        }}
+                        className="text-yellow-500 font-bold hover:underline font-black"
+                      >
+                        Log In
+                      </button>
+                    </>
+                  )}
+                  {(view === 'forgot' || view === 'reset') && (
+                    <button 
+                      onClick={() => {
+                        setView('login');
+                        setError(null);
+                        setSuccessMessage(null);
+                        setDemoResetCode(null);
+                      }}
+                      className="text-yellow-500 font-bold hover:underline font-black"
+                    >
+                      ← Back to Log In
+                    </button>
+                  )}
                 </p>
               </div>
             </div>

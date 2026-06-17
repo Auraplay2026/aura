@@ -31,6 +31,9 @@ model User {
   twoFactorEnabled       Boolean  @default(false)
   twoFactorSecret        String?
   
+  resetCode              String?
+  resetCodeExpires       Float?
+  
   affiliateCode          String?  @unique
   referredBy             String?
   referralCount          Int      @default(0)

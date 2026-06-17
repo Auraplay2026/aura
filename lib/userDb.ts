@@ -63,6 +63,8 @@ export interface UserProfile {
   vipLevel?: string;
   manualVipLevel?: string | null;
   vipRewardsClaimed?: Record<string, boolean>;
+  resetCode?: string;
+  resetCodeExpires?: number;
 }
 
 export function sanitizeUserProfile(user: any): UserProfile {
@@ -97,6 +99,8 @@ export function sanitizeUserProfile(user: any): UserProfile {
     address: user.address || "",
     twoFactorEnabled: !!user.twoFactorEnabled,
     twoFactorSecret: user.twoFactorSecret || undefined,
+    resetCode: user.resetCode || undefined,
+    resetCodeExpires: user.resetCodeExpires || undefined,
   } as UserProfile;
 }
 
@@ -163,6 +167,9 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
     if (!existing) return null;
 
     const data: any = {};
+    if (updates.passwordHash !== undefined) data.passwordHash = updates.passwordHash;
+    if (updates.resetCode !== undefined) data.resetCode = updates.resetCode;
+    if (updates.resetCodeExpires !== undefined) data.resetCodeExpires = updates.resetCodeExpires;
     if (updates.balance !== undefined) data.balance = updates.balance;
     if (updates.realBalance !== undefined) data.realBalance = updates.realBalance;
     if (updates.demoBalance !== undefined) data.demoBalance = updates.demoBalance;
