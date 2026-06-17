@@ -135,16 +135,16 @@ export function Header() {
       </div>
 
       {/* Mobile Logo & Search Area */}
-      <div className="flex-1 flex items-center gap-2 sm:gap-4">
+      <div className="flex-1 flex items-center gap-1.5 sm:gap-4">
         {/* Mobile Logo (Only visible when sidebar is hidden) */}
-        <div className="lg:hidden flex items-center gap-2">
-          <span className="text-slate-900 font-black tracking-widest uppercase text-xs">AuraPlay</span>
+        <div className="lg:hidden flex items-center gap-1 shrink-0">
+          <span className="text-white bg-slate-900 font-black tracking-normal uppercase text-[9px] px-1.5 py-0.5 rounded shadow-sm border border-slate-700 select-none">AP</span>
         </div>
 
         {/* Mobile Search Button (Tiny magnifying glass) */}
         <button 
           onClick={() => setIsSearchModalOpen(true)}
-          className="md:hidden p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
+          className="md:hidden p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all shrink-0"
           aria-label="Search"
         >
           <Search className="w-5 h-5" />
@@ -180,14 +180,13 @@ export function Header() {
           <span>{timeStr}</span>
         </div>
       </div>
-
       {/* Right Side Controls */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-1.5 sm:gap-4">
         
         {isLoggedIn ? (
           <>
             {/* Wallet Balance Widget */}
-            <div className="flex items-center gap-1 sm:gap-4 pr-1 sm:pr-2">
+            <div className="flex items-center gap-1 sm:gap-3 pr-0.5 sm:pr-2 shrink-0">
               <div className="flex flex-col items-end leading-none">
                 <span className="text-[7px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-0.5">Balance</span>
                 <span className={cn(
@@ -195,7 +194,7 @@ export function Header() {
                   balanceFlash === "up" ? "text-emerald-600 scale-105" :
                   balanceFlash === "down" ? "text-rose-600 scale-95" : "text-[#1E293B]"
                 )}>
-                  ₹{isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : "---"}
+                  ₹{isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
               <div className="hidden sm:block w-[1px] h-6 bg-slate-200 shrink-0" />
@@ -220,7 +219,7 @@ export function Header() {
 
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-black px-2.5 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-1 sm:ml-2 text-[9px] sm:text-xs transition-all shadow-sm"
+                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-black px-1.5 py-1 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-0.5 sm:ml-2 text-[8px] sm:text-xs transition-all shadow-sm shrink-0"
               >
                 DEPOSIT
               </button>
@@ -239,17 +238,17 @@ export function Header() {
               )}
             </button>
             {/* Notification Bell */}
-            <div className="relative">
+            <div className="relative shrink-0">
               <button 
                 onClick={() => setIsNotificationsOpen(!isNotificationsOpen)}
                 className={cn(
-                  "relative transition-colors p-2 rounded-full group cursor-pointer",
+                  "relative transition-colors p-1.5 sm:p-2 rounded-full group cursor-pointer",
                   isNotificationsOpen ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 )}
               >
-                <Bell className="w-5 h-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-200" />
+                <Bell className="w-4.5 h-4.5 sm:w-5 sm:h-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-200" />
                 {isClient && currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (
-                  <span className="absolute top-0.5 right-0.5 min-w-[16px] h-4 px-1 bg-red-500 rounded-full text-[9px] font-black text-white flex items-center justify-center animate-bounce">
+                  <span className="absolute top-0.5 right-0.5 min-w-[14px] h-3.5 px-0.5 bg-red-500 rounded-full text-[8px] font-black text-white flex items-center justify-center animate-bounce">
                     {currentUser.notifications.filter((n: any) => !n.read).length}
                   </span>
                 )}
