@@ -135,11 +135,20 @@ export function Header() {
       </div>
 
       {/* Mobile Logo & Search Area */}
-      <div className="flex-1 flex items-center gap-4">
+      <div className="flex-1 flex items-center gap-2 sm:gap-4">
         {/* Mobile Logo (Only visible when sidebar is hidden) */}
         <div className="lg:hidden flex items-center gap-2">
           <span className="text-slate-900 font-black tracking-widest uppercase text-xs">AuraPlay</span>
         </div>
+
+        {/* Mobile Search Button (Tiny magnifying glass) */}
+        <button 
+          onClick={() => setIsSearchModalOpen(true)}
+          className="md:hidden p-1.5 text-slate-500 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-all"
+          aria-label="Search"
+        >
+          <Search className="w-4.5 h-4.5" />
+        </button>
 
         <button 
           onClick={() => setIsSearchModalOpen(true)}
