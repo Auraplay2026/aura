@@ -407,6 +407,8 @@ export default function GamePlayerPage() {
   const [recentActivities, setRecentActivities] = useState<ActivityLog[]>([]);
   const [scoreboardTab, setScoreboardTab] = useState<"top-one-percent" | "recent-runs">("top-one-percent");
   const [selectedTarget, setSelectedTarget] = useState<string>("");
+  const [isStatsExpanded, setIsStatsExpanded] = useState(false);
+  const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false);
   
   const [isDemoLimitReached, setIsDemoLimitReached] = useState(false);
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
@@ -942,28 +944,28 @@ export default function GamePlayerPage() {
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-2 sm:p-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-1.5 sm:p-6 lg:p-8">
       {/* Top Bar */}
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-4">
-          <button onClick={() => router.back()} className="w-10 h-10 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 transition-colors shrink-0">
-            <ArrowLeft className="w-5 h-5" />
+      <div className="flex items-center justify-between mb-3.5">
+        <div className="flex items-center gap-3">
+          <button onClick={() => router.back()} className="w-9 h-9 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 transition-colors shrink-0">
+            <ArrowLeft className="w-4.5 h-4.5" />
           </button>
           <div>
-            <h1 className="text-xl font-black text-slate-900 tracking-wide">{game.title}</h1>
-            <p className="text-sm text-slate-600 font-medium">Publisher: <span className="text-neon-yellow">{game.provider}</span></p>
+            <h1 className="text-lg font-black text-slate-900 tracking-wide leading-tight">{game.title}</h1>
+            <p className="text-[11px] text-slate-600 font-semibold leading-none mt-0.5">Publisher: <span className="text-neon-yellow">{game.provider}</span></p>
           </div>
         </div>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-6">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6">
         <div className="flex-1 w-full">
 
           {/* Game Container Wrapper */}
           <motion.div 
             animate={isMegaWin ? { x: [-10, 10, -10, 10, -5, 5, 0], y: [-5, 5, -5, 5, 0] } : {}}
             transition={{ duration: 0.6 }}
-            className={`relative w-full h-[350px] sm:h-[480px] md:h-auto min-h-[320px] sm:min-h-[500px] md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
+            className={`relative w-full h-[calc(100vh-135px)] sm:h-[480px] md:h-auto min-h-[480px] sm:min-h-[500px] md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence mode="wait">
               {!currentUser ? (
@@ -1143,7 +1145,7 @@ export default function GamePlayerPage() {
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
                     {tutorialDismissed && !game.id.startsWith("royal-") && (
-                      <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)]">
+                      <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)] flex-1 min-h-0 overflow-y-auto md:overflow-visible">
                         {isCloudRenting ? (
                           <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
                             <div className="flex flex-col">
@@ -1498,56 +1500,66 @@ export default function GamePlayerPage() {
 
                             {/* Session Analytics directly below Bet/Spin button */}
                             {!isCloudRenting && !game.id.startsWith("royal-") && (
-                              <div className="border-t border-slate-200 pt-4 flex flex-col gap-4 shrink-0">
-                                <div className="flex items-center justify-between">
-                                  <span className="text-slate-800 font-black text-xs uppercase tracking-widest flex items-center gap-2">
-                                    <Activity className="w-4 h-4 text-emerald-600" />
+                              <div className="border-t border-slate-200 pt-3 flex flex-col gap-2 shrink-0">
+                                <button
+                                  type="button"
+                                  onClick={() => setIsStatsExpanded(!isStatsExpanded)}
+                                  className="flex items-center justify-between w-full text-slate-850 font-black text-xs uppercase tracking-widest py-1 hover:text-slate-900 cursor-pointer"
+                                >
+                                  <span className="flex items-center gap-2">
+                                    <Activity className="w-4 h-4 text-emerald-600 animate-pulse" />
                                     Session Analytics
                                   </span>
-                                  <span className="text-[10px] text-slate-500 font-bold font-mono">
+                                  <span className="text-[9px] text-slate-500 font-bold font-mono flex items-center gap-1.5">
                                     {stats.totalRounds} ROUNDS
+                                    <span className="text-[8px] transition-transform duration-200" style={{ transform: isStatsExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                                   </span>
-                                </div>
+                                </button>
+                                
+                                <div className={cn(
+                                  "space-y-4 transition-all duration-300 overflow-hidden",
+                                  isStatsExpanded ? "max-h-[500px] opacity-100 mt-2" : "max-h-0 md:max-h-[500px] opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto"
+                                )}>
+                                  {/* Line Chart */}
+                                  <div className="space-y-2">
+                                    <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
+                                    <SVGProfitChart history={stats.profitHistory} />
+                                  </div>
 
-                                {/* Line Chart */}
-                                <div className="space-y-2">
-                                  <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
-                                  <SVGProfitChart history={stats.profitHistory} />
-                                </div>
+                                  {/* Ratio Bar */}
+                                  <div className="space-y-2">
+                                    <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                      <span>Win vs Loss Ratio</span>
+                                      <span className="text-emerald-600">{stats.winRatio.toFixed(0)}% Win</span>
+                                    </div>
+                                    <div className="w-full h-3 bg-rose-200 rounded-full overflow-hidden flex">
+                                      <div 
+                                        className="h-full bg-emerald-500 transition-all duration-500" 
+                                        style={{ width: `${stats.winRatio}%` }}
+                                      />
+                                    </div>
+                                    <div className="flex justify-between items-center text-[9px] font-bold text-slate-450 font-mono">
+                                      <span>{stats.winsCount} WINS</span>
+                                      <span>{stats.lossesCount} LOSSES</span>
+                                    </div>
+                                  </div>
 
-                                {/* Ratio Bar */}
-                                <div className="space-y-2">
-                                  <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                                    <span>Win vs Loss Ratio</span>
-                                    <span className="text-emerald-600">{stats.winRatio.toFixed(0)}% Win</span>
-                                  </div>
-                                  <div className="w-full h-3 bg-rose-200 rounded-full overflow-hidden flex">
-                                    <div 
-                                      className="h-full bg-emerald-500 transition-all duration-500" 
-                                      style={{ width: `${stats.winRatio}%` }}
-                                    />
-                                  </div>
-                                  <div className="flex justify-between items-center text-[9px] font-bold text-slate-450 font-mono">
-                                    <span>{stats.winsCount} WINS</span>
-                                    <span>{stats.lossesCount} LOSSES</span>
-                                  </div>
-                                </div>
-
-                                {/* Stats Grid */}
-                                <div className="grid grid-cols-2 gap-3">
-                                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Wagered</span>
-                                    <span className="text-xs font-black text-slate-800 font-mono block mt-1">₹{stats.totalWagered.toLocaleString()}</span>
-                                  </div>
-                                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Net Profit</span>
-                                    <span className={cn("text-xs font-black font-mono block mt-1", stats.netProfit >= 0 ? "text-emerald-600" : "text-rose-600")}>
-                                      ₹{stats.netProfit >= 0 ? "+" : ""}{stats.netProfit.toLocaleString()}
-                                    </span>
-                                  </div>
-                                  <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center col-span-2">
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Highest Multiplier</span>
-                                    <span className="text-sm font-black text-emerald-650 font-mono block mt-1">{stats.maxMultiplier.toFixed(2)}x</span>
+                                  {/* Stats Grid */}
+                                  <div className="grid grid-cols-2 gap-3">
+                                    <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
+                                      <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Wagered</span>
+                                      <span className="text-xs font-black text-slate-800 font-mono block mt-1">₹{stats.totalWagered.toLocaleString()}</span>
+                                    </div>
+                                    <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
+                                      <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Net Profit</span>
+                                      <span className={cn("text-xs font-black font-mono block mt-1", stats.netProfit >= 0 ? "text-emerald-600" : "text-rose-600")}>
+                                        ₹{stats.netProfit >= 0 ? "+" : ""}{stats.netProfit.toLocaleString()}
+                                      </span>
+                                    </div>
+                                    <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center col-span-2">
+                                      <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Highest Multiplier</span>
+                                      <span className="text-sm font-black text-emerald-650 font-mono block mt-1">{stats.maxMultiplier.toFixed(2)}x</span>
+                                    </div>
                                   </div>
                                 </div>
                               </div>
@@ -1559,7 +1571,7 @@ export default function GamePlayerPage() {
 
                     {/* RIGHT AREA (Game Canvas) */}
                     <div className={cn(
-                      "flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
+                      "h-[42vh] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
                       game.id.startsWith("royal-") ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
                     )}>
                       
@@ -1840,16 +1852,33 @@ export default function GamePlayerPage() {
               return { bg: "from-slate-700 to-slate-800", text: "text-slate-300", glow: "", label: `#${idx + 1}` };
             };
             return (
-              <div 
-                className="bg-[#060a14] border border-slate-800/60 rounded-[28px] p-4 sm:p-6 w-full mt-6 relative overflow-hidden backdrop-blur-xl"
-                style={{ 
-                  willChange: 'transform', 
-                  transform: 'translateZ(0)', 
-                  contentVisibility: 'auto' as any,
-                  containIntrinsicSize: '0 500px' as any,
-                  boxShadow: '0 25px 80px -12px rgba(0,0,0,0.9), 0 0 1px rgba(225,29,72,0.15), inset 0 1px 0 rgba(255,255,255,0.03)'
-                }}
-              >
+              <div className="w-full mt-6 flex flex-col gap-3">
+                {/* Collapsible Header Button for Mobile */}
+                <button
+                  type="button"
+                  onClick={() => setIsLeaderboardExpanded(!isLeaderboardExpanded)}
+                  className="flex sm:hidden items-center justify-between w-full bg-[#060a14] border border-slate-800/60 rounded-2xl p-4 text-white font-black text-xs uppercase tracking-widest shadow-lg cursor-pointer"
+                >
+                  <span className="flex items-center gap-2">
+                    <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
+                    {isCrash ? "🏆 Show Leaderboard & Crash Stats" : "🏆 Show Leaderboard & Activity Logs"}
+                  </span>
+                  <span>{isLeaderboardExpanded ? "▲" : "▼"}</span>
+                </button>
+
+                <div 
+                  className={cn(
+                    "bg-[#060a14] border border-slate-800/60 rounded-[28px] p-4 sm:p-6 w-full relative overflow-hidden backdrop-blur-xl transition-all duration-300",
+                    isLeaderboardExpanded ? "block" : "hidden sm:block"
+                  )}
+                  style={{ 
+                    willChange: 'transform', 
+                    transform: 'translateZ(0)', 
+                    contentVisibility: 'auto' as any,
+                    containIntrinsicSize: '0 500px' as any,
+                    boxShadow: '0 25px 80px -12px rgba(0,0,0,0.9), 0 0 1px rgba(225,29,72,0.15), inset 0 1px 0 rgba(255,255,255,0.03)'
+                  }}
+                >
                 {/* Multi-layer SVGator background with GPU compositing */}
                 <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.06]" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>
                   <svg className="w-full h-full" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
@@ -2358,6 +2387,7 @@ export default function GamePlayerPage() {
                     <div className="w-1 h-1 bg-slate-700 rounded-full" />
                     <span className="text-[9px] text-slate-500 font-mono font-bold">24h Window</span>
                   </div>
+                </div>
                 </div>
               </div>
             );
