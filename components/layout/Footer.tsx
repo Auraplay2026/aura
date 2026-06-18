@@ -520,22 +520,22 @@ export function Footer() {
         </div>
 
         {/* Regulatory Bottom */}
-        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 pb-4 text-xs text-slate-500">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 pt-8 pb-4 text-xs text-slate-750">
           <div className="flex items-center gap-4">
-            <div className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center font-black text-slate-600">
+            <div className="w-10 h-10 rounded-full border border-slate-300 flex items-center justify-center font-black text-slate-750">
               18+
             </div>
             <div className="flex flex-col gap-2 max-w-4xl">
-              <p>
+              <p className="text-slate-650">
                 AuraPlay is operated by BlockDance B.V., a company registered in Curaçao, operating under the E-gaming license No. 1668/JAZ. Play responsibly.
               </p>
-              <p className="text-[10px] text-slate-600">
+              <p className="text-[11px] text-slate-600 leading-relaxed">
                 Participation in gaming and betting activities is restricted to individuals of legal age as determined by the jurisdiction in which the individual resides. By using this website, you represent that you are at least 18 years of age and that you are legally permitted to participate in the activities offered. AuraPlay supports responsible gambling. If you feel you have a problem, please contact appropriate support organizations.
               </p>
             </div>
           </div>
-          <div className="flex gap-4">
-            <span className="text-slate-400">© 2026 AuraPlay. All rights reserved.</span>
+          <div className="flex gap-4 shrink-0">
+            <span className="text-slate-600 font-medium">© 2026 AuraPlay. All rights reserved.</span>
           </div>
         </div>
 

@@ -128,8 +128,12 @@ export function Header() {
     <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white border-b border-[#E2E8F0] flex items-center justify-between px-4 sm:px-6 transition-all relative">
       
       {/* Mobile Menu Toggle */}
-      <div className="flex items-center lg:hidden mr-3">
-        <button onClick={() => setIsMobileMenuOpen(true)} className="p-1 text-slate-500 hover:text-slate-900 transition-colors">
+      <div className="flex items-center lg:hidden mr-2">
+        <button 
+          onClick={() => setIsMobileMenuOpen(true)} 
+          className="p-2.5 text-slate-500 hover:text-slate-900 transition-colors rounded-full hover:bg-slate-100/50 cursor-pointer"
+          aria-label="Open navigation menu"
+        >
           <Menu className="w-6 h-6" />
         </button>
       </div>
@@ -219,7 +223,8 @@ export function Header() {
 
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-black px-1.5 py-1 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-0.5 sm:ml-2 text-[8px] sm:text-xs transition-all shadow-sm shrink-0"
+                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-black px-2.5 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-0.5 sm:ml-2 text-[10px] sm:text-xs transition-all shadow-sm shrink-0 cursor-pointer"
+                aria-label="Open cashier deposit modal"
               >
                 DEPOSIT
               </button>
@@ -228,7 +233,8 @@ export function Header() {
             {/* Positions Button */}
             <button 
               onClick={() => setIsPortfolioOpen(true)}
-              className="relative hidden sm:flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors p-1.5 group"
+              className="relative hidden sm:flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors p-1.5 group cursor-pointer"
+              aria-label="View open bet positions"
             >
               <Briefcase className="w-5 h-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200" />
               {isClient && positions.length > 0 && (
@@ -245,6 +251,7 @@ export function Header() {
                   "relative transition-colors p-1.5 sm:p-2 rounded-full group cursor-pointer",
                   isNotificationsOpen ? "bg-slate-100 text-slate-900" : "text-slate-500 hover:text-slate-900 hover:bg-slate-50"
                 )}
+                aria-label="View notifications list"
               >
                 <Bell className="w-4.5 h-4.5 sm:w-5 sm:h-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-200" />
                 {isClient && currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (

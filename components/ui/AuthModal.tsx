@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Mail, Lock, User, Sparkles } from "lucide-react";
@@ -9,6 +9,54 @@ import { cn } from "@/lib/utils";
 
 export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: boolean; onClose: () => void; initialView?: 'login' | 'signup' | 'forgot' | 'reset' }) {
   const [view, setView] = useState<'login' | 'signup' | 'forgot' | 'reset'>(initialView);
+  const modalRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+        return;
+      }
+      if (e.key === "Tab" && modalRef.current) {
+        const focusableEls = modalRef.current.querySelectorAll(
+          'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]'
+        );
+        if (focusableEls.length === 0) return;
+        const firstFocusable = focusableEls[0] as HTMLElement;
+        const lastFocusable = focusableEls[focusableEls.length - 1] as HTMLElement;
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if (modalRef.current) {
+        const firstInput = modalRef.current.querySelector('input') as HTMLElement;
+        if (firstInput) {
+          firstInput.focus();
+        } else {
+          modalRef.current.focus();
+        }
+      }
+    }, 100);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
   const signUp = useTradingStore(state => state.signUp);
   const loginWithCredentials = useTradingStore(state => state.loginWithCredentials);
   const loginWithGoogle = useTradingStore(state => state.loginWithGoogle);
@@ -263,17 +311,22 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
             className="fixed inset-0 bg-white/85 backdrop-blur-sm z-[9998]"
           />
           <motion.div
+            ref={modalRef}
             initial={{ opacity: 0, scale: 0.95, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-[9999] p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="auth-modal-title"
+            tabIndex={-1}
+            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-[9999] p-4 outline-none"
           >
             <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden relative">
               {/* Glow effects */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-yellow-500/10 blur-[60px] rounded-full pointer-events-none" />
               
               <div className="flex justify-between items-center p-6 border-b border-slate-200">
-                <h2 className="text-xl font-black text-slate-900 flex items-center gap-2">
+                <h2 id="auth-modal-title" className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-yellow-500" />
                   {view === 'login' && 'Welcome Back'}
                   {view === 'signup' && 'Create Account'}
@@ -282,6 +335,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                 </h2>
                 <button
                   onClick={onClose}
+                  aria-label="Close authentication modal"
                   className="text-slate-600 hover:text-slate-900 bg-slate-900/5 hover:bg-slate-900/10 p-2 rounded-full transition-colors"
                 >
                   <X className="w-4 h-4" />

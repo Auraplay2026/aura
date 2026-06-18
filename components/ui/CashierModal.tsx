@@ -21,7 +21,7 @@ import {
   Trash2,
   Info
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -33,9 +33,58 @@ interface CashierModalProps {
 
 export function CashierModal({ isOpen, onClose }: CashierModalProps) {
   const [mounted, setMounted] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
     setMounted(true);
   }, []);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        handleClose();
+        return;
+      }
+      if (e.key === "Tab" && modalRef.current) {
+        const focusableEls = modalRef.current.querySelectorAll(
+          'a[href], area[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), button:not([disabled]), iframe, object, embed, [tabindex="0"], [contenteditable]'
+        );
+        if (focusableEls.length === 0) return;
+        const firstFocusable = focusableEls[0] as HTMLElement;
+        const lastFocusable = focusableEls[focusableEls.length - 1] as HTMLElement;
+
+        if (e.shiftKey) {
+          if (document.activeElement === firstFocusable) {
+            lastFocusable.focus();
+            e.preventDefault();
+          }
+        } else {
+          if (document.activeElement === lastFocusable) {
+            firstFocusable.focus();
+            e.preventDefault();
+          }
+        }
+      }
+    };
+
+    const timer = setTimeout(() => {
+      if (modalRef.current) {
+        const firstInput = modalRef.current.querySelector('input') as HTMLElement;
+        if (firstInput) {
+          firstInput.focus();
+        } else {
+          modalRef.current.focus();
+        }
+      }
+    }, 100);
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen]);
 
   const [activeTab, setActiveTab] = useState("deposit");
   const [selectedMethod, setSelectedMethod] = useState("upi");
@@ -313,23 +362,29 @@ interface PaymentSettingsState {
             className="fixed inset-0 bg-white/80 z-[9990] backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
           >
             <motion.div
+              ref={modalRef}
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="bg-white w-full max-w-xl rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-slate-200 flex flex-col max-h-[90vh] ring-1 ring-white/5"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="cashier-modal-title"
+              tabIndex={-1}
+              className="bg-white w-full max-w-xl rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-slate-200 flex flex-col max-h-[90vh] ring-1 ring-white/5 outline-none"
             >
               {/* Header & Tabs */}
               <div className="bg-slate-50 border-b border-slate-200 shrink-0">
                 <div className="flex items-center justify-between p-4 pb-2.5">
                   <div className="flex items-center gap-1.5 text-[#22c55e]">
                     <ShieldCheck className="w-5 h-5" />
-                    <h2 className="text-base font-black text-slate-900 tracking-tight">
+                    <h2 id="cashier-modal-title" className="text-base font-black text-slate-900 tracking-tight">
                       {currentUser?.accountType === 'real' ? "Secure Real Cashier" : "Practice Cashier"}
                     </h2>
                   </div>
                   <button 
                     onClick={handleClose}
+                    aria-label="Close cashier modal"
                     className="w-7 h-7 bg-slate-100 rounded-full flex items-center justify-center text-slate-600 hover:text-slate-900 transition-colors"
                   >
                     <X className="w-3.5 h-3.5" />

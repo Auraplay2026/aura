@@ -100,6 +100,8 @@ export function Sidebar() {
       )}
 
       <aside 
+        role="navigation"
+        aria-label="Main navigation menu"
         className={cn(
           "flex flex-col w-[260px] bg-slate-50/90 backdrop-blur-md border-r border-slate-200/80 h-[100dvh] sticky top-0 shrink-0 z-50 transition-all duration-300 shadow-sm",
           !isMobileMenuOpen && "max-lg:-translate-x-full max-lg:fixed max-lg:inset-y-0 max-lg:left-0",
@@ -116,7 +118,11 @@ export function Sidebar() {
               AuraPlay<span className="text-purple-650 font-black ml-0.5">EX</span>
             </span>
           </Link>
-          <button className="lg:hidden text-slate-500 hover:text-slate-900 transition-colors" onClick={() => setIsMobileMenuOpen(false)}>
+          <button 
+            className="lg:hidden text-slate-500 hover:text-slate-900 transition-colors p-2 rounded-full hover:bg-slate-100 cursor-pointer" 
+            onClick={() => setIsMobileMenuOpen(false)}
+            aria-label="Close navigation menu"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>

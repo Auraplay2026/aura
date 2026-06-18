@@ -97,6 +97,8 @@ function HoverCanvasPreview({ type }: { type: string }) {
   const [isHovered, setIsHovered] = useState(false);
 
   useEffect(() => {
+    const isCoarse = typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
+    if (isCoarse) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
     const parent = canvas.parentElement;
@@ -577,6 +579,14 @@ export default function GlobalHomepage() {
     return () => cancelAnimationFrame(raf);
   }, [currentSlide]);
 
+  const handleOddsClick = (bet: { matchTitle: string; selectionName: string; odds: number; type: "back" | "lay" }) => {
+    if (!isLoggedIn) {
+      window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }));
+      return;
+    }
+    setSelectedBet(bet);
+  };
+
   const handlePlaceBet = async () => {
     if (!isLoggedIn) {
       setBetError("Please log in to place wagers.");
@@ -625,7 +635,7 @@ export default function GlobalHomepage() {
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto pb-20 w-full overflow-hidden px-4 sm:px-6 lg:px-8 mt-6">
       
       {/* 1. TOP PROMO BANNER CAROUSEL */}
-      <div className="relative w-full rounded-md overflow-hidden aspect-[4/1] md:aspect-[6/1] lg:aspect-[8/1] flex items-center bg-slate-900 shadow-sm group">
+      <div className="relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-[6/1] lg:aspect-[8/1] flex items-center bg-slate-900 shadow-sm group">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -732,14 +742,14 @@ export default function GlobalHomepage() {
                       <span className="text-[11px] font-bold text-slate-800 truncate pr-2">{sel.name.split(" ").slice(-1)[0]}</span>
                       <div className="flex gap-1">
                         <button 
-                          onClick={() => setSelectedBet({ matchTitle: match.title, selectionName: sel.name, odds: sel.back, type: 'back' })}
+                          onClick={() => handleOddsClick({ matchTitle: match.title, selectionName: sel.name, odds: sel.back, type: 'back' })}
                           className="w-12 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 rounded text-center text-emerald-800 transition-colors"
                         >
                           <span className="block text-[8px] font-black uppercase text-emerald-700/80 leading-none">Back</span>
                           <span className="text-xs font-black font-mono leading-none">{sel.back.toFixed(2)}</span>
                         </button>
                         <button 
-                          onClick={() => setSelectedBet({ matchTitle: match.title, selectionName: sel.name, odds: sel.lay, type: 'lay' })}
+                          onClick={() => handleOddsClick({ matchTitle: match.title, selectionName: sel.name, odds: sel.lay, type: 'lay' })}
                           className="w-12 py-1 bg-pink-100 hover:bg-pink-200 border border-pink-200 rounded text-center text-pink-800 transition-colors"
                         >
                           <span className="block text-[8px] font-black uppercase text-pink-700/80 leading-none">Lay</span>
