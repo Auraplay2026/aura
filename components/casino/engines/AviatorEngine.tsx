@@ -166,9 +166,9 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
   }, [isPlaying, fled, hasCashedOut, multiplier, sessionId]);
 
   return (
-    <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border-4 border-[#e11d48]/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]">
+    <div className="w-full h-full min-h-[400px] bg-[#0c0d14] rounded-3xl border border-rose-950/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_120px_rgba(0,0,0,0.95)]">
       
-      {/* Inline styles for scrolling grid and custom flight propeller spin */}
+      {/* Inline styles for scrolling grid, custom flight propeller spin, and button pulsing */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes scrollFlightGrid {
           0% { background-position: 0px 0px; }
@@ -178,12 +178,19 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
           0% { transform: rotate(0deg); }
           100% { transform: rotate(360deg); }
         }
+        @keyframes btnPulseGlow {
+          0%, 100% { box-shadow: 0 0 20px rgba(245,158,11,0.45); }
+          50% { box-shadow: 0 0 40px rgba(245,158,11,0.75), inset 0 1px 0 rgba(255,255,255,0.25); }
+        }
         .animate-scroll-grid {
           animation: scrollFlightGrid 1.2s linear infinite;
         }
         .animate-propeller {
           animation: propSpin 0.08s linear infinite;
           transform-origin: 51px 36px;
+        }
+        .animate-btn-glow {
+          animation: btnPulseGlow 2s ease-in-out infinite;
         }
       `}} />
 
@@ -195,23 +202,29 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
         )}
         style={{
           backgroundImage: `
-            linear-gradient(rgba(225, 29, 72, 0.12) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(225, 29, 72, 0.12) 1px, transparent 1px)
+            linear-gradient(rgba(244, 63, 94, 0.08) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(244, 63, 94, 0.08) 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px'
         }}
       />
 
-      <div className="absolute top-8 text-center z-25">
-        <span className="text-[#e11d48] font-black text-xs uppercase tracking-[0.3em]">AVIATOR FLIGHT DECK</span>
+      {/* Ambient radial depth */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(225,29,72,0.12)_0%,transparent_50%)] pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-rose-600/[0.04] blur-[100px] rounded-full pointer-events-none z-0" />
+
+      {/* Active Flight Header */}
+      <div className="absolute top-8 text-center z-25 flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 px-4 py-1.5 rounded-full backdrop-blur-md">
+        <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping" />
+        <span className="text-rose-400 font-extrabold text-[10px] uppercase tracking-[0.25em]">Flight Deck Active</span>
       </div>
 
       {/* Big Multiplier */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20 flex flex-col items-center w-full">
-        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter ${
-          fled ? "text-slate-600" : 
-          hasCashedOut ? "text-green-600 drop-shadow-[0_0_20px_rgba(22,163,74,0.3)]" : 
-          "text-slate-900"
+        <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter transition-all duration-300 ${
+          fled ? "text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.4)]" : 
+          hasCashedOut ? "text-emerald-400 drop-shadow-[0_0_25px_rgba(16,185,129,0.6)]" : 
+          "text-white drop-shadow-[0_0_35px_rgba(255,255,255,0.35)]"
         }`}>
           {multiplier.toFixed(2)}x
         </h1>
@@ -229,13 +242,13 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
               className="mt-2 px-6 py-2 bg-green-500/10 border border-green-500/30 rounded-xl backdrop-blur-md flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.1)]"
             >
               <span className="text-green-600 text-xs font-bold uppercase tracking-widest">Secured</span>
-              <span className="text-green-700 font-black text-xl font-mono">₹{(betAmount * multiplier).toFixed(2)}</span>
+              <span className="text-green-400 font-black text-xl font-mono">₹{(betAmount * multiplier).toFixed(2)}</span>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      {/*Propeller Plane Vector */}
+      {/* Propeller Plane Vector */}
       <div className="absolute inset-16 z-10 pointer-events-none">
         
         {/* Kinetic Shockwave vector on crash */}
@@ -260,23 +273,34 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
 
         {/* Curved Path Trace */}
         <svg className="absolute inset-0 w-full h-full overflow-visible">
+          <defs>
+            <linearGradient id="aviator-curve-grad" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="rgba(225, 29, 72, 0.25)" />
+              <stop offset="100%" stopColor="rgba(225, 29, 72, 0)" />
+            </linearGradient>
+          </defs>
+          {/* Shaded area under flight path */}
+          <path
+            d={`M 0,350 Q ${xPos * 0.5},${(yPos + 350) * 0.5} ${xPos},${yPos} L ${xPos},350 Z`}
+            fill="url(#aviator-curve-grad)"
+            className="transition-all duration-75"
+          />
           {/* Outer glow path */}
           <path
             d={`M 0,350 Q ${xPos * 0.5},${(yPos + 350) * 0.5} ${xPos},${yPos}`}
             fill="none"
             stroke="#e11d48"
-            strokeWidth="6"
+            strokeWidth="5"
             strokeLinecap="round"
-            style={{ filter: "drop-shadow(0 0 12px #e11d48)" }}
+            style={{ filter: "drop-shadow(0 0 10px rgba(225, 29, 72, 0.8))" }}
           />
           {/* Inner core path */}
           <path
             d={`M 0,350 Q ${xPos * 0.5},${(yPos + 350) * 0.5} ${xPos},${yPos}`}
             fill="none"
             stroke="#ffffff"
-            strokeWidth="2"
+            strokeWidth="2.5"
             strokeLinecap="round"
-            style={{ filter: "drop-shadow(0 0 2px #ffffff)" }}
           />
         </svg>
 
@@ -328,10 +352,10 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
           >
             <button
               onClick={() => handleCashout()}
-              className="w-full py-4 bg-gradient-to-r from-red-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(225,29,72,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 cursor-pointer active:scale-95 border border-red-500/20"
+              className="w-full py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-slate-950 font-black text-xl md:text-2xl rounded-2xl transition-all uppercase tracking-wider flex items-center justify-center gap-3 cursor-pointer active:scale-95 border border-yellow-300/35 relative overflow-hidden animate-btn-glow"
             >
               <span>Cashout</span>
-              <span className="bg-black/20 px-3 py-1 rounded-lg font-mono text-base">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="bg-black/15 px-3 py-1 rounded-lg font-mono text-base">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </button>
           </motion.div>
         )}
