@@ -6,12 +6,13 @@ import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface PenaltyEngineProps {
   isPlaying: boolean;
+  onLiveTick?: (multiplier: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
 type GoalZone = "TL" | "TR" | "C" | "BL" | "BR";
 
-export function PenaltyEngine({ isPlaying, onComplete }: PenaltyEngineProps) {
+export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngineProps) {
   const [gameState, setGameState] = useState<"idle" | "playing" | "shooting" | "busted" | "cashed_out">("idle");
   const [multiplier, setMultiplier] = useState(1.0);
   const [targetWinLength, setTargetWinLength] = useState(0);
@@ -105,6 +106,28 @@ export function PenaltyEngine({ isPlaying, onComplete }: PenaltyEngineProps) {
       onCompleteRef.current(multiplier, true);
     }, 1500);
   };
+
+  useEffect(() => {
+    if (gameState === "playing") {
+      onLiveTick?.(multiplier);
+    } else {
+      onLiveTick?.(1.0);
+    }
+  }, [multiplier, gameState, onLiveTick]);
+
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (gameState === "playing" && multiplier > 1.0) {
+        handleCashout();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
+  }, [gameState, multiplier]);
 
   return (
     <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-sky-900 rounded-[3rem] border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden perspective-[1000px]">
@@ -210,7 +233,7 @@ export function PenaltyEngine({ isPlaying, onComplete }: PenaltyEngineProps) {
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="absolute bottom-8 z-40 w-full max-w-sm px-6"
+            className="hidden md:block absolute bottom-8 z-40 w-full max-w-sm px-6"
           >
             <button 
               onClick={handleCashout}

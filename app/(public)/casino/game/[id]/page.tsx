@@ -883,16 +883,16 @@ export default function GamePlayerPage() {
       return <TradeXEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-13" || game.title.toLowerCase().includes("hilo") || game.title.toLowerCase().includes("high")) {
-      return <HiLoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <HiLoEngine isPlaying={isSpinning} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-14" || game.title.toLowerCase().includes("penalty") || game.title.toLowerCase().includes("shootout")) {
-      return <PenaltyEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <PenaltyEngine isPlaying={isSpinning} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-15" || game.title.toLowerCase().includes("neon horizon")) {
-      return <NeonHorizon3DEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
+      return <NeonHorizon3DEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-16" || game.title.toLowerCase().includes("bowling")) {
-      return <PenaltyEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <PenaltyEngine isPlaying={isSpinning} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-17" || game.title.toLowerCase().includes("billiards")) {
       return <DiceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -954,16 +954,22 @@ export default function GamePlayerPage() {
   const isCrashGame = game && game.categories && game.categories.includes("crash");
   const isMinesGame = game && (game.id === "orig-4" || game.title.toLowerCase().includes("mines") || game.id === "orig-18" || game.title.toLowerCase().includes("space miner"));
   const isTowerGame = game && (game.id === "orig-7" || game.title.toLowerCase().includes("tower"));
-  const isCashoutGame = isCrashGame || isMinesGame || isTowerGame;
+  const isHiLoGame = game && (game.id === "orig-13" || game.title.toLowerCase().includes("hilo") || game.title.toLowerCase().includes("high"));
+  const isPenaltyGame = game && (game.id === "orig-14" || game.id === "orig-16" || game.title.toLowerCase().includes("penalty") || game.title.toLowerCase().includes("shootout") || game.title.toLowerCase().includes("bowling"));
+  const isNeonHorizonGame = game && (game.id === "orig-15" || game.title.toLowerCase().includes("neon horizon"));
+  const isCashoutGame = isCrashGame || isMinesGame || isTowerGame || isHiLoGame || isPenaltyGame || isNeonHorizonGame;
 
   const isCashoutActive = isSpinning && (
     isCrashGame || 
     (isMinesGame && activePicksCount > 0) || 
-    (isTowerGame && activePicksCount > 0)
+    (isTowerGame && activePicksCount > 0) ||
+    (isHiLoGame && liveMultiplier && liveMultiplier > 1.0) ||
+    (isPenaltyGame && liveMultiplier && liveMultiplier > 1.0) ||
+    isNeonHorizonGame
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-1.5 sm:p-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-24 sm:p-6 sm:pb-24 md:pb-6 lg:p-8">
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-3">
@@ -1617,7 +1623,7 @@ export default function GamePlayerPage() {
 
                     {/* RIGHT AREA (Game Canvas) */}
                     <div className={cn(
-                      "h-[480px] sm:h-[500px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
+                      "h-[580px] sm:h-[600px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
                       game.id.startsWith("royal-") ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
                     )}>
                       

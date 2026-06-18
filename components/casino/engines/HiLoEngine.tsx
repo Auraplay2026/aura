@@ -6,6 +6,7 @@ import { calculateGameOutcome } from "@/lib/casino-math";
 
 interface HiLoEngineProps {
   isPlaying: boolean;
+  onLiveTick?: (multiplier: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
@@ -25,7 +26,7 @@ const DECK = [
   { val: "A", suit: "♠", color: "text-slate-900", rank: 14 }
 ];
 
-export function HiLoEngine({ isPlaying, onComplete }: HiLoEngineProps) {
+export function HiLoEngine({ isPlaying, onLiveTick, onComplete }: HiLoEngineProps) {
   const [currentCard, setCurrentCard] = useState<typeof DECK[0] | null>(null);
   const [prevCards, setPrevCards] = useState<typeof DECK[0][]>([]);
   const [gameState, setGameState] = useState<"idle" | "playing" | "busted" | "cashed_out">("idle");
@@ -96,6 +97,28 @@ export function HiLoEngine({ isPlaying, onComplete }: HiLoEngineProps) {
       onCompleteRef.current(multiplier, true);
     }, 1500);
   };
+
+  useEffect(() => {
+    if (gameState === "playing") {
+      onLiveTick?.(multiplier);
+    } else {
+      onLiveTick?.(1.0);
+    }
+  }, [multiplier, gameState, onLiveTick]);
+
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (gameState === "playing" && multiplier > 1.0) {
+        handleCashout();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
+  }, [gameState, multiplier]);
 
   return (
     <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950 rounded-[3rem] border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center p-6 overflow-hidden perspective-[1000px]">
@@ -202,7 +225,7 @@ export function HiLoEngine({ isPlaying, onComplete }: HiLoEngineProps) {
             <button 
               onClick={handleCashout}
               disabled={multiplier <= 1.0}
-              className="flex-1 bg-gradient-to-t from-emerald-600 to-emerald-400 hover:from-emerald-500 hover:to-emerald-300 text-slate-900 font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(6,95,70,1),0_15px_20px_rgba(16,185,129,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(6,95,70,1),0_5px_10px_rgba(16,185,129,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border-2 border-emerald-300"
+              className="hidden md:flex flex-1 bg-gradient-to-t from-emerald-600 to-emerald-400 hover:from-emerald-500 hover:to-emerald-300 text-slate-900 font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(6,95,70,1),0_15px_20px_rgba(16,185,129,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(6,95,70,1),0_5px_10px_rgba(16,185,129,0.5)] transition-all items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none border-2 border-emerald-300"
             >
               CASHOUT <Wallet className="w-6 h-6 stroke-[3]" />
             </button>

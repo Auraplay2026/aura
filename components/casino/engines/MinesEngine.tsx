@@ -1,9 +1,14 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bomb, Gem, Skull, Sparkles } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { playGameSound } from "@/lib/audio";
+
+const pseudoRandom = (seed: number) => {
+  const x = Math.sin(seed) * 10000;
+  return x - Math.floor(x);
+};
 
 interface MinesEngineProps {
   isPlaying: boolean;
@@ -183,7 +188,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   };
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] relative bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col p-4 md:p-6 gap-6">
+    <div className="w-full h-full min-h-[460px] md:min-h-[600px] relative bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col p-4 md:p-6 gap-6">
       
       {/* Deep Space / Casino Floor Background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-slate-950 to-slate-950 pointer-events-none" />
@@ -361,7 +366,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: 50 }}
-              className="absolute bottom-6 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-[350px]"
+              className="hidden md:block absolute bottom-6 left-1/2 -translate-x-1/2 z-40 w-[90%] max-w-[350px]"
             >
               <button
                 onClick={cashOut}

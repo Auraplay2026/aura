@@ -127,7 +127,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         } : { x: 0, y: 0 }
       }
       transition={isPlaying ? { repeat: Infinity, duration: 0.08 } : {}}
-      className="w-full h-full min-h-[500px] bg-[#0a0f1c] rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]"
+      className="w-full h-full min-h-[440px] bg-[#0a0f1c] rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]"
     >
       
       {/* Photorealistic Deep Space Nebula Background */}
@@ -205,7 +205,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute bottom-8 z-50 w-[90%] max-w-[300px]"
+            className="hidden md:block absolute bottom-8 z-50 w-[90%] max-w-[300px]"
           >
             <button
               onClick={handleCashout}

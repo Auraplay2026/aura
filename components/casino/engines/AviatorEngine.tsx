@@ -355,7 +355,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute bottom-8 z-50 w-[90%] max-w-[300px]"
+            className="hidden md:block absolute bottom-8 z-50 w-[90%] max-w-[300px]"
           >
             <button
               onClick={() => handleCashout()}

@@ -164,7 +164,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
   }, [isPlaying, crashed, hasCashedOut, multiplier, sessionId]);
 
   return (
-    <div ref={containerRef} className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-inner">
+    <div ref={containerRef} className="w-full h-full min-h-[440px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-inner">
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(234,179,8,0.05)_0%,_transparent_100%)] pointer-events-none" />
 
       {/* Numerical HUD */}
@@ -196,7 +196,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[300px]"
+            className="hidden md:block absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[300px]"
           >
             <button
               onClick={() => handleCashout()}

@@ -8,6 +8,7 @@ import { calculateGameOutcome } from "@/lib/casino-math";
 interface NeonHorizon3DEngineProps {
   isPlaying: boolean;
   betAmount: number;
+  onLiveTick?: (multiplier: number) => void;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
@@ -27,7 +28,7 @@ interface Star {
   z: number;
 }
 
-export function NeonHorizon3DEngine({ isPlaying, betAmount, onComplete }: NeonHorizon3DEngineProps) {
+export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComplete }: NeonHorizon3DEngineProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<"idle" | "playing" | "crashed" | "cashed_out">("idle");
   const [multiplier, setMultiplier] = useState(1.0);
@@ -636,6 +637,28 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onComplete }: NeonHo
     }, 1800);
   };
 
+  useEffect(() => {
+    if (gameState === "playing") {
+      onLiveTick?.(multiplier);
+    } else {
+      onLiveTick?.(1.0);
+    }
+  }, [multiplier, gameState, onLiveTick]);
+
+  useEffect(() => {
+    const handleTriggerCashout = () => {
+      if (gameState === "playing") {
+        handleCashoutClick();
+      }
+    };
+    window.addEventListener("trigger-cashout", handleTriggerCashout);
+    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    return () => {
+      window.removeEventListener("trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    };
+  }, [gameState]);
+
   const toggleMute = () => {
     setIsMuted(prev => {
       const next = !prev;
@@ -811,7 +834,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onComplete }: NeonHo
             initial={{ y: 100, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: 100, opacity: 0 }}
-            className="absolute bottom-8 z-30 w-full max-w-sm px-6"
+            className="hidden md:block absolute bottom-8 z-30 w-full max-w-sm px-6"
           >
             <button 
               onClick={handleCashoutClick}
