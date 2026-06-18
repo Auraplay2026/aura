@@ -1,5 +1,5 @@
 "use client";
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
 import { playGameSound } from "@/lib/audio";
@@ -22,7 +22,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   const [risk, setRisk] = useState<Risk>("medium");
   const [ballCount, setBallCount] = useState<1 | 3 | 5 | 10>(1);
   const [balls, setBalls] = useState<{ id: number; pathX: number[]; pathY: number[]; multiplier: number; binIndex: number }[]>([]);
-  const [ballId, setBallId] = useState(0);
+  const ballIdRef = useRef(0);
   const [lastResult, setLastResult] = useState<{ mult: number; won: boolean } | null>(null);
   const [activePegs, setActivePegs] = useState<Record<string, number>>({});
   const [activeBucketIndex, setActiveBucketIndex] = useState<number | null>(null);
@@ -32,22 +32,9 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
 
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
-  useEffect(() => {
-    if (!isPlaying) {
-      hasDroppedRef.current = false;
-      setLastResult(null);
-      return;
-    }
-    if (hasDroppedRef.current) return;
-    hasDroppedRef.current = true;
-    dropMultipleBalls();
-  }, [isPlaying, risk, ballCount]);
-
-  const dropMultipleBalls = async () => {
+  const dropMultipleBalls = useCallback(async () => {
     const totalBalls = ballCount;
     const completedResults: number[] = [];
-    let firstBallWon = false;
-
     const ballOutcomes: { multiplier: number; targetBinIndex: number }[] = [];
 
     try {
@@ -91,6 +78,9 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
       }
     }
 
+    const startId = ballIdRef.current;
+    ballIdRef.current += totalBalls;
+
     for (let i = 0; i < totalBalls; i++) {
       setTimeout(() => {
         const outcome = ballOutcomes[i];
@@ -122,7 +112,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         }
 
         const multiplier = outcome.multiplier;
-        const currentBallId = ballId + i;
+        const currentBallId = startId + i;
         const newBall = { id: currentBallId, pathX, pathY, multiplier, binIndex: targetBinIndex };
 
         setBalls(prev => [...prev, newBall]);
@@ -147,10 +137,6 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           setBalls(prev => prev.filter(b => b.id !== newBall.id));
           completedResults.push(multiplier);
 
-          if (i === 0) {
-            firstBallWon = multiplier >= 1.5;
-          }
-
           if (completedResults.length === totalBalls) {
             const sum = completedResults.reduce((a, b) => a + b, 0);
             const averageMultiplier = sum / totalBalls;
@@ -161,9 +147,20 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
 
       }, i * 150);
     }
+  }, [risk, betAmount, ballCount]);
 
-    setBallId(prev => prev + totalBalls);
-  };
+  useEffect(() => {
+    if (!isPlaying) {
+      hasDroppedRef.current = false;
+      const timer = setTimeout(() => {
+        setLastResult(null);
+      }, 0);
+      return () => clearTimeout(timer);
+    }
+    if (hasDroppedRef.current) return;
+    hasDroppedRef.current = true;
+    dropMultipleBalls();
+  }, [isPlaying, dropMultipleBalls]);
 
   const multColor = (m: number) => {
     if (m >= 10) return "from-red-500 to-red-600 shadow-[0_0_20px_rgba(239,68,68,0.8)] border-red-400 text-white";

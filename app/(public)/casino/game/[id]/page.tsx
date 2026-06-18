@@ -125,8 +125,7 @@ function VIPLiveBetsFeed({ gameTitle }: { gameTitle: string }) {
         if (res.ok) {
           const json = await res.json();
           // Map raw data from background minute generator
-          const mappedBets = json.bets.map((b: any) => {
-            const isRental = b.type === 'rental';
+          const mappedBets = json.bets.map((b: { user: string; bet: string; mult: string; win: string; color: string; game: string; type: string }) => {
             return {
               user: b.user,
               bet: b.bet, // "X hrs" or "₹X"
@@ -229,8 +228,22 @@ function VIPLiveBetsFeed({ gameTitle }: { gameTitle: string }) {
   );
 }
 
+interface ThemeProfile {
+  cols?: number;
+  rows?: number;
+  symbols?: string[];
+  primaryColor: string;
+  bgGradient: string;
+  buttonGradient: string;
+  buttonHover: string;
+  borderClass: string;
+  shadowClass: string;
+  animationType: string;
+  slotBg?: string;
+}
+
 // THEME ENGINE CONFIGURATION
-const THEME_PROFILES: Record<string, any> = {
+const THEME_PROFILES: Record<string, ThemeProfile> = {
   "sweet-bonanza": { cols: 6, rows: 5, symbols: ["🍬", "🍭", "🍇", "🍉", "🍎", "❤️", "⭐"], primaryColor: "pink-500", bgGradient: "from-pink-900/30 via-purple-950/80 to-[#050914]", buttonGradient: "from-pink-400 via-pink-500 to-purple-500", buttonHover: "hover:from-pink-300 hover:to-purple-400", borderClass: "border-pink-500/40", shadowClass: "shadow-[0_0_80px_rgba(236,72,153,0.2)]", animationType: "tumble", slotBg: "bg-pink-100" },
   "sweet-bonanza-1000": { cols: 6, rows: 6, symbols: ["🍬", "🍭", "🍇", "🍉", "🍒", "🍩", "✨"], primaryColor: "pink-600", bgGradient: "from-pink-950/40 via-fuchsia-950/80 to-[#050914]", buttonGradient: "from-pink-500 via-fuchsia-600 to-pink-600", buttonHover: "hover:from-pink-400 hover:to-fuchsia-500", borderClass: "border-pink-500/50", shadowClass: "shadow-[0_0_80px_rgba(236,72,153,0.3)]", animationType: "tumble", slotBg: "bg-fuchsia-100" },
   "gates-of-olympus": { cols: 6, rows: 5, symbols: ["👑", "🏺", "💍", "💎", "⚡", "🏛️", "🔴"], primaryColor: "yellow-500", bgGradient: "from-red-950 via-slate-900/90 to-[#050914]", buttonGradient: "from-yellow-600 via-yellow-500 to-amber-600", buttonHover: "hover:from-yellow-400 hover:to-yellow-500", borderClass: "border-yellow-500/40", shadowClass: "shadow-[0_0_80px_rgba(234,179,8,0.2)]", animationType: "tumble", slotBg: "bg-red-100" },
@@ -370,7 +383,7 @@ export default function GamePlayerPage() {
   const [loadingStep, setLoadingStep] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [tutorialDismissed, setTutorialDismissed] = useState(true);
-  const [rngSeed, setRngSeed] = useState("INITIALIZING");
+  const [rngSeed] = useState(() => Math.random().toString(36).substring(2, 15).toUpperCase());
 
   // Rental & Session state (Cloud Mode)
   const [isSessionActive, setIsSessionActive] = useState(false);
@@ -382,10 +395,6 @@ export default function GamePlayerPage() {
   // Casino Modal Hydration State
   const [hasTransferred, setHasTransferred] = useState(false);
   const [transferAmount, setTransferAmount] = useState(100);
-
-  useEffect(() => {
-    setRngSeed(Math.random().toString(36).substring(2, 15).toUpperCase());
-  }, []);
   
   // Game UX State
   const { balance: rawBalance, playCasino, currentUser, sessionStats, recordSessionRound, setAmbientPreset } = useTradingStore();
@@ -414,17 +423,20 @@ export default function GamePlayerPage() {
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
 
   useEffect(() => {
-    const isDemo = !currentUser || currentUser.accountType === 'demo';
-    if (isDemo) {
-      const count = parseInt(localStorage.getItem("demo_rentals_count") || "0");
-      setDemoRentalsCount(count);
-      if (count >= 3) {
-        setIsDemoLimitReached(true);
+    const timer = setTimeout(() => {
+      const isDemo = !currentUser || currentUser.accountType === 'demo';
+      if (isDemo) {
+        const count = parseInt(localStorage.getItem("demo_rentals_count") || "0");
+        setDemoRentalsCount(count);
+        if (count >= 3) {
+          setIsDemoLimitReached(true);
+        }
+      } else {
+        setIsDemoLimitReached(false);
+        setDemoRentalsCount(0);
       }
-    } else {
-      setIsDemoLimitReached(false);
-      setDemoRentalsCount(0);
-    }
+    }, 0);
+    return () => clearTimeout(timer);
   }, [currentUser]);
 
   const game = GAMES.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === id.toLowerCase() || g.id.toLowerCase() === id.toLowerCase());
@@ -461,7 +473,10 @@ export default function GamePlayerPage() {
   useEffect(() => {
     if (!isSessionActive || sessionTimeLeft <= 0) {
       if (sessionTimeLeft === 0 && isSessionActive) {
-        setIsSessionActive(false);
+        const timer = setTimeout(() => {
+          setIsSessionActive(false);
+        }, 0);
+        return () => clearTimeout(timer);
       }
       return;
     }
@@ -519,7 +534,7 @@ export default function GamePlayerPage() {
     let winsCount = 0;
     let lossesCount = 0;
     let maxMultiplier = 0;
-    let profitHistory: number[] = [0];
+    const profitHistory: number[] = [0];
 
     for (let i = 0; i < wagers.length; i++) {
       const wager = wagers[i];
@@ -558,20 +573,11 @@ export default function GamePlayerPage() {
     };
   }, [sessionStats, game?.id]);
 
-  if (!game) {
-    return (
-      <div className="flex flex-col items-center justify-center h-[80vh]">
-        <Gamepad2 className="w-16 h-16 text-slate-700 mb-4" />
-        <h1 className="text-2xl font-bold text-slate-900 mb-2">Game Not Found</h1>
-        <button onClick={() => router.push('/')} className="bg-neon-purple hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-bold">Back to Lobby</button>
-      </div>
-    );
-  }
-
   // Cloud Mode Actions
-  const rentCost = selectedHours * (game.hourlyRate || 0);
+  const rentCost = selectedHours * (game ? (game.hourlyRate || 0) : 0);
 
   const handleRent = () => {
+    if (!game) return;
     const isDemo = !currentUser || currentUser.accountType === 'demo';
     if (isDemo) {
       if (demoRentalsCount >= 3) {
@@ -604,6 +610,7 @@ export default function GamePlayerPage() {
   };
 
   const handleExtend = () => {
+    if (!game) return;
     const cost = game.hourlyRate || 0;
     if (balance < cost) return;
     playCasino(cost, 0, game.title);
@@ -629,8 +636,8 @@ export default function GamePlayerPage() {
 
   // Casino Mode Actions
   const handlePlay = () => {
-    if (isSpinning) return;
-    const isLiveCasino = game && game.categories && game.categories.includes("live");
+    if (isSpinning || !game) return;
+    const isLiveCasino = game.categories && game.categories.includes("live");
     const finalCost = isLiveCasino ? betAmount * 1.03 : betAmount;
     if (balance < finalCost) {
       alert(isLiveCasino 
@@ -652,6 +659,7 @@ export default function GamePlayerPage() {
     setIsSpinning(false);
     setLiveMultiplier(null);
     setActivePicksCount(0);
+    if (!game) return;
     if (isCloudRenting) return; // Cloud streams don't credit/wager payouts
     
     let won = false;
@@ -682,7 +690,7 @@ export default function GamePlayerPage() {
     };
 
     // If it's a crash/aviator game, simulate other player wagers and outcomes
-    let roundActivities: ActivityLog[] = [];
+    const roundActivities: ActivityLog[] = [];
     const isCrashGame = game.categories.includes("crash") || game.title.toLowerCase().includes("aviator") || game.id.includes("crash") || game.id === "aviator";
     if (isCrashGame) {
       const simulatedCount = Math.floor(Math.random() * 3) + 2; // 2 to 4 other players
@@ -818,6 +826,17 @@ export default function GamePlayerPage() {
     const s = secs % 60;
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
+
+  // early return if game is not found
+  if (!game) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[80vh]">
+        <Gamepad2 className="w-16 h-16 text-slate-700 mb-4" />
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Game Not Found</h1>
+        <button onClick={() => router.push('/')} className="bg-neon-purple hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-bold">Back to Lobby</button>
+      </div>
+    );
+  }
 
   // DYNAMIC ROUTER
   const isArcade = game.categories.some(cat => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat)) &&
@@ -1883,10 +1902,10 @@ export default function GamePlayerPage() {
                   style={{ 
                     willChange: 'transform', 
                     transform: 'translateZ(0)', 
-                    contentVisibility: 'auto' as any,
-                    containIntrinsicSize: '0 500px' as any,
+                    contentVisibility: 'auto',
+                    containIntrinsicSize: '0 500px',
                     boxShadow: '0 25px 80px -12px rgba(0,0,0,0.9), 0 0 1px rgba(225,29,72,0.15), inset 0 1px 0 rgba(255,255,255,0.03)'
-                  }}
+                  } as React.CSSProperties}
                 >
                 {/* Multi-layer SVGator background with GPU compositing */}
                 <div className="absolute inset-0 z-0 pointer-events-none opacity-[0.06]" style={{ willChange: 'transform', transform: 'translateZ(0)' }}>

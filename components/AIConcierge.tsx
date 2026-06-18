@@ -15,8 +15,11 @@ export function AIConcierge() {
   const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
-    setIsClient(true);
-    setClaimed(localStorage.getItem("vip_concierge_drop_claimed") === "true");
+    const timer = setTimeout(() => {
+      setIsClient(true);
+      setClaimed(localStorage.getItem("vip_concierge_drop_claimed") === "true");
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   const handleClaim = () => {

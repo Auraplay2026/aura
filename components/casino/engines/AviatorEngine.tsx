@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
@@ -39,19 +39,55 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
     onLiveTickRef.current = onLiveTick;
   }, [onLiveTick]);
 
+  const handleCashout = useCallback(async (cashoutMultiplier?: number) => {
+    if (fled || hasCashedOut || !isPlaying || !sessionId) return;
+    const targetMultiplier = cashoutMultiplier || multiplier;
+    setHasCashedOut(true);
+
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cashout',
+          email,
+          sessionId,
+          clientMultiplier: targetMultiplier
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && !data.isBust) {
+        onCompleteRef.current(targetMultiplier, true);
+      } else {
+        // Reached crash point or server rejected
+        onCompleteRef.current(0, false);
+      }
+    } catch (err) {
+      console.error("Cashout failed", err);
+      onCompleteRef.current(0, false);
+    }
+  }, [fled, hasCashedOut, isPlaying, sessionId, multiplier, email]);
+
+  const handleCashoutRef = useRef(handleCashout);
+  useEffect(() => {
+    handleCashoutRef.current = handleCashout;
+  }, [handleCashout]);
+
   useEffect(() => {
     if (!isPlaying) {
-      setMultiplier(1.0);
-      setFled(false);
-      setHasCashedOut(false);
-      setXPos(0);
-      setYPos(350);
-      setSessionId(null);
-      return;
+      const timer = setTimeout(() => {
+        setMultiplier(1.0);
+        setFled(false);
+        setHasCashedOut(false);
+        setXPos(0);
+        setYPos(350);
+        setSessionId(null);
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
     let active = true;
-    let interval: any = null;
+    let interval: NodeJS.Timeout | null = null;
 
     const executeBet = async () => {
       try {
@@ -85,7 +121,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
             setYPos(targetY);
 
             if (current >= target) {
-              clearInterval(interval);
+              if (interval) clearInterval(interval);
               setMultiplier(target);
               setFled(true);
               if (!hasCashedOutRef.current) {
@@ -97,8 +133,8 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
 
               // Auto cashout check
               if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
-                clearInterval(interval);
-                handleCashout(current);
+                if (interval) clearInterval(interval);
+                handleCashoutRef.current(current);
               }
             }
           }, 60);
@@ -119,42 +155,13 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
       active = false;
       if (interval) clearInterval(interval);
     };
-  }, [isPlaying, autoCashout, betAmount]);
-
-  const handleCashout = async (cashoutMultiplier?: number) => {
-    if (fled || hasCashedOut || !isPlaying || !sessionId) return;
-    const targetMultiplier = cashoutMultiplier || multiplier;
-    setHasCashedOut(true);
-
-    try {
-      const res = await fetch('/api/casino/mines/action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'cashout',
-          email,
-          sessionId,
-          clientMultiplier: targetMultiplier
-        })
-      });
-      const data = await res.json();
-      if (res.ok && data.success && !data.isBust) {
-        onCompleteRef.current(targetMultiplier, true);
-      } else {
-        // Reached crash point or server rejected
-        onCompleteRef.current(0, false);
-      }
-    } catch (err) {
-      console.error("Cashout failed", err);
-      onCompleteRef.current(0, false);
-    }
-  };
+  }, [isPlaying, autoCashout, betAmount, email]);
 
   // Keyboard and event cashout hotkey
   useEffect(() => {
     const handleTriggerCashout = () => {
       if (isPlaying && !fled && !hasCashedOut) {
-        handleCashout();
+        handleCashoutRef.current();
       }
     };
     window.addEventListener("trigger-cashout", handleTriggerCashout);
@@ -163,7 +170,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
       window.removeEventListener("trigger-cashout", handleTriggerCashout);
       window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
     };
-  }, [isPlaying, fled, hasCashedOut, multiplier, sessionId]);
+  }, [isPlaying, fled, hasCashedOut]);
 
   return (
     <div className="w-full h-full min-h-[400px] bg-[#0c0d14] rounded-3xl border border-rose-950/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_120px_rgba(0,0,0,0.95)]">
