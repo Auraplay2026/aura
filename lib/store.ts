@@ -120,9 +120,9 @@ interface TradingState {
   recordSessionRound: (gameId: string, wager: number, payout: number, multiplier: number) => void;
 
   // Actions
-  deposit: (amount: number, method?: string) => void;
-  placeTrade: (marketId: string, marketTitle: string, side: 'yes' | 'no', investment: number, currentPrice: number, uuid?: string) => void;
-  cashOut: (positionId: string, currentMarketPrice: number) => void;
+  deposit: (amount: number, method?: string) => Promise<void>;
+  placeTrade: (marketId: string, marketTitle: string, side: 'yes' | 'no', investment: number, currentPrice: number, uuid?: string) => Promise<void>;
+  cashOut: (positionId: string, currentMarketPrice: number) => Promise<void>;
   repairState: () => void;
   syncFromServer: () => Promise<void>;
   
@@ -158,8 +158,8 @@ interface TradingState {
 
   // Daily Streak & Spin Actions
   checkDailyStreak: () => void;
-  claimDailyReward: () => void;
-  spinWheelClaimed: (prizeAmount: number, prizeName: string) => void;
+  claimDailyReward: () => Promise<void>;
+  spinWheelClaimed: (prizeAmount: number, prizeName: string) => Promise<void>;
   unlockAchievement: (id: string) => void;
   clearLatestAchievement: () => void;
   clearLatestWinCelebration: () => void;
@@ -179,9 +179,6 @@ export function calculateVipLevel(wagered: number, manualLevel?: string | null) 
 function syncWithServer(
   email: string, 
   accountType: 'demo' | 'real', 
-  balance: number, 
-  positions: Position[], 
-  transactions: Transaction[],
   hasCompletedOnboarding?: boolean,
   phoneNumber?: string,
   gamingState?: string,
@@ -197,9 +194,6 @@ function syncWithServer(
     body: JSON.stringify({ 
       email, 
       accountType, 
-      balance, 
-      positions, 
-      transactions, 
       hasCompletedOnboarding,
       phoneNumber,
       gamingState,
@@ -229,9 +223,6 @@ function getSyncedStateAndSync(
     syncWithServer(
       state.currentUser.email, 
       accountType, 
-      roundedBalance, 
-      positionsToUse, 
-      newTransactions, 
       hasCompletedOnboarding,
       phoneNumber,
       gamingState,
@@ -665,9 +656,6 @@ export const useTradingStore = create<TradingState>()(
           syncPayload = {
             email: user.email,
             accountType: targetType,
-            balance: nextBalance,
-            positions: nextPositions,
-            transactions: nextTransactions,
             hasCompletedOnboarding: user.hasCompletedOnboarding
           };
           
@@ -711,9 +699,6 @@ export const useTradingStore = create<TradingState>()(
           syncPayload = {
             email: updatedUser.email,
             accountType: updatedUser.accountType,
-            balance: state.balance,
-            positions: state.positions,
-            transactions: state.transactions,
             hasCompletedOnboarding: true,
             phoneNumber: updatedUser.phoneNumber,
             gamingState: updatedUser.gamingState,
@@ -763,9 +748,6 @@ export const useTradingStore = create<TradingState>()(
             email: updatedUser.email,
             username: updatedUser.username,
             accountType: updatedUser.accountType,
-            balance: state.balance,
-            positions: state.positions,
-            transactions: state.transactions,
             hasCompletedOnboarding: updatedUser.hasCompletedOnboarding,
             phoneNumber: updatedUser.phoneNumber,
             gamingState: updatedUser.gamingState,
@@ -798,60 +780,57 @@ export const useTradingStore = create<TradingState>()(
         return false;
       },
 
-      deposit: (amount, method = 'UPI') => set((state) => {
-        // --- State Repair logic ---
-        let safeBalance = state.balance;
-        if (typeof safeBalance !== 'number') {
-           const parsed = parseFloat(String(safeBalance));
-           safeBalance = isNaN(parsed) ? 100000 : parsed;
+      deposit: async (amount, method = 'UPI') => {
+        const state = useTradingStore.getState();
+        if (!state.isLoggedIn || !state.currentUser) return;
+
+        let rewardType = 'cashier_deposit';
+        if (amount < 0) {
+          rewardType = 'cashier_withdraw';
+        } else if (method === 'Daily Bonus Drop') {
+          rewardType = 'daily';
+        } else if (method === 'Weekly VIP Drop') {
+          rewardType = 'weekly';
+        } else if (method === 'Monthly Super Drop') {
+          rewardType = 'monthly';
+        } else if (method === 'Instant Rakeback') {
+          rewardType = 'rakeback';
+        } else if (method === 'AURA VIP Drop') {
+          rewardType = 'concierge';
         }
-        
-        if (typeof amount !== 'number' || isNaN(amount)) return state;
 
-        const isWithdrawal = amount < 0;
-        const absAmount = Math.abs(amount);
-
-        // Security check: Prevent overdrafts on withdrawal
-        if (isWithdrawal && absAmount > safeBalance) {
-          console.error("Insufficient balance for withdrawal");
-          return state;
+        try {
+          const res = await fetch('/api/rewards/claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: state.currentUser.email,
+              rewardType,
+              amount: Math.abs(amount),
+              details: method
+            })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await state.syncFromServer();
+          } else {
+            console.error(data.error || "Failed to process deposit/withdrawal on server");
+          }
+        } catch (err) {
+          console.error("Failed to process deposit/withdrawal", err);
         }
+      },
 
-        const newBalance = safeBalance + amount;
-        
-        const tx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          type: isWithdrawal ? 'withdraw' : 'deposit',
-          amount: absAmount,
-          balanceAfter: newBalance,
-          timestamp: Date.now(),
-          details: `${method.toUpperCase()} ${isWithdrawal ? 'Withdrawal' : 'Deposit'}`,
-          status: 'Completed'
-        };
-
-        const newTransactions = [tx, ...state.transactions];
-        return getSyncedStateAndSync(state, newBalance, newTransactions);
-      }),
-
-      placeTrade: (marketId, marketTitle, side, investment, currentPrice, uuid) => set((state) => {
-        let safeBalance = state.balance;
-        if (typeof safeBalance !== 'number') {
-           const parsed = parseFloat(String(safeBalance));
-           safeBalance = isNaN(parsed) ? 100000 : parsed;
-        }
+      placeTrade: async (marketId, marketTitle, side, investment, currentPrice, uuid) => {
+        const state = useTradingStore.getState();
+        if (!state.isLoggedIn || !state.currentUser) return;
 
         // Idempotency check
         if (uuid) {
           if (state.processedUuids && state.processedUuids.includes(uuid)) {
             console.warn(`[Idempotency Block] placeTrade already processed for UUID: ${uuid}`);
-            return state;
+            return;
           }
-        }
-
-        // Security check: Prevent overdrafts and negative wagers
-        if (investment <= 0 || investment > safeBalance) {
-          console.error("Invalid investment amount or insufficient balance");
-          return state;
         }
 
         // Anti-Arbitrage check: Look for mirror position in last 10 seconds
@@ -868,68 +847,46 @@ export const useTradingStore = create<TradingState>()(
             message: alertMsg,
             timestamp: Date.now()
           };
-          state.activityLogs = [newLog, ...(state.activityLogs || [])];
+          set({ activityLogs: [newLog, ...(state.activityLogs || [])] });
         }
 
-        const shares = investment / (currentPrice / 100);
-        
-        const newPosition: Position = {
-          id: Math.random().toString(36).substring(2, 9),
-          marketId,
-          marketTitle,
-          side,
-          shares,
-          buyPrice: currentPrice,
-          investment,
-          timestamp: Date.now()
-        };
-
-        const newBalance = safeBalance - investment;
-
-        const tx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          type: 'trade',
-          amount: investment,
-          balanceAfter: newBalance,
-          timestamp: Date.now(),
-          details: `Bought ${shares.toFixed(1)} shares of ${marketTitle} (${side.toUpperCase()})`,
-          status: 'Completed'
-        };
-
-        if (state.currentUser?.accountType === 'real') {
-          recordGameRound({
-            gameId: 'predictions',
-            userId: state.currentUser.email,
-            wager: investment,
-            payout: 0, 
-            multiplier: 0,
-            won: false,
+        try {
+          const res = await fetch('/api/predictions/trade', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: state.currentUser.email,
+              marketId,
+              marketTitle,
+              side,
+              investment,
+              currentPrice
+            })
           });
-        }
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await state.syncFromServer();
+            
+            if (state.currentUser?.accountType === 'real') {
+              recordGameRound({
+                gameId: 'predictions',
+                userId: state.currentUser.email,
+                wager: investment,
+                payout: 0,
+                multiplier: 0,
+                won: false,
+              });
+            }
 
-        let newTotalWagered = state.currentUser?.totalWagered || 0;
-        let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
-        if (state.currentUser) {
-          if (state.currentUser.accountType === 'real') {
-            newTotalWagered += investment;
-            newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
-            state.currentUser.totalWagered = newTotalWagered;
-            state.currentUser.vipLevel = newVipLevel;
+            const nextProcessed = uuid ? [...(state.processedUuids || []), uuid].slice(-200) : (state.processedUuids || []);
+            set({ processedUuids: nextProcessed });
+          } else {
+            console.error(data.error || "Failed to place trade on server");
           }
+        } catch (err) {
+          console.error("Failed to place trade", err);
         }
-
-        const newTransactions = [tx, ...state.transactions];
-        const newPositions = [newPosition, ...state.positions];
-
-        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions, newPositions);
-        const nextProcessed = uuid ? [...(state.processedUuids || []), uuid].slice(-200) : (state.processedUuids || []);
-        
-        return {
-          ...syncedState,
-          processedUuids: nextProcessed,
-          activityLogs: state.activityLogs
-        };
-      }),
+      },
 
       placeSportsBet: async (matchTitle, selection, odds, stake, side, uuid) => {
         const state = useTradingStore.getState();
@@ -1155,114 +1112,113 @@ export const useTradingStore = create<TradingState>()(
         };
       }),
 
-      cashOut: (positionId: string, currentMarketPrice: number) => set((state) => {
-        let safeBalance = state.balance;
-        if (typeof safeBalance !== 'number') {
-           const parsed = parseFloat(String(safeBalance));
-           safeBalance = isNaN(parsed) ? 100000 : parsed;
-        }
+      cashOut: async (positionId: string, currentMarketPrice: number) => {
+        const state = useTradingStore.getState();
+        if (!state.isLoggedIn || !state.currentUser) return;
 
         const position = state.positions.find(p => p.id === positionId);
-        if (!position) return state; // Ensure position exists
+        if (!position) return;
 
-        const currentValue = position.shares * (currentMarketPrice / 100);
-        const newBalance = safeBalance + currentValue;
-
-        // Security check: Remove the position to prevent infinite cashouts
-        const updatedPositions = state.positions.filter(p => p.id !== positionId);
-
-        const tx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          type: 'cashout',
-          amount: currentValue,
-          balanceAfter: newBalance,
-          timestamp: Date.now(),
-          details: `Cashed out ${position.shares.toFixed(1)} shares of ${position.marketTitle} at ${currentMarketPrice}%`,
-          status: 'Completed'
-        };
-
-        if (state.currentUser?.accountType === 'real') {
-          recordGameRound({
-            gameId: 'predictions_cashout',
-            userId: state.currentUser.email,
-            wager: position.investment,
-            payout: currentValue,
-            multiplier: currentValue / position.investment,
-            won: currentValue > position.investment,
+        try {
+          const res = await fetch('/api/predictions/cashout', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: state.currentUser.email,
+              positionId,
+              currentMarketPrice
+            })
           });
-        }
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await state.syncFromServer();
 
-        const newTransactions = [tx, ...state.transactions];
-        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions, updatedPositions);
+            const currentValue = position.shares * (currentMarketPrice / 100);
 
-        // Achievement check logic for predictions
-        const toUnlock = new Set<string>();
-
-        // 1. Diamond Hands: held for 24+ hours
-        const holdTime = Date.now() - position.timestamp;
-        if (holdTime >= 24 * 60 * 60 * 1000) {
-          toUnlock.add('diamond_hands');
-        }
-
-        // 2. Sharpshooter prediction win streak
-        const won = currentValue > position.investment;
-        let newStreak = state.predictionWinStreak || 0;
-        if (won) {
-          newStreak += 1;
-          if (newStreak >= 3) toUnlock.add('sharpshooter');
-        } else {
-          newStreak = 0;
-        }
-
-        if (currentValue >= 50000) toUnlock.add('half_century');
-
-        let currentUnlocked = [...(state.unlockedAchievements || [])];
-        let addedXp = 0;
-        let addedPoints = 0;
-        let latestUnlocked: any = null;
-
-        for (const achId of toUnlock) {
-          if (!currentUnlocked.includes(achId)) {
-            currentUnlocked.push(achId);
-            const ach = ACHIEVEMENTS.find((a) => a.id === achId);
-            if (ach) {
-              addedXp += ach.xpReward;
-              addedPoints += ach.pointsReward;
-              latestUnlocked = ach;
+            if (state.currentUser?.accountType === 'real') {
+              recordGameRound({
+                gameId: 'predictions_cashout',
+                userId: state.currentUser.email,
+                wager: position.investment,
+                payout: currentValue,
+                multiplier: currentValue / position.investment,
+                won: currentValue > position.investment,
+              });
             }
+
+            // Achievement check logic for predictions
+            const toUnlock = new Set<string>();
+
+            // 1. Diamond Hands: held for 24+ hours
+            const holdTime = Date.now() - position.timestamp;
+            if (holdTime >= 24 * 60 * 60 * 1000) {
+              toUnlock.add('diamond_hands');
+            }
+
+            // 2. Sharpshooter prediction win streak
+            const won = currentValue > position.investment;
+            let newStreak = state.predictionWinStreak || 0;
+            if (won) {
+              newStreak += 1;
+              if (newStreak >= 3) toUnlock.add('sharpshooter');
+            } else {
+              newStreak = 0;
+            }
+
+            if (currentValue >= 50000) toUnlock.add('half_century');
+
+            let currentUnlocked = [...(state.unlockedAchievements || [])];
+            let addedXp = 0;
+            let addedPoints = 0;
+            let latestUnlocked: any = null;
+
+            for (const achId of toUnlock) {
+              if (!currentUnlocked.includes(achId)) {
+                currentUnlocked.push(achId);
+                const ach = ACHIEVEMENTS.find((a) => a.id === achId);
+                if (ach) {
+                  addedXp += ach.xpReward;
+                  addedPoints += ach.pointsReward;
+                  latestUnlocked = ach;
+                }
+              }
+            }
+
+            if (latestUnlocked && typeof window !== 'undefined' && state.soundEnabled !== false) {
+              setTimeout(() => {
+                try {
+                  const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+                  const osc = audioCtx.createOscillator();
+                  const gainNode = audioCtx.createGain();
+                  osc.connect(gainNode);
+                  gainNode.connect(audioCtx.destination);
+                  osc.type = 'sine';
+                  osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
+                  osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
+                  osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
+                  osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
+                  gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+                  gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+                  osc.start();
+                  osc.stop(audioCtx.currentTime + 0.5);
+                } catch(e) {}
+              }, 50);
+            }
+
+            set({
+              predictionWinStreak: newStreak,
+              unlockedAchievements: currentUnlocked,
+              xp: (state.xp || 0) + addedXp,
+              points: (state.points || 0) + addedPoints,
+              latestAchievementUnlocked: latestUnlocked || state.latestAchievementUnlocked
+            });
+          } else {
+            console.error(data.error || "Failed to cash out on server");
           }
+        } catch (err) {
+          console.error("Failed to cash out", err);
         }
-
-        if (latestUnlocked && typeof window !== 'undefined' && state.soundEnabled !== false) {
-          setTimeout(() => {
-            try {
-              const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-              const osc = audioCtx.createOscillator();
-              const gainNode = audioCtx.createGain();
-              osc.connect(gainNode);
-              gainNode.connect(audioCtx.destination);
-              osc.type = 'sine';
-              osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-              osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-              osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
-              osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
-              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-              osc.start();
-              osc.stop(audioCtx.currentTime + 0.5);
-            } catch(e) {}
-          }, 50);
-        }
-
-        return {
-          ...syncedState,
-          predictionWinStreak: newStreak,
-          unlockedAchievements: currentUnlocked,
-          xp: (state.xp || 0) + addedXp,
-          points: (state.points || 0) + addedPoints,
-          latestAchievementUnlocked: latestUnlocked || state.latestAchievementUnlocked
-        };
-      }),
+      },
 
       repairState: () => set((state) => {
         let safeBalance = state.balance;
@@ -1331,71 +1287,73 @@ export const useTradingStore = create<TradingState>()(
         });
       },
 
-      claimDailyReward: () => {
+      claimDailyReward: async () => {
         const state = get();
-        if (state.claimedToday) return;
+        if (state.claimedToday || !state.isLoggedIn || !state.currentUser) return;
 
         const DAILY_REWARDS = [50, 100, 200, 350, 500, 1000, 5000];
         const currentStreak = state.streakCount || 1;
         const dayIndex = Math.min(6, Math.max(0, currentStreak - 1));
         const rewardAmount = DAILY_REWARDS[dayIndex] || 50;
-
-        const newBalance = state.balance + rewardAmount;
         const todayStr = new Date().toISOString().split('T')[0];
 
-        const tx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          type: 'deposit',
-          amount: rewardAmount,
-          balanceAfter: newBalance,
-          timestamp: Date.now(),
-          details: `Claimed Daily Reward (Day ${currentStreak} Streak)`,
-          status: 'Completed'
-        };
-
-        const newTransactions = [tx, ...state.transactions];
-        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
-
-        set({
-          ...syncedState,
-          claimedToday: true,
-          lastLoginDate: todayStr
-        });
-
-        // Trigger steady earner check
-        if (currentStreak >= 5) {
-          get().unlockAchievement('steady_earner');
+        try {
+          const res = await fetch('/api/rewards/claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: state.currentUser.email,
+              rewardType: 'daily',
+              amount: rewardAmount,
+              details: `Claimed Daily Reward (Day ${currentStreak} Streak)`
+            })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await state.syncFromServer();
+            set({
+              claimedToday: true,
+              lastLoginDate: todayStr
+            });
+            // Trigger steady earner check
+            if (currentStreak >= 5) {
+              get().unlockAchievement('steady_earner');
+            }
+          } else {
+            console.error(data.error || "Failed to claim daily reward on server");
+          }
+        } catch (err) {
+          console.error("Failed to claim daily reward", err);
         }
       },
 
-      spinWheelClaimed: (prizeAmount: number, prizeName: string) => {
+      spinWheelClaimed: async (prizeAmount: number, prizeName: string) => {
         const state = get();
-        if (state.spinWheelClaimedToday) return;
+        if (state.spinWheelClaimedToday || !state.isLoggedIn || !state.currentUser) return;
 
-        let newBalance = state.balance;
-        let details = `Spin the Wheel: ${prizeName}`;
-
-        if (prizeAmount > 0) {
-          newBalance += prizeAmount;
+        try {
+          const res = await fetch('/api/rewards/claim', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: state.currentUser.email,
+              rewardType: 'spin',
+              amount: prizeAmount,
+              details: `Spin the Wheel: ${prizeName}`
+            })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await state.syncFromServer();
+            set({
+              spinWheelClaimedToday: true
+            });
+          } else {
+            console.error(data.error || "Failed to claim spin wheel reward on server");
+          }
+        } catch (err) {
+          console.error("Failed to claim spin wheel reward", err);
         }
-
-        const tx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          type: 'deposit',
-          amount: prizeAmount,
-          balanceAfter: newBalance,
-          timestamp: Date.now(),
-          details,
-          status: 'Completed'
-        };
-
-        const newTransactions = [tx, ...state.transactions];
-        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
-
-        set({
-          ...syncedState,
-          spinWheelClaimedToday: true
-        });
       },
 
       unlockAchievement: (id: string) => {
