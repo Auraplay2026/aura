@@ -955,7 +955,7 @@ export const useTradingStore = create<TradingState>()(
             return data;
           } else {
             console.error(data.error || "Failed to place sports bet on server");
-            alert(data.error || "Failed to place sports bet.");
+            console.error(data.error || "Failed to place sports bet.");
             return null;
           }
         } catch (err) {
@@ -982,7 +982,7 @@ export const useTradingStore = create<TradingState>()(
             await state.syncFromServer();
           } else {
             console.error(data.error || "Failed to cancel sports bet on server");
-            alert(data.error || "Failed to cancel sports bet.");
+            console.error(data.error || "Failed to cancel sports bet.");
           }
         } catch (err) {
           console.error("Failed to cancel sports bet", err);

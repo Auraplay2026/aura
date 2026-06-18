@@ -90,7 +90,7 @@ export function sanitizeUserProfile(user: any): UserProfile {
     notifications: user.notifications || [],
     activityLogs: user.activityLogs || [],
     hasCompletedOnboarding: !!user.hasCompletedOnboarding,
-    role: (user.email === 'twintubrovquattro@gmail.com' || user.email === 'admin@aurabet.io') ? 'admin' : user.role,
+    role: user.role || 'user',
     kycStatus: user.kycStatus || 'NONE',
     affiliateEarnings: user.affiliateEarnings || 0,
     referralCount: user.referralCount || 0,

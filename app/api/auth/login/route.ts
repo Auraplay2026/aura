@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { findUserByEmailOrUsername, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { verifyTOTP } from '@/lib/totp';
+import bcrypt from 'bcryptjs';
 
 export async function POST(request: Request) {
   try {
@@ -20,31 +21,11 @@ export async function POST(request: Request) {
 
     const user = await findUserByEmailOrUsername(emailOrUsername);
     if (!user) {
-      if (emailOrUsername === 'admin@aurabet.io' && password === 'AuraAdmin2026!') {
-        // Hardcoded admin fallback
-        const fallbackAdmin = {
-          id: 'admin_fallback_id',
-          username: 'admin',
-          email: 'admin@aurabet.io',
-          role: 'admin',
-          balance: 100000,
-          realBalance: 100000,
-          demoBalance: 100000,
-          accountType: 'real',
-          positions: [],
-          transactions: [],
-          demoPositions: [],
-          demoTransactions: [],
-          realPositions: [],
-          realTransactions: []
-        };
-        return NextResponse.json({ success: true, user: fallbackAdmin }, { status: 200 });
-      }
-
       return NextResponse.json({ error: 'Invalid username or email address.' }, { status: 400 });
     }
     
-    if (user.passwordHash !== password) {
+    const passwordMatch = await bcrypt.compare(password, user.passwordHash);
+    if (!passwordMatch) {
       // Log failed login attempt
       await addActivityLog(user.email, {
         action: "Failed Login Attempt",

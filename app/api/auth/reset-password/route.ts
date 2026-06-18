@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import { findUserByEmailOrUsername, updateUser, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 
@@ -25,7 +26,7 @@ export async function POST(request: Request) {
 
     // Reset password and clear code columns
     await updateUser(user.email, {
-      passwordHash: newPassword,
+      passwordHash: await bcrypt.hash(newPassword, 12),
       resetCode: "",
       resetCodeExpires: 0
     });

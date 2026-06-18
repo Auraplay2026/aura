@@ -27,7 +27,10 @@ export async function POST(req: Request) {
     }
 
     // 3. Server-side validation of hardware cryptographic signature (timing-safe check)
-    const adminSecret = process.env.ADMIN_HMAC_SECRET || "AURA_PLAY_ADMIN_SUPER_SECRET_KEY_123!";
+    const adminSecret = process.env.ADMIN_HMAC_SECRET;
+    if (!adminSecret) {
+      return NextResponse.json({ success: false, error: "Server configuration error: ADMIN_HMAC_SECRET not set" }, { status: 500 });
+    }
     const expectedSignature = crypto.createHmac('sha256', adminSecret).update(challenge).digest('hex');
 
     const isSignatureValid = crypto.timingSafeEqual(

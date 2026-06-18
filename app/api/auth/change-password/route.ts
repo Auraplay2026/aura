@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
 import { addActivityLog, updateUser } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
@@ -16,8 +17,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }
 
-    // Verify current password (plain text equality check matching app/api/auth/login/route.ts)
-    if (user.passwordHash !== currentPassword) {
+    // Verify current password
+    const passwordMatch = await bcrypt.compare(currentPassword, user.passwordHash);
+    if (!passwordMatch) {
       return NextResponse.json({ error: 'Incorrect current password.' }, { status: 400 });
     }
 
@@ -29,7 +31,7 @@ export async function POST(request: Request) {
     const locationString = `${state}, ${countryCode}`;
 
     // Update password
-    await updateUser(email, { passwordHash: newPassword });
+    await updateUser(email, { passwordHash: await bcrypt.hash(newPassword, 12) });
 
     // Log security activity
     await addActivityLog(email, {

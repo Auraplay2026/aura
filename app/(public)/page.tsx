@@ -68,7 +68,7 @@ const CAROUSEL_SLIDES = [
     bgUrl: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop",
     gradient: "from-red-950 via-slate-900 to-slate-900",
     buttonText: "Register Now",
-    link: "/promotions"
+    link: "/auth"
   },
   {
     id: 2,
@@ -107,10 +107,14 @@ function HoverCanvasPreview({ type }: { type: string }) {
 
     parent.addEventListener("mouseenter", handleEnter);
     parent.addEventListener("mouseleave", handleLeave);
+    parent.addEventListener("touchstart", handleEnter);
+    parent.addEventListener("touchend", handleLeave);
     
     return () => {
       parent.removeEventListener("mouseenter", handleEnter);
       parent.removeEventListener("mouseleave", handleLeave);
+      parent.removeEventListener("touchstart", handleEnter);
+      parent.removeEventListener("touchend", handleLeave);
     };
   }, []);
 

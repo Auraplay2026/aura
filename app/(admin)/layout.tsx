@@ -9,7 +9,7 @@ import { useTradingStore } from "@/lib/store";
 import { useAdminStore } from "@/lib/adminStore";
 
 function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (token: string, signature: string) => void }) {
-  const [passcode, setPasscode] = useState("AURA_PLAY_ADMIN_SUPER_SECRET_KEY_123!");
+  const [passcode, setPasscode] = useState("");
   const [logs, setLogs] = useState<string[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);

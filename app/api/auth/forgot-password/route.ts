@@ -40,12 +40,11 @@ export async function POST(request: Request) {
       type: 'warning'
     });
 
-    console.log(`[PASS_RESET_DEBUG] User ${user.email} reset code is: ${resetCode}`);
+    if (process.env.NODE_ENV !== 'production') console.log(`[PASS_RESET_DEBUG] User ${user.email} reset code is: ${resetCode}`);
 
     return NextResponse.json({
       success: true,
-      message: 'Reset code generated successfully.',
-      debugCode: resetCode // Passed in response so demo UI can show it directly
+      message: 'Reset code generated successfully.'
     }, { status: 200 });
 
   } catch (err) {

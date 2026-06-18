@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+import bcrypt from 'bcryptjs';
 import { findUserByEmail, findUserByUsername, addUser, getUsers, updateUser, UserProfile, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 
@@ -24,11 +25,13 @@ export async function POST(request: Request) {
     const device = parseUserAgent(ua);
     const { state, countryCode } = await getIPLocation(ip);
     const locationString = `${state}, ${countryCode}`;
+
+    const hashedPassword = await bcrypt.hash(password, 12);
     
     const newUser: UserProfile = {
       username,
       email,
-      passwordHash: password,
+      passwordHash: hashedPassword,
       accountType: accountType === 'real' ? 'real' : 'demo',
       balance: accountType === 'real' ? 0 : 100000,
       positions: [],
