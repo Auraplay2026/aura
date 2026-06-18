@@ -35,7 +35,20 @@ if (fs.existsSync(SOURCE_DIR)) {
 // Automatic database admin seeding
 async function seedAdmin() {
   console.log("Running automatic admin database seeder...");
-  const prisma = new PrismaClient();
+  
+  const connectionString = process.env.DATABASE_URL;
+  if (!connectionString) {
+    console.log("[Seeder] DATABASE_URL is not set. Skipping admin database seeding.");
+    return;
+  }
+
+  const { Pool } = require('pg');
+  const { PrismaPg } = require('@prisma/adapter-pg');
+
+  const pool = new Pool({ connectionString });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
+
   try {
     const hashedPassword = await bcrypt.hash('AuraAdmin2026!', 12);
 
@@ -73,7 +86,12 @@ async function seedAdmin() {
   } catch (err) {
     console.error('[Seeder ERROR] Failed to seed database admin credentials:', err.message);
   } finally {
-    await prisma.$disconnect();
+    try {
+      await prisma.$disconnect();
+    } catch (e) {}
+    try {
+      await pool.end();
+    } catch (e) {}
   }
 }
 
