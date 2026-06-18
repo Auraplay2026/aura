@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useTradingStore } from "@/lib/store";
 import { SystemConfig } from "@/lib/systemConfig";
 import { 
-  adminUpdateGameStatus, adminUpdatePaymentStatus, adminUpdateHouseEdge, adminUpdateWinRates, adminUpdateStrategyFrequency 
+  adminUpdateGameStatus, adminUpdatePaymentStatus, adminUpdateHouseEdge, adminUpdateWinRates, adminUpdateStrategyFrequency, adminUpdateMaintenanceMode 
 } from "../actions";
 import { 
   Shield, Sliders, CheckCircle, AlertTriangle, Activity, DollarSign, RefreshCw,
@@ -30,8 +30,30 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
   const [demoWinRate, setDemoWinRate] = useState(initialSystemConfig.demoWinRate ?? 80);
   const [realWinRate, setRealWinRate] = useState(initialSystemConfig.realWinRate ?? 30);
   const [strategyFrequency, setStrategyFrequency] = useState(initialSystemConfig.strategyFrequency ?? 30);
+  const [maintenanceMode, setMaintenanceMode] = useState(initialSystemConfig.maintenanceMode ?? false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
+
+  // Maintenance Mode toggle
+  const handleMaintenanceToggle = async () => {
+    if (isProcessing) return;
+    setIsProcessing(true);
+    const targetStatus = !maintenanceMode;
+    try {
+      const res = await adminUpdateMaintenanceMode(targetStatus, adminEmail);
+      if (res.success && res.config) {
+        showToast(`Maintenance Mode is now ${targetStatus ? 'Enabled' : 'Disabled'}`, "success");
+        setMaintenanceMode(targetStatus);
+        setConfig(res.config);
+      } else {
+        showToast(res.error || "Failed to update maintenance mode", "error");
+      }
+    } catch {
+      showToast("Network error updating maintenance mode", "error");
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   const showToast = (message: string, type: "success" | "error" | "info" = "success") => {
     const id = Math.random().toString(36).substring(2, 9);
@@ -319,6 +341,31 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest shrink-0">5s to 300s</span>
               </div>
             </div>
+          </div>
+          
+          {/* Maintenance Mode / Global Kill Switch */}
+          <div className="border-t border-slate-200 mt-6 pt-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div>
+              <h4 className="text-xs font-black text-slate-900 uppercase tracking-wider flex items-center gap-2">
+                <Shield className="w-4.5 h-4.5 text-rose-500 animate-pulse" />
+                Global Maintenance Mode (Platform Kill Switch)
+              </h4>
+              <p className="text-[10px] text-slate-600 font-medium mt-1 leading-normal max-w-2xl">
+                Activating Maintenance Mode immediately blocks public access to games, sportsbook wagers, cashier checkouts, and trading markets. Administrators retain access to test features and monitor telemetry records.
+              </p>
+            </div>
+            
+            <button
+              onClick={handleMaintenanceToggle}
+              disabled={isProcessing}
+              className={`px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer select-none shrink-0 ${
+                maintenanceMode
+                  ? "bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/20"
+                  : "bg-slate-200 hover:bg-slate-350 text-slate-700"
+              }`}
+            >
+              {maintenanceMode ? "Disable Maintenance (Go Live)" : "Enable Maintenance Mode"}
+            </button>
           </div>
           </div>
 

@@ -469,12 +469,37 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       }
 
       if (isMatch) {
-        if (won && payout > 0) deposit(payout, `Settle: ${bet.marketName}`);
+        if (bet.id) {
+          const settleWager = async () => {
+            try {
+              const email = useTradingStore.getState().currentUser?.email || "admin@aurabet.io";
+              const res = await fetch('/api/sports/settle', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email,
+                  transactionId: bet.id,
+                  status: won ? 'Won' : 'Lost',
+                  payout: Math.round(payout)
+                })
+              });
+              const data = await res.json();
+              if (res.ok && data.success) {
+                useTradingStore.getState().syncFromServer();
+              } else {
+                console.error(data.error || "Failed to settle sports wager on server");
+              }
+            } catch (err) {
+              console.error("Failed to call sports settle API", err);
+            }
+          };
+          settleWager();
+        }
         return { ...bet, status: won ? 'Won' : 'Lost', payout: Math.round(payout) };
       }
       return bet;
     }));
-  }, [deposit]);
+  }, []);
 
   // Commentary ticker for expanded live match
   useEffect(() => {
@@ -1207,7 +1232,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                             onClick={() => {
                               setBetPlacing(true);
                               setBetError(null);
-                              setTimeout(() => {
+                              setTimeout(async () => {
                                 const T_user = Date.now();
                                 const deltaT = T_user - streamTime;
                                 if (deltaT > 350 && !acceptAnyOdds) {
@@ -1226,7 +1251,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                   selectionId: hudSelection.selectionId,
                                   type: hudSelection.type,
                                   status: 'Pending' as const,
-                                  payout: 0
+                                  payout: 0,
+                                  id: ""
                                 };
                                 const riskCheck = validatePlatformRisk(newBet, placedMicroBets);
                                 if (!riskCheck.safe) {
@@ -1240,17 +1266,25 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                   setBetPlacing(false);
                                   return;
                                 }
-                                placeSportsBet(
+                                const betRes = await placeSportsBet(
                                   hudSelection.matchTitle,
                                   `${hudSelection.marketName}: ${hudSelection.selectionName} ${hudSelection.lineValue ? '(' + hudSelection.lineValue + ')' : ''}`,
                                   currentAdjustedOdds, hudStake,
                                   hudSelection.type === 'back' ? 'yes' : 'no',
                                   `MICRO-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
                                 );
-                                setPlacedMicroBets(prev => [...prev, newBet]);
-                                setBetSuccessFlash(true);
-                                setBetPlacing(false);
-                                setTimeout(() => setBetSuccessFlash(false), 1500);
+                                if (betRes && betRes.success) {
+                                  const confirmedBet = {
+                                    ...newBet,
+                                    id: betRes.transactionId
+                                  };
+                                  setPlacedMicroBets(prev => [...prev, confirmedBet]);
+                                  setBetSuccessFlash(true);
+                                  setBetPlacing(false);
+                                  setTimeout(() => setBetSuccessFlash(false), 1500);
+                                } else {
+                                  setBetPlacing(false);
+                                }
                               }, 300);
                             }}
                             className={cn(
@@ -1406,8 +1440,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                 Clear All
               </button>
               <button
-                onClick={() => {
-                  placeSportsBet("Exchange Bet", `${betslip.length} selections`, 1.0, totalLiability);
+                onClick={async () => {
+                  await placeSportsBet("Exchange Bet", `${betslip.length} selections`, 1.0, totalLiability);
                   setBetslip([]);
                 }}
                 className="flex-[2] bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-sm transition-colors text-xs uppercase tracking-wide"

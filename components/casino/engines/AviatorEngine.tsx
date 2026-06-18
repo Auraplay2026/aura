@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/casino-math";
 import { AlertCircle } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -14,13 +13,16 @@ interface AviatorEngineProps {
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function AviatorEngine({ isPlaying, betAmount = 1000, autoCashout, onLiveTick, onComplete }: AviatorEngineProps) {
-  const houseEdge = useTradingStore(state => state.houseEdge);
+export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveTick, onComplete }: AviatorEngineProps) {
   const [multiplier, setMultiplier] = useState(1.0);
   const [fled, setFled] = useState(false);
   const [hasCashedOut, setHasCashedOut] = useState(false);
   const [xPos, setXPos] = useState(0);
   const [yPos, setYPos] = useState(350);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -44,54 +46,108 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, autoCashout, onLive
       setHasCashedOut(false);
       setXPos(0);
       setYPos(350);
+      setSessionId(null);
       return;
     }
 
-    // Math-correct Aviator win chance (baseline 45% win rate adjusted for houseEdge)
-    const winChance = 0.45 * (1 - houseEdge / 100);
-    const outcome = calculateGameOutcome("CRASH");
-    const target = outcome.multiplier;
-    const willWin = outcome.isWin;
+    let active = true;
+    let interval: any = null;
 
-    let current = 1.0;
-    let tick = 0;
-    const interval = setInterval(() => {
-      tick++;
-      current += 0.01 + (current * 0.015);
-      
-      const targetX = Math.min(300, (tick / 80) * 300);
-      const targetY = Math.max(100, 350 - (Math.log10(current) * 200));
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: "crash-1",
+            gameTitle: "Aviator",
+            betAmount
+          })
+        });
+        const data = await res.json();
+        if (!active) return;
 
-      setXPos(targetX);
-      setYPos(targetY);
+        if (res.ok && data.success) {
+          setSessionId(data.sessionId);
+          const target = data.crashPoint;
 
-      if (current >= target) {
-        clearInterval(interval);
-        setMultiplier(target);
-        setFled(true);
-        if (!hasCashedOutRef.current) {
-          onCompleteRef.current(target, false);
+          let current = 1.0;
+          let tick = 0;
+          interval = setInterval(() => {
+            tick++;
+            current += 0.01 + (current * 0.015);
+            
+            const targetX = Math.min(300, (tick / 80) * 300);
+            const targetY = Math.max(100, 350 - (Math.log10(current) * 200));
+
+            setXPos(targetX);
+            setYPos(targetY);
+
+            if (current >= target) {
+              clearInterval(interval);
+              setMultiplier(target);
+              setFled(true);
+              if (!hasCashedOutRef.current) {
+                onCompleteRef.current(target, false);
+              }
+            } else {
+              setMultiplier(current);
+              onLiveTickRef.current?.(current);
+
+              // Auto cashout check
+              if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
+                clearInterval(interval);
+                handleCashout(current);
+              }
+            }
+          }, 60);
+
+        } else {
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
         }
-      } else {
-        setMultiplier(current);
-        onLiveTickRef.current?.(current);
-
-        // Auto cashout check!
-        if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
-          clearInterval(interval);
-          setHasCashedOut(true);
-          onCompleteRef.current(current, true);
-        }
+      } catch (err) {
+        console.error("Aviator bet initiation failed", err);
+        onCompleteRef.current(0, false);
       }
-    }, 60);
+    };
 
-    return () => clearInterval(interval);
-  }, [isPlaying, autoCashout, houseEdge]);
+    executeBet();
 
-  const handleCashout = () => {
-    if (fled || hasCashedOut || !isPlaying) return;
+    return () => {
+      active = false;
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, autoCashout, betAmount]);
+
+  const handleCashout = async (cashoutMultiplier?: number) => {
+    if (fled || hasCashedOut || !isPlaying || !sessionId) return;
+    const targetMultiplier = cashoutMultiplier || multiplier;
     setHasCashedOut(true);
-    onCompleteRef.current(multiplier, true);
+
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cashout',
+          email,
+          sessionId,
+          clientMultiplier: targetMultiplier
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && !data.isBust) {
+        onCompleteRef.current(targetMultiplier, true);
+      } else {
+        // Reached crash point or server rejected
+        onCompleteRef.current(0, false);
+      }
+    } catch (err) {
+      console.error("Cashout failed", err);
+      onCompleteRef.current(0, false);
+    }
   };
 
   // Keyboard and event cashout hotkey
@@ -107,7 +163,7 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, autoCashout, onLive
       window.removeEventListener("trigger-cashout", handleTriggerCashout);
       window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
     };
-  }, [isPlaying, fled, hasCashedOut, multiplier]);
+  }, [isPlaying, fled, hasCashedOut, multiplier, sessionId]);
 
   return (
     <div className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border-4 border-[#e11d48]/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_100px_rgba(0,0,0,0.9)]">
@@ -260,6 +316,7 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, autoCashout, onLive
           </motion.div>
         )}
       </div>
+
       {/* Manual Cashout Interaction Panel */}
       <AnimatePresence>
         {isPlaying && !fled && !hasCashedOut && (
@@ -270,7 +327,7 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, autoCashout, onLive
             className="absolute bottom-8 z-50 w-[90%] max-w-[300px]"
           >
             <button
-              onClick={handleCashout}
+              onClick={() => handleCashout()}
               className="w-full py-4 bg-gradient-to-r from-red-600 to-rose-500 hover:from-rose-500 hover:to-rose-400 text-white font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(225,29,72,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 cursor-pointer active:scale-95 border border-red-500/20"
             >
               <span>Cashout</span>
@@ -279,6 +336,6 @@ export function AviatorEngine({ isPlaying, betAmount = 1000, autoCashout, onLive
           </motion.div>
         )}
       </AnimatePresence>
-      </div>
+    </div>
   );
 }

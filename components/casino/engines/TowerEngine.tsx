@@ -22,14 +22,17 @@ const MULTIPLIERS = [
 type TileState = 'hidden' | 'safe' | 'bomb';
 
 export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete }: TowerEngineProps) {
-  const houseEdge = useTradingStore(state => state.houseEdge);
-  
   const [activeRow, setActiveRow] = useState(0);
   const [grid, setGrid] = useState<TileState[][]>(Array(ROWS).fill(Array(COLS).fill('hidden')));
-  // Pre-generate the bombs for this round. One bomb per row.
-  const [bombPositions, setBombPositions] = useState<number[]>([]);
+  
+  // Track bomb positions visually for each row as they are revealed/completed
+  const [bombPositions, setBombPositions] = useState<number[]>(Array(ROWS).fill(-1));
   const [isCrashed, setIsCrashed] = useState(false);
   const [isCashedOut, setIsCashedOut] = useState(false);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
   
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -46,71 +49,138 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
     if (!isPlaying) {
       setActiveRow(0);
       setGrid(Array(ROWS).fill(Array(COLS).fill('hidden')));
+      setBombPositions(Array(ROWS).fill(-1));
       setIsCrashed(false);
       setIsCashedOut(false);
       onLiveTickRef.current?.(1.0, 0);
       return;
     }
 
-    // Generate bombs
-    const newBombs = [];
-    for (let i = 0; i < ROWS; i++) {
-      newBombs.push(Math.floor(Math.random() * COLS));
-    }
-    setBombPositions(newBombs);
-    
-    // Create new fresh grid (deep copy so rows are independent)
-    setGrid(Array.from({ length: ROWS }, () => Array(COLS).fill('hidden')));
-    onLiveTickRef.current?.(1.0, 0);
+    startGame();
   }, [isPlaying]);
 
-  const handleTileClick = (rowIndex: number, colIndex: number) => {
-    if (!isPlaying || isCrashed || isCashedOut) return;
-    if (rowIndex !== activeRow) return;
+  const startGame = async () => {
+    try {
+      setGrid(Array.from({ length: ROWS }, () => Array(COLS).fill('hidden')));
+      setBombPositions(Array(ROWS).fill(-1));
+      setIsCrashed(false);
+      setIsCashedOut(false);
+      setActiveRow(0);
+      onLiveTickRef.current?.(1.0, 0);
 
-    const isBomb = bombPositions[rowIndex] === colIndex;
-
-    const newGrid = [...grid];
-    const newRow = [...newGrid[rowIndex]];
-    newRow[colIndex] = isBomb ? 'bomb' : 'safe';
-    newGrid[rowIndex] = newRow;
-    setGrid(newGrid);
-
-    if (isBomb) {
-      // Reveal all other bombs on this row
-      const revealedRow = [...newRow];
-      for (let i = 0; i < COLS; i++) {
-        if (i !== colIndex && bombPositions[rowIndex] === i) {
-          revealedRow[i] = 'bomb';
-        } else if (i !== colIndex) {
-          revealedRow[i] = 'safe';
-        }
-      }
-      newGrid[rowIndex] = revealedRow;
-      setGrid(newGrid);
-      setIsCrashed(true);
-      onLiveTickRef.current?.(0, 0);
-      onCompleteRef.current(0, false);
-    } else {
-      // Advance to next row
-      if (rowIndex === ROWS - 1) {
-        setIsCashedOut(true);
-        onLiveTickRef.current?.(MULTIPLIERS[ROWS - 1], 0);
-        onCompleteRef.current(MULTIPLIERS[ROWS - 1], true);
+      const res = await fetch('/api/casino/bet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          gameId: "orig-7",
+          gameTitle: "Tower",
+          betAmount
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSessionId(data.sessionId);
       } else {
-        const nextMult = MULTIPLIERS[activeRow];
-        setActiveRow(activeRow + 1);
-        onLiveTickRef.current?.(nextMult, activeRow + 1);
+        setIsCrashed(true);
+        onCompleteRef.current(0, false);
+        alert(data.error || "Wager placement failed.");
       }
+    } catch (err) {
+      console.error("Tower start game failed:", err);
+      setIsCrashed(true);
+      onCompleteRef.current(0, false);
     }
   };
 
-  const handleCashout = () => {
-    if (!isPlaying || isCrashed || isCashedOut || activeRow === 0) return;
-    setIsCashedOut(true);
-    const mult = MULTIPLIERS[activeRow - 1];
-    onLiveTickRef.current?.(mult, 0);
-    onCompleteRef.current(mult, true);
+  const handleTileClick = async (rowIndex: number, colIndex: number) => {
+    if (!isPlaying || isCrashed || isCashedOut || !sessionId) return;
+    if (rowIndex !== activeRow) return;
+
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reveal',
+          email,
+          sessionId,
+          tileIndex: rowIndex
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        alert(data.error || "Failed to reveal floor.");
+        return;
+      }
+
+      const newGrid = grid.map((r, rIdx) => rIdx === rowIndex ? [...r] : r);
+      const newBombPositions = [...bombPositions];
+
+      if (data.isBust) {
+        newGrid[rowIndex][colIndex] = 'bomb';
+        newBombPositions[rowIndex] = colIndex;
+        
+        // Reveal all other columns for visual clarity
+        for (let i = 0; i < COLS; i++) {
+          if (i !== colIndex) {
+            newGrid[rowIndex][i] = 'safe';
+          }
+        }
+        
+        setGrid(newGrid);
+        setBombPositions(newBombPositions);
+        setIsCrashed(true);
+        onLiveTickRef.current?.(0, 0);
+        onCompleteRef.current(0, false);
+      } else {
+        newGrid[rowIndex][colIndex] = 'safe';
+        
+        // Set a random bomb position in one of the other columns
+        const otherCols = Array.from({ length: COLS }, (_, idx) => idx).filter(c => c !== colIndex);
+        const bombCol = otherCols[Math.floor(Math.random() * otherCols.length)];
+        newBombPositions[rowIndex] = bombCol;
+
+        setGrid(newGrid);
+        setBombPositions(newBombPositions);
+
+        if (data.isCompleted) {
+          setIsCashedOut(true);
+          onLiveTickRef.current?.(data.activeMultiplier, 0);
+          onCompleteRef.current(data.activeMultiplier, true);
+        } else {
+          setActiveRow(activeRow + 1);
+          onLiveTickRef.current?.(data.activeMultiplier, activeRow + 1);
+        }
+      }
+    } catch (err) {
+      console.error("Tower reveal action failed:", err);
+    }
+  };
+
+  const handleCashout = async () => {
+    if (!isPlaying || isCrashed || isCashedOut || activeRow === 0 || !sessionId) return;
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cashout',
+          email,
+          sessionId
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsCashedOut(true);
+        onLiveTickRef.current?.(data.activeMultiplier, 0);
+        onCompleteRef.current(data.activeMultiplier, true);
+      } else {
+        alert(data.error || "Cashout failed.");
+      }
+    } catch (err) {
+      console.error("Tower cashout action failed:", err);
+    }
   };
 
   // Keyboard and event cashout hotkeys
@@ -197,9 +267,9 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
                     <AnimatePresence>
                       {tileContent && (
                         <motion.div
-                          initial={{ scale: 0, rotate: -45 }}
-                          animate={{ scale: 1, rotate: 0 }}
-                          className="z-10"
+                           initial={{ scale: 0, rotate: -45 }}
+                           animate={{ scale: 1, rotate: 0 }}
+                           className="z-10"
                         >
                           {tileContent}
                         </motion.div>

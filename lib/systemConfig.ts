@@ -18,6 +18,7 @@ export interface SystemConfig {
   demoWinRate: number;
   realWinRate: number;
   strategyFrequency: number;
+  maintenanceMode?: boolean;
 }
 
 const CONFIG_DIR = path.join(process.cwd(), 'data');
@@ -28,6 +29,7 @@ const DEFAULT_CONFIG: SystemConfig = {
   demoWinRate: 80,
   realWinRate: 30,
   strategyFrequency: 30,
+  maintenanceMode: false,
   games: {
     dice: { disabled: false, name: "Dice" },
     mines: { disabled: false, name: "Mines" },

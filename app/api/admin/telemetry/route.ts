@@ -8,6 +8,7 @@ import {
   isMarketSuspended, 
   resetCircuitBreaker 
 } from '@/lib/settlementEngine';
+import { getSystemConfig } from '@/lib/systemConfig';
 
 export async function GET(request: Request) {
   try {
@@ -27,13 +28,15 @@ export async function GET(request: Request) {
     const riskAlerts = getRiskAlertsHistory();
     const holdStats = calculatePlatformHoldPercentage();
     const isSuspended = isMarketSuspended();
+    const systemConfig = getSystemConfig();
 
     return NextResponse.json({
       success: true,
       telemetry,
       riskAlerts,
       holdStats,
-      isSuspended
+      isSuspended,
+      maintenanceMode: !!systemConfig.maintenanceMode
     }, { status: 200 });
   } catch (err) {
     console.error("Failed to load admin telemetry data:", err);

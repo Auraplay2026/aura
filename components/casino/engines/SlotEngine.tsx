@@ -1,20 +1,24 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/casino-math";
+import { useTradingStore } from "@/lib/store";
 
 interface SlotEngineProps {
   isPlaying: boolean;
   isTurbo: boolean;
   theme: any;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngineProps) {
+export function SlotEngine({ isPlaying, isTurbo, theme, betAmount = 10, onComplete }: SlotEngineProps) {
   const [spinStops, setSpinStops] = useState<boolean[]>(Array(theme.cols).fill(true));
   const generateGrid = () => Array(theme.cols).fill(0).map(() => Array(theme.rows).fill(0).map(() => theme.symbols[Math.floor(Math.random() * theme.symbols.length)]));
   const [reels, setReels] = useState<string[][]>(generateGrid());
   const [history, setHistory] = useState<{ mult: number; won: boolean }[]>([]);
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
 
   const hasStartedSpin = useRef(false);
 
@@ -36,48 +40,88 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
     const baseTime = isTurbo ? 400 : 800;
     const staggerTime = isTurbo ? 150 : 300;
     
-    const outcome = calculateGameOutcome("SLOTS");
-    const isWin = outcome.isWin;
-    const multiplier = outcome.multiplier;
-    
-    const newReels = generateGrid();
-    if (isWin) {
-      const winSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
-      const middleRow = Math.floor(theme.rows / 2);
-      for (let c = 0; c < Math.min(4, theme.cols); c++) newReels[c][middleRow] = winSymbol;
-    } else if (outcome.isNearMiss) {
-      const winSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
-      const middleRow = Math.floor(theme.rows / 2);
-      for (let c = 0; c < Math.min(3, theme.cols); c++) newReels[c][middleRow] = winSymbol;
-      if (theme.cols > 3) {
-         let diffSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
-         while(diffSymbol === winSymbol) diffSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
-         newReels[3][middleRow] = diffSymbol;
-      }
-    }
-    setReels(newReels);
+    let active = true;
+    let timeouts: NodeJS.Timeout[] = [];
 
-    const timeouts: NodeJS.Timeout[] = [];
-
-    Array.from({ length: theme.cols }).forEach((_, i) => {
-      const t = setTimeout(() => {
-        setSpinStops(prev => {
-          const next = [...prev];
-          next[i] = true;
-          return next;
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: `slot-${theme.primaryColor || 'default'}`,
+            gameTitle: "Slots",
+            betAmount
+          })
         });
-      }, baseTime + (i * staggerTime));
-      timeouts.push(t);
-    });
+        const data = await res.json();
+        if (!active) return;
 
-    const timer = setTimeout(() => {
-      onCompleteRef.current(multiplier, isWin);
-      setHistory(prev => [{ mult: multiplier, won: isWin }, ...prev].slice(0, 8));
-    }, baseTime + (theme.cols * staggerTime) + 300);
-    timeouts.push(timer);
+        if (res.ok && data.success) {
+          const isWin = data.isWin;
+          const multiplier = data.multiplier;
+          
+          const newReels = generateGrid();
+          if (isWin) {
+            const winSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
+            const middleRow = Math.floor(theme.rows / 2);
+            for (let c = 0; c < Math.min(4, theme.cols); c++) newReels[c][middleRow] = winSymbol;
+          } else {
+            // Check if near miss (from server, e.g. multiplier > 0 but less than win)
+            // or just make a near miss randomly for visual flair
+            const isNearMiss = Math.random() < 0.4;
+            if (isNearMiss) {
+              const winSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
+              const middleRow = Math.floor(theme.rows / 2);
+              for (let c = 0; c < Math.min(3, theme.cols); c++) newReels[c][middleRow] = winSymbol;
+              if (theme.cols > 3) {
+                 let diffSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
+                 while(diffSymbol === winSymbol) diffSymbol = theme.symbols[Math.floor(Math.random() * theme.symbols.length)];
+                 newReels[3][middleRow] = diffSymbol;
+              }
+            }
+          }
+          setReels(newReels);
 
-    return () => timeouts.forEach(clearTimeout);
-  }, [isPlaying, isTurbo, theme]);
+          Array.from({ length: theme.cols }).forEach((_, i) => {
+            const t = setTimeout(() => {
+              if (!active) return;
+              setSpinStops(prev => {
+                const next = [...prev];
+                next[i] = true;
+                return next;
+              });
+            }, baseTime + (i * staggerTime));
+            timeouts.push(t);
+          });
+
+          const timer = setTimeout(() => {
+            if (!active) return;
+            onCompleteRef.current(multiplier, isWin);
+            setHistory(prev => [{ mult: multiplier, won: isWin }, ...prev].slice(0, 8));
+          }, baseTime + (theme.cols * staggerTime) + 300);
+          timeouts.push(timer);
+
+        } else {
+          setSpinStops(Array(theme.cols).fill(true));
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
+        }
+      } catch (err) {
+        console.error("Slots bet initiation failed", err);
+        setSpinStops(Array(theme.cols).fill(true));
+        onCompleteRef.current(0, false);
+      }
+    };
+
+    executeBet();
+
+    return () => {
+      active = false;
+      timeouts.forEach(clearTimeout);
+    };
+  }, [isPlaying, isTurbo, theme, betAmount]);
 
   return (
     <div className={`w-full max-w-5xl mx-auto h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-b from-slate-800 to-[#09090b] rounded-[3rem] border-8 ${theme.borderClass} p-4 md:p-8 shadow-[0_40px_100px_rgba(0,0,0,0.8),inset_0_2px_10px_rgba(255,255,255,0.2)] relative overflow-hidden flex flex-col justify-center perspective-[1200px]`}>
@@ -161,7 +205,6 @@ export function SlotEngine({ isPlaying, isTurbo, theme, onComplete }: SlotEngine
           />
         )}
       </div>
-
     </div>
   );
 }

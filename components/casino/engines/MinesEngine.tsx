@@ -1,8 +1,8 @@
 "use client";
-import { useState, useEffect, useRef, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Bomb, Gem, Skull, Sparkles } from "lucide-react";
-import { calculateGameOutcome, GameOutcome } from "@/lib/casino-math";
+import { useTradingStore } from "@/lib/store";
 import { playGameSound } from "@/lib/audio";
 
 interface MinesEngineProps {
@@ -20,13 +20,15 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   const [revealed, setRevealed] = useState<boolean[]>(Array(25).fill(false));
   const [mineLocations, setMineLocations] = useState<number[]>([]);
   const [bustedIndex, setBustedIndex] = useState<number | null>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
   
   // Game math state
   const [activeMultiplier, setActiveMultiplier] = useState(1.00);
-  const [scheduledOutcome, setScheduledOutcome] = useState<GameOutcome | null>(null);
   const [clickCount, setClickCount] = useState(0);
-  const [riggedBustClick, setRiggedBustClick] = useState(0);
   const [showCoinShower, setShowCoinShower] = useState(false);
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
@@ -58,94 +60,126 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
     };
   }, [gameState, clickCount]);
 
-  const nextMultiplier = useMemo(() => {
-    const safeRevealed = revealed.filter((v, i) => v && !mineLocations.includes(i)).length;
-    return activeMultiplier * (1 + (minesCount / Math.max(1, 25 - safeRevealed)) * 0.95);
-  }, [revealed, mineLocations, minesCount, activeMultiplier]);
+  const startGame = async () => {
+    try {
+      setRevealed(Array(25).fill(false));
+      setMineLocations([]);
+      setActiveMultiplier(1.00);
+      setClickCount(0);
+      onLiveTickRef.current?.(1.00, 0);
+      setBustedIndex(null);
+      setShowCoinShower(false);
 
-  const startGame = () => {
-    const outcome = calculateGameOutcome("ORIGINAL"); 
-    setScheduledOutcome(outcome);
-
-    const newMines: number[] = [];
-    
-    if (outcome.isWin) {
-      while (newMines.length < minesCount) {
-        const r = Math.floor(Math.random() * 25);
-        if (!newMines.includes(r)) newMines.push(r);
+      const res = await fetch('/api/casino/bet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          gameId: "orig-4",
+          gameTitle: "Mines",
+          betAmount,
+          selectedTarget: minesCount
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSessionId(data.sessionId);
+        setGameState("playing");
+      } else {
+        setGameState("idle");
+        onCompleteRef.current(0, false);
+        alert(data.error || "Wager placement failed.");
       }
-    } else {
-      const bustOn = outcome.isNearMiss ? Math.floor(Math.random() * 3) + 3 : Math.floor(Math.random() * 2) + 1;
-      setRiggedBustClick(bustOn);
+    } catch (err) {
+      console.error("Mines start game failed:", err);
+      setGameState("idle");
+      onCompleteRef.current(0, false);
     }
-
-    setMineLocations(newMines);
-    setRevealed(Array(25).fill(false));
-    setActiveMultiplier(1.00);
-    setClickCount(0);
-    onLiveTickRef.current?.(1.00, 0);
-    setBustedIndex(null);
-    setShowCoinShower(false);
-    setGameState("playing");
   };
 
-  const handleTileClick = (index: number) => {
-    if (gameState !== "playing" || revealed[index]) return;
+  const handleTileClick = async (index: number) => {
+    if (gameState !== "playing" || revealed[index] || !sessionId) return;
     
-    const currentClick = clickCount + 1;
-    setClickCount(currentClick);
-    
-    let isBust = false;
+    const nextClickCount = clickCount + 1;
+    setClickCount(nextClickCount);
 
-    if (scheduledOutcome && !scheduledOutcome.isWin) {
-      if (currentClick >= riggedBustClick) {
-        isBust = true;
-        const fakeMines = [index];
-        while (fakeMines.length < minesCount) {
-          const r = Math.floor(Math.random() * 25);
-          if (!fakeMines.includes(r)) fakeMines.push(r);
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reveal',
+          email,
+          sessionId,
+          tileIndex: index
+        })
+      });
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        alert(data.error || "Failed to reveal tile.");
+        return;
+      }
+
+      if (data.isBust) {
+        playGameSound('lose');
+        setBustedIndex(index);
+        setMineLocations(data.mineLocations || []);
+        
+        const newRevealed = Array(25).fill(true);
+        setRevealed(newRevealed);
+        
+        setGameState("busted");
+        onLiveTickRef.current?.(0, 0);
+        setTimeout(() => onCompleteRef.current(0, false), 1500);
+      } else {
+        playGameSound('win');
+        
+        const newRevealed = [...revealed];
+        newRevealed[index] = true;
+        setRevealed(newRevealed);
+        
+        setActiveMultiplier(data.activeMultiplier);
+        onLiveTickRef.current?.(data.activeMultiplier, nextClickCount);
+
+        if (data.isCompleted) {
+          setGameState("cashed_out");
+          setMineLocations(data.mineLocations || []);
+          setRevealed(Array(25).fill(true));
+          setTimeout(() => onCompleteRef.current(data.activeMultiplier, true), 1000);
         }
-        setMineLocations(fakeMines);
       }
-    } else {
-      if (mineLocations.includes(index)) {
-        isBust = true;
-      }
-    }
-
-    const newRevealed = [...revealed];
-    newRevealed[index] = true;
-    setRevealed(newRevealed);
-
-    if (isBust) {
-      playGameSound('lose');
-      setBustedIndex(index);
-      setGameState("busted");
-      setRevealed(Array(25).fill(true));
-      onLiveTickRef.current?.(0, 0);
-      setTimeout(() => onCompleteRef.current(0, false), 1500);
-    } else {
-      playGameSound('win');
-      setActiveMultiplier(nextMultiplier);
-      onLiveTickRef.current?.(nextMultiplier, currentClick);
-      const safeRevealedCount = newRevealed.filter((v, i) => v && (!mineLocations.includes(i) || (scheduledOutcome && !scheduledOutcome.isWin))).length;
-      
-      if (safeRevealedCount === 25 - minesCount) {
-        setGameState("cashed_out");
-        setRevealed(Array(25).fill(true));
-        setTimeout(() => onCompleteRef.current(nextMultiplier, true), 1000);
-      }
+    } catch (err) {
+      console.error("Tile reveal failed:", err);
     }
   };
 
-  const cashOut = () => {
-    if (gameState !== "playing") return;
-    playGameSound('jackpot');
-    setShowCoinShower(true);
-    setGameState("cashed_out");
-    setRevealed(Array(25).fill(true));
-    onLiveTickRef.current?.(activeMultiplier, 0);
-    onCompleteRef.current(activeMultiplier, true);
+  const cashOut = async () => {
+    if (gameState !== "playing" || !sessionId) return;
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cashout',
+          email,
+          sessionId
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        playGameSound('jackpot');
+        setShowCoinShower(true);
+        setGameState("cashed_out");
+        setMineLocations(data.mineLocations || []);
+        setRevealed(Array(25).fill(true));
+        onLiveTickRef.current?.(data.activeMultiplier, 0);
+        onCompleteRef.current(data.activeMultiplier, true);
+      } else {
+        alert(data.error || "Cashout failed.");
+      }
+    } catch (err) {
+      console.error("Cashout failed:", err);
+    }
   };
 
   return (
@@ -210,7 +244,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
             <AnimatePresence>
               {Array(25).fill(0).map((_, i) => {
                 const isRevealed = revealed[i];
-                const isMine = (gameState !== "idle" && scheduledOutcome && !scheduledOutcome.isWin && clickCount < riggedBustClick && !isRevealed) ? false : mineLocations.includes(i);
+                const isMine = mineLocations.includes(i);
                 const isBustCause = bustedIndex === i;
 
                 return (

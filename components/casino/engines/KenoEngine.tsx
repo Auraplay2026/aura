@@ -2,7 +2,8 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Target, Zap } from "lucide-react";
-import { calculateGameOutcome, GameOutcome } from "@/lib/casino-math";
+import { useTradingStore } from "@/lib/store";
+import { playGameSound } from "@/lib/audio";
 
 interface KenoEngineProps {
   isPlaying: boolean;
@@ -16,9 +17,12 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
   const [selectedNumbers, setSelectedNumbers] = useState<number[]>([]);
   const [drawnNumbers, setDrawnNumbers] = useState<number[]>([]);
   const [gameState, setGameState] = useState<GameState>("idle");
-  const [outcome, setOutcome] = useState<GameOutcome | null>(null);
-  const onCompleteRef = useRef(onComplete);
+  const [outcomeMultiplier, setOutcomeMultiplier] = useState(0);
 
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
+
+  const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
 
   useEffect(() => {
@@ -32,7 +36,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
     startGame();
   }, [isPlaying]);
 
-  const startGame = () => {
+  const startGame = async () => {
     let currentPicks = [...selectedNumbers];
     if (currentPicks.length === 0) {
       const picks: number[] = [];
@@ -47,60 +51,88 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
     setGameState("drawing");
     setDrawnNumbers([]);
 
-    const mathOutcome = calculateGameOutcome("ORIGINAL"); 
-    setOutcome(mathOutcome);
+    try {
+      const res = await fetch('/api/casino/bet', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email,
+          gameId: "orig-6",
+          gameTitle: "Keno",
+          betAmount
+        })
+      });
+      const data = await res.json();
 
-    const pool = Array.from({ length: 40 }, (_, i) => i + 1);
-    const nonSelectedPool = pool.filter(n => !currentPicks.includes(n));
-    const finalDraws: number[] = [];
+      if (res.ok && data.success) {
+        const isWin = data.isWin;
+        const mult = data.multiplier;
+        setOutcomeMultiplier(mult);
 
-    if (mathOutcome.isWin) {
-      const numHits = Math.floor(Math.random() * 6) + 5; 
-      const selectedCopy = [...currentPicks];
-      for (let i = 0; i < Math.min(numHits, currentPicks.length); i++) {
-        const idx = Math.floor(Math.random() * selectedCopy.length);
-        finalDraws.push(selectedCopy.splice(idx, 1)[0]);
+        let hits = 0;
+        if (isWin) {
+          if (mult >= 500) hits = 10;
+          else if (mult >= 50) hits = 8;
+          else if (mult >= 5) hits = 6;
+          else hits = 4;
+        } else {
+          hits = Math.floor(Math.random() * 4); // 0, 1, 2 or 3 hits (no win)
+        }
+
+        const pool = Array.from({ length: 40 }, (_, i) => i + 1);
+        const nonSelectedPool = pool.filter(n => !currentPicks.includes(n));
+        const finalDraws: number[] = [];
+
+        // Select hitting numbers
+        const selectedCopy = [...currentPicks];
+        const actualHits = Math.min(hits, currentPicks.length);
+        for (let i = 0; i < actualHits; i++) {
+          const idx = Math.floor(Math.random() * selectedCopy.length);
+          finalDraws.push(selectedCopy.splice(idx, 1)[0]);
+        }
+
+        // Fill up to 10 with non-selected numbers
+        while (finalDraws.length < 10) {
+          const idx = Math.floor(Math.random() * nonSelectedPool.length);
+          finalDraws.push(nonSelectedPool.splice(idx, 1)[0]);
+        }
+
+        // Shuffle drawn numbers
+        for (let i = finalDraws.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [finalDraws[i], finalDraws[j]] = [finalDraws[j], finalDraws[i]];
+        }
+
+        const draws: number[] = [];
+        const interval = setInterval(() => {
+          const next = finalDraws[draws.length];
+          draws.push(next);
+          setDrawnNumbers([...draws]);
+          playGameSound('tick');
+          
+          if (draws.length === 10) {
+            clearInterval(interval);
+            setGameState("finished");
+            const wonGame = isWin;
+            if (wonGame) {
+              playGameSound('win');
+            } else {
+              playGameSound('lose');
+            }
+            onCompleteRef.current(mult, wonGame);
+          }
+        }, 400);
+
+      } else {
+        setGameState("idle");
+        onCompleteRef.current(0, false);
+        alert(data.error || "Wager placement failed.");
       }
-    } else {
-      const numHits = mathOutcome.isNearMiss ? 2 : Math.floor(Math.random() * 2); 
-      const selectedCopy = [...currentPicks];
-      for (let i = 0; i < Math.min(numHits, currentPicks.length); i++) {
-        const idx = Math.floor(Math.random() * selectedCopy.length);
-        finalDraws.push(selectedCopy.splice(idx, 1)[0]);
-      }
+    } catch (err) {
+      console.error("Keno bet initiation failed", err);
+      setGameState("idle");
+      onCompleteRef.current(0, false);
     }
-
-    while (finalDraws.length < 10) {
-      const idx = Math.floor(Math.random() * nonSelectedPool.length);
-      finalDraws.push(nonSelectedPool.splice(idx, 1)[0]);
-    }
-
-    for (let i = finalDraws.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [finalDraws[i], finalDraws[j]] = [finalDraws[j], finalDraws[i]];
-    }
-
-    const draws: number[] = [];
-    const interval = setInterval(() => {
-      const next = finalDraws[draws.length];
-      draws.push(next);
-      setDrawnNumbers([...draws]);
-      
-      if (draws.length === 10) {
-        clearInterval(interval);
-        setGameState("finished");
-        const hits = draws.filter(n => currentPicks.includes(n)).length;
-        let mult = 0;
-        if (hits >= 10) mult = 500;
-        else if (hits >= 8) mult = 50;
-        else if (hits >= 6) mult = 5;
-        else if (hits >= 4) mult = 1.5;
-        
-        onCompleteRef.current(mult, mult > 0);
-      }
-    }, 400);
-
-    return () => clearInterval(interval);
   };
 
   const toggleNumber = (num: number) => {
@@ -252,7 +284,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
                 ${hitsCount >= 4 ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(52,211,153,0.3)]" : "bg-red-500/10 text-red-500 border-red-500/30"}
               `}
             >
-              {hitsCount >= 4 ? "Winner!" : "No Win"}
+              {hitsCount >= 4 ? `Winner! ${outcomeMultiplier.toFixed(2)}x` : "No Win"}
             </motion.div>
           )}
         </AnimatePresence>

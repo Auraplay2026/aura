@@ -24,15 +24,20 @@ export interface GameOutcome {
 
 export function calculateGameOutcome(
   gameType: "SLOTS" | "CRASH" | "TABLE" | "ORIGINAL", 
-  userTargetMultiplier?: number
+  userTargetMultiplier?: number,
+  overrideIsDemo?: boolean,
+  overrideDemoWinRate?: number,
+  overrideRealWinRate?: number
 ): GameOutcome {
   // Read win rates and user profile dynamically from the store
-  const state = useTradingStore.getState();
-  const currentUser = state.currentUser;
-  const isDemo = !currentUser || currentUser.accountType === 'demo';
+  const state = typeof window !== 'undefined' ? useTradingStore.getState() : null;
+  const currentUser = state?.currentUser;
+  const isDemo = overrideIsDemo !== undefined ? overrideIsDemo : (!currentUser || currentUser.accountType === 'demo');
   
   // Set WIN_RATE based on account type
-  const winPercent = isDemo ? (state.demoWinRate ?? 80) : (state.realWinRate ?? 30);
+  const demoWinRateVal = overrideDemoWinRate !== undefined ? overrideDemoWinRate : (state?.demoWinRate ?? 80);
+  const realWinRateVal = overrideRealWinRate !== undefined ? overrideRealWinRate : (state?.realWinRate ?? 30);
+  const winPercent = isDemo ? demoWinRateVal : realWinRateVal;
   const WIN_RATE = winPercent / 100;
   
   const roll = getSecureRandom();

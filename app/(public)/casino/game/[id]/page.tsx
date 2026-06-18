@@ -835,22 +835,22 @@ export default function GamePlayerPage() {
       return <TowerEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-2" || game.title.toLowerCase().includes("limbo")) {
-      return <LimboEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <LimboEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-3" || game.title.toLowerCase().includes("plinko")) {
-      return <PlinkoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <PlinkoEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-4" || game.title.toLowerCase().includes("mines")) {
       return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-6" || game.title.toLowerCase().includes("keno")) {
-      return <KenoEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <KenoEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-11" || game.title.toLowerCase().includes("roulette")) {
       return <RouletteEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-5" || game.title.toLowerCase().includes("dice")) {
-      return <DiceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <DiceEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-9" || game.title.toLowerCase().includes("coin")) {
       return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
@@ -927,7 +927,7 @@ export default function GamePlayerPage() {
     if (isCascade) return <SlotEngineCascade isPlaying={isSpinning} theme={theme} onComplete={handleEngineComplete} />;
     if (isBubble) return <SlotEngineBubble isPlaying={isSpinning} theme={theme} onComplete={handleEngineComplete} />;
 
-    return <SlotEngine isPlaying={isSpinning} isTurbo={playMode === "auto"} theme={theme} onComplete={handleEngineComplete} />;
+    return <SlotEngine isPlaying={isSpinning} isTurbo={playMode === "auto"} theme={theme} betAmount={betAmount} onComplete={handleEngineComplete} />;
   };
 
   const isCrashGame = game && game.categories && game.categories.includes("crash");

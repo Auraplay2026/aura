@@ -254,9 +254,7 @@ export async function POST(request: Request) {
     
     const updates: any = {
       accountType: accountType === 'real' ? 'real' : 'demo',
-      balance,
-      positions,
-      transactions
+      positions
     };
     
     if (username !== undefined) updates.username = username;
@@ -288,13 +286,9 @@ export async function POST(request: Request) {
     
     // Write changes into the specific wallet to keep them isolated
     if (accountType === 'real') {
-      updates.realBalance = balance;
       updates.realPositions = positions;
-      updates.realTransactions = transactions;
     } else {
-      updates.demoBalance = balance;
       updates.demoPositions = positions;
-      updates.demoTransactions = transactions;
     }
     
     const updated = await updateUser(email, updates);
@@ -303,7 +297,32 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found on server database.' }, { status: 404 });
     }
     
-    return NextResponse.json({ success: true }, { status: 200 });
+    const freshUser = await prisma.user.findUnique({
+      where: { email },
+      include: { transactions: true }
+    });
+    
+    const serverBalance = accountType === 'real' ? freshUser!.realBalance : freshUser!.demoBalance;
+    const serverTransactions = freshUser!.transactions
+      .filter((t: any) => t.walletType === accountType)
+      .map((t: any) => ({
+        id: t.id,
+        type: t.type,
+        amount: t.amount,
+        balanceAfter: t.balanceAfter,
+        timestamp: t.timestamp,
+        details: t.details,
+        status: t.status,
+        upiId: t.upiId,
+        utr: t.utr,
+        screenshotUrl: t.screenshotUrl
+      }));
+
+    return NextResponse.json({ 
+      success: true, 
+      balance: serverBalance,
+      transactions: serverTransactions
+    }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: 'Failed to sync user state.' }, { status: 500 });
   }

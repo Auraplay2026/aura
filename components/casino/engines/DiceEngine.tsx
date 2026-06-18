@@ -5,16 +5,18 @@ import { useTradingStore } from "@/lib/store";
 
 interface DiceEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function DiceEngine({ isPlaying, onComplete }: DiceEngineProps) {
-  const houseEdge = useTradingStore(state => state.houseEdge);
-  
+export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngineProps) {
   const [target, setTarget] = useState(50.5);
   const [rollResult, setRollResult] = useState<number | null>(null);
   const [isRolling, setIsRolling] = useState(false);
   const [won, setWon] = useState<boolean | null>(null);
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -31,26 +33,57 @@ export function DiceEngine({ isPlaying, onComplete }: DiceEngineProps) {
     setIsRolling(true);
     setRollResult(null);
     setWon(null);
-    
-    const winChance = target * (1 - houseEdge / 100);
-    const isWin = Math.random() * 100 < winChance;
-    
-    const finalRoll = isWin 
-      ? Math.random() * target // Roll under target
-      : target + Math.random() * (100 - target); // Roll over target
-      
-    // Calculate multiplier based on target
-    const multiplier = isWin ? Number((99 / target).toFixed(2)) : 0;
 
-    const timer = setTimeout(() => {
-      setRollResult(Number(finalRoll.toFixed(2)));
-      setWon(isWin);
-      setIsRolling(false);
-      onCompleteRef.current(multiplier, isWin);
-    }, 1500);
+    let active = true;
 
-    return () => clearTimeout(timer);
-  }, [isPlaying, target, houseEdge]);
+    const executeBet = async () => {
+      try {
+        const targetMultiplier = 99 / target;
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: "orig-5",
+            gameTitle: "Dice",
+            betAmount,
+            targetMultiplier
+          })
+        });
+        const data = await res.json();
+        if (!active) return;
+
+        if (res.ok && data.success) {
+          const isWin = data.isWin;
+          const finalRoll = isWin 
+            ? Math.random() * target // Roll under target
+            : target + Math.random() * (100 - target); // Roll over target
+            
+          setTimeout(() => {
+            if (!active) return;
+            setRollResult(Number(finalRoll.toFixed(2)));
+            setWon(isWin);
+            setIsRolling(false);
+            onCompleteRef.current(data.multiplier, isWin);
+          }, 1500);
+        } else {
+          setIsRolling(false);
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
+        }
+      } catch (err) {
+        console.error("Dice bet placement failed", err);
+        setIsRolling(false);
+        onCompleteRef.current(0, false);
+      }
+    };
+
+    executeBet();
+
+    return () => {
+      active = false;
+    };
+  }, [isPlaying, target, betAmount]);
 
   // Derived values for UI
   const winMultiplier = (99 / target).toFixed(2);

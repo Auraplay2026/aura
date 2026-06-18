@@ -9,6 +9,7 @@ import { AIConcierge } from "@/components/AIConcierge";
 import { OnboardingModal } from "@/components/ui/OnboardingModal";
 import { RightSidebarWrapper } from "@/components/layout/RightSidebarWrapper";
 import { BackToTop } from "@/components/ui/BackToTop";
+import MaintenanceOverlay from "@/components/ui/MaintenanceOverlay";
 
 export default function PublicLayout({
   children,
@@ -18,6 +19,7 @@ export default function PublicLayout({
   return (
     <div className="flex h-[100dvh] overflow-hidden w-full relative">
       <GlobalLoader />
+      <MaintenanceOverlay />
       <CursorSpotlight />
       <AIConcierge />
       <OnboardingModal />

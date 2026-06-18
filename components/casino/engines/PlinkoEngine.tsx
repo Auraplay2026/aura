@@ -1,25 +1,24 @@
 "use client";
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/casino-math";
 import { useTradingStore } from "@/lib/store";
 import { playGameSound } from "@/lib/audio";
 
 interface PlinkoEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
 type Risk = "low" | "medium" | "high";
 const ROWS = 10;
 const MULTIPLIERS: Record<Risk, number[]> = {
-  low:    [5.6, 2.1, 1.1, 1, 0.5, 0.5, 0.5, 1, 1.1, 2.1, 5.6],
-  medium: [13, 3, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3, 13],
-  high:   [76, 10, 2.5, 0.3, 0.2, 0.2, 0.2, 0.3, 2.5, 10, 76],
+  low:    [5.6, 2.1, 1.1, 1.0, 0.5, 0.5, 0.5, 1.0, 1.1, 2.1, 5.6],
+  medium: [13.0, 3.0, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3.0, 13.0],
+  high:   [76.0, 10.0, 2.5, 0.3, 0.2, 0.2, 0.2, 0.3, 2.5, 10.0, 76.0],
 };
 
-export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
-  const houseEdge = useTradingStore(state => state.houseEdge);
+export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoEngineProps) {
   const [risk, setRisk] = useState<Risk>("medium");
   const [ballCount, setBallCount] = useState<1 | 3 | 5 | 10>(1);
   const [balls, setBalls] = useState<{ id: number; pathX: number[]; pathY: number[]; multiplier: number; binIndex: number }[]>([]);
@@ -44,24 +43,58 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
     dropMultipleBalls();
   }, [isPlaying, risk, ballCount]);
 
-  const dropMultipleBalls = () => {
+  const dropMultipleBalls = async () => {
     const totalBalls = ballCount;
     const completedResults: number[] = [];
     let firstBallWon = false;
 
+    const ballOutcomes: { multiplier: number; targetBinIndex: number }[] = [];
+
+    try {
+      const email = useTradingStore.getState().currentUser?.email || "admin@aurabet.io";
+      const singleBallBet = betAmount / totalBalls;
+
+      for (let i = 0; i < totalBalls; i++) {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: "orig-3",
+            gameTitle: "Plinko",
+            betAmount: singleBallBet,
+            selectedTarget: risk
+          })
+        });
+        const data = await res.json();
+        if (res.ok && data.success) {
+          ballOutcomes.push({
+            multiplier: data.multiplier,
+            targetBinIndex: data.targetBinIndex !== undefined ? data.targetBinIndex : 5
+          });
+        } else {
+          const targetBin = Math.floor(Math.random() * (ROWS + 1));
+          ballOutcomes.push({
+            multiplier: MULTIPLIERS[risk][targetBin],
+            targetBinIndex: targetBin
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Failed to fetch Plinko server wagers", err);
+      for (let i = 0; i < totalBalls; i++) {
+        const targetBin = Math.floor(Math.random() * (ROWS + 1));
+        ballOutcomes.push({
+          multiplier: MULTIPLIERS[risk][targetBin],
+          targetBinIndex: targetBin
+        });
+      }
+    }
+
     for (let i = 0; i < totalBalls; i++) {
       setTimeout(() => {
-        const outcome = calculateGameOutcome("ORIGINAL");
-        const willWin = outcome.isWin;
-        let targetBinIndex: number;
-
-        if (willWin) {
-          const winBins = [0, 1, 2, 8, 9, 10];
-          targetBinIndex = winBins[Math.floor(Math.random() * winBins.length)];
-        } else {
-          const loseBins = [3, 4, 5, 6, 7];
-          targetBinIndex = loseBins[Math.floor(Math.random() * loseBins.length)];
-        }
+        const outcome = ballOutcomes[i];
+        const targetBinIndex = outcome.targetBinIndex;
 
         const bounces = [
           ...Array(targetBinIndex).fill(1),
@@ -77,10 +110,9 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
         const pathY = [0];
         const pathXIndexAtRow: number[] = [0];
 
-        // Non-uniform spacing for acceleration simulating gravity
         for (let idx = 0; idx < bounces.length; idx++) {
           posX += bounces[idx];
-          const wobble = (Math.random() * 4 - 2); // +/- 2px wobble
+          const wobble = (Math.random() * 4 - 2);
           pathX.push(posX * 18 + wobble);
           pathXIndexAtRow.push(posX);
 
@@ -89,13 +121,12 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
           pathY.push(prevY + gap);
         }
 
-        const multiplier = MULTIPLIERS[risk][targetBinIndex];
+        const multiplier = outcome.multiplier;
         const currentBallId = ballId + i;
         const newBall = { id: currentBallId, pathX, pathY, multiplier, binIndex: targetBinIndex };
 
         setBalls(prev => [...prev, newBall]);
 
-        // Sync sound effects & peg glows
         for (let r = 0; r < ROWS; r++) {
           const pegCol = (r + 2 + pathXIndexAtRow[r]) / 2;
           setTimeout(() => {
@@ -123,8 +154,8 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
           if (completedResults.length === totalBalls) {
             const sum = completedResults.reduce((a, b) => a + b, 0);
             const averageMultiplier = sum / totalBalls;
-            setLastResult({ mult: averageMultiplier, won: firstBallWon });
-            onCompleteRef.current(firstBallWon ? averageMultiplier : 0, firstBallWon);
+            setLastResult({ mult: averageMultiplier, won: averageMultiplier >= 1.0 });
+            onCompleteRef.current(averageMultiplier, averageMultiplier > 0);
           }
         }, animDuration + 200);
 
@@ -144,12 +175,10 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
   return (
     <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-4 relative overflow-hidden flex flex-col shadow-2xl">
       
-      {/* Outer Lane Vignette */}
       {balls.some(b => b.binIndex === 0 || b.binIndex === 1 || b.binIndex === 9 || b.binIndex === 10) && (
         <div className="absolute inset-0 border-[6px] border-amber-500/40 rounded-3xl pointer-events-none z-30 animate-[heartbeat-glow_1.5s_infinite_ease-in-out]" />
       )}
 
-      {/* 3D Deep Grid Background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
       <div 
         className="absolute inset-0 opacity-10 pointer-events-none"
@@ -161,10 +190,8 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
         }}
       />
 
-      {/* Header UI */}
       <div className="relative z-20 flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
         <div className="flex flex-wrap items-center justify-center gap-3">
-          {/* Risk Selector */}
           <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-inner">
             {(["low", "medium", "high"] as Risk[]).map(r => (
               <button
@@ -182,7 +209,6 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
             ))}
           </div>
 
-          {/* Ball Count Selector */}
           <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-inner">
             {[1, 3, 5, 10].map(count => (
               <button
@@ -217,95 +243,75 @@ export function PlinkoEngine({ isPlaying, onComplete }: PlinkoEngineProps) {
         </AnimatePresence>
       </div>
 
-      {/* The 3D Board */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-end pb-12 perspective-[1000px]">
-        
-        {/* Board Container */}
-        <div className="relative w-full max-w-[500px] aspect-[4/3] flex flex-col items-center">
+      <div className="relative flex-1 flex items-center justify-center min-h-[350px]">
+        <div className="relative w-full max-w-[420px] aspect-[4/5] flex items-center justify-center">
           
-          {/* Pegs */}
-          {Array.from({ length: ROWS }).map((_, rIndex) => (
-            <div key={rIndex} className="flex justify-center" style={{ marginTop: rIndex === 0 ? 0 : '24px' }}>
-              {Array.from({ length: rIndex + 3 }).map((_, pIndex) => {
-                const isPegActive = (activePegs[`${rIndex}-${pIndex}`] || 0) > 0;
+          <svg className="absolute inset-0 w-full h-full z-0 overflow-visible pointer-events-none opacity-40">
+            {Array.from({ length: ROWS }).map((_, rIdx) => {
+              const pegCount = rIdx + 3;
+              const rowY = 40 + rIdx * 25;
+              return Array.from({ length: pegCount }).map((__, pIdx) => {
+                const pegX = 210 + (pIdx - (pegCount - 1) / 2) * 26;
+                const pegKey = `${rIdx}-${pIdx}`;
+                const isLit = activePegs[pegKey] > 0;
                 return (
-                  <div key={pIndex} className="w-9 h-3 flex items-center justify-center relative">
-                    <div className={`w-3 h-3 rounded-full transition-all duration-100 z-20 ${
-                      isPegActive 
-                        ? "bg-indigo-355 bg-indigo-200 shadow-[0_0_12px_rgba(99,102,241,1),0_0_4px_rgba(255,255,255,1)] scale-125 border-indigo-200" 
-                        : isPlaying
-                          ? "bg-slate-500 shadow-[0_0_6px_rgba(99,102,241,0.5)] border-slate-400" 
-                          : "bg-slate-700 shadow-[inset_0_-2px_4px_rgba(0,0,0,0.8),0_2px_5px_rgba(255,255,255,0.1)] border-slate-600"
-                    }`} />
-                    {isPegActive && (
-                      <div className="absolute inset-0 bg-indigo-500/40 blur-md rounded-full animate-ping pointer-events-none" />
-                    )}
-                  </div>
+                  <circle
+                    key={pegKey}
+                    cx={pegX}
+                    cy={rowY}
+                    r={isLit ? 4.5 : 3}
+                    fill={isLit ? "#a5b4fc" : "#475569"}
+                    className={`transition-all duration-75 ${
+                      isLit ? "shadow-[0_0_8px_rgba(165,180,252,0.8)] filter brightness-200" : ""
+                    }`}
+                  />
                 );
-              })}
-            </div>
-          ))}
+              });
+            })}
+          </svg>
 
-          {/* Balls */}
           <AnimatePresence>
             {balls.map(ball => (
               <motion.div
                 key={ball.id}
-                initial={{ x: 0, y: -20, scale: 0 }}
-                animate={{ 
-                  x: ball.pathX, 
-                  y: ball.pathY,
-                  scale: 1 
+                initial={{ x: 210 - 14, y: 10, opacity: 0, scale: 0.5 }}
+                animate={{
+                  x: ball.pathX.map(px => px + 210 - 14),
+                  y: ball.pathY.map(py => py + 40),
+                  opacity: 1,
+                  scale: 1
                 }}
-                transition={{ 
-                  duration: ROWS * 0.2, 
+                transition={{
+                  type: "tween",
                   ease: [0.25, 0.1, 0.25, 1],
-                  times: Array.from({ length: ball.pathX.length }, (_, i) => i / (ball.pathX.length - 1))
+                  duration: ROWS * 0.2
                 }}
-                className="absolute top-0 left-1/2 -ml-3.5 z-30 pointer-events-none filter drop-shadow-[0_8px_8px_rgba(0,0,0,0.5)]"
+                className="absolute w-7 h-7 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 shadow-[0_0_12px_rgba(236,72,153,0.7),inset_0_2px_4px_rgba(255,255,255,0.6)] z-20 flex items-center justify-center"
               >
-                {/* Blur Trail / Comet Effect */}
-                <div className="absolute inset-0 w-7 h-7 rounded-full bg-pink-500/20 blur-sm -z-10 animate-pulse" />
-                <div className="w-7 h-7 rounded-full bg-[radial-gradient(circle_at_30%_30%,_#f472b6,_#c084fc,_#8b5cf6)] shadow-[0_0_25px_rgba(236,72,153,1),0_0_10px_rgba(139,92,246,0.8),inset_0_2px_4px_rgba(255,255,255,0.9)] border border-pink-300" />
-                
-                {/* Trail particles */}
-                <motion.div 
-                  initial={{ opacity: 0.6, scale: 1 }}
-                  animate={{ opacity: 0, scale: 0.2, y: -15 }}
-                  transition={{ duration: 0.3, repeat: Infinity }}
-                  className="absolute left-1/2 -ml-1 top-6 w-2 h-2 rounded-full bg-pink-400 blur-[1px]"
-                />
+                <div className="w-1.5 h-1.5 bg-white/40 rounded-full blur-[0.5px]" />
               </motion.div>
             ))}
           </AnimatePresence>
-        </div>
 
-        {/* Multiplier Buckets */}
-        <div className="flex justify-center gap-1 mt-6 w-full max-w-[550px] relative z-40 transform-style-3d rotate-x-[10deg]">
-          {MULTIPLIERS[risk].map((mult, i) => {
-            const isBouncing = activeBucketIndex === i;
-            return (
-              <motion.div
-                key={i}
-                animate={isBouncing ? { scale: [1, 1.15, 1.05, 1], y: [0, 8, 4, 0] } : { scale: 1, y: 0 }}
-                transition={isBouncing ? { duration: 0.3, ease: "easeInOut" } : {}}
-                className={`flex-1 h-12 flex items-center justify-center rounded-lg font-black text-[10px] md:text-xs bg-gradient-to-b border transition-all duration-300 relative ${multColor(mult)} ${isBouncing ? 'brightness-150 z-50 shadow-[0_0_25px_rgba(251,191,36,0.8)] border-yellow-300' : 'z-10'}`}
-              >
-                {mult}x
-                
-                {/* Expanding Fountain/Ripple Splash on Active Bucket */}
-                {isBouncing && (
-                  <div className="absolute -top-12 left-1/2 -translate-x-1/2 w-8 h-12 pointer-events-none overflow-visible z-50 flex items-end justify-center">
-                    <div className={`w-1 bg-gradient-to-t rounded-full animate-[particle-fade_0.6s_ease-out] ${
-                      mult >= 10 ? "from-yellow-400 to-transparent h-16 w-3" : 
-                      mult >= 2 ? "from-orange-500 to-transparent h-12 w-2" : "from-blue-500 to-transparent h-8 w-1"
-                    }`} />
-                    <div className="absolute inset-x-0 bottom-0 h-4 bg-white/20 rounded-full animate-ping" />
-                  </div>
-                )}
-              </motion.div>
-            );
-          })}
+          <div className="absolute bottom-4 left-0 right-0 h-10 flex gap-1 z-10">
+            {MULTIPLIERS[risk].map((m, idx) => {
+              const isActive = activeBucketIndex === idx;
+              return (
+                <motion.div
+                  key={idx}
+                  animate={{
+                    scale: isActive ? 1.15 : 1,
+                    y: isActive ? -5 : 0
+                  }}
+                  transition={{ type: "spring", stiffness: 350, damping: 12 }}
+                  className={`flex-1 rounded-lg bg-gradient-to-b ${multColor(m)} border flex items-center justify-center text-[9px] font-black font-mono shadow-md select-none`}
+                >
+                  {m < 1 ? m.toFixed(1) : m.toString()}
+                </motion.div>
+              );
+            })}
+          </div>
+
         </div>
       </div>
 

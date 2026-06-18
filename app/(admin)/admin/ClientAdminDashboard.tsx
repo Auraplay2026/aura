@@ -47,6 +47,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   const [riskAlerts, setRiskAlerts] = useState<string[]>([]);
   const [holdStats, setHoldStats] = useState<{ holdPercent: number; deviationFlag: boolean }>({ holdPercent: 12.5, deviationFlag: false });
   const [isSuspended, setIsSuspended] = useState(false);
+  const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
 
   // Telemetry Polling Effect
   useEffect(() => {
@@ -61,6 +62,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
           setRiskAlerts(data.riskAlerts || []);
           setHoldStats(data.holdStats || { holdPercent: 12.5, deviationFlag: false });
           setIsSuspended(!!data.isSuspended);
+          setIsMaintenanceMode(!!data.maintenanceMode);
         }
       } catch (err) {
         console.error("Telemetry fetch failed:", err);
@@ -335,6 +337,18 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
           >
             Reset Circuit Breaker & Resume
           </button>
+        </div>
+      )}
+      {/* Maintenance Mode Banner */}
+      {isMaintenanceMode && (
+        <div className="bg-amber-100 border border-amber-500/35 text-amber-900 p-5 rounded-2xl flex items-center gap-4 relative z-10 animate-pulse">
+          <Shield className="w-6 h-6 text-amber-600 shrink-0" />
+          <div>
+            <h4 className="text-sm font-black uppercase tracking-wider">Maintenance Mode (Global Kill Switch) is Active</h4>
+            <p className="text-xs text-amber-700 mt-1">
+              Public traffic is blocked. Standard users attempting to load casino games or sportsbooks are redirected. Admins retain full bypass access.
+            </p>
+          </div>
         </div>
       )}
 

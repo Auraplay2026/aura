@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/casino-math";
 import { useTradingStore } from "@/lib/store";
 
 interface ClassicCrashEngineProps {
@@ -13,11 +12,14 @@ interface ClassicCrashEngineProps {
 }
 
 export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick, onComplete }: ClassicCrashEngineProps) {
-  const houseEdge = useTradingStore(state => state.houseEdge);
   const [multiplier, setMultiplier] = useState(1.0);
   const [crashed, setCrashed] = useState(false);
   const [points, setPoints] = useState<{ x: number; y: number }[]>([]);
   const containerRef = useRef<HTMLDivElement>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -41,55 +43,109 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
       setCrashed(false);
       setHasCashedOut(false);
       setPoints([]);
+      setSessionId(null);
       return;
     }
 
-    // Math-correct Crash win chance (baseline 40% success rate adjusted for houseEdge)
-    const winChance = 0.40 * (1 - houseEdge / 100);
-    const outcome = calculateGameOutcome("CRASH");
-    const target = outcome.multiplier;
-    const willWin = outcome.isWin;
+    let active = true;
+    let interval: any = null;
 
-    let current = 1.0;
-    let tick = 0;
-    const interval = setInterval(() => {
-      tick++;
-      current += 0.01 + (current * 0.012);
-      
-      const width = containerRef.current?.clientWidth || 500;
-      const height = containerRef.current?.clientHeight || 300;
-      const x = Math.min(width, (tick / 120) * width);
-      const y = Math.min(height, Math.log10(current) * height * 1.5);
-      
-      setPoints(prev => [...prev, { x, y: height - y }]);
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: "orig-1",
+            gameTitle: "Crash",
+            betAmount
+          })
+        });
+        const data = await res.json();
+        if (!active) return;
 
-      if (current >= target) {
-        clearInterval(interval);
-        setMultiplier(target);
-        setCrashed(true);
-        if (!hasCashedOutRef.current) {
-          onCompleteRef.current(target, false);
+        if (res.ok && data.success) {
+          setSessionId(data.sessionId);
+          const target = data.crashPoint;
+
+          let current = 1.0;
+          let tick = 0;
+          interval = setInterval(() => {
+            tick++;
+            current += 0.01 + (current * 0.012);
+            
+            const width = containerRef.current?.clientWidth || 500;
+            const height = containerRef.current?.clientHeight || 300;
+            const x = Math.min(width, (tick / 120) * width);
+            const y = Math.min(height, Math.log10(current) * height * 1.5);
+            
+            setPoints(prev => [...prev, { x, y: height - y }]);
+
+            if (current >= target) {
+              clearInterval(interval);
+              setMultiplier(target);
+              setCrashed(true);
+              if (!hasCashedOutRef.current) {
+                onCompleteRef.current(target, false);
+              }
+            } else {
+              setMultiplier(current);
+              onLiveTickRef.current?.(current);
+
+              // Auto cashout check
+              if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
+                clearInterval(interval);
+                handleCashout(current);
+              }
+            }
+          }, 60);
+
+        } else {
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
         }
-      } else {
-        setMultiplier(current);
-        onLiveTickRef.current?.(current);
-
-        // Auto cashout check!
-        if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
-          clearInterval(interval);
-          setHasCashedOut(true);
-          onCompleteRef.current(current, true);
-        }
+      } catch (err) {
+        console.error("Crash bet initiation failed", err);
+        onCompleteRef.current(0, false);
       }
-    }, 60);
+    };
 
-    return () => clearInterval(interval);
-  }, [isPlaying, autoCashout, houseEdge]);
+    executeBet();
 
-  const handleCashout = () => {
-    if (crashed || hasCashedOut || !isPlaying) return;
+    return () => {
+      active = false;
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, autoCashout, betAmount]);
+
+  const handleCashout = async (cashoutMultiplier?: number) => {
+    if (crashed || hasCashedOut || !isPlaying || !sessionId) return;
+    const targetMultiplier = cashoutMultiplier || multiplier;
     setHasCashedOut(true);
-    onCompleteRef.current(multiplier, true);
+
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cashout',
+          email,
+          sessionId,
+          clientMultiplier: targetMultiplier
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && !data.isBust) {
+        onCompleteRef.current(targetMultiplier, true);
+      } else {
+        // Crashed or server rejected
+        onCompleteRef.current(0, false);
+      }
+    } catch (err) {
+      console.error("Cashout failed", err);
+      onCompleteRef.current(0, false);
+    }
   };
 
   // Keyboard and event cashout hotkey
@@ -105,7 +161,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
       window.removeEventListener("trigger-cashout", handleTriggerCashout);
       window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
     };
-  }, [isPlaying, crashed, hasCashedOut, multiplier]);
+  }, [isPlaying, crashed, hasCashedOut, multiplier, sessionId]);
 
   return (
     <div ref={containerRef} className="w-full h-full min-h-[500px] bg-slate-50 rounded-3xl border border-slate-200 relative flex flex-col items-center justify-center overflow-hidden shadow-inner">
@@ -143,7 +199,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
             className="absolute bottom-4 left-1/2 -translate-x-1/2 z-50 w-[90%] max-w-[300px]"
           >
             <button
-              onClick={handleCashout}
+              onClick={() => handleCashout()}
               className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_50px_rgba(52,211,153,0.5),inset_0_2px_0_rgba(255,255,255,0.5)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
             >
               <span>Cashout</span>
@@ -159,19 +215,10 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
           <path
             d={`M ${points.map(p => `${p.x},${p.y}`).join(" L ")}`}
             fill="none"
-            stroke={crashed ? "#ef4444" : "#eab308"}
-            strokeWidth="5"
+            stroke="#f59e0b"
+            strokeWidth="6"
             strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 15px ${crashed ? '#ef4444' : '#eab308'})` }}
-          />
-        )}
-        {points.length > 0 && (
-          <circle
-            cx={points[points.length - 1].x}
-            cy={points[points.length - 1].y}
-            r="8"
-            fill={crashed ? "#ef4444" : "#ffffff"}
-            style={{ filter: "drop-shadow(0 0 10px #ffffff)" }}
+            className="drop-shadow-[0_4px_10px_rgba(245,158,11,0.5)]"
           />
         )}
       </svg>

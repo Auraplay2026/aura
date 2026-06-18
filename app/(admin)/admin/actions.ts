@@ -804,3 +804,22 @@ export async function adminUpdateStrategyFrequency(frequency: number, adminEmail
   revalidatePath("/admin");
   return { success: true, config };
 }
+
+export async function adminUpdateMaintenanceMode(maintenanceMode: boolean, adminEmail: string) {
+  try {
+    const config = getSystemConfig();
+    const oldVal = config.maintenanceMode ?? false;
+    config.maintenanceMode = maintenanceMode;
+    saveSystemConfig(config);
+    
+    const actionWord = maintenanceMode ? "ENABLE_MAINTENANCE" : "DISABLE_MAINTENANCE";
+    await logAdminAction(adminEmail, actionWord, "SYSTEM", `Modified Maintenance Mode: ${oldVal} -> ${maintenanceMode}`);
+    
+    revalidatePath("/");
+    revalidatePath("/admin");
+    return { success: true, config, error: undefined };
+  } catch (err: any) {
+    console.error("Failed to update maintenance mode:", err);
+    return { success: false, config: undefined, error: err?.message || "Failed to update maintenance mode" };
+  }
+}

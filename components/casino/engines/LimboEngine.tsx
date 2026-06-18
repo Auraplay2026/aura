@@ -7,10 +7,11 @@ import { useTradingStore } from "@/lib/store";
 
 interface LimboEngineProps {
   isPlaying: boolean;
+  betAmount: number;
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
+export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const [targetMultiplier, setTargetMultiplier] = useState(2.00);
   const [liveCounter, setLiveCounter] = useState(1.00);
@@ -32,28 +33,61 @@ export function LimboEngine({ isPlaying, onComplete }: LimboEngineProps) {
     setResult(null);
     setLiveCounter(1.00);
 
-    const outcome = calculateGameOutcome("ORIGINAL", targetMultiplier);
-    const willWin = outcome.isWin;
-    const finalResult = parseFloat(outcome.multiplier.toFixed(2));
+    let active = true;
+    let interval: any = null;
 
-    let current = 1.00;
-    // We want it to feel fast, accelerating towards the end
-    const step = (finalResult - 1.00) / 30;
-    
-    const interval = setInterval(() => {
-      current = Math.min(current + step + (current * 0.05), finalResult);
-      setLiveCounter(parseFloat(current.toFixed(2)));
-      if (current >= finalResult) {
-        clearInterval(interval);
-        setResult(finalResult);
-        setPhase("reveal");
-        const won = finalResult >= targetMultiplier;
-        setTimeout(() => onCompleteRef.current(won ? finalResult : 0, won), 1000);
+    const executeBet = async () => {
+      try {
+        const currentUser = useTradingStore.getState().currentUser;
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: currentUser?.email || "admin@aurabet.io",
+            gameId: "orig-2",
+            gameTitle: "Limbo",
+            betAmount: betAmount,
+            targetMultiplier: targetMultiplier
+          })
+        });
+        const data = await res.json();
+        if (!active) return;
+
+        if (res.ok && data.success) {
+          const finalResult = parseFloat(data.multiplier.toFixed(2));
+          let current = 1.00;
+          const step = (finalResult - 1.00) / 30;
+          
+          interval = setInterval(() => {
+            current = Math.min(current + step + (current * 0.05), finalResult);
+            setLiveCounter(parseFloat(current.toFixed(2)));
+            if (current >= finalResult) {
+              clearInterval(interval);
+              setResult(finalResult);
+              setPhase("reveal");
+              const won = finalResult >= targetMultiplier;
+              setTimeout(() => onCompleteRef.current(won ? finalResult : 0, won), 1000);
+            }
+          }, 40);
+        } else {
+          setPhase("idle");
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
+        }
+      } catch (err) {
+        console.error("Limbo bet placement failed", err);
+        setPhase("idle");
+        onCompleteRef.current(0, false);
       }
-    }, 40);
+    };
 
-    return () => clearInterval(interval);
-  }, [isPlaying, targetMultiplier]);
+    executeBet();
+
+    return () => {
+      active = false;
+      if (interval) clearInterval(interval);
+    };
+  }, [isPlaying, targetMultiplier, betAmount]);
 
   const isWin = result !== null && result >= targetMultiplier;
   const winChance = targetMultiplier <= 1 ? 99 : (99 / targetMultiplier).toFixed(2);

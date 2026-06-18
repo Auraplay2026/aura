@@ -146,8 +146,8 @@ interface TradingState {
   fetchActivityLogs: () => Promise<void>;
 
   // Sportsbook
-  placeSportsBet: (matchTitle: string, selection: string, odds: number, stake: number, side?: 'yes' | 'no', uuid?: string) => void;
-  cancelSportsBet: (transactionId: string) => void;
+  placeSportsBet: (matchTitle: string, selection: string, odds: number, stake: number, side?: 'yes' | 'no', uuid?: string) => Promise<any>;
+  cancelSportsBet: (transactionId: string) => Promise<void>;
 
   // Casino
   playCasino: (wager: number, payout: number, gameTitle: string, uuid?: string) => void;
@@ -288,37 +288,37 @@ export function sanitizeClientUserProfile(user: any): UserProfile | null {
 
 export const useTradingStore = create<TradingState>()(
   persist(
-    (set, get) => ({
+    (set, get): TradingState => ({
       balance: 100000, // Start with ₹100,000 Trading Power
-      positions: [],
-      transactions: [],
-      currentUser: null,
+      positions: [] as Position[],
+      transactions: [] as Transaction[],
+      currentUser: null as UserProfile | null,
       isLoggedIn: false, // Default to logged out
       kycStatus: 'UNVERIFIED',
       geoRestricted: false,
       verifiedAge: 0,
-      activityLogs: [],
-      kycSubmittedAt: null,
-      processedUuids: [],
+      activityLogs: [] as any[],
+      kycSubmittedAt: null as number | null,
+      processedUuids: [] as string[],
       houseEdge: 2.0, // Default 2% house edge
       demoWinRate: 80,
       realWinRate: 30,
 
       // Daily Streak & Spin states
       streakCount: 0,
-      lastLoginDate: null,
+      lastLoginDate: null as string | null,
       claimedToday: false,
       spinWheelClaimedToday: false,
-      dailyModalLastDismissedDate: null,
+      dailyModalLastDismissedDate: null as string | null,
 
       // Achievements states
-      unlockedAchievements: [],
+      unlockedAchievements: [] as string[],
       xp: 0,
       points: 0,
-      latestAchievementUnlocked: null,
+      latestAchievementUnlocked: null as any | null,
       winStreakCount: 0,
       predictionWinStreak: 0,
-      latestWinCelebration: null,
+      latestWinCelebration: null as { amount: number; gameTitle: string } | null,
       soundEnabled: true,
       setSoundEnabled: (enabled) => {
         set({ soundEnabled: enabled });
@@ -355,7 +355,7 @@ export const useTradingStore = create<TradingState>()(
           }
         } catch (e) {}
       },
-      sessionStats: {},
+      sessionStats: {} as Record<string, GameSessionStats>,
       recordSessionRound: (gameId, wager, payout, multiplier) => {
         set((state) => {
           const stats = state.sessionStats || {};
@@ -931,201 +931,65 @@ export const useTradingStore = create<TradingState>()(
         };
       }),
 
-      placeSportsBet: (matchTitle, selection, odds, stake, side, uuid) => set((state) => {
-        let safeBalance = state.balance;
-        if (typeof safeBalance !== 'number') {
-           const parsed = parseFloat(String(safeBalance));
-           safeBalance = isNaN(parsed) ? 100000 : parsed;
-        }
+      placeSportsBet: async (matchTitle, selection, odds, stake, side, uuid) => {
+        const state = useTradingStore.getState();
+        if (!state.isLoggedIn || !state.currentUser) return null;
 
-        // Idempotency check
-        if (uuid) {
-          if (state.processedUuids && state.processedUuids.includes(uuid)) {
-            console.warn(`[Idempotency Block] placeSportsBet already processed for UUID: ${uuid}`);
-            return state;
-          }
-        }
-
-        // Calculate potential liability and total balance requirement
-        // Lay bet liability: Liability = Stake * (Odds - 1)
-        const potentialLiability = side === 'no' ? stake * (odds - 1) : 0;
-        const totalRequired = stake + potentialLiability;
-
-        // Security check: Prevent overdrafts and negative wagers
-        if (stake <= 0 || totalRequired > safeBalance) {
-          console.error("Invalid stake amount or insufficient balance for stake + liability");
-          return state;
-        }
-
-        // Anti-Arbitrage check: Look for mirror sports bet in last 10 seconds
-        const tenSecondsAgo = Date.now() - 10000;
-        const mirrorSportsBet = state.transactions.find(t => 
-          t.type === 'trade' && 
-          t.timestamp >= tenSecondsAgo && 
-          t.details.includes(matchTitle) && 
-          ((side === 'yes' && t.details.includes('Lay')) || (side === 'no' && (t.details.includes('Back') || t.details.includes('bet on'))))
-        );
-        if (mirrorSportsBet) {
-          const alertMsg = `[Anti-Arbitrage Flag] User placed mirror sports bets (Back and Lay) on match "${matchTitle}" within 10 seconds.`;
-          console.warn(alertMsg);
-          const newLog = {
-            id: `LOG-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-            type: 'ARBITRAGE_ALERT',
-            message: alertMsg,
-            timestamp: Date.now()
-          };
-          state.activityLogs = [newLog, ...(state.activityLogs || [])];
-        }
-
-        const newBalance = safeBalance - totalRequired;
-        
-        let newTotalWagered = state.currentUser?.totalWagered || 0;
-        let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
-        if (state.currentUser) {
-          if (state.currentUser.accountType === 'real') {
-            newTotalWagered += totalRequired;
-            newVipLevel = calculateVipLevel(newTotalWagered, state.currentUser.manualVipLevel) as 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond';
-            state.currentUser.totalWagered = newTotalWagered;
-            state.currentUser.vipLevel = newVipLevel;
-          }
-        }
-
-        const detailsStr = side === 'no'
-          ? `Placed ₹${stake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
-          : `Placed ₹${stake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`;
-
-        const tx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          type: 'trade',
-          amount: totalRequired,
-          balanceAfter: newBalance,
-          timestamp: Date.now(),
-          details: detailsStr,
-          status: 'Pending'
-        };
-
-        if (state.currentUser?.accountType === 'real') {
-          recordGameRound({
-            gameId: 'sportsbook',
-            userId: state.currentUser.email,
-            wager: totalRequired,
-            payout: 0,
-            multiplier: odds,
-            won: false,
+        try {
+          const res = await fetch('/api/sports/bet', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: state.currentUser.email,
+              matchTitle,
+              selection,
+              odds,
+              stake,
+              side,
+              uuid
+            })
           });
-        }
-
-        const newTransactions = [tx, ...state.transactions];
-        const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
-
-        // Achievement check logic for sports betting
-        const toUnlock = new Set<string>();
-
-        if (totalRequired >= 10000) toUnlock.add('high_roller');
-        if (totalRequired === safeBalance) toUnlock.add('risk_taker');
-
-        const currentHour = new Date().getHours();
-        if (currentHour >= 0 && currentHour < 5) toUnlock.add('night_owl');
-        if (currentHour >= 5 && currentHour < 8) toUnlock.add('early_bird');
-
-        // Sports fanatic count
-        const sportsBetsCount = newTransactions.filter(t => t.type === 'trade' && (t.details.includes('bet on') || t.details.includes('Back bet') || t.details.includes('Lay bet'))).length;
-        if (sportsBetsCount >= 10) toUnlock.add('sports_fanatic');
-
-        const totalWagersCount = newTransactions.filter(t => t.type === 'casino' || t.type === 'trade').length;
-        if (totalWagersCount >= 100) toUnlock.add('centurion');
-        if (newTotalWagered >= 100000) toUnlock.add('big_spender');
-
-        if (newVipLevel !== 'Bronze') toUnlock.add('vip_ascension');
-
-        let currentUnlocked = [...(state.unlockedAchievements || [])];
-        let addedXp = 0;
-        let addedPoints = 0;
-        let latestUnlocked: any = null;
-
-        for (const achId of toUnlock) {
-          if (!currentUnlocked.includes(achId)) {
-            currentUnlocked.push(achId);
-            const ach = ACHIEVEMENTS.find((a) => a.id === achId);
-            if (ach) {
-              addedXp += ach.xpReward;
-              addedPoints += ach.pointsReward;
-              latestUnlocked = ach;
-            }
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await state.syncFromServer();
+            return data;
+          } else {
+            console.error(data.error || "Failed to place sports bet on server");
+            alert(data.error || "Failed to place sports bet.");
+            return null;
           }
+        } catch (err) {
+          console.error("Failed to place sports bet", err);
+          return null;
         }
+      },
 
-        if (latestUnlocked && typeof window !== 'undefined' && state.soundEnabled !== false) {
-          setTimeout(() => {
-            try {
-              const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-              const osc = audioCtx.createOscillator();
-              const gainNode = audioCtx.createGain();
-              osc.connect(gainNode);
-              gainNode.connect(audioCtx.destination);
-              osc.type = 'sine';
-              osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-              osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-              osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
-              osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
-              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-              gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
-              osc.start();
-              osc.stop(audioCtx.currentTime + 0.5);
-            } catch(e) {}
-          }, 50);
+      cancelSportsBet: async (transactionId: string) => {
+        const state = useTradingStore.getState();
+        if (!state.isLoggedIn || !state.currentUser) return;
+
+        try {
+          const res = await fetch('/api/sports/cancel', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: state.currentUser.email,
+              transactionId
+            })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            await state.syncFromServer();
+          } else {
+            console.error(data.error || "Failed to cancel sports bet on server");
+            alert(data.error || "Failed to cancel sports bet.");
+          }
+        } catch (err) {
+          console.error("Failed to cancel sports bet", err);
         }
+      },
 
-        const nextProcessed = uuid ? [...(state.processedUuids || []), uuid].slice(-200) : (state.processedUuids || []);
-
-        return {
-          ...syncedState,
-          processedUuids: nextProcessed,
-          activityLogs: state.activityLogs,
-          unlockedAchievements: currentUnlocked,
-          xp: (state.xp || 0) + addedXp,
-          points: (state.points || 0) + addedPoints,
-          latestAchievementUnlocked: latestUnlocked || state.latestAchievementUnlocked
-        };
-      }),
-
-      cancelSportsBet: (transactionId) => set((state) => {
-        let safeBalance = state.balance;
-        if (typeof safeBalance !== 'number') {
-           const parsed = parseFloat(String(safeBalance));
-           safeBalance = isNaN(parsed) ? 100000 : parsed;
-        }
-
-        const txIndex = state.transactions.findIndex(t => t.id === transactionId && t.type === 'trade' && t.status === 'Pending');
-        if (txIndex === -1) return state;
-
-        const tx = state.transactions[txIndex];
-        const newBalance = safeBalance + tx.amount;
-
-        const updatedTx = {
-          ...tx,
-          status: 'Failed' as const,
-          details: tx.details.replace('Placed', 'Cancelled')
-        };
-
-        const refundTx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-          type: 'deposit',
-          amount: tx.amount,
-          balanceAfter: newBalance,
-          timestamp: Date.now(),
-          details: `Refunded ₹${tx.amount} (Bet Cancelled)`,
-          status: 'Completed'
-        };
-
-        const newTransactions = [...state.transactions];
-        newTransactions[txIndex] = updatedTx;
-        newTransactions.unshift(refundTx);
-
-        return getSyncedStateAndSync(state, newBalance, newTransactions);
-      }),
-
-      playCasino: (wager, payout, gameTitle, uuid) => set((state) => {
+      playCasino: (wager: number, payout: number, gameTitle: string, uuid?: string) => set((state) => {
         let safeBalance = state.balance;
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
@@ -1291,7 +1155,7 @@ export const useTradingStore = create<TradingState>()(
         };
       }),
 
-      cashOut: (positionId, currentMarketPrice) => set((state) => {
+      cashOut: (positionId: string, currentMarketPrice: number) => set((state) => {
         let safeBalance = state.balance;
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
@@ -1504,7 +1368,7 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      spinWheelClaimed: (prizeAmount, prizeName) => {
+      spinWheelClaimed: (prizeAmount: number, prizeName: string) => {
         const state = get();
         if (state.spinWheelClaimedToday) return;
 
@@ -1534,7 +1398,7 @@ export const useTradingStore = create<TradingState>()(
         });
       },
 
-      unlockAchievement: (id) => {
+      unlockAchievement: (id: string) => {
         const state = get();
         if (state.unlockedAchievements?.includes(id)) return;
 
@@ -1607,7 +1471,7 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      setKycStatus: (status) => set((state) => {
+      setKycStatus: (status: 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED' | 'REJECTED') => set((state) => {
         if (status === 'VERIFIED') {
           if (!state.kycSubmittedAt) {
             console.error("KYC violation: No active document review submission found.");
@@ -1646,21 +1510,21 @@ export const useTradingStore = create<TradingState>()(
           kycSubmittedAt: status === 'VERIFIED' ? null : state.kycSubmittedAt
         };
       }),
-      setKycSubmittedAt: (time) => set((state) => {
+      setKycSubmittedAt: (time: number | null) => set((state) => {
         if (state.currentUser) {
           const updatedUser = { ...state.currentUser, kycSubmittedAt: time };
           return { kycSubmittedAt: time, currentUser: updatedUser };
         }
         return { kycSubmittedAt: time };
       }),
-      setGeoRestricted: (restricted) => set((state) => {
+      setGeoRestricted: (restricted: boolean) => set((state) => {
         if (state.currentUser) {
           const updatedUser = { ...state.currentUser, geoRestricted: restricted };
           return { geoRestricted: restricted, currentUser: updatedUser };
         }
         return { geoRestricted: restricted };
       }),
-      setVerifiedAge: (age) => set((state) => {
+      setVerifiedAge: (age: number) => set((state) => {
         if (state.currentUser) {
           const updatedUser = { ...state.currentUser, verifiedAge: age };
           return { verifiedAge: age, currentUser: updatedUser };
