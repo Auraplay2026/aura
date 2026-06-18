@@ -4,7 +4,7 @@ import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { GAMES } from "@/lib/games";
-import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Circle, Power, Clock, Flame, Activity, Users, Coins, Shield, Lock, Hand, BadgeInfo } from "lucide-react";
+import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Circle, Power, Clock, Flame, Activity, Users, Coins, Shield, Lock, Hand, BadgeInfo, MessageSquare, Sparkles } from "lucide-react";
 import { recordGameRound } from "@/lib/recordRound";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -974,6 +974,24 @@ export default function GamePlayerPage() {
             <h1 className="text-lg font-black text-slate-900 tracking-wide leading-tight">{game.title}</h1>
             <p className="text-[11px] text-slate-600 font-semibold leading-none mt-0.5">Publisher: <span className="text-neon-yellow">{game.provider}</span></p>
           </div>
+        </div>
+
+        {/* Mobile Header Quick Actions */}
+        <div className="flex items-center gap-2 sm:hidden">
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent("open-ai-concierge"))} 
+            className="w-9 h-9 bg-white hover:bg-slate-50 rounded-xl flex items-center justify-center transition-colors shrink-0 shadow-sm border border-red-200/60 cursor-pointer"
+            title="Open AI Concierge"
+          >
+            <Sparkles className="w-4.5 h-4.5 text-red-600" />
+          </button>
+          <button 
+            onClick={() => window.dispatchEvent(new CustomEvent("open-live-chat"))} 
+            className="w-9 h-9 bg-red-600 hover:bg-red-500 rounded-xl flex items-center justify-center text-white transition-colors shrink-0 shadow-sm border border-red-500/25 cursor-pointer"
+            title="Open Live Chat"
+          >
+            <MessageSquare className="w-4.5 h-4.5" />
+          </button>
         </div>
       </div>
 

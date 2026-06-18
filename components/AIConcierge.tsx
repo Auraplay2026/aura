@@ -22,6 +22,12 @@ export function AIConcierge() {
     return () => clearTimeout(timer);
   }, []);
 
+  useEffect(() => {
+    const handleOpenConcierge = () => setIsOpen(true);
+    window.addEventListener("open-ai-concierge", handleOpenConcierge);
+    return () => window.removeEventListener("open-ai-concierge", handleOpenConcierge);
+  }, []);
+
   const handleClaim = () => {
     if (!isLoggedIn) {
       window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }));
@@ -40,14 +46,14 @@ export function AIConcierge() {
   if (!isClient) return null;
 
   return (
-    <div className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-6"} z-[100] flex flex-col items-end gap-4 transition-all duration-300 ${isSportsbook ? "right-6 lg:right-[344px]" : "right-6"}`}>
+    <div className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-6"} z-[100] flex flex-col items-end gap-4 transition-all duration-300 pointer-events-none ${isSportsbook ? "right-6 lg:right-[344px]" : "right-6"}`}>
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="w-80 bg-white/95 backdrop-blur-xl border border-red-200 rounded-2xl p-5 shadow-2xl origin-bottom-right"
+            className="w-80 bg-white/95 backdrop-blur-xl border border-red-200 rounded-2xl p-5 shadow-2xl origin-bottom-right pointer-events-auto"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
@@ -92,7 +98,7 @@ export function AIConcierge() {
 
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center relative group shadow-xl"
+        className={`w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center relative group shadow-xl pointer-events-auto ${isCasinoGame ? "hidden sm:flex" : "flex"}`}
       >
         {/* Pulsing Aura */}
         <div className="absolute inset-[-10px] rounded-full bg-red-100 blur-xl opacity-40 group-hover:opacity-80 transition-opacity animate-pulse pointer-events-none" />
