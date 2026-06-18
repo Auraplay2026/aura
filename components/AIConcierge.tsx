@@ -8,6 +8,7 @@ import { usePathname } from "next/navigation";
 export function AIConcierge() {
   const pathname = usePathname();
   const isSportsbook = pathname?.startsWith("/sportsbook");
+  const isCasinoGame = pathname?.startsWith("/casino/game");
   const [isOpen, setIsOpen] = useState(false);
   const { isLoggedIn, deposit } = useTradingStore();
   const [claimed, setClaimed] = useState(false);
@@ -36,7 +37,7 @@ export function AIConcierge() {
   if (!isClient) return null;
 
   return (
-    <div className={`fixed bottom-6 z-[100] flex flex-col items-end gap-4 transition-all duration-300 ${isSportsbook ? "right-6 lg:right-[344px]" : "right-6"}`}>
+    <div className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-6"} z-[100] flex flex-col items-end gap-4 transition-all duration-300 ${isSportsbook ? "right-6 lg:right-[344px]" : "right-6"}`}>
       <AnimatePresence>
         {isOpen && (
           <motion.div

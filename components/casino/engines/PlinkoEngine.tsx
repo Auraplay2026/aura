@@ -173,7 +173,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   };
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-4 relative overflow-hidden flex flex-col shadow-2xl">
+    <div className="w-full h-full min-h-[400px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-4 relative overflow-hidden flex flex-col shadow-2xl">
       
       {balls.some(b => b.binIndex === 0 || b.binIndex === 1 || b.binIndex === 9 || b.binIndex === 10) && (
         <div className="absolute inset-0 border-[6px] border-amber-500/40 rounded-3xl pointer-events-none z-30 animate-[heartbeat-glow_1.5s_infinite_ease-in-out]" />
@@ -243,7 +243,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         </AnimatePresence>
       </div>
 
-      <div className="relative flex-1 flex items-center justify-center min-h-[350px]">
+      <div className="relative flex-1 flex items-center justify-center min-h-[280px]">
         <div className="relative w-full max-w-[420px] aspect-[4/5] flex items-center justify-center">
           
           <svg className="absolute inset-0 w-full h-full z-0 overflow-visible pointer-events-none opacity-40">

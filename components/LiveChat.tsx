@@ -55,6 +55,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
   const { currentUser } = useTradingStore();
   const pathname = usePathname();
   const isSportsbook = pathname?.startsWith("/sportsbook");
+  const isCasinoGame = pathname?.startsWith("/casino/game");
   const [isOpen, setIsOpen] = useState(isDocked);
   const [messages, setMessages] = useState(INITIAL_MESSAGES);
   const [inputValue, setInputValue] = useState("");
@@ -198,7 +199,7 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => setIsOpen(true)}
-            className={`fixed bottom-6 z-50 p-4 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-lg transition-colors ${isSportsbook ? "right-[96px] lg:right-[430px]" : "right-[96px]"}`}
+            className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-6"} z-50 p-4 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-lg transition-colors ${isSportsbook ? "right-[96px] lg:right-[430px]" : "right-[96px]"}`}
           >
             <MessageSquare className="w-6 h-6" />
           </motion.button>

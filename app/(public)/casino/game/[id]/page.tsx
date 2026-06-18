@@ -965,7 +965,7 @@ export default function GamePlayerPage() {
           <motion.div 
             animate={isMegaWin ? { x: [-10, 10, -10, 10, -5, 5, 0], y: [-5, 5, -5, 5, 0] } : {}}
             transition={{ duration: 0.6 }}
-            className={`relative w-full h-[calc(100vh-135px)] sm:h-[480px] md:h-auto min-h-[480px] sm:min-h-[500px] md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-hidden ${theme.shadowClass} flex flex-col group`}
+            className={`relative w-full h-auto md:h-auto min-h-0 md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-visible md:overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence mode="wait">
               {!currentUser ? (
@@ -1145,7 +1145,7 @@ export default function GamePlayerPage() {
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
                     {tutorialDismissed && !game.id.startsWith("royal-") && (
-                      <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)] flex-1 min-h-0 overflow-hidden md:overflow-visible">
+                      <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)] h-auto md:h-full overflow-visible">
                         {isCloudRenting ? (
                           <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
                             <div className="flex flex-col">
@@ -1165,9 +1165,9 @@ export default function GamePlayerPage() {
                             </button>
                           </div>
                         ) : (
-                          <div className="flex flex-col h-full overflow-hidden bg-white md:bg-slate-50">
+                          <div className="flex flex-col h-auto md:h-full overflow-visible md:overflow-hidden bg-white md:bg-slate-50">
                             {/* Scrollable Body */}
-                            <div className="flex-1 overflow-y-auto p-3 sm:p-4 flex flex-col gap-3.5 sm:gap-5 min-h-0 custom-scrollbar">
+                            <div className="flex-1 overflow-visible md:overflow-y-auto p-3 sm:p-4 flex flex-col gap-3.5 sm:gap-5 min-h-0 custom-scrollbar pb-24 md:pb-4">
                               {/* Control Panel Tabs */}
                               <div className="flex border-b border-slate-200 gap-1 bg-slate-100 p-1 rounded-xl shrink-0">
                                 {(['stakes', 'strategy'] as const).map((tab) => (
@@ -1554,7 +1554,7 @@ export default function GamePlayerPage() {
                             </div>
 
                             {/* Fixed Sticky Footer Button */}
-                            <div className="p-3 bg-white md:bg-slate-50 border-t border-slate-200 shrink-0 z-30 shadow-[0_-4px_10px_rgba(0,0,0,0.03)] md:shadow-none">
+                            <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-slate-200 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] md:relative md:bottom-auto md:left-auto md:right-auto md:p-3 md:bg-slate-50 md:border-t md:border-slate-200 md:shrink-0 md:z-30 md:shadow-none">
                               <button 
                                 onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
                                 disabled={isSpinning && !isCashoutActive}
@@ -1580,7 +1580,7 @@ export default function GamePlayerPage() {
 
                     {/* RIGHT AREA (Game Canvas) */}
                     <div className={cn(
-                      "h-[32vh] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
+                      "h-[480px] sm:h-[500px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
                       game.id.startsWith("royal-") ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
                     )}>
                       
