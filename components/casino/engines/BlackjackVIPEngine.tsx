@@ -1,127 +1,289 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
+import { Volume2, VolumeX, Sparkles, RefreshCw, Hand, Plus, Zap, Coins } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface BlackjackVIPEngineProps {
   isPlaying: boolean;
   onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
 }
 
-const DECK = [
-  { val: "A", suit: "♠", color: "text-slate-900", score: 11 },
-  { val: "10", suit: "♦️", color: "text-red-600", score: 10 },
-  { val: "J", suit: "♥️", color: "text-red-600", score: 10 },
-  { val: "Q", suit: "♣️", color: "text-slate-900", score: 10 },
-  { val: "K", suit: "♠", color: "text-slate-900", score: 10 },
-  { val: "9", suit: "♥️", color: "text-red-600", score: 9 },
-  { val: "8", suit: "♦️", color: "text-red-600", score: 8 }
+interface Card {
+  val: string;
+  suit: string;
+  color: string;
+  score: number;
+  faceDown?: boolean;
+}
+
+const SUITS = ["♠", "♥", "♦", "♣"];
+const VALUES = [
+  { val: "A", score: 11 },
+  { val: "2", score: 2 },
+  { val: "3", score: 3 },
+  { val: "4", score: 4 },
+  { val: "5", score: 5 },
+  { val: "6", score: 6 },
+  { val: "7", score: 7 },
+  { val: "8", score: 8 },
+  { val: "9", score: 9 },
+  { val: "10", score: 10 },
+  { val: "J", score: 10 },
+  { val: "Q", score: 10 },
+  { val: "K", score: 10 },
 ];
 
 export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngineProps) {
-  const [playerHand, setPlayerHand] = useState<typeof DECK>([]);
-  const [dealerHand, setDealerHand] = useState<typeof DECK>([]);
-  const [dealt, setDealt] = useState(false);
+  const [playerHand, setPlayerHand] = useState<Card[]>([]);
+  const [dealerHand, setDealerHand] = useState<Card[]>([]);
+  const [phase, setPhase] = useState<"betting" | "dealing" | "player-turn" | "dealer-turn" | "resolved">("betting");
   const [resultMsg, setResultMsg] = useState("");
   const [betCountdown, setBetCountdown] = useState(15);
-  const [selectedSide, setSelectedSide] = useState<string>("PLAYER");
+  const [isMuted, setIsMuted] = useState(false);
+  const [particles, setParticles] = useState<{ id: number; x: number; y: number; color: string }[]>([]);
+  
+  // Side Bet Options
+  const [sideBets, setSideBets] = useState({
+    pairs: false,  // Perfect Pairs (25:1)
+    three: false,  // 21+3 Side Bet (100:1)
+  });
 
+  // Track the predetermined outcome and active bets
+  const isWinRef = useRef<boolean>(false);
+  const sideBetsRef = useRef(sideBets);
   const onCompleteRef = useRef(onComplete);
+
+  useEffect(() => {
+    sideBetsRef.current = sideBets;
+  }, [sideBets]);
+
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
 
-  // Betting countdown loop when game is idle
-  useEffect(() => {
-    if (isPlaying) {
-      setBetCountdown(15);
-      return;
+  // Audio utility
+  const playSound = (type: "deal" | "flip" | "win" | "lose" | "chip") => {
+    if (isMuted) return;
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const osc = audioCtx.createOscillator();
+      const gain = audioCtx.createGain();
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+
+      if (type === "deal") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(580, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(150, audioCtx.currentTime + 0.12);
+        gain.gain.setValueAtTime(0.12, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.12);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.12);
+      } else if (type === "flip") {
+        osc.type = "triangle";
+        osc.frequency.setValueAtTime(420, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(220, audioCtx.currentTime + 0.1);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.1);
+      } else if (type === "win") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(523.25, audioCtx.currentTime); // C5
+        osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1); // E5
+        osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2); // G5
+        osc.frequency.setValueAtTime(1046.5, audioCtx.currentTime + 0.3); // C6
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.55);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.55);
+      } else if (type === "lose") {
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(220, audioCtx.currentTime);
+        osc.frequency.linearRampToValueAtTime(80, audioCtx.currentTime + 0.4);
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+      } else if (type === "chip") {
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(1200, audioCtx.currentTime + 0.05);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        gain.gain.linearRampToValueAtTime(0.01, audioCtx.currentTime + 0.06);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.06);
+      }
+    } catch (e) {
+      console.warn("Audio Context blocked or failed to initialize", e);
     }
+  };
+
+  // Sparkles/Gold particles engine
+  const triggerGoldExplosion = () => {
+    playSound("win");
+    const newParticles = Array.from({ length: 48 }).map((_, i) => ({
+      id: Date.now() + i,
+      x: Math.random() * 200 - 100,
+      y: Math.random() * 100 - 50,
+      color: Math.random() > 0.5 ? "from-yellow-400 to-amber-500" : "from-amber-300 to-yellow-500",
+    }));
+    setParticles(newParticles);
+    setTimeout(() => setParticles([]), 1800);
+  };
+
+  // Idle countdown loop
+  useEffect(() => {
+    if (isPlaying) return;
     const timer = setInterval(() => {
-      setBetCountdown(prev => {
-        if (prev <= 1) return 15;
-        return prev - 1;
-      });
+      setBetCountdown(prev => (prev <= 1 ? 15 : prev - 1));
     }, 1000);
     return () => clearInterval(timer);
   }, [isPlaying]);
 
+  // Dynamic helper to resolve initial values
+  const getRandomCard = (forceVal?: string): Card => {
+    const targetValObj = forceVal 
+      ? VALUES.find(v => v.val === forceVal) || VALUES[Math.floor(Math.random() * VALUES.length)]
+      : VALUES[Math.floor(Math.random() * VALUES.length)];
+    const suit = SUITS[Math.floor(Math.random() * SUITS.length)];
+    const isRed = ["♥", "♦"].includes(suit);
+    return {
+      val: targetValObj.val,
+      suit,
+      color: isRed ? "text-rose-500" : "text-slate-200",
+      score: targetValObj.score
+    };
+  };
+
+  // Run the round when parent flags isPlaying = true
   useEffect(() => {
     if (!isPlaying) {
       setPlayerHand([]);
       setDealerHand([]);
-      setDealt(false);
+      setPhase("betting");
       setResultMsg("");
       return;
     }
 
+    // Determine math outcome early
     const outcome = calculateGameOutcome("TABLE");
-    const won = outcome.isWin;
+    isWinRef.current = outcome.isWin;
+
+    // Start Deal sequence
+    setPhase("dealing");
     
-    // Deterministic hands based on selection & outcome
-    const targetPlayerHand: typeof DECK = [];
-    const targetDealerHand: typeof DECK = [];
+    // Initial Hand Generation
+    let pCard1: Card;
+    let pCard2: Card;
+    let dCard1: Card;
+    let dCard2: Card;
 
-    const isPlayerWinner = (selectedSide === "PLAYER" && won) || (selectedSide === "DEALER" && !won);
+    const currentSideBets = sideBetsRef.current;
 
-    if (isPlayerWinner) {
-      targetPlayerHand.push(
-        { val: "A", suit: "♠", color: "text-slate-900", score: 11 },
-        { val: "J", suit: "♦️", color: "text-red-600", score: 10 }
-      ); // score: 21 (Natural Blackjack)
-      targetDealerHand.push(
-        { val: "K", suit: "♥️", color: "text-red-600", score: 10 },
-        { val: "8", suit: "♣️", color: "text-slate-900", score: 8 }
-      ); // score: 18
+    // 1. Check for Perfect Pairs side-bet hit (15% odds)
+    if (currentSideBets.pairs && Math.random() < 0.15) {
+      const matchValObj = VALUES[Math.floor(Math.random() * VALUES.length)];
+      const suit1 = SUITS[Math.floor(Math.random() * SUITS.length)];
+      const sameSuit = Math.random() < 0.5;
+      const suit2 = sameSuit ? suit1 : SUITS.filter(s => s !== suit1)[Math.floor(Math.random() * 3)];
+      
+      pCard1 = { val: matchValObj.val, suit: suit1, color: ["♥", "♦"].includes(suit1) ? "text-rose-500" : "text-slate-200", score: matchValObj.score };
+      pCard2 = { val: matchValObj.val, suit: suit2, color: ["♥", "♦"].includes(suit2) ? "text-rose-500" : "text-slate-200", score: matchValObj.score };
     } else {
-      targetPlayerHand.push(
-        { val: "10", suit: "♠", color: "text-slate-900", score: 10 },
-        { val: "7", suit: "♦️", color: "text-red-600", score: 7 }
-      ); // score: 17
-      targetDealerHand.push(
-        { val: "A", suit: "♥️", color: "text-red-600", score: 11 },
-        { val: "9", suit: "♣️", color: "text-slate-900", score: 9 }
-      ); // score: 20
+      pCard1 = getRandomCard();
+      pCard2 = getRandomCard();
+      // Ensure player initial is not a pair if side-bet active but did not hit
+      if (pCard1.val === pCard2.val && currentSideBets.pairs) {
+        pCard2 = getRandomCard(VALUES.filter(v => v.val !== pCard1.val)[Math.floor(Math.random() * 12)].val);
+      }
     }
 
-    // Deal sequence
-    let count = 0;
-    const interval = setInterval(() => {
-      count++;
-      if (count === 1) {
-        setPlayerHand([targetPlayerHand[0]]);
-      } else if (count === 2) {
-        setDealerHand([targetDealerHand[0]]);
-      } else if (count === 3) {
-        setPlayerHand([targetPlayerHand[0], targetPlayerHand[1]]);
-      } else if (count === 4) {
-        setDealerHand([targetDealerHand[0], targetDealerHand[1]]);
-        clearInterval(interval);
-        
-        setTimeout(() => {
-          setDealt(true);
-          if (isPlayerWinner) {
-            setResultMsg("Player Wins!");
-          } else {
-            setResultMsg("Dealer Wins!");
-          }
-          onCompleteRef.current(won ? 2.0 : 0, won);
-        }, 1200);
+    // 2. Check for 21+3 side-bet hit (15% odds)
+    if (currentSideBets.three && Math.random() < 0.15) {
+      // Force Flush or Straight combo
+      const matchSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
+      const isRed = ["♥", "♦"].includes(matchSuit);
+      const c1 = VALUES[4]; // 5
+      const c2 = VALUES[5]; // 6
+      const c3 = VALUES[6]; // 7
+      pCard1 = { val: c1.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-200", score: c1.score };
+      pCard2 = { val: c2.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-200", score: c2.score };
+      dCard1 = { val: c3.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-200", score: c3.score };
+    } else {
+      dCard1 = getRandomCard();
+    }
+
+    // Generate remaining dealer starting hands
+    if (isWinRef.current) {
+      // Player natural BJ or strong hand
+      const roll = Math.random();
+      if (roll < 0.35) {
+        // Natural Blackjack
+        pCard1 = getRandomCard("A");
+        pCard2 = getRandomCard("10");
+        dCard1 = getRandomCard("9");
+        dCard2 = getRandomCard("9");
+      } else {
+        pCard1 = getRandomCard("10");
+        pCard2 = getRandomCard("9");
+        dCard1 = getRandomCard("8");
+        dCard2 = getRandomCard("9");
       }
-    }, 450);
+    } else {
+      // Player stiff hand, dealer strong
+      pCard1 = getRandomCard("10");
+      pCard2 = getRandomCard("6");
+      dCard1 = getRandomCard("9");
+      dCard2 = getRandomCard("10");
+    }
 
-    return () => clearInterval(interval);
-  }, [isPlaying, selectedSide]);
+    dCard2.faceDown = true;
 
-  const getBlackjackScore = (hand: typeof DECK) => {
+    // Distribute cards with physical feel pauses
+    setTimeout(() => {
+      setPlayerHand([pCard1]);
+      playSound("deal");
+    }, 300);
+
+    setTimeout(() => {
+      setDealerHand([dCard1]);
+      playSound("deal");
+    }, 700);
+
+    setTimeout(() => {
+      setPlayerHand([pCard1, pCard2]);
+      playSound("deal");
+    }, 1100);
+
+    setTimeout(() => {
+      setDealerHand([dCard1, dCard2]);
+      playSound("deal");
+
+      // Dealing phase completed
+      setTimeout(() => {
+        const pScore = getBlackjackScore([pCard1, pCard2]);
+        if (pScore === 21) {
+          // Natural Blackjack!
+          setPhase("dealer-turn");
+          revealHoleCardAndPlay(pCard1, pCard2);
+        } else {
+          setPhase("player-turn");
+        }
+      }, 600);
+    }, 1500);
+
+  }, [isPlaying]);
+
+  const getBlackjackScore = (hand: Card[]) => {
     let sum = hand.reduce((acc, c) => {
-      const val = c.val;
-      if (["J", "Q", "K"].includes(val)) return acc + 10;
-      if (val === "A") return acc + 11;
-      return acc + (parseInt(val) || 0);
+      if (c.faceDown) return acc;
+      return acc + c.score;
     }, 0);
     
-    let aceCount = hand.filter(c => c.val === "A").length;
+    let aceCount = hand.filter(c => !c.faceDown && c.val === "A").length;
     while (sum > 21 && aceCount > 0) {
       sum -= 10;
       aceCount--;
@@ -129,168 +291,561 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
     return sum;
   };
 
+  // Player Hits
+  const handleHit = () => {
+    if (phase !== "player-turn") return;
+    playSound("deal");
+
+    // Adaptive card drawing based on win status
+    let nextCard: Card;
+    const currentScore = getBlackjackScore(playerHand);
+
+    if (isWinRef.current) {
+      // Deal a small safe card that won't bust the player
+      const maxAllowed = 21 - currentScore;
+      if (maxAllowed >= 2) {
+        const safeValues = VALUES.filter(v => v.score <= maxAllowed);
+        const randValObj = safeValues.length > 0 ? safeValues[Math.floor(Math.random() * safeValues.length)] : VALUES[VALUES.length - 1];
+        nextCard = getRandomCard(randValObj.val);
+      } else {
+        nextCard = getRandomCard("A");
+      }
+    } else {
+      // Deal a card that busts the player
+      const bustRequired = 22 - currentScore;
+      const bustValues = VALUES.filter(v => v.score >= bustRequired);
+      const randValObj = bustValues.length > 0 ? bustValues[Math.floor(Math.random() * bustValues.length)] : VALUES[0];
+      nextCard = getRandomCard(randValObj.val);
+    }
+
+    const updatedHand = [...playerHand, nextCard];
+    setPlayerHand(updatedHand);
+
+    const newScore = getBlackjackScore(updatedHand);
+    if (newScore > 21) {
+      setPhase("resolved");
+      resolveOutcome(updatedHand, dealerHand);
+    } else if (newScore === 21) {
+      setPhase("dealer-turn");
+      revealHoleCardAndPlay(updatedHand[0], updatedHand[1], updatedHand);
+    }
+  };
+
+  // Player Stands
+  const handleStand = () => {
+    if (phase !== "player-turn") return;
+    setPhase("dealer-turn");
+    revealHoleCardAndPlay(playerHand[0], playerHand[1], playerHand);
+  };
+
+  // Player Double Down
+  const handleDoubleDown = () => {
+    if (phase !== "player-turn") return;
+    playSound("deal");
+
+    // Draw exactly one card
+    let nextCard: Card;
+    const currentScore = getBlackjackScore(playerHand);
+
+    if (isWinRef.current) {
+      const maxAllowed = 21 - currentScore;
+      const safeValues = VALUES.filter(v => v.score <= maxAllowed);
+      const randValObj = safeValues.length > 0 ? safeValues[Math.floor(Math.random() * safeValues.length)] : VALUES[12];
+      nextCard = getRandomCard(randValObj.val);
+    } else {
+      const bustRequired = 22 - currentScore;
+      const bustValues = VALUES.filter(v => v.score >= bustRequired);
+      const randValObj = bustValues.length > 0 ? bustValues[Math.floor(Math.random() * bustValues.length)] : VALUES[0];
+      nextCard = getRandomCard(randValObj.val);
+    }
+
+    const updatedHand = [...playerHand, nextCard];
+    setPlayerHand(updatedHand);
+
+    setTimeout(() => {
+      setPhase("dealer-turn");
+      revealHoleCardAndPlay(updatedHand[0], updatedHand[1], updatedHand);
+    }, 600);
+  };
+
+  // Dealer plays their turn
+  const revealHoleCardAndPlay = (pCard1: Card, pCard2: Card, finalPlayerHand?: Card[]) => {
+    playSound("flip");
+    
+    // Reveal dealer face down card
+    setDealerHand(prev => {
+      const revealed: Card[] = prev.map(c => ({ ...c, faceDown: false }));
+      const pHand = finalPlayerHand || [pCard1, pCard2];
+      
+      // Run dealer drawing loop dynamically
+      setTimeout(() => {
+        let currentDealerHand = [...revealed];
+        const pScore = getBlackjackScore(pHand);
+
+        const drawLoop = () => {
+          const dScore = getBlackjackScore(currentDealerHand);
+          
+          // Dealer stands on soft 17 or higher
+          if (dScore >= 17) {
+            setPhase("resolved");
+            resolveOutcome(pHand, currentDealerHand);
+            return;
+          }
+
+          // Generate next dealer card dynamically
+          let nextDCard: Card;
+          if (isWinRef.current) {
+            // Force dealer bust, or make dealer stand lower than player
+            if (dScore + 10 > 21) {
+              nextDCard = getRandomCard("10"); // Bust dealer!
+            } else {
+              nextDCard = getRandomCard();
+            }
+          } else {
+            // Draw a card to beat the player
+            const targetScore = pScore + 1;
+            const needed = targetScore - dScore;
+            if (needed <= 11) {
+              const matchingValue = VALUES.find(v => v.score === needed);
+              nextDCard = getRandomCard(matchingValue?.val || "10");
+            } else {
+              nextDCard = getRandomCard("10");
+            }
+          }
+
+          currentDealerHand.push(nextDCard);
+          setDealerHand([...currentDealerHand]);
+          playSound("deal");
+
+          setTimeout(drawLoop, 700);
+        };
+
+        drawLoop();
+      }, 700);
+
+      return revealed;
+    });
+  };
+
+  // Resolve wagers and calculate payout multiplier
+  const resolveOutcome = (pHand: Card[], dHand: Card[]) => {
+    const pScore = getBlackjackScore(pHand);
+    const dScore = getBlackjackScore(dHand);
+    const currentSideBets = sideBetsRef.current;
+
+    let mainResult = "lose"; // lose | win | push | blackjack
+    let sideBetsPayout = 0;
+
+    // Check Main Blackjack Outcome
+    if (pScore > 21) {
+      mainResult = "lose";
+    } else if (dScore > 21) {
+      mainResult = pScore === 21 && pHand.length === 2 ? "blackjack" : "win";
+    } else if (pScore > dScore) {
+      mainResult = pScore === 21 && pHand.length === 2 ? "blackjack" : "win";
+    } else if (pScore === dScore) {
+      mainResult = "push";
+    } else {
+      mainResult = "lose";
+    }
+
+    // Check Side-Bet Outcomes
+    // 1. Perfect Pairs (25:1, 12:1, 6:1)
+    if (currentSideBets.pairs && pHand.length >= 2) {
+      const c1 = pHand[0];
+      const c2 = pHand[1];
+      if (c1.val === c2.val) {
+        if (c1.suit === c2.suit) {
+          sideBetsPayout += 25; // Perfect Pair
+        } else if (
+          (["♠", "♣"].includes(c1.suit) && ["♠", "♣"].includes(c2.suit)) ||
+          (["♥", "♦"].includes(c1.suit) && ["♥", "♦"].includes(c2.suit))
+        ) {
+          sideBetsPayout += 12; // Colored Pair
+        } else {
+          sideBetsPayout += 6; // Mixed Pair
+        }
+      }
+    }
+
+    // 2. 21+3 Side Bet (100:1, 40:1, 30:1, 10:1, 5:1)
+    if (currentSideBets.three && pHand.length >= 2 && dHand.length >= 1) {
+      const cards = [pHand[0], pHand[1], dHand[0]];
+      const isFlush = cards.every(c => c.suit === cards[0].suit);
+      
+      const valuesSorted = cards.map(c => VALUES.findIndex(v => v.val === c.val)).sort((a, b) => a - b);
+      const isStraight = valuesSorted[2] - valuesSorted[1] === 1 && valuesSorted[1] - valuesSorted[0] === 1;
+      
+      const isThreeOfAKind = cards[0].val === cards[1].val && cards[1].val === cards[2].val;
+
+      if (isThreeOfAKind && isFlush) {
+        sideBetsPayout += 100; // Suited Triple
+      } else if (isStraight && isFlush) {
+        sideBetsPayout += 40; // Straight Flush
+      } else if (isThreeOfAKind) {
+        sideBetsPayout += 30; // Three of a Kind
+      } else if (isStraight) {
+        sideBetsPayout += 10; // Straight
+      } else if (isFlush) {
+        sideBetsPayout += 5; // Flush
+      }
+    }
+
+    // Calculate final payout proportions
+    // Let's assume Main Bet represents 70% of total wager, and side bets represent 15% each if active
+    let mainWagerProp = 1.0;
+    let pairsWagerProp = 0;
+    let threeWagerProp = 0;
+
+    if (currentSideBets.pairs && currentSideBets.three) {
+      mainWagerProp = 0.70;
+      pairsWagerProp = 0.15;
+      threeWagerProp = 0.15;
+    } else if (currentSideBets.pairs) {
+      mainWagerProp = 0.85;
+      pairsWagerProp = 0.15;
+    } else if (currentSideBets.three) {
+      mainWagerProp = 0.85;
+      threeWagerProp = 0.15;
+    }
+
+    // Resolve Main Multipliers
+    let mainMultiplier = 0;
+    if (mainResult === "win") mainMultiplier = 2.0;
+    else if (mainResult === "blackjack") mainMultiplier = 2.5; // 3 to 2
+    else if (mainResult === "push") mainMultiplier = 1.0; // Return main bet portion
+
+    // Calculate overall round multiplier returned to parent store
+    const totalMultiplier = (mainWagerProp * mainMultiplier) + 
+                            (pairsWagerProp * (sideBetsPayout > 0 ? sideBetsPayout + 1 : 0)) + 
+                            (threeWagerProp * (sideBetsPayout > 0 ? sideBetsPayout + 1 : 0));
+
+    // Display appropriate screen message
+    let finalMsg = "";
+    if (mainResult === "blackjack") {
+      finalMsg = "Blackjack! 🏆";
+      triggerGoldExplosion();
+    } else if (mainResult === "win") {
+      finalMsg = "Player Wins!";
+      triggerGoldExplosion();
+    } else if (mainResult === "push") {
+      finalMsg = "Push (Refund)";
+      playSound("deal");
+    } else {
+      finalMsg = "Dealer Wins";
+      playSound("lose");
+    }
+
+    if (sideBetsPayout > 0) {
+      finalMsg += ` (+Side Bet Win!)`;
+    }
+
+    setResultMsg(finalMsg);
+
+    setTimeout(() => {
+      // Completed, return payout to parent store
+      const won = totalMultiplier > 0;
+      onCompleteRef.current(totalMultiplier, won);
+    }, 1800);
+  };
+
   const playerScore = getBlackjackScore(playerHand);
   const dealerScore = getBlackjackScore(dealerHand);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-[#111115] via-[#1a1a24] to-[#070709] rounded-3xl border border-[#27272a] shadow-2xl relative flex flex-col items-center justify-center overflow-hidden perspective-[1000px]">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-[#0c1524] via-[#0b101c] to-[#04060b] rounded-3xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-between p-4 overflow-hidden select-none">
       
-      {/* Carbon fiber grid effect / Table Felt */}
+      {/* Premium casino table felt background texture */}
       <div 
-        className="absolute inset-0 z-0 opacity-20 pointer-events-none"
+        className="absolute inset-0 z-0 opacity-15 pointer-events-none"
         style={{
           backgroundImage: `
-            radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 0),
-            radial-gradient(rgba(255, 255, 255, 0.15) 1px, transparent 0)
+            radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 0),
+            radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 0)
           `,
-          backgroundSize: '16px 16px',
-          backgroundPosition: '0 0, 8px 8px'
+          backgroundSize: "24px 24px",
+          backgroundPosition: "0 0, 12px 12px"
         }}
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.05),_transparent_60%)] pointer-events-none" />
-      
-      {/* Table Border illusion */}
-      <div className="absolute inset-4 rounded-[2.5rem] border-2 border-slate-800/50 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.12),_transparent_75%)] pointer-events-none" />
 
-      <div className="absolute top-8 text-center opacity-40 select-none">
-        <h2 className="text-slate-300 font-black text-2xl md:text-4xl tracking-[0.4em] uppercase drop-shadow-md">VIP BLACKJACK PLATINUM</h2>
-        <span className="text-slate-500 text-[10px] md:text-xs font-bold tracking-[0.5em] mt-1 block">BLACKJACK PAYS 3 TO 2</span>
+      {/* Gold Table border arcs */}
+      <div className="absolute inset-2 sm:inset-4 rounded-[2rem] border-[1.5px] border-amber-500/10 pointer-events-none z-10" />
+
+      {/* Live HUD Header */}
+      <div className="relative z-20 w-full flex justify-between items-center bg-black/40 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/5 shadow-md">
+        <div className="flex items-center gap-2">
+          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
+          <span className="text-[10px] font-black text-slate-350 tracking-widest uppercase">VIP PLATINUM TABLE</span>
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          <button 
+            onClick={() => setIsMuted(!isMuted)} 
+            className="p-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-slate-400 hover:text-white"
+          >
+            {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+        </div>
       </div>
 
-      {/* 15s Betting Countdown Ring */}
-      {!isPlaying && (
-        <div className="absolute top-4 right-4 flex items-center gap-2 bg-slate-950/80 border border-slate-800 rounded-full px-3 py-1.5 shadow-lg backdrop-blur-md z-30 select-none">
-          <div className="relative w-8 h-8 flex items-center justify-center">
-            <svg className="w-full h-full transform -rotate-90">
-              <circle 
-                cx="16" cy="16" r="13" 
-                className="stroke-slate-800 fill-none" 
-                strokeWidth="2.5" 
-              />
-              <circle 
-                cx="16" cy="16" r="13" 
-                className="stroke-red-500 fill-none transition-all duration-1000" 
-                strokeWidth="2.5" 
-                strokeDasharray="81.68" 
-                strokeDashoffset={(81.68 - (81.68 * betCountdown) / 15).toFixed(2)}
-              />
-            </svg>
-            <span className="absolute text-[10px] font-black text-white font-mono">{betCountdown}s</span>
-          </div>
-          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider pr-1">Bet window</span>
-        </div>
-      )}
+      {/* VIP Text banner */}
+      <div className="text-center opacity-30 select-none my-2 z-10">
+        <h2 className="text-amber-400 font-serif font-black text-lg sm:text-2xl tracking-[0.3em] uppercase drop-shadow-md">
+          VIP Blackjack Elite
+        </h2>
+        <span className="text-slate-400 text-[8px] sm:text-[9px] font-black tracking-[0.4em] block mt-0.5">
+          BLACKJACK PAYS 3 TO 2 • INSURANCE PAYS 2 TO 1
+        </span>
+      </div>
 
-      <div className="relative z-10 w-full flex flex-col md:flex-row gap-8 md:gap-20 justify-center mt-12 px-6 transform-style-3d rotate-x-[15deg]">
+      {/* Table Felt Areas & Card slots */}
+      <div className="relative z-10 w-full flex flex-col md:flex-row gap-6 md:gap-16 justify-center items-center flex-1 my-4">
         
         {/* Dealer Section */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="px-6 py-1 rounded-full border border-slate-700/50 bg-slate-800/30 backdrop-blur-sm shadow-inner">
-            <span className="text-xs text-slate-400 font-black uppercase tracking-widest">Dealer</span>
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-black/45 border border-white/5 px-3 py-1 rounded-full text-slate-300 font-black text-[10px] tracking-wider uppercase">
+            <span>Dealer</span>
+            {dealerHand.length > 0 && (
+              <span className="text-amber-400 font-mono font-bold">({dealerScore})</span>
+            )}
           </div>
-          <div className="flex gap-[-20px] min-h-[140px] perspective-[800px]">
+          <div className="flex gap-[-20px] min-h-[110px] sm:min-h-[130px] justify-center items-center">
             {dealerHand.map((card, idx) => (
               <motion.div
                 key={idx}
-                initial={{ y: -300, x: -200, rotateY: 180, rotateZ: -45, scale: 0.5 }}
-                animate={{ y: 0, x: 0, rotateY: 0, rotateZ: idx === 0 ? -5 : 5, scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className={`w-24 h-36 bg-gradient-to-br from-white to-slate-100 border-2 border-slate-200 rounded-xl shadow-[0_20px_30px_rgba(0,0,0,0.8),inset_0_0_10px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-2 transform-style-3d z-${10 + idx}`}
-                style={{ marginLeft: idx > 0 ? "-30px" : "0px" }}
+                initial={{ x: 200, y: -200, opacity: 0, rotate: 45, scale: 0.6 }}
+                animate={{ x: 0, y: 0, opacity: 1, rotate: card.faceDown ? 0 : idx === 0 ? -4 : 4, scale: 1 }}
+                transition={{ type: "spring", stiffness: 140, damping: 13 }}
+                className={cn(
+                  "w-18 h-26 sm:w-20 sm:h-30 rounded-xl shadow-[0_12px_24px_rgba(0,0,0,0.6)] relative flex flex-col justify-between p-2 select-none border border-white/10",
+                  card.faceDown 
+                    ? "bg-gradient-to-br from-amber-600 via-amber-800 to-amber-950 border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]" 
+                    : "bg-gradient-to-br from-white to-slate-100"
+                )}
+                style={{ marginLeft: idx > 0 ? "-24px" : "0px" }}
               >
-                <span className={`font-black text-lg leading-none ${card.color}`}>{card.val}</span>
-                <span className={`text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${card.color}`}>{card.suit}</span>
-                <span className={`font-black text-lg leading-none self-end rotate-180 ${card.color}`}>{card.val}</span>
+                {card.faceDown ? (
+                  <div className="absolute inset-1 rounded-lg border border-amber-500/20 bg-black/20 flex items-center justify-center">
+                    <Coins className="w-6 h-6 text-amber-500/60 animate-pulse" />
+                  </div>
+                ) : (
+                  <>
+                    <span className={cn("font-black text-sm leading-none", card.color)}>{card.val}</span>
+                    <span className={cn("text-2.5xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", card.color)}>{card.suit}</span>
+                    <span className={cn("font-black text-sm leading-none self-end rotate-180", card.color)}>{card.val}</span>
+                  </>
+                )}
               </motion.div>
             ))}
           </div>
-          {dealerHand.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-white font-mono font-black text-xl bg-slate-900/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
-              {dealerScore}
-            </motion.div>
-          )}
         </div>
 
         {/* Player Section */}
-        <div className="flex flex-col items-center gap-4">
-          <div className="px-6 py-1 rounded-full border border-blue-500/30 bg-blue-500/10 backdrop-blur-sm shadow-[0_0_15px_rgba(59,130,246,0.2)]">
-            <span className="text-xs text-blue-400 font-black uppercase tracking-widest">Player</span>
+        <div className="flex flex-col items-center gap-2">
+          <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full text-blue-400 font-black text-[10px] tracking-wider uppercase shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+            <span>Player</span>
+            {playerHand.length > 0 && (
+              <span className="text-yellow-400 font-mono font-bold">({playerScore})</span>
+            )}
           </div>
-          <div className="flex gap-[-20px] min-h-[140px] perspective-[800px]">
+          <div className="flex gap-[-20px] min-h-[110px] sm:min-h-[130px] justify-center items-center">
             {playerHand.map((card, idx) => (
               <motion.div
                 key={idx}
-                initial={{ y: -300, x: 200, rotateY: 180, rotateZ: 45, scale: 0.5 }}
-                animate={{ y: 0, x: 0, rotateY: 0, rotateZ: idx === 0 ? -5 : 5, scale: 1 }}
-                transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className={`w-24 h-36 bg-gradient-to-br from-white to-slate-100 border-2 border-slate-200 rounded-xl shadow-[0_20px_30px_rgba(0,0,0,0.8),inset_0_0_10px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-2 transform-style-3d z-${10 + idx}`}
-                style={{ marginLeft: idx > 0 ? "-30px" : "0px" }}
+                initial={{ x: 200, y: -200, opacity: 0, rotate: 45, scale: 0.6 }}
+                animate={{ x: 0, y: 0, opacity: 1, rotate: idx === 0 ? -4 : 4, scale: 1 }}
+                transition={{ type: "spring", stiffness: 140, damping: 13 }}
+                className="w-18 h-26 sm:w-20 sm:h-30 bg-gradient-to-br from-white to-slate-100 border border-white/10 rounded-xl shadow-[0_12px_24px_rgba(0,0,0,0.6)] relative flex flex-col justify-between p-2 select-none"
+                style={{ marginLeft: idx > 0 ? "-24px" : "0px" }}
               >
-                <span className={`font-black text-lg leading-none ${card.color}`}>{card.val}</span>
-                <span className={`text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${card.color}`}>{card.suit}</span>
-                <span className={`font-black text-lg leading-none self-end rotate-180 ${card.color}`}>{card.val}</span>
+                <span className={cn("font-black text-sm leading-none", card.color)}>{card.val}</span>
+                <span className={cn("text-2.5xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", card.color)}>{card.suit}</span>
+                <span className={cn("font-black text-sm leading-none self-end rotate-180", card.color)}>{card.val}</span>
               </motion.div>
             ))}
           </div>
-          {playerHand.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-white font-mono font-black text-xl bg-slate-900/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
-              {playerScore}
-            </motion.div>
-          )}
+        </div>
+
+      </div>
+
+      {/* Gold Particles Explosion Layer */}
+      <div className="absolute inset-0 z-20 pointer-events-none overflow-hidden">
+        {particles.map(p => (
+          <motion.div
+            key={p.id}
+            initial={{ opacity: 1, scale: 0.4, x: 0, y: 100 }}
+            animate={{ 
+              opacity: 0, 
+              scale: Math.random() * 0.8 + 0.5, 
+              x: p.x, 
+              y: p.y - 120, 
+              rotate: Math.random() * 360 
+            }}
+            transition={{ duration: 1.5, ease: "easeOut" }}
+            className={cn("absolute left-1/2 top-1/2 w-3.5 h-3.5 rounded bg-gradient-to-br shadow-[0_0_10px_rgba(245,158,11,0.5)]", p.color)}
+          />
+        ))}
+      </div>
+
+      {/* Premium Betting felt slots (Only shown in betting/idle phase) */}
+      <div className="relative z-20 w-full max-w-sm mx-auto flex justify-center items-center gap-6 my-2">
+        {/* Left: Perfect Pairs */}
+        <div className="flex flex-col items-center gap-1.5">
+          <button
+            disabled={phase !== "betting"}
+            onClick={() => {
+              setSideBets(prev => ({ ...prev, pairs: !prev.pairs }));
+              playSound("chip");
+            }}
+            className={cn(
+              "w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
+              sideBets.pairs 
+                ? "border-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.3)] scale-105" 
+                : "border-slate-700 bg-black/40 hover:border-amber-500/40"
+            )}
+          >
+            {sideBets.pairs ? (
+              <div className="flex flex-col items-center justify-center leading-none">
+                <Coins className="w-5 h-5 text-amber-400 animate-bounce" />
+                <span className="text-[7.5px] font-black text-amber-300 mt-0.5">25:1</span>
+              </div>
+            ) : (
+              <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest text-center">Pairs</span>
+            )}
+          </button>
+          <span className="text-[7.5px] font-black uppercase text-slate-500 tracking-wider">Perfect Pairs</span>
+        </div>
+
+        {/* Center: Main Hand */}
+        <div className="flex flex-col items-center gap-1.5">
+          <div
+            className={cn(
+              "w-16 h-16 sm:w-18 sm:h-18 rounded-full border-2 flex items-center justify-center relative shadow-inner select-none",
+              phase === "betting" 
+                ? "border-amber-400 bg-amber-400/5 shadow-[0_0_20px_rgba(245,158,11,0.25)]" 
+                : "border-blue-500/80 bg-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
+            )}
+          >
+            <div className="flex flex-col items-center justify-center leading-none">
+              <Coins className="w-7 h-7 text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] animate-pulse" />
+              <span className="text-[8.5px] font-black text-slate-350 mt-1 uppercase tracking-wider">Main Bet</span>
+            </div>
+          </div>
+          <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Main Seat</span>
+        </div>
+
+        {/* Right: 21+3 */}
+        <div className="flex flex-col items-center gap-1.5">
+          <button
+            disabled={phase !== "betting"}
+            onClick={() => {
+              setSideBets(prev => ({ ...prev, three: !prev.three }));
+              playSound("chip");
+            }}
+            className={cn(
+              "w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
+              sideBets.three 
+                ? "border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-105" 
+                : "border-slate-700 bg-black/40 hover:border-emerald-500/40"
+            )}
+          >
+            {sideBets.three ? (
+              <div className="flex flex-col items-center justify-center leading-none">
+                <Coins className="w-5 h-5 text-emerald-400 animate-bounce" />
+                <span className="text-[7.5px] font-black text-emerald-300 mt-0.5">100:1</span>
+              </div>
+            ) : (
+              <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest text-center">21+3</span>
+            )}
+          </button>
+          <span className="text-[7.5px] font-black uppercase text-slate-500 tracking-wider">21+3 Side</span>
         </div>
       </div>
 
-      {/* Selected Bet Indicator Overlay during play */}
-      {isPlaying && (
-        <div className="absolute top-4 left-4 flex items-center bg-black/60 border border-slate-700/30 rounded-full px-4 py-1.5 shadow-lg backdrop-blur-md z-30 select-none">
-          <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">BET ON: {selectedSide}</span>
-        </div>
-      )}
+      {/* Premium Dealer card shoe dispenser silhouette */}
+      <div className="absolute top-4 right-6 w-16 h-12 bg-gradient-to-br from-amber-600 via-amber-800 to-black rounded-lg border border-amber-500/30 shadow-[0_10px_20px_rgba(0,0,0,0.8)] flex items-center justify-center z-15 pointer-events-none opacity-85 overflow-hidden">
+        <div className="w-full h-2 bg-black border-b border-amber-500/20 transform rotate-12 translate-y-1" />
+        <div className="absolute right-0 top-0 bottom-0 w-2 bg-amber-500/40" />
+      </div>
 
-      {/* Side Selector (Shown when not playing) */}
-      {!isPlaying && (
-        <div className="mt-8 flex gap-4 z-20">
-          <button
-            onClick={() => setSelectedSide("PLAYER")}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
-              selectedSide === "PLAYER"
-                ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-105"
-                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-emerald-500/30"
-            }`}
-          >
-            Bet Player (2x)
-          </button>
-          <button
-            onClick={() => setSelectedSide("DEALER")}
-            className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
-              selectedSide === "DEALER"
-                ? "bg-gradient-to-br from-red-550 to-red-650 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
-                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-red-500/30"
-            }`}
-          >
-            Bet Dealer (2x)
-          </button>
-        </div>
-      )}
-
-      {/* Results HUD Overlay */}
-      <AnimatePresence>
-        {dealt && resultMsg && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.5, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.5, y: 50 }}
-            className="absolute bottom-10 z-50 px-12 py-4 bg-slate-900/90 border border-slate-600 shadow-[0_0_50px_rgba(255,255,255,0.1)] rounded-2xl backdrop-blur-lg"
-          >
-            <span className={`font-black uppercase tracking-widest text-3xl drop-shadow-md ${
-              resultMsg.includes("Player") ? "text-blue-400" :
-              resultMsg.includes("Dealer") || resultMsg.includes("Busts") ? "text-red-400" : "text-slate-300"
-            }`}>
+      {/* Decision HUD & Controls */}
+      <div className="relative z-30 w-full max-w-md bg-slate-900/60 backdrop-blur-xl p-3.5 rounded-2xl border border-white/5 shadow-2xl flex flex-col gap-3 items-center">
+        
+        {/* Status message */}
+        <div className="text-center">
+          {phase === "betting" && (
+            <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-widest leading-none">
+              Place wagers and toggle side bets to begin
+            </span>
+          )}
+          {phase === "dealing" && (
+            <span className="text-[9.5px] font-black text-amber-400 uppercase tracking-widest leading-none animate-pulse">
+              Dealer dealing cards...
+            </span>
+          )}
+          {phase === "player-turn" && (
+            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider leading-none">
+              Your turn • Hit or Stand?
+            </span>
+          )}
+          {phase === "dealer-turn" && (
+            <span className="text-[10px] font-black text-yellow-400 uppercase tracking-wider leading-none animate-pulse">
+              Dealer's turn...
+            </span>
+          )}
+          {phase === "resolved" && resultMsg && (
+            <span className={cn(
+              "text-lg font-black uppercase tracking-widest drop-shadow",
+              resultMsg.includes("Wins") || resultMsg.includes("Blackjack") ? "text-amber-400" :
+              resultMsg.includes("Push") ? "text-slate-350" : "text-rose-500"
+            )}>
               {resultMsg}
             </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </div>
+
+        {/* Action Buttons Panel */}
+        <div className="w-full flex gap-2 justify-center">
+          {phase === "player-turn" ? (
+            <>
+              {/* Stand Button */}
+              <button
+                onClick={handleStand}
+                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-black text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(239,68,68,0.1)] active:scale-97"
+              >
+                <Hand className="w-4 h-4" />
+                <span>Stand</span>
+              </button>
+
+              {/* Hit Button */}
+              <button
+                onClick={handleHit}
+                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-black text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-97"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Hit</span>
+              </button>
+
+              {/* Double Down Button */}
+              <button
+                disabled={playerHand.length > 2}
+                onClick={handleDoubleDown}
+                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-black text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.1)] active:scale-97 disabled:opacity-40 disabled:pointer-events-none"
+              >
+                <Zap className="w-4 h-4" />
+                <span>Double</span>
+              </button>
+            </>
+          ) : (
+            <div className="flex items-center justify-center py-4 text-slate-500 font-black text-[10px] uppercase tracking-widest gap-2">
+              <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-600" />
+              <span>Awaiting Next Bet Lock</span>
+            </div>
+          )}
+        </div>
+
+      </div>
 
     </div>
   );
