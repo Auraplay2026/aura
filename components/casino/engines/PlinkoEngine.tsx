@@ -1,8 +1,9 @@
 "use client";
+
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
-import { playGameSound } from "@/lib/audio";
+import { Zap, Volume2, VolumeX, Shield, Trophy, Activity, AlertTriangle, Layers, Play, Sparkles } from "lucide-react";
 
 interface PlinkoEngineProps {
   isPlaying: boolean;
@@ -10,46 +11,260 @@ interface PlinkoEngineProps {
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
-type Risk = "low" | "medium" | "high";
+type Risk = "low" | "medium" | "high" | "extreme";
+
+interface Ball {
+  id: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  radius: number;
+  color: string;
+  trail: { x: number; y: number }[];
+  choices: number[]; // Left (-1) or Right (1) choices for each of the 10 rows
+  currentRow: number;
+  isCompleted: boolean;
+  targetBinIndex: number;
+  multiplier: number;
+}
+
+interface Peg {
+  x: number;
+  y: number;
+  radius: number;
+  row: number;
+  col: number;
+  hitProgress: number; // For impact animations
+}
+
+interface Particle {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  size: number;
+  color: string;
+  alpha: number;
+}
+
+interface ActivityLog {
+  id: string;
+  user: string;
+  bet: number;
+  multiplier: number;
+  won: boolean;
+}
+
 const ROWS = 10;
 const MULTIPLIERS: Record<Risk, number[]> = {
-  low:    [5.6, 2.1, 1.1, 1.0, 0.5, 0.5, 0.5, 1.0, 1.1, 2.1, 5.6],
-  medium: [13.0, 3.0, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3.0, 13.0],
-  high:   [76.0, 10.0, 2.5, 0.3, 0.2, 0.2, 0.2, 0.3, 2.5, 10.0, 76.0],
+  low:     [5.6, 2.1, 1.1, 1.0, 0.5, 0.5, 0.5, 1.0, 1.1, 2.1, 5.6],
+  medium:  [13.0, 3.0, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3.0, 13.0],
+  high:    [76.0, 10.0, 2.5, 0.3, 0.2, 0.2, 0.2, 0.3, 2.5, 10.0, 76.0],
+  extreme: [350.0, 25.0, 4.0, 0.2, 0.1, 0.1, 0.1, 0.2, 4.0, 25.0, 350.0]
+};
+
+// Risk themes configurations
+const RISK_THEMES: Record<Risk, { color: string; border: string; glow: string; bg: string; text: string }> = {
+  low: {
+    color: "#06b6d4", // Cyan
+    border: "border-cyan-500/30",
+    glow: "rgba(6, 182, 212, 0.4)",
+    bg: "bg-cyan-500/10",
+    text: "text-cyan-400"
+  },
+  medium: {
+    color: "#a855f7", // Purple
+    border: "border-purple-500/30",
+    glow: "rgba(168, 85, 247, 0.4)",
+    bg: "bg-purple-500/10",
+    text: "text-purple-400"
+  },
+  high: {
+    color: "#f97316", // Orange
+    border: "border-orange-500/30",
+    glow: "rgba(249, 115, 22, 0.4)",
+    bg: "bg-orange-500/10",
+    text: "text-orange-400"
+  },
+  extreme: {
+    color: "#ef4444", // Red
+    border: "border-red-500/40",
+    glow: "rgba(239, 68, 68, 0.6)",
+    bg: "bg-red-500/15",
+    text: "text-red-400"
+  }
 };
 
 export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoEngineProps) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const [risk, setRisk] = useState<Risk>("medium");
   const [ballCount, setBallCount] = useState<1 | 3 | 5 | 10>(1);
-  const [balls, setBalls] = useState<{ id: number; pathX: number[]; pathY: number[]; multiplier: number; binIndex: number }[]>([]);
-  const ballIdRef = useRef(0);
+  const [isMuted, setIsMuted] = useState(false);
   const [lastResult, setLastResult] = useState<{ mult: number; won: boolean } | null>(null);
-  const [activePegs, setActivePegs] = useState<Record<string, number>>({});
   const [activeBucketIndex, setActiveBucketIndex] = useState<number | null>(null);
   
+  // Lobby activity log data
+  const [liveActivities, setLiveActivities] = useState<ActivityLog[]>([]);
+  const [winsCount, setWinsCount] = useState(32);
+  const [dailyProgress, setDailyProgress] = useState(45);
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
+
+  // Physics simulation constants
+  const WIDTH = 600;
+  const HEIGHT = 720;
+  const PEG_RADIUS = 5.5;
+  const BALL_RADIUS = 10.5;
+  const GRAVITY = 0.17;
+  const RESTITUTION = 0.48;
+
+  // Refs for animation loop
+  const ballsRef = useRef<Ball[]>([]);
+  const pegsRef = useRef<Peg[]>([]);
+  const particlesRef = useRef<Particle[]>([]);
+  const activeBucketRef = useRef<number | null>(null);
+  const isPlayingRef = useRef(isPlaying);
   const onCompleteRef = useRef(onComplete);
-  const hasDroppedRef = useRef(false);
 
-  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
+  // Sync references
+  useEffect(() => {
+    isPlayingRef.current = isPlaying;
+  }, [isPlaying]);
 
-  const dropMultipleBalls = useCallback(async () => {
+  useEffect(() => {
+    onCompleteRef.current = onComplete;
+  }, [onComplete]);
+
+  // Audio Context Ref
+  const audioCtxRef = useRef<AudioContext | null>(null);
+
+  const playSound = useCallback((type: "tick" | "hit_high" | "hit_low") => {
+    if (isMuted) return;
+    try {
+      if (!audioCtxRef.current) {
+        const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioCtx) {
+          audioCtxRef.current = new AudioCtx();
+        }
+      }
+      const ctx = audioCtxRef.current;
+      if (!ctx) return;
+      if (ctx.state === "suspended") {
+        ctx.resume();
+      }
+
+      const now = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      if (type === "tick") {
+        // High click sound on peg collision
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(800, now);
+        osc.frequency.exponentialRampToValueAtTime(300, now + 0.015);
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.015);
+        osc.start(now);
+        osc.stop(now + 0.015);
+      } else if (type === "hit_high") {
+        // High major chord for big wins
+        const notes = [440.00, 554.37, 659.25, 880.00];
+        notes.forEach((f, idx) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.connect(g);
+          g.connect(ctx.destination);
+          o.type = "triangle";
+          o.frequency.setValueAtTime(f, now + idx * 0.05);
+          g.gain.setValueAtTime(0.12, now + idx * 0.05);
+          g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.3);
+          o.start(now + idx * 0.05);
+          o.stop(now + idx * 0.05 + 0.3);
+        });
+      } else if (type === "hit_low") {
+        // Small chime
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(261.63, now);
+        osc.frequency.exponentialRampToValueAtTime(523.25, now + 0.1);
+        gain.gain.setValueAtTime(0.1, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+        osc.start(now);
+        osc.stop(now + 0.1);
+      }
+    } catch (e) {
+      console.warn("Synth audio trigger failed", e);
+    }
+  }, [isMuted]);
+
+  // Define Peg positions at start
+  const initPegs = useCallback(() => {
+    const arr: Peg[] = [];
+    const centerX = WIDTH / 2;
+    const startY = 80;
+    const ySpacing = 48;
+    const xSpacing = 36;
+
+    for (let r = 0; r < ROWS; r++) {
+      const pegCount = r + 3;
+      const rowY = startY + r * ySpacing;
+      for (let p = 0; p < pegCount; p++) {
+        const pegX = centerX + (p - (pegCount - 1) / 2) * xSpacing;
+        arr.push({
+          x: pegX,
+          y: rowY,
+          radius: PEG_RADIUS,
+          row: r,
+          col: p,
+          hitProgress: 0
+        });
+      }
+    }
+    pegsRef.current = arr;
+  }, []);
+
+  useEffect(() => {
+    initPegs();
+  }, [initPegs]);
+
+  // Spark sparks generator
+  const spawnSparks = (x: number, y: number, color: string, count = 6) => {
+    for (let i = 0; i < count; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = 1 + Math.random() * 3.5;
+      particlesRef.current.push({
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        size: 1.5 + Math.random() * 2,
+        color,
+        alpha: 1.0
+      });
+    }
+  };
+
+  // Launch drops trigger
+  const triggerDrops = useCallback(async () => {
     const totalBalls = ballCount;
     const completedResults: number[] = [];
     const ballOutcomes: { multiplier: number; targetBinIndex: number }[] = [];
 
+    // 1. Query server API wagers
     try {
-      const email = useTradingStore.getState().currentUser?.email || "admin@aurabet.io";
-      const singleBallBet = betAmount / totalBalls;
-
+      const singleWager = betAmount / totalBalls;
       for (let i = 0; i < totalBalls; i++) {
-        const res = await fetch('/api/casino/bet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/api/casino/bet", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             email,
             gameId: "orig-3",
             gameTitle: "Plinko",
-            betAmount: singleBallBet,
+            betAmount: singleWager,
             selectedTarget: risk
           })
         });
@@ -60,145 +275,581 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
             targetBinIndex: data.targetBinIndex !== undefined ? data.targetBinIndex : 5
           });
         } else {
-          const targetBin = Math.floor(Math.random() * (ROWS + 1));
+          const bin = Math.floor(Math.random() * (ROWS + 1));
           ballOutcomes.push({
-            multiplier: MULTIPLIERS[risk][targetBin],
-            targetBinIndex: targetBin
+            multiplier: MULTIPLIERS[risk][bin],
+            targetBinIndex: bin
           });
         }
       }
-    } catch (err) {
-      console.error("Failed to fetch Plinko server wagers", err);
+    } catch (e) {
+      console.warn("Wager call fallback used:", e);
       for (let i = 0; i < totalBalls; i++) {
-        const targetBin = Math.floor(Math.random() * (ROWS + 1));
+        const bin = Math.floor(Math.random() * (ROWS + 1));
         ballOutcomes.push({
-          multiplier: MULTIPLIERS[risk][targetBin],
-          targetBinIndex: targetBin
+          multiplier: MULTIPLIERS[risk][bin],
+          targetBinIndex: bin
         });
       }
     }
 
-    const startId = ballIdRef.current;
-    ballIdRef.current += totalBalls;
-
-    for (let i = 0; i < totalBalls; i++) {
+    // 2. Launch balls sequentially
+    const theme = RISK_THEMES[risk];
+    ballOutcomes.forEach((outcome, idx) => {
       setTimeout(() => {
-        const outcome = ballOutcomes[i];
-        const targetBinIndex = outcome.targetBinIndex;
-
-        const bounces = [
-          ...Array(targetBinIndex).fill(1),
-          ...Array(ROWS - targetBinIndex).fill(-1)
+        // Pre-compute Left/Right choices to land exactly in targetBinIndex
+        const targetBin = outcome.targetBinIndex;
+        
+        // Decide left (-1) or right (1) choices
+        const choices = [
+          ...Array(targetBin).fill(1),
+          ...Array(ROWS - targetBin).fill(-1)
         ];
-        for (let idx = bounces.length - 1; idx > 0; idx--) {
-          const j = Math.floor(Math.random() * (idx + 1));
-          [bounces[idx], bounces[j]] = [bounces[j], bounces[idx]];
+        // Shuffle choices randomly
+        for (let j = choices.length - 1; j > 0; j--) {
+          const rIdx = Math.floor(Math.random() * (j + 1));
+          [choices[j], choices[rIdx]] = [choices[rIdx], choices[j]];
         }
 
-        let posX = 0;
-        const pathX = [0];
-        const pathY = [0];
-        const pathXIndexAtRow: number[] = [0];
+        const startX = WIDTH / 2 + (Math.random() * 12 - 6);
+        const newBall: Ball = {
+          id: Date.now() + idx + Math.random(),
+          x: startX,
+          y: 20,
+          vx: Math.random() * 2 - 1,
+          vy: 0.5,
+          radius: BALL_RADIUS,
+          color: theme.color,
+          trail: [],
+          choices,
+          currentRow: 0,
+          isCompleted: false,
+          targetBinIndex: targetBin,
+          multiplier: outcome.multiplier
+        };
 
-        for (let idx = 0; idx < bounces.length; idx++) {
-          posX += bounces[idx];
-          const wobble = (Math.random() * 4 - 2);
-          pathX.push(posX * 18 + wobble);
-          pathXIndexAtRow.push(posX);
+        ballsRef.current.push(newBall);
+      }, idx * 180);
+    });
+  }, [ballCount, betAmount, risk, email]);
 
-          const gap = 20 + (idx + 1) * 3.2;
-          const prevY = pathY[pathY.length - 1];
-          pathY.push(prevY + gap);
-        }
-
-        const multiplier = outcome.multiplier;
-        const currentBallId = startId + i;
-        const newBall = { id: currentBallId, pathX, pathY, multiplier, binIndex: targetBinIndex };
-
-        setBalls(prev => [...prev, newBall]);
-
-        for (let r = 0; r < ROWS; r++) {
-          const pegCol = (r + 2 + pathXIndexAtRow[r]) / 2;
-          setTimeout(() => {
-            playGameSound('tick');
-            const pegKey = `${r}-${Math.round(pegCol)}`;
-            setActivePegs(prev => ({ ...prev, [pegKey]: (prev[pegKey] || 0) + 1 }));
-            setTimeout(() => {
-              setActivePegs(prev => ({ ...prev, [pegKey]: Math.max(0, (prev[pegKey] || 1) - 1) }));
-            }, 150);
-          }, r * 200);
-        }
-
-        const animDuration = ROWS * 200;
-        setTimeout(() => {
-          setActiveBucketIndex(targetBinIndex);
-          setTimeout(() => setActiveBucketIndex(null), 300);
-
-          setBalls(prev => prev.filter(b => b.id !== newBall.id));
-          completedResults.push(multiplier);
-
-          if (completedResults.length === totalBalls) {
-            const sum = completedResults.reduce((a, b) => a + b, 0);
-            const averageMultiplier = sum / totalBalls;
-            setLastResult({ mult: averageMultiplier, won: averageMultiplier >= 1.0 });
-            onCompleteRef.current(averageMultiplier, averageMultiplier > 0);
-          }
-        }, animDuration + 200);
-
-      }, i * 150);
-    }
-  }, [risk, betAmount, ballCount]);
-
+  // Monitor isPlaying trigger
   useEffect(() => {
-    if (!isPlaying) {
-      hasDroppedRef.current = false;
-      const timer = setTimeout(() => {
-        setLastResult(null);
-      }, 0);
-      return () => clearTimeout(timer);
+    if (isPlaying) {
+      triggerDrops();
     }
-    if (hasDroppedRef.current) return;
-    hasDroppedRef.current = true;
-    dropMultipleBalls();
-  }, [isPlaying, dropMultipleBalls]);
+  }, [isPlaying, triggerDrops]);
 
-  const multColor = (m: number) => {
-    if (m >= 10) return "from-red-500 to-red-600 shadow-[0_0_20px_rgba(239,68,68,0.8)] border-red-400 text-white";
-    if (m >= 2)  return "from-orange-500 to-amber-500 shadow-[0_0_15px_rgba(249,115,22,0.6)] border-orange-400 text-white";
-    if (m >= 1)  return "from-yellow-500 to-yellow-400 shadow-[0_0_10px_rgba(234,179,8,0.4)] border-yellow-300 text-slate-900";
-    return "from-slate-700 to-slate-800 shadow-inner border-slate-600 text-slate-400";
+  // Main Canvas Render and Physics update loop
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animId: number;
+
+    const render = () => {
+      // 1. Draw Space Dark Felt
+      ctx.fillStyle = "#020617";
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Radial energy background glow
+      const theme = RISK_THEMES[risk];
+      const glowGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, WIDTH * 0.7);
+      glowGrad.addColorStop(0, theme.glow.replace("0.4", "0.08"));
+      glowGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
+      ctx.fillStyle = glowGrad;
+      ctx.beginPath();
+      ctx.arc(WIDTH / 2, HEIGHT / 2, WIDTH * 0.7, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Subtle grid lines
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.02)";
+      ctx.lineWidth = 0.5;
+      for (let x = 0; x < WIDTH; x += 40) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, HEIGHT);
+        ctx.stroke();
+      }
+      for (let y = 0; y < HEIGHT; y += 40) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(WIDTH, y);
+        ctx.stroke();
+      }
+
+      // 2. Render Pockets / Buckets at the bottom
+      const bucketWidth = WIDTH / (ROWS + 1);
+      const bucketY = HEIGHT - 55;
+      const bucketH = 38;
+
+      MULTIPLIERS[risk].forEach((m, idx) => {
+        const bx = idx * bucketWidth + 3;
+        const bw = bucketWidth - 6;
+
+        const isActive = activeBucketIndex === idx;
+
+        // Bucket backdrop color based on multiplier value
+        let bColor = "#334155"; // Slate for low
+        let shadowCol = "rgba(0,0,0,0)";
+        if (m >= 10) {
+          bColor = "#ef4444"; // Red for high
+          shadowCol = "rgba(239, 68, 68, 0.5)";
+        } else if (m >= 2) {
+          bColor = "#f97316"; // Orange
+          shadowCol = "rgba(249, 115, 22, 0.4)";
+        } else if (m >= 1) {
+          bColor = "#eab308"; // Gold
+          shadowCol = "rgba(234, 179, 8, 0.3)";
+        }
+
+        ctx.shadowBlur = isActive ? 20 : 0;
+        ctx.shadowColor = shadowCol;
+
+        // Draw Bucket container
+        ctx.fillStyle = isActive ? bColor : "rgba(15, 23, 42, 0.75)";
+        ctx.strokeStyle = isActive ? "#ffffff" : bColor;
+        ctx.lineWidth = isActive ? 2.5 : 1.5;
+
+        // Rounded bucket corners
+        ctx.beginPath();
+        ctx.roundRect(bx, isActive ? bucketY - 4 : bucketY, bw, bucketH, 8);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.shadowBlur = 0; // reset
+
+        // Label Multiplier text
+        ctx.fillStyle = isActive && m < 1 ? "#0f172a" : "#ffffff";
+        ctx.font = "bold 11px monospace";
+        ctx.textAlign = "center";
+        ctx.textBaseline = "middle";
+        ctx.fillText(`${m}x`, bx + bw / 2, (isActive ? bucketY - 4 : bucketY) + bucketH / 2);
+      });
+
+      // 3. Update & Draw Pegs
+      const pegs = pegsRef.current;
+      pegs.forEach(peg => {
+        // Hit expand animation decay
+        if (peg.hitProgress > 0) {
+          peg.hitProgress -= 0.08;
+          if (peg.hitProgress < 0) peg.hitProgress = 0;
+        }
+
+        const size = peg.radius + peg.hitProgress * 4;
+
+        // Glow behind lit peg
+        if (peg.hitProgress > 0) {
+          ctx.shadowBlur = 15;
+          ctx.shadowColor = theme.color;
+        }
+
+        // Inner peg circle
+        ctx.fillStyle = peg.hitProgress > 0 ? "#ffffff" : "#475569";
+        ctx.beginPath();
+        ctx.arc(peg.x, peg.y, size, 0, Math.PI * 2);
+        ctx.fill();
+
+        ctx.shadowBlur = 0; // reset
+
+        // Outer glow rim ring
+        ctx.strokeStyle = peg.hitProgress > 0 ? theme.color : "rgba(71, 85, 105, 0.3)";
+        ctx.lineWidth = 1.5;
+        ctx.beginPath();
+        ctx.arc(peg.x, peg.y, size + 2.5, 0, Math.PI * 2);
+        ctx.stroke();
+      });
+
+      // 4. Update & Draw Balls
+      const balls = ballsRef.current;
+      for (let i = balls.length - 1; i >= 0; i--) {
+        const ball = balls[i];
+
+        if (ball.isCompleted) continue;
+
+        // Apply physics
+        ball.vy += GRAVITY;
+        ball.vy = Math.min(7.5, ball.vy); // Terminal speed
+
+        ball.x += ball.vx;
+        ball.y += ball.vy;
+
+        // Cushion Boundaries Collisions
+        const leftLimit = 32;
+        const rightLimit = WIDTH - 32;
+        if (ball.x - ball.radius < leftLimit) {
+          ball.x = leftLimit + ball.radius;
+          ball.vx = -ball.vx * 0.45;
+          playSound("tick");
+          spawnSparks(ball.x - ball.radius, ball.y, theme.color, 4);
+        } else if (ball.x + ball.radius > rightLimit) {
+          ball.x = rightLimit - ball.radius;
+          ball.vx = -ball.vx * 0.45;
+          playSound("tick");
+          spawnSparks(ball.x + ball.radius, ball.y, theme.color, 4);
+        }
+
+        // Save trail coordinate points (Hero motion trails)
+        ball.trail.push({ x: ball.x, y: ball.y });
+        if (ball.trail.length > 8) ball.trail.shift();
+
+        // Steering Guidance towards target pocket
+        const startY = 80;
+        const ySpacing = 48;
+        // Check which row the ball is approaching
+        const relY = ball.y - startY;
+        const approachingRow = Math.floor(relY / ySpacing);
+
+        if (approachingRow >= 0 && approachingRow < ROWS && approachingRow !== ball.currentRow) {
+          // Identify nearest peg in row
+          const rowPegs = pegs.filter(p => p.row === approachingRow);
+          let nearestPeg: Peg | null = null;
+          let minDist = Infinity;
+          for (const p of rowPegs) {
+            const dist = Math.abs(ball.x - p.x);
+            if (dist < minDist) {
+              minDist = dist;
+              nearestPeg = p;
+            }
+          }
+
+          if (nearestPeg) {
+            // Apply steering decision choice
+            const choice = ball.choices[approachingRow] || 1;
+            const targetSideX = nearestPeg.x + choice * 12; // pass to left or right
+
+            // Smooth steering torque adjustment
+            const diffX = targetSideX - ball.x;
+            ball.vx += diffX * 0.08; // guide force nudge
+          }
+        }
+
+        // Update current row cross
+        if (approachingRow >= 0 && approachingRow <= ROWS) {
+          ball.currentRow = approachingRow;
+        }
+
+        // Check Peg collisions
+        pegs.forEach(peg => {
+          const dx = ball.x - peg.x;
+          const dy = ball.y - peg.y;
+          const dist = Math.hypot(dx, dy);
+          const contactDist = ball.radius + peg.radius;
+
+          if (dist < contactDist) {
+            // Push out overlap
+            const overlap = contactDist - dist;
+            const nx = dx / dist;
+            const ny = dy / dist;
+
+            ball.x += nx * overlap;
+            ball.y += ny * overlap;
+
+            // Reflect velocities
+            const dot = ball.vx * nx + ball.vy * ny;
+            if (dot < 0) {
+              ball.vx = (ball.vx - 2 * dot * nx) * RESTITUTION;
+              ball.vy = (ball.vy - 2 * dot * ny) * RESTITUTION;
+
+              // Introduce minor kinetic wobble path deviation
+              ball.vx += (Math.random() * 0.6 - 0.3);
+            }
+
+            // Trigger peg lights hit
+            peg.hitProgress = 1.0;
+            playSound("tick");
+            spawnSparks(peg.x, peg.y, theme.color, 5);
+          }
+        });
+
+        // Check if ball landed in bucket
+        if (ball.y >= bucketY + 2) {
+          ball.isCompleted = true;
+          const bin = Math.min(ROWS, Math.max(0, Math.floor(ball.x / bucketWidth)));
+
+          // Synchronize visual landing index feedback
+          setActiveBucketIndex(bin);
+          playSound(ball.multiplier >= 2.0 ? "hit_high" : "hit_low");
+          spawnSparks(ball.x, bucketY, theme.color, 12);
+
+          // Update lobby stats
+          const actWin = ball.multiplier >= 1.0;
+          setLastResult({ mult: ball.multiplier, won: actWin });
+          setLiveActivities(prev => [
+            {
+              id: `act-${Date.now()}-${Math.random()}`,
+              user: email.split("@")[0],
+              bet: betAmount / ballCount,
+              multiplier: ball.multiplier,
+              won: actWin
+            },
+            ...prev
+          ].slice(0, 8));
+
+          if (actWin) {
+            setWinsCount(prev => prev + 1);
+            setDailyProgress(prev => Math.min(100, prev + 3));
+          }
+
+          // Complete parent bet callback
+          onCompleteRef.current(ball.multiplier, actWin);
+
+          // Remove ball from array
+          balls.splice(i, 1);
+          setTimeout(() => {
+            setActiveBucketIndex(null);
+          }, 320);
+        }
+      }
+
+      // Draw Ball Trails (Hero visual effects)
+      balls.forEach(ball => {
+        if (ball.trail.length < 2) return;
+        ctx.lineWidth = 3.5;
+        ctx.lineCap = "round";
+
+        for (let idx = 1; idx < ball.trail.length; idx++) {
+          const pt1 = ball.trail[idx - 1];
+          const pt2 = ball.trail[idx];
+          const alpha = idx / ball.trail.length;
+
+          ctx.strokeStyle = theme.color;
+          ctx.globalAlpha = alpha * 0.35;
+          ctx.beginPath();
+          ctx.moveTo(pt1.x, pt1.y);
+          ctx.lineTo(pt2.x, pt2.y);
+          ctx.stroke();
+        }
+        ctx.globalAlpha = 1.0;
+      });
+
+      // Draw Active Balls (Hero Assets)
+      balls.forEach(ball => {
+        // Drop shadow illusion offset
+        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        ctx.beginPath();
+        ctx.arc(ball.x + 3, ball.y + 4, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Shiny Radial Glass Sphere Gradient
+        const ballGrad = ctx.createRadialGradient(
+          ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.1,
+          ball.x, ball.y, ball.radius
+        );
+        ballGrad.addColorStop(0, "#ffffff"); // white glossy center spot
+        ballGrad.addColorStop(0.2, ball.color);
+        ballGrad.addColorStop(1, darkenColor(ball.color, 0.45));
+
+        ctx.fillStyle = ballGrad;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Inner glowing core energy
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.beginPath();
+        ctx.arc(ball.x - ball.radius * 0.2, ball.y - ball.radius * 0.2, 1.8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // 5. Update and Draw spark particles
+      const particles = particlesRef.current;
+      for (let j = particles.length - 1; j >= 0; j--) {
+        const p = particles[j];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.035;
+
+        if (p.alpha <= 0) {
+          particles.splice(j, 1);
+          continue;
+        }
+
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1.0;
+
+      animId = requestAnimationFrame(render);
+    };
+
+    render();
+
+    return () => cancelAnimationFrame(animId);
+  }, [risk, activeBucketIndex]);
+
+  // Color modifier function
+  const darkenColor = (hex: string, percent: number) => {
+    let num = parseInt(hex.replace("#", ""), 16),
+      amt = Math.round(2.55 * (percent * 100)),
+      R = (num >> 16) - amt,
+      G = (num >> 8 & 0x00FF) - amt,
+      B = (num & 0x0000FF) - amt;
+    return "#" + (0x1000000 + (R < 255 ? R < 0 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 0 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 0 ? 0 : B : 255)).toString(16).slice(1);
   };
 
+  const theme = RISK_THEMES[risk];
+
   return (
-    <div className="w-full h-full min-h-[400px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-4 relative overflow-hidden flex flex-col shadow-2xl">
+    <div className="w-full h-full min-h-[650px] bg-slate-950 rounded-3xl border border-slate-800 p-4 md:p-6 flex flex-col md:flex-row gap-6 relative overflow-hidden shadow-2xl">
       
-      {balls.some(b => b.binIndex === 0 || b.binIndex === 1 || b.binIndex === 9 || b.binIndex === 10) && (
-        <div className="absolute inset-0 border-[6px] border-amber-500/40 rounded-3xl pointer-events-none z-30 animate-[heartbeat-glow_1.5s_infinite_ease-in-out]" />
-      )}
+      {/* Background visual beams */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-950/15 via-slate-950 to-slate-950 pointer-events-none z-0" />
 
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
-      <div 
-        className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{
-          backgroundImage: `linear-gradient(rgba(99, 102, 241, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(99, 102, 241, 0.4) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px',
-          transform: 'perspective(1000px) rotateX(45deg) scale(2)',
-          transformOrigin: 'top'
-        }}
-      />
+      {/* 1. HUD Left Panel (Player feed, Daily Missions, Live Stats) */}
+      <div className="w-full md:w-72 flex flex-col gap-4 z-10 shrink-0 select-none">
+        
+        {/* User VIP badge card */}
+        <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-inner">
+          <div className="flex items-center gap-3">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center p-0.5 bg-gradient-to-tr from-indigo-500 to-pink-500 shadow-[0_0_12px_rgba(99,102,241,0.25)]`}>
+              <div className="w-full h-full rounded-[10px] bg-slate-950 flex items-center justify-center font-bold text-xs text-indigo-400 font-mono">
+                VIP
+              </div>
+            </div>
+            <div className="text-left">
+              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">VIP ACCOUNT</span>
+              <span className="text-xs text-white font-black truncate max-w-[110px]">{email.split("@")[0]}</span>
+            </div>
+          </div>
+          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-0.5 text-center">
+            <span className="text-[9px] font-black font-mono text-amber-500">PLATINUM</span>
+          </div>
+        </div>
 
-      <div className="relative z-20 flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
-        <div className="flex flex-wrap items-center justify-center gap-3">
-          <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-inner">
-            {(["low", "medium", "high"] as Risk[]).map(r => (
+        {/* Live Community Wins activity feed */}
+        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-4 rounded-2xl flex-grow flex flex-col justify-between shadow-inner min-h-[180px] md:min-h-0">
+          <div className="text-left mb-3">
+            <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-pink-500" /> Live Feed
+            </span>
+          </div>
+
+          <div className="flex-grow overflow-y-auto space-y-2 max-h-[140px] pr-1.5 scrollbar-thin">
+            {liveActivities.length === 0 ? (
+              <div className="text-center text-xs text-slate-600 py-6 font-bold">
+                Waiting for drops...
+              </div>
+            ) : (
+              liveActivities.map((act) => (
+                <div key={act.id} className="flex items-center justify-between text-xs py-1.5 px-2 bg-slate-950/40 border border-slate-800/40 rounded-lg">
+                  <span className="text-slate-400 font-bold truncate max-w-[90px]">{act.user}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-500">₹{act.bet.toFixed(0)}</span>
+                    <span className={`font-mono font-black ${act.won ? 'text-emerald-400' : 'text-slate-500'}`}>
+                      {act.multiplier.toFixed(1)}x
+                    </span>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+
+        {/* Gamified Achievements progressions */}
+        <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-2xl text-left shadow-inner">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1">
+              <Trophy className="w-3.5 h-3.5 text-yellow-500" /> Progression
+            </span>
+            <span className="text-[10px] font-mono font-black text-indigo-400">{dailyProgress}%</span>
+          </div>
+          <p className="text-[11px] text-slate-400 mb-2 leading-relaxed">
+            Hit <span className="text-cyan-400">10 wagers</span> in extreme risk mode to claim a seasonal loot crate.
+          </p>
+          <div className="h-1.5 w-full bg-slate-800 border border-slate-700/60 rounded-full overflow-hidden shadow-inner">
+            <div
+              className="h-full bg-gradient-to-r from-indigo-500 to-pink-500 shadow-[0_0_8px_#a855f7] transition-all duration-300"
+              style={{ width: `${dailyProgress}%` }}
+            />
+          </div>
+        </div>
+
+      </div>
+
+      {/* 2. PLINKO X 3D Canvas Board Viewport */}
+      <div className="flex-grow bg-slate-950 border border-slate-800/80 rounded-2xl relative overflow-hidden flex flex-col justify-between p-4 md:p-6 z-10 min-h-[500px]">
+        
+        {/* Header HUD odds indicators */}
+        <div className="w-full flex items-center justify-between z-10">
+          
+          {/* Risk Level skin status indicator */}
+          <div className={`flex items-center gap-2 bg-slate-900/60 border ${theme.border} rounded-2xl px-4 py-2.5 shadow-lg`}>
+            <Zap className={`w-4 h-4 ${theme.text}`} />
+            <div className="text-left">
+              <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">RISK MODE</span>
+              <span className={`text-xs font-black uppercase tracking-wider ${theme.text}`}>
+                {risk}
+              </span>
+            </div>
+          </div>
+
+          {/* Winning Indicator result readout */}
+          <AnimatePresence>
+            {lastResult && (
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8, y: -10 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                className={`px-5 py-2 rounded-xl text-sm font-black border ${
+                  lastResult.won 
+                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.25)]" 
+                    : "bg-slate-900 border-slate-800 text-slate-500"
+                }`}
+              >
+                Avg Outcome: <span className="font-mono">{lastResult.mult.toFixed(2)}x</span>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Audio toggle speaker */}
+          <button
+            onClick={() => setIsMuted(prev => !prev)}
+            className="p-2 rounded-xl bg-slate-900/40 hover:bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white transition-all shadow-inner"
+          >
+            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+          </button>
+
+        </div>
+
+        {/* 3D Transform projected canvas box wrapper */}
+        <div className="flex-grow flex items-center justify-center py-4 overflow-hidden perspective-[1200px]">
+          <div 
+            className="relative w-full max-w-[420px] aspect-[4/5] rounded-[24px] bg-slate-900/50 border-[10px] border-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_2px_4px_rgba(255,255,255,0.05)] transition-transform duration-1000 transform-style-3d overflow-hidden"
+            style={{ transform: "rotateX(22deg)" }}
+          >
+            {/* Table inner rails border glow */}
+            <div className="absolute inset-0 border border-indigo-500/15 pointer-events-none shadow-[inset_0_0_15px_rgba(99,102,241,0.1)] z-20" />
+
+            <canvas
+              ref={canvasRef}
+              className="w-full h-full block select-none z-10"
+            />
+          </div>
+        </div>
+
+        {/* Bottom controls panel */}
+        <div className="w-full flex flex-col md:flex-row items-center gap-4 justify-between border-t border-slate-900/60 pt-4 mt-2 z-10">
+          
+          {/* Risk Level Selectors */}
+          <div className="flex items-center gap-2 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
+            {(["low", "medium", "high", "extreme"] as Risk[]).map(r => (
               <button
                 key={r}
                 disabled={isPlaying}
                 onClick={() => setRisk(r)}
-                className={`px-4 py-2 rounded-lg text-xs font-black capitalize transition-all duration-300 ${
+                className={`px-4 py-2 rounded-xl text-xs font-black capitalize active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all duration-300 ${
                   risk === r
-                    ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.6)]"
-                    : "text-slate-500 hover:text-white"
+                    ? r === "low" ? "bg-cyan-500 text-white shadow-[0_0_12px_rgba(6,182,212,0.5)]" :
+                      r === "medium" ? "bg-purple-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.5)]" :
+                      r === "high" ? "bg-orange-500 text-white shadow-[0_0_12px_rgba(249,115,22,0.5)]" :
+                      "bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]"
+                    : "text-slate-500 hover:text-slate-300"
                 }`}
               >
                 {r}
@@ -206,110 +857,36 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
             ))}
           </div>
 
-          <div className="flex gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800 shadow-inner">
+          {/* Ball count selection dropdown/tabs */}
+          <div className="flex items-center gap-1 bg-slate-900/60 p-1.5 rounded-2xl border border-slate-800 shadow-inner">
             {[1, 3, 5, 10].map(count => (
               <button
                 key={count}
                 disabled={isPlaying}
                 onClick={() => setBallCount(count as 1 | 3 | 5 | 10)}
-                className={`px-3 py-2 rounded-lg text-xs font-black transition-all duration-300 ${
+                className={`px-3 py-2 rounded-xl text-xs font-black transition-all ${
                   ballCount === count
-                    ? "bg-pink-500 text-white shadow-[0_0_15px_rgba(236,72,153,0.6)]"
-                    : "text-slate-500 hover:text-white"
+                    ? "bg-slate-800 text-white border border-slate-700/60 shadow-inner"
+                    : "text-slate-500 hover:text-slate-300 border border-transparent"
                 }`}
               >
                 {count} {count === 1 ? "Ball" : "Balls"}
               </button>
             ))}
           </div>
-        </div>
 
-        <AnimatePresence>
-          {lastResult && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5, x: 20 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              exit={{ opacity: 0, scale: 0.5 }}
-              className={`px-6 py-2 rounded-xl text-lg font-black border ${
-                lastResult.won ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(16,185,129,0.4)]" : "bg-red-500/10 text-red-500 border-red-500/30"
-              }`}
-            >
-              {lastResult.mult.toFixed(2)}x
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
-
-      <div className="relative flex-1 flex items-center justify-center min-h-[280px]">
-        <div className="relative w-full max-w-[420px] aspect-[4/5] flex items-center justify-center">
-          
-          <svg className="absolute inset-0 w-full h-full z-0 overflow-visible pointer-events-none opacity-40">
-            {Array.from({ length: ROWS }).map((_, rIdx) => {
-              const pegCount = rIdx + 3;
-              const rowY = 40 + rIdx * 25;
-              return Array.from({ length: pegCount }).map((__, pIdx) => {
-                const pegX = 210 + (pIdx - (pegCount - 1) / 2) * 26;
-                const pegKey = `${rIdx}-${pIdx}`;
-                const isLit = activePegs[pegKey] > 0;
-                return (
-                  <circle
-                    key={pegKey}
-                    cx={pegX}
-                    cy={rowY}
-                    r={isLit ? 4.5 : 3}
-                    fill={isLit ? "#a5b4fc" : "#475569"}
-                    className={`transition-all duration-75 ${
-                      isLit ? "shadow-[0_0_8px_rgba(165,180,252,0.8)] filter brightness-200" : ""
-                    }`}
-                  />
-                );
-              });
-            })}
-          </svg>
-
-          <AnimatePresence>
-            {balls.map(ball => (
-              <motion.div
-                key={ball.id}
-                initial={{ x: 210 - 14, y: 10, opacity: 0, scale: 0.5 }}
-                animate={{
-                  x: ball.pathX.map(px => px + 210 - 14),
-                  y: ball.pathY.map(py => py + 40),
-                  opacity: 1,
-                  scale: 1
-                }}
-                transition={{
-                  type: "tween",
-                  ease: [0.25, 0.1, 0.25, 1],
-                  duration: ROWS * 0.2
-                }}
-                className="absolute w-7 h-7 rounded-full bg-gradient-to-tr from-pink-500 to-indigo-500 shadow-[0_0_12px_rgba(236,72,153,0.7),inset_0_2px_4px_rgba(255,255,255,0.6)] z-20 flex items-center justify-center"
-              >
-                <div className="w-1.5 h-1.5 bg-white/40 rounded-full blur-[0.5px]" />
-              </motion.div>
-            ))}
-          </AnimatePresence>
-
-          <div className="absolute bottom-4 left-0 right-0 h-10 flex gap-1 z-10">
-            {MULTIPLIERS[risk].map((m, idx) => {
-              const isActive = activeBucketIndex === idx;
-              return (
-                <motion.div
-                  key={idx}
-                  animate={{
-                    scale: isActive ? 1.15 : 1,
-                    y: isActive ? -5 : 0
-                  }}
-                  transition={{ type: "spring", stiffness: 350, damping: 12 }}
-                  className={`flex-1 rounded-lg bg-gradient-to-b ${multColor(m)} border flex items-center justify-center text-[9px] font-black font-mono shadow-md select-none`}
-                >
-                  {m < 1 ? m.toFixed(1) : m.toString()}
-                </motion.div>
-              );
-            })}
-          </div>
+          {/* Preset Play drops trigger */}
+          <button
+            onClick={triggerDrops}
+            disabled={isPlaying}
+            className="w-full md:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white font-black uppercase text-xs tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.35)] hover:shadow-[0_0_35px_rgba(168,85,247,0.55)] border border-purple-300/20 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 group"
+          >
+            <Sparkles className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
+            DROP BALLS
+          </button>
 
         </div>
+
       </div>
 
     </div>

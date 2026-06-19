@@ -212,11 +212,12 @@ export async function POST(request: Request) {
     let targetBinIndex: number | undefined = undefined;
 
     if (gameId === "orig-3" || gameId.includes("plinko")) { // Plinko
-      const risk = (selectedTarget || "medium") as "low" | "medium" | "high";
+      const risk = (selectedTarget || "medium") as "low" | "medium" | "high" | "extreme";
       const MULTIPLIERS: Record<string, number[]> = {
-        low:    [5.6, 2.1, 1.1, 1.0, 0.5, 0.5, 0.5, 1.0, 1.1, 2.1, 5.6],
-        medium: [13.0, 3.0, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3.0, 13.0],
-        high:   [76.0, 10.0, 2.5, 0.3, 0.2, 0.2, 0.2, 0.3, 2.5, 10.0, 76.0],
+        low:     [5.6, 2.1, 1.1, 1.0, 0.5, 0.5, 0.5, 1.0, 1.1, 2.1, 5.6],
+        medium:  [13.0, 3.0, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3.0, 13.0],
+        high:    [76.0, 10.0, 2.5, 0.3, 0.2, 0.2, 0.2, 0.3, 2.5, 10.0, 76.0],
+        extreme: [350.0, 25.0, 4.0, 0.2, 0.1, 0.1, 0.1, 0.2, 4.0, 25.0, 350.0]
       };
       const riskMults = MULTIPLIERS[risk] || MULTIPLIERS.medium;
       if (outcome.isWin) {
