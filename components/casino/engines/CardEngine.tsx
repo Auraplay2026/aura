@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
+import { PremiumCard } from "./PremiumCard";
 
 interface CardEngineProps {
   isPlaying: boolean;
@@ -219,18 +220,50 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
     rulesText = "High Card • Pairs • Full House Specials";
   }
 
+  const themeBackKey = isBlackjack ? "gold" : isBaccarat ? "blue" : "red";
+
   return (
-    <div className={`w-full h-full min-h-[500px] bg-gradient-to-br ${feltColor} rounded-[3rem] border-[24px] border-[#1a1110] shadow-[inset_0_0_150px_rgba(0,0,0,0.9),0_20px_50px_rgba(0,0,0,0.5)] relative flex flex-col items-center justify-center overflow-hidden`}>
+    <div className={`w-full h-full min-h-[500px] bg-gradient-to-br ${feltColor} rounded-[3rem] border-[24px] border-[#291715] shadow-[inset_0_0_100px_rgba(0,0,0,0.95),_inset_0_0_0_2px_rgba(245,158,11,0.2),_0_20px_50px_rgba(0,0,0,0.7)] relative flex flex-col items-center justify-center overflow-hidden`}>
       
       {/* Spotlight / Vignette Overlay */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.8)_100%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_0%,_rgba(0,0,0,0.85)_100%)] pointer-events-none" />
       
       {/* Overhead Spotlight */}
-      <div className="absolute top-0 inset-x-0 h-[80%] bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.15),_transparent_70%)] pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-[80%] bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.18),_transparent_75%)] pointer-events-none" />
       
+      {/* Table Markings & felt designs */}
+      <div className="absolute inset-x-8 inset-y-12 border border-dashed border-yellow-600/10 rounded-[2rem] pointer-events-none flex items-center justify-center">
+        {isBlackjack && (
+          <div className="w-[85%] h-[75%] border-t-2 border-yellow-600/10 rounded-[50%/80%_80%_0_0] relative flex items-center justify-center">
+            <span className="absolute top-[25%] text-[9px] font-black text-yellow-600/15 tracking-[0.25em] uppercase">
+              Insurance Pays 2 to 1
+            </span>
+            <span className="absolute top-[45%] text-[8px] font-bold text-yellow-600/10 tracking-[0.1em] uppercase">
+              Dealer must draw to 16 and stand on all 17s
+            </span>
+          </div>
+        )}
+        {isBaccarat && (
+          <div className="w-[85%] h-[80%] flex justify-between px-10 items-center opacity-[0.08]">
+            <div className="text-center">
+              <span className="text-5xl font-black block text-blue-500">P</span>
+              <span className="text-[10px] font-bold text-blue-500 tracking-wider">PLAYER</span>
+            </div>
+            <div className="text-center border-l border-r border-yellow-600/20 px-8">
+              <span className="text-4xl font-black block text-yellow-600">T</span>
+              <span className="text-[10px] font-bold text-yellow-600 tracking-wider">TIE</span>
+            </div>
+            <div className="text-center">
+              <span className="text-5xl font-black block text-red-500">B</span>
+              <span className="text-[10px] font-bold text-red-500 tracking-wider">BANKER</span>
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Gold Casino imprint */}
-      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center opacity-20 text-center">
-        <h2 className="text-yellow-600 font-black text-2xl md:text-4xl tracking-[0.4em] uppercase">{boardLabel}</h2>
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center opacity-25 text-center pointer-events-none">
+        <h2 className="text-yellow-600 font-black text-2xl md:text-4xl tracking-[0.3em] uppercase">{boardLabel}</h2>
         <h3 className="text-yellow-600 font-bold tracking-widest text-[10px] mt-2 uppercase">{rulesText}</h3>
       </div>
 
@@ -257,10 +290,13 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                     key={idx}
                     initial={{ y: -200, rotateY: 180, scale: 0.8 }}
                     animate={{ y: 0, rotateY: 0, scale: 1 }}
-                    className={`w-20 h-28 bg-white border border-slate-200 rounded-lg shadow-lg relative flex items-center justify-center ${card.color}`}
                   >
-                    <span className="absolute top-1 left-2 font-black text-sm">{card.val}{card.suit}</span>
-                    <span className="text-3xl">{card.suit}</span>
+                    <PremiumCard
+                      val={card.val}
+                      suit={card.suit}
+                      themeBack={themeBackKey}
+                      className="w-20 h-28"
+                    />
                   </motion.div>
                 ))}
               </div>
@@ -280,10 +316,13 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                     key={idx}
                     initial={{ y: -200, rotateY: 180, scale: 0.8 }}
                     animate={{ y: 0, rotateY: 0, scale: 1 }}
-                    className={`w-20 h-28 bg-white border border-slate-200 rounded-lg shadow-lg relative flex items-center justify-center ${card.color}`}
                   >
-                    <span className="absolute top-1 left-2 font-black text-sm">{card.val}{card.suit}</span>
-                    <span className="text-3xl">{card.suit}</span>
+                    <PremiumCard
+                      val={card.val}
+                      suit={card.suit}
+                      themeBack={themeBackKey}
+                      className="w-20 h-28"
+                    />
                   </motion.div>
                 ))}
               </div>
@@ -304,15 +343,24 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                   key={idx}
                   initial={{ y: -300, rotateZ: 45 }}
                   animate={{ y: 0, rotateZ: 0 }}
-                  className={`w-20 h-28 md:w-24 md:h-36 bg-white border border-slate-200 rounded-lg shadow-lg relative flex items-center justify-center ${card.color}`}
                 >
-                  <span className="absolute top-1 left-2 font-black text-sm">{card.val}{card.suit}</span>
-                  <span className="text-4xl">{card.suit}</span>
+                  <PremiumCard
+                    val={card.val}
+                    suit={card.suit}
+                    themeBack={themeBackKey}
+                    className="w-20 h-28 md:w-24 md:h-36"
+                  />
                 </motion.div>
               ))}
               {Array.from({ length: Math.max(0, 5 - playerHand.length) }).map((_, i) => (
-                <div key={i} className="w-20 h-28 md:w-24 md:h-36 border border-white/10 bg-black/30 rounded-lg flex items-center justify-center text-slate-200/10 font-bold">
-                  ?
+                <div key={i}>
+                  <PremiumCard
+                    val="?"
+                    suit="spade"
+                    faceDown={true}
+                    themeBack={themeBackKey}
+                    className="w-20 h-28 md:w-24 md:h-36"
+                  />
                 </div>
               ))}
             </div>

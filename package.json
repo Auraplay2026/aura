@@ -4,39 +4,38 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "echo \"[Render Debug] Database URL is: $DATABASE_URL\" && prisma generate && prisma db push && next build",
+    "build": "prisma generate && (prisma db push || echo 'Database push skipped or offline during build') && next build",
     "start": "node scripts/initialize-persistent-data.js && concurrently \"next start\" \"node scripts/generate_hype_bets.js\" \"node scripts/notification_worker.js\"",
     "lint": "eslint"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.8.0",
     "@prisma/client": "^7.8.0",
-    "@types/bcryptjs": "^2.4.6",
-    "bcryptjs": "^3.0.3",
-    "clsx": "^2.1.1",
-    "concurrently": "^10.0.3",
-    "framer-motion": "^12.40.0",
-    "lucide-react": "^1.17.0",
-    "next": "16.2.7",
-    "nodemailer": "^8.0.11",
-    "pg": "^8.21.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "tailwind-merge": "^3.6.0",
-    "twilio": "^6.0.2",
-    "zustand": "^5.0.14"
-  },
-  "devDependencies": {
     "@tailwindcss/postcss": "^4",
+    "@types/bcryptjs": "^2.4.6",
     "@types/node": "^20",
     "@types/nodemailer": "^8.0.0",
     "@types/pg": "^8.20.0",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "bcryptjs": "^3.0.3",
+    "clsx": "^2.1.1",
+    "concurrently": "^10.0.3",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
+    "framer-motion": "^12.40.0",
+    "lucide-react": "^1.17.0",
+    "next": "16.2.7",
+    "nodemailer": "^8.0.11",
+    "pg": "^8.21.0",
     "prisma": "^7.8.0",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4",
-    "typescript": "^5"
-  }
+    "twilio": "^6.0.2",
+    "typescript": "^5",
+    "zustand": "^5.0.14"
+  },
+  "devDependencies": {}
 }

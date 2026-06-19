@@ -9,6 +9,7 @@ import {
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { validateTransactionIdempotency } from "@/lib/mathEngine";
+import { PremiumCard } from "./PremiumCard";
 
 interface RoyalGamingProps {
   isPlaying: boolean;
@@ -1977,15 +1978,13 @@ setPlacedChips([]);
               initial={{ x: 150, y: -200, scale: 0, rotate: 180 }}
               animate={{ x: 0, y: 0, scale: 1, rotate: 0 }}
               transition={{ type: "spring", stiffness: 100, damping: 13 }}
-              className="w-[36px] h-[52px] sm:w-[44px] sm:h-[62px] md:w-[52px] md:h-[72px] bg-gradient-to-b from-white to-slate-50 rounded shadow-[0_12px_28px_rgba(0,0,0,0.5),_0_2px_4px_rgba(0,0,0,0.3)] flex flex-col justify-between p-1 sm:p-1.5 border-[1.5px] border-amber-500/20 font-mono font-black select-none text-slate-900 animate-in fade-in duration-300"
             >
-              <div className="flex justify-between items-start leading-none text-[9px] sm:text-[10px] md:text-[11px]">
-                <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600 font-bold' : 'text-slate-900 font-bold'}>{card.val}</span>
-                <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900'}>{card.suit}</span>
-              </div>
-              <div className={cn("text-center leading-none text-[14px] sm:text-[18px] md:text-[22px] mb-0.5", card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900')}>
-                {card.suit}
-              </div>
+              <PremiumCard
+                val={card.val}
+                suit={card.suit}
+                themeBack="gold"
+                className="w-[42px] h-[60px] sm:w-[50px] sm:h-[70px] md:w-[60px] md:h-[84px]"
+              />
             </motion.div>
           ))}
         </div>

@@ -81,8 +81,8 @@ export const FEATURED_GAMES: Game[] = [
   { id: "roulette-3", title: "XXXtreme Lightning Roulette", provider: "Evolution", image: "/games/evo_xxxtreme-lightning-roulette-s2M5fQi64.jpeg", categories: ["live", "table", "roulette"], players: 31200 },
   { id: "roulette-4", title: "Aura Premium Roulette", provider: "Evolution", image: "/games/evo_roobet-roulette-OdaKlJb02.jpeg", categories: ["live", "table", "roulette"], players: 14200 },
   { id: "blackjack-1", title: "Free Bet Blackjack", provider: "Evolution", image: "/games/evo_roobet-free-bet-blackjack-lAfMYP-eP.jpeg", categories: ["live", "table", "blackjack"], players: 18500 },
-  { id: "blackjack-2", title: "Aura VIP Blackjack", provider: "Evolution", image: "/games/evo_roobet-blackjack-2-F_Ol2P30v.jpeg", categories: ["live", "table", "blackjack"], players: 11000 },
-  { id: "blackjack-3", title: "VIP Diamond Blackjack", provider: "Evolution", image: "/games/evo_roobet-vip-blackjack-efA1PJT4p.jpeg", categories: ["live", "table", "blackjack"], players: 8500 },
+  { id: "blackjack-2", title: "Aura VIP Blackjack", provider: "Evolution", image: "/games/cyber_blackjack_cover.png", categories: ["live", "table", "blackjack"], players: 11000 },
+  { id: "blackjack-3", title: "VIP Diamond Blackjack", provider: "Evolution", image: "/games/blackjack_pro_cover.png", categories: ["live", "table", "blackjack"], players: 8500 },
   { id: "blackjack-4", title: "Salon Privé Blackjack", provider: "Evolution", image: "/games/evo_roobet-salon-prive-blackjack-mPa0l_FJl.jpeg", categories: ["live", "table", "blackjack"], players: 6400 },
   { id: "poker-1", title: "Texas Hold'em Bonus", provider: "Evolution", image: "/games/evo_blackjack-vip-19-eUcYAImJF.jpeg", categories: ["live", "poker", "table"], players: 6000 },
   { id: "poker-3", title: "Triple Card Poker", provider: "Evolution", image: "/games/evo_blackjack-vip-h-ki4ceE6V_.jpeg", categories: ["live", "table", "poker"], players: 7400 },
@@ -148,7 +148,7 @@ export const FEATURED_GAMES: Game[] = [
   { id: "orig-17", title: "3D Neon Billiards", provider: "Originals", image: "/games/neon_billiards_cover.png", categories: ["originals", "3d", "table", "casual"], rtp: 99.0, players: 8400, isNew: true },
   { id: "orig-18", title: "3D Space Miner", provider: "Originals", image: "/games/space_miner_cover.png", categories: ["originals", "3d", "puzzle", "adventure"], rtp: 99.0, players: 15400, isNew: true },
   { id: "orig-19", title: "3D Cyber Roulette", provider: "Originals", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "roulette"], rtp: 99.0, players: 21000, isNew: true },
-  { id: "orig-20", title: "3D Blackjack Pro", provider: "Originals", image: "https://images.unsplash.com/photo-1570649236495-42fa5fe3c48b?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "blackjack"], rtp: 99.5, players: 14200, isNew: true },
+  { id: "orig-20", title: "3D Blackjack Pro", provider: "Originals", image: "/games/blackjack_pro_cover.png", categories: ["originals", "3d", "table", "blackjack"], rtp: 99.5, players: 14200, isNew: true },
 
   // AAA Cloud Rentals
   { id: "aaa-7", title: "Grand Theft Auto VI", provider: "Rockstar Games", image: "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?q=80&w=600&auto=format&fit=crop", categories: ["aaa", "action", "open-world", "3d"], isNew: true, hourlyRate: 999, players: 45000 },
@@ -166,7 +166,7 @@ export const FEATURED_GAMES: Game[] = [
 
   // Live Shows & Tables
   { id: "live-8", title: "Mega Wheel Live 3D", provider: "Evolution", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["live", "shows"], isNew: true, players: 32000 },
-  { id: "live-9", title: "Lightning Blackjack 3D", provider: "Evolution", image: "https://images.unsplash.com/photo-1511193311914-0346f16efe90?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "blackjack"], isNew: true, players: 15000 },
+  { id: "live-9", title: "Lightning Blackjack 3D", provider: "Evolution", image: "/games/lightning_blackjack_cover.png", categories: ["live", "table", "blackjack"], isNew: true, players: 15000 },
   { id: "live-10", title: "Teen Patti VR Live", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "poker"], isNew: true, players: 24000 },
   { id: "live-11", title: "Dream Catcher 3D Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1600861195091-690c92f1d2cc?q=80&w=600&auto=format&fit=crop", categories: ["live", "shows"], isNew: true, players: 19800 },
   { id: "live-12", title: "Bollywood Roulette Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "roulette"], isNew: true, players: 31200 }

@@ -4,10 +4,13 @@ import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
 import { Volume2, VolumeX, Sparkles, RefreshCw, Hand, Plus, Zap, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PremiumCard } from "./PremiumCard";
 
 interface BlackjackVIPEngineProps {
   isPlaying: boolean;
   onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
+  gameId?: string;
+  gameTitle?: string;
 }
 
 interface Card {
@@ -17,6 +20,90 @@ interface Card {
   score: number;
   faceDown?: boolean;
 }
+
+interface TableTheme {
+  feltBg: string;
+  feltPatternColor: string;
+  radialGrad: string;
+  goldBorderColor: string;
+  cardBackBg: string;
+  cardBackIconColor: string;
+  shoeBg: string;
+  glowColor: string;
+  displayName: string;
+  subName: string;
+  particleColor: string;
+  textColor: string;
+  buttonClass: string;
+  feltOverlayClass: string;
+}
+
+const THEMES: Record<string, TableTheme> = {
+  lightning: {
+    feltBg: "from-[#110d05] via-[#1a1409] to-[#090704]",
+    feltPatternColor: "rgba(245, 158, 11, 0.08)",
+    radialGrad: "bg-[radial-gradient(circle_at_center,_rgba(245,158,11,0.18),_transparent_75%)]",
+    goldBorderColor: "border-amber-500/25",
+    cardBackBg: "bg-gradient-to-br from-amber-500 via-amber-600 to-amber-950 border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.3)]",
+    cardBackIconColor: "text-amber-450 animate-pulse",
+    shoeBg: "from-amber-600 via-amber-800 to-black border-amber-500/40",
+    glowColor: "shadow-[0_0_20px_rgba(245,158,11,0.3)]",
+    displayName: "Lightning Blackjack 3D",
+    subName: "GOLD MULTIPLIERS • ELECTRO VELVET FELT",
+    particleColor: "from-amber-400 to-yellow-500",
+    textColor: "text-amber-400",
+    buttonClass: "border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]",
+    feltOverlayClass: "border-amber-500/10"
+  },
+  classic: {
+    feltBg: "from-[#0b2b1a] via-[#05170d] to-[#010503]",
+    feltPatternColor: "rgba(16, 185, 129, 0.08)",
+    radialGrad: "bg-[radial-gradient(circle_at_center,_rgba(16,185,129,0.18),_transparent_75%)]",
+    goldBorderColor: "border-emerald-600/30",
+    cardBackBg: "bg-gradient-to-br from-red-600 via-red-800 to-red-950 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.3)]",
+    cardBackIconColor: "text-red-400",
+    shoeBg: "from-emerald-700 via-yellow-900 to-black border-emerald-600/40",
+    glowColor: "shadow-[0_0_20px_rgba(16,185,129,0.3)]",
+    displayName: "Monte Carlo Classic",
+    subName: "VIP CLUB RULES • DEEP EMERALD FELT",
+    particleColor: "from-emerald-400 to-green-500",
+    textColor: "text-emerald-400",
+    buttonClass: "border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.15)]",
+    feltOverlayClass: "border-emerald-500/10"
+  },
+  cyberpunk: {
+    feltBg: "from-[#240c0c] via-[#1a0808] to-[#0a0303]",
+    feltPatternColor: "rgba(239, 68, 68, 0.08)",
+    radialGrad: "bg-[radial-gradient(circle_at_center,_rgba(239,68,68,0.18),_transparent_75%)]",
+    goldBorderColor: "border-red-500/25",
+    cardBackBg: "bg-gradient-to-br from-red-500 via-rose-600 to-rose-950 border-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)]",
+    cardBackIconColor: "text-red-500 animate-pulse",
+    shoeBg: "from-red-600 via-rose-800 to-black border-red-500/40",
+    glowColor: "shadow-[0_0_20px_rgba(239,68,68,0.3)]",
+    displayName: "Neo-Tokyo Blackjack",
+    subName: "SYNTHETIC WAGERS • CRIMSON HOLO FELT",
+    particleColor: "from-red-400 to-rose-500",
+    textColor: "text-red-550",
+    buttonClass: "border-red-500/20 bg-red-500/10 hover:bg-red-500/20 text-red-400 shadow-[0_0_15px_rgba(239,68,68,0.15)]",
+    feltOverlayClass: "border-red-500/10"
+  },
+  platinum: {
+    feltBg: "from-[#0c1524] via-[#0b101c] to-[#04060b]",
+    feltPatternColor: "rgba(255, 255, 255, 0.06)",
+    radialGrad: "bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.12),_transparent_75%)]",
+    goldBorderColor: "border-blue-500/20",
+    cardBackBg: "bg-gradient-to-br from-blue-600 via-blue-800 to-blue-950 border-blue-400 shadow-[0_0_15px_rgba(37,99,235,0.3)]",
+    cardBackIconColor: "text-blue-400 animate-pulse",
+    shoeBg: "from-slate-600 via-slate-800 to-black border-slate-500/40",
+    glowColor: "shadow-[0_0_20px_rgba(37,99,235,0.25)]",
+    displayName: "VIP Blackjack Elite",
+    subName: "BLACKJACK PAYS 3 TO 2 • INSURANCE PAYS 2 TO 1",
+    particleColor: "from-blue-400 to-indigo-500",
+    textColor: "text-amber-400",
+    buttonClass: "border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.15)]",
+    feltOverlayClass: "border-amber-500/10"
+  }
+};
 
 const SUITS = ["♠", "♥", "♦", "♣"];
 const VALUES = [
@@ -35,7 +122,7 @@ const VALUES = [
   { val: "K", score: 10 },
 ];
 
-export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngineProps) {
+export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }: BlackjackVIPEngineProps) {
   const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);
   const [phase, setPhase] = useState<"betting" | "dealing" | "player-turn" | "dealer-turn" | "resolved">("betting");
@@ -62,6 +149,25 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
+  const getTheme = () => {
+    const title = (gameTitle || "").toLowerCase();
+    const id = (gameId || "").toLowerCase();
+    if (title.includes("lightning") || id.includes("light")) return THEMES.lightning;
+    if (title.includes("classic") || title.includes("monte") || id.includes("classic")) return THEMES.classic;
+    if (title.includes("cyber") || title.includes("neo") || title.includes("tokyo") || id.includes("cyber")) return THEMES.cyberpunk;
+    return THEMES.platinum; // default
+  };
+  const theme = getTheme();
+  const getThemeBackKey = (): "gold" | "dark" | "red" | "blue" => {
+    const title = (gameTitle || "").toLowerCase();
+    const id = (gameId || "").toLowerCase();
+    if (title.includes("lightning") || id.includes("light")) return "gold";
+    if (title.includes("classic") || title.includes("monte") || id.includes("classic")) return "dark";
+    if (title.includes("cyber") || title.includes("neo") || title.includes("tokyo") || id.includes("cyber")) return "red";
+    return "blue";
+  };
+  const themeBackKey = getThemeBackKey();
 
   // Audio utility
   const playSound = (type: "deal" | "flip" | "win" | "lose" | "chip") => {
@@ -553,30 +659,30 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
   const dealerScore = getBlackjackScore(dealerHand);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-[#0c1524] via-[#0b101c] to-[#04060b] rounded-3xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-between p-4 overflow-hidden select-none">
+    <div className={cn("w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br rounded-3xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-between p-4 overflow-hidden select-none", theme.feltBg)}>
       
       {/* Premium casino table felt background texture */}
       <div 
         className="absolute inset-0 z-0 opacity-15 pointer-events-none"
         style={{
           backgroundImage: `
-            radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 0),
-            radial-gradient(rgba(255, 255, 255, 0.1) 1.5px, transparent 0)
+            radial-gradient(${theme.feltPatternColor} 1.5px, transparent 0),
+            radial-gradient(${theme.feltPatternColor} 1.5px, transparent 0)
           `,
           backgroundSize: "24px 24px",
           backgroundPosition: "0 0, 12px 12px"
         }}
       />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(37,99,235,0.12),_transparent_75%)] pointer-events-none" />
+      <div className={cn("absolute inset-0 pointer-events-none", theme.radialGrad)} />
 
-      {/* Gold Table border arcs */}
-      <div className="absolute inset-2 sm:inset-4 rounded-[2rem] border-[1.5px] border-amber-500/10 pointer-events-none z-10" />
+      {/* Table border arcs */}
+      <div className={cn("absolute inset-2 sm:inset-4 rounded-[2rem] border-[1.5px] pointer-events-none z-10", theme.feltOverlayClass)} />
 
       {/* Live HUD Header */}
       <div className="relative z-20 w-full flex justify-between items-center bg-black/40 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/5 shadow-md">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
-          <span className="text-[10px] font-black text-slate-350 tracking-widest uppercase">VIP PLATINUM TABLE</span>
+          <span className="text-[10px] font-black text-slate-350 tracking-widest uppercase">{theme.displayName}</span>
         </div>
 
         <div className="flex items-center gap-1.5">
@@ -591,11 +697,11 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
 
       {/* VIP Text banner */}
       <div className="text-center opacity-30 select-none my-2 z-10">
-        <h2 className="text-amber-400 font-serif font-black text-lg sm:text-2xl tracking-[0.3em] uppercase drop-shadow-md">
-          VIP Blackjack Elite
+        <h2 className={cn("font-serif font-black text-lg sm:text-2xl tracking-[0.3em] uppercase drop-shadow-md", theme.textColor)}>
+          {theme.displayName}
         </h2>
         <span className="text-slate-400 text-[8px] sm:text-[9px] font-black tracking-[0.4em] block mt-0.5">
-          BLACKJACK PAYS 3 TO 2 • INSURANCE PAYS 2 TO 1
+          {theme.subName}
         </span>
       </div>
 
@@ -617,25 +723,15 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
                 initial={{ x: 200, y: -200, opacity: 0, rotate: 45, scale: 0.6 }}
                 animate={{ x: 0, y: 0, opacity: 1, rotate: card.faceDown ? 0 : idx === 0 ? -4 : 4, scale: 1 }}
                 transition={{ type: "spring", stiffness: 140, damping: 13 }}
-                className={cn(
-                  "w-18 h-26 sm:w-20 sm:h-30 rounded-xl shadow-[0_12px_24px_rgba(0,0,0,0.6)] relative flex flex-col justify-between p-2 select-none border border-white/10",
-                  card.faceDown 
-                    ? "bg-gradient-to-br from-amber-600 via-amber-800 to-amber-950 border-amber-400 shadow-[0_0_15px_rgba(245,158,11,0.2)]" 
-                    : "bg-gradient-to-br from-white to-slate-100"
-                )}
                 style={{ marginLeft: idx > 0 ? "-24px" : "0px" }}
               >
-                {card.faceDown ? (
-                  <div className="absolute inset-1 rounded-lg border border-amber-500/20 bg-black/20 flex items-center justify-center">
-                    <Coins className="w-6 h-6 text-amber-500/60 animate-pulse" />
-                  </div>
-                ) : (
-                  <>
-                    <span className={cn("font-black text-sm leading-none", card.color)}>{card.val}</span>
-                    <span className={cn("text-2.5xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", card.color)}>{card.suit}</span>
-                    <span className={cn("font-black text-sm leading-none self-end rotate-180", card.color)}>{card.val}</span>
-                  </>
-                )}
+                <PremiumCard
+                  val={card.val}
+                  suit={card.suit}
+                  faceDown={card.faceDown}
+                  themeBack={themeBackKey}
+                  className="w-18 h-26 sm:w-20 sm:h-30"
+                />
               </motion.div>
             ))}
           </div>
@@ -656,12 +752,14 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
                 initial={{ x: 200, y: -200, opacity: 0, rotate: 45, scale: 0.6 }}
                 animate={{ x: 0, y: 0, opacity: 1, rotate: idx === 0 ? -4 : 4, scale: 1 }}
                 transition={{ type: "spring", stiffness: 140, damping: 13 }}
-                className="w-18 h-26 sm:w-20 sm:h-30 bg-gradient-to-br from-white to-slate-100 border border-white/10 rounded-xl shadow-[0_12px_24px_rgba(0,0,0,0.6)] relative flex flex-col justify-between p-2 select-none"
                 style={{ marginLeft: idx > 0 ? "-24px" : "0px" }}
               >
-                <span className={cn("font-black text-sm leading-none", card.color)}>{card.val}</span>
-                <span className={cn("text-2.5xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2", card.color)}>{card.suit}</span>
-                <span className={cn("font-black text-sm leading-none self-end rotate-180", card.color)}>{card.val}</span>
+                <PremiumCard
+                  val={card.val}
+                  suit={card.suit}
+                  themeBack={themeBackKey}
+                  className="w-18 h-26 sm:w-20 sm:h-30"
+                />
               </motion.div>
             ))}
           </div>
@@ -683,7 +781,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
               rotate: Math.random() * 360 
             }}
             transition={{ duration: 1.5, ease: "easeOut" }}
-            className={cn("absolute left-1/2 top-1/2 w-3.5 h-3.5 rounded bg-gradient-to-br shadow-[0_0_10px_rgba(245,158,11,0.5)]", p.color)}
+            className={cn("absolute left-1/2 top-1/2 w-3.5 h-3.5 rounded bg-gradient-to-br shadow-[0_0_10px_rgba(245,158,11,0.5)]", theme.particleColor)}
           />
         ))}
       </div>
@@ -764,9 +862,9 @@ export function BlackjackVIPEngine({ isPlaying, onComplete }: BlackjackVIPEngine
       </div>
 
       {/* Premium Dealer card shoe dispenser silhouette */}
-      <div className="absolute top-4 right-6 w-16 h-12 bg-gradient-to-br from-amber-600 via-amber-800 to-black rounded-lg border border-amber-500/30 shadow-[0_10px_20px_rgba(0,0,0,0.8)] flex items-center justify-center z-15 pointer-events-none opacity-85 overflow-hidden">
-        <div className="w-full h-2 bg-black border-b border-amber-500/20 transform rotate-12 translate-y-1" />
-        <div className="absolute right-0 top-0 bottom-0 w-2 bg-amber-500/40" />
+      <div className={cn("absolute top-4 right-6 w-16 h-12 bg-gradient-to-br rounded-lg border shadow-[0_10px_20px_rgba(0,0,0,0.8)] flex items-center justify-center z-15 pointer-events-none opacity-85 overflow-hidden", theme.shoeBg)}>
+        <div className="w-full h-2 bg-black border-b border-white/10 transform rotate-12 translate-y-1" />
+        <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/10" />
       </div>
 
       {/* Decision HUD & Controls */}

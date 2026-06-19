@@ -909,7 +909,7 @@ export default function GamePlayerPage() {
       return <RouletteEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-20" || game.title.toLowerCase().includes("blackjack pro")) {
-      return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
     }
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {
@@ -933,7 +933,7 @@ export default function GamePlayerPage() {
         return <RoyalGamingEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
       if (game.id.includes("blackjack") || game.title.toLowerCase().includes("blackjack") || game.id === "orig-8") {
-        return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+        return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
       }
       if (game.id.includes("baccarat") || game.title.toLowerCase().includes("baccarat") || game.id === "table-3") {
         return <BaccaratEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;

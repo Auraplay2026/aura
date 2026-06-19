@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
+import { PremiumCard } from "./PremiumCard";
 
 interface BaccaratEngineProps {
   isPlaying: boolean;
@@ -134,19 +135,37 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
   const bankerScore = getBaccaratScore(bankerHand);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-emerald-950 via-teal-950 to-slate-950 rounded-3xl border border-teal-900 shadow-2xl relative flex flex-col items-center justify-center overflow-hidden perspective-[1000px]">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-[#1c0808] via-[#3a0d0d] to-[#0f0404] rounded-3xl border-[20px] border-[#291715] shadow-[inset_0_0_100px_rgba(0,0,0,0.95),_inset_0_0_0_2px_rgba(245,158,11,0.25),0_20px_50px_rgba(0,0,0,0.6)] relative flex flex-col items-center justify-center overflow-hidden perspective-[1000px]">
       
       {/* Hyper-realistic Casino Felt Background */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')] opacity-40 pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.1),_transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')] opacity-20 pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(255,255,255,0.15),_transparent_60%)] pointer-events-none" />
       
       {/* Table Border illusion */}
-      <div className="absolute inset-4 rounded-[2.5rem] border-2 border-teal-800/50 pointer-events-none" />
+      <div className="absolute inset-4 rounded-[1.75rem] border border-red-500/10 pointer-events-none" />
+
+      {/* Table Markings & felt designs */}
+      <div className="absolute inset-x-8 inset-y-12 border border-dashed border-red-500/5 rounded-[2rem] pointer-events-none flex items-center justify-center">
+        <div className="w-[85%] h-[80%] flex justify-between px-10 items-center opacity-[0.05] pointer-events-none select-none">
+          <div className="text-center">
+            <span className="text-6xl font-black block text-blue-500">PLAYER</span>
+            <span className="text-[10px] font-bold text-blue-500 tracking-wider">PAYS 1 TO 1</span>
+          </div>
+          <div className="text-center border-l border-r border-yellow-600/20 px-8">
+            <span className="text-5xl font-black block text-yellow-600">TIE</span>
+            <span className="text-[10px] font-bold text-yellow-600 tracking-wider">PAYS 8 TO 1</span>
+          </div>
+          <div className="text-center">
+            <span className="text-6xl font-black block text-red-500">BANKER</span>
+            <span className="text-[10px] font-bold text-red-500 tracking-wider">PAYS 0.95 TO 1</span>
+          </div>
+        </div>
+      </div>
 
       {/* Table Decals */}
-      <div className="absolute top-8 text-center opacity-40 select-none">
-        <h2 className="text-yellow-500 font-black text-2xl md:text-4xl tracking-[0.3em] uppercase drop-shadow-md">AURA BACCARAT</h2>
-        <span className="text-yellow-600 text-[10px] md:text-xs font-bold tracking-[0.5em] mt-1 block">PAYS 9 TO 1 ON TIE</span>
+      <div className="absolute top-8 text-center opacity-30 select-none pointer-events-none">
+        <h2 className="text-yellow-500 font-black text-2xl md:text-4xl tracking-[0.3em] uppercase drop-shadow-md">MACAU VIP BACCARAT</h2>
+        <span className="text-yellow-600 text-[10px] md:text-xs font-bold tracking-[0.5em] mt-1 block">COMMISSION FREE ROADWAY</span>
       </div>
 
       <div className="relative z-10 w-full flex flex-col md:flex-row gap-8 md:gap-20 justify-center mt-12 px-6 transform-style-3d rotate-x-[15deg]">
@@ -163,12 +182,14 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
                 initial={{ y: -300, x: 200, rotateY: 180, rotateZ: 45, scale: 0.5 }}
                 animate={{ y: 0, x: 0, rotateY: 0, rotateZ: idx === 0 ? -5 : 5, scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className={`w-24 h-36 bg-gradient-to-br from-white to-slate-100 border-2 border-slate-200 rounded-xl shadow-[0_20px_30px_rgba(0,0,0,0.8),inset_0_0_10px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-2 transform-style-3d z-${10 + idx}`}
                 style={{ marginLeft: idx > 0 ? "-30px" : "0px" }}
               >
-                <span className={`font-black text-lg leading-none ${card.color}`}>{card.val}</span>
-                <span className={`text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${card.color}`}>{card.suit}</span>
-                <span className={`font-black text-lg leading-none self-end rotate-180 ${card.color}`}>{card.val}</span>
+                <PremiumCard
+                  val={card.val}
+                  suit={card.suit}
+                  themeBack="blue"
+                  className="w-24 h-36"
+                />
               </motion.div>
             ))}
           </div>
@@ -191,12 +212,14 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
                 initial={{ y: -300, x: -200, rotateY: 180, rotateZ: -45, scale: 0.5 }}
                 animate={{ y: 0, x: 0, rotateY: 0, rotateZ: idx === 0 ? -5 : 5, scale: 1 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className={`w-24 h-36 bg-gradient-to-br from-white to-slate-100 border-2 border-slate-200 rounded-xl shadow-[0_20px_30px_rgba(0,0,0,0.8),inset_0_0_10px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-2 transform-style-3d z-${10 + idx}`}
                 style={{ marginLeft: idx > 0 ? "-30px" : "0px" }}
               >
-                <span className={`font-black text-lg leading-none ${card.color}`}>{card.val}</span>
-                <span className={`text-4xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${card.color}`}>{card.suit}</span>
-                <span className={`font-black text-lg leading-none self-end rotate-180 ${card.color}`}>{card.val}</span>
+                <PremiumCard
+                  val={card.val}
+                  suit={card.suit}
+                  themeBack="red"
+                  className="w-24 h-36"
+                />
               </motion.div>
             ))}
           </div>
