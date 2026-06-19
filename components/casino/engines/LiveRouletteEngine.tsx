@@ -756,10 +756,10 @@ export function LiveRouletteEngine({
           </div>
 
           {/* Bottom part: Chip Presets & Action Buttons */}
-          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 shadow-md">
+          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-2xl p-4 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-md">
             
-            {/* Chip selector */}
-            <div className="flex items-center gap-2 overflow-x-auto py-1 scrollbar-none">
+            {/* Chip selector - Styled as a luxury casino chip rack */}
+            <div className="flex items-center gap-2.5 shrink-0 bg-black/35 border border-yellow-500/15 px-4 py-1.5 rounded-full shadow-inner">
               {[
                 { amount: 100, label: "100", color: "from-blue-500 to-indigo-700 border-blue-400" },
                 { amount: 500, label: "500", color: "from-teal-400 to-emerald-600 border-teal-400" },
@@ -788,46 +788,54 @@ export function LiveRouletteEngine({
               })}
             </div>
 
-            {/* Quick Actions buttons */}
-            <div className="flex items-center gap-2">
+            {/* Quick Actions buttons - High contrast gold/emerald style */}
+            <div className="flex items-center gap-2 shrink-0">
               <button 
                 onClick={undoLastBet} 
                 disabled={isSpinning || betHistory.length === 0}
-                className="px-3.5 py-2.5 rounded-xl border border-yellow-500/10 bg-[#020a05]/65 text-[10px] font-black text-slate-300 hover:text-white cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
+                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
+                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Undo
               </button>
               <button 
                 onClick={doubleAllBets} 
                 disabled={isSpinning || totalBetsSum === 0}
-                className="px-3.5 py-2.5 rounded-xl border border-yellow-500/10 bg-[#020a05]/65 text-[10px] font-black text-slate-300 hover:text-white cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
+                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
+                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Double
               </button>
               <button 
                 onClick={repeatLastBets} 
                 disabled={isSpinning || Object.keys(prevBets).length === 0}
-                className="px-3.5 py-2.5 rounded-xl border border-yellow-500/10 bg-[#020a05]/65 text-[10px] font-black text-slate-300 hover:text-white cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
+                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
+                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Repeat
               </button>
               <button 
                 onClick={clearAllBets} 
                 disabled={isSpinning || totalBetsSum === 0}
-                className="px-3.5 py-2.5 rounded-xl border border-yellow-500/10 bg-[#020a05]/65 text-[10px] font-black text-slate-300 hover:text-white cursor-pointer active:scale-95 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
+                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
+                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Clear
               </button>
             </div>
 
-            {/* Spin Button */}
+            {/* Spin Button - Highly readable high-contrast layout */}
             <button
               onClick={handleSpinInit}
               disabled={isSpinning || totalBetsSum === 0}
-              className={`py-3 px-8 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest transition-all cursor-pointer shadow-[0_6px_20px_rgba(234,179,8,0.15)] select-none shrink-0 ${
+              className={`py-3 px-8 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer select-none shrink-0 ${
                 isSpinning || totalBetsSum === 0
-                  ? "bg-yellow-500/30 text-yellow-500/40 border border-yellow-500/15 cursor-not-allowed shadow-none"
-                  : "bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 hover:scale-[1.03] active:scale-[0.97] border border-yellow-300 animate-pulse animate-duration-1000"
+                  ? "bg-slate-900/60 text-slate-500 border border-slate-800 cursor-not-allowed shadow-none"
+                  : "bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 hover:scale-[1.03] active:scale-[0.97] border border-yellow-300 shadow-[0_0_20px_rgba(234,179,8,0.35)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] animate-pulse animate-duration-1000"
               }`}
             >
               🎰 Spin Wheel
