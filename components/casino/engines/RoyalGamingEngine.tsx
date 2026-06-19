@@ -4,7 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   Activity, Clock, Zap, RotateCcw, AlertTriangle, RefreshCw, 
-  Volume2, VolumeX, Shield, Eye, EyeOff 
+  Volume2, VolumeX, Shield, Eye, EyeOff, Users, TrendingUp, Trophy, Flame 
 } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
@@ -168,6 +168,28 @@ const GAME_CONFIGS: Record<string, {
 
 const COIN_VALUES = [100, 500, 1000, 5000, 10000, 50000];
 
+// Simulated live player avatars for social proof (tiny face circles)
+const LIVE_PLAYERS = [
+  { id: 'p1', initials: 'AK', color: 'from-violet-500 to-fuchsia-600', bet: 5000 },
+  { id: 'p2', initials: 'SR', color: 'from-sky-500 to-cyan-600', bet: 10000 },
+  { id: 'p3', initials: 'MJ', color: 'from-emerald-500 to-teal-600', bet: 1000 },
+  { id: 'p4', initials: 'RK', color: 'from-amber-500 to-orange-600', bet: 50000 },
+  { id: 'p5', initials: 'PD', color: 'from-rose-500 to-pink-600', bet: 5000 },
+  { id: 'p6', initials: 'VG', color: 'from-indigo-500 to-blue-600', bet: 2000 },
+  { id: 'p7', initials: 'NK', color: 'from-lime-500 to-green-600', bet: 500 },
+  { id: 'p8', initials: 'TS', color: 'from-purple-500 to-violet-600', bet: 25000 },
+];
+
+// Simulated recent live bets feed for social proof
+const LIVE_FEED_BETS = [
+  { player: 'AceKing\u2605', amount: 50000, target: 'Ante', won: true, time: '2s ago' },
+  { player: 'RoyalFlush', amount: 10000, target: 'Bonus', won: false, time: '5s ago' },
+  { player: 'PokerMVP', amount: 25000, target: 'Pair Plus', won: true, time: '8s ago' },
+  { player: 'DiamondQ', amount: 5000, target: 'Ante', won: true, time: '12s ago' },
+  { player: 'HighStakes', amount: 100000, target: 'Bonus', won: false, time: '15s ago' },
+  { player: 'GoldRush99', amount: 15000, target: 'Ante', won: true, time: '22s ago' },
+];
+
 // Web Audio API Sound Synthesizer (Zero external file dependencies)
 const playSynthSound = (type: 'tick' | 'beep' | 'win', isMuted: boolean) => {
   if (isMuted) return;
@@ -225,6 +247,15 @@ const playSynthSound = (type: 'tick' | 'beep' | 'win', isMuted: boolean) => {
   } catch (e) {
     console.warn("Web Audio API blocked or not supported", e);
   }
+};
+
+// Helper to calculate X starting position offset for each coin value to align with horizontal selector buttons on desktop
+const getChipStartXOffset = (value: number, canvasWidth: number) => {
+  const index = COIN_VALUES.indexOf(value);
+  if (index === -1) return canvasWidth * 0.5;
+  // Map index [0..5] to percentage [32% .. 68%] to match the selector layout width
+  const pct = 0.32 + (index / (COIN_VALUES.length - 1 || 1)) * 0.36;
+  return canvasWidth * pct;
 };
 
 // Premium casino chip color palettes matching denominations
@@ -983,7 +1014,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
   // Dynamic Ambient Felt Spotlight styles linked to game phases
   const getFeltContainerClass = () => {
-    const base = "relative aspect-video w-full rounded-[2rem] sm:rounded-[2.5rem] flex flex-col justify-between p-3 overflow-hidden transform-gpu transition-all duration-1000 ease-in-out border-[10px]";
+    const base = "relative aspect-[4/3] xs:aspect-[1.5] md:aspect-video w-full rounded-[1.5rem] md:rounded-[2.5rem] flex flex-col justify-between p-2 md:p-3 overflow-hidden transform-gpu transition-all duration-1000 ease-in-out border-[6px] md:border-[10px]";
     
     if (phase === 'open') {
       if (countdown <= 4) {
@@ -1321,9 +1352,11 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           targetY += stackOffset;
         }
 
-        // Start coordinates: bottom-center of the canvas
-        const startX = canvas.clientWidth * 0.5;
-        const startY = canvas.clientHeight + 40;
+        // Start coordinates:
+        // On desktop (!isMobile), the selector is above the canvas. So start from top and map to the specific chip index.
+        // On mobile (isMobile), the selector is below the canvas. So start from bottom center.
+        const startX = !isMobile ? getChipStartXOffset(chip.value, canvas.clientWidth) : canvas.clientWidth * 0.5;
+        const startY = !isMobile ? -20 : canvas.clientHeight + 40;
 
         // Fallback random rotation based on chip ID to prevent state rewrite churn
         const initialRotation = (chip.rotationAngle ?? (parseInt(chip.id.replace(/\D/g, '')) || 0) % 360) * (Math.PI / 180);
@@ -1763,6 +1796,88 @@ setPlacedChips([]);
         </div>
       </div>
 
+      {/* DESKTOP ONLY CHIP SELECTOR TRAY — Placed directly above video so chips fly down across the felt */}
+      <div className="hidden md:flex bg-slate-900/70 backdrop-blur-xl border border-white/5 rounded-2xl p-2 sm:p-2.5 mb-3.5 items-center justify-center gap-2 sm:gap-3 w-full shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+        {/* Bet amount label + 1/2 button */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button 
+            onClick={() => {
+              const halved = Math.max(50, Math.floor(selectedCoin / 2));
+              setSelectedCoin(halved);
+            }}
+            className="w-7 h-7 flex items-center justify-center bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-white rounded-full transition-colors cursor-pointer"
+          >
+            ½
+          </button>
+        </div>
+
+        {/* Chip Coins — Larger on desktop */}
+        <div className="flex items-center gap-2 sm:gap-3">
+          {COIN_VALUES.map(val => {
+            const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
+              100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-white", shadow: "shadow-sky-500/40" },
+              500: { bg: "from-emerald-500 to-emerald-700", border: "border-emerald-350", text: "text-white", shadow: "shadow-emerald-500/40" },
+              1000: { bg: "from-amber-500 to-amber-700", border: "border-amber-350", text: "text-white", shadow: "shadow-amber-500/40" },
+              5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-white", shadow: "shadow-rose-500/40" },
+              10000: { bg: "from-purple-500 to-purple-700", border: "border-purple-350", text: "text-white", shadow: "shadow-purple-500/40" },
+              50000: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-white", shadow: "shadow-slate-700/40" }
+            };
+            const config = styles[val] || { bg: "from-purple-600 to-purple-800", border: "border-purple-400", text: "text-white", shadow: "shadow-purple-500/40" };
+            const isSelected = selectedCoin === val;
+
+            return (
+              <button
+                key={val}
+                onClick={() => {
+                  if (balance < val) {
+                    setShowLowBalance(true);
+                    return;
+                  }
+                  setSelectedCoin(val);
+                  playSynthSound('tick', isMuted);
+                }}
+                className={cn(
+                  "w-12 h-12 rounded-full flex items-center justify-center font-black text-[11px] transition-all border-2 border-dashed shadow-md active:scale-90 select-none cursor-pointer relative bg-gradient-to-br",
+                  config.bg,
+                  config.border,
+                  config.text,
+                  isSelected 
+                    ? `scale-110 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#070b13] ${config.shadow} shadow-lg opacity-100` 
+                    : "opacity-75 hover:opacity-100 hover:scale-110"
+                )}
+              >
+                <div className="absolute inset-[1.5px] rounded-full border border-white/20 flex items-center justify-center">
+                  <span className="leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{val >= 1000 ? `${val/1000}k` : val}</span>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* 2x button + Bet display */}
+        <div className="flex items-center gap-1.5 shrink-0">
+          <button 
+            onClick={() => {
+              const doubled = selectedCoin * 2;
+              if (balance >= doubled) {
+                setSelectedCoin(doubled);
+              } else {
+                setShowLowBalance(true);
+              }
+            }}
+            className="w-7 h-7 flex items-center justify-center bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-white rounded-full transition-colors cursor-pointer"
+          >
+            2x
+          </button>
+        </div>
+
+        {/* Current bet value badge */}
+        <div className="flex items-center bg-slate-950/80 border border-amber-500/20 rounded-full px-3 py-1 gap-1.5 shadow-inner">
+          <span className="text-[8px] text-slate-400 font-extrabold uppercase">Bet</span>
+          <span className="text-amber-400 font-black text-[11px] font-mono">₹{selectedCoin.toLocaleString('en-IN')}</span>
+        </div>
+      </div>
+
       {/* WebRTC Video Stream & Interactive Canvas box (Ambient Spotlight & Mahogany wood rail) */}
       <div 
         ref={containerRef} 
@@ -1813,7 +1928,7 @@ setPlacedChips([]);
 
         {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
         {phase === 'open' && ping <= 500 && showOverlay && (
-          <div className="absolute bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="absolute bottom-11 sm:bottom-12 md:bottom-14 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 w-full max-w-md md:max-w-lg">
               {currentConfig.targets.map(target => {
                 const activeWager = bets[target.id] || 0;
@@ -2019,14 +2134,38 @@ setPlacedChips([]);
           </AnimatePresence>
         </div>
 
-        {/* Stream Bottom Box: Header details and scorecard roadmap */}
-        <div className="border-t border-white/10 pt-2 shrink-0 flex items-center justify-between z-20 w-full relative bg-slate-950/80 p-2.5 rounded-sm border border-white/5">
-          <div className="flex flex-col items-start gap-1">
-            <span className="text-[10px] font-black text-slate-200 uppercase tracking-wider leading-none">{currentConfig.label}</span>
-            <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">WHIP WHEP Live</span>
+        {/* Stream Bottom Box: Live Players Strip & Total Bet */}
+        <div className="border-t border-white/10 pt-2 shrink-0 flex items-center justify-between z-20 w-full relative bg-slate-950/80 p-2 sm:p-2.5 rounded-sm border border-white/5">
+          {/* Left: Live Player Avatars */}
+          <div className="flex items-center gap-1.5">
+            <div className="flex items-center -space-x-1.5">
+              {LIVE_PLAYERS.slice(0, 6).map((p, i) => (
+                <div 
+                  key={p.id}
+                  className={cn(
+                    "w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-black text-white border-[1.5px] border-slate-950 bg-gradient-to-br shadow-sm select-none",
+                    p.color
+                  )}
+                  style={{ zIndex: LIVE_PLAYERS.length - i }}
+                  title={`Player ${p.initials} \u2022 \u20b9${p.bet.toLocaleString('en-IN')}`}
+                >
+                  {p.initials}
+                </div>
+              ))}
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-black text-slate-300 border-[1.5px] border-slate-950 bg-slate-800 shadow-sm select-none" style={{ zIndex: 0 }}>
+                +42
+              </div>
+            </div>
+            <div className="flex flex-col ml-1">
+              <span className="text-[8px] sm:text-[9px] font-extrabold text-emerald-400 uppercase leading-none flex items-center gap-0.5">
+                <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+                Live Now
+              </span>
+              <span className="text-[7px] text-slate-500 font-bold leading-none mt-0.5">WHIP WHEP Stream</span>
+            </div>
           </div>
           
-          {/* Total bet info */}
+          {/* Right: Total bet info */}
           <div className="text-right">
             <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
             <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
@@ -2034,42 +2173,42 @@ setPlacedChips([]);
         </div>
       </div>
 
-      {/* CONTROL CONSOLE (Chips, Bets, Actions) */}
-      <div className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-2xl p-3 sm:p-4 mt-4 flex flex-col md:flex-row gap-4 items-center justify-between w-full shadow-2xl">
-        {/* Quick Actions (Left) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 font-mono text-[9px] sm:text-[10px] font-black uppercase tracking-wider shrink-0 w-full md:w-auto justify-between md:justify-start">
+      {/* MOBILE ONLY CONTROL CENTER — Consolidated rows for perfect cellphone usability */}
+      <div className="flex md:hidden flex-col gap-3 bg-slate-900/70 backdrop-blur-xl border border-white/5 rounded-2xl p-3 mt-3 w-full shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+        {/* Row 1: Quick Actions (Grid aligned) */}
+        <div className="grid grid-cols-4 gap-2 w-full">
           <button
             onClick={handleUndo}
             disabled={phase !== 'open' || betHistory.length === 0}
-            className="px-2.5 sm:px-3.5 py-2 bg-slate-800/60 hover:bg-slate-700/65 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none"
+            className="py-2 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
           >
             Undo
           </button>
           <button
             onClick={handleRepeatBet}
             disabled={phase !== 'open' || Object.keys(previousBets).length === 0}
-            className="px-2.5 sm:px-3.5 py-2 bg-slate-800/60 hover:bg-slate-700/65 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none"
+            className="py-2 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
           >
             Repeat
           </button>
           <button
             onClick={handleDouble}
             disabled={phase !== 'open' || totalActiveBet === 0}
-            className="px-2.5 sm:px-3.5 py-2 bg-slate-800/60 hover:bg-slate-700/65 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none"
+            className="py-2 bg-slate-800/60 hover:bg-slate-700/60 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
           >
             Double
           </button>
           <button
             onClick={handleClearAll}
             disabled={phase !== 'open' || totalActiveBet === 0}
-            className="px-2.5 sm:px-3.5 py-2 bg-rose-950/60 hover:bg-rose-900/65 disabled:opacity-25 text-rose-350 hover:text-rose-250 rounded-lg border border-rose-900/35 transition-all cursor-pointer select-none"
+            className="py-2 bg-rose-950/60 hover:bg-rose-900/65 disabled:opacity-25 text-rose-350 hover:text-rose-250 rounded-lg border border-rose-900/35 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
           >
             Clear
           </button>
         </div>
 
-        {/* Chip Selector Tray (Center) */}
-        <div className="flex items-center gap-1.5 sm:gap-2.5 bg-slate-950/60 border border-slate-900/80 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-[inset_0_2px_8px_rgba(0,0,0,0.6)]">
+        {/* Row 2: Chip selector bar inside a capsule container */}
+        <div className="flex items-center justify-between gap-1 bg-slate-950/40 p-2 border border-white/5 rounded-xl overflow-x-auto select-none">
           {COIN_VALUES.map(val => {
             const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
               100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-white", shadow: "shadow-sky-500/40" },
@@ -2077,7 +2216,7 @@ setPlacedChips([]);
               1000: { bg: "from-amber-500 to-amber-700", border: "border-amber-350", text: "text-white", shadow: "shadow-amber-500/40" },
               5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-white", shadow: "shadow-rose-500/40" },
               10000: { bg: "from-purple-500 to-purple-700", border: "border-purple-350", text: "text-white", shadow: "shadow-purple-500/40" },
-              50050: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-white", shadow: "shadow-slate-700/40" }
+              50000: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-white", shadow: "shadow-slate-700/40" }
             };
             const config = styles[val] || { bg: "from-purple-600 to-purple-800", border: "border-purple-400", text: "text-white", shadow: "shadow-purple-500/40" };
             const isSelected = selectedCoin === val;
@@ -2094,75 +2233,110 @@ setPlacedChips([]);
                   playSynthSound('tick', isMuted);
                 }}
                 className={cn(
-                  "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-[8.5px] sm:text-[9.5px] transition-all border-2 border-dashed shadow-md active:scale-90 select-none cursor-pointer relative bg-gradient-to-br",
+                  "w-10 h-10 rounded-full flex items-center justify-center font-black text-[9px] transition-all border-2 border-dashed shadow-md active:scale-90 select-none cursor-pointer relative bg-gradient-to-br shrink-0",
                   config.bg,
                   config.border,
                   config.text,
                   isSelected 
-                    ? `scale-110 ring-2 ring-amber-500 ring-offset-2 ring-offset-[#070b13] ${config.shadow} shadow-lg opacity-100` 
-                    : "opacity-80 hover:opacity-100 hover:scale-105"
+                    ? `scale-105 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#070b13] ${config.shadow} shadow-lg opacity-100` 
+                    : "opacity-80 hover:opacity-100"
                 )}
               >
                 <div className="absolute inset-[1.5px] rounded-full border border-white/20 flex items-center justify-center">
-                  <span className="leading-none">{val >= 1000 ? `${val/1000}k` : val}</span>
+                  <span className="leading-none drop-shadow-[0_1px_2px_rgba(0,0,0,0.5)]">{val >= 1000 ? `${val/1000}k` : val}</span>
                 </div>
               </button>
             );
           })}
         </div>
 
-        {/* Bet Amount Multiplier Controls (Right) */}
-        <div className="flex items-center gap-2 bg-slate-950/40 border border-white/5 p-1 rounded-lg shrink-0 w-full md:w-auto justify-end">
-          <span className="text-[9px] text-slate-400 font-extrabold uppercase pl-1 sm:pl-2">Bet:</span>
-          <div className="flex items-center bg-slate-900/80 border border-slate-800 rounded px-2 py-1">
-            <span className="text-amber-400 font-black text-[10px] sm:text-[11px] font-mono">₹{selectedCoin.toLocaleString('en-IN')}</span>
+        {/* Row 3: Current Wager + Multipliers (1/2, 2x) */}
+        <div className="flex items-center justify-between bg-slate-950/60 border border-white/5 p-2 rounded-xl">
+          <div className="flex items-center gap-1.5 pl-1.5">
+            <span className="text-[9px] text-slate-400 font-extrabold uppercase">Bet:</span>
+            <span className="text-amber-400 font-black text-[12px] font-mono">₹{selectedCoin.toLocaleString('en-IN')}</span>
           </div>
-          <button 
-            onClick={() => {
-              const halved = Math.max(50, Math.floor(selectedCoin / 2));
-              setSelectedCoin(halved);
-            }}
-            className="w-7 h-7 flex items-center justify-center bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-white rounded transition-colors cursor-pointer"
-          >
-            1/2
-          </button>
-          <button 
-            onClick={() => {
-              const doubled = selectedCoin * 2;
-              if (balance >= doubled) {
-                setSelectedCoin(doubled);
-              } else {
-                setShowLowBalance(true);
-              }
-            }}
-            className="w-7 h-7 flex items-center justify-center bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-white rounded transition-colors cursor-pointer"
-          >
-            2x
-          </button>
+
+          <div className="flex items-center gap-1.5">
+            <button 
+              onClick={() => {
+                const halved = Math.max(50, Math.floor(selectedCoin / 2));
+                setSelectedCoin(halved);
+              }}
+              className="px-3 py-1 bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-white rounded-lg transition-colors cursor-pointer"
+            >
+              1/2
+            </button>
+            <button 
+              onClick={() => {
+                const doubled = selectedCoin * 2;
+                if (balance >= doubled) {
+                  setSelectedCoin(doubled);
+                } else {
+                  setShowLowBalance(true);
+                }
+              }}
+              className="px-3 py-1 bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-355 hover:text-white rounded-lg transition-colors cursor-pointer"
+            >
+              2x
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* BOTTOM DASHBOARD ROW (Roadmap & Trust Footer Info) */}
-      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 mt-4 w-full items-start">
+      {/* DESKTOP ONLY QUICK ACTIONS BAR — Compact row below video */}
+      <div className="hidden md:flex items-center justify-center gap-1.5 sm:gap-2 mt-2.5 w-full">
+        <button
+          onClick={handleUndo}
+          disabled={phase !== 'open' || betHistory.length === 0}
+          className="px-4 py-1.5 bg-slate-800/50 hover:bg-slate-700/60 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
+        >
+          Undo
+        </button>
+        <button
+          onClick={handleRepeatBet}
+          disabled={phase !== 'open' || Object.keys(previousBets).length === 0}
+          className="px-4 py-1.5 bg-slate-800/50 hover:bg-slate-700/60 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
+        >
+          Repeat
+        </button>
+        <button
+          onClick={handleDouble}
+          disabled={phase !== 'open' || totalActiveBet === 0}
+          className="px-4 py-1.5 bg-slate-800/50 hover:bg-slate-700/60 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
+        >
+          Double
+        </button>
+        <button
+          onClick={handleClearAll}
+          disabled={phase !== 'open' || totalActiveBet === 0}
+          className="px-4 py-1.5 bg-rose-950/50 hover:bg-rose-900/60 disabled:opacity-25 text-rose-350 hover:text-rose-250 rounded-lg border border-rose-900/35 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
+        >
+          Clear
+        </button>
+      </div>
+
+      {/* BOTTOM DASHBOARD: Roadmap + Live Activity + Stats */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-3 mt-4 w-full items-stretch">
         
-        {/* Scorecard Roadmap (Analytics) */}
-        <div className="bg-slate-900/40 border border-white/5 rounded-xl p-4 select-none w-full shadow-lg">
-          <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
+        {/* 1. Scorecard Roadmap (Analytics) */}
+        <div className="bg-slate-900/40 border border-white/5 rounded-xl p-3 sm:p-4 select-none w-full shadow-lg flex flex-col">
+          <div className="flex items-center justify-between mb-2.5 border-b border-white/5 pb-2">
             <span className="text-[10px] font-black text-slate-350 uppercase tracking-widest flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-emerald-450" />
-              Game Roadmap & Analytics
+              Roadmap
             </span>
-            <span className="text-[9px] text-slate-500 font-extrabold uppercase">Last 15 Rounds</span>
+            <span className="text-[8px] text-slate-500 font-extrabold uppercase">Last 15</span>
           </div>
           <div 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-            className="flex gap-2 overflow-x-auto items-center touch-pan-x flex-row-reverse py-1 select-none"
+            className="flex gap-1.5 overflow-x-auto items-center touch-pan-x flex-row-reverse py-1 select-none flex-1"
           >
             {historyList.slice().reverse().map((val, idx) => (
               <span 
                 key={idx}
                 className={cn(
-                  "w-7 h-7 rounded-full text-[11px] font-black flex items-center justify-center shrink-0 border border-white/5 shadow-md transition-transform active:scale-95",
+                  "w-6 h-6 sm:w-7 sm:h-7 rounded-full text-[10px] sm:text-[11px] font-black flex items-center justify-center shrink-0 border border-white/5 shadow-md transition-transform active:scale-95",
                   val === 'A' || val === '8' || val === 'D' || val === 'U' || val === '7'
                     ? "bg-blue-600 text-white shadow-blue-500/20" 
                     : val === 'B' || val === '9' || val === 'T' || val === 'W'
@@ -2176,42 +2350,101 @@ setPlacedChips([]);
           </div>
         </div>
 
-        {/* Platform Trust & Affiliate Earnings */}
-        <div className="shrink-0 w-full">
-          {gameId.startsWith("royal-1") ? (
-            <div className="bg-[#1E293B]/30 text-slate-200 border border-white/5 rounded-xl p-4 flex flex-col gap-1.5 relative overflow-hidden select-none shadow-lg">
-              <div className="flex items-start gap-2.5 z-10 relative">
-                <span className="text-sm">🤝</span>
-                <div className="flex-1">
-                  <span className="text-[9px] font-extrabold text-[#C084FC] uppercase tracking-widest block mb-0.5">Affiliate Earnings</span>
-                  <p className="text-[10px] text-slate-350 leading-snug font-medium">
-                    <span className="text-white font-bold">GoldenAce</span> earned <span className="text-emerald-450 font-extrabold">₹85,000</span> in commission today!
+        {/* 2. Live Activity Feed (Social Proof) */}
+        <div className="bg-slate-900/40 border border-white/5 rounded-xl p-3 sm:p-4 select-none w-full shadow-lg flex flex-col">
+          <div className="flex items-center justify-between mb-2.5 border-b border-white/5 pb-2">
+            <span className="text-[10px] font-black text-slate-350 uppercase tracking-widest flex items-center gap-1.5">
+              <Flame className="w-3.5 h-3.5 text-amber-400" />
+              Live Bets
+            </span>
+            <div className="flex items-center gap-1">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+              <span className="text-[8px] text-emerald-400 font-extrabold uppercase">48 Online</span>
+            </div>
+          </div>
+          <div className="flex flex-col gap-1 flex-1 overflow-hidden">
+            {LIVE_FEED_BETS.slice(0, 4).map((bet, i) => (
+              <div key={i} className="flex items-center justify-between py-1 border-b border-white/[0.03] last:border-0">
+                <div className="flex items-center gap-1.5">
+                  <div className={cn(
+                    "w-5 h-5 rounded-full flex items-center justify-center text-[6px] font-black text-white bg-gradient-to-br shadow-sm",
+                    LIVE_PLAYERS[i % LIVE_PLAYERS.length].color
+                  )}>
+                    {bet.player.substring(0, 2).toUpperCase()}
+                  </div>
+                  <div className="flex flex-col">
+                    <span className="text-[9px] font-bold text-slate-200 leading-none">{bet.player}</span>
+                    <span className="text-[7px] text-slate-500 font-bold leading-none mt-0.5">{bet.target} \u2022 {bet.time}</span>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1">
+                  <span className={cn(
+                    "text-[9px] font-black font-mono leading-none",
+                    bet.won ? "text-emerald-400" : "text-rose-400"
+                  )}>
+                    {bet.won ? '+' : '-'}\u20b9{bet.amount.toLocaleString('en-IN')}
+                  </span>
+                  {bet.won && <Trophy className="w-2.5 h-2.5 text-amber-400" />}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* 3. Live Stats & Trust */}
+        <div className="flex flex-col gap-3 w-full">
+          {/* Live Table Stats */}
+          <div className="bg-slate-900/40 border border-white/5 rounded-xl p-3 sm:p-4 select-none shadow-lg flex-1">
+            <div className="flex items-center gap-1.5 mb-2.5 border-b border-white/5 pb-2">
+              <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
+              <span className="text-[10px] font-black text-slate-350 uppercase tracking-widest">Table Stats</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="bg-slate-950/50 rounded-lg p-2 text-center border border-white/[0.03]">
+                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Players</span>
+                <span className="text-sm font-black text-white leading-none font-mono">48</span>
+              </div>
+              <div className="bg-slate-950/50 rounded-lg p-2 text-center border border-white/[0.03]">
+                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Volume</span>
+                <span className="text-sm font-black text-emerald-400 leading-none font-mono">\u20b9320K</span>
+              </div>
+              <div className="bg-slate-950/50 rounded-lg p-2 text-center border border-white/[0.03]">
+                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Win Rate</span>
+                <span className="text-sm font-black text-amber-400 leading-none font-mono">48.6%</span>
+              </div>
+              <div className="bg-slate-950/50 rounded-lg p-2 text-center border border-white/[0.03]">
+                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Max Win</span>
+                <span className="text-sm font-black text-[#C084FC] leading-none font-mono">\u20b9150K</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Trust / Affiliate Badge */}
+          <div className="bg-gradient-to-br from-slate-900/60 to-slate-950/60 border border-white/5 rounded-xl p-3 select-none shadow-lg">
+            {gameId.startsWith("royal-1") ? (
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/20">
+                  <Users className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[8px] font-extrabold text-[#C084FC] uppercase tracking-widest block">Referral Program</span>
+                  <p className="text-[9px] text-slate-400 leading-snug font-medium truncate">
+                    <span className="text-white font-bold">GoldenAce</span> earned <span className="text-emerald-400 font-extrabold">\u20b985K</span> today
                   </p>
                 </div>
               </div>
-              <button 
-                onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-                className="text-[8px] font-extrabold text-[#C084FC] hover:text-[#D8B4FE] transition-colors mt-1.5 uppercase tracking-wider text-left z-10 relative w-fit hover:underline cursor-pointer"
-              >
-                Refer & Earn →
-              </button>
-            </div>
-          ) : (
-            <div className="bg-[#1E293B]/30 text-slate-200 border border-white/5 rounded-xl p-4 flex flex-col gap-1.5 relative overflow-hidden select-none shadow-lg">
-              <div className="flex items-start gap-2.5 z-10 relative">
-                <span className="text-sm">🛡️</span>
-                <div className="flex-1">
-                  <span className="text-[9px] font-extrabold text-emerald-450 uppercase tracking-widest block mb-0.5">Platform Trust</span>
-                  <p className="text-[10px] text-slate-350 leading-snug font-medium">
-                    Instant UPI withdrawals processed in &lt; 2 mins.
-                  </p>
+            ) : (
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-600 flex items-center justify-center shrink-0 shadow-lg shadow-emerald-500/20">
+                  <Shield className="w-4 h-4 text-white" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className="text-[8px] font-extrabold text-emerald-400 uppercase tracking-widest block">Provably Fair</span>
+                  <p className="text-[9px] text-slate-400 leading-snug font-medium">Instant UPI \u2022 &lt;2 min</p>
                 </div>
               </div>
-              <div className="text-[8px] font-extrabold text-emerald-450 uppercase tracking-wider mt-1.5 z-10 relative">
-                Verified Provably Fair
-              </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
 
       </div>
