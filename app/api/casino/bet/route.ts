@@ -208,6 +208,7 @@ export async function POST(request: Request) {
 
     // Custom game-specific outcome adjustments
     let finalMultiplier = outcome.multiplier;
+    let responseMultiplier = outcome.multiplier;
     let targetBinIndex: number | undefined = undefined;
 
     if (gameId === "orig-3" || gameId.includes("plinko")) { // Plinko
@@ -226,11 +227,18 @@ export async function POST(request: Request) {
         targetBinIndex = loseBins[Math.floor(Math.random() * loseBins.length)];
       }
       finalMultiplier = riskMults[targetBinIndex];
+      responseMultiplier = finalMultiplier;
     } else if (gameId === "orig-5" || gameId.includes("dice")) { // Dice
       const targetVal = targetMultiplier ? Number(targetMultiplier) : 2.0;
       finalMultiplier = outcome.isWin ? targetVal : 0;
+      responseMultiplier = finalMultiplier;
     } else if (gameId === "orig-9" || gameId.includes("coin")) { // Coinflip
       finalMultiplier = outcome.isWin ? 2.0 : 0;
+      responseMultiplier = finalMultiplier;
+    } else if (gameId === "orig-2" || gameId.includes("limbo")) { // Limbo
+      const targetVal = targetMultiplier ? Number(targetMultiplier) : 2.0;
+      finalMultiplier = outcome.isWin ? targetVal : 0;
+      responseMultiplier = outcome.multiplier;
     } else if (gameId === "orig-6" || gameId.includes("keno")) { // Keno
       if (outcome.isWin) {
         const winMults = [1.5, 5.0, 50.0, 500.0];
@@ -238,6 +246,7 @@ export async function POST(request: Request) {
       } else {
         finalMultiplier = 0;
       }
+      responseMultiplier = finalMultiplier;
     }
 
     const payout = Math.round(betAmount * finalMultiplier * 100) / 100;
@@ -290,7 +299,7 @@ export async function POST(request: Request) {
       success: true,
       isInteractive: false,
       isWin: finalMultiplier > 0,
-      multiplier: finalMultiplier,
+      multiplier: responseMultiplier,
       payout,
       newBalance,
       targetBinIndex,

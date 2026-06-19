@@ -25,6 +25,7 @@ import { TowerEngine } from "@/components/casino/engines/TowerEngine";
 import { LiveRouletteEngine } from "@/components/casino/engines/LiveRouletteEngine";
 import { RouletteEngine } from "@/components/casino/engines/RouletteEngine";
 import { DiceEngine } from "@/components/casino/engines/DiceEngine";
+import { BilliardsEngine } from "@/components/casino/engines/BilliardsEngine";
 import { CoinflipEngine } from "@/components/casino/engines/CoinflipEngine";
 import { LiveWheelEngine } from "@/components/casino/engines/LiveWheelEngine";
 import { LimboEngine } from "@/components/casino/engines/LimboEngine";
@@ -910,7 +911,7 @@ export default function GamePlayerPage() {
       return <PenaltyEngine isPlaying={isSpinning} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-17" || game.title.toLowerCase().includes("billiards")) {
-      return <DiceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+      return <BilliardsEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-18" || game.title.toLowerCase().includes("space miner")) {
       return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
