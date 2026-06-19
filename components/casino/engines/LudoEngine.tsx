@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Trophy, Star, RotateCcw, Bot, User, Swords, Home, Sparkles, Crown } from "lucide-react";
+import { Trophy, Star, RotateCcw, Bot, User, Swords, Home, Sparkles, Crown, Plus, Minus, Shield, HelpCircle, Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 
 // ═══════════════════════════════════════════════
@@ -52,23 +52,21 @@ const PLAYER_CONFIGS = [
   { color: "blue" as PlayerColor, name: "Bot Omega", startPos: 39, emoji: "🔵" },
 ];
 
-// 52-cell clockwise main path [row, col] on 15×15 grid
 const MAIN_PATH: [number, number][] = [
-  [6,1],[6,2],[6,3],[6,4],[6,5],                 // 0–4   Left arm top → right
-  [5,6],[4,6],[3,6],[2,6],[1,6],[0,6],            // 5–10  Upper arm left → up
-  [0,7],[0,8],                                    // 11–12 Top → right
-  [1,8],[2,8],[3,8],[4,8],[5,8],                  // 13–17 Upper arm right → down
-  [6,9],[6,10],[6,11],[6,12],[6,13],[6,14],       // 18–23 Right arm top → right
-  [7,14],[8,14],                                  // 24–25 Right → down
-  [8,13],[8,12],[8,11],[8,10],[8,9],              // 26–30 Right arm bottom → left
-  [9,8],[10,8],[11,8],[12,8],[13,8],[14,8],       // 31–36 Lower arm right → down
-  [14,7],[14,6],                                  // 37–38 Bottom → left
-  [13,6],[12,6],[11,6],[10,6],[9,6],              // 39–43 Lower arm left → up
-  [8,5],[8,4],[8,3],[8,2],[8,1],[8,0],            // 44–49 Left arm bottom → left
-  [7,0],[6,0],                                    // 50–51 Left → up
+  [6,1],[6,2],[6,3],[6,4],[6,5],
+  [5,6],[4,6],[3,6],[2,6],[1,6],[0,6],
+  [0,7],[0,8],
+  [1,8],[2,8],[3,8],[4,8],[5,8],
+  [6,9],[6,10],[6,11],[6,12],[6,13],[6,14],
+  [7,14],[8,14],
+  [8,13],[8,12],[8,11],[8,10],[8,9],
+  [9,8],[10,8],[11,8],[12,8],[13,8],[14,8],
+  [14,7],[14,6],
+  [13,6],[12,6],[11,6],[10,6],[9,6],
+  [8,5],[8,4],[8,3],[8,2],[8,1],[8,0],
+  [7,0],[6,0],
 ];
 
-// 6-cell home column per player (toward center)
 const HOME_PATHS: Record<PlayerColor, [number, number][]> = {
   red:    [[7,1],[7,2],[7,3],[7,4],[7,5],[7,6]],
   green:  [[1,7],[2,7],[3,7],[4,7],[5,7],[6,7]],
@@ -76,7 +74,6 @@ const HOME_PATHS: Record<PlayerColor, [number, number][]> = {
   blue:   [[13,7],[12,7],[11,7],[10,7],[9,7],[8,7]],
 };
 
-// 4 token parking spots per base [row, col]
 const BASE_SPOTS: Record<PlayerColor, [number, number][]> = {
   red:    [[1.5,1.5],[1.5,3.5],[3.5,1.5],[3.5,3.5]],
   green:  [[1.5,10.5],[1.5,12.5],[3.5,10.5],[3.5,12.5]],
@@ -88,10 +85,10 @@ const SAFE_CELLS = new Set([0, 8, 13, 21, 26, 34, 39, 47]);
 const START_CELLS = new Set([0, 13, 26, 39]);
 
 const COLORS: Record<PlayerColor, { token: string; dark: string; light: string; glow: string; bg: string; border: string }> = {
-  red:    { token: "#DC2626", dark: "#991B1B", light: "#FEE2E2", glow: "rgba(220,38,38,0.5)", bg: "#FEF2F2", border: "#FECACA" },
-  green:  { token: "#059669", dark: "#065F46", light: "#D1FAE5", glow: "rgba(5,150,105,0.5)",  bg: "#ECFDF5", border: "#A7F3D0" },
-  yellow: { token: "#D97706", dark: "#92400E", light: "#FEF3C7", glow: "rgba(217,119,6,0.5)",  bg: "#FFFBEB", border: "#FDE68A" },
-  blue:   { token: "#2563EB", dark: "#1E40AF", light: "#DBEAFE", glow: "rgba(37,99,235,0.5)",  bg: "#EFF6FF", border: "#BFDBFE" },
+  red:    { token: "#F43F5E", dark: "#9F1239", light: "rgba(244,63,94,0.15)", glow: "rgba(244,63,94,0.5)", bg: "rgba(244,63,94,0.08)", border: "rgba(244,63,94,0.35)" },
+  green:  { token: "#10B981", dark: "#065F46", light: "rgba(16,185,129,0.15)", glow: "rgba(16,185,129,0.5)",  bg: "rgba(16,185,129,0.08)", border: "rgba(16,185,129,0.35)" },
+  yellow: { token: "#F59E0B", dark: "#78350F", light: "rgba(245,158,11,0.15)", glow: "rgba(245,158,11,0.5)",  bg: "rgba(245,158,11,0.08)", border: "rgba(245,158,11,0.35)" },
+  blue:   { token: "#3B82F6", dark: "#1E3A8A", light: "rgba(59,130,246,0.15)", glow: "rgba(59,130,246,0.5)",  bg: "rgba(59,130,246,0.08)", border: "rgba(59,130,246,0.35)" },
 };
 
 // ═══════════════════════════════════════════════
@@ -108,10 +105,6 @@ function getScreenPos(pos: TokenPosition, color: PlayerColor): { x: number; y: n
   if (pos.zone === "home") return gridToPos(HOME_PATHS[color][pos.index][0], HOME_PATHS[color][pos.index][1]);
   return gridToPos(7, 7); // finished → center
 }
-
-// ═══════════════════════════════════════════════
-// GAME LOGIC
-// ═══════════════════════════════════════════════
 
 function stepsFromStart(pathIdx: number, startPos: number): number {
   return ((pathIdx - startPos) + 52) % 52;
@@ -134,8 +127,6 @@ function getValidMoves(player: Player, dice: number, allPlayers: Player[]): Move
 
   for (const token of player.tokens) {
     if (token.position.zone === "finished") continue;
-
-    // FROM BASE — need a 6
     if (token.position.zone === "base") {
       if (dice === 6) {
         const dest = cfg.startPos;
@@ -151,14 +142,11 @@ function getValidMoves(player: Player, dice: number, allPlayers: Player[]): Move
       }
       continue;
     }
-
-    // ON PATH
     if (token.position.zone === "path") {
       const steps = stepsFromStart(token.position.index, cfg.startPos);
       const newSteps = steps + dice;
 
       if (newSteps <= 50) {
-        // Still on shared path
         const newIdx = (cfg.startPos + newSteps) % 52;
         const ownBlocked = player.tokens.some(t => t.id !== token.id && t.position.zone === "path" && t.position.index === newIdx);
         if (!ownBlocked) {
@@ -170,7 +158,6 @@ function getValidMoves(player: Player, dice: number, allPlayers: Player[]): Move
           });
         }
       } else if (newSteps <= 56) {
-        // Enters home column
         const homeIdx = newSteps - 51;
         if (homeIdx <= 5) {
           const ownBlocked = player.tokens.some(t => t.id !== token.id && t.position.zone === "home" && t.position.index === homeIdx);
@@ -181,8 +168,6 @@ function getValidMoves(player: Player, dice: number, allPlayers: Player[]): Move
       }
       continue;
     }
-
-    // IN HOME COLUMN
     if (token.position.zone === "home") {
       const newIdx = token.position.index + dice;
       if (newIdx <= 5) {
@@ -197,83 +182,66 @@ function getValidMoves(player: Player, dice: number, allPlayers: Player[]): Move
 }
 
 // ═══════════════════════════════════════════════
-// AI LOGIC
+// SUBCOMPONENTS
 // ═══════════════════════════════════════════════
 
-function selectAIMove(moves: Move[]): Move {
-  // Priority: capture → finish → enter home → release from base → random
-  const capture = moves.filter(m => m.captures);
-  if (capture.length) return capture[Math.floor(Math.random() * capture.length)];
-  const finish = moves.filter(m => m.to.zone === "finished");
-  if (finish.length) return finish[0];
-  const home = moves.filter(m => m.entersHome);
-  if (home.length) return home[Math.floor(Math.random() * home.length)];
-  const release = moves.filter(m => m.from.zone === "base");
-  if (release.length) return release[0];
-  return moves[Math.floor(Math.random() * moves.length)];
-}
-
-// ═══════════════════════════════════════════════
-// SUB-COMPONENTS
-// ═══════════════════════════════════════════════
-
-function DiceFace({ value, isRolling }: { value: number; isRolling: boolean }) {
-  const pips: Record<number, [number, number][]> = {
-    1: [[50,50]],
-    2: [[28,28],[72,72]],
-    3: [[28,28],[50,50],[72,72]],
-    4: [[28,28],[72,28],[28,72],[72,72]],
-    5: [[28,28],[72,28],[50,50],[28,72],[72,72]],
-    6: [[28,25],[72,25],[28,50],[72,50],[28,75],[72,75]],
-  };
-
+function TokenPiece({ color, size = "medium" }: { color: PlayerColor; size?: "small" | "medium" | "large" }) {
+  const s = size === "small" ? "w-3 h-3 sm:w-4.5 sm:h-4.5" : "w-5 h-5 sm:w-6.5 sm:h-6.5";
   return (
-    <motion.div
-      animate={isRolling ? { rotate: [0, -15, 15, -10, 10, 0], scale: [1, 1.1, 0.95, 1.05, 1] } : { rotate: 0, scale: 1 }}
-      transition={isRolling ? { duration: 0.15, repeat: Infinity } : { type: "spring", stiffness: 400 }}
-      className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.12)] border border-slate-200/80"
-      style={{ background: "linear-gradient(145deg, #ffffff, #f8fafc)" }}
+    <div
+      className={`${s} rounded-full relative flex items-center justify-center transition-all duration-205 select-none shadow-[0_5px_12px_rgba(0,0,0,0.6),inset_0_-2px_4px_rgba(0,0,0,0.5),0_0_12px_${COLORS[color].glow}]`}
+      style={{
+        background: `radial-gradient(circle at 35% 35%, #ffffff 0%, ${COLORS[color].token} 45%, ${COLORS[color].dark} 100%)`,
+        border: "1px solid rgba(255,255,255,0.4)"
+      }}
     >
-      {(pips[value] || pips[1]).map(([x, y], i) => (
-        <div
-          key={i}
-          className="absolute rounded-full"
-          style={{
-            left: `${x}%`, top: `${y}%`, transform: "translate(-50%,-50%)",
-            width: "18%", height: "18%",
-            background: "radial-gradient(circle at 40% 40%, #334155, #0f172a)",
-            boxShadow: "inset 0 1px 2px rgba(255,255,255,0.3)",
-          }}
-        />
-      ))}
-      {/* Shine effect */}
-      <div className="absolute inset-0 rounded-2xl" style={{
-        background: "linear-gradient(135deg, rgba(255,255,255,0.5) 0%, transparent 50%)",
-        pointerEvents: "none",
-      }} />
-    </motion.div>
+      <div className="absolute top-[10%] left-[10%] w-[35%] h-[35%] bg-white/40 rounded-full blur-[0.4px] pointer-events-none" />
+    </div>
   );
 }
 
-function TokenPiece({
-  color, isHighlighted, onClick, size = "normal",
-}: {
-  color: PlayerColor; isHighlighted?: boolean; onClick?: () => void; size?: "normal" | "small";
-}) {
-  const s = size === "small" ? "w-4 h-4" : "w-full h-full";
+function DiceFace({ value, isRolling }: { value: number; isRolling: boolean }) {
+  const diceDots: Record<number, number[]> = {
+    1: [4],
+    2: [0, 8],
+    3: [0, 4, 8],
+    4: [0, 2, 6, 8],
+    5: [0, 2, 4, 6, 8],
+    6: [0, 2, 3, 5, 6, 8],
+  };
+
   return (
-    <div
-      onClick={onClick}
-      className={`${s} rounded-full relative ${onClick ? "cursor-pointer" : ""} ${isHighlighted ? "ring-2 ring-white ring-offset-1" : ""}`}
-      style={{
-        background: `radial-gradient(circle at 35% 30%, ${COLORS[color].token}dd, ${COLORS[color].dark})`,
-        boxShadow: isHighlighted
-          ? `0 0 12px ${COLORS[color].glow}, 0 2px 6px rgba(0,0,0,0.3), inset 0 -2px 4px ${COLORS[color].dark}`
-          : `0 2px 6px rgba(0,0,0,0.2), inset 0 -2px 4px ${COLORS[color].dark}`,
-      }}
-    >
-      {/* Highlight shine */}
-      <div className="absolute top-[15%] left-[20%] w-[30%] h-[25%] rounded-full bg-white/40" />
+    <div className="w-14 h-14 relative perspective-[300px]">
+      <motion.div
+        animate={isRolling ? {
+          rotateX: [0, 360, 720],
+          rotateY: [0, 360, 720],
+          rotateZ: [0, 180, 360],
+        } : {
+          rotateX: 0,
+          rotateY: 0,
+          rotateZ: 0,
+        }}
+        transition={isRolling ? { duration: 0.8, ease: "easeInOut" } : { duration: 0.3 }}
+        className="w-full h-full bg-[#121b28] border border-slate-700/60 rounded-2xl flex items-center justify-center p-3.5 relative shadow-[0_12px_30px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.08)]"
+        style={{ transformStyle: "preserve-3d" }}
+      >
+        <div className="grid grid-cols-3 grid-rows-3 gap-1.5 w-8 h-8">
+          {Array.from({ length: 9 }).map((_, i) => {
+            const hasDot = diceDots[value]?.includes(i);
+            return (
+              <div key={i} className="flex items-center justify-center">
+                {hasDot && (
+                  <motion.div
+                    layoutId={`dot-${i}`}
+                    className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"
+                  />
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </motion.div>
     </div>
   );
 }
@@ -284,12 +252,14 @@ function TokenPiece({
 
 interface LudoEngineProps {
   betAmount: number;
+  onBetAmountChange: (amount: number) => void;
+  onStartGame: () => void;
   isPlaying: boolean;
   onComplete: (multiplier: number, won: boolean) => void;
   onLiveTick?: (multiplier: number, picksCount?: number) => void;
 }
 
-export function LudoEngine({ betAmount, isPlaying, onComplete, onLiveTick }: LudoEngineProps) {
+export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlaying, onComplete, onLiveTick }: LudoEngineProps) {
   const [gamePhase, setGamePhase] = useState<GamePhase>("idle");
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -299,22 +269,21 @@ export function LudoEngine({ betAmount, isPlaying, onComplete, onLiveTick }: Lud
   const [validMoves, setValidMoves] = useState<Move[]>([]);
   const [consecutiveSixes, setConsecutiveSixes] = useState(0);
   const [winner, setWinner] = useState<PlayerColor | null>(null);
-  const [message, setMessage] = useState("Roll the dice to begin!");
+  const [message, setMessage] = useState("Configure settings & roll the dice to win!");
   const [moveLog, setMoveLog] = useState<string[]>([]);
   const [gameMode, setGameMode] = useState<"ai" | "friends">("ai");
   const [showSetup, setShowSetup] = useState(true);
 
   const startedRef = useRef(false);
-  const aiTimerRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const aiTimerRef = useRef<NodeJS.Timeout | null>(null);
   const phaseRef = useRef(gamePhase);
   phaseRef.current = gamePhase;
 
-  // ── INITIALIZE ──
   const initGame = useCallback(() => {
     const ps: Player[] = PLAYER_CONFIGS.map((cfg, i) => ({
       color: cfg.color,
       name: gameMode === "friends" ? `Player ${i + 1}` : cfg.name,
-      tokens: [0, 1, 2, 3].map(id => ({ id, position: { zone: "base" as const, index: id } })),
+      tokens: [0, 1, 2, 3].map(id => ({ id, position: { zone: "base", index: id } })),
       isHuman: gameMode === "friends" ? true : i === 0,
       tokensHome: 0,
     }));
@@ -324,17 +293,14 @@ export function LudoEngine({ betAmount, isPlaying, onComplete, onLiveTick }: Lud
     setConsecutiveSixes(0);
     setWinner(null);
     setValidMoves([]);
-    setMessage("🎲 Roll the dice!");
     setMoveLog([]);
     setGamePhase("playing");
-    setShowSetup(false);
   }, [gameMode]);
 
-  // Trigger on isPlaying
   useEffect(() => {
     if (isPlaying && !startedRef.current) {
       startedRef.current = true;
-      if (showSetup) return; // wait for mode selection
+      setShowSetup(false);
       initGame();
     }
     if (!isPlaying) {
@@ -342,260 +308,331 @@ export function LudoEngine({ betAmount, isPlaying, onComplete, onLiveTick }: Lud
       setShowSetup(true);
       setGamePhase("idle");
     }
-  }, [isPlaying, initGame, showSetup]);
+  }, [isPlaying, initGame]);
 
-  const currentPlayer = players[currentIdx] || null;
-
-  // ── ROLL DICE ──
-  const rollDice = useCallback(() => {
-    if (phaseRef.current !== "playing" || isRolling || winner) return;
-    setIsRolling(true);
-    setGamePhase("rolling");
-    setValidMoves([]);
-
-    let count = 0;
-    const interval = setInterval(() => {
-      setDisplayDice(Math.floor(Math.random() * 6) + 1);
-      count++;
-      if (count >= 14) {
-        clearInterval(interval);
-        const result = Math.floor(Math.random() * 6) + 1;
-        setDice(result);
-        setDisplayDice(result);
-        setIsRolling(false);
-        setGamePhase("rolled");
-        try { playGameSound("spin"); } catch {}
+  const nextTurn = useCallback((bonusTurn = false) => {
+    if (winner) return;
+    setPlayers(prev => {
+      let nextIdx = currentIdx;
+      if (!bonusTurn) {
+        nextIdx = (currentIdx + 1) % prev.length;
+        setConsecutiveSixes(0);
       }
-    }, 55);
-  }, [isRolling, winner]);
-
-  // ── PROCESS ROLL ──
-  useEffect(() => {
-    if (gamePhase !== "rolled" || !currentPlayer || winner) return;
-
-    const moves = getValidMoves(currentPlayer, dice, players);
-
-    // Three 6s rule
-    if (dice === 6) {
-      const newC = consecutiveSixes + 1;
-      setConsecutiveSixes(newC);
-      if (newC >= 3) {
-        setMessage("Three 6s in a row! Turn lost.");
-        setValidMoves([]);
-        const t = setTimeout(() => nextTurn(false), 1200);
-        return () => clearTimeout(t);
+      setCurrentIdx(nextIdx);
+      setGamePhase("playing");
+      
+      const nextPlayer = prev[nextIdx];
+      if (nextPlayer.isHuman) {
+        setMessage(bonusTurn ? "🎲 Bonus turn! Roll again!" : `🎲 Your turn (${nextPlayer.name})`);
+      } else {
+        setMessage(`🤖 ${nextPlayer.name} is thinking...`);
       }
-    } else {
-      setConsecutiveSixes(0);
-    }
+      return prev;
+    });
+  }, [currentIdx, winner]);
 
-    if (moves.length === 0) {
-      setMessage(`No valid moves for ${dice}.`);
-      const t = setTimeout(() => nextTurn(dice === 6), 900);
-      return () => clearTimeout(t);
-    }
-
-    // AI auto-select
-    if (!currentPlayer.isHuman) {
-      const move = selectAIMove(moves);
-      const t = setTimeout(() => executeMove(move), 500);
-      return () => clearTimeout(t);
-    }
-
-    // Human: if only one move, auto-play it
-    if (moves.length === 1) {
-      const t = setTimeout(() => executeMove(moves[0]), 300);
-      return () => clearTimeout(t);
-    }
-
-    setValidMoves(moves);
-    setMessage(`Rolled ${dice}! Tap a highlighted token.`);
-    setGamePhase("selecting");
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [gamePhase, dice]);
-
-  // ── EXECUTE MOVE ──
   const executeMove = useCallback((move: Move) => {
+    if (winner || (phaseRef.current !== "selecting" && phaseRef.current !== "moving")) return;
+    
     setGamePhase("moving");
     setValidMoves([]);
+    try { playGameSound("click"); } catch {}
 
     setPlayers(prev => {
-      const np = prev.map(p => ({ ...p, tokens: p.tokens.map(t => ({ ...t, position: { ...t.position } })) }));
-      const player = np[currentIdx];
-      const token = player.tokens.find(t => t.id === move.tokenId)!;
-      token.position = { ...move.to };
-      if (move.to.zone === "finished") player.tokensHome++;
+      const updated = prev.map((p, pIdx) => {
+        if (pIdx !== currentIdx) return p;
+        return {
+          ...p,
+          tokens: p.tokens.map(t => {
+            if (t.id !== move.tokenId) return t;
+            return { ...t, position: move.to };
+          })
+        };
+      });
 
-      // Capture
       if (move.captures) {
-        const victim = np.find(p => p.color === move.captures!.color)!;
-        const vToken = victim.tokens.find(t => t.id === move.captures!.tokenId)!;
-        const usedSpots = victim.tokens.filter(t => t.position.zone === "base").map(t => t.position.index);
-        let spot = 0;
-        while (usedSpots.includes(spot)) spot++;
-        vToken.position = { zone: "base", index: spot };
+        try { playGameSound("lose"); } catch {}
+        const { color, tokenId } = move.captures;
+        const capPlayer = PLAYER_CONFIGS.find(cfg => cfg.color === color)!;
+        setMoveLog(l => [`💥 Captured ${capPlayer.emoji} ${color} piece!`, ...l]);
+        
+        return updated.map(p => {
+          if (p.color !== color) return p;
+          return {
+            ...p,
+            tokens: p.tokens.map(t => {
+              if (t.id !== tokenId) return t;
+              return { ...t, position: { zone: "base" as const, index: t.id } };
+            })
+          };
+        });
       }
 
-      return np;
+      if (move.to.zone === "finished") {
+        try { playGameSound("win"); } catch {}
+        const updatedSelf = updated[currentIdx];
+        updatedSelf.tokensHome += 1;
+        setMoveLog(l => [`🎉 Token finished home!`, ...l]);
+      }
+
+      return updated;
     });
 
-    // Log
-    const desc = move.captures ? `⚔️ Captured ${move.captures.color}!`
-      : move.to.zone === "finished" ? "🏠 Token home!"
-      : move.entersHome ? "➡️ Entered home column"
-      : move.from.zone === "base" ? "🎯 Released token"
-      : `Moved ${dice} steps`;
-    setMoveLog(prev => [`${currentPlayer?.name}: ${desc}`, ...prev].slice(0, 15));
+    const activePlayer = players[currentIdx];
+    const tokenName = `piece #${move.tokenId + 1}`;
+    setMoveLog(l => [`${activePlayer?.name} moved ${tokenName}`, ...l]);
 
-    if (move.captures) {
-      setMessage(`⚔️ ${currentPlayer?.name} captured ${move.captures.color}!`);
-      try { playGameSound("win"); } catch {}
-    } else if (move.to.zone === "finished") {
-      setMessage("🏠 Token reached home!");
-      try { playGameSound("win"); } catch {}
-    }
-
-    // Check win after animation
     const t = setTimeout(() => {
       setPlayers(prev => {
         const player = prev[currentIdx];
         if (player.tokensHome >= 4) {
           setWinner(player.color);
           setGamePhase("finished");
-          if (player.isHuman && gameMode === "ai") {
+          if (player.isHuman) {
             setMessage("🏆 YOU WIN! 🏆");
-            try { playGameSound("jackpot"); } catch {}
             onComplete(3.8, true);
-          } else if (gameMode === "ai") {
+          } else {
             setMessage(`${player.name} wins!`);
-            try { playGameSound("lose"); } catch {}
             onComplete(0, false);
           }
-          return prev;
+        } else {
+          nextTurn(dice === 6 || !!move.captures);
         }
-        nextTurn(dice === 6 || !!move.captures);
         return prev;
       });
     }, 500);
     return () => clearTimeout(t);
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentIdx, dice, gameMode, onComplete]);
+  }, [currentIdx, dice, winner, nextTurn, onComplete, players]);
 
-  // ── NEXT TURN ──
-  const nextTurn = useCallback((extraTurn: boolean) => {
-    if (extraTurn) {
-      setMessage("🎲 Extra turn! Roll again.");
-      setGamePhase("playing");
-      setDice(0);
-      return;
-    }
-    setCurrentIdx(prev => (prev + 1) % 4);
-    setConsecutiveSixes(0);
-    setDice(0);
-    setGamePhase("playing");
-  }, []);
-
-  // ── AI AUTO-ROLL ──
   useEffect(() => {
-    if (gamePhase !== "playing" || !currentPlayer || currentPlayer.isHuman || winner) return;
-    setMessage(`${currentPlayer.name} is thinking...`);
-    aiTimerRef.current = setTimeout(rollDice, 700 + Math.random() * 400);
-    return () => { if (aiTimerRef.current) clearTimeout(aiTimerRef.current); };
-  }, [gamePhase, currentIdx, currentPlayer, rollDice, winner]);
+    if (gamePhase !== "playing" || !players[currentIdx] || players[currentIdx].isHuman || winner) return;
 
-  // ── LIVE TICK ──
-  useEffect(() => {
-    if (!onLiveTick || !players[0]) return;
-    const p = players[0];
-    const progress = p.tokensHome / 4;
-    onLiveTick(1 + progress * 2.8, p.tokensHome);
-  }, [players, onLiveTick]);
+    if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
+    aiTimerRef.current = setTimeout(() => {
+      if (winner || phaseRef.current !== "playing") return;
+      
+      setIsRolling(true);
+      try { playGameSound("spin"); } catch {}
+      
+      const rollTimer = setTimeout(() => {
+        setIsRolling(false);
+        const rolledVal = Math.floor(Math.random() * 6) + 1;
+        setDice(rolledVal);
+        setDisplayDice(rolledVal);
 
-  // ── TOKEN CLICK ──
+        const currentActive = players[currentIdx];
+        const moves = getValidMoves(currentActive, rolledVal, players);
+
+        if (moves.length === 0) {
+          setMoveLog(l => [`🤖 ${currentActive.name} rolled a ${rolledVal} (No moves)`, ...l]);
+          const nextTurnTimer = setTimeout(() => nextTurn(false), 800);
+          return () => clearTimeout(nextTurnTimer);
+        }
+
+        let chosenMove = moves[0];
+        const captureMove = moves.find(m => m.captures);
+        const winMove = moves.find(m => m.to.zone === "finished");
+        const homeMove = moves.find(m => m.to.zone === "home" || m.entersHome);
+        
+        if (captureMove) chosenMove = captureMove;
+        else if (winMove) chosenMove = winMove;
+        else if (homeMove) chosenMove = homeMove;
+        else {
+          chosenMove = moves.reduce((prev, curr) => {
+            if (curr.from.zone === "base") return prev;
+            if (prev.from.zone === "base") return curr;
+            return curr;
+          }, moves[0]);
+        }
+
+        setMoveLog(l => [`🤖 ${currentActive.name} rolled a ${rolledVal}`, ...l]);
+        setGamePhase("selecting");
+        
+        const execTimer = setTimeout(() => executeMove(chosenMove), 800);
+        return () => clearTimeout(execTimer);
+      }, 800);
+      return () => clearTimeout(rollTimer);
+    }, 1200);
+
+    return () => {
+      if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
+    };
+  }, [gamePhase, currentIdx, players, executeMove, winner, nextTurn]);
+
+  const rollDice = useCallback(() => {
+    if (isRolling || winner || gamePhase !== "playing" || !players[currentIdx]?.isHuman) return;
+
+    setIsRolling(true);
+    try { playGameSound("spin"); } catch {}
+
+    setTimeout(() => {
+      setIsRolling(false);
+      const rolledVal = Math.floor(Math.random() * 6) + 1;
+      setDice(rolledVal);
+      setDisplayDice(rolledVal);
+
+      const activePlayer = players[currentIdx];
+      const moves = getValidMoves(activePlayer, rolledVal, players);
+
+      setMoveLog(l => [`🎲 You rolled a ${rolledVal}`, ...l]);
+
+      if (moves.length === 0) {
+        setMessage(`No valid moves with ${rolledVal}. Passing turn...`);
+        setTimeout(() => nextTurn(false), 1200);
+        return;
+      }
+
+      setValidMoves(moves);
+      setGamePhase("selecting");
+      setMessage("👉 Choose a highlighted piece to move!");
+      
+      if (moves.length === 1) {
+        setTimeout(() => {
+          executeMove(moves[0]);
+        }, 600);
+      }
+    }, 800);
+  }, [isRolling, winner, gamePhase, players, currentIdx, nextTurn, executeMove]);
+
   const handleTokenClick = useCallback((color: PlayerColor, tokenId: number) => {
-    if (gamePhase !== "selecting" || !currentPlayer || color !== currentPlayer.color) return;
+    if (gamePhase !== "selecting" || !players[currentIdx] || color !== players[currentIdx].color) return;
+    
     const move = validMoves.find(m => m.tokenId === tokenId);
-    if (move) executeMove(move);
-  }, [gamePhase, currentPlayer, validMoves, executeMove]);
+    if (move) {
+      executeMove(move);
+    }
+  }, [gamePhase, currentIdx, players, validMoves, executeMove]);
 
-  // ═══════════════════════════════════════════════
-  // RENDER
-  // ═══════════════════════════════════════════════
-
-  // ── SETUP SCREEN ──
-  if (showSetup && isPlaying) {
+  if (showSetup) {
     return (
-      <div className="w-full max-w-lg mx-auto">
-        <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-8 shadow-[0_20px_60px_rgba(0,0,0,0.08)]">
-          <div className="text-center mb-8">
-            <div className="text-4xl mb-3">🎲</div>
-            <h2 className="text-2xl font-black text-slate-900 tracking-tight">Ludo Royale</h2>
-            <p className="text-slate-500 text-sm mt-2">Premium Board Game • 95% RTP</p>
-          </div>
+      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
+        <div className="bg-slate-900/90 border border-amber-500/25 backdrop-blur-2xl p-6 sm:p-8 rounded-[2.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]">
+          <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
+            {/* Left Decorative Banner */}
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+              <div className="relative">
+                <div className="absolute inset-0 bg-amber-500/10 blur-[35px] rounded-full pointer-events-none" />
+                <Crown className="w-16 h-16 text-amber-400 mx-auto mb-4 drop-shadow-[0_0_15px_#fbbf24]" />
+              </div>
+              <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-600 uppercase tracking-widest leading-none mb-3">Ludo Royale</h2>
+              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest max-w-xs">Premium Casino Board Game • 95% RTP</p>
+              
+              <div className="relative w-44 h-44 mt-8 rounded-full border border-dashed border-amber-500/30 flex items-center justify-center bg-slate-950/40 shadow-inner">
+                <motion.div
+                  animate={{ rotate: 360 }}
+                  transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+                  className="absolute inset-4 rounded-full border border-dashed border-amber-500/20"
+                />
+                <div className="absolute top-4 left-1/2 -translate-x-1/2"><TokenPiece color="red" size="small" /></div>
+                <div className="absolute right-4 top-1/2 -translate-y-1/2"><TokenPiece color="green" size="small" /></div>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2"><TokenPiece color="yellow" size="small" /></div>
+                <div className="absolute left-4 top-1/2 -translate-y-1/2"><TokenPiece color="blue" size="small" /></div>
+                <div className="flex flex-col items-center justify-center text-center">
+                  <Trophy className="w-8 h-8 text-amber-400 animate-bounce" />
+                  <span className="text-[10px] font-black text-slate-350 uppercase mt-1 tracking-wider">3.80x POT</span>
+                </div>
+              </div>
+            </div>
 
-          <div className="space-y-3 mb-8">
-            {[
-              { id: "ai" as const, icon: <Bot className="w-5 h-5" />, title: "VS AI Bots", desc: "Play against 3 intelligent opponents" },
-              { id: "friends" as const, icon: <User className="w-5 h-5" />, title: "VS Friends", desc: "Hot-seat multiplayer — pass & play" },
-            ].map(mode => (
+            {/* Right Setup Controls */}
+            <div className="flex-1 w-full max-w-md bg-slate-950/40 border border-slate-800/80 p-5 sm:p-6 rounded-[2rem] flex flex-col gap-5">
+              <div>
+                <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2.5">Select Arena Mode</span>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    { id: "ai" as const, icon: <Bot className="w-4 h-4" />, title: "VS BOTS", desc: "Play 3 computer AI" },
+                    { id: "friends" as const, icon: <User className="w-4 h-4" />, title: "VS FRIENDS", desc: "Pass & Play hotseat" },
+                  ].map(mode => (
+                    <button
+                      key={mode.id}
+                      onClick={() => setGameMode(mode.id)}
+                      className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden ${
+                        gameMode === mode.id
+                          ? "border-amber-500/60 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.15)] scale-[1.02]"
+                          : "border-slate-850 bg-slate-950/40 hover:border-slate-700 text-slate-455 hover:text-slate-200"
+                      }`}
+                    >
+                      <div className={`p-1.5 rounded-lg transition-colors ${gameMode === mode.id ? "bg-amber-500 text-slate-950" : "bg-slate-900 text-slate-400"}`}>
+                        {mode.icon}
+                      </div>
+                      <span className="font-black text-[10px] uppercase tracking-wider">{mode.title}</span>
+                      <span className="text-[8px] text-slate-500 text-center font-medium mt-0.5 leading-tight">{mode.desc}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="bg-slate-950/60 border border-slate-900 rounded-2xl p-4">
+                <div className="flex justify-between items-center mb-2">
+                  <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Entry Fee Stake</span>
+                  <span className="text-xs font-black font-mono text-white">₹{betAmount.toLocaleString()}</span>
+                </div>
+
+                <div className="flex items-center bg-slate-900 border border-slate-850 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-amber-500/50">
+                  <div className="flex items-center pl-3 pr-2 border-r border-slate-850 bg-slate-950/40 h-10">
+                    <span className="text-slate-500 font-bold text-xs">₹</span>
+                  </div>
+                  <input
+                    type="number"
+                    value={betAmount}
+                    onChange={(e) => onBetAmountChange(Math.max(10, Number(e.target.value)))}
+                    className="flex-1 bg-transparent border-none text-white font-black text-xs px-2 py-1.5 focus:outline-none focus:ring-0 font-mono"
+                  />
+                  <div className="flex items-center bg-slate-950/40 border-l border-slate-850 h-10">
+                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-800 hover:text-white border-r border-slate-800 transition-colors">1/2</button>
+                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">2X</button>
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-between gap-1 mt-4 overflow-x-auto py-1 scrollbar-none">
+                  {[
+                    { amount: 100, label: "100", color: "from-red-650 to-red-700 border-red-500" },
+                    { amount: 500, label: "500", color: "from-teal-650 to-teal-700 border-teal-500" },
+                    { amount: 1000, label: "1k", color: "from-amber-500 to-amber-600 border-amber-400" },
+                    { amount: 5000, label: "5k", color: "from-pink-500 to-pink-650 border-pink-400" },
+                    { amount: 10000, label: "10k", color: "from-rose-500 to-rose-600 border-rose-450" },
+                    { amount: 50000, label: "50k", color: "from-red-800 to-red-900 border-red-700" }
+                  ].map((chip) => {
+                    const isSelected = betAmount === chip.amount;
+                    return (
+                      <button
+                        key={chip.amount}
+                        type="button"
+                        onClick={() => onBetAmountChange(chip.amount)}
+                        className={`relative w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-white shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/70 select-none ${
+                          isSelected ? "scale-110 ring-2 ring-amber-500 ring-offset-2 ring-offset-slate-950 opacity-100 z-10" : "hover:scale-105 opacity-70 hover:opacity-100"
+                        } bg-gradient-to-br ${chip.color}`}
+                      >
+                        <div className="absolute inset-[2px] rounded-full border border-dashed border-white/50 flex items-center justify-center">
+                          <span className="text-[7.5px] font-black tracking-tight drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]">
+                            {chip.label}
+                          </span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                <div className="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-4 pt-3.5 border-t border-slate-900">
+                  <span>RTP: 95.0%</span>
+                  <span className="text-amber-400 font-extrabold flex items-center gap-1 text-right">
+                    WIN POT: <span className="text-emerald-400">3.80x → ₹{(betAmount * 3.8).toLocaleString()}</span>
+                  </span>
+                </div>
+              </div>
+
               <button
-                key={mode.id}
-                onClick={() => setGameMode(mode.id)}
-                className={`w-full flex items-center gap-4 p-4 rounded-2xl border-2 transition-all duration-200 ${
-                  gameMode === mode.id
-                    ? "border-red-500 bg-red-50 shadow-[0_0_20px_rgba(220,38,38,0.1)]"
-                    : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-                }`}
+                onClick={onStartGame}
+                className="w-full py-3.5 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest shadow-[0_10px_30px_rgba(245,158,11,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98] border border-amber-400 bg-gradient-to-r from-amber-400 via-yellow-400 to-amber-500 cursor-pointer animate-pulse"
               >
-                <div className={`p-2 rounded-xl ${gameMode === mode.id ? "bg-red-500 text-white" : "bg-slate-100 text-slate-600"}`}>
-                  {mode.icon}
-                </div>
-                <div className="text-left">
-                  <div className="font-bold text-slate-900 text-sm">{mode.title}</div>
-                  <div className="text-xs text-slate-500">{mode.desc}</div>
-                </div>
+                🎰 Enter Arena
               </button>
-            ))}
-          </div>
-
-          <div className="bg-slate-50 rounded-2xl p-4 mb-6 border border-slate-100">
-            <div className="flex justify-between text-sm">
-              <span className="text-slate-500">Entry Fee</span>
-              <span className="font-bold text-slate-900">₹{betAmount.toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-sm mt-2">
-              <span className="text-slate-500">Win Multiplier</span>
-              <span className="font-bold text-emerald-600">3.80x → ₹{(betAmount * 3.8).toLocaleString()}</span>
-            </div>
-            <div className="flex justify-between text-sm mt-2">
-              <span className="text-slate-500">RTP</span>
-              <span className="font-bold text-slate-700">95.0%</span>
             </div>
           </div>
-
-          <button
-            onClick={() => { setShowSetup(false); initGame(); }}
-            className="w-full py-4 rounded-2xl font-black text-white text-lg tracking-wide shadow-[0_8px_30px_rgba(220,38,38,0.3)] transition-all hover:shadow-[0_12px_40px_rgba(220,38,38,0.4)] hover:scale-[1.02] active:scale-[0.98]"
-            style={{ background: "linear-gradient(135deg, #DC2626, #B91C1C)" }}
-          >
-            🎲 Start Game
-          </button>
         </div>
       </div>
     );
   }
-
-  if (gamePhase === "idle" || players.length === 0) {
-    return (
-      <div className="flex items-center justify-center h-48">
-        <p className="text-slate-400 text-sm font-medium">Press Play to start Ludo Royale</p>
-      </div>
-    );
-  }
-
-  // ═══════════════════════════════════════════════
-  // GAME BOARD RENDER
-  // ═══════════════════════════════════════════════
 
   const allTokensByCell: Record<string, { color: PlayerColor; tokenId: number }[]> = {};
   for (const p of players) {
@@ -608,397 +645,421 @@ export function LudoEngine({ betAmount, isPlaying, onComplete, onLiveTick }: Lud
     }
   }
 
+  const currentPlayer = players[currentIdx];
+
   return (
-    <div className="w-full flex flex-col items-center gap-4">
-      {/* Status Message */}
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={message}
-          initial={{ opacity: 0, y: -8 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: 8 }}
-          className="bg-white/90 backdrop-blur-md rounded-2xl px-5 py-2.5 border border-slate-200 shadow-sm"
-        >
-          <p className="text-sm font-bold text-slate-800 text-center">{message}</p>
-        </motion.div>
-      </AnimatePresence>
-
-      {/* Main layout: board + side panel */}
-      <div className="flex flex-col lg:flex-row gap-4 w-full max-w-4xl items-start">
-        {/* ── BOARD ── */}
-        <div className="relative aspect-square w-full max-w-[480px] mx-auto lg:mx-0 select-none"
-          style={{
-            background: "#FDF6E3",
-            borderRadius: "1.5rem",
-            boxShadow: "0 20px 60px rgba(0,0,0,0.1), inset 0 0 0 2px rgba(0,0,0,0.05)",
-          }}
-        >
-          {/* Base Areas */}
-          {(["red", "green", "yellow", "blue"] as PlayerColor[]).map(color => {
-            const pos = { red: { l: 0, t: 0, br: "1.5rem 0 0 0" }, green: { l: 60, t: 0, br: "0 1.5rem 0 0" },
-                          yellow: { l: 60, t: 60, br: "0 0 1.5rem 0" }, blue: { l: 0, t: 60, br: "0 0 0 1.5rem" } }[color];
-            return (
-              <div key={`base-${color}`} className="absolute" style={{
-                left: `${pos.l}%`, top: `${pos.t}%`, width: "40%", height: "40%",
-                backgroundColor: COLORS[color].bg, borderRadius: pos.br,
-                border: `2px solid ${COLORS[color].border}`,
-              }}>
-                {/* Inner white area with token spots */}
-                <div className="absolute inset-[15%] bg-white/90 rounded-xl border border-slate-100 grid grid-cols-2 grid-rows-2 gap-[12%] p-[12%]">
-                  {[0, 1, 2, 3].map(i => (
-                    <div key={i} className="rounded-full" style={{
-                      border: `2.5px solid ${COLORS[color].token}60`,
-                      backgroundColor: `${COLORS[color].token}10`,
-                    }} />
-                  ))}
-                </div>
-              </div>
-            );
-          })}
-
-          {/* Center area — 4 colored triangles */}
-          <div className="absolute" style={{
-            left: "40%", top: "40%", width: "20%", height: "20%",
-            background: "white",
-            border: "2px solid #e2e8f0",
-          }}>
-            <svg viewBox="0 0 100 100" className="w-full h-full">
-              <polygon points="0,0 50,50 100,0" fill={COLORS.green.token} opacity="0.3" />
-              <polygon points="100,0 50,50 100,100" fill={COLORS.yellow.token} opacity="0.3" />
-              <polygon points="100,100 50,50 0,100" fill={COLORS.blue.token} opacity="0.3" />
-              <polygon points="0,100 50,50 0,0" fill={COLORS.red.token} opacity="0.3" />
-              <polygon points="0,0 50,50 100,0" fill="none" stroke="#e2e8f0" strokeWidth="1" />
-              <polygon points="100,0 50,50 100,100" fill="none" stroke="#e2e8f0" strokeWidth="1" />
-              <polygon points="100,100 50,50 0,100" fill="none" stroke="#e2e8f0" strokeWidth="1" />
-              <polygon points="0,100 50,50 0,0" fill="none" stroke="#e2e8f0" strokeWidth="1" />
-              <circle cx="50" cy="50" r="12" fill="#fbbf24" opacity="0.5" />
-              <circle cx="50" cy="50" r="6" fill="#f59e0b" />
-            </svg>
-          </div>
-
-          {/* Path Cells */}
-          {MAIN_PATH.map(([r, c], idx) => {
-            const isStart = START_CELLS.has(idx);
-            const isSafe = SAFE_CELLS.has(idx) && !isStart;
-            const isValidTarget = validMoves.some(m => m.to.zone === "path" && m.to.index === idx);
-            const startColor = isStart ? PLAYER_CONFIGS.find(p => p.startPos === idx)?.color : null;
-
-            return (
-              <div
-                key={`cell-${idx}`}
-                className="absolute flex items-center justify-center"
-                style={{
-                  left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
-                  width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
-                  backgroundColor: startColor ? `${COLORS[startColor].token}25` : isValidTarget ? "rgba(251,191,36,0.15)" : "#FFFFFF",
-                  border: "0.5px solid #e2e8f080",
-                  boxShadow: isValidTarget ? "inset 0 0 8px rgba(251,191,36,0.3)" : "none",
-                }}
-              >
-                {isSafe && <Star className="w-[50%] h-[50%] text-amber-400 opacity-60" />}
-                {isStart && startColor && (
-                  <div className="w-[40%] h-[40%] rounded-full" style={{ backgroundColor: `${COLORS[startColor].token}40` }} />
-                )}
-              </div>
-            );
-          })}
-
-          {/* Home Column Cells */}
-          {(["red", "green", "yellow", "blue"] as PlayerColor[]).map(color =>
-            HOME_PATHS[color].map(([r, c], idx) => (
-              <div
-                key={`home-${color}-${idx}`}
-                className="absolute flex items-center justify-center"
-                style={{
-                  left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
-                  width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
-                  backgroundColor: `${COLORS[color].token}15`,
-                  border: `0.5px solid ${COLORS[color].token}30`,
-                }}
-              >
-                {idx === 5 && <Home className="w-[45%] h-[45%] opacity-30" style={{ color: COLORS[color].token }} />}
-              </div>
-            ))
-          )}
-
-          {/* Active Turn Indicator Ring */}
-          {currentPlayer && !winner && (
-            <motion.div
-              animate={{ opacity: [0.4, 0.8, 0.4], scale: [1, 1.05, 1] }}
-              transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
-              className="absolute pointer-events-none"
-              style={{
-                left: `${({ red: 5, green: 65, yellow: 65, blue: 5 }[currentPlayer.color])}%`,
-                top: `${({ red: 5, green: 5, yellow: 65, blue: 65 }[currentPlayer.color])}%`,
-                width: "30%", height: "30%",
-                border: `3px solid ${COLORS[currentPlayer.color].token}`,
-                borderRadius: currentPlayer.color === "red" ? "1.5rem 0 0 0" :
-                              currentPlayer.color === "green" ? "0 1.5rem 0 0" :
-                              currentPlayer.color === "yellow" ? "0 0 1.5rem 0" : "0 0 0 1.5rem",
-                boxShadow: `0 0 20px ${COLORS[currentPlayer.color].glow}`,
-              }}
-            />
-          )}
-
-          {/* ── TOKENS ── */}
-          {players.flatMap(player =>
-            player.tokens
-              .filter(t => t.position.zone !== "finished")
-              .map(token => {
-                const pos = getScreenPos(token.position, player.color);
-                const key = `${pos.x.toFixed(1)}-${pos.y.toFixed(1)}`;
-                const cellTokens = allTokensByCell[key] || [];
-                const stackIdx = cellTokens.findIndex(ct => ct.color === player.color && ct.tokenId === token.id);
-                const stackSize = cellTokens.length;
-
-                // Offset for stacking
-                let dx = 0, dy = 0;
-                if (stackSize === 2) { dx = stackIdx === 0 ? -1.2 : 1.2; }
-                else if (stackSize === 3) {
-                  dx = stackIdx === 0 ? -1.2 : stackIdx === 1 ? 1.2 : 0;
-                  dy = stackIdx === 2 ? 1.2 : -0.5;
-                } else if (stackSize >= 4) {
-                  dx = stackIdx % 2 === 0 ? -1.2 : 1.2;
-                  dy = stackIdx < 2 ? -1.2 : 1.2;
-                }
-
-                const isHighlighted = gamePhase === "selecting" &&
-                  currentPlayer?.color === player.color &&
-                  validMoves.some(m => m.tokenId === token.id);
-
-                const tokenSizePct = CELL_PCT * 0.65;
-
-                return (
-                  <motion.div
-                    key={`token-${player.color}-${token.id}`}
-                    animate={{
-                      left: `${pos.x + dx}%`,
-                      top: `${pos.y + dy}%`,
-                    }}
-                    transition={{ type: "spring", stiffness: 350, damping: 28 }}
-                    className="absolute"
-                    style={{
-                      width: `${tokenSizePct}%`, height: `${tokenSizePct}%`,
-                      transform: "translate(-50%, -50%)",
-                      zIndex: isHighlighted ? 40 : 20,
-                    }}
-                  >
-                    <motion.div
-                      animate={isHighlighted ? { scale: [1, 1.15, 1] } : { scale: 1 }}
-                      transition={isHighlighted ? { duration: 0.6, repeat: Infinity } : {}}
-                      className="w-full h-full"
-                    >
-                      <TokenPiece
-                        color={player.color}
-                        isHighlighted={isHighlighted}
-                        onClick={isHighlighted ? () => handleTokenClick(player.color, token.id) : undefined}
-                      />
-                    </motion.div>
-                  </motion.div>
-                );
-              })
-          )}
-
-          {/* Finished tokens indicator at center */}
-          {players.map(p => {
-            if (p.tokensHome === 0) return null;
-            const cx = 7, cy = 7;
-            const offsets: Record<PlayerColor, [number, number]> = {
-              red: [-0.3, -0.3], green: [0.3, -0.3], yellow: [0.3, 0.3], blue: [-0.3, 0.3],
-            };
-            const [ox, oy] = offsets[p.color];
-            return Array.from({ length: p.tokensHome }).map((_, i) => (
-              <div
-                key={`fin-${p.color}-${i}`}
-                className="absolute"
-                style={{
-                  left: `${(cy + ox + i * 0.15) * CELL_PCT + CELL_PCT / 2}%`,
-                  top: `${(cx + oy + i * 0.15) * CELL_PCT + CELL_PCT / 2}%`,
-                  width: `${CELL_PCT * 0.4}%`, height: `${CELL_PCT * 0.4}%`,
-                  transform: "translate(-50%, -50%)",
-                  zIndex: 15,
-                }}
-              >
-                <TokenPiece color={p.color} size="small" />
-              </div>
-            ));
-          })}
+    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-white overflow-visible">
+      {/* Dynamic Header / Info Bar (Wager HUD & Message) */}
+      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 bg-slate-900/60 border border-slate-800/80 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-lg">
+        {/* Turn Message */}
+        <div className="flex items-center gap-2.5">
+          <span className="relative flex h-2.5 w-2.5">
+            <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${currentPlayer?.isHuman ? "bg-emerald-400" : "bg-amber-400"}`} />
+            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${currentPlayer?.isHuman ? "bg-emerald-500" : "bg-amber-500"}`} />
+          </span>
+          <h3 className="text-xs sm:text-sm font-black text-slate-100 uppercase tracking-wider leading-none">
+            {message}
+          </h3>
         </div>
 
-        {/* ── SIDE PANEL ── */}
-        <div className="flex flex-col gap-3 w-full lg:w-80 shrink-0">
-          {/* Dice + Roll Button */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-xs font-black text-slate-600 uppercase tracking-widest">Dice</h3>
-              <span className="text-[10px] font-bold text-slate-400 bg-slate-50 px-2 py-1 rounded-lg border border-slate-100">
-                Turn #{moveLog.length + 1}
-              </span>
-            </div>
-
-            <div className="flex items-center gap-5 justify-center mb-5">
-              <DiceFace value={displayDice} isRolling={isRolling} />
-              {dice > 0 && !isRolling && (
-                <motion.div
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="text-4xl font-black text-slate-900 font-mono"
-                >
-                  {dice}
-                </motion.div>
-              )}
-            </div>
-
-            {currentPlayer?.isHuman && gamePhase === "playing" && !winner && (
-              <button
-                onClick={rollDice}
-                className="w-full py-3.5 rounded-2xl font-black text-white text-sm tracking-wide shadow-[0_6px_20px_rgba(220,38,38,0.25)] transition-all hover:shadow-[0_10px_30px_rgba(220,38,38,0.35)] hover:scale-[1.02] active:scale-[0.97]"
-                style={{ background: "linear-gradient(135deg, #DC2626, #B91C1C)" }}
-              >
-                🎲 Roll Dice
-              </button>
-            )}
-
-            {!currentPlayer?.isHuman && gamePhase !== "finished" && (
-              <div className="w-full py-3 text-center text-sm text-slate-400 font-medium">
-                <motion.span animate={{ opacity: [0.4, 1, 0.4] }} transition={{ duration: 1.5, repeat: Infinity }}>
-                  {currentPlayer?.name} is playing...
-                </motion.span>
-              </div>
-            )}
+        {/* Wager HUD */}
+        <div className="flex items-center gap-4 bg-slate-950/80 border border-slate-800/60 px-3 py-1.5 rounded-xl">
+          <div className="flex items-center gap-1.5">
+            <Coins className="w-3.5 h-3.5 text-amber-500" />
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Wager:</span>
+            <span className="text-xs font-black font-mono text-slate-200">₹{betAmount.toLocaleString()}</span>
           </div>
-
-          {/* Players */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)]">
-            <h3 className="text-xs font-black text-slate-600 uppercase tracking-widest mb-3">Players</h3>
-            <div className="space-y-2">
-              {players.map((p, i) => {
-                const isActive = i === currentIdx && !winner;
-                return (
-                  <div
-                    key={p.color}
-                    className={`flex items-center gap-3 p-2.5 rounded-xl transition-all duration-300 ${
-                      isActive ? "bg-slate-50 shadow-sm border border-slate-200" : "border border-transparent"
-                    }`}
-                  >
-                    <div className="relative">
-                      <div className="w-8 h-8 rounded-full flex items-center justify-center text-white font-bold text-xs"
-                        style={{ backgroundColor: COLORS[p.color].token }}>
-                        {p.isHuman ? "👤" : "🤖"}
-                      </div>
-                      {isActive && (
-                        <motion.div
-                          animate={{ scale: [1, 1.3, 1], opacity: [0.5, 1, 0.5] }}
-                          transition={{ duration: 1, repeat: Infinity }}
-                          className="absolute -inset-1 rounded-full border-2"
-                          style={{ borderColor: COLORS[p.color].token }}
-                        />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="text-xs font-bold text-slate-800 truncate">{p.name}</div>
-                      <div className="flex items-center gap-1 mt-0.5">
-                        {[0, 1, 2, 3].map(j => (
-                          <div
-                            key={j}
-                            className="w-2.5 h-2.5 rounded-full transition-all"
-                            style={{
-                              backgroundColor: j < p.tokensHome ? COLORS[p.color].token : `${COLORS[p.color].token}20`,
-                              boxShadow: j < p.tokensHome ? `0 0 4px ${COLORS[p.color].glow}` : "none",
-                            }}
-                          />
-                        ))}
-                        <span className="text-[10px] text-slate-400 ml-1 font-mono">{p.tokensHome}/4</span>
-                      </div>
-                    </div>
-                    {p.tokensHome >= 4 && <Trophy className="w-4 h-4 text-amber-500" />}
-                  </div>
-                );
-              })}
-            </div>
+          <div className="w-px h-3 bg-slate-800" />
+          <div className="flex items-center gap-1.5">
+            <Trophy className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Win Pot:</span>
+            <span className="text-xs font-black font-mono text-emerald-400">₹{(betAmount * 3.8).toLocaleString()}</span>
           </div>
-
-          {/* Move History */}
-          <div className="bg-white/90 backdrop-blur-xl rounded-3xl border border-slate-200 p-5 shadow-[0_8px_30px_rgba(0,0,0,0.06)] max-h-48 overflow-hidden">
-            <h3 className="text-xs font-black text-slate-600 uppercase tracking-widest mb-3">Activity</h3>
-            <div className="space-y-1.5 overflow-y-auto max-h-32 custom-scrollbar">
-              {moveLog.length === 0 ? (
-                <p className="text-xs text-slate-400 text-center py-2">No moves yet</p>
-              ) : moveLog.map((log, i) => (
-                <motion.div
-                  key={`${log}-${i}`}
-                  initial={i === 0 ? { opacity: 0, x: -10 } : false}
-                  animate={{ opacity: 1, x: 0 }}
-                  className={`text-[11px] leading-snug font-medium ${
-                    i === 0 ? "text-slate-800" : "text-slate-400"
-                  }`}
-                >
-                  {log}
-                </motion.div>
-              ))}
-            </div>
-          </div>
-
-          {/* Game Info */}
-          <div className="bg-slate-50/80 rounded-2xl border border-slate-100 p-4">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="text-center">
-                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Entry Fee</p>
-                <p className="text-sm font-black text-slate-800 font-mono">₹{betAmount.toLocaleString()}</p>
-              </div>
-              <div className="text-center">
-                <p className="text-[10px] text-slate-400 uppercase tracking-widest font-bold">Win Prize</p>
-                <p className="text-sm font-black text-emerald-600 font-mono">₹{(betAmount * 3.8).toLocaleString()}</p>
-              </div>
-            </div>
-          </div>
-
-          {/* New Game (after finish) */}
-          {winner && (
-            <button
-              onClick={() => {
-                setGamePhase("idle");
-                setPlayers([]);
-                setWinner(null);
-                setShowSetup(true);
-                startedRef.current = false;
-              }}
-              className="w-full py-3 rounded-2xl bg-slate-900 text-white font-bold text-sm flex items-center justify-center gap-2 hover:bg-slate-800 transition-colors"
-            >
-              <RotateCcw className="w-4 h-4" /> Play Again
-            </button>
-          )}
         </div>
       </div>
 
-      {/* ── WIN OVERLAY ── */}
+      {/* Main Content Area */}
+      <div className="flex flex-col md:flex-row items-start justify-center gap-6 w-full overflow-visible">
+        {/* Left Column: Ludo Board */}
+        <div className="w-full md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center">
+          <div className="relative aspect-square w-full select-none overflow-hidden bg-slate-950/90 border-4 border-slate-800/80 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85),inset_0_0_35px_rgba(0,0,0,0.7)]">
+            <div className="absolute inset-0 z-0 pointer-events-none opacity-20"
+              style={{
+                backgroundImage: "radial-gradient(#ffffff 1px, transparent 0), radial-gradient(#ffffff 1px, transparent 0)",
+                backgroundSize: "20px 20px",
+                backgroundPosition: "0 0, 10px 10px"
+              }}
+            />
+
+            {(["red", "green", "yellow", "blue"] as PlayerColor[]).map(color => {
+              const pos = {
+                red: { l: 0, t: 0 }, green: { l: 60, t: 0 },
+                yellow: { l: 60, t: 60 }, blue: { l: 0, t: 60 }
+              }[color];
+              
+              const p = players.find(x => x.color === color);
+              const isTurn = currentPlayer?.color === color && !winner;
+
+              return (
+                <motion.div
+                  key={`base-${color}`}
+                  animate={isTurn ? { borderColor: [COLORS[color].token, "rgba(255,255,255,0.8)", COLORS[color].token] } : {}}
+                  transition={{ repeat: Infinity, duration: 1.5 }}
+                  className="absolute transition-all duration-300"
+                  style={{
+                    left: `${pos.l}%`, top: `${pos.t}%`, width: "40%", height: "40%",
+                    backgroundColor: COLORS[color].bg,
+                    border: `3px solid ${isTurn ? COLORS[color].token : "rgba(255,255,255,0.05)"}`,
+                    boxShadow: isTurn ? `0 0 25px ${COLORS[color].glow}` : "none",
+                  }}
+                >
+                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/5 flex items-center gap-1 max-w-[90%] truncate z-10">
+                    <span className="text-[8px] sm:text-[9px] font-black text-white/95 uppercase tracking-wide truncate">
+                      {p ? `${p.name} (${p.tokensHome}/4)` : ""}
+                    </span>
+                    {p && p.tokensHome > 0 && (
+                      <span className="text-[8px] text-amber-400 font-extrabold flex items-center shrink-0">
+                        🏆
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="absolute inset-[20%] bg-slate-900/85 backdrop-blur-sm rounded-2xl border border-slate-800/40 grid grid-cols-2 grid-rows-2 gap-[15%] p-[15%]">
+                    {[0, 1, 2, 3].map(i => (
+                      <div key={i} className="rounded-full flex items-center justify-center" style={{
+                        border: `1.5px solid ${COLORS[color].token}25`,
+                        backgroundColor: `rgba(0,0,0,0.3)`,
+                      }} />
+                    ))}
+                  </div>
+                </motion.div>
+              );
+            })}
+
+            <div className="absolute" style={{
+              left: "40%", top: "40%", width: "20%", height: "20%",
+              background: "#090d14",
+              border: "2px solid rgba(255,255,255,0.08)",
+            }}>
+              <svg viewBox="0 0 100 100" className="w-full h-full">
+                <polygon points="0,0 50,50 100,0" fill={COLORS.green.token} opacity="0.25" />
+                <polygon points="100,0 50,50 100,100" fill={COLORS.yellow.token} opacity="0.25" />
+                <polygon points="100,100 50,50 0,100" fill={COLORS.blue.token} opacity="0.25" />
+                <polygon points="0,100 50,50 0,0" fill={COLORS.red.token} opacity="0.25" />
+                
+                <polygon points="0,0 50,50 100,0" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                <polygon points="100,0 50,50 100,100" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                <polygon points="100,100 50,50 0,100" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                <polygon points="0,100 50,50 0,0" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+              </svg>
+              <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                <motion.div
+                  animate={{ scale: [0.95, 1.15, 0.95] }}
+                  transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
+                >
+                  <Crown className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_#fbbf24]" />
+                </motion.div>
+              </div>
+            </div>
+
+            {MAIN_PATH.map(([r, c], idx) => {
+              const isStart = START_CELLS.has(idx);
+              const isSafe = SAFE_CELLS.has(idx) && !isStart;
+              const isValidTarget = validMoves.some(m => m.to.zone === "path" && m.to.index === idx);
+              const startColor = isStart ? PLAYER_CONFIGS.find(p => p.startPos === idx)?.color : null;
+
+              return (
+                <div
+                  key={`cell-${idx}`}
+                  className="absolute flex items-center justify-center"
+                  style={{
+                    left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
+                    width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
+                    backgroundColor: startColor ? `${COLORS[startColor].token}15` : isValidTarget ? "rgba(245,158,11,0.15)" : "#0f1622",
+                    border: "0.5px solid rgba(255,255,255,0.03)",
+                    boxShadow: isValidTarget ? "inset 0 0 6px rgba(245,158,11,0.4)" : "none",
+                  }}
+                >
+                  {isSafe && <Star className="w-[50%] h-[50%] text-amber-400 drop-shadow-[0_0_4px_#fbbf24] opacity-75" />}
+                  {isStart && startColor && (
+                    <div className="w-[35%] h-[35%] rounded-full animate-pulse" style={{ backgroundColor: `${COLORS[startColor].token}60` }} />
+                  )}
+                </div>
+              );
+            })}
+
+            {(["red", "green", "yellow", "blue"] as PlayerColor[]).map(color =>
+              HOME_PATHS[color].map(([r, c], idx) => (
+                <div
+                  key={`home-${color}-${idx}`}
+                  className="absolute flex items-center justify-center"
+                  style={{
+                    left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
+                    width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
+                    backgroundColor: `${COLORS[color].token}25`,
+                    border: `0.5px solid ${COLORS[color].token}35`,
+                    boxShadow: `inset 0 0 5px ${COLORS[color].glow}`,
+                  }}
+                >
+                  {idx === 5 && <Home className="w-[45%] h-[45%] opacity-60" style={{ color: COLORS[color].token }} />}
+                </div>
+              ))
+            )}
+
+            {players.flatMap(player =>
+              player.tokens
+                .filter(t => t.position.zone !== "finished")
+                .map(token => {
+                  const pos = getScreenPos(token.position, player.color);
+                  const key = `${pos.x.toFixed(1)}-${pos.y.toFixed(1)}`;
+                  const cellTokens = allTokensByCell[key] || [];
+                  const tokenIdx = cellTokens.findIndex(x => x.tokenId === token.id);
+                  
+                  const tokenOffset = cellTokens.length > 1 ? {
+                    x: ((tokenIdx - (cellTokens.length - 1) / 2) * 8),
+                    y: ((tokenIdx - (cellTokens.length - 1) / 2) * -2)
+                  } : { x: 0, y: 0 };
+
+                  const isMovable = validMoves.some(m => m.tokenId === token.id) && currentPlayer?.isHuman;
+
+                  return (
+                    <motion.div
+                      key={`token-${player.color}-${token.id}`}
+                      layoutId={`token-${player.color}-${token.id}`}
+                      animate={isMovable ? {
+                        scale: [1, 1.15, 1],
+                        y: [tokenOffset.y, tokenOffset.y - 8, tokenOffset.y],
+                        filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
+                      } : { scale: 1, y: tokenOffset.y }}
+                      transition={isMovable ? { repeat: Infinity, duration: 1.2 } : { type: "spring", stiffness: 300, damping: 25 }}
+                      className="absolute cursor-pointer"
+                      style={{
+                        left: `${pos.x}%`,
+                        top: `${pos.y}%`,
+                        transform: "translate(-50%, -50%)",
+                        marginLeft: `${tokenOffset.x}px`,
+                        zIndex: 20 + tokenIdx,
+                      }}
+                      onClick={() => handleTokenClick(player.color, token.id)}
+                    >
+                      <TokenPiece color={player.color} size={cellTokens.length > 2 ? "small" : "medium"} />
+                      {isMovable && (
+                        <div className="absolute inset-0 rounded-full border-2 border-amber-400 animate-ping opacity-60 pointer-events-none" />
+                      )}
+                    </motion.div>
+                  );
+                })
+            )}
+
+            {players.map(p => {
+              if (p.tokensHome === 0) return null;
+              const cx = 7, cy = 7;
+              const offsets: Record<PlayerColor, [number, number]> = {
+                red: [-0.3, -0.3], green: [0.3, -0.3], yellow: [0.3, 0.3], blue: [-0.3, 0.3],
+              };
+              const [ox, oy] = offsets[p.color];
+              return Array.from({ length: p.tokensHome }).map((_, i) => (
+                <div
+                  key={`fin-${p.color}-${i}`}
+                  className="absolute"
+                  style={{
+                    left: `${(cy + ox + i * 0.12) * CELL_PCT + CELL_PCT / 2}%`,
+                    top: `${(cx + oy + i * 0.12) * CELL_PCT + CELL_PCT / 2}%`,
+                    width: `${CELL_PCT * 0.4}%`, height: `${CELL_PCT * 0.4}%`,
+                    transform: "translate(-50%, -50%)",
+                    zIndex: 15,
+                  }}
+                >
+                  <TokenPiece color={p.color} size="small" />
+                </div>
+              ));
+            })}
+          </div>
+
+          {/* Mobile Dice Action Bar (Visible only on mobile right below board) */}
+          <div className="w-full md:hidden mt-3 bg-[#121b28]/90 border border-slate-700/30 backdrop-blur-md rounded-2xl p-3 flex items-center justify-between gap-4 shadow-xl">
+            <div className="flex items-center gap-3">
+              <DiceFace value={displayDice} isRolling={isRolling} />
+              {dice > 0 && !isRolling && (
+                <div className="text-left">
+                  <span className="text-[8px] text-slate-500 uppercase tracking-widest font-black block">Rolled</span>
+                  <span className="text-base font-black text-white font-mono">{dice}</span>
+                </div>
+              )}
+            </div>
+
+            {currentPlayer?.isHuman && gamePhase === "playing" && !winner ? (
+              <button
+                onClick={rollDice}
+                className="flex-1 py-3 px-4 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest border border-amber-400 bg-gradient-to-r from-amber-400 to-yellow-500 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.25)] animate-pulse"
+              >
+                🎲 Roll Dice
+              </button>
+            ) : (
+              <div className="flex-1 text-right pr-2">
+                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                  {currentPlayer?.isHuman ? "Select Piece" : "Waiting..."}
+                </span>
+                <span className="text-[9px] text-slate-550 italic block mt-0.5">
+                  {currentPlayer?.isHuman ? "Tap your glowing token" : `${currentPlayer?.name} is thinking`}
+                </span>
+              </div>
+            )}
+
+            {winner && (
+              <button
+                onClick={() => {
+                  setGamePhase("idle");
+                  setPlayers([]);
+                  setWinner(null);
+                  setShowSetup(true);
+                  startedRef.current = false;
+                }}
+                className="py-3 px-4 rounded-xl border border-slate-700 bg-slate-800/80 text-white font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
+              >
+                Reset
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column: Desktop Command Center (Hidden on mobile) */}
+        <div className="hidden md:flex flex-col flex-1 w-full gap-4">
+          <div className="bg-[#121b28]/80 border border-slate-700/40 backdrop-blur-md rounded-3xl p-5 flex flex-col gap-4 shadow-2xl">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-black text-slate-350 uppercase tracking-widest">
+                  {currentPlayer?.isHuman ? "Your Turn" : `${currentPlayer?.name}'s Turn`}
+                </span>
+              </div>
+              <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800">
+                TURN #{moveLog.length + 1}
+              </span>
+            </div>
+
+            {/* Dice Control Box */}
+            <div className="flex items-center justify-between bg-slate-950/40 border border-slate-800/50 p-4 rounded-2xl gap-4">
+              <div className="flex items-center gap-4">
+                <DiceFace value={displayDice} isRolling={isRolling} />
+                {dice > 0 && !isRolling && (
+                  <div className="text-left">
+                    <span className="text-[9px] text-slate-500 uppercase tracking-widest font-black block">Rolled</span>
+                    <span className="text-2xl font-black text-white font-mono">{dice}</span>
+                  </div>
+                )}
+              </div>
+
+              {currentPlayer?.isHuman && gamePhase === "playing" && !winner ? (
+                <button
+                  onClick={rollDice}
+                  className="flex-1 py-3.5 px-5 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest border border-amber-400 bg-gradient-to-r from-amber-400 to-yellow-500 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.2)] animate-pulse"
+                >
+                  🎲 Roll Dice
+                </button>
+              ) : (
+                <div className="flex-1 text-right pr-2">
+                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
+                    {currentPlayer?.isHuman ? "Choose Piece" : "Waiting for Bot..."}
+                  </span>
+                  <span className="text-[9px] text-slate-500 italic block mt-0.5">
+                    {currentPlayer?.isHuman ? "Click highlighted piece on board" : "Bot makes its move"}
+                  </span>
+                </div>
+              )}
+            </div>
+
+            {/* Players Status Summary */}
+            <div className="space-y-2">
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-black block">Players Stats</span>
+              <div className="grid grid-cols-2 gap-2">
+                {players.map(p => {
+                  const isPlayerTurn = currentPlayer?.color === p.color && !winner;
+                  return (
+                    <div key={p.color} className={`p-2.5 rounded-xl border flex items-center justify-between transition-all ${
+                      isPlayerTurn ? "bg-slate-900 border-amber-500/50" : "bg-slate-950/30 border-slate-800/80"
+                    }`}>
+                      <div className="flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[p.color].token }} />
+                        <span className="text-xs font-bold text-slate-355">{p.name}</span>
+                      </div>
+                      <span className="text-[10px] font-mono font-black text-slate-400">
+                        {p.tokensHome}/4 🏆
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Move Feed Logs */}
+            <div className="space-y-1.5">
+              <span className="text-[10px] text-slate-500 uppercase tracking-widest font-black block">Lobby Log</span>
+              <div className="bg-[#090d14]/90 border border-slate-900 rounded-xl p-3 h-24 overflow-hidden">
+                <div className="space-y-1 overflow-y-auto h-full custom-scrollbar">
+                  {moveLog.length === 0 ? (
+                    <p className="text-[10px] text-slate-650 text-center py-4 uppercase font-bold tracking-wider">Lobby Feed Active</p>
+                  ) : moveLog.map((log, i) => (
+                    <motion.div
+                      key={`${log}-${i}`}
+                      initial={i === 0 ? { opacity: 0, y: 5 } : false}
+                      animate={{ opacity: 1, y: 0 }}
+                      className={`text-[10px] font-mono leading-relaxed ${
+                        i === 0 ? "text-amber-400 font-bold" : "text-slate-550"
+                      }`}
+                    >
+                      &gt; {log}
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            {winner && (
+              <button
+                onClick={() => {
+                  setGamePhase("idle");
+                  setPlayers([]);
+                  setWinner(null);
+                  setShowSetup(true);
+                  startedRef.current = false;
+                }}
+                className="w-full py-3.5 rounded-xl border border-slate-700 bg-slate-800/85 hover:bg-slate-750 text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-97"
+              >
+                <RotateCcw className="w-3.5 h-3.5" /> Play Again
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+
       <AnimatePresence>
         {winner && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4"
             onClick={() => setWinner(null)}
           >
             <motion.div
-              initial={{ scale: 0.5, y: 50 }}
+              initial={{ scale: 0.8, y: 30 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.5, opacity: 0 }}
+              exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="bg-white rounded-[2rem] p-10 text-center shadow-[0_30px_80px_rgba(0,0,0,0.2)] max-w-sm mx-4"
+              className="bg-slate-900 border border-amber-500/30 p-8 rounded-[2rem] text-center shadow-[0_30px_90px_rgba(0,0,0,0.85)] max-w-sm w-full"
               onClick={e => e.stopPropagation()}
             >
               <motion.div
-                animate={{ rotate: [0, -10, 10, -5, 5, 0], scale: [1, 1.2, 1] }}
-                transition={{ duration: 1, repeat: 2 }}
+                animate={{ rotate: [0, -12, 12, -6, 6, 0], scale: [1, 1.25, 1] }}
+                transition={{ duration: 1, repeat: 3 }}
                 className="text-6xl mb-4"
               >
-                {players[0]?.tokensHome >= 4 ? "🏆" : "😞"}
+                {players[0]?.tokensHome >= 4 ? "🏆" : "💀"}
               </motion.div>
 
-              <h2 className="text-2xl font-black text-slate-900 mb-2">
-                {players[0]?.tokensHome >= 4 ? "YOU WIN!" : `${players.find(p => p.color === winner)?.name} Wins!`}
+              <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-wide">
+                {players[0]?.tokensHome >= 4 ? "Victory Royale!" : "Defeat!"}
               </h2>
 
               {players[0]?.tokensHome >= 4 && (
@@ -1006,12 +1067,7 @@ export function LudoEngine({ betAmount, isPlaying, onComplete, onLiveTick }: Lud
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ delay: 0.3, type: "spring" }}
-                  className="text-3xl font-black font-mono mb-4"
-                  style={{
-                    background: "linear-gradient(135deg, #f59e0b, #dc2626)",
-                    WebkitBackgroundClip: "text",
-                    WebkitTextFillColor: "transparent",
-                  }}
+                  className="text-3xl font-black font-mono mb-4 text-emerald-400 drop-shadow-[0_0_10px_rgba(16,185,129,0.4)]"
                 >
                   +₹{((betAmount * 3.8) - betAmount).toLocaleString()}
                 </motion.div>

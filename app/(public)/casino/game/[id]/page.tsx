@@ -913,7 +913,16 @@ export default function GamePlayerPage() {
       return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
     }
     if (game.id === "orig-21" || game.title.toLowerCase().includes("ludo")) {
-      return <LudoEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} onLiveTick={handleLiveTick} />;
+      return (
+        <LudoEngine
+          isPlaying={isSpinning}
+          betAmount={betAmount}
+          onBetAmountChange={setBetAmount}
+          onStartGame={handlePlay}
+          onComplete={handleEngineComplete}
+          onLiveTick={handleLiveTick}
+        />
+      );
     }
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {
@@ -1196,7 +1205,7 @@ export default function GamePlayerPage() {
                   <div className="relative z-10 w-full flex-1 flex flex-col md:flex-row min-h-0">
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
-                    {tutorialDismissed && !isRoyalEngine && (
+                    {tutorialDismissed && !isRoyalEngine && !game.title.toLowerCase().includes("ludo") && (
                       <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)] h-auto md:h-full overflow-visible">
                         {isCloudRenting ? (
                           <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
@@ -1606,25 +1615,27 @@ export default function GamePlayerPage() {
                             </div>
 
                             {/* Fixed Sticky Footer Button */}
-                            <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-slate-200 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] md:relative md:bottom-auto md:left-auto md:right-auto md:p-3 md:bg-slate-50 md:border-t md:border-slate-200 md:shrink-0 md:z-30 md:shadow-none">
-                              <button 
-                                onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
-                                disabled={isSpinning && !isCashoutActive}
-                                className={`w-full py-3 sm:py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all ${
-                                  isSpinning && isCashoutActive
-                                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
+                            {!(game.id === "orig-21" || game.title.toLowerCase().includes("ludo")) && (
+                              <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-slate-200 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] md:relative md:bottom-auto md:left-auto md:right-auto md:p-3 md:bg-slate-50 md:border-t md:border-slate-200 md:shrink-0 md:z-30 md:shadow-none">
+                                <button 
+                                  onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
+                                  disabled={isSpinning && !isCashoutActive}
+                                  className={`w-full py-3 sm:py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all ${
+                                    isSpinning && isCashoutActive
+                                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
+                                      : isSpinning
+                                        ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95 cursor-not-allowed'
+                                        : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95 cursor-pointer`
+                                  }`}
+                                >
+                                  {isSpinning && isCashoutActive
+                                    ? `CASHOUT (₹${(betAmount * (liveMultiplier || 1.0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
                                     : isSpinning
-                                      ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95 cursor-not-allowed'
-                                      : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95 cursor-pointer`
-                                }`}
-                              >
-                                {isSpinning && isCashoutActive
-                                  ? `CASHOUT (₹${(betAmount * (liveMultiplier || 1.0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
-                                  : isSpinning
-                                    ? "PLAYING..."
-                                    : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
-                              </button>
-                            </div>
+                                      ? "PLAYING..."
+                                      : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
+                                </button>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>
@@ -1632,7 +1643,9 @@ export default function GamePlayerPage() {
 
                     {/* RIGHT AREA (Game Canvas) */}
                     <div className={cn(
-                      "h-[580px] sm:h-[600px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
+                      (game.id === "orig-21" || game.title.toLowerCase().includes("ludo"))
+                        ? "h-auto md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2"
+                        : "h-[580px] sm:h-[600px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
                       isRoyalEngine ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
                     )}>
                       
@@ -1693,8 +1706,12 @@ export default function GamePlayerPage() {
                       <div className="flex-1 w-full flex flex-col md:flex-row gap-4 md:gap-6 relative z-10 min-h-[280px] sm:min-h-[400px] md:min-h-[600px]">
                         
                         <div className={cn(
-                          "flex-1 flex items-center justify-center relative",
-                          isRoyalEngine ? "bg-transparent border-none" : "bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+                          "flex-1 flex items-center justify-center relative w-full",
+                          isRoyalEngine 
+                            ? "bg-transparent border-none" 
+                            : (game.id === "orig-21" || game.title.toLowerCase().includes("ludo"))
+                              ? "bg-[#0a0f16] rounded-3xl shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5 md:overflow-hidden"
+                              : "bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
                         )}>
                           {!isCloudRenting ? (
                             <div className="relative w-full h-full flex items-center justify-center">
@@ -2456,7 +2473,9 @@ export default function GamePlayerPage() {
         </div> {/* End Main Content Col */}
         
         {/* Right Sidebar: VIP Live Feed */}
-        <VIPLiveBetsFeed gameTitle={game.title} />
+        {!(game.id === "orig-21" || game.title.toLowerCase().includes("ludo")) && (
+          <VIPLiveBetsFeed gameTitle={game.title} />
+        )}
         
       </div> {/* End Flex Row */}
     </div>
