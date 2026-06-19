@@ -1364,11 +1364,11 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
           const x = leftEdge + (targetIdx + 0.5) * colWidth + jitterX;
           
-          // Calculate center dynamically matching bottom-16 sm:bottom-18 md:bottom-20 and h-[60px] xs:h-[70px] sm:h-[78px]
+          // Calculate center dynamically matching bottom-3 sm:bottom-18 md:bottom-20 and h-[60px] xs:h-[70px] sm:h-[78px]
           let buttonCenterFromBottom = 119; // Default desktop
           if (isMobile) {
             const isXS = width >= 380;
-            const bottomOffset = 64; // bottom-16
+            const bottomOffset = 12; // bottom-3
             const btnHeight = isXS ? 70 : 60;
             buttonCenterFromBottom = bottomOffset + btnHeight / 2;
           } else {
@@ -1967,7 +1967,7 @@ setPlacedChips([]);
 
         {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
         {phase === 'open' && ping <= 500 && showOverlay && (
-          <div className="absolute bottom-16 sm:bottom-18 md:bottom-20 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="absolute bottom-3 sm:bottom-18 md:bottom-20 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 w-full max-w-md md:max-w-lg">
               {currentConfig.targets.map(target => {
                 const activeWager = bets[target.id] || 0;
@@ -2173,8 +2173,8 @@ setPlacedChips([]);
           </AnimatePresence>
         </div>
 
-        {/* Stream Bottom Box: Live Players Strip & Total Bet */}
-        <div className="border-t border-white/10 pt-2 shrink-0 flex items-center justify-between z-20 w-full relative bg-slate-950/80 p-2 sm:p-2.5 rounded-sm border border-white/5">
+        {/* Stream Bottom Box: Live Players Strip & Total Bet (Desktop/Tablet Only) */}
+        <div className="hidden sm:flex border-t border-white/10 pt-2 shrink-0 items-center justify-between z-20 w-full relative bg-slate-950/80 p-2 sm:p-2.5 rounded-sm border border-white/5">
           {/* Left: Live Player Avatars */}
           <div className="flex items-center gap-1.5">
             <div className="flex items-center -space-x-1.5">
@@ -2209,6 +2209,44 @@ setPlacedChips([]);
             <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
             <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
           </div>
+        </div>
+      </div>
+
+      {/* MOBILE ONLY PLAYER STRIP — Placed below the board so it doesn't overlap any betting targets on cellphone */}
+      <div className="flex sm:hidden items-center justify-between z-20 w-full bg-slate-900/60 backdrop-blur-md border border-white/5 p-2 rounded-xl mt-2 select-none">
+        {/* Left: Live Player Avatars */}
+        <div className="flex items-center gap-1.5">
+          <div className="flex items-center -space-x-1.5">
+            {LIVE_PLAYERS.slice(0, 6).map((p, i) => (
+              <div 
+                key={p.id}
+                className={cn(
+                  "w-5 h-5 rounded-full flex items-center justify-center text-[6.5px] font-black text-white border-[1.5px] border-slate-950 bg-gradient-to-br shadow-sm select-none",
+                  p.color
+                )}
+                style={{ zIndex: LIVE_PLAYERS.length - i }}
+                title={`Player ${p.initials} \u2022 \u20b9${p.bet.toLocaleString('en-IN')}`}
+              >
+                {p.initials}
+              </div>
+            ))}
+            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[6.5px] font-black text-slate-300 border-[1.5px] border-slate-950 bg-slate-800 shadow-sm select-none" style={{ zIndex: 0 }}>
+              +42
+            </div>
+          </div>
+          <div className="flex flex-col ml-1">
+            <span className="text-[8.5px] font-extrabold text-emerald-400 uppercase leading-none flex items-center gap-0.5">
+              <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
+              Live Now
+            </span>
+            <span className="text-[7.5px] text-slate-500 font-bold leading-none mt-0.5">WHIP WHEP Stream</span>
+          </div>
+        </div>
+        
+        {/* Right: Total bet info */}
+        <div className="text-right">
+          <span className="text-[8.5px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
+          <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
         </div>
       </div>
 
