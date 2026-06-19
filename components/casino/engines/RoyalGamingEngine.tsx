@@ -519,6 +519,34 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
   const [showConnectionLost, setShowConnectionLost] = useState(false);
   const [showMaintenance, setShowMaintenance] = useState(false);
 
+  // Dynamic Ambient Felt Spotlight styles linked to game phases
+  const getFeltContainerClass = () => {
+    const base = "relative aspect-video w-full rounded-3xl flex flex-col justify-between p-3 overflow-hidden transform-gpu transition-all duration-1000 ease-in-out";
+    
+    if (phase === 'open') {
+      if (countdown <= 4) {
+        // Tense red-alert spotlight when betting time is about to close
+        return cn(base, "bg-[radial-gradient(circle_at_center,_#3b1111_0%,_#1c0808_100%)] border-[8px] border-rose-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_0_20px_rgba(239,68,68,0.2)]");
+      }
+      // Classic deep emerald casino felt with mahogany wood rail
+      return cn(base, "bg-[radial-gradient(circle_at_center,_#0f3a24_0%,_#051c11_100%)] border-[8px] border-[#2C130B] shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_12px_28px_rgba(0,0,0,0.55)]");
+    }
+    if (phase === 'closed') {
+      // Focused obsidian slate for card reveals
+      return cn(base, "bg-[radial-gradient(circle_at_center,_#1a2333_0%,_#0a0e14_100%)] border-[8px] border-slate-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.95)]");
+    }
+    if (phase === 'settled') {
+      const isWin = payoutOverlay.won;
+      if (isWin) {
+        // Victory gold/emerald pulse spotlight
+        return cn(base, "bg-[radial-gradient(circle_at_center,_#165034_0%,_#081c12_100%)] border-[8px] border-emerald-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_0_30px_rgba(16,185,129,0.3)]");
+      }
+      // Default settle
+      return cn(base, "bg-[radial-gradient(circle_at_center,_#111622_0%,_#070a0f_100%)] border-[8px] border-slate-950 shadow-[inset_0_0_50px_rgba(0,0,0,0.95)]");
+    }
+    return cn(base, "bg-[radial-gradient(circle_at_center,_#0f3a24_0%,_#051c11_100%)] border-[8px] border-[#2C130B]");
+  };
+
   // New live WebRTC and gamification overlay states
   const [ping, setPing] = useState(28);
   const [previousBets, setPreviousBets] = useState<Record<string, number>>({});
@@ -655,18 +683,25 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
       ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
 
+      const isMobile = canvas.clientWidth < 450;
+      const isTablet = canvas.clientWidth >= 450 && canvas.clientWidth < 768;
+
       // 1. Draw elegant Casino Felt Golden Guidelines & Arcs (drawn on top of video, behind chips)
-      ctx.strokeStyle = "rgba(245, 158, 11, 0.15)"; // Golden amber with transparency
+      ctx.strokeStyle = phase === 'open' && countdown <= 4 
+        ? "rgba(239, 68, 68, 0.18)" // Red warning lines
+        : "rgba(245, 158, 11, 0.15)";
       ctx.lineWidth = 1.5;
       
       // Draw a gold border margin line around the entire felt
       ctx.beginPath();
-      ctx.roundRect(8, 8, canvas.clientWidth - 16, canvas.clientHeight - 16, 20);
+      ctx.roundRect(8, 8, canvas.clientWidth - 16, canvas.clientHeight - 16, isMobile ? 12 : 20);
       ctx.stroke();
 
       // Draw curved divider felt arcs
-      ctx.strokeStyle = "rgba(245, 158, 11, 0.08)";
-      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = phase === 'open' && countdown <= 4
+        ? "rgba(239, 68, 68, 0.1)"
+        : "rgba(245, 158, 11, 0.08)";
+      ctx.lineWidth = isMobile ? 1.5 : 2.5;
       ctx.beginPath();
       ctx.arc(canvas.clientWidth * 0.5, canvas.clientHeight * -0.2, canvas.clientHeight * 0.85, 0, Math.PI);
       ctx.stroke();
@@ -677,32 +712,33 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       // 2. Draw gold embossed "ROYAL CASINO" felt branding in the center
       ctx.save();
       const brandX = canvas.clientWidth * 0.5;
-      const brandY = canvas.clientHeight * 0.18;
+      const brandY = isMobile ? canvas.clientHeight * 0.14 : canvas.clientHeight * 0.18;
       
       // Gold gradient fill
       const goldGrad = ctx.createLinearGradient(brandX - 100, brandY, brandX + 100, brandY);
-      goldGrad.addColorStop(0, "rgba(217, 119, 6, 0.25)"); // Bronze
-      goldGrad.addColorStop(0.5, "rgba(251, 191, 36, 0.35)"); // Gold
-      goldGrad.addColorStop(1, "rgba(180, 83, 9, 0.25)"); // Bronze
+      const accentColor = phase === 'open' && countdown <= 4 ? "239, 68, 68" : "251, 191, 36";
+      goldGrad.addColorStop(0, `rgba(${accentColor}, 0.2)`);
+      goldGrad.addColorStop(0.5, `rgba(${accentColor}, 0.35)`);
+      goldGrad.addColorStop(1, `rgba(${accentColor}, 0.2)`);
       
       ctx.fillStyle = goldGrad;
-      ctx.font = "italic bold 11px serif";
+      ctx.font = `italic bold ${isMobile ? '9.5px' : '11px'} serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      ctx.fillText("ROYAL CASINO FUSION", brandX, brandY);
+      ctx.fillText(gameTitle.toUpperCase(), brandX, brandY);
       
-      ctx.font = "bold 7px sans-serif";
+      ctx.font = `bold ${isMobile ? '6px' : '7px'} sans-serif`;
       ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
-      ctx.fillText("PROVABLY FAIR • LIVE STREAM HUD", brandX, brandY + 12);
+      ctx.fillText("PROVABLY FAIR • LIVE STREAM HUD", brandX, brandY + (isMobile ? 10 : 12));
       ctx.restore();
 
       // 3. Draw Dealer Card outlines in the upper center
-      const cardSlotWidth = 42;
-      const cardSlotHeight = 58;
-      const slotY = canvas.clientHeight * 0.28;
+      const cardSlotWidth = isMobile ? 32 : (isTablet ? 38 : 42);
+      const cardSlotHeight = isMobile ? 46 : (isTablet ? 53 : 58);
+      const slotY = isMobile ? canvas.clientHeight * 0.23 : (isTablet ? canvas.clientHeight * 0.26 : canvas.clientHeight * 0.28);
       
       // Left Slot (Card 1)
-      const slot1X = canvas.clientWidth * 0.5 - cardSlotWidth - 12;
+      const slot1X = canvas.clientWidth * 0.5 - cardSlotWidth - (isMobile ? 8 : 12);
       ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
       ctx.lineWidth = 1;
       ctx.setLineDash([3, 3]);
@@ -713,14 +749,14 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       
       // Label Card 1
       ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.font = "900 6.5px sans-serif";
+      ctx.font = `900 ${isMobile ? '5.5px' : '6.5px'} sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const card1Label = configKey.startsWith("royal-6") ? "DRAGON" : (configKey.startsWith("royal-3") ? "ANDAR" : "PLAYER A");
       ctx.fillText(card1Label, slot1X + cardSlotWidth / 2, slotY + cardSlotHeight / 2);
 
       // Right Slot (Card 2)
-      const slot2X = canvas.clientWidth * 0.5 + 12;
+      const slot2X = canvas.clientWidth * 0.5 + (isMobile ? 8 : 12);
       ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
       ctx.lineWidth = 1;
       ctx.setLineDash([3, 3]);
@@ -731,7 +767,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       
       // Label Card 2
       ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.font = "900 6.5px sans-serif";
+      ctx.font = `900 ${isMobile ? '5.5px' : '6.5px'} sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const card2Label = configKey.startsWith("royal-6") ? "TIGER" : (configKey.startsWith("royal-3") ? "BAHAR" : "PLAYER B");
@@ -779,7 +815,9 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           }
         }
 
-        const radius = 17 * scale;
+        // Dynamic base radius scaling based on device size
+        const baseRadius = isMobile ? 12 : (isTablet ? 14 : 17);
+        const radius = baseRadius * scale;
 
         // 1. Draw dynamic oval shadow on the table surface (perspective project straight down)
         ctx.beginPath();
@@ -1384,10 +1422,10 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           </div>
         </div>
 
-        {/* WebRTC Video Stream & Interactive Canvas box (Mahogany Wood Border & Green Felt Spotlight) */}
+        {/* WebRTC Video Stream & Interactive Canvas box (Ambient Spotlight & Mahogany wood rail) */}
         <div 
           ref={containerRef} 
-          className="relative aspect-video w-full bg-[radial-gradient(circle_at_center,_#0f3521_0%,_#05180f_100%)] border-[8px] border-[#2C130B] rounded-3xl flex flex-col justify-between p-3 overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_12px_28px_rgba(0,0,0,0.55)] transform-gpu"
+          className={getFeltContainerClass()}
           style={{ transform: 'translateZ(0)' }}
         >
           {/* HTML5 WebRTC Video Node with blended screen hologram view */}
@@ -1430,8 +1468,8 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
           {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
           {phase === 'open' && ping <= 500 && showOverlay && (
-            <div className="absolute inset-0 bg-transparent flex items-center justify-center p-2 xs:p-3 sm:p-6 z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-1.5 xs:gap-2 sm:gap-3 w-full max-w-lg">
+            <div className="absolute bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 w-full max-w-md md:max-w-lg">
                 {currentConfig.targets.map(target => {
                   const activeWager = bets[target.id] || 0;
                   return (
