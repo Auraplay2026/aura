@@ -149,6 +149,7 @@ export const FEATURED_GAMES: Game[] = [
   { id: "orig-19", title: "3D Cyber Roulette", provider: "Originals", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["originals", "3d", "table", "roulette"], rtp: 99.0, players: 21000, isNew: true },
   { id: "orig-20", title: "3D Blackjack Pro", provider: "Originals", image: "/games/blackjack_pro_cover.png", categories: ["originals", "3d", "table", "blackjack"], rtp: 99.5, players: 14200, isNew: true },
   { id: "orig-21", title: "Ludo Royale", provider: "Originals", image: "/games/ludo_royale_cover.png", categories: ["originals", "board", "table", "casual"], rtp: 95.0, players: 42000, isNew: true },
+  { id: "orig-22", title: "Ludo Fusion Arena", provider: "Originals", image: "/games/ludo_fusion_cover.png", categories: ["originals", "board", "table", "casual", "3d"], rtp: 95.0, players: 54000, isNew: true },
 
   // AAA Cloud Rentals
   { id: "aaa-7", title: "Grand Theft Auto VI", provider: "Rockstar Games", image: "https://images.unsplash.com/photo-1617531653332-bd46c24f2068?q=80&w=600&auto=format&fit=crop", categories: ["aaa", "action", "open-world", "3d"], isNew: true, hourlyRate: 999, players: 45000 },
