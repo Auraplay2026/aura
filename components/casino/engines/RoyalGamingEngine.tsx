@@ -28,6 +28,7 @@ interface PlacedChip {
   yPct: number;
   x?: number;
   y?: number;
+  createdAt?: number;
 }
 
 // 9 Royal Gaming Categories Config
@@ -193,6 +194,193 @@ const playSynthSound = (type: 'tick' | 'beep' | 'win', isMuted: boolean) => {
   }
 };
 
+// Premium casino chip color palettes matching denominations
+const getChipColors = (value: number) => {
+  if (value < 500) {
+    // ₹100 denomination: Premium Sky blue
+    return { base: "#0284C7", light: "#38BDF8", dark: "#0369A1", text: "#0369A1" };
+  } else if (value < 1000) {
+    // ₹500 denomination: Premium Emerald green
+    return { base: "#059669", light: "#34D399", dark: "#047857", text: "#047857" };
+  } else if (value < 5000) {
+    // ₹1000 denomination: Premium Gold/Amber
+    return { base: "#D97706", light: "#FBBF24", dark: "#B45309", text: "#B45309" };
+  } else if (value < 10000) {
+    // ₹5000 denomination: Premium Rose red
+    return { base: "#DC2626", light: "#F87171", dark: "#B91C1C", text: "#B91C1C" };
+  } else if (value < 50000) {
+    // ₹10000 denomination: Premium Royal Purple
+    return { base: "#7C3AED", light: "#A78BFA", dark: "#6D28D9", text: "#6D28D9" };
+  } else {
+    // ₹50000+ denomination: Premium Obsidian black with gold/silver accents
+    return { base: "#1E293B", light: "#64748B", dark: "#090D16", text: "#090D16" };
+  }
+};
+
+// Cubic ease-out curve for physics-like speed deceleration in flight
+const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
+
+// Premium casino felt betting spots color palettes and gradients
+const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolean, hasBet: boolean) => {
+  const base = "relative overflow-hidden border rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between items-center h-[60px] xs:h-[70px] sm:h-[78px] text-white transition-all cursor-pointer pointer-events-auto shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] hover:scale-[1.03] active:scale-[0.97] group";
+
+  // Specialized styles for Dragon Tiger (royal-6)
+  if (gameId.startsWith("royal-6")) {
+    if (targetId === "dragon") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-rose-900/80 to-rose-950/90 border-rose-500 ring-4 ring-rose-500/30 shadow-[0_0_25px_rgba(244,63,94,0.45)]"
+          : "bg-gradient-to-b from-rose-955/40 to-rose-900/40 border-rose-955/60 hover:border-rose-500/50 hover:bg-rose-900/50 shadow-[0_4px_15px_rgba(244,63,94,0.05)]"
+      );
+    }
+    if (targetId === "tiger") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-amber-900/80 to-amber-955/90 border-amber-500 ring-4 ring-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.45)]"
+          : "bg-gradient-to-b from-amber-955/40 to-amber-900/40 border-amber-955/60 hover:border-amber-500/50 hover:bg-amber-900/50 shadow-[0_4px_15px_rgba(245,158,11,0.05)]"
+      );
+    }
+    if (targetId === "tie") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-emerald-900/80 to-emerald-950/90 border-emerald-500 ring-4 ring-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.45)]"
+          : "bg-gradient-to-b from-emerald-950/40 to-emerald-900/40 border-emerald-955/60 hover:border-emerald-500/50 hover:bg-emerald-900/50 shadow-[0_4px_15px_rgba(16,185,129,0.05)]"
+      );
+    }
+  }
+
+  // Specialized styles for Andar Bahar (royal-3)
+  if (gameId.startsWith("royal-3")) {
+    if (targetId === "andar") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-sky-900/80 to-sky-955/90 border-sky-500 ring-4 ring-sky-500/30 shadow-[0_0_25px_rgba(14,165,233,0.45)]"
+          : "bg-gradient-to-b from-sky-955/40 to-sky-900/40 border-sky-955/60 hover:border-sky-500/50 hover:bg-sky-900/50 shadow-[0_4px_15px_rgba(14,165,233,0.05)]"
+      );
+    }
+    if (targetId === "bahar") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-rose-900/80 to-rose-955/90 border-rose-500 ring-4 ring-rose-500/30 shadow-[0_0_25px_rgba(244,63,94,0.45)]"
+          : "bg-gradient-to-b from-rose-955/40 to-rose-900/40 border-rose-955/60 hover:border-rose-500/50 hover:bg-rose-900/50 shadow-[0_4px_15px_rgba(244,63,94,0.05)]"
+      );
+    }
+  }
+
+  // Specialized styles for European Roulette (royal-7)
+  if (gameId.startsWith("royal-7")) {
+    if (targetId === "red") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-rose-900/85 to-rose-950/95 border-rose-500 ring-4 ring-rose-500/30 shadow-[0_0_25px_rgba(244,63,94,0.45)]"
+          : "bg-gradient-to-b from-rose-955/50 to-rose-900/50 border-rose-955/60 hover:border-rose-500/50 hover:bg-rose-900/55"
+      );
+    }
+    if (targetId === "black") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-slate-900/85 to-slate-950/95 border-slate-500 ring-4 ring-slate-500/30 shadow-[0_0_25px_rgba(100,116,139,0.45)]"
+          : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-955/60 hover:border-slate-500/50 hover:bg-slate-900/55"
+      );
+    }
+    if (targetId === "zero") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-emerald-900/85 to-emerald-950/95 border-emerald-500 ring-4 ring-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.45)]"
+          : "bg-gradient-to-b from-emerald-950/50 to-emerald-900/50 border-emerald-950/60 hover:border-emerald-500/50 hover:bg-emerald-900/55"
+      );
+    }
+  }
+
+  // Default theme fallback (e.g. Teen Patti Player A/B, etc.)
+  if (targetId.includes("player_a") || targetId.includes("andar") || targetId.includes("runs_over") || targetId.includes("player_8") || targetId.includes("seven_down")) {
+    return cn(
+      base,
+      isSelected
+        ? "bg-gradient-to-b from-sky-900/80 to-sky-950/90 border-sky-500 ring-4 ring-sky-500/30 shadow-[0_0_25px_rgba(14,165,233,0.45)]"
+        : "bg-gradient-to-b from-sky-955/40 to-sky-900/40 border-sky-955/60 hover:border-sky-500/50 hover:bg-sky-900/50 shadow-[0_4px_15px_rgba(14,165,233,0.05)]"
+    );
+  }
+  if (targetId.includes("player_b") || targetId.includes("bahar") || targetId.includes("runs_under") || targetId.includes("player_9") || targetId.includes("seven_up")) {
+    return cn(
+      base,
+      isSelected
+        ? "bg-gradient-to-b from-rose-900/80 to-rose-955/90 border-rose-500 ring-4 ring-rose-500/30 shadow-[0_0_25px_rgba(244,63,94,0.45)]"
+        : "bg-gradient-to-b from-rose-955/40 to-rose-900/40 border-rose-955/60 hover:border-rose-500/50 hover:bg-rose-900/50 shadow-[0_4px_15px_rgba(244,63,94,0.05)]"
+    );
+  }
+
+  return cn(
+    base,
+    isSelected 
+      ? "bg-gradient-to-b from-amber-900/80 to-amber-950/90 border-amber-500 ring-4 ring-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.45)]" 
+      : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-955/60 hover:border-slate-500/50 hover:bg-slate-900/55"
+  );
+};
+
+// Premium background SVG silhouettes representing themed betting icons
+const renderBetIcon = (targetId: string, gameId: string) => {
+  const iconClass = "absolute right-2.5 bottom-2 w-14 h-14 pointer-events-none transform -rotate-12 transition-all duration-700 group-hover:scale-115 group-hover:-rotate-6 text-white/[0.07] group-hover:text-white/[0.12]";
+
+  if (gameId.startsWith("royal-6")) {
+    // Dragon Tiger
+    if (targetId === "dragon") {
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm3.17 6.83l-1.42 1.42c-.52-.39-1.2-.67-1.92-.79C12.35 8.7 12.7 8 13.5 8c.55 0 1 .45 1.01 1v.01l.66-.18zm-6.34 2c-.55 0-1-.45-1-1v-.01l.66-.18c.53.53.88 1.2 1.01 1.99-.71-.12-1.39-.4-1.91-.79l1.42-1.42c-.09.12-.13.26-.18.41zm5.17-5.5a8 8 0 0 0-2 0l-.34 1.7c.33.06.66.16.98.3l1.36-2zm-4 4.54l-.34-1.7a8 8 0 0 0-2 0l1.36 2c.32-.14.65-.24.98-.3zm1.17 7.7a3.5 3.5 0 0 1-2.5 0l-.34 1.7c.92.17 1.86.17 2.78 0l-.34-1.7v-.01zM12 4c-4.41 0-8 3.59-8 8s3.59 8 8 8 8-3.59 8-8-3.59-8-8-8zm0 13a5 5 0 0 1-5-5c0-.98.37-1.87.98-2.56l2.12 2.12c-.09.28-.14.59-.14.94 0 1.66 1.34 3 3 3s3-1.34 3-3c0-.35-.05-.66-.14-.94l2.12-2.12c.61.69.98 1.58.98 2.56a5 5 0 0 1-5 5z" />
+        </svg>
+      );
+    }
+    if (targetId === "tiger") {
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm5 11c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm-3-3c-.55 0-1-.45-1-1V7c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1zm-4 4c-.55 0-1-.45-1-1v-4c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1zm-3-1c-.55 0-1-.45-1-1v-2c0-.55.45-1 1-1s1 .45 1 1v2c0 .55-.45 1-1 1z" />
+        </svg>
+      );
+    }
+    if (targetId === "tie") {
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M18.88 7.37c-.78 0-1.5.3-2.07.82l-2.07 1.9c-.37.34-.86.53-1.37.53s-1-.19-1.37-.53l-2.07-1.9a3.17 3.17 0 00-2.07-.82C5.96 7.37 4.5 8.84 4.5 10.63c0 1.8 1.46 3.26 3.26 3.26.78 0 1.5-.3 2.07-.82l2.07-1.9c.37-.34.86-.53 1.37-.53s1 .19 1.37.53l2.07 1.9c.57.52 1.29.82 2.07.82 1.8 0 3.26-1.46 3.26-3.26 0-1.8-1.46-3.26-3.26-3.26z" />
+        </svg>
+      );
+    }
+  }
+
+  if (gameId.startsWith("royal-3")) {
+    // Andar Bahar
+    if (targetId === "andar") {
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 18H5v-7h7v7zm0-9H5V4h7v7zm7 9h-5v-7h5v7zm0-9h-5V4h5v7z" />
+        </svg>
+      );
+    }
+    if (targetId === "bahar") {
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-8 18H5v-7h7v7zm0-9H5V4h7v7zm7 9h-5v-7h5v7zm0-9h-5V4h5v7z" />
+        </svg>
+      );
+    }
+  }
+
+  // Fallback: Poker card deck silhouette
+  return (
+    <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+      <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z" />
+    </svg>
+  );
+};
+
 export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, gameId, gameTitle, selectedTarget: externalTarget, setSelectedTarget: setExternalTarget }: RoyalGamingProps) {
   const { balance: rawBalance, playCasino, currentUser } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
@@ -305,7 +493,8 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           targetId,
           value: betAmount,
           xPct: chipX,
-          yPct: chipY
+          yPct: chipY,
+          createdAt: Date.now()
         }
       ]);
       playSynthSound('tick', isMuted);
@@ -456,46 +645,226 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
     let animationFrameId: number;
 
     const render = () => {
-      // Adjust size for screen scale
-      if (canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
-        canvas.width = canvas.clientWidth;
-        canvas.height = canvas.clientHeight;
+      // Adjust size for screen scale & high DPI screen crispness
+      const dpr = typeof window !== 'undefined' ? (window.devicePixelRatio || 1) : 1;
+      if (canvas.width !== canvas.clientWidth * dpr || canvas.height !== canvas.clientHeight * dpr) {
+        canvas.width = canvas.clientWidth * dpr;
+        canvas.height = canvas.clientHeight * dpr;
+        ctx.scale(dpr, dpr);
       }
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.clearRect(0, 0, canvas.clientWidth, canvas.clientHeight);
+
+      // 1. Draw elegant Casino Felt Golden Guidelines & Arcs (drawn on top of video, behind chips)
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.15)"; // Golden amber with transparency
+      ctx.lineWidth = 1.5;
+      
+      // Draw a gold border margin line around the entire felt
+      ctx.beginPath();
+      ctx.roundRect(8, 8, canvas.clientWidth - 16, canvas.clientHeight - 16, 20);
+      ctx.stroke();
+
+      // Draw curved divider felt arcs
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.08)";
+      ctx.lineWidth = 2.5;
+      ctx.beginPath();
+      ctx.arc(canvas.clientWidth * 0.5, canvas.clientHeight * -0.2, canvas.clientHeight * 0.85, 0, Math.PI);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(canvas.clientWidth * 0.5, canvas.clientHeight * -0.2, canvas.clientHeight * 1.05, 0, Math.PI);
+      ctx.stroke();
+
+      // 2. Draw gold embossed "ROYAL CASINO" felt branding in the center
+      ctx.save();
+      const brandX = canvas.clientWidth * 0.5;
+      const brandY = canvas.clientHeight * 0.18;
+      
+      // Gold gradient fill
+      const goldGrad = ctx.createLinearGradient(brandX - 100, brandY, brandX + 100, brandY);
+      goldGrad.addColorStop(0, "rgba(217, 119, 6, 0.25)"); // Bronze
+      goldGrad.addColorStop(0.5, "rgba(251, 191, 36, 0.35)"); // Gold
+      goldGrad.addColorStop(1, "rgba(180, 83, 9, 0.25)"); // Bronze
+      
+      ctx.fillStyle = goldGrad;
+      ctx.font = "italic bold 11px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("ROYAL CASINO FUSION", brandX, brandY);
+      
+      ctx.font = "bold 7px sans-serif";
+      ctx.fillStyle = "rgba(255, 255, 255, 0.12)";
+      ctx.fillText("PROVABLY FAIR • LIVE STREAM HUD", brandX, brandY + 12);
+      ctx.restore();
+
+      // 3. Draw Dealer Card outlines in the upper center
+      const cardSlotWidth = 42;
+      const cardSlotHeight = 58;
+      const slotY = canvas.clientHeight * 0.28;
+      
+      // Left Slot (Card 1)
+      const slot1X = canvas.clientWidth * 0.5 - cardSlotWidth - 12;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.roundRect(slot1X, slotY, cardSlotWidth, cardSlotHeight, 4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Label Card 1
+      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.font = "900 6.5px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const card1Label = configKey.startsWith("royal-6") ? "DRAGON" : (configKey.startsWith("royal-3") ? "ANDAR" : "PLAYER A");
+      ctx.fillText(card1Label, slot1X + cardSlotWidth / 2, slotY + cardSlotHeight / 2);
+
+      // Right Slot (Card 2)
+      const slot2X = canvas.clientWidth * 0.5 + 12;
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3, 3]);
+      ctx.beginPath();
+      ctx.roundRect(slot2X, slotY, cardSlotWidth, cardSlotHeight, 4);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      
+      // Label Card 2
+      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
+      ctx.font = "900 6.5px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const card2Label = configKey.startsWith("royal-6") ? "TIGER" : (configKey.startsWith("royal-3") ? "BAHAR" : "PLAYER B");
+      ctx.fillText(card2Label, slot2X + cardSlotWidth / 2, slotY + cardSlotHeight / 2);
 
       // Render Floating Chips coordinate overlays
       placedChips.forEach(chip => {
-        // Calculate dynamic coordinates from percentage (with legacy fallbacks if needed)
-        const x = chip.xPct !== undefined ? (chip.xPct / 100) * canvas.width : (chip.x || 0);
-        const y = chip.yPct !== undefined ? (chip.yPct / 100) * canvas.height : (chip.y || 0);
+        const elapsed = Date.now() - (chip.createdAt || 0);
+        const duration = 650; // Flight duration in ms
+        const t = Math.min(1, elapsed / duration);
+        const p = easeOutCubic(t);
 
-        // Chip circular container
+        // Target coordinates in CSS pixels
+        const targetX = chip.xPct !== undefined ? (chip.xPct / 100) * canvas.clientWidth : (chip.x || 0);
+        const targetY = chip.yPct !== undefined ? (chip.yPct / 100) * canvas.clientHeight : (chip.y || 0);
+
+        // Start coordinates: bottom-center of the canvas
+        const startX = canvas.clientWidth * 0.5;
+        const startY = canvas.clientHeight + 40;
+
+        // Current base coordinates on the table surface (shadow follows this)
+        const baseX = startX + (targetX - startX) * p;
+        const baseY = startY + (targetY - startY) * p;
+
+        // Parabolic arc height displacement (curved flight trajectory)
+        const distance = Math.hypot(targetX - startX, targetY - startY);
+        const peakHeight = Math.min(130, distance * 0.45);
+        const arc = peakHeight * Math.sin(p * Math.PI);
+
+        // Actual chip draw position (displaced vertically by arc)
+        const x = baseX;
+        const y = baseY - arc;
+
+        // Scale factors: grows in mid-air, lands with a subtle physical squeeze/bounce
+        let scale = 1.0;
+        if (t < 1) {
+          scale = 1.0 + 0.35 * Math.sin(p * Math.PI);
+        } else {
+          // Landing bounce effect for 200ms after landing
+          const bounceElapsed = elapsed - duration;
+          const bounceDuration = 200;
+          if (bounceElapsed < bounceDuration) {
+            const b = bounceElapsed / bounceDuration;
+            scale = 1.0 + 0.12 * Math.sin(b * Math.PI) * (1 - b);
+          }
+        }
+
+        const radius = 17 * scale;
+
+        // 1. Draw dynamic oval shadow on the table surface (perspective project straight down)
         ctx.beginPath();
-        ctx.arc(x, y, 16, 0, 2 * Math.PI);
-        ctx.fillStyle = chip.value === 50 ? "#1E293B" :
-                        chip.value === 100 ? "#0284C7" :
-                        chip.value === 500 ? "#059669" :
-                        chip.value === 1000 ? "#D97706" :
-                        chip.value === 5000 ? "#DC2626" : "#7C3AED";
+        const shadowRadiusX = radius * 1.05;
+        const shadowRadiusY = radius * 0.55;
+        // Fade shadow when chip is high in the air
+        const shadowOpacity = 0.35 - 0.15 * Math.sin(p * Math.PI);
+        ctx.ellipse(baseX, baseY, shadowRadiusX, shadowRadiusY, 0, 0, 2 * Math.PI);
+        ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
         ctx.fill();
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = 2;
-        ctx.stroke();
 
-        // Inner dashed ring
+        // 2. Draw 3D Casino Chip Body
+        const colors = getChipColors(chip.value);
         ctx.beginPath();
-        ctx.arc(x, y, 11, 0, 2 * Math.PI);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-        ctx.setLineDash([3, 2]);
-        ctx.stroke();
-        ctx.setLineDash([]); // reset
+        ctx.arc(x, y, radius, 0, 2 * Math.PI);
+        
+        // Shiny radial gloss body gradient
+        const bodyGrad = ctx.createRadialGradient(
+          x - radius * 0.3,
+          y - radius * 0.3,
+          radius * 0.05,
+          x,
+          y,
+          radius
+        );
+        bodyGrad.addColorStop(0, colors.light);
+        bodyGrad.addColorStop(0.7, colors.base);
+        bodyGrad.addColorStop(1, colors.dark);
+        ctx.fillStyle = bodyGrad;
+        ctx.fill();
 
-        // Chip text value
-        ctx.fillStyle = "#FFFFFF";
-        ctx.font = "black 9px sans-serif";
+        // 3. Draw Outer Striped Edge Details (White Dashes overlay)
+        ctx.strokeStyle = "#FFFFFF";
+        ctx.lineWidth = radius * 0.22;
+        ctx.setLineDash([radius * 0.32, radius * 0.34]);
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.88, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset line dash immediately
+
+        // 4. Draw Outer Rim Border
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.12)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.72, 0, 2 * Math.PI);
+        ctx.stroke();
+
+        // 5. Draw Inner White Core Inlay
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.64, 0, 2 * Math.PI);
+        const inlayGrad = ctx.createRadialGradient(x, y, 0, x, y, radius * 0.64);
+        inlayGrad.addColorStop(0, "#FFFFFF");
+        inlayGrad.addColorStop(1, "#F8FAFC"); // Slate 50
+        ctx.fillStyle = inlayGrad;
+        ctx.fill();
+
+        // 6. Draw Inner Decorative Dotted Ring
+        ctx.strokeStyle = colors.light;
+        ctx.lineWidth = 0.85;
+        ctx.setLineDash([1.5, 2]);
+        ctx.beginPath();
+        ctx.arc(x, y, radius * 0.46, 0, 2 * Math.PI);
+        ctx.stroke();
+        ctx.setLineDash([]); // Reset line dash
+
+        // 7. Specular Glint Highlight (top-left crest) & Shadow Recess (bottom-right crest)
+        ctx.beginPath();
+        ctx.arc(x, y, radius - 1, -Math.PI * 0.75, -Math.PI * 0.25);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        ctx.beginPath();
+        ctx.arc(x, y, radius - 1, Math.PI * 0.25, Math.PI * 0.75);
+        ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
+        ctx.lineWidth = 1.2;
+        ctx.stroke();
+
+        // 8. Draw Denomination Value text
+        ctx.fillStyle = colors.text;
+        const fontSize = Math.max(8, Math.round(radius * 0.42));
+        ctx.font = `bold ${fontSize}px sans-serif`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+
         const label = chip.value >= 1000 ? `${chip.value / 1000}K` : `${chip.value}`;
         ctx.fillText(label, x, y);
       });
@@ -504,8 +873,8 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       if (phase === "closed") {
         const cWidth = 70;
         const cHeight = 100;
-        const cX = canvas.width / 2 - cWidth / 2;
-        const cY = canvas.height / 2 - cHeight / 2 - 30;
+        const cX = canvas.clientWidth / 2 - cWidth / 2;
+        const cY = canvas.clientHeight / 2 - cHeight / 2 - 30;
 
         // Card white base
         ctx.fillStyle = "#FFFFFF";
@@ -522,7 +891,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
         ctx.textAlign = "left";
         ctx.fillText("A ♠", cX + 8, cY + 20);
 
-        ctx.font = "36px sans-serif";
+        ctx.font = "bold 36px sans-serif";
         ctx.textAlign = "center";
         ctx.fillText("♠", cX + cWidth / 2, cY + cHeight / 2 + 10);
       }
@@ -720,7 +1089,8 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           targetId,
           value: selectedCoin,
           xPct: chipX,
-          yPct: chipY
+          yPct: chipY,
+          createdAt: Date.now()
         }
       ]);
       playSynthSound('tick', isMuted);
@@ -755,7 +1125,8 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
         targetId,
         value,
         xPct: 30 + Math.random() * 40,
-        yPct: 40 + Math.random() * 30
+        yPct: 40 + Math.random() * 30,
+        createdAt: Date.now()
       });
     });
     setPlacedChips(newChips);
@@ -799,7 +1170,8 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
         id: `chip_${Date.now()}_${Math.random().toString(36).substring(2, 6)}`,
         xPct: chip.xPct,
         yPct: chip.yPct,
-        value: chip.value * 2
+        value: chip.value * 2,
+        createdAt: Date.now()
       }))
     );
     playSynthSound('tick', isMuted);
@@ -1012,20 +1384,20 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           </div>
         </div>
 
-        {/* WebRTC Video Stream & Interactive Canvas box (Locked to 16:9 Aspect Ratio with transform acceleration) */}
+        {/* WebRTC Video Stream & Interactive Canvas box (Mahogany Wood Border & Green Felt Spotlight) */}
         <div 
           ref={containerRef} 
-          className="relative aspect-video w-full bg-slate-950 border border-slate-850 rounded-sm flex flex-col justify-between p-3 overflow-hidden transform-gpu"
+          className="relative aspect-video w-full bg-[radial-gradient(circle_at_center,_#0f3521_0%,_#05180f_100%)] border-[8px] border-[#2C130B] rounded-3xl flex flex-col justify-between p-3 overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_12px_28px_rgba(0,0,0,0.55)] transform-gpu"
           style={{ transform: 'translateZ(0)' }}
         >
-          {/* HTML5 WebRTC Video Node */}
+          {/* HTML5 WebRTC Video Node with blended screen hologram view */}
           <video
             ref={streamRef}
             autoPlay
             playsInline
             muted
             controls={false}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0"
+            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 mix-blend-screen"
             style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: "transform, opacity" }}
           />
 
@@ -1069,21 +1441,21 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
                         setSelectedTarget(target.id);
                         handleBetPlacement(target.id, e);
                       }}
-                      className={cn(
-                        "border backdrop-blur-md rounded-xl p-1.5 xs:p-2 sm:p-3 flex flex-col justify-between items-center h-[54px] xs:h-[64px] sm:h-[72px] text-white hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer pointer-events-auto shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)]",
-                        selectedTarget === target.id 
-                          ? "bg-red-500/35 border-red-500 ring-2 ring-red-500/30" 
-                          : "bg-black/45 border-white/10 hover:border-white/30"
-                      )}
+                      className={getBetButtonStyles(target.id, configKey, selectedTarget === target.id, activeWager > 0)}
                     >
-                      <div className="flex justify-between items-center w-full leading-none">
-                        <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-slate-100">{target.name}</span>
-                        <span className="text-[7.5px] xs:text-[8px] sm:text-[9px] font-bold text-indigo-300 font-mono">x{target.odds.toFixed(2)}</span>
+                      {/* Iconic Background Silhouette Icon */}
+                      {renderBetIcon(target.id, configKey)}
+
+                      <div className="flex justify-between items-center w-full leading-none z-10">
+                        <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-100">{target.name}</span>
+                        <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black text-amber-300 font-mono">x{target.odds.toFixed(2)}</span>
                       </div>
                       
                       <span className={cn(
-                        "text-[7.5px] xs:text-[8px] sm:text-[9px] font-extrabold uppercase tracking-widest leading-none",
-                        activeWager > 0 ? "text-rose-450 font-black animate-pulse" : "text-white/40"
+                        "text-[8px] xs:text-[9px] sm:text-[10px] font-mono font-black uppercase tracking-widest leading-none z-10",
+                        activeWager > 0 
+                          ? "text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)] animate-pulse" 
+                          : "text-white/40"
                       )}>
                         {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "PLACE CHIP"}
                       </span>
