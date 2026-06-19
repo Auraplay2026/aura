@@ -1731,7 +1731,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
   const handleClearAll = () => {
     setBets({});
-    setPlacedChips([]);
+setPlacedChips([]);
     setBetHistory([]);
     playSynthSound('tick', isMuted);
   };
@@ -1739,522 +1739,417 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
   const totalActiveBet = Object.values(bets).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="w-full grid grid-cols-1 xl:grid-cols-[350px_1fr] gap-6 items-start font-sans text-[#0F172A] bg-white p-2">
+    <div className="w-full flex flex-col font-sans text-slate-100 bg-[#070b13] p-3 sm:p-5 rounded-3xl border border-white/5 shadow-[0_0_50px_rgba(0,0,0,0.85)]">
       
-      {/* COLUMN A: INTERACTIVE BETTING HUD (LEFT COLUMN) */}
-      <div className="w-full xl:w-[350px] shrink-0 flex flex-col gap-4 order-2 xl:col-start-1 xl:row-start-1 xl:row-span-2">
-        
-        {/* BET AMOUNT MODULE */}
-        <div className="bg-white border border-slate-200 rounded-sm p-4 flex flex-col gap-2">
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Bet Amount</span>
-            <span className="text-xs font-bold text-slate-900">₹{selectedCoin.toLocaleString('en-IN')}</span>
-          </div>
-          
-          <div className="flex items-center bg-white border border-slate-200 rounded-sm overflow-hidden focus-within:border-slate-400 transition-all">
-            <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-10">
-              <span className="text-slate-400 font-bold">₹</span>
-            </div>
-            <input 
-              type="text" 
-              readOnly
-              value={selectedCoin} 
-              className="flex-1 bg-transparent border-none text-slate-900 font-black text-sm p-2 h-10 focus:outline-none focus:ring-0"
-            />
-            <div className="flex items-center bg-slate-50 border-l border-slate-200 h-10">
-              <button 
-                onClick={() => {
-                  const halved = Math.max(50, Math.floor(selectedCoin / 2));
-                  setSelectedCoin(halved);
-                }} 
-                className="px-3 h-full text-xs font-bold text-slate-500 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors"
-              >
-                1/2
-              </button>
-              <button 
-                onClick={() => {
-                  const doubled = selectedCoin * 2;
-                  if (balance >= doubled) {
-                    setSelectedCoin(doubled);
-                  } else {
-                    setShowLowBalance(true);
-                  }
-                }} 
-                className="px-3 h-full text-xs font-bold text-slate-500 hover:bg-slate-200 hover:text-slate-900 transition-colors"
-              >
-                2x
-              </button>
-            </div>
+      {/* Game Title & Header Row */}
+      <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0 mb-4">
+        <div className="flex items-center gap-3">
+          <span className="text-sm font-black tracking-wider text-white uppercase">{currentConfig.label}</span>
+          <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-sm">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+            <span className="text-[8px] font-extrabold text-emerald-400 uppercase tracking-widest">Live Betting</span>
           </div>
         </div>
-
-        {/* TOKEN TRAY (CHIP SELECTOR) */}
-        <div className="bg-white border border-slate-200 rounded-sm p-4 flex flex-col gap-3">
-          <div className="flex justify-between items-center">
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Chip Selector</span>
-            <span className="text-[9px] text-slate-400 font-extrabold uppercase tracking-wider">TAP CHIP TO BET</span>
-          </div>
-
-          {/* Chips Grid (tactile 3D casino chips) */}
-          <div className="grid grid-cols-6 gap-1.5 py-1">
-            {COIN_VALUES.map(val => {
-              // Circular 3D style configs for each value
-              const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
-                100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-white", shadow: "shadow-sky-500/40" },
-                500: { bg: "from-emerald-500 to-emerald-700", border: "border-emerald-350", text: "text-white", shadow: "shadow-emerald-500/40" },
-                1000: { bg: "from-amber-500 to-amber-700", border: "border-amber-350", text: "text-white", shadow: "shadow-amber-500/40" },
-                5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-white", shadow: "shadow-rose-500/40" },
-                10000: { bg: "from-purple-500 to-purple-700", border: "border-purple-350", text: "text-white", shadow: "shadow-purple-500/40" },
-                50050: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-white", shadow: "shadow-slate-700/40" } // Fallback match
-              };
-              const config = styles[val] || { bg: "from-purple-600 to-purple-800", border: "border-purple-400", text: "text-white", shadow: "shadow-purple-500/40" };
-              const isSelected = selectedCoin === val;
-
-              return (
-                <button
-                  key={val}
-                  onClick={() => {
-                    if (balance < val) {
-                      setShowLowBalance(true);
-                      return;
-                    }
-                    setSelectedCoin(val);
-                    playSynthSound('tick', isMuted);
-                  }}
-                  className={cn(
-                    "aspect-square rounded-full flex flex-col items-center justify-center font-black text-[8.5px] sm:text-[9.5px] transition-all border-2 border-dashed shadow-md active:scale-90 select-none cursor-pointer relative bg-gradient-to-br",
-                    config.bg,
-                    config.border,
-                    config.text,
-                    isSelected 
-                      ? `scale-110 ring-2 ring-slate-800 ring-offset-1 ${config.shadow} shadow-lg opacity-100` 
-                      : "opacity-80 hover:opacity-100 hover:scale-105"
-                  )}
-                >
-                  <div className="absolute inset-[1.5px] rounded-full border border-white/20 flex items-center justify-center">
-                    <span className="leading-none">{val >= 1000 ? `${val/1000}k` : val}</span>
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-
-          {/* Typography Quick Actions */}
-          <div className="flex items-center justify-between border-t border-slate-100 pt-2.5 mt-0.5 font-mono text-[9px] font-black uppercase tracking-wider">
-            <button
-              onClick={handleUndo}
-              disabled={phase !== 'open' || betHistory.length === 0}
-              className="text-slate-500 hover:text-slate-900 disabled:opacity-40 transition-colors"
+        <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 bg-slate-800/40 border border-slate-700/50 px-2.5 py-1 rounded-sm">
+            <span className="text-[10px] font-bold uppercase text-slate-300">Lobby</span>
+            <button 
+              onClick={() => window.dispatchEvent(new CustomEvent("open-lobby"))}
+              className="w-8 h-4 bg-slate-650 rounded-full p-0.5 relative transition-colors"
             >
-              Undo
-            </button>
-            <button
-              onClick={handleRepeatBet}
-              disabled={phase !== 'open' || Object.keys(previousBets).length === 0}
-              className="text-slate-500 hover:text-slate-900 disabled:opacity-40 transition-colors"
-            >
-              Repeat
-            </button>
-            <button
-              onClick={handleDouble}
-              disabled={phase !== 'open' || totalActiveBet === 0}
-              className="text-slate-500 hover:text-slate-900 disabled:opacity-40 transition-colors"
-            >
-              Double
-            </button>
-            <button
-              onClick={handleClearAll}
-              disabled={phase !== 'open' || totalActiveBet === 0}
-              className="text-[#E11D48] hover:text-red-800 disabled:opacity-40 transition-colors"
-            >
-              Clear
+              <div className="w-3 h-3 bg-white rounded-full transition-transform" />
             </button>
           </div>
         </div>
       </div>
 
-      {/* TRUST OR AFFILIATE FOOTER */}
-      <div className="w-full order-5 xl:col-start-1 xl:row-start-3">
-        {gameId.startsWith("royal-1") ? (
-          <div className="bg-[#1E293B] text-slate-200 border border-slate-700/40 rounded-sm p-4 flex flex-col gap-1.5 relative overflow-hidden select-none">
-            <div className="flex items-start gap-2.5 z-10 relative">
-              <span className="text-sm">🤝</span>
-              <div className="flex-1">
-                <span className="text-[10px] font-extrabold text-[#C084FC] uppercase tracking-widest block mb-0.5">Affiliate Earnings</span>
-                <p className="text-[11px] text-slate-300 leading-snug font-medium">
-                  <span className="text-white font-bold">GoldenAce</span> earned <span className="text-emerald-400 font-extrabold">₹85,000</span> in commission today!
-                </p>
-              </div>
-            </div>
-            <button 
-              onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-              className="text-[9px] font-extrabold text-[#C084FC] hover:text-[#D8B4FE] transition-colors mt-1.5 uppercase tracking-wider text-left z-10 relative w-fit hover:underline"
+      {/* WebRTC Video Stream & Interactive Canvas box (Ambient Spotlight & Mahogany wood rail) */}
+      <div 
+        ref={containerRef} 
+        className={getFeltContainerClass()}
+        style={{ transform: 'translateZ(0)' }}
+      >
+        {/* HTML5 WebRTC Video Node with blended screen hologram view */}
+        <video
+          ref={streamRef}
+          autoPlay
+          playsInline
+          muted
+          controls={false}
+          className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 mix-blend-screen"
+          style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: "transform, opacity" }}
+        />
+
+        {/* Holographic grid scanline overlay for futuristic photographic live broadcast blend */}
+        <div className="absolute inset-0 z-5 pointer-events-none opacity-[0.04] bg-[linear-gradient(to_bottom,rgba(255,255,255,0)_95%,rgba(255,255,255,1)_95%)] bg-[size:100%_4px]" />
+        <div className="absolute inset-0 z-8 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.8)]" />
+
+        {/* 2D Interactive Canvas Overlay (Click-through visual chips layer) */}
+        <canvas
+          ref={canvasRef}
+          className="absolute inset-0 w-full h-full pointer-events-none z-10"
+        />
+
+        {/* Sequential Live Dealer Physical Card Reveals (Aligned with Felt Slots) */}
+        <div className="absolute left-1/2 -translate-x-1/2 flex z-15 pointer-events-none top-[23%] sm:top-[26%] md:top-[28%] gap-[16px] sm:gap-[24px]">
+          {dealerCards.map((card) => (
+            <motion.div
+              key={card.id}
+              initial={{ x: 150, y: -200, scale: 0, rotate: 180 }}
+              animate={{ x: 0, y: 0, scale: 1, rotate: 0 }}
+              transition={{ type: "spring", stiffness: 100, damping: 13 }}
+              className="w-[36px] h-[52px] sm:w-[44px] sm:h-[62px] md:w-[52px] md:h-[72px] bg-gradient-to-b from-white to-slate-50 rounded shadow-[0_12px_28px_rgba(0,0,0,0.5),_0_2px_4px_rgba(0,0,0,0.3)] flex flex-col justify-between p-1 sm:p-1.5 border-[1.5px] border-amber-500/20 font-mono font-black select-none text-slate-900 animate-in fade-in duration-300"
             >
-              Refer & Earn →
-            </button>
-          </div>
-        ) : (
-          <div className="bg-[#1E293B] text-slate-200 border border-slate-700/40 rounded-sm p-4 flex flex-col gap-1.5 relative overflow-hidden select-none">
-            <div className="flex items-start gap-2.5 z-10 relative">
-              <span className="text-sm">🛡️</span>
-              <div className="flex-1">
-                <span className="text-[10px] font-extrabold text-emerald-400 uppercase tracking-widest block mb-0.5">Platform Trust</span>
-                <p className="text-[11px] text-slate-300 leading-snug font-medium">
-                  Instant UPI withdrawals processed in &lt; 2 mins.
-                </p>
+              <div className="flex justify-between items-start leading-none text-[9px] sm:text-[10px] md:text-[11px]">
+                <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600 font-bold' : 'text-slate-900 font-bold'}>{card.val}</span>
+                <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900'}>{card.suit}</span>
               </div>
-            </div>
-            <div className="text-[9px] font-extrabold text-emerald-400 uppercase tracking-wider mt-1.5 z-10 relative">
-              Verified Provably Fair
+              <div className={cn("text-center leading-none text-[14px] sm:text-[18px] md:text-[22px] mb-0.5", card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900')}>
+                {card.suit}
+              </div>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
+        {phase === 'open' && ping <= 500 && showOverlay && (
+          <div className="absolute bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 w-full max-w-md md:max-w-lg">
+              {currentConfig.targets.map(target => {
+                const activeWager = bets[target.id] || 0;
+                return (
+                  <button
+                    key={`overlay-${target.id}`}
+                    onClick={(e) => {
+                      setSelectedTarget(target.id);
+                      handleBetPlacement(target.id, e);
+                    }}
+                    className={getBetButtonStyles(target.id, configKey, selectedTarget === target.id, activeWager > 0)}
+                  >
+                    {/* Iconic Background Silhouette Icon */}
+                    {renderBetIcon(target.id, configKey)}
+
+                    <div className="flex justify-between items-center w-full leading-none z-10">
+                      <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-100">{target.name}</span>
+                      <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black text-amber-300 font-mono">x{target.odds.toFixed(2)}</span>
+                    </div>
+                    
+                    <span className={cn(
+                      "text-[8px] xs:text-[9px] sm:text-[10px] font-mono font-black uppercase tracking-widest leading-none z-10",
+                      activeWager > 0 
+                        ? "text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)] animate-pulse" 
+                        : "text-white/40"
+                    )}>
+                      {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "PLACE CHIP"}
+                    </span>
+                  </button>
+                );
+              })}
             </div>
           </div>
         )}
-      </div>
 
-      {/* COLUMN B: THE NAVY BOARD (CENTER/RIGHT) */}
-      <div className="w-full bg-[#0F172A] border border-slate-800 rounded-sm p-4 relative flex flex-col justify-between overflow-hidden min-h-[560px] order-1 xl:col-start-2 xl:row-start-1">
-        
-        {/* Game Title & Header Row */}
-        <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0 mb-4">
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-black tracking-wider text-white uppercase">{currentConfig.label}</span>
-            <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-sm">
-              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-              <span className="text-[8px] font-extrabold text-emerald-400 uppercase tracking-widest">Live Betting</span>
-            </div>
-          </div>
-          <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2 bg-slate-800/40 border border-slate-700/50 px-2.5 py-1 rounded-sm">
-              <span className="text-[10px] font-bold uppercase text-slate-300">Lobby</span>
-              <button 
-                onClick={() => window.dispatchEvent(new CustomEvent("open-lobby"))}
-                className="w-8 h-4 bg-slate-650 rounded-full p-0.5 relative transition-colors"
-              >
-                <div className="w-3 h-3 bg-white rounded-full transition-transform" />
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {/* WebRTC Video Stream & Interactive Canvas box (Ambient Spotlight & Mahogany wood rail) */}
-        <div 
-          ref={containerRef} 
-          className={getFeltContainerClass()}
-          style={{ transform: 'translateZ(0)' }}
-        >
-          {/* HTML5 WebRTC Video Node with blended screen hologram view */}
-          <video
-            ref={streamRef}
-            autoPlay
-            playsInline
-            muted
-            controls={false}
-            className="absolute inset-0 w-full h-full object-cover pointer-events-none z-0 opacity-40 mix-blend-screen"
-            style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: "transform, opacity" }}
-          />
-
-          {/* Holographic grid scanline overlay for futuristic photographic live broadcast blend */}
-          <div className="absolute inset-0 z-5 pointer-events-none opacity-[0.04] bg-[linear-gradient(to_bottom,rgba(255,255,255,0)_95%,rgba(255,255,255,1)_95%)] bg-[size:100%_4px]" />
-          <div className="absolute inset-0 z-8 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.8)]" />
-
-          {/* 2D Interactive Canvas Overlay (Click-through visual chips layer) */}
-          <canvas
-            ref={canvasRef}
-            className="absolute inset-0 w-full h-full pointer-events-none z-10"
-          />
-
-          {/* Sequential Live Dealer Physical Card Reveals (Aligned with Felt Slots) */}
-          <div className="absolute left-1/2 -translate-x-1/2 flex z-15 pointer-events-none top-[23%] sm:top-[26%] md:top-[28%] gap-[16px] sm:gap-[24px]">
-            {dealerCards.map((card) => (
-              <motion.div
-                key={card.id}
-                initial={{ x: 150, y: -200, scale: 0, rotate: 180 }}
-                animate={{ x: 0, y: 0, scale: 1, rotate: 0 }}
-                transition={{ type: "spring", stiffness: 100, damping: 13 }}
-                className="w-[36px] h-[52px] sm:w-[44px] sm:h-[62px] md:w-[52px] md:h-[72px] bg-gradient-to-b from-white to-slate-50 rounded shadow-[0_12px_28px_rgba(0,0,0,0.5),_0_2px_4px_rgba(0,0,0,0.3)] flex flex-col justify-between p-1 sm:p-1.5 border-[1.5px] border-amber-500/20 font-mono font-black select-none text-slate-900 animate-in fade-in duration-300"
-              >
-                <div className="flex justify-between items-start leading-none text-[9px] sm:text-[10px] md:text-[11px]">
-                  <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600 font-bold' : 'text-slate-900 font-bold'}>{card.val}</span>
-                  <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900'}>{card.suit}</span>
-                </div>
-                <div className={cn("text-center leading-none text-[14px] sm:text-[18px] md:text-[22px] mb-0.5", card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900')}>
-                  {card.suit}
-                </div>
-              </motion.div>
-            ))}
+        {/* Live HUD Header: Dealer info, Latency indicator, and circular timer */}
+        <div className="absolute top-2 sm:top-3 inset-x-2 sm:inset-x-3 flex justify-between items-start z-20 pointer-events-none">
+          {/* Left: Real-time Trust Dealer Status */}
+          <div className="flex flex-col gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5">
+            <span className="text-[8px] sm:text-[9px] font-black text-white uppercase tracking-widest leading-none">
+              DEALER: KYLIE #702
+            </span>
+            <span className="hidden sm:block text-[8px] font-bold text-slate-350 leading-none">
+              Shift: Night A • Live Status: Verified
+            </span>
           </div>
 
-          {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
-          {phase === 'open' && ping <= 500 && showOverlay && (
-            <div className="absolute bottom-2 sm:bottom-4 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
-              <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 w-full max-w-md md:max-w-lg">
-                {currentConfig.targets.map(target => {
-                  const activeWager = bets[target.id] || 0;
-                  return (
-                    <button
-                      key={`overlay-${target.id}`}
-                      onClick={(e) => {
-                        setSelectedTarget(target.id);
-                        handleBetPlacement(target.id, e);
-                      }}
-                      className={getBetButtonStyles(target.id, configKey, selectedTarget === target.id, activeWager > 0)}
-                    >
-                      {/* Iconic Background Silhouette Icon */}
-                      {renderBetIcon(target.id, configKey)}
+          {/* Middle: Sound & HUD Controls */}
+          <div className="flex items-center gap-1 sm:gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg sm:rounded-xl border border-white/5 pointer-events-auto">
+            <button 
+              onClick={toggleMute}
+              className="p-0.5 rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title={isMuted ? "Unmute sounds" : "Mute sounds"}
+            >
+              {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-slate-300" />}
+            </button>
+            <button 
+              onClick={toggleOverlay}
+              className="p-0.5 rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+              title={showOverlay ? "Hide Overlay Grid" : "Show Overlay Grid"}
+            >
+              {showOverlay ? <Eye className="w-3.5 h-3.5 text-emerald-450" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+            </button>
+          </div>
 
-                      <div className="flex justify-between items-center w-full leading-none z-10">
-                        <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-100">{target.name}</span>
-                        <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black text-amber-300 font-mono">x{target.odds.toFixed(2)}</span>
-                      </div>
-                      
-                      <span className={cn(
-                        "text-[8px] xs:text-[9px] sm:text-[10px] font-mono font-black uppercase tracking-widest leading-none z-10",
-                        activeWager > 0 
-                          ? "text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)] animate-pulse" 
-                          : "text-white/40"
-                      )}>
-                        {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "PLACE CHIP"}
-                      </span>
-                    </button>
-                  );
-                })}
-              </div>
-            </div>
-          )}
-
-          {/* Live HUD Header: Dealer info, Latency indicator, and circular timer */}
-          <div className="absolute top-2 sm:top-3 inset-x-2 sm:inset-x-3 flex justify-between items-start z-20 pointer-events-none">
-            {/* Left: Real-time Trust Dealer Status */}
-            <div className="flex flex-col gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5">
-              <span className="text-[8px] sm:text-[9px] font-black text-white uppercase tracking-widest leading-none">
-                DEALER: KYLIE #702
+          {/* Right: Latency Safety Meter & Circular Countdown Timer HUD */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Ping Meter */}
+            <div className="flex flex-col items-end gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5 font-mono text-right font-bold">
+              <span className={cn("text-[8px] sm:text-[9px] font-black uppercase tracking-widest leading-none", ping > 500 ? "text-rose-400 animate-pulse" : "text-emerald-400")}>
+                {ping > 500 ? "HIGH JITTER" : "SUB-300MS WHIP"}
               </span>
               <span className="hidden sm:block text-[8px] font-bold text-slate-350 leading-none">
-                Shift: Night A • Live Status: Verified
+                Ping: {ping}ms
+              </span>
+              <span className="block sm:hidden text-[8px] font-bold text-slate-350 leading-none">
+                {ping}ms
               </span>
             </div>
 
-            {/* Middle: Sound & HUD Controls */}
-            <div className="flex items-center gap-1 sm:gap-1.5 bg-black/60 backdrop-blur-md px-2 py-1 rounded-lg sm:rounded-xl border border-white/5 pointer-events-auto">
-              <button 
-                onClick={toggleMute}
-                className="p-0.5 rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title={isMuted ? "Unmute sounds" : "Mute sounds"}
-              >
-                {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-slate-300" />}
-              </button>
-              <button 
-                onClick={toggleOverlay}
-                className="p-0.5 rounded text-white/70 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
-                title={showOverlay ? "Hide Overlay Grid" : "Show Overlay Grid"}
-              >
-                {showOverlay ? <Eye className="w-3.5 h-3.5 text-emerald-450" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
-              </button>
-            </div>
-
-            {/* Right: Latency Safety Meter & Circular Countdown Timer HUD */}
-            <div className="flex items-center gap-2 sm:gap-3">
-              {/* Ping Meter */}
-              <div className="flex flex-col items-end gap-0.5 sm:gap-1 bg-black/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5 font-mono text-right font-bold">
-                <span className={cn("text-[8px] sm:text-[9px] font-black uppercase tracking-widest leading-none", ping > 500 ? "text-rose-400 animate-pulse" : "text-emerald-400")}>
-                  {ping > 500 ? "HIGH JITTER" : "SUB-300MS WHIP"}
-                </span>
-                <span className="hidden sm:block text-[8px] font-bold text-slate-350 leading-none">
-                  Ping: {ping}ms
-                </span>
-                <span className="block sm:hidden text-[8px] font-bold text-slate-350 leading-none">
-                  {ping}ms
-                </span>
-              </div>
-
-              {/* Circular Timer HUD */}
-              <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-black/65 backdrop-blur-md rounded-full border border-white/10">
-                <svg className="absolute w-full h-full transform -rotate-90">
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="14"
-                    stroke="rgba(255, 255, 255, 0.1)"
-                    strokeWidth="2"
-                    fill="transparent"
-                    className="block sm:hidden"
-                  />
-                  <circle
-                    cx="18"
-                    cy="18"
-                    r="14"
-                    stroke={countdown <= 4 ? "#EF4444" : "#3B82F6"}
-                    strokeWidth="2"
-                    fill="transparent"
-                    strokeDasharray={2 * Math.PI * 14}
-                    strokeDashoffset={2 * Math.PI * 14 - (countdown / 15) * 2 * Math.PI * 14}
-                    className="transition-all duration-1000 ease-linear block sm:hidden"
-                  />
-                  <circle
-                    cx="22"
-                    cy="22"
-                    r="17"
-                    stroke="rgba(255, 255, 255, 0.1)"
-                    strokeWidth="2.5"
-                    fill="transparent"
-                    className="hidden sm:block"
-                  />
-                  <circle
-                    cx="22"
-                    cy="22"
-                    r="17"
-                    stroke={countdown <= 4 ? "#EF4444" : "#3B82F6"}
-                    strokeWidth="2.5"
-                    fill="transparent"
-                    strokeDasharray={2 * Math.PI * 17}
-                    strokeDashoffset={2 * Math.PI * 17 - (countdown / 15) * 2 * Math.PI * 17}
-                    className="transition-all duration-1000 ease-linear hidden sm:block"
-                  />
-                </svg>
-                <span className={cn("text-[10px] sm:text-[11px] font-black font-mono leading-none", countdown <= 4 ? "text-red-500 animate-pulse" : "text-white")}>
-                  {countdown}s
-                </span>
-              </div>
+            {/* Circular Timer HUD */}
+            <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-black/65 backdrop-blur-md rounded-full border border-white/10">
+              <svg className="absolute w-full h-full transform -rotate-90">
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="14"
+                  stroke="rgba(255, 255, 255, 0.1)"
+                  strokeWidth="2"
+                  fill="transparent"
+                  className="block sm:hidden"
+                />
+                <circle
+                  cx="18"
+                  cy="18"
+                  r="14"
+                  stroke={countdown <= 4 ? "#EF4444" : "#3B82F6"}
+                  strokeWidth="2"
+                  fill="transparent"
+                  strokeDasharray={2 * Math.PI * 14}
+                  strokeDashoffset={2 * Math.PI * 14 - (countdown / 15) * 2 * Math.PI * 14}
+                  className="transition-all duration-1000 ease-linear block sm:hidden"
+                />
+                <circle
+                  cx="22"
+                  cy="22"
+                  r="17"
+                  stroke="rgba(255, 255, 255, 0.1)"
+                  strokeWidth="2.5"
+                  fill="transparent"
+                  className="hidden sm:block"
+                />
+                <circle
+                  cx="22"
+                  cy="22"
+                  r="17"
+                  stroke={countdown <= 4 ? "#EF4444" : "#3B82F6"}
+                  strokeWidth="2.5"
+                  fill="transparent"
+                  strokeDasharray={2 * Math.PI * 17}
+                  strokeDashoffset={2 * Math.PI * 17 - (countdown / 15) * 2 * Math.PI * 17}
+                  className="transition-all duration-1000 ease-linear hidden sm:block"
+                />
+              </svg>
+              <span className={cn("text-[10px] sm:text-[11px] font-black font-mono leading-none", countdown <= 4 ? "text-red-500 animate-pulse" : "text-white")}>
+                {countdown}s
+              </span>
             </div>
           </div>
+        </div>
 
-          {/* Network Safety Overlay: locks bets if ping exceeds threshold */}
-          {ping > 500 && (
-            <div className="absolute inset-0 bg-black/75 backdrop-blur-md z-40 flex flex-col items-center justify-center text-center gap-3">
-              <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
-              <div>
-                <h4 className="text-sm font-black text-white uppercase tracking-wider">Syncing Live Feed...</h4>
-                <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Latency: {ping}ms (Limit: 500ms). Betting targets locked.</p>
-              </div>
+        {/* Network Safety Overlay: locks bets if ping exceeds threshold */}
+        {ping > 500 && (
+          <div className="absolute inset-0 bg-black/75 backdrop-blur-md z-40 flex flex-col items-center justify-center text-center gap-3">
+            <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
+            <div>
+              <h4 className="text-sm font-black text-white uppercase tracking-wider">Syncing Live Feed...</h4>
+              <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Latency: {ping}ms (Limit: 500ms). Betting targets locked.</p>
             </div>
-          )}
-
-          {/* Middle Overlay: Bets phase announcements */}
-          <div className="flex flex-col items-center justify-center text-center my-auto z-20 relative pointer-events-none">
-            <AnimatePresence mode="wait">
-              {phase === 'open' && (
-                <motion.div
-                  key="open"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <div className="text-xs font-black uppercase text-white bg-black/65 px-4 py-2 rounded-sm tracking-wider">
-                    {feedMsg}
-                  </div>
-                </motion.div>
-              )}
-
-              {phase === 'closed' && dealerCards.length === 0 && (
-                <motion.div
-                  key="closed"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex flex-col items-center gap-3"
-                >
-                  <div className="text-xs font-black text-rose-500 uppercase tracking-widest bg-black/65 px-4 py-2 rounded-sm animate-pulse">
-                    BETS CLOSED
-                  </div>
-                </motion.div>
-              )}
-
-              {phase === 'settled' && (
-                <motion.div
-                  key="settled"
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.95 }}
-                  className="flex flex-col items-center gap-2"
-                >
-                  <div className="text-xs font-black text-indigo-300 uppercase tracking-widest bg-black/65 px-4 py-2 rounded-sm">
-                    {feedMsg}
-                  </div>
-                  {payoutOverlay.active && (
-                    <div className={cn(
-                      "px-4 py-1.5 rounded-sm font-black text-xs uppercase shadow-lg border leading-none mt-1.5",
-                      payoutOverlay.profit === 0
-                        ? "bg-slate-800/80 border-slate-700/30 text-slate-350"
-                        : payoutOverlay.won 
-                          ? "bg-emerald-950/80 border-emerald-500/30 text-emerald-300" 
-                          : "bg-rose-950/80 border-rose-500/30 text-rose-300"
-                    )}>
-                      {payoutOverlay.profit === 0 
-                        ? "Push: ₹0" 
-                        : payoutOverlay.won 
-                          ? `Payout: +₹${payoutOverlay.profit.toLocaleString('en-IN')}` 
-                          : `Settled: -₹${Math.abs(payoutOverlay.profit).toLocaleString('en-IN')}`}
-                    </div>
-                  )}
-                </motion.div>
-              )}
-            </AnimatePresence>
           </div>
+        )}
 
-          {/* Stream Bottom Box: Header details and scorecard roadmap */}
-          <div className="border-t border-white/10 pt-2 shrink-0 flex items-center justify-between z-20 w-full relative bg-slate-950/80 p-2.5 rounded-sm border border-white/5">
-            <div className="flex flex-col items-start gap-1">
-              <span className="text-[10px] font-black text-slate-200 uppercase tracking-wider leading-none">{currentConfig.label}</span>
-              <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">WHIP WHEP Live</span>
-            </div>
-            
-            {/* Total bet info */}
-            <div className="text-right">
-              <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
-              <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
-            </div>
+        {/* Middle Overlay: Bets phase announcements */}
+        <div className="flex flex-col items-center justify-center text-center my-auto z-20 relative pointer-events-none">
+          <AnimatePresence mode="wait">
+            {phase === 'open' && (
+              <motion.div
+                key="open"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex flex-col items-center gap-2"
+              >
+                <div className="text-xs font-black uppercase text-white bg-black/65 px-4 py-2 rounded-sm tracking-wider">
+                  {feedMsg}
+                </div>
+              </motion.div>
+            )}
+
+            {phase === 'closed' && dealerCards.length === 0 && (
+              <motion.div
+                key="closed"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex flex-col items-center gap-3"
+              >
+                <div className="text-xs font-black text-rose-500 uppercase tracking-widest bg-black/65 px-4 py-2 rounded-sm animate-pulse">
+                  BETS CLOSED
+                </div>
+              </motion.div>
+            )}
+
+            {phase === 'settled' && (
+              <motion.div
+                key="settled"
+                initial={{ opacity: 0, scale: 0.95 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.95 }}
+                className="flex flex-col items-center gap-2"
+              >
+                <div className="text-xs font-black text-indigo-300 uppercase tracking-widest bg-black/65 px-4 py-2 rounded-sm">
+                  {feedMsg}
+                </div>
+                {payoutOverlay.active && (
+                  <div className={cn(
+                    "px-4 py-1.5 rounded-sm font-black text-xs uppercase shadow-lg border leading-none mt-1.5",
+                    payoutOverlay.profit === 0
+                      ? "bg-slate-800/80 border-slate-700/30 text-slate-350"
+                      : payoutOverlay.won 
+                        ? "bg-emerald-950/80 border-emerald-500/30 text-emerald-300" 
+                        : "bg-rose-955/80 border-rose-500/30 text-rose-300"
+                  )}>
+                    {payoutOverlay.profit === 0 
+                      ? "Push: ₹0" 
+                      : payoutOverlay.won 
+                        ? `Payout: +₹${payoutOverlay.profit.toLocaleString('en-IN')}` 
+                        : `Settled: -₹${Math.abs(payoutOverlay.profit).toLocaleString('en-IN')}`}
+                  </div>
+                )}
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+
+        {/* Stream Bottom Box: Header details and scorecard roadmap */}
+        <div className="border-t border-white/10 pt-2 shrink-0 flex items-center justify-between z-20 w-full relative bg-slate-950/80 p-2.5 rounded-sm border border-white/5">
+          <div className="flex flex-col items-start gap-1">
+            <span className="text-[10px] font-black text-slate-200 uppercase tracking-wider leading-none">{currentConfig.label}</span>
+            <span className="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest leading-none">WHIP WHEP Live</span>
+          </div>
+          
+          {/* Total bet info */}
+          <div className="text-right">
+            <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
+            <span className="text-xs font-black text-white leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>
 
-        {/* Interactive Betting Matrix Targets */}
-        <div className="grid grid-cols-2 md:grid-cols-3 gap-3 shrink-0 order-3 xl:col-start-2 xl:row-start-2 mt-4 w-full">
-          {currentConfig.targets.map(target => {
-            const activeWager = bets[target.id] || 0;
-            const isWinner = phase === 'settled' && roundWinner === target.id;
-            const isSelected = selectedTarget === target.id;
-            
+      {/* CONTROL CONSOLE (Chips, Bets, Actions) */}
+      <div className="bg-slate-900/60 backdrop-blur-md border border-white/5 rounded-2xl p-3 sm:p-4 mt-4 flex flex-col md:flex-row gap-4 items-center justify-between w-full shadow-2xl">
+        {/* Quick Actions (Left) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 font-mono text-[9px] sm:text-[10px] font-black uppercase tracking-wider shrink-0 w-full md:w-auto justify-between md:justify-start">
+          <button
+            onClick={handleUndo}
+            disabled={phase !== 'open' || betHistory.length === 0}
+            className="px-2.5 sm:px-3.5 py-2 bg-slate-800/60 hover:bg-slate-700/65 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none"
+          >
+            Undo
+          </button>
+          <button
+            onClick={handleRepeatBet}
+            disabled={phase !== 'open' || Object.keys(previousBets).length === 0}
+            className="px-2.5 sm:px-3.5 py-2 bg-slate-800/60 hover:bg-slate-700/65 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none"
+          >
+            Repeat
+          </button>
+          <button
+            onClick={handleDouble}
+            disabled={phase !== 'open' || totalActiveBet === 0}
+            className="px-2.5 sm:px-3.5 py-2 bg-slate-800/60 hover:bg-slate-700/65 disabled:opacity-25 text-slate-300 hover:text-white rounded-lg border border-white/5 transition-all cursor-pointer select-none"
+          >
+            Double
+          </button>
+          <button
+            onClick={handleClearAll}
+            disabled={phase !== 'open' || totalActiveBet === 0}
+            className="px-2.5 sm:px-3.5 py-2 bg-rose-950/60 hover:bg-rose-900/65 disabled:opacity-25 text-rose-350 hover:text-rose-250 rounded-lg border border-rose-900/35 transition-all cursor-pointer select-none"
+          >
+            Clear
+          </button>
+        </div>
+
+        {/* Chip Selector Tray (Center) */}
+        <div className="flex items-center gap-1.5 sm:gap-2.5 bg-slate-950/60 border border-slate-900/80 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl sm:rounded-2xl shadow-[inset_0_2px_8px_rgba(0,0,0,0.6)]">
+          {COIN_VALUES.map(val => {
+            const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
+              100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-white", shadow: "shadow-sky-500/40" },
+              500: { bg: "from-emerald-500 to-emerald-700", border: "border-emerald-350", text: "text-white", shadow: "shadow-emerald-500/40" },
+              1000: { bg: "from-amber-500 to-amber-700", border: "border-amber-350", text: "text-white", shadow: "shadow-amber-500/40" },
+              5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-white", shadow: "shadow-rose-500/40" },
+              10000: { bg: "from-purple-500 to-purple-700", border: "border-purple-350", text: "text-white", shadow: "shadow-purple-500/40" },
+              50050: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-white", shadow: "shadow-slate-700/40" }
+            };
+            const config = styles[val] || { bg: "from-purple-600 to-purple-800", border: "border-purple-400", text: "text-white", shadow: "shadow-purple-500/40" };
+            const isSelected = selectedCoin === val;
+
             return (
               <button
-                key={target.id}
-                onClick={(e) => {
-                  setSelectedTarget(target.id);
-                  handleBetPlacement(target.id, e);
+                key={val}
+                onClick={() => {
+                  if (balance < val) {
+                    setShowLowBalance(true);
+                    return;
+                  }
+                  setSelectedCoin(val);
+                  playSynthSound('tick', isMuted);
                 }}
                 className={cn(
-                  getBetButtonStyles(target.id, configKey, isSelected, activeWager > 0),
-                  "h-[72px] sm:h-[86px] rounded-xl border border-white/10 shadow-lg text-white font-sans",
-                  isWinner && "ring-4 ring-emerald-500 scale-102 font-black",
-                  phase !== 'open' && "opacity-85"
+                  "w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-black text-[8.5px] sm:text-[9.5px] transition-all border-2 border-dashed shadow-md active:scale-90 select-none cursor-pointer relative bg-gradient-to-br",
+                  config.bg,
+                  config.border,
+                  config.text,
+                  isSelected 
+                    ? `scale-110 ring-2 ring-amber-500 ring-offset-2 ring-offset-[#070b13] ${config.shadow} shadow-lg opacity-100` 
+                    : "opacity-80 hover:opacity-100 hover:scale-105"
                 )}
               >
-                {/* Iconic Background Silhouette Icon */}
-                {renderBetIcon(target.id, configKey)}
-
-                <div className="flex justify-between items-center w-full leading-none z-10">
-                  <span className="text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-100">{target.name}</span>
-                  <span className="text-[9px] sm:text-[10px] font-black text-amber-300 font-mono">x{target.odds.toFixed(2)}</span>
+                <div className="absolute inset-[1.5px] rounded-full border border-white/20 flex items-center justify-center">
+                  <span className="leading-none">{val >= 1000 ? `${val/1000}k` : val}</span>
                 </div>
-                
-                <span className={cn(
-                  "text-[9px] sm:text-[10px] font-mono font-black uppercase tracking-widest leading-none z-10 mb-1",
-                  activeWager > 0 
-                    ? "text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)] animate-pulse" 
-                    : "text-white/40"
-                )}>
-                  {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "BET HERE"}
-                </span>
               </button>
             );
           })}
         </div>
 
-        {/* Scorecard Roadmap (Analytics) - Placed below the betting matrix targets */}
-        <div className="bg-slate-900 border border-slate-800 rounded-sm p-4 mt-4 select-none order-4 xl:col-start-2 xl:row-start-3 w-full">
-          <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-            <span className="text-[10px] font-black text-slate-300 uppercase tracking-widest flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-emerald-400" />
+        {/* Bet Amount Multiplier Controls (Right) */}
+        <div className="flex items-center gap-2 bg-slate-950/40 border border-white/5 p-1 rounded-lg shrink-0 w-full md:w-auto justify-end">
+          <span className="text-[9px] text-slate-400 font-extrabold uppercase pl-1 sm:pl-2">Bet:</span>
+          <div className="flex items-center bg-slate-900/80 border border-slate-800 rounded px-2 py-1">
+            <span className="text-amber-400 font-black text-[10px] sm:text-[11px] font-mono">₹{selectedCoin.toLocaleString('en-IN')}</span>
+          </div>
+          <button 
+            onClick={() => {
+              const halved = Math.max(50, Math.floor(selectedCoin / 2));
+              setSelectedCoin(halved);
+            }}
+            className="w-7 h-7 flex items-center justify-center bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-white rounded transition-colors cursor-pointer"
+          >
+            1/2
+          </button>
+          <button 
+            onClick={() => {
+              const doubled = selectedCoin * 2;
+              if (balance >= doubled) {
+                setSelectedCoin(doubled);
+              } else {
+                setShowLowBalance(true);
+              }
+            }}
+            className="w-7 h-7 flex items-center justify-center bg-slate-800/85 hover:bg-slate-700/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-white rounded transition-colors cursor-pointer"
+          >
+            2x
+          </button>
+        </div>
+      </div>
+
+      {/* BOTTOM DASHBOARD ROW (Roadmap & Trust Footer Info) */}
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-4 mt-4 w-full items-start">
+        
+        {/* Scorecard Roadmap (Analytics) */}
+        <div className="bg-slate-900/40 border border-white/5 rounded-xl p-4 select-none w-full shadow-lg">
+          <div className="flex items-center justify-between mb-3 border-b border-white/5 pb-2">
+            <span className="text-[10px] font-black text-slate-350 uppercase tracking-widest flex items-center gap-1.5">
+              <Activity className="w-3.5 h-3.5 text-emerald-450" />
               Game Roadmap & Analytics
             </span>
             <span className="text-[9px] text-slate-500 font-extrabold uppercase">Last 15 Rounds</span>
@@ -2281,25 +2176,65 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           </div>
         </div>
 
+        {/* Platform Trust & Affiliate Earnings */}
+        <div className="shrink-0 w-full">
+          {gameId.startsWith("royal-1") ? (
+            <div className="bg-[#1E293B]/30 text-slate-200 border border-white/5 rounded-xl p-4 flex flex-col gap-1.5 relative overflow-hidden select-none shadow-lg">
+              <div className="flex items-start gap-2.5 z-10 relative">
+                <span className="text-sm">🤝</span>
+                <div className="flex-1">
+                  <span className="text-[9px] font-extrabold text-[#C084FC] uppercase tracking-widest block mb-0.5">Affiliate Earnings</span>
+                  <p className="text-[10px] text-slate-350 leading-snug font-medium">
+                    <span className="text-white font-bold">GoldenAce</span> earned <span className="text-emerald-450 font-extrabold">₹85,000</span> in commission today!
+                  </p>
+                </div>
+              </div>
+              <button 
+                onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
+                className="text-[8px] font-extrabold text-[#C084FC] hover:text-[#D8B4FE] transition-colors mt-1.5 uppercase tracking-wider text-left z-10 relative w-fit hover:underline cursor-pointer"
+              >
+                Refer & Earn →
+              </button>
+            </div>
+          ) : (
+            <div className="bg-[#1E293B]/30 text-slate-200 border border-white/5 rounded-xl p-4 flex flex-col gap-1.5 relative overflow-hidden select-none shadow-lg">
+              <div className="flex items-start gap-2.5 z-10 relative">
+                <span className="text-sm">🛡️</span>
+                <div className="flex-1">
+                  <span className="text-[9px] font-extrabold text-emerald-450 uppercase tracking-widest block mb-0.5">Platform Trust</span>
+                  <p className="text-[10px] text-slate-350 leading-snug font-medium">
+                    Instant UPI withdrawals processed in &lt; 2 mins.
+                  </p>
+                </div>
+              </div>
+              <div className="text-[8px] font-extrabold text-emerald-450 uppercase tracking-wider mt-1.5 z-10 relative">
+                Verified Provably Fair
+              </div>
+            </div>
+          )}
+        </div>
+
+      </div>
+
       {/* Exception Warning Dialog Modals */}
       <AnimatePresence>
         {/* 1. Low Balance Alert Modal */}
         {showLowBalance && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
-            <div className="bg-white border border-[#E2E8F0] max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-white/10 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-100">
               <AlertTriangle className="w-12 h-12 text-[#BE185D] mx-auto animate-bounce" />
-              <h4 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">Low Balance</h4>
-              <p className="text-xs text-slate-500 leading-normal">
+              <h4 className="text-sm font-black uppercase tracking-wider text-white">Low Balance</h4>
+              <p className="text-xs text-slate-400 leading-normal">
                 Low Balance: Your balance is low, please visit the cashier.
               </p>
               <div className="flex gap-2">
-                <button onClick={() => setShowLowBalance(false)} className="flex-1 py-2 bg-[#F8F9FA] border border-[#E2E8F0] rounded-lg text-[10px] font-black uppercase text-slate-700 hover:bg-[#E2E8F0]">Cancel</button>
+                <button onClick={() => setShowLowBalance(false)} className="flex-1 py-2 bg-slate-800 hover:bg-slate-700 border border-white/5 rounded-lg text-[10px] font-black uppercase text-slate-300">Cancel</button>
                 <button 
                   onClick={() => {
                     setShowLowBalance(false);
                     window.dispatchEvent(new CustomEvent("open-cashier"));
                   }} 
-                  className="flex-1 py-2 bg-[#0F172A] hover:bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-wider"
+                  className="flex-1 py-2 bg-amber-500 hover:bg-amber-600 text-slate-950 font-extrabold rounded-lg text-[10px] font-black uppercase tracking-wider"
                 >
                   Deposit
                 </button>
@@ -2310,11 +2245,11 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
         {/* 2. Connection Lost Alert Modal */}
         {showConnectionLost && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
-            <div className="bg-white border border-[#E2E8F0] max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4">
-              <RefreshCw className="w-12 h-12 text-indigo-650 mx-auto animate-spin" />
-              <h4 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">Connection Lost</h4>
-              <p className="text-xs text-slate-500 leading-normal">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-white/10 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-100">
+              <RefreshCw className="w-12 h-12 text-indigo-500 mx-auto animate-spin" />
+              <h4 className="text-sm font-black uppercase tracking-wider text-white">Connection Lost</h4>
+              <p className="text-xs text-slate-400 leading-normal">
                 Connection Lost: Attempting to reconnect to live dealer room...
               </p>
             </div>
@@ -2323,11 +2258,11 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
         {/* 3. Server Maintenance Alert Modal */}
         {showMaintenance && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#0F172A]/40 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
-            <div className="bg-white border border-[#E2E8F0] max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-white/10 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-100">
               <AlertTriangle className="w-12 h-12 text-[#D97706] mx-auto animate-pulse" />
-              <h4 className="text-sm font-black text-[#0F172A] uppercase tracking-wider">Notice</h4>
-              <p className="text-xs text-slate-500 leading-normal">
+              <h4 className="text-sm font-black uppercase tracking-wider text-white">Notice</h4>
+              <p className="text-xs text-slate-400 leading-normal">
                 Notice: Game is under maintenance. Returning to primary game vault selection.
               </p>
               <button 
@@ -2335,7 +2270,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
                   setShowMaintenance(false);
                   window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }));
                 }}
-                className="w-full py-2.5 bg-[#0F172A] hover:bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-wider"
+                className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-100 rounded-lg text-[10px] font-black uppercase tracking-wider border border-white/5"
               >
                 Okay
               </button>
