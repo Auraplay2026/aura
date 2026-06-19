@@ -104,6 +104,13 @@ export function LiveRouletteEngine({
   const [ballRadiusOffset, setBallRadiusOffset] = useState(0);
   const [winningNumber, setWinningNumber] = useState<NumberConfig | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
   
   // HUD & Lobby Simulation States
   const [vips, setVips] = useState<VIPPlayer[]>(INITIAL_VIP_PLAYERS);
@@ -272,7 +279,9 @@ export function LiveRouletteEngine({
     setIsSpinning(true);
     setWinningNumber(null);
     setShowWinOverlay(false);
-    setBallRadiusOffset(28); // ball sits on the outer track
+    const width = typeof window !== "undefined" ? window.innerWidth : 1024;
+    const offsetVal = width >= 1024 ? 50 : width >= 768 ? 42 : width >= 640 ? 36 : 28;
+    setBallRadiusOffset(offsetVal);
 
     const outcome = calculateGameOutcome("TABLE");
     const won = outcome.isWin;
@@ -432,6 +441,13 @@ export function LiveRouletteEngine({
     );
   };
 
+  const R = windowWidth >= 1024 ? 50 : windowWidth >= 768 ? 42 : windowWidth >= 640 ? 36 : 28;
+
+  const ballRotateKeyframes = [0, -720, -1380, -2000, -2400, -2700, -2780, -2895, -2865, -2887, -2873, -2880];
+  const ballYKeyframes = [R, R, R, R, R * 0.7, R * 0.4, R * 0.3, R * 0.1, R * 0.3, R * 0.05, R * 0.2, 0];
+  const ballScaleKeyframes = [1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 0.9, 1.25, 0.92, 1.15, 1.0];
+  const ballTimes = [0, 0.15, 0.3, 0.533, 0.62, 0.71, 0.75, 0.80, 0.83, 0.86, 0.90, 1.0];
+
   return (
     <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-white overflow-visible select-none font-sans relative">
       
@@ -511,80 +527,25 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Main Gameplay Dashboard */}
-      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start justify-center overflow-visible">
+      <div className="w-full flex flex-col gap-6 items-center justify-center overflow-visible">
         
-        {/* Left Section (Live VIP player statistics) */}
-        <div className="w-full lg:w-[200px] shrink-0 bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-3 sm:p-4 flex flex-col gap-4 shadow-xl">
-          <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2">Active VIP Players</span>
-          <div className="space-y-3">
-            {vips.map(vip => (
-              <div key={vip.id} className="bg-[#020a05]/60 border border-yellow-950/40 p-2.5 rounded-xl flex flex-col gap-1 relative">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <span className="text-lg">{vip.avatar}</span>
-                    <div className="text-left">
-                      <span className="text-xs font-black text-slate-200 block truncate max-w-[100px]">{vip.name}</span>
-                      <span className="text-[8px] text-slate-500 font-bold block uppercase">XP Level {vip.streak > 0 ? `🔥 ${vip.streak}` : "Gold"}</span>
-                    </div>
-                  </div>
-                  <span className="text-[9.5px] font-mono font-black text-yellow-500/80">
-                    ₹{(vip.balance / 1000).toFixed(0)}k
-                  </span>
-                </div>
-
-                {/* Floating winnings bubble animation */}
-                <AnimatePresence>
-                  {vip.payoutDiff !== undefined && !isSpinning && winningNumber && (
-                    <motion.div
-                      initial={{ opacity: 0, y: 5 }}
-                      animate={{ opacity: 1, y: -4 }}
-                      exit={{ opacity: 0 }}
-                      className={`text-[8.5px] font-mono font-black absolute top-1 right-2 ${
-                        vip.payoutDiff >= 0 ? "text-emerald-400" : "text-rose-500"
-                      }`}
-                    >
-                      {vip.payoutDiff >= 0 ? `+₹${vip.payoutDiff}` : `-₹${Math.abs(vip.payoutDiff)}`}
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
-          </div>
-
-          {/* Lobby Live bet ticker */}
-          <div>
-            <span className="text-[8.5px] text-yellow-600 uppercase tracking-widest font-black block border-t border-yellow-950/60 pt-3 mb-2">Live Board Feed</span>
-            <div className="bg-slate-950/70 border border-yellow-950/40 rounded-xl p-2.5 h-28 overflow-hidden">
-              <div className="space-y-1 overflow-y-auto h-full scrollbar-none">
-                {recentLiveBets.length === 0 ? (
-                  <p className="text-[8px] text-slate-600 text-center py-8 uppercase font-bold tracking-widest">Feed Standby</p>
-                ) : recentLiveBets.map((log, i) => (
-                  <div key={i} className="text-[8px] font-mono leading-tight text-slate-400 truncate">
-                    &gt; {log}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Center Section (Gameplay Arena) */}
-        <div className="flex-1 w-full flex flex-col items-center gap-5 overflow-visible">
+        {/* Top Section: Gameplay Arena (Wheel, Felt, Action buttons) */}
+        <div className="w-full flex flex-col items-center gap-5 overflow-visible">
           
           {/* Top part: The 3D Wood/Gold Roulette Wheel */}
-          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-5 flex items-center justify-center overflow-hidden relative shadow-lg">
+          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-5 sm:p-8 flex items-center justify-center overflow-hidden relative shadow-lg">
             
             {/* Emerald Radial Background light */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-emerald-500/5 rounded-full blur-[40px] pointer-events-none" />
 
-            {/* Rotated 3D Wheel Assembly */}
-            <div className="relative w-64 h-64 md:w-72 md:h-72 aspect-square flex items-center justify-center select-none perspective-[1000px]">
+            {/* Rotated 3D Wheel Assembly (Increased Size & Responsiveness) */}
+            <div className="relative w-60 h-60 xs:w-72 xs:h-72 sm:w-80 sm:h-80 md:w-[350px] md:h-[350px] lg:w-[420px] lg:h-[420px] aspect-square flex items-center justify-center select-none perspective-[1000px]">
               <div 
                 className="relative w-[90%] h-[90%] rounded-full shadow-[0_20px_45px_rgba(0,0,0,0.85)] transform-style-3d"
                 style={{ transform: "rotateX(56deg)" }}
               >
                 {/* Volumetric wood chassis */}
-                <div className="absolute -inset-5 rounded-full border-[10px] border-amber-950 shadow-[inset_0_4px_15px_rgba(0,0,0,0.9)] bg-amber-900 flex items-center justify-center">
+                <div className="absolute -inset-5 md:-inset-6 rounded-full border-[10px] md:border-[12px] border-amber-950 shadow-[inset_0_4px_15px_rgba(0,0,0,0.9)] bg-amber-900 flex items-center justify-center">
                   <div className="absolute inset-1.5 rounded-full border-2 border-yellow-500/40 shadow-[0_0_12px_rgba(234,179,8,0.15)]" />
                 </div>
                 
@@ -608,8 +569,8 @@ export function LiveRouletteEngine({
                         className="absolute top-0 left-1/2 w-6 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-0.5"
                         style={{ transform: `rotate(${angle}deg)` }}
                       >
-                        <div className={`w-5 h-7 flex items-start justify-center pt-1 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.7)]`}>
-                          <span className="text-[7.5px] font-black font-mono leading-none">
+                        <div className={`w-5 h-7 md:w-6 md:h-8.5 md:pt-1.5 flex items-start justify-center pt-1 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.7)]`}>
+                          <span className="text-[7.5px] md:text-[9.5px] font-black font-mono leading-none">
                             {num.n}
                           </span>
                         </div>
@@ -619,26 +580,49 @@ export function LiveRouletteEngine({
                   })}
                   
                   {/* Center Brass Turret */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-700 shadow-[0_0_15px_rgba(0,0,0,1)] flex items-center justify-center z-20">
-                    <div className="w-10 h-10 rounded-full bg-slate-950 border border-yellow-500/30 flex items-center justify-center shadow-inner">
-                      <span className="text-yellow-500 text-[6.5px] font-black tracking-widest uppercase">ROYALE</span>
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-700 shadow-[0_0_15px_rgba(0,0,0,1)] flex items-center justify-center z-20">
+                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-slate-950 border border-yellow-500/30 flex items-center justify-center shadow-inner">
+                      <span className="text-yellow-500 text-[6.5px] md:text-[8px] font-black tracking-widest uppercase">ROYALE</span>
                     </div>
                   </div>
                 </motion.div>
 
-                {/* Spinning Ball orbit */}
+                {/* Glassmorphic Glossy Highlight reflection ring */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-white/5 to-white/15 pointer-events-none z-10 mix-blend-overlay" />
+
+                {/* Spinning Ball orbit with drop shadow */}
                 {isSpinning && (
-                  <motion.div
-                    animate={{ rotate: ballRotation }}
-                    transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
-                    className="absolute inset-0 rounded-full pointer-events-none z-30"
-                  >
-                    <motion.div 
-                      animate={{ y: ballRadiusOffset }}
-                      transition={{ duration: 2.4, ease: "easeIn" }}
-                      className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-white shadow-[0_0_10px_rgba(255,255,255,1),inset_-1.5px_-1.5px_3px_rgba(0,0,0,0.3)]"
-                    />
-                  </motion.div>
+                  <>
+                    {/* Shadow layer */}
+                    <motion.div
+                      animate={{ rotate: ballRotateKeyframes }}
+                      transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                      className="absolute inset-0 rounded-full pointer-events-none z-20"
+                    >
+                      <motion.div 
+                        animate={{ 
+                          y: ballYKeyframes.map(y => y + 3.5),
+                          scale: ballScaleKeyframes.map(s => s * 0.95),
+                          opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
+                        }}
+                        transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                        className="absolute top-2.5 md:top-3 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-black/60 blur-[1.5px]"
+                      />
+                    </motion.div>
+
+                    {/* Ball layer */}
+                    <motion.div
+                      animate={{ rotate: ballRotateKeyframes }}
+                      transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                      className="absolute inset-0 rounded-full pointer-events-none z-30"
+                    >
+                      <motion.div 
+                        animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
+                        transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                        className="absolute top-1.5 md:top-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,1),inset_-1.5px_-1.5px_3px_rgba(0,0,0,0.3)]"
+                      />
+                    </motion.div>
+                  </>
                 )}
 
                 {/* Landed winning ball */}
@@ -650,7 +634,10 @@ export function LiveRouletteEngine({
                       className="absolute inset-0 rounded-full pointer-events-none z-30"
                       style={{ transform: `rotate(${rotation % 360}deg)` }}
                     >
-                       <div className="absolute top-4 left-1/2 -translate-x-1/2 w-3.5 h-3.5 rounded-full bg-[#fcfbf9] shadow-[0_0_8px_rgba(255,255,255,0.8),inset_-1.5px_-1.5px_3px_rgba(0,0,0,0.3)]" />
+                      {/* Landed Ball shadow */}
+                      <div className="absolute top-5 md:top-6.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-black/50 blur-[1px] z-20" />
+                      {/* Landed Ball */}
+                      <div className="absolute top-4 md:top-5.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-[#fcfbf9] shadow-[0_0_8px_rgba(255,255,255,0.8),inset_-1.5px_-1.5px_3px_rgba(0,0,0,0.3)] z-30" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -756,7 +743,7 @@ export function LiveRouletteEngine({
           </div>
 
           {/* Bottom part: Chip Presets & Action Buttons */}
-          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-2xl p-4 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-md">
+          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-2xl p-4 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-md animate-fade-in">
             
             {/* Chip selector - Styled as a luxury casino chip rack */}
             <div className="flex items-center gap-2.5 shrink-0 bg-black/35 border border-yellow-500/15 px-4 py-1.5 rounded-full shadow-inner">
@@ -844,63 +831,123 @@ export function LiveRouletteEngine({
 
         </div>
 
-        {/* Right Section (Roadmaps, Line Chart, Limits) */}
-        <div className="w-full lg:w-[220px] shrink-0 bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-3 sm:p-4 flex flex-col gap-4 shadow-xl">
+        {/* Bottom part: VIP Players and Analytics (side-by-side on lg/xl, stacked on mobile) */}
+        <div className="w-full flex flex-col lg:flex-row gap-5 items-stretch justify-center overflow-visible mt-2">
           
-          {/* Stats chart summary */}
-          <div>
-            <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2">Session Analytics</span>
-            <div className="mt-2.5 space-y-2">
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase">
-                <span>RTP return</span>
-                <span className="text-emerald-400 font-mono flex items-center gap-1">
-                  <ArrowUpRight className="w-3.5 h-3.5" /> +97.3%
-                </span>
+          {/* Left panel: Active VIP Players */}
+          <div className="flex-1 min-w-[280px] bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-4 flex flex-col justify-between gap-4 shadow-xl">
+            <div>
+              <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2 mb-3">Active VIP Players</span>
+              <div className="space-y-3">
+                {vips.map(vip => (
+                  <div key={vip.id} className="bg-[#020a05]/60 border border-yellow-950/40 p-2.5 rounded-xl flex items-center justify-between relative">
+                    <div className="flex items-center gap-2">
+                      <span className="text-lg">{vip.avatar}</span>
+                      <div className="text-left">
+                        <span className="text-xs font-black text-slate-200 block truncate max-w-[120px]">{vip.name}</span>
+                        <span className="text-[8px] text-slate-500 font-bold block uppercase">XP Level {vip.streak > 0 ? `🔥 ${vip.streak}` : "Gold"}</span>
+                      </div>
+                    </div>
+                    <span className="text-[9.5px] font-mono font-black text-yellow-500/80">
+                      ₹{(vip.balance / 1000).toFixed(0)}k
+                    </span>
+
+                    {/* Floating winnings bubble animation */}
+                    <AnimatePresence>
+                      {vip.payoutDiff !== undefined && !isSpinning && winningNumber && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 5 }}
+                          animate={{ opacity: 1, y: -4 }}
+                          exit={{ opacity: 0 }}
+                          className={`text-[8.5px] font-mono font-black absolute top-1 right-2 ${
+                            vip.payoutDiff >= 0 ? "text-emerald-400" : "text-rose-500"
+                          }`}
+                        >
+                          {vip.payoutDiff >= 0 ? `+₹${vip.payoutDiff}` : `-₹${Math.abs(vip.payoutDiff)}`}
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+                  </div>
+                ))}
               </div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase">
-                <span>Total Staked</span>
-                <span className="font-mono text-slate-200">₹{totalWagered.toLocaleString()}</span>
-              </div>
-              <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase">
-                <span>Net Profit</span>
-                <span className={`font-mono font-black ${netProfit >= 0 ? "text-emerald-400" : "text-rose-500"}`}>
-                  ₹{netProfit >= 0 ? "+" : ""}{netProfit.toLocaleString()}
-                </span>
+            </div>
+
+            {/* Lobby Live bet ticker */}
+            <div className="mt-4 border-t border-yellow-950/60 pt-3">
+              <span className="text-[8.5px] text-yellow-600 uppercase tracking-widest font-black block mb-2">Live Board Feed</span>
+              <div className="bg-slate-950/70 border border-yellow-950/40 rounded-xl p-2.5 h-28 overflow-hidden">
+                <div className="space-y-1 overflow-y-auto h-full scrollbar-none">
+                  {recentLiveBets.length === 0 ? (
+                    <p className="text-[8px] text-slate-650 text-center py-8 uppercase font-bold tracking-widest">Feed Standby</p>
+                  ) : recentLiveBets.map((log, i) => (
+                    <div key={i} className="text-[8px] font-mono leading-tight text-slate-400 truncate">
+                      &gt; {log}
+                    </div>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Hot/Cold numbers indicator */}
-          <div>
-            <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2">Hot & Cold Sectors</span>
-            <div className="mt-3 space-y-3">
-              {/* Hot numbers */}
-              <div className="flex items-center gap-2 justify-between">
-                <span className="text-[8px] text-red-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingUp className="w-3 h-3 text-red-500" /> Hot</span>
-                <div className="flex gap-1.5">
-                  {[32, 17, 15].map(n => (
-                    <span key={`hot-${n}`} className="w-5 h-5 rounded-full bg-slate-900 border border-red-500/40 text-[9px] font-mono font-black text-white flex items-center justify-center">{n}</span>
-                  ))}
+          {/* Right panel: Session Analytics & Limits */}
+          <div className="flex-1 min-w-[280px] bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-4 flex flex-col justify-between gap-4 shadow-xl">
+            
+            {/* Stats chart summary */}
+            <div>
+              <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2 mb-3">Session Analytics</span>
+              <div className="space-y-2">
+                <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase">
+                  <span>RTP return</span>
+                  <span className="text-emerald-400 font-mono flex items-center gap-1">
+                    <ArrowUpRight className="w-3.5 h-3.5" /> +97.3%
+                  </span>
                 </div>
-              </div>
-              {/* Cold numbers */}
-              <div className="flex items-center gap-2 justify-between">
-                <span className="text-[8px] text-blue-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingDown className="w-3 h-3 text-blue-500" /> Cold</span>
-                <div className="flex gap-1.5">
-                  {[0, 11, 28].map(n => (
-                    <span key={`cold-${n}`} className="w-5 h-5 rounded-full bg-slate-900 border-blue-500/30 text-[9px] font-mono font-black text-white flex items-center justify-center">{n}</span>
-                  ))}
+                <div className="flex justify-between items-center text-[10px] text-slate-450 font-bold uppercase">
+                  <span>Total Staked</span>
+                  <span className="font-mono text-slate-200">₹{totalWagered.toLocaleString()}</span>
+                </div>
+                <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase">
+                  <span>Net Profit</span>
+                  <span className={`font-mono font-black ${netProfit >= 0 ? "text-emerald-400" : "text-rose-500"}`}>
+                    ₹{netProfit >= 0 ? "+" : ""}{netProfit.toLocaleString()}
+                  </span>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Secure details lock */}
-          <div className="border border-yellow-500/10 bg-[#020a05]/50 p-3 rounded-xl">
-            <span className="text-[8px] font-black uppercase text-yellow-500/80 tracking-widest block mb-1">🛡️ SEED VERIFICATION</span>
-            <div className="text-[7.5px] font-mono text-slate-500 truncate mt-1">
-              {roundSeed}
+            {/* Hot/Cold numbers indicator */}
+            <div className="border-t border-yellow-950/60 pt-3">
+              <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block mb-2">Hot & Cold Sectors</span>
+              <div className="space-y-2">
+                {/* Hot numbers */}
+                <div className="flex items-center gap-2 justify-between">
+                  <span className="text-[8px] text-red-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingUp className="w-3 h-3 text-red-500" /> Hot</span>
+                  <div className="flex gap-1.5">
+                    {[32, 17, 15].map(n => (
+                      <span key={`hot-${n}`} className="w-5 h-5 rounded-full bg-slate-900 border border-red-500/40 text-[9px] font-mono font-black text-white flex items-center justify-center">{n}</span>
+                    ))}
+                  </div>
+                </div>
+                {/* Cold numbers */}
+                <div className="flex items-center gap-2 justify-between">
+                  <span className="text-[8px] text-blue-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingDown className="w-3 h-3 text-blue-500" /> Cold</span>
+                  <div className="flex gap-1.5">
+                    {[0, 11, 28].map(n => (
+                      <span key={`cold-${n}`} className="w-5 h-5 rounded-full bg-slate-900 border-blue-500/30 text-[9px] font-mono font-black text-white flex items-center justify-center">{n}</span>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </div>
+
+            {/* Secure details lock */}
+            <div className="border border-yellow-500/10 bg-[#020a05]/50 p-2.5 rounded-xl mt-2">
+              <span className="text-[8px] font-black uppercase text-yellow-500/80 tracking-widest block mb-1">🛡️ SEED VERIFICATION</span>
+              <div className="text-[7.5px] font-mono text-slate-500 truncate">
+                {roundSeed}
+              </div>
+            </div>
+
           </div>
 
         </div>

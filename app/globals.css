@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 @theme {
+  --breakpoint-xs: 400px;
   --color-exchange-bg: #f8f9fa;
   --color-exchange-surface: #ffffff;
   --color-exchange-text: #1e293b;
