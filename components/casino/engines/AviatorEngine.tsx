@@ -20,6 +20,8 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
   const [xPos, setXPos] = useState(0);
   const [yPos, setYPos] = useState(350);
   const [sessionId, setSessionId] = useState<string | null>(null);
+  const graphRef = useRef<HTMLDivElement>(null);
+  const [dims, setDims] = useState({ width: 600, height: 400 });
 
   const currentUser = useTradingStore(state => state.currentUser);
   const email = currentUser?.email || "admin@aurabet.io";
@@ -73,6 +75,22 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
     handleCashoutRef.current = handleCashout;
   }, [handleCashout]);
 
+  // Measure container dimensions dynamically
+  useEffect(() => {
+    if (!graphRef.current) return;
+    const updateDims = () => {
+      if (graphRef.current) {
+        setDims({
+          width: graphRef.current.clientWidth,
+          height: graphRef.current.clientHeight
+        });
+      }
+    };
+    updateDims();
+    window.addEventListener("resize", updateDims);
+    return () => window.removeEventListener("resize", updateDims);
+  }, []);
+
   useEffect(() => {
     if (!isPlaying) {
       const timer = setTimeout(() => {
@@ -80,7 +98,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
         setFled(false);
         setHasCashedOut(false);
         setXPos(0);
-        setYPos(350);
+        setYPos(dims.height * 0.85);
         setSessionId(null);
       }, 0);
       return () => clearTimeout(timer);
@@ -114,8 +132,9 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
             tick++;
             current += 0.01 + (current * 0.015);
             
-            const targetX = Math.min(300, (tick / 80) * 300);
-            const targetY = Math.max(100, 350 - (Math.log10(current) * 200));
+            const targetX = Math.min(dims.width * 0.85, (tick / 80) * dims.width * 0.85);
+            const maxFlightHeight = dims.height * 0.65;
+            const targetY = Math.max(dims.height * 0.15, dims.height * 0.85 - (Math.log10(current) * maxFlightHeight * 1.5));
 
             setXPos(targetX);
             setYPos(targetY);
@@ -155,7 +174,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
       active = false;
       if (interval) clearInterval(interval);
     };
-  }, [isPlaying, autoCashout, betAmount, email]);
+  }, [isPlaying, autoCashout, betAmount, email, dims.width, dims.height]);
 
   // Keyboard and event cashout hotkey
   useEffect(() => {
@@ -256,7 +275,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
       </div>
 
       {/* Propeller Plane Vector */}
-      <div className="absolute inset-16 z-10 pointer-events-none">
+      <div ref={graphRef} className="absolute inset-16 z-10 pointer-events-none">
         
         {/* Kinetic Shockwave vector on crash */}
         <AnimatePresence>
@@ -288,13 +307,13 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
           </defs>
           {/* Shaded area under flight path */}
           <path
-            d={`M 0,350 Q ${xPos * 0.5},${(yPos + 350) * 0.5} ${xPos},${yPos} L ${xPos},350 Z`}
+            d={`M 0,${dims.height * 0.85} Q ${xPos * 0.5},${(yPos + dims.height * 0.85) * 0.5} ${xPos},${yPos} L ${xPos},${dims.height * 0.85} Z`}
             fill="url(#aviator-curve-grad)"
             className="transition-all duration-75"
           />
           {/* Outer glow path */}
           <path
-            d={`M 0,350 Q ${xPos * 0.5},${(yPos + 350) * 0.5} ${xPos},${yPos}`}
+            d={`M 0,${dims.height * 0.85} Q ${xPos * 0.5},${(yPos + dims.height * 0.85) * 0.5} ${xPos},${yPos}`}
             fill="none"
             stroke="#e11d48"
             strokeWidth="5"
@@ -303,7 +322,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
           />
           {/* Inner core path */}
           <path
-            d={`M 0,350 Q ${xPos * 0.5},${(yPos + 350) * 0.5} ${xPos},${yPos}`}
+            d={`M 0,${dims.height * 0.85} Q ${xPos * 0.5},${(yPos + dims.height * 0.85) * 0.5} ${xPos},${yPos}`}
             fill="none"
             stroke="#ffffff"
             strokeWidth="2.5"

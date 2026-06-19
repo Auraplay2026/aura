@@ -1,9 +1,10 @@
 "use client";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { calculateGameOutcome } from "@/lib/casino-math";
 import { AlertTriangle, Crosshair } from "lucide-react";
 import { startCrashAudio, updateCrashPitch, stopCrashAudio } from "@/lib/audio";
+import { useTradingStore } from "@/lib/store";
 
 interface CrashEngineProps {
   isPlaying: boolean;
@@ -17,8 +18,14 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
   const [multiplier, setMultiplier] = useState(1.0);
   const [crashed, setCrashed] = useState(false);
   const [hasCashedOut, setHasCashedOut] = useState(false);
+  const [xPos, setXPos] = useState(0);
   const [yPos, setYPos] = useState(0); // For rocket trajectory mapping
   const graphRef = useRef<HTMLDivElement>(null);
+  const [sessionId, setSessionId] = useState<string | null>(null);
+  const [dims, setDims] = useState({ width: 600, height: 400 });
+
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "admin@aurabet.io";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -35,68 +42,145 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     onLiveTickRef.current = onLiveTick;
   }, [onLiveTick]);
 
+  const handleCashout = useCallback(async (cashoutMultiplier?: number) => {
+    if (crashed || hasCashedOut || !isPlaying || !sessionId) return;
+    const targetMultiplier = cashoutMultiplier || multiplier;
+    setHasCashedOut(true);
+    stopCrashAudio(false);
+
+    try {
+      const res = await fetch('/api/casino/mines/action', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'cashout',
+          email,
+          sessionId,
+          clientMultiplier: targetMultiplier
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success && !data.isBust) {
+        onCompleteRef.current(targetMultiplier, true);
+      } else {
+        // Crashed or server rejected
+        onCompleteRef.current(0, false);
+      }
+    } catch (err) {
+      console.error("Cashout failed", err);
+      onCompleteRef.current(0, false);
+    }
+  }, [crashed, hasCashedOut, isPlaying, sessionId, multiplier, email]);
+
+  const handleCashoutRef = useRef(handleCashout);
+  useEffect(() => {
+    handleCashoutRef.current = handleCashout;
+  }, [handleCashout]);
+
+  // Measure container dimensions dynamically
+  useEffect(() => {
+    if (!graphRef.current) return;
+    const updateDims = () => {
+      if (graphRef.current) {
+        setDims({
+          width: graphRef.current.clientWidth,
+          height: graphRef.current.clientHeight
+        });
+      }
+    };
+    updateDims();
+    window.addEventListener("resize", updateDims);
+    return () => window.removeEventListener("resize", updateDims);
+  }, []);
+
   useEffect(() => {
     if (!isPlaying) {
       setMultiplier(1.0);
       setCrashed(false);
       setHasCashedOut(false);
       setYPos(0);
+      setXPos(0);
+      setSessionId(null);
       stopCrashAudio(false);
       return;
     }
 
     startCrashAudio();
 
-    const outcome = calculateGameOutcome("CRASH");
-    const target = outcome.multiplier;
-    const willWin = outcome.isWin;
+    let active = true;
+    let interval: NodeJS.Timeout | null = null;
 
-    let current = 1.0;
-    const interval = setInterval(() => {
-      current += 0.01 + (current * 0.015);
-      updateCrashPitch(current);
-      
-      // Calculate Y position for graph (logarithmic curve simulation)
-      // Max height approx 60vh
-      const maxHeight = (graphRef.current?.clientHeight || 400) * 0.7;
-      const height = Math.min(maxHeight, Math.log10(current) * maxHeight * 1.5);
-      setYPos(height);
-      
-      if (current >= target) {
-        clearInterval(interval);
-        setMultiplier(target);
-        setCrashed(true);
-        stopCrashAudio(true);
-        // If they already cashed out manually, we don't call onComplete again here as a loss
-        if (!hasCashedOutRef.current) {
-          onCompleteRef.current(target, false);
-        }
-      } else {
-        setMultiplier(current);
-        onLiveTickRef.current?.(current);
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: "orig-1",
+            gameTitle: "Crash",
+            betAmount
+          })
+        });
+        const data = await res.json();
+        if (!active) return;
 
-        // Auto cashout check!
-        if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
-          clearInterval(interval);
-          setHasCashedOut(true);
-          stopCrashAudio(false);
-          onCompleteRef.current(current, true);
+        if (res.ok && data.success) {
+          setSessionId(data.sessionId);
+          const target = data.crashPoint;
+
+          let current = 1.0;
+          let tick = 0;
+          interval = setInterval(() => {
+            tick++;
+            current += 0.01 + (current * 0.015);
+            updateCrashPitch(current);
+
+            // Responsive flight path trajectory math
+            const targetX = Math.min(dims.width * 0.85, (tick / 120) * dims.width * 0.85);
+            const targetY = Math.min(dims.height * 0.7, Math.log10(current) * dims.height * 1.0);
+
+            setXPos(targetX);
+            setYPos(targetY);
+
+            if (current >= target) {
+              if (interval) clearInterval(interval);
+              setMultiplier(target);
+              setCrashed(true);
+              stopCrashAudio(true);
+              if (!hasCashedOutRef.current) {
+                onCompleteRef.current(target, false);
+              }
+            } else {
+              setMultiplier(current);
+              onLiveTickRef.current?.(current);
+
+              // Auto cashout check
+              if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
+                if (interval) clearInterval(interval);
+                handleCashoutRef.current(current);
+              }
+            }
+          }, 60);
+
+        } else {
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
         }
+      } catch (err) {
+        console.error("Crash bet initiation failed", err);
+        onCompleteRef.current(0, false);
       }
-    }, 50);
+    };
+
+    executeBet();
 
     return () => {
-      clearInterval(interval);
+      active = false;
+      if (interval) clearInterval(interval);
       stopCrashAudio(false);
     };
-  }, [isPlaying, autoCashout]);
-
-  const handleCashout = () => {
-    if (crashed || hasCashedOut || !isPlaying) return;
-    setHasCashedOut(true);
-    stopCrashAudio(false);
-    onCompleteRef.current(multiplier, true);
-  };
+  }, [isPlaying, autoCashout, betAmount, email, dims.width, dims.height]);
 
   // Keyboard and event cashout hotkey
   useEffect(() => {
@@ -208,7 +292,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
             className="hidden md:block absolute bottom-8 z-50 w-[90%] max-w-[300px]"
           >
             <button
-              onClick={handleCashout}
+              onClick={() => handleCashout()}
               className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95"
             >
               <span>Cashout</span>
@@ -224,7 +308,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         {/* Trajectory Line (SVG) */}
         <svg className="absolute inset-0 w-full h-full overflow-visible">
           <motion.path 
-            d={`M 0,${graphRef.current?.clientHeight || 400} Q ${isPlaying ? 200 : 0},${(graphRef.current?.clientHeight || 400) - yPos} ${isPlaying ? 400 : 0},${(graphRef.current?.clientHeight || 400) - yPos}`}
+            d={`M 0,${dims.height} Q ${xPos * 0.55},${dims.height - yPos * 0.25} ${xPos},${dims.height - yPos}`}
             fill="none" 
             stroke={crashed ? "#ef4444" : "#10b981"} 
             strokeWidth="4" 
@@ -242,7 +326,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
             <motion.div 
               className="absolute w-20 h-40 -ml-10 -mt-20"
               initial={{ left: 0, bottom: 0 }}
-              animate={{ left: "400px", bottom: `${yPos}px`, rotate: 45 }}
+              animate={{ left: `${xPos}px`, bottom: `${yPos}px`, rotate: 35 }}
               transition={{ ease: "linear", duration: 0.1 }}
             >
               <motion.div animate={{ y: [-2, 2, -2], x: [-1, 1, -1] }} transition={{ repeat: Infinity, duration: 0.05 }} className="w-full h-full relative">
@@ -284,7 +368,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
               animate={{ scale: [0, 3, 4], opacity: [1, 1, 0] }}
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="absolute w-64 h-64 -ml-32 -mb-32 rounded-full mix-blend-screen"
-              style={{ left: "400px", bottom: `${yPos}px`, background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(239,68,68,1) 30%, rgba(0,0,0,0) 70%)" }}
+              style={{ left: `${xPos}px`, bottom: `${yPos}px`, background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(239,68,68,1) 30%, rgba(0,0,0,0) 70%)" }}
             />
           )}
         </AnimatePresence>

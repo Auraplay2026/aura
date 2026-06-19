@@ -956,7 +956,7 @@ export default function GamePlayerPage() {
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {
       if (game.id === "orig-1" || game.title.toLowerCase() === "crash") {
-        return <ClassicCrashEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
+        return <CrashEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
       }
       if (game.id === "crash-1" || game.title.toLowerCase().includes("aviator") || game.title.toLowerCase().includes("aviamasters")) {
         return <AviatorEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
