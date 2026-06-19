@@ -136,6 +136,33 @@ const GAME_CONFIGS: Record<string, {
       const rand = Math.random();
       return rand < 0.48 ? "R" : rand < 0.96 ? "B" : "Z";
     }
+  },
+  "poker-1": { // Texas Hold'em Bonus
+    label: "Texas Hold'em Bonus",
+    targets: [
+      { id: "ante", name: "Ante Bet", odds: 2.00, color: "bg-white border-[#E2E8F0] text-[#0F172A]" },
+      { id: "bonus", name: "Bonus Bet", odds: 8.50, color: "bg-white border-[#E2E8F0] text-[#0F172A]" },
+      { id: "flop_bet", name: "Flop Bet", odds: 2.00, color: "bg-white border-[#E2E8F0] text-[#0F172A]" }
+    ],
+    historyGenerator: () => Math.random() > 0.52 ? "P" : "D"
+  },
+  "poker-3": { // Triple Card Poker
+    label: "Triple Card Poker",
+    targets: [
+      { id: "ante", name: "Ante", odds: 2.00, color: "bg-white border-[#E2E8F0] text-[#0F172A]" },
+      { id: "pair_plus", name: "Pair Plus", odds: 5.50, color: "bg-white border-[#E2E8F0] text-[#0F172A]" },
+      { id: "six_card", name: "6 Card Bonus", odds: 15.00, color: "bg-white border-[#E2E8F0] text-[#0F172A]" }
+    ],
+    historyGenerator: () => Math.random() > 0.5 ? "P" : "D"
+  },
+  "poker-4": { // Gold Bar Poker Deluxe
+    label: "Gold Bar Poker Deluxe",
+    targets: [
+      { id: "ante", name: "Ante", odds: 2.00, color: "bg-white border-[#E2E8F0] text-[#0F172A]" },
+      { id: "gold_bar", name: "Gold Bar Bonus", odds: 3.50, color: "bg-white border-[#E2E8F0] text-[#0F172A]" },
+      { id: "royal_flush", name: "Royal Flush Spec", odds: 35.00, color: "bg-white border-[#E2E8F0] text-[#0F172A]" }
+    ],
+    historyGenerator: () => Math.random() > 0.6 ? "G" : "D"
   }
 };
 
@@ -301,9 +328,36 @@ const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolea
         base,
         isSelected
           ? "bg-gradient-to-b from-emerald-900/85 to-emerald-950/95 border-emerald-500 ring-4 ring-emerald-500/30 shadow-[0_0_25px_rgba(16,185,129,0.45)]"
-          : "bg-gradient-to-b from-emerald-950/50 to-emerald-900/50 border-emerald-950/60 hover:border-emerald-500/50 hover:bg-emerald-900/55"
+          : "bg-gradient-to-b from-emerald-955/50 to-emerald-900/50 border-emerald-950/60 hover:border-emerald-500/50 hover:bg-emerald-900/55"
       );
     }
+  }
+
+  // Specialized styles for Poker Games (poker-1, poker-3, poker-4)
+  if (gameId.startsWith("poker-")) {
+    if (targetId === "ante") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-amber-900/85 to-amber-955/95 border-amber-500 ring-4 ring-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.45)]"
+          : "bg-gradient-to-b from-slate-950/55 to-slate-900/55 border-slate-800/60 hover:border-amber-500/50 hover:bg-slate-900/50"
+      );
+    }
+    if (targetId === "bonus" || targetId === "pair_plus" || targetId === "gold_bar") {
+      return cn(
+        base,
+        isSelected
+          ? "bg-gradient-to-b from-rose-900/85 to-rose-950/95 border-rose-500 ring-4 ring-rose-500/30 shadow-[0_0_25px_rgba(244,63,94,0.45)]"
+          : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-800/60 hover:border-rose-500/50 hover:bg-slate-900/50"
+      );
+    }
+    // side bets (flop_bet, six_card, royal_flush)
+    return cn(
+      base,
+      isSelected
+        ? "bg-gradient-to-b from-purple-900/85 to-purple-955/95 border-purple-500 ring-4 ring-purple-500/30 shadow-[0_0_25px_rgba(168,85,247,0.45)]"
+        : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-800/60 hover:border-purple-500/50 hover:bg-slate-900/50"
+    );
   }
 
   // Default theme fallback (e.g. Teen Patti Player A/B, etc.)
@@ -335,6 +389,31 @@ const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolea
 // Premium background SVG silhouettes representing themed betting icons
 const renderBetIcon = (targetId: string, gameId: string) => {
   const iconClass = "absolute right-2.5 bottom-2 w-14 h-14 pointer-events-none transform -rotate-12 transition-all duration-700 group-hover:scale-115 group-hover:-rotate-6 text-white/[0.07] group-hover:text-white/[0.12]";
+
+  if (gameId.startsWith("poker-")) {
+    if (targetId === "ante") {
+      // Spade icon
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 2C9 7 4 9 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8c0-5-5-7-8-12z" />
+        </svg>
+      );
+    }
+    if (targetId === "bonus" || targetId === "pair_plus" || targetId === "gold_bar") {
+      // Heart icon
+      return (
+        <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+          <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z" />
+        </svg>
+      );
+    }
+    // Diamond icon
+    return (
+      <svg className={iconClass} fill="currentColor" viewBox="0 0 24 24">
+        <path d="M12 2L2 12l10 10 10-10L12 2z" />
+      </svg>
+    );
+  }
 
   if (gameId.startsWith("royal-6")) {
     // Dragon Tiger
@@ -554,7 +633,7 @@ const drawSingleChip = (
     const label = value >= 1000 ? `${value / 1000}K` : `${value}`;
     ctx.fillText(label, 0, 0);
 
-  } else if (gameId.startsWith("royal-7")) {
+  } else if (gameId.startsWith("royal-7") || gameId.startsWith("poker-")) {
     // ----------------------------------------------------
     // CLAY MONTE CARLO CLASSIC THEME (European Roulette)
     // ----------------------------------------------------
@@ -1155,7 +1234,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       ctx.font = `900 ${isMobile ? '6px' : '7.5px'} sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      const card1Label = configKey.startsWith("royal-6") ? "DRAGON" : (configKey.startsWith("royal-3") ? "ANDAR" : "PLAYER A");
+      const card1Label = configKey.startsWith("royal-6") ? "DRAGON" : (configKey.startsWith("royal-3") ? "ANDAR" : (configKey.startsWith("poker-") ? "PLAYER" : "PLAYER A"));
       ctx.fillText(card1Label, slot1X + cardSlotWidth / 2, slotY + cardSlotHeight / 2);
 
       // Right Slot (Card 2)
@@ -1175,7 +1254,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       ctx.font = `900 ${isMobile ? '6px' : '7.5px'} sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
-      const card2Label = configKey.startsWith("royal-6") ? "TIGER" : (configKey.startsWith("royal-3") ? "BAHAR" : "PLAYER B");
+      const card2Label = configKey.startsWith("royal-6") ? "TIGER" : (configKey.startsWith("royal-3") ? "BAHAR" : (configKey.startsWith("poker-") ? "DEALER" : "PLAYER B"));
       ctx.fillText(card2Label, slot2X + cardSlotWidth / 2, slotY + cardSlotHeight / 2);
 
       // 1. Update and Render Particles (Ripples, Sparks, Coins)

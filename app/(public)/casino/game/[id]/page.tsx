@@ -441,6 +441,11 @@ export default function GamePlayerPage() {
 
   const game = GAMES.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === id.toLowerCase() || g.id.toLowerCase() === id.toLowerCase());
 
+  const isRoyalEngine = useMemo(() => {
+    if (!game) return false;
+    return game.id.startsWith("royal-") || game.provider === "Royal Gaming" || ["poker-1", "poker-3", "poker-4"].includes(game.id);
+  }, [game]);
+
   const theme = useMemo(() => {
     if (!game) return getProceduralTheme(id);
     const titleKey = game.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -924,7 +929,7 @@ export default function GamePlayerPage() {
     }
     // === TABLE / CARD GAMES ===
     if (game.categories.includes("poker") || game.categories.includes("table") || game.id.includes("blackjack") || game.id.includes("poker")) {
-      if (game.id.startsWith("royal-") || game.provider === "Royal Gaming") {
+      if (isRoyalEngine) {
         return <RoyalGamingEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
       if (game.id.includes("blackjack") || game.title.toLowerCase().includes("blackjack") || game.id === "orig-8") {
@@ -1187,7 +1192,7 @@ export default function GamePlayerPage() {
                   <div className="relative z-10 w-full flex-1 flex flex-col md:flex-row min-h-0">
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
-                    {tutorialDismissed && !game.id.startsWith("royal-") && game.provider !== "Royal Gaming" && (
+                    {tutorialDismissed && !isRoyalEngine && (
                       <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)] h-auto md:h-full overflow-visible">
                         {isCloudRenting ? (
                           <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
@@ -1529,7 +1534,7 @@ export default function GamePlayerPage() {
                               </div>
 
                               {/* Session Analytics */}
-                              {!isCloudRenting && !game.id.startsWith("royal-") && game.provider !== "Royal Gaming" && (
+                              {!isCloudRenting && !isRoyalEngine && (
                                 <div className="border-t border-slate-200 pt-3 flex flex-col gap-2 shrink-0">
                                   <button
                                     type="button"
@@ -1624,11 +1629,11 @@ export default function GamePlayerPage() {
                     {/* RIGHT AREA (Game Canvas) */}
                     <div className={cn(
                       "h-[580px] sm:h-[600px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
-                      (game.id.startsWith("royal-") || game.provider === "Royal Gaming") ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
+                      isRoyalEngine ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
                     )}>
                       
                       {/* Header Overlay */}
-                      {!game.id.startsWith("royal-") && game.provider !== "Royal Gaming" && (
+                      {!isRoyalEngine && (
                         <div className="w-full flex justify-between items-center z-20 mb-4 bg-white/5 backdrop-blur-md border border-white/10 p-2 md:p-3 rounded-2xl shadow-xl">
                           <div className="flex items-center gap-3">
                             <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover shadow-md shrink-0 border border-white/10" />
@@ -1685,7 +1690,7 @@ export default function GamePlayerPage() {
                         
                         <div className={cn(
                           "flex-1 flex items-center justify-center relative",
-                          (game.id.startsWith("royal-") || game.provider === "Royal Gaming") ? "bg-transparent border-none" : "bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+                          isRoyalEngine ? "bg-transparent border-none" : "bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
                         )}>
                           {!isCloudRenting ? (
                             <div className="relative w-full h-full flex items-center justify-center">
@@ -1895,7 +1900,7 @@ export default function GamePlayerPage() {
           </motion.div>
 
           {/* Detailed Leaderboard & Scoreboards — Premium Mobile-First GPU-Accelerated */}
-          {!game.id.startsWith("royal-") && game.provider !== "Royal Gaming" && (() => {
+          {!isRoyalEngine && (() => {
             const isCrash = game.categories.includes("crash") || game.title.toLowerCase().includes("aviator") || game.id.includes("crash") || game.id === "aviator";
             const rankBadge = (idx: number) => {
               if (idx === 0) return { bg: "from-amber-400 to-yellow-600", text: "text-amber-950", glow: "shadow-[0_0_20px_rgba(251,191,36,0.5)]", label: "#1" };
