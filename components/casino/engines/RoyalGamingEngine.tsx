@@ -904,30 +904,30 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
   // Dynamic Ambient Felt Spotlight styles linked to game phases
   const getFeltContainerClass = () => {
-    const base = "relative aspect-video w-full rounded-3xl flex flex-col justify-between p-3 overflow-hidden transform-gpu transition-all duration-1000 ease-in-out";
+    const base = "relative aspect-video w-full rounded-[2rem] sm:rounded-[2.5rem] flex flex-col justify-between p-3 overflow-hidden transform-gpu transition-all duration-1000 ease-in-out border-[10px]";
     
     if (phase === 'open') {
       if (countdown <= 4) {
         // Tense red-alert spotlight when betting time is about to close
-        return cn(base, "bg-[radial-gradient(circle_at_center,_#3b1111_0%,_#1c0808_100%)] border-[8px] border-rose-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_0_20px_rgba(239,68,68,0.2)]");
+        return cn(base, "bg-[radial-gradient(circle_at_center,_#3b1111_0%,_#1c0808_100%)] border-rose-900 ring-2 ring-red-500/20 shadow-[inset_0_0_60px_rgba(0,0,0,0.95),_0_0_20px_rgba(239,68,68,0.2)]");
       }
-      // Classic deep emerald casino felt with mahogany wood rail
-      return cn(base, "bg-[radial-gradient(circle_at_center,_#0f3a24_0%,_#051c11_100%)] border-[8px] border-[#2C130B] shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_12px_28px_rgba(0,0,0,0.55)]");
+      // Classic deep emerald casino felt with mahogany wood rail and gold accent ring
+      return cn(base, "bg-[radial-gradient(circle_at_center,_#14532d_0%,_#052e16_50%,_#02180b_100%)] border-[#25100a] ring-2 ring-amber-500/30 shadow-[inset_0_0_60px_rgba(0,0,0,0.95),_0_20px_45px_-10px_rgba(0,0,0,0.7)]");
     }
     if (phase === 'closed') {
       // Focused obsidian slate for card reveals
-      return cn(base, "bg-[radial-gradient(circle_at_center,_#1a2333_0%,_#0a0e14_100%)] border-[8px] border-slate-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.95)]");
+      return cn(base, "bg-[radial-gradient(circle_at_center,_#1e1b4b_0%,_#0f172a_60%,_#020617_100%)] border-slate-900 ring-2 ring-indigo-500/30 shadow-[inset_0_0_60px_rgba(0,0,0,0.95)]");
     }
     if (phase === 'settled') {
       const isWin = payoutOverlay.won;
       if (isWin) {
         // Victory gold/emerald pulse spotlight
-        return cn(base, "bg-[radial-gradient(circle_at_center,_#165034_0%,_#081c12_100%)] border-[8px] border-emerald-900 shadow-[inset_0_0_50px_rgba(0,0,0,0.95),_0_0_30px_rgba(16,185,129,0.3)]");
+        return cn(base, "bg-[radial-gradient(circle_at_center,_#065f46_0%,_#022c22_50%,_#011510_100%)] border-emerald-950 ring-2 ring-emerald-400/40 shadow-[inset_0_0_60px_rgba(0,0,0,0.95),_0_0_30px_rgba(16,185,129,0.25)]");
       }
       // Default settle
-      return cn(base, "bg-[radial-gradient(circle_at_center,_#111622_0%,_#070a0f_100%)] border-[8px] border-slate-950 shadow-[inset_0_0_50px_rgba(0,0,0,0.95)]");
+      return cn(base, "bg-[radial-gradient(circle_at_center,_#1e293b_0%,_#0f172a_60%,_#020617_100%)] border-slate-950 ring-2 ring-slate-800/30 shadow-[inset_0_0_60px_rgba(0,0,0,0.95)]");
     }
-    return cn(base, "bg-[radial-gradient(circle_at_center,_#0f3a24_0%,_#051c11_100%)] border-[8px] border-[#2C130B]");
+    return cn(base, "bg-[radial-gradient(circle_at_center,_#14532d_0%,_#052e16_50%,_#02180b_100%)] border-[#25100a] ring-2 ring-amber-500/30");
   };
 
   // New live WebRTC and gamification overlay states
@@ -1120,19 +1120,39 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       const cardSlotHeight = isMobile ? 46 : (isTablet ? 53 : 58);
       const slotY = isMobile ? canvas.clientHeight * 0.23 : (isTablet ? canvas.clientHeight * 0.26 : canvas.clientHeight * 0.28);
       
+      // Draw a gold metallic crest in the center behind the dealer cards
+      ctx.save();
+      ctx.translate(canvas.clientWidth * 0.5, canvas.clientHeight * 0.45);
+      ctx.strokeStyle = "rgba(245, 158, 11, 0.08)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, isMobile ? 36 : 54, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, isMobile ? 32 : 48, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.fillStyle = "rgba(245, 158, 11, 0.06)";
+      ctx.font = isMobile ? "9px serif" : "14px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText("★ ★ ★", 0, 0);
+      ctx.restore();
+
       // Left Slot (Card 1)
       const slot1X = canvas.clientWidth * 0.5 - cardSlotWidth - (isMobile ? 8 : 12);
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
+      ctx.save();
+      ctx.strokeStyle = phase === 'open' && countdown <= 4 ? "rgba(239, 68, 68, 0.35)" : "rgba(245, 158, 11, 0.3)";
+      ctx.lineWidth = isMobile ? 1.5 : 2;
+      ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
       ctx.beginPath();
-      ctx.roundRect(slot1X, slotY, cardSlotWidth, cardSlotHeight, 4);
+      ctx.roundRect(slot1X, slotY, cardSlotWidth, cardSlotHeight, isMobile ? 4 : 6);
+      ctx.fill();
       ctx.stroke();
-      ctx.setLineDash([]);
+      ctx.restore();
       
       // Label Card 1
-      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.font = `900 ${isMobile ? '5.5px' : '6.5px'} sans-serif`;
+      ctx.fillStyle = "rgba(245, 158, 11, 0.5)";
+      ctx.font = `900 ${isMobile ? '6px' : '7.5px'} sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const card1Label = configKey.startsWith("royal-6") ? "DRAGON" : (configKey.startsWith("royal-3") ? "ANDAR" : "PLAYER A");
@@ -1140,17 +1160,19 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
 
       // Right Slot (Card 2)
       const slot2X = canvas.clientWidth * 0.5 + (isMobile ? 8 : 12);
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.12)";
-      ctx.lineWidth = 1;
-      ctx.setLineDash([3, 3]);
+      ctx.save();
+      ctx.strokeStyle = phase === 'open' && countdown <= 4 ? "rgba(239, 68, 68, 0.35)" : "rgba(245, 158, 11, 0.3)";
+      ctx.lineWidth = isMobile ? 1.5 : 2;
+      ctx.fillStyle = "rgba(0, 0, 0, 0.4)";
       ctx.beginPath();
-      ctx.roundRect(slot2X, slotY, cardSlotWidth, cardSlotHeight, 4);
+      ctx.roundRect(slot2X, slotY, cardSlotWidth, cardSlotHeight, isMobile ? 4 : 6);
+      ctx.fill();
       ctx.stroke();
-      ctx.setLineDash([]);
+      ctx.restore();
       
       // Label Card 2
-      ctx.fillStyle = "rgba(255, 255, 255, 0.25)";
-      ctx.font = `900 ${isMobile ? '5.5px' : '6.5px'} sans-serif`;
+      ctx.fillStyle = "rgba(245, 158, 11, 0.5)";
+      ctx.font = `900 ${isMobile ? '6px' : '7.5px'} sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
       const card2Label = configKey.startsWith("royal-6") ? "TIGER" : (configKey.startsWith("royal-3") ? "BAHAR" : "PLAYER B");
@@ -1426,7 +1448,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
             });
 
             const netProfit = totalPayout - totalWager;
-            const didWin = totalPayout > 0;
+            const didWin = netProfit > 0;
 
             // Adjust internal reporting to prevent double-wagering of sidebar bet
             let wagerToReport = totalWager;
@@ -1852,27 +1874,31 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
             style={{ transform: 'translateZ(0)', backfaceVisibility: 'hidden', willChange: "transform, opacity" }}
           />
 
+          {/* Holographic grid scanline overlay for futuristic photographic live broadcast blend */}
+          <div className="absolute inset-0 z-5 pointer-events-none opacity-[0.04] bg-[linear-gradient(to_bottom,rgba(255,255,255,0)_95%,rgba(255,255,255,1)_95%)] bg-[size:100%_4px]" />
+          <div className="absolute inset-0 z-8 pointer-events-none shadow-[inset_0_0_80px_rgba(0,0,0,0.8)]" />
+
           {/* 2D Interactive Canvas Overlay (Click-through visual chips layer) */}
           <canvas
             ref={canvasRef}
             className="absolute inset-0 w-full h-full pointer-events-none z-10"
           />
 
-          {/* Sequential Live Dealer Physical Card Reveals */}
-          <div className="absolute inset-0 pointer-events-none z-15 flex items-center justify-center gap-2 sm:gap-4">
+          {/* Sequential Live Dealer Physical Card Reveals (Aligned with Felt Slots) */}
+          <div className="absolute left-1/2 -translate-x-1/2 flex z-15 pointer-events-none top-[23%] sm:top-[26%] md:top-[28%] gap-[16px] sm:gap-[24px]">
             {dealerCards.map((card) => (
               <motion.div
                 key={card.id}
                 initial={{ x: 150, y: -200, scale: 0, rotate: 180 }}
                 animate={{ x: 0, y: 0, scale: 1, rotate: 0 }}
                 transition={{ type: "spring", stiffness: 100, damping: 13 }}
-                className="w-10 h-14 sm:w-14 sm:h-20 bg-white rounded-lg shadow-2xl flex flex-col justify-between p-1 sm:p-1.5 border border-slate-200 font-mono text-[9px] sm:text-xs font-black select-none text-slate-900 animate-in fade-in duration-300"
+                className="w-[36px] h-[52px] sm:w-[44px] sm:h-[62px] md:w-[52px] md:h-[72px] bg-gradient-to-b from-white to-slate-50 rounded shadow-[0_12px_28px_rgba(0,0,0,0.5),_0_2px_4px_rgba(0,0,0,0.3)] flex flex-col justify-between p-1 sm:p-1.5 border-[1.5px] border-amber-500/20 font-mono font-black select-none text-slate-900 animate-in fade-in duration-300"
               >
-                <div className="flex justify-between items-start leading-none">
-                  <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900'}>{card.val}</span>
+                <div className="flex justify-between items-start leading-none text-[9px] sm:text-[10px] md:text-[11px]">
+                  <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600 font-bold' : 'text-slate-900 font-bold'}>{card.val}</span>
                   <span className={card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900'}>{card.suit}</span>
                 </div>
-                <div className={cn("text-lg sm:text-2xl text-center leading-none", card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900')}>
+                <div className={cn("text-center leading-none text-[14px] sm:text-[18px] md:text-[22px] mb-0.5", card.suit === '♥' || card.suit === '♦' ? 'text-rose-600' : 'text-slate-900')}>
                   {card.suit}
                 </div>
               </motion.div>
@@ -2069,11 +2095,17 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
                   {payoutOverlay.active && (
                     <div className={cn(
                       "px-4 py-1.5 rounded-sm font-black text-xs uppercase shadow-lg border leading-none mt-1.5",
-                      payoutOverlay.won 
-                        ? "bg-emerald-950/80 border-emerald-500/30 text-emerald-300" 
-                        : "bg-rose-950/80 border-rose-500/30 text-rose-300"
+                      payoutOverlay.profit === 0
+                        ? "bg-slate-800/80 border-slate-700/30 text-slate-350"
+                        : payoutOverlay.won 
+                          ? "bg-emerald-950/80 border-emerald-500/30 text-emerald-300" 
+                          : "bg-rose-950/80 border-rose-500/30 text-rose-300"
                     )}>
-                      {payoutOverlay.won ? `Payout: +₹${payoutOverlay.profit}` : `Settled: -₹${Math.abs(payoutOverlay.profit)}`}
+                      {payoutOverlay.profit === 0 
+                        ? "Push: ₹0" 
+                        : payoutOverlay.won 
+                          ? `Payout: +₹${payoutOverlay.profit.toLocaleString('en-IN')}` 
+                          : `Settled: -₹${Math.abs(payoutOverlay.profit).toLocaleString('en-IN')}`}
                     </div>
                   )}
                 </motion.div>
@@ -2102,6 +2134,7 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
           {currentConfig.targets.map(target => {
             const activeWager = bets[target.id] || 0;
             const isWinner = phase === 'settled' && roundWinner === target.id;
+            const isSelected = selectedTarget === target.id;
             
             return (
               <button
@@ -2111,22 +2144,27 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
                   handleBetPlacement(target.id, e);
                 }}
                 className={cn(
-                  "border rounded-sm p-2.5 sm:p-3.5 flex flex-col justify-between items-center transition-all relative overflow-hidden h-[72px] sm:h-[86px] text-[#0F172A] hover:border-slate-450",
-                  selectedTarget === target.id ? "bg-red-50/50 border-red-500 ring-2 ring-red-500/20 shadow-md font-black" : "bg-white border-slate-200",
+                  getBetButtonStyles(target.id, configKey, isSelected, activeWager > 0),
+                  "h-[72px] sm:h-[86px] rounded-xl border border-white/10 shadow-lg text-white font-sans",
                   isWinner && "ring-4 ring-emerald-500 scale-102 font-black",
                   phase !== 'open' && "opacity-85"
                 )}
               >
-                <div className="flex justify-between items-center w-full">
-                  <span className="text-xs font-black uppercase tracking-wider text-slate-800">{target.name}</span>
-                  <span className="text-[10px] font-bold text-slate-500 font-mono">x{target.odds.toFixed(2)}</span>
+                {/* Iconic Background Silhouette Icon */}
+                {renderBetIcon(target.id, configKey)}
+
+                <div className="flex justify-between items-center w-full leading-none z-10">
+                  <span className="text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-100">{target.name}</span>
+                  <span className="text-[9px] sm:text-[10px] font-black text-amber-300 font-mono">x{target.odds.toFixed(2)}</span>
                 </div>
                 
                 <span className={cn(
-                  "text-[9px] font-extrabold uppercase tracking-widest leading-none mb-1",
-                  activeWager > 0 ? "text-[#E11D48]" : "text-slate-400"
+                  "text-[9px] sm:text-[10px] font-mono font-black uppercase tracking-widest leading-none z-10 mb-1",
+                  activeWager > 0 
+                    ? "text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)] animate-pulse" 
+                    : "text-white/40"
                 )}>
-                  {activeWager > 0 ? `Bet: ₹${activeWager.toLocaleString('en-IN')}` : "BET HERE"}
+                  {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "BET HERE"}
                 </span>
               </button>
             );
