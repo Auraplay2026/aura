@@ -200,7 +200,7 @@ function TokenPiece({ color, size = "medium" }: { color: PlayerColor; size?: "sm
   );
 }
 
-function DiceFace({ value, isRolling }: { value: number; isRolling: boolean }) {
+function DiceFace({ value, isRolling, isActive = false }: { value: number; isRolling: boolean; isActive?: boolean }) {
   const diceDots: Record<number, number[]> = {
     1: [4],
     2: [0, 8],
@@ -211,22 +211,78 @@ function DiceFace({ value, isRolling }: { value: number; isRolling: boolean }) {
   };
 
   return (
-    <div className="w-14 h-14 relative perspective-[300px]">
+    <div className="w-14 h-14 relative flex items-center justify-center select-none overflow-visible">
+      {/* 3D Pedestal Shadow Glow below the dice */}
+      <AnimatePresence>
+        {isActive && !isRolling && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{
+              opacity: [0.35, 0.7, 0.35],
+              scale: [0.8, 1.15, 0.8],
+            }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{
+              repeat: Infinity,
+              duration: 2,
+              ease: "easeInOut"
+}}
+            className="absolute bottom-[-10px] w-11 h-2 bg-gradient-to-r from-amber-500 to-amber-600 rounded-full blur-[4px] pointer-events-none z-0"
+          />
+        )}
+      </AnimatePresence>
+
       <motion.div
         animate={isRolling ? {
-          rotateX: [0, 360, 720],
-          rotateY: [0, 360, 720],
-          rotateZ: [0, 180, 360],
+          rotateX: [0, 360, 720, 1080],
+          rotateY: [0, 270, 630, 900],
+          rotateZ: [0, 90, 270, 360],
+          y: [0, -35, 12, -4, 0],
+          x: [0, -8, 6, -2, 0],
+          scale: [1, 1.25, 0.8, 1.08, 0.95, 1],
+          filter: ["blur(0px)", "blur(2.5px)", "blur(1.2px)", "blur(0.3px)", "blur(0px)"],
+        } : isActive ? {
+          y: [0, -7, 0],
+          rotateX: [0, 2, -2, 0],
+          rotateY: [0, -4, 4, 0],
+          rotateZ: [0, 1.5, -1.5, 0],
+          scale: 1,
+          filter: "blur(0px)",
         } : {
+          y: 0,
           rotateX: 0,
           rotateY: 0,
           rotateZ: 0,
+          scale: 1,
+          filter: "blur(0px)",
         }}
-        transition={isRolling ? { duration: 0.8, ease: "easeInOut" } : { duration: 0.3 }}
-        className="w-full h-full bg-[#121b28] border border-slate-700/60 rounded-2xl flex items-center justify-center p-3.5 relative shadow-[0_12px_30px_rgba(0,0,0,0.7),inset_0_1px_1px_rgba(255,255,255,0.08)]"
+        transition={isRolling ? { 
+          duration: 0.85, 
+          ease: [0.25, 0.46, 0.45, 0.94] 
+        } : isActive ? {
+          repeat: Infinity,
+          duration: 2,
+          ease: "easeInOut"
+        } : { 
+          duration: 0.25 
+        }}
+        className={`w-full h-full border rounded-2xl flex items-center justify-center p-3 relative transition-all duration-300 z-10 ${
+          isRolling
+            ? "border-red-400/90 bg-gradient-to-br from-rose-500 via-red-650 to-red-800 shadow-[0_12px_30px_rgba(220,38,38,0.65),0_0_20px_rgba(239,68,68,0.4)]"
+            : isActive
+              ? "border-amber-400 bg-gradient-to-br from-rose-500 via-red-650 to-red-800 shadow-[0_0_22px_rgba(245,158,11,0.6),0_6px_18px_rgba(220,38,38,0.35),inset_0_0_12px_rgba(251,191,36,0.35)] cursor-pointer hover:border-amber-300 hover:brightness-110 active:scale-95"
+              : "border-slate-800/80 bg-gradient-to-br from-rose-650/80 via-red-750/80 to-red-900/90 shadow-[0_4px_10px_rgba(0,0,0,0.6)] opacity-85"
+        }`}
         style={{ transformStyle: "preserve-3d" }}
       >
-        <div className="grid grid-cols-3 grid-rows-3 gap-1.5 w-8 h-8">
+        {/* Glassy diagonal sheer reflection layer */}
+        <div className="absolute inset-0.5 rounded-[14px] bg-gradient-to-tr from-white/0 via-white/8 to-white/25 pointer-events-none z-10" />
+
+        {/* Outer/Inner bevel borders */}
+        <div className="absolute inset-1 rounded-[12px] border border-white/10 pointer-events-none z-10" />
+
+        {/* 3D Recessed Ivory Pips */}
+        <div className="grid grid-cols-3 grid-rows-3 gap-1.5 w-8 h-8 z-20">
           {Array.from({ length: 9 }).map((_, i) => {
             const hasDot = diceDots[value]?.includes(i);
             return (
@@ -234,7 +290,7 @@ function DiceFace({ value, isRolling }: { value: number; isRolling: boolean }) {
                 {hasDot && (
                   <motion.div
                     layoutId={`dot-${i}`}
-                    className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_8px_#fbbf24]"
+                    className="w-2.5 h-2.5 rounded-full bg-[#fbfcf7] border border-black/10 shadow-[inset_0_1.5px_2px_rgba(0,0,0,0.85),0_0.8px_1px_rgba(255,255,255,0.4)]"
                   />
                 )}
               </div>
@@ -879,7 +935,11 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
           {/* Mobile Dice Action Bar (Visible only on mobile right below board) */}
           <div className="w-full md:hidden mt-3 bg-[#121b28]/90 border border-slate-700/30 backdrop-blur-md rounded-2xl p-3 flex items-center justify-between gap-4 shadow-xl">
             <div className="flex items-center gap-3">
-              <DiceFace value={displayDice} isRolling={isRolling} />
+              <DiceFace 
+                value={displayDice} 
+                isRolling={isRolling} 
+                isActive={currentPlayer?.isHuman && gamePhase === "playing" && !winner}
+              />
               {dice > 0 && !isRolling && (
                 <div className="text-left">
                   <span className="text-[8px] text-slate-500 uppercase tracking-widest font-black block">Rolled</span>
@@ -941,7 +1001,11 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
             {/* Dice Control Box */}
             <div className="flex items-center justify-between bg-slate-950/40 border border-slate-800/50 p-4 rounded-2xl gap-4">
               <div className="flex items-center gap-4">
-                <DiceFace value={displayDice} isRolling={isRolling} />
+                <DiceFace 
+                  value={displayDice} 
+                  isRolling={isRolling} 
+                  isActive={currentPlayer?.isHuman && gamePhase === "playing" && !winner}
+                />
                 {dice > 0 && !isRolling && (
                   <div className="text-left">
                     <span className="text-[9px] text-slate-500 uppercase tracking-widest font-black block">Rolled</span>
