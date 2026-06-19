@@ -22,6 +22,7 @@ import { BaccaratEngine } from "@/components/casino/engines/BaccaratEngine";
 import { CardEngine } from "@/components/casino/engines/CardEngine";
 import { ArcadeEngine } from "@/components/casino/engines/ArcadeEngine";
 import { TowerEngine } from "@/components/casino/engines/TowerEngine";
+import { LiveRouletteEngine } from "@/components/casino/engines/LiveRouletteEngine";
 import { RouletteEngine } from "@/components/casino/engines/RouletteEngine";
 import { DiceEngine } from "@/components/casino/engines/DiceEngine";
 import { CoinflipEngine } from "@/components/casino/engines/CoinflipEngine";
@@ -874,7 +875,7 @@ export default function GamePlayerPage() {
     if (game.id === "orig-6" || game.title.toLowerCase().includes("keno")) {
       return <KenoEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
-    if (game.id === "orig-11" || game.title.toLowerCase().includes("roulette")) {
+    if (game.id === "orig-11") {
       return <RouletteEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-5" || game.title.toLowerCase().includes("dice")) {
@@ -907,8 +908,16 @@ export default function GamePlayerPage() {
     if (game.id === "orig-18" || game.title.toLowerCase().includes("space miner")) {
       return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
-    if (game.id === "orig-19" || game.title.toLowerCase().includes("cyber roulette")) {
-      return <RouletteEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
+    if (game.id === "orig-19" || game.title.toLowerCase().includes("roulette")) {
+      return (
+        <LiveRouletteEngine 
+          isPlaying={isSpinning} 
+          betAmount={betAmount}
+          onBetAmountChange={setBetAmount}
+          onStartGame={handlePlay}
+          onComplete={handleEngineComplete} 
+        />
+      );
     }
     if (game.id === "orig-20" || game.title.toLowerCase().includes("blackjack pro")) {
       return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
@@ -1628,7 +1637,7 @@ export default function GamePlayerPage() {
                             </div>
 
                             {/* Fixed Sticky Footer Button */}
-                            {!(game.id === "orig-21" || game.title.toLowerCase().includes("ludo")) && (
+                            {!(game.id === "orig-21" || game.id === "orig-19" || game.title.toLowerCase().includes("ludo") || game.title.toLowerCase().includes("roulette")) && (
                               <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-slate-200 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] md:relative md:bottom-auto md:left-auto md:right-auto md:p-3 md:bg-slate-50 md:border-t md:border-slate-200 md:shrink-0 md:z-30 md:shadow-none">
                                 <button 
                                   onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
@@ -1656,7 +1665,7 @@ export default function GamePlayerPage() {
 
                     {/* RIGHT AREA (Game Canvas) */}
                     <div className={cn(
-                      (game.id === "orig-21" || game.title.toLowerCase().includes("ludo"))
+                      (game.id === "orig-21" || game.id === "orig-19" || game.title.toLowerCase().includes("ludo") || game.title.toLowerCase().includes("roulette"))
                         ? "h-auto md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2"
                         : "h-[580px] sm:h-[600px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
                       isRoyalEngine ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
@@ -1722,7 +1731,7 @@ export default function GamePlayerPage() {
                           "flex-1 flex items-center justify-center relative w-full",
                           isRoyalEngine 
                             ? "bg-transparent border-none" 
-                            : (game.id === "orig-21" || game.title.toLowerCase().includes("ludo"))
+                            : (game.id === "orig-21" || game.id === "orig-19" || game.title.toLowerCase().includes("ludo") || game.title.toLowerCase().includes("roulette"))
                               ? "bg-[#0a0f16] rounded-3xl shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5 md:overflow-hidden"
                               : "bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
                         )}>
@@ -2486,7 +2495,7 @@ export default function GamePlayerPage() {
         </div> {/* End Main Content Col */}
         
         {/* Right Sidebar: VIP Live Feed */}
-        {!(game.id === "orig-21" || game.title.toLowerCase().includes("ludo")) && (
+        {!(game.id === "orig-21" || game.id === "orig-19" || game.title.toLowerCase().includes("ludo") || game.title.toLowerCase().includes("roulette")) && (
           <VIPLiveBetsFeed gameTitle={game.title} />
         )}
         
