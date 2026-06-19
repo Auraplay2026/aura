@@ -846,6 +846,13 @@ export default function GamePlayerPage() {
     );
   }
 
+  const showLeftSidebar = useMemo(() => {
+    if (!game) return false;
+    const isLudo = game.title.toLowerCase().includes("ludo") || game.id === "orig-21" || game.id === "orig-22";
+    const isLiveRoulette = (game.title.toLowerCase().includes("roulette") || game.id === "orig-19") && game.id !== "orig-11";
+    return tutorialDismissed && !isRoyalEngine && !isLudo && !isLiveRoulette;
+  }, [game, tutorialDismissed, isRoyalEngine]);
+
   // DYNAMIC ROUTER
   const isArcade = game.categories.some(cat => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat)) &&
     !game.categories.includes("slots") &&
@@ -1227,7 +1234,7 @@ export default function GamePlayerPage() {
                   <div className="relative z-10 w-full flex-1 flex flex-col md:flex-row min-h-0">
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
-                    {tutorialDismissed && !isRoyalEngine && !game.title.toLowerCase().includes("ludo") && (
+                    {showLeftSidebar && (
                       <div className="w-full md:w-[320px] lg:w-[350px] bg-white md:bg-slate-50 border-t md:border-t-0 md:border-r border-slate-200 flex flex-col order-2 md:order-1 relative z-20 shrink-0 shadow-[10px_0_30px_rgba(0,0,0,0.05)] h-auto md:h-full overflow-visible">
                         {isCloudRenting ? (
                           <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
@@ -1637,27 +1644,25 @@ export default function GamePlayerPage() {
                             </div>
 
                             {/* Fixed Sticky Footer Button */}
-                            {!(game.id === "orig-21" || game.id === "orig-19" || game.title.toLowerCase().includes("ludo") || game.title.toLowerCase().includes("roulette")) && (
-                              <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-slate-200 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] md:relative md:bottom-auto md:left-auto md:right-auto md:p-3 md:bg-slate-50 md:border-t md:border-slate-200 md:shrink-0 md:z-30 md:shadow-none">
-                                <button 
-                                  onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
-                                  disabled={isSpinning && !isCashoutActive}
-                                  className={`w-full py-3 sm:py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all ${
-                                    isSpinning && isCashoutActive
-                                      ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
-                                      : isSpinning
-                                        ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95 cursor-not-allowed'
-                                        : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95 cursor-pointer`
-                                  }`}
-                                >
-                                  {isSpinning && isCashoutActive
-                                    ? `CASHOUT (₹${(betAmount * (liveMultiplier || 1.0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
+                            <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-slate-200 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] md:relative md:bottom-auto md:left-auto md:right-auto md:p-3 md:bg-slate-50 md:border-t md:border-slate-200 md:shrink-0 md:z-30 md:shadow-none">
+                              <button 
+                                onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
+                                disabled={isSpinning && !isCashoutActive}
+                                className={`w-full py-3 sm:py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all ${
+                                  isSpinning && isCashoutActive
+                                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
                                     : isSpinning
-                                      ? "PLAYING..."
-                                      : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
-                                </button>
-                              </div>
-                            )}
+                                      ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95 cursor-not-allowed'
+                                      : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95 cursor-pointer`
+                                }`}
+                              >
+                                {isSpinning && isCashoutActive
+                                  ? `CASHOUT (₹${(betAmount * (liveMultiplier || 1.0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
+                                  : isSpinning
+                                    ? "PLAYING..."
+                                    : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
+                              </button>
+                            </div>
                           </div>
                         )}
                       </div>
@@ -1665,7 +1670,7 @@ export default function GamePlayerPage() {
 
                     {/* RIGHT AREA (Game Canvas) */}
                     <div className={cn(
-                      (game.id === "orig-21" || game.id === "orig-19" || game.title.toLowerCase().includes("ludo") || game.title.toLowerCase().includes("roulette"))
+                      !showLeftSidebar
                         ? "h-auto md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2"
                         : "h-[580px] sm:h-[600px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
                       isRoyalEngine ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"

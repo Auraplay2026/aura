@@ -511,10 +511,10 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Main Gameplay Dashboard */}
-      <div className="flex flex-col xl:flex-row gap-5 items-start justify-center overflow-visible">
+      <div className="flex flex-col lg:flex-row gap-4 sm:gap-6 items-start justify-center overflow-visible">
         
         {/* Left Section (Live VIP player statistics) */}
-        <div className="w-full xl:w-[220px] shrink-0 bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-4 flex flex-col gap-4 shadow-xl">
+        <div className="w-full lg:w-[200px] shrink-0 bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-3 sm:p-4 flex flex-col gap-4 shadow-xl">
           <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2">Active VIP Players</span>
           <div className="space-y-3">
             {vips.map(vip => (
@@ -837,7 +837,7 @@ export function LiveRouletteEngine({
         </div>
 
         {/* Right Section (Roadmaps, Line Chart, Limits) */}
-        <div className="w-full xl:w-[240px] shrink-0 bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-4 flex flex-col gap-4 shadow-xl">
+        <div className="w-full lg:w-[220px] shrink-0 bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-3 sm:p-4 flex flex-col gap-4 shadow-xl">
           
           {/* Stats chart summary */}
           <div>
