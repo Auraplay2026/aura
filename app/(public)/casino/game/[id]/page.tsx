@@ -847,12 +847,8 @@ export default function GamePlayerPage() {
     );
   }
 
-  const showLeftSidebar = useMemo(() => {
-    if (!game) return false;
-    const isLudo = game.title.toLowerCase().includes("ludo") || game.id === "orig-21" || game.id === "orig-22";
-    const isLiveRoulette = (game.title.toLowerCase().includes("roulette") || game.id === "orig-19") && game.id !== "orig-11";
-    return tutorialDismissed && !isRoyalEngine && !isLudo && !isLiveRoulette;
-  }, [game, tutorialDismissed, isRoyalEngine]);
+  // Inline betting panel — sidebar is disabled; all games use the inline bar below canvas
+  const showLeftSidebar = false;
 
   // DYNAMIC ROUTER
   const isArcade = game.categories.some(cat => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat)) &&
@@ -1017,7 +1013,7 @@ export default function GamePlayerPage() {
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-24 sm:p-6 sm:pb-24 md:pb-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-4 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-3">
@@ -1231,8 +1227,8 @@ export default function GamePlayerPage() {
                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0%,#050914_100%)] opacity-90" />
                   </div>
 
-                  {/* Game UI Simulation - Top 1% Stake Style */}
-                  <div className="relative z-10 w-full flex-1 flex flex-col md:flex-row min-h-0">
+                  {/* Game UI Simulation - Inline Bet Mode */}
+                  <div className="relative z-10 w-full flex-1 flex flex-col min-h-0">
                     
                     {/* LEFT SIDEBAR (Premium Command Center) */}
                     {showLeftSidebar && (
@@ -1644,37 +1640,15 @@ export default function GamePlayerPage() {
                               )}
                             </div>
 
-                            {/* Fixed Sticky Footer Button */}
-                            <div className="fixed bottom-0 left-0 right-0 p-3 bg-white border-t border-slate-200 z-50 shadow-[0_-8px_30px_rgba(0,0,0,0.12)] md:relative md:bottom-auto md:left-auto md:right-auto md:p-3 md:bg-slate-50 md:border-t md:border-slate-200 md:shrink-0 md:z-30 md:shadow-none">
-                              <button 
-                                onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
-                                disabled={isSpinning && !isCashoutActive}
-                                className={`w-full py-3 sm:py-4 rounded-xl font-black text-xs sm:text-sm uppercase tracking-widest transition-all ${
-                                  isSpinning && isCashoutActive
-                                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white shadow-[0_10px_20px_rgba(16,185,129,0.25)] hover:shadow-[0_15px_30px_rgba(16,185,129,0.4)] scale-102 cursor-pointer active:scale-95 animate-pulse"
-                                    : isSpinning
-                                      ? 'bg-slate-200 text-slate-400 border-2 border-slate-200 scale-95 cursor-not-allowed'
-                                      : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_10px_20px_rgba(0,0,0,0.1)] hover:shadow-[0_15px_30px_rgba(0,0,0,0.15)] active:scale-95 cursor-pointer`
-                                }`}
-                              >
-                                {isSpinning && isCashoutActive
-                                  ? `CASHOUT (₹${(betAmount * (liveMultiplier || 1.0)).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})`
-                                  : isSpinning
-                                    ? "PLAYING..."
-                                    : game.title.toLowerCase().includes("slot") ? "SPIN" : "BET"}
-                              </button>
-                            </div>
                           </div>
                         )}
                       </div>
                     )}
 
-                    {/* RIGHT AREA (Game Canvas) */}
+                    {/* FULL-WIDTH GAME CANVAS */}
                     <div className={cn(
-                      !showLeftSidebar
-                        ? "h-auto md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2"
-                        : "h-[580px] sm:h-[600px] md:h-auto md:flex-1 flex flex-col relative z-10 order-1 md:order-2 overflow-hidden",
-                      isRoyalEngine ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-6 md:pl-8"
+                      "h-[420px] sm:h-[520px] md:h-[600px] lg:h-[680px] flex flex-col relative z-10",
+                      isRoyalEngine ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-4"
                     )}>
                       
                       {/* Header Overlay */}
@@ -1942,6 +1916,145 @@ export default function GamePlayerPage() {
                         )}
                       </div>
                     </div>
+
+                    {/* ═══════ INLINE BETTING PANEL ═══════ */}
+                    {!isCloudRenting && !isRoyalEngine && (
+                      <div className="relative z-30 bg-[#0a0f18] border-t border-white/8 px-3 py-3 md:px-5 md:py-4 flex flex-col gap-3">
+
+                        {/* Row 1: Bet + Chips + Action Button */}
+                        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
+
+                          {/* Bet Amount Input */}
+                          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl overflow-hidden h-10 md:h-11 shrink-0 focus-within:border-white/30 transition-colors">
+                            <span className="px-2.5 text-slate-400 font-bold text-sm border-r border-white/10 h-full flex items-center">₹</span>
+                            <input
+                              type="number"
+                              value={betAmount}
+                              onChange={(e) => setBetAmount(Math.max(1, Number(e.target.value)))}
+                              disabled={isSpinning}
+                              className="w-20 md:w-24 bg-transparent text-white font-black text-sm px-2.5 focus:outline-none disabled:opacity-50"
+                            />
+                            <button onClick={() => { setBetAmount(prev => Math.max(1, Math.floor(prev / 2))); playGameSound('click'); }} disabled={isSpinning} className="px-2 h-full text-[10px] font-bold text-slate-400 hover:text-white border-l border-white/10 hover:bg-white/10 transition-colors disabled:opacity-40">½</button>
+                            <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} disabled={isSpinning} className="px-2 h-full text-[10px] font-bold text-slate-400 hover:text-white border-l border-white/10 hover:bg-white/10 transition-colors disabled:opacity-40">2×</button>
+                          </div>
+
+                          {/* Chip Presets */}
+                          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none flex-1">
+                            {[
+                              { amount: 100, label: "100", color: "from-red-600 to-red-700" },
+                              { amount: 500, label: "500", color: "from-teal-600 to-teal-700" },
+                              { amount: 1000, label: "1k", color: "from-amber-500 to-amber-600" },
+                              { amount: 5000, label: "5k", color: "from-pink-500 to-pink-600" },
+                              { amount: 10000, label: "10k", color: "from-rose-600 to-rose-700" },
+                              { amount: 50000, label: "50k", color: "from-purple-700 to-purple-900" },
+                            ].map((chip) => (
+                              <button
+                                key={chip.amount}
+                                type="button"
+                                onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }}
+                                disabled={isSpinning}
+                                className={`relative w-9 h-9 md:w-10 md:h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black text-white text-[9px] transition-all border border-white/20 bg-gradient-to-br ${chip.color} ${
+                                  betAmount === chip.amount ? 'ring-2 ring-white ring-offset-1 ring-offset-[#0a0f18] scale-110' : 'opacity-70 hover:opacity-100 hover:scale-105'
+                                } disabled:opacity-30`}
+                              >
+                                <div className="absolute inset-[2px] rounded-full border border-dashed border-white/30" />
+                                {chip.label}
+                              </button>
+                            ))}
+                          </div>
+
+                          {/* Auto Cashout (crash games) */}
+                          {game.categories.includes("crash") && (
+                            <div className="flex items-center bg-white/5 border border-white/10 rounded-xl overflow-hidden h-10 md:h-11 shrink-0 focus-within:border-red-400/50 transition-colors">
+                              <span className="px-2 text-slate-400 text-[9px] font-bold border-r border-white/10 h-full flex items-center whitespace-nowrap">Auto</span>
+                              <input
+                                type="number"
+                                step="0.01" min="1.01"
+                                placeholder="1.01×"
+                                value={autoCashoutVal}
+                                onChange={(e) => setAutoCashoutVal(e.target.value === "" ? "" : parseFloat(e.target.value))}
+                                disabled={isSpinning}
+                                className="w-16 bg-transparent text-white font-black text-xs px-2 focus:outline-none text-center disabled:opacity-50"
+                              />
+                              <span className="pr-2 text-slate-400 font-bold text-xs">×</span>
+                            </div>
+                          )}
+
+                          {/* Target Selector (coin/baccarat/dice etc) */}
+                          {(() => {
+                            const titleLower = game.title.toLowerCase();
+                            const idLower = game.id.toLowerCase();
+                            let options: { id: string; name: string }[] = [];
+                            if (titleLower.includes("coin") || idLower.includes("coin")) options = [{ id: "AURA", name: "Aura" }, { id: "SKULL", name: "Skull" }];
+                            else if (titleLower.includes("andar")) options = [{ id: "andar", name: "Andar" }, { id: "bahar", name: "Bahar" }];
+                            else if (titleLower.includes("dragon")) options = [{ id: "dragon", name: "Dragon" }, { id: "tiger", name: "Tiger" }, { id: "tie", name: "Tie" }];
+                            else if (titleLower.includes("teen patti") || idLower.includes("patti")) options = [{ id: "player_a", name: "A" }, { id: "player_b", name: "B" }, { id: "tie", name: "Tie" }];
+                            else if (titleLower.includes("roulette")) options = [{ id: "red", name: "Red" }, { id: "black", name: "Black" }, { id: "zero", name: "0" }];
+                            else if (titleLower.includes("baccarat")) options = [{ id: "PLAYER", name: "Player" }, { id: "BANKER", name: "Banker" }, { id: "TIE", name: "Tie" }];
+                            else if (titleLower.includes("dice")) options = [{ id: "over", name: "Over" }, { id: "under", name: "Under" }];
+                            if (options.length === 0) return null;
+                            return (
+                              <div className="flex items-center gap-1 shrink-0">
+                                {options.map(opt => (
+                                  <button
+                                    key={opt.id}
+                                    type="button"
+                                    onClick={() => { setSelectedTarget(opt.id); playGameSound('click'); }}
+                                    disabled={isSpinning}
+                                    className={`h-10 md:h-11 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider border transition-all disabled:opacity-40 ${
+                                      selectedTarget === opt.id
+                                        ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent shadow-lg`
+                                        : 'bg-white/5 text-slate-300 border-white/10 hover:border-white/25'
+                                    }`}
+                                  >
+                                    {opt.name}
+                                  </button>
+                                ))}
+                              </div>
+                            );
+                          })()}
+
+                          {/* BET / CASHOUT Button */}
+                          <button
+                            onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
+                            disabled={isSpinning && !isCashoutActive}
+                            className={`h-10 md:h-11 px-6 md:px-8 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 ${
+                              isSpinning && isCashoutActive
+                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-pulse cursor-pointer'
+                                : isSpinning
+                                  ? 'bg-white/10 text-slate-500 cursor-not-allowed'
+                                  : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.5)] hover:scale-[1.03] active:scale-[0.97] cursor-pointer`
+                            }`}
+                          >
+                            {isSpinning && isCashoutActive
+                              ? `CASHOUT ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
+                              : isSpinning
+                                ? 'PLAYING...'
+                                : game.title.toLowerCase().includes('slot') ? 'SPIN' : 'BET NOW'}
+                          </button>
+                        </div>
+
+                        {/* Row 2: Balance + Live Multiplier + Session Stats (compact) */}
+                        <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                          <div className="flex items-center gap-3">
+                            <span>Balance: <span className="text-white font-mono">₹{balance.toLocaleString()}</span></span>
+                            {stats.totalRounds > 0 && (
+                              <span>Net: <span className={stats.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}>{stats.netProfit >= 0 ? '+' : ''}₹{stats.netProfit.toFixed(0)}</span></span>
+                            )}
+                            {stats.totalRounds > 0 && (
+                              <span>Rounds: <span className="text-white">{stats.totalRounds}</span></span>
+                            )}
+                          </div>
+                          {liveMultiplier && isSpinning && (
+                            <span className="text-neon-green font-black text-sm font-mono animate-pulse">{liveMultiplier.toFixed(2)}×</span>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <span className="flex items-center gap-1 text-emerald-500"><Hand className="w-3 h-3" /> Manual</span>
+                            <span className="flex h-1.5 w-1.5"><span className="animate-ping absolute h-1.5 w-1.5 rounded-full bg-emerald-400 opacity-75" /><span className="relative rounded-full h-1.5 w-1.5 bg-emerald-500" /></span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </motion.div>
               )}
