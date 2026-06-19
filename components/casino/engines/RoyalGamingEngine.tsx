@@ -284,9 +284,34 @@ const getChipColors = (value: number) => {
 // Cubic ease-out curve for physics-like speed deceleration in flight
 const easeOutCubic = (t: number): number => 1 - Math.pow(1 - t, 3);
 
+// Shorten betting target names for cellphone circular spots
+const getShortName = (name: string) => {
+  if (name.includes("Player A")) return "A";
+  if (name.includes("Player B")) return "B";
+  if (name.includes("Player 8")) return "P8";
+  if (name.includes("Player 9")) return "P9";
+  if (name.includes("Player 10")) return "P10";
+  if (name.includes("Player 11")) return "P11";
+  if (name.includes("Gold Bar Bonus")) return "Gold";
+  if (name.includes("Royal Flush Spec")) return "Royal";
+  if (name.includes("Runs Over")) return "Over";
+  if (name.includes("Runs Under")) return "Under";
+  if (name.includes("Boundary")) return "Bound";
+  if (name.includes("Wicket")) return "Wicket";
+  if (name.includes("Lucky 7")) return "Lucky";
+  if (name.includes("7 Up")) return "7 Up";
+  if (name.includes("7 Down")) return "7 Dn";
+  if (name.includes("Zero")) return "Zero";
+  if (name.includes("Bonus Bet")) return "Bonus";
+  if (name.includes("Flop Bet")) return "Flop";
+  if (name.includes("Pair Plus")) return "Pair+";
+  if (name.includes("6 Card Bonus")) return "6-Card";
+  return name;
+};
+
 // Premium casino felt betting spots color palettes and gradients
 const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolean, hasBet: boolean) => {
-  const base = "relative overflow-hidden border rounded-2xl p-2.5 sm:p-3 flex flex-col justify-between items-center h-[60px] xs:h-[70px] sm:h-[78px] text-white transition-all cursor-pointer pointer-events-auto shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] hover:scale-[1.03] active:scale-[0.97] group";
+  const base = "relative overflow-hidden border rounded-full aspect-square w-14 h-14 xs:w-16 xs:h-16 sm:w-auto sm:h-[78px] sm:aspect-auto sm:rounded-2xl p-1 sm:p-3 flex flex-col justify-center sm:justify-between items-center text-white transition-all cursor-pointer pointer-events-auto shadow-[inset_0_1px_1px_rgba(255,255,255,0.15)] hover:scale-[1.03] active:scale-[0.97] group";
 
   // Specialized styles for Dragon Tiger (royal-6)
   if (gameId.startsWith("royal-6")) {
@@ -419,7 +444,7 @@ const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolea
 
 // Premium background SVG silhouettes representing themed betting icons
 const renderBetIcon = (targetId: string, gameId: string) => {
-  const iconClass = "absolute right-2.5 bottom-2 w-14 h-14 pointer-events-none transform -rotate-12 transition-all duration-700 group-hover:scale-115 group-hover:-rotate-6 text-white/[0.07] group-hover:text-white/[0.12]";
+  const iconClass = "hidden sm:block absolute right-2.5 bottom-2 w-14 h-14 pointer-events-none transform -rotate-12 transition-all duration-700 group-hover:scale-115 group-hover:-rotate-6 text-white/[0.07] group-hover:text-white/[0.12]";
 
   if (gameId.startsWith("poker-")) {
     if (targetId === "ante") {
@@ -1968,7 +1993,7 @@ setPlacedChips([]);
         {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
         {phase === 'open' && ping <= 500 && showOverlay && (
           <div className="absolute bottom-3 sm:bottom-18 md:bottom-20 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 w-full max-w-md md:max-w-lg">
+            <div className="flex flex-wrap justify-center items-center gap-2 sm:grid sm:grid-cols-3 sm:gap-1.5 w-full max-w-md md:max-w-lg mx-auto">
               {currentConfig.targets.map(target => {
                 const activeWager = bets[target.id] || 0;
                 return (
@@ -1983,19 +2008,37 @@ setPlacedChips([]);
                     {/* Iconic Background Silhouette Icon */}
                     {renderBetIcon(target.id, configKey)}
 
-                    <div className="flex justify-between items-center w-full leading-none z-10">
+                    {/* Desktop Content Layout */}
+                    <div className="hidden sm:flex justify-between items-center w-full leading-none z-10">
                       <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-100">{target.name}</span>
                       <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black text-amber-300 font-mono">x{target.odds.toFixed(2)}</span>
                     </div>
                     
                     <span className={cn(
-                      "text-[8px] xs:text-[9px] sm:text-[10px] font-mono font-black uppercase tracking-widest leading-none z-10",
+                      "hidden sm:inline text-[8px] xs:text-[9px] sm:text-[10px] font-mono font-black uppercase tracking-widest leading-none z-10",
                       activeWager > 0 
                         ? "text-yellow-300 drop-shadow-[0_0_8px_rgba(253,224,71,0.5)] animate-pulse" 
                         : "text-white/40"
                     )}>
                       {activeWager > 0 ? `₹${activeWager.toLocaleString('en-IN')}` : "PLACE CHIP"}
                     </span>
+
+                    {/* Mobile Circular Content Layout */}
+                    <div className="flex sm:hidden flex-col items-center justify-center gap-0.5 leading-none z-10 select-none">
+                      <span className="text-[7.5px] xs:text-[8px] font-serif font-black uppercase tracking-wider text-slate-100 truncate max-w-[46px] xs:max-w-[54px] text-center">
+                        {getShortName(target.name)}
+                      </span>
+                      <span className="text-[6.5px] xs:text-[7px] font-black text-amber-350 font-mono">
+                        x{target.odds.toFixed(2)}
+                      </span>
+                      {activeWager > 0 ? (
+                        <span className="text-[7.5px] xs:text-[8px] font-mono font-black text-yellow-300 drop-shadow-[0_0_4px_rgba(253,224,71,0.5)] animate-pulse">
+                          ₹{activeWager >= 1000 ? `${activeWager/1000}k` : activeWager}
+                        </span>
+                      ) : (
+                        <span className="text-[7px] text-white/30 font-black">+</span>
+                      )}
+                    </div>
                   </button>
                 );
               })}
