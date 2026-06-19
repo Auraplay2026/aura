@@ -29,6 +29,12 @@ interface PlacedChip {
   x?: number;
   y?: number;
   createdAt?: number;
+  wobbleStart?: number;
+  rotationAngle?: number;
+  isLosing?: boolean;
+  isWinning?: boolean;
+  sweepStart?: number;
+  spawnedFountain?: boolean;
 }
 
 // 9 Royal Gaming Categories Config
@@ -381,6 +387,292 @@ const renderBetIcon = (targetId: string, gameId: string) => {
   );
 };
 
+// Premium canvas drawing subroutine for 3D game-themed coins
+const drawSingleChip = (
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  value: number,
+  alpha: number,
+  scaleX: number,
+  scaleY: number,
+  rotation: number,
+  isMobile: boolean,
+  isTablet: boolean,
+  baseX?: number,
+  baseY?: number,
+  flightProgress?: number,
+  gameId: string = "royal-6"
+) => {
+  ctx.save();
+  ctx.globalAlpha = alpha;
+
+  const baseRadius = isMobile ? 12 : (isTablet ? 14 : 17);
+  const radius = baseRadius;
+
+  // 1. Draw dynamic oval shadow on the table surface (if baseX and baseY are provided)
+  if (baseX !== undefined && baseY !== undefined && flightProgress !== undefined) {
+    ctx.beginPath();
+    const shadowRadiusX = radius * 1.05 * scaleX;
+    const shadowRadiusY = radius * 0.55 * scaleY;
+    // Fade/spread shadow when chip is high in the air
+    const shadowOpacity = 0.35 - 0.15 * Math.sin(flightProgress * Math.PI);
+    ctx.ellipse(baseX, baseY, shadowRadiusX, shadowRadiusY, 0, 0, 2 * Math.PI);
+    ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity * alpha})`;
+    ctx.fill();
+  }
+
+  // Translate to chip center, apply scale, rotation, and 3D slant perspective
+  ctx.translate(x, y);
+  ctx.scale(scaleX, scaleY * 0.75); // 3D perspective squish (pitch angle)
+  ctx.rotate(rotation);
+
+  const colors = getChipColors(value);
+
+  // Draw Game-Themed Coins!
+  if (gameId.startsWith("royal-1") || gameId.startsWith("royal-3")) {
+    // ----------------------------------------------------
+    // VEDIC GOLD COIN THEME (Teen Patti & Andar Bahar)
+    // ----------------------------------------------------
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+    const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.05, 0, 0, radius);
+    grad.addColorStop(0, "#FCD34D"); // Amber 300
+    grad.addColorStop(0.5, "#D97706"); // Amber 600
+    grad.addColorStop(1, "#78350F"); // Amber 900
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Concentric engraved rings
+    ctx.strokeStyle = "rgba(253, 230, 138, 0.4)"; // Amber 200
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.85, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    ctx.strokeStyle = "rgba(253, 230, 138, 0.6)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.7, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Central Lotus Engraving
+    ctx.fillStyle = "rgba(251, 191, 36, 0.8)"; // Gold
+    ctx.beginPath();
+    for (let i = 0; i < 8; i++) {
+      const angle = (i * Math.PI) / 4;
+      ctx.lineTo(Math.cos(angle) * radius * 0.5, Math.sin(angle) * radius * 0.5);
+      ctx.lineTo(Math.cos(angle + Math.PI / 8) * radius * 0.2, Math.sin(angle + Math.PI / 8) * radius * 0.2);
+    }
+    ctx.closePath();
+    ctx.fill();
+
+    // Outer border ridge
+    ctx.strokeStyle = "rgba(120, 53, 15, 0.8)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.95, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Outer rim highlight glint
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 0.5, -Math.PI * 0.75, -Math.PI * 0.25);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Value text
+    ctx.rotate(-rotation);
+    ctx.scale(1, 1.33); // undo slant for text legibility
+    ctx.fillStyle = "#FFFBEB"; // Light cream
+    ctx.shadowColor = "rgba(0, 0, 0, 0.6)";
+    ctx.shadowBlur = 3;
+    const fontSize = Math.max(7.5, Math.round(radius * 0.38));
+    ctx.font = `bold ${fontSize}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const label = value >= 1000 ? `${value / 1000}K` : `${value}`;
+    ctx.fillText(label, 0, 0);
+
+  } else if (gameId.startsWith("royal-6")) {
+    // ----------------------------------------------------
+    // DRAGON TIGER LACQUER THEME (East Asian Lacquer & Gold)
+    // ----------------------------------------------------
+    const isDragonStyle = value === 100 || value === 1000 || value === 10000;
+    const lacquerColor = isDragonStyle ? "#991B1B" : "#111827"; // crimson red or dark charcoal
+    const edgeColor = isDragonStyle ? "#F59E0B" : "#F43F5E";
+
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+    const grad = ctx.createRadialGradient(-radius * 0.2, -radius * 0.2, radius * 0.1, 0, 0, radius);
+    grad.addColorStop(0, lacquerColor);
+    grad.addColorStop(0.8, lacquerColor);
+    grad.addColorStop(1, "#000000");
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Gold trim edge
+    ctx.strokeStyle = "#D97706";
+    ctx.lineWidth = radius * 0.12;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.9, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Asian edge notches
+    ctx.strokeStyle = edgeColor;
+    ctx.lineWidth = radius * 0.14;
+    ctx.setLineDash([radius * 0.25, radius * 0.35]);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.9, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Golden inner core
+    ctx.fillStyle = "#1E293B";
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.6, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = "rgba(217, 119, 6, 0.4)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Inner glint highlight
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 1, -Math.PI * 0.6, -Math.PI * 0.1);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.45)";
+    ctx.lineWidth = 1.2;
+    ctx.stroke();
+
+    // Value text
+    ctx.rotate(-rotation);
+    ctx.scale(1, 1.33);
+    ctx.fillStyle = "#FBBF24"; // Gold text
+    const fontSize = Math.max(7.5, Math.round(radius * 0.38));
+    ctx.font = `bold ${fontSize}px serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const label = value >= 1000 ? `${value / 1000}K` : `${value}`;
+    ctx.fillText(label, 0, 0);
+
+  } else if (gameId.startsWith("royal-7")) {
+    // ----------------------------------------------------
+    // CLAY MONTE CARLO CLASSIC THEME (European Roulette)
+    // ----------------------------------------------------
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+    const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.1, 0, 0, radius);
+    grad.addColorStop(0, colors.light);
+    grad.addColorStop(0.7, colors.base);
+    grad.addColorStop(1, colors.dark);
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Outer rim divider
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.15)";
+    ctx.lineWidth = 1.2;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.88, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Dual-tone edge spots
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = radius * 0.22;
+    ctx.setLineDash([radius * 0.3, radius * 0.4]);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.88, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Central white inlay
+    ctx.fillStyle = "#F8FAFC";
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.62, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Ring shadow recess
+    ctx.strokeStyle = "rgba(0, 0, 0, 0.1)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.62, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Decorative inner dotted ring
+    ctx.strokeStyle = colors.light;
+    ctx.lineWidth = 0.8;
+    ctx.setLineDash([1.5, 2]);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.46, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // 3D glint & bevel shadows
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 1, -Math.PI * 0.75, -Math.PI * 0.25);
+    ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
+    ctx.lineWidth = 1;
+    ctx.stroke();
+
+    // Value text
+    ctx.rotate(-rotation);
+    ctx.scale(1, 1.33);
+    ctx.fillStyle = colors.text;
+    const fontSize = Math.max(8, Math.round(radius * 0.42));
+    ctx.font = `bold ${fontSize}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const label = value >= 1000 ? `${value / 1000}K` : `${value}`;
+    ctx.fillText(label, 0, 0);
+
+  } else {
+    // ----------------------------------------------------
+    // MODERN NEON TOKEN THEME (Super Over & Others)
+    // ----------------------------------------------------
+    ctx.beginPath();
+    ctx.arc(0, 0, radius, 0, 2 * Math.PI);
+    const grad = ctx.createRadialGradient(-radius * 0.3, -radius * 0.3, radius * 0.1, 0, 0, radius);
+    grad.addColorStop(0, "#1E293B"); // Slate 800
+    grad.addColorStop(0.8, "#0F172A"); // Slate 900
+    grad.addColorStop(1, "#020617"); // Slate 950
+    ctx.fillStyle = grad;
+    ctx.fill();
+
+    // Glowing outer ring neon
+    ctx.strokeStyle = colors.light;
+    ctx.lineWidth = 1.8;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 1, 0, 2 * Math.PI);
+    ctx.stroke();
+
+    // Sports ray dashes
+    ctx.strokeStyle = "#FFFFFF";
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([radius * 0.15, radius * 0.45]);
+    ctx.beginPath();
+    ctx.arc(0, 0, radius - 1, 0, 2 * Math.PI);
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Central circular logo core
+    ctx.fillStyle = colors.base;
+    ctx.beginPath();
+    ctx.arc(0, 0, radius * 0.58, 0, 2 * Math.PI);
+    ctx.fill();
+
+    // Value text
+    ctx.rotate(-rotation);
+    ctx.scale(1, 1.33);
+    ctx.fillStyle = "#FFFFFF";
+    const fontSize = Math.max(7.5, Math.round(radius * 0.38));
+    ctx.font = `bold ${fontSize}px sans-serif`;
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+    const label = value >= 1000 ? `${value / 1000}K` : `${value}`;
+    ctx.fillText(label, 0, 0);
+  }
+
+  ctx.restore();
+};
+
 export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, gameId, gameTitle, selectedTarget: externalTarget, setSelectedTarget: setExternalTarget }: RoyalGamingProps) {
   const { balance: rawBalance, playCasino, currentUser } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
@@ -401,6 +693,97 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
   // HUD toggleable view states
   const [showOverlay, setShowOverlay] = useState(true);
   const [isMuted, setIsMuted] = useState(false);
+
+  // 60FPS Canvas particle list
+  const particlesRef = useRef<{
+    id: string;
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    color: string;
+    size: number;
+    alpha: number;
+    decay: number;
+    gravity?: number;
+    type?: 'spark' | 'coin' | 'ripple';
+    maxSize?: number;
+  }[]>([]);
+
+  const spawnLandingRipple = useCallback((x: number, y: number, color: string) => {
+    particlesRef.current.push({
+      id: `ripple_${Date.now()}_${Math.random()}`,
+      x,
+      y,
+      vx: 0,
+      vy: 0,
+      color,
+      size: 4,
+      maxSize: 22,
+      alpha: 1,
+      decay: 0.05,
+      type: 'ripple'
+    });
+
+    for (let i = 0; i < 6; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 1.5 + 0.8;
+      particlesRef.current.push({
+        id: `spark_${Date.now()}_${Math.random()}`,
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 0.5,
+        color,
+        size: Math.random() * 1.5 + 1.0,
+        alpha: 1,
+        decay: 0.04,
+        gravity: 0.06,
+        type: 'spark'
+      });
+    }
+  }, []);
+
+  const spawnWinConfetti = useCallback((x: number, y: number) => {
+    const colors = ["#FBBF24", "#F59E0B", "#10B981", "#3B82F6", "#EC4899", "#8B5CF6"];
+    for (let i = 0; i < 25; i++) {
+      const angle = Math.random() * Math.PI * 2;
+      const speed = Math.random() * 3 + 1.5;
+      particlesRef.current.push({
+        id: `confetti_${Date.now()}_${Math.random()}`,
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - 1.5,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        size: Math.random() * 2.5 + 1.5,
+        alpha: 1,
+        decay: 0.025,
+        gravity: 0.07,
+        type: 'spark'
+      });
+    }
+  }, []);
+
+  const spawnCoinFountain = useCallback((x: number, y: number) => {
+    for (let i = 0; i < 12; i++) {
+      const angle = -Math.PI * 0.5 + (Math.random() - 0.5) * 0.5;
+      const speed = Math.random() * 2.5 + 3.0;
+      particlesRef.current.push({
+        id: `coin_${Date.now()}_${Math.random()}`,
+        x,
+        y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed,
+        color: "#FBBF24",
+        size: Math.random() * 3.0 + 2.0,
+        alpha: 1,
+        decay: 0.02,
+        gravity: 0.12,
+        type: 'coin'
+      });
+    }
+  }, []);
 
   const toggleMute = () => setIsMuted(prev => !prev);
   const toggleOverlay = () => setShowOverlay(prev => !prev);
@@ -773,138 +1156,143 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
       const card2Label = configKey.startsWith("royal-6") ? "TIGER" : (configKey.startsWith("royal-3") ? "BAHAR" : "PLAYER B");
       ctx.fillText(card2Label, slot2X + cardSlotWidth / 2, slotY + cardSlotHeight / 2);
 
-      // Render Floating Chips coordinate overlays
+      // 1. Update and Render Particles (Ripples, Sparks, Coins)
+      const particles = particlesRef.current;
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.gravity) {
+          p.vy += p.gravity;
+        }
+        p.alpha -= p.decay;
+
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
+          continue;
+        }
+
+        ctx.save();
+        ctx.globalAlpha = p.alpha;
+        if (p.type === 'ripple') {
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          const currentSize = p.size + (p.maxSize! - p.size) * (1 - p.alpha);
+          ctx.ellipse(p.x, p.y, currentSize * 1.5, currentSize * 0.75, 0, 0, 2 * Math.PI);
+          ctx.stroke();
+        } else if (p.type === 'coin') {
+          ctx.fillStyle = "#F59E0B";
+          ctx.strokeStyle = "#D97706";
+          ctx.lineWidth = 0.8;
+          ctx.beginPath();
+          const coinWidth = p.size * Math.abs(Math.sin((Date.now() + i * 50) / 100));
+          ctx.ellipse(p.x, p.y, coinWidth, p.size, 0, 0, 2 * Math.PI);
+          ctx.fill();
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, 2 * Math.PI);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+
+      // 2. Compute visual chip stacking by target
+      const stackCounts: Record<string, number> = {};
+
       placedChips.forEach(chip => {
+        const targetId = chip.targetId;
         const elapsed = Date.now() - (chip.createdAt || 0);
-        const duration = 650; // Flight duration in ms
-        const t = Math.min(1, elapsed / duration);
-        const p = easeOutCubic(t);
+        const duration = 650;
+        const isLanded = elapsed >= duration;
+
+        // Group stack height (exclude swept chips)
+        const currentStackHeight = chip.sweepStart ? 0 : (stackCounts[targetId] || 0);
+        const stackOffset = currentStackHeight * (isMobile ? -2.5 : -3.5);
 
         // Target coordinates in CSS pixels
-        const targetX = chip.xPct !== undefined ? (chip.xPct / 100) * canvas.clientWidth : (chip.x || 0);
-        const targetY = chip.yPct !== undefined ? (chip.yPct / 100) * canvas.clientHeight : (chip.y || 0);
+        let targetX = chip.xPct !== undefined ? (chip.xPct / 100) * canvas.clientWidth : (chip.x || 0);
+        let targetY = chip.yPct !== undefined ? (chip.yPct / 100) * canvas.clientHeight : (chip.y || 0);
+
+        if (!chip.sweepStart) {
+          targetY += stackOffset;
+        }
 
         // Start coordinates: bottom-center of the canvas
         const startX = canvas.clientWidth * 0.5;
         const startY = canvas.clientHeight + 40;
 
-        // Current base coordinates on the table surface (shadow follows this)
-        const baseX = startX + (targetX - startX) * p;
-        const baseY = startY + (targetY - startY) * p;
+        // Fallback random rotation based on chip ID to prevent state rewrite churn
+        const initialRotation = (chip.rotationAngle ?? (parseInt(chip.id.replace(/\D/g, '')) || 0) % 360) * (Math.PI / 180);
 
-        // Parabolic arc height displacement (curved flight trajectory)
-        const distance = Math.hypot(targetX - startX, targetY - startY);
-        const peakHeight = Math.min(130, distance * 0.45);
-        const arc = peakHeight * Math.sin(p * Math.PI);
+        if (chip.sweepStart) {
+          // Win/Loss Sweeping physics simulation
+          const elapsedSweep = Date.now() - chip.sweepStart;
+          const sweepDuration = chip.isLosing ? 800 : 1000;
+          const progress = Math.min(1, elapsedSweep / sweepDuration);
+          const sp = easeOutCubic(progress);
 
-        // Actual chip draw position (displaced vertically by arc)
-        const x = baseX;
-        const y = baseY - arc;
+          let destX = canvas.clientWidth * 0.5;
+          let destY = chip.isLosing ? -50 : canvas.clientHeight + 40;
 
-        // Scale factors: grows in mid-air, lands with a subtle physical squeeze/bounce
-        let scale = 1.0;
-        if (t < 1) {
-          scale = 1.0 + 0.35 * Math.sin(p * Math.PI);
-        } else {
-          // Landing bounce effect for 200ms after landing
-          const bounceElapsed = elapsed - duration;
-          const bounceDuration = 200;
-          if (bounceElapsed < bounceDuration) {
-            const b = bounceElapsed / bounceDuration;
-            scale = 1.0 + 0.12 * Math.sin(b * Math.PI) * (1 - b);
+          const x = targetX + (destX - targetX) * sp;
+          const y = targetY + (destY - targetY) * sp;
+          const alpha = 1 - sp;
+
+          if (progress >= 0.95 && !chip.spawnedFountain) {
+            chip.spawnedFountain = true;
+            if (chip.isWinning) {
+              spawnCoinFountain(destX, canvas.clientHeight - 10);
+            }
           }
+
+          drawSingleChip(ctx, x, y, chip.value, alpha, 1.0, 1.0, initialRotation, isMobile, isTablet, undefined, undefined, undefined, configKey);
+        } else {
+          // Normal Flight & Wobbling
+          const t = Math.min(1, elapsed / duration);
+          const p = easeOutCubic(t);
+
+          const baseX = startX + (targetX - startX) * p;
+          const baseY = startY + (targetY - startY) * p;
+
+          const distance = Math.hypot(targetX - startX, targetY - startY);
+          const peakHeight = Math.min(130, distance * 0.45);
+          const arc = peakHeight * Math.sin(p * Math.PI);
+
+          const x = baseX;
+          const y = baseY - arc;
+
+          let scaleX = 1.0;
+          let scaleY = 1.0;
+          let rotation = initialRotation;
+
+          if (!isLanded) {
+            // Spin in mid-air
+            rotation += p * Math.PI * 4;
+            scaleX = 1.0 + 0.3 * Math.sin(p * Math.PI);
+            scaleY = 1.0 + 0.3 * Math.sin(p * Math.PI);
+          } else {
+            if (!chip.wobbleStart) {
+              chip.wobbleStart = Date.now();
+              spawnLandingRipple(targetX, targetY, getChipColors(chip.value).light);
+            }
+            const wobbleElapsed = Date.now() - chip.wobbleStart;
+            const wobbleDuration = 350;
+            if (wobbleElapsed < wobbleDuration) {
+              const w = wobbleElapsed / wobbleDuration;
+              // Damped harmonic oscillation for squash/stretch wobble
+              const amplitude = 0.25 * Math.exp(-4 * w) * Math.sin(w * Math.PI * 6);
+              scaleY = 1.0 - amplitude;
+              scaleX = 1.0 + amplitude * 0.5;
+            }
+            // Increment stack count for this target
+            stackCounts[targetId] = currentStackHeight + 1;
+          }
+
+          drawSingleChip(ctx, x, y, chip.value, 1.0, scaleX, scaleY, rotation, isMobile, isTablet, baseX, baseY, p, configKey);
         }
-
-        // Dynamic base radius scaling based on device size
-        const baseRadius = isMobile ? 12 : (isTablet ? 14 : 17);
-        const radius = baseRadius * scale;
-
-        // 1. Draw dynamic oval shadow on the table surface (perspective project straight down)
-        ctx.beginPath();
-        const shadowRadiusX = radius * 1.05;
-        const shadowRadiusY = radius * 0.55;
-        // Fade shadow when chip is high in the air
-        const shadowOpacity = 0.35 - 0.15 * Math.sin(p * Math.PI);
-        ctx.ellipse(baseX, baseY, shadowRadiusX, shadowRadiusY, 0, 0, 2 * Math.PI);
-        ctx.fillStyle = `rgba(0, 0, 0, ${shadowOpacity})`;
-        ctx.fill();
-
-        // 2. Draw 3D Casino Chip Body
-        const colors = getChipColors(chip.value);
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        
-        // Shiny radial gloss body gradient
-        const bodyGrad = ctx.createRadialGradient(
-          x - radius * 0.3,
-          y - radius * 0.3,
-          radius * 0.05,
-          x,
-          y,
-          radius
-        );
-        bodyGrad.addColorStop(0, colors.light);
-        bodyGrad.addColorStop(0.7, colors.base);
-        bodyGrad.addColorStop(1, colors.dark);
-        ctx.fillStyle = bodyGrad;
-        ctx.fill();
-
-        // 3. Draw Outer Striped Edge Details (White Dashes overlay)
-        ctx.strokeStyle = "#FFFFFF";
-        ctx.lineWidth = radius * 0.22;
-        ctx.setLineDash([radius * 0.32, radius * 0.34]);
-        ctx.beginPath();
-        ctx.arc(x, y, radius * 0.88, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.setLineDash([]); // Reset line dash immediately
-
-        // 4. Draw Outer Rim Border
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.12)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(x, y, radius * 0.72, 0, 2 * Math.PI);
-        ctx.stroke();
-
-        // 5. Draw Inner White Core Inlay
-        ctx.beginPath();
-        ctx.arc(x, y, radius * 0.64, 0, 2 * Math.PI);
-        const inlayGrad = ctx.createRadialGradient(x, y, 0, x, y, radius * 0.64);
-        inlayGrad.addColorStop(0, "#FFFFFF");
-        inlayGrad.addColorStop(1, "#F8FAFC"); // Slate 50
-        ctx.fillStyle = inlayGrad;
-        ctx.fill();
-
-        // 6. Draw Inner Decorative Dotted Ring
-        ctx.strokeStyle = colors.light;
-        ctx.lineWidth = 0.85;
-        ctx.setLineDash([1.5, 2]);
-        ctx.beginPath();
-        ctx.arc(x, y, radius * 0.46, 0, 2 * Math.PI);
-        ctx.stroke();
-        ctx.setLineDash([]); // Reset line dash
-
-        // 7. Specular Glint Highlight (top-left crest) & Shadow Recess (bottom-right crest)
-        ctx.beginPath();
-        ctx.arc(x, y, radius - 1, -Math.PI * 0.75, -Math.PI * 0.25);
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        ctx.beginPath();
-        ctx.arc(x, y, radius - 1, Math.PI * 0.25, Math.PI * 0.75);
-        ctx.strokeStyle = "rgba(0, 0, 0, 0.25)";
-        ctx.lineWidth = 1.2;
-        ctx.stroke();
-
-        // 8. Draw Denomination Value text
-        ctx.fillStyle = colors.text;
-        const fontSize = Math.max(8, Math.round(radius * 0.42));
-        ctx.font = `bold ${fontSize}px sans-serif`;
-        ctx.textAlign = "center";
-        ctx.textBaseline = "middle";
-
-        const label = chip.value >= 1000 ? `${chip.value / 1000}K` : `${chip.value}`;
-        ctx.fillText(label, x, y);
       });
 
       // Render digital OCR drawn card representation during closed/dealing phase
@@ -998,8 +1386,33 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
               winningTarget = currentConfig.targets[Math.floor(Math.random() * currentConfig.targets.length)];
             }
 
-            setRoundWinner(winningTarget.id);
+            const winTargetId = winningTarget.id;
+            setRoundWinner(winTargetId);
             setFeedMsg(`ROUND WINNER: ${winningTarget.name.toUpperCase()}`);
+
+            // Mark winning/losing chips and trigger sweep-away glide timers
+            setPlacedChips(prev => 
+              prev.map(chip => ({
+                ...chip,
+                isWinning: chip.targetId === winTargetId,
+                isLosing: chip.targetId !== winTargetId,
+                sweepStart: Date.now()
+              }))
+            );
+
+            // Spawn celebratory win confetti explosion at the winning target coordinates
+            const canvasEl = canvasRef.current;
+            if (canvasEl) {
+              const targetIdx = currentConfig.targets.findIndex(t => t.id === winTargetId);
+              const total = currentConfig.targets.length;
+              if (targetIdx !== -1) {
+                const tx = 15 + (targetIdx / (total - 1 || 1)) * 70;
+                const ty = 50; // target vertical midline
+                const pxX = (tx / 100) * canvasEl.clientWidth;
+                const pxY = (ty / 100) * canvasEl.clientHeight;
+                spawnWinConfetti(pxX, pxY);
+              }
+            }
 
             // Calculate wagers & payouts
             let totalWager = 0;
