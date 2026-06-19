@@ -38,6 +38,7 @@ import { ExternalEngine } from "@/components/casino/engines/ExternalEngine";
 import { GameTutorialOverlay } from "@/components/GameTutorialOverlay";
 import { RoyalGamingEngine } from "@/components/casino/engines/RoyalGamingEngine";
 import { NeonHorizon3DEngine } from "@/components/casino/engines/NeonHorizon3DEngine";
+import { LudoEngine } from "@/components/casino/engines/LudoEngine";
 
 interface HighReachOutcome {
   id: string;
@@ -910,6 +911,9 @@ export default function GamePlayerPage() {
     }
     if (game.id === "orig-20" || game.title.toLowerCase().includes("blackjack pro")) {
       return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
+    }
+    if (game.id === "orig-21" || game.title.toLowerCase().includes("ludo")) {
+      return <LudoEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} onLiveTick={handleLiveTick} />;
     }
     // === CRASH GAMES ===
     if (game.categories.includes("crash")) {

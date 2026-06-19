@@ -657,9 +657,8 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
 
   const playerScore = getBlackjackScore(playerHand);
   const dealerScore = getBlackjackScore(dealerHand);
-
   return (
-    <div className={cn("w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br rounded-3xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-between p-4 overflow-hidden select-none", theme.feltBg)}>
+    <div className={cn("w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br rounded-3xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-between p-2.5 sm:p-4 overflow-hidden select-none", theme.feltBg)}>
       
       {/* Premium casino table felt background texture */}
       <div 
@@ -679,7 +678,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
       <div className={cn("absolute inset-2 sm:inset-4 rounded-[2rem] border-[1.5px] pointer-events-none z-10", theme.feltOverlayClass)} />
 
       {/* Live HUD Header */}
-      <div className="relative z-20 w-full flex justify-between items-center bg-black/40 backdrop-blur-md px-3 py-2 rounded-2xl border border-white/5 shadow-md">
+      <div className="relative z-20 w-full flex justify-between items-center bg-black/40 backdrop-blur-md px-3 py-1.5 sm:py-2 rounded-2xl border border-white/5 shadow-md">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
           <span className="text-[10px] font-black text-slate-350 tracking-widest uppercase">{theme.displayName}</span>
@@ -695,8 +694,8 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         </div>
       </div>
 
-      {/* VIP Text banner */}
-      <div className="text-center opacity-30 select-none my-2 z-10">
+      {/* VIP Text banner (Hidden on mobile to maximize card and button space) */}
+      <div className="text-center opacity-30 select-none my-1 sm:my-2 z-10 hidden sm:block">
         <h2 className={cn("font-serif font-black text-lg sm:text-2xl tracking-[0.3em] uppercase drop-shadow-md", theme.textColor)}>
           {theme.displayName}
         </h2>
@@ -705,32 +704,32 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         </span>
       </div>
 
-      {/* Table Felt Areas & Card slots */}
-      <div className="relative z-10 w-full flex flex-col md:flex-row gap-6 md:gap-16 justify-center items-center flex-1 my-4">
+      {/* Table Felt Areas & Card slots (Always side-by-side to save massive vertical space) */}
+      <div className="relative z-10 w-full flex flex-row gap-4 sm:gap-6 md:gap-16 justify-center items-center flex-1 my-2 sm:my-4">
         
         {/* Dealer Section */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-black/45 border border-white/5 px-3 py-1 rounded-full text-slate-300 font-black text-[10px] tracking-wider uppercase">
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="flex items-center gap-1 bg-black/45 border border-white/5 px-2.5 py-0.5 rounded-full text-slate-300 font-black text-[9px] tracking-wider uppercase">
             <span>Dealer</span>
             {dealerHand.length > 0 && (
               <span className="text-amber-400 font-mono font-bold">({dealerScore})</span>
             )}
           </div>
-          <div className="flex gap-[-20px] min-h-[110px] sm:min-h-[130px] justify-center items-center">
+          <div className="flex gap-[-20px] min-h-[90px] sm:min-h-[130px] justify-center items-center">
             {dealerHand.map((card, idx) => (
               <motion.div
                 key={idx}
                 initial={{ x: 200, y: -200, opacity: 0, rotate: 45, scale: 0.6 }}
                 animate={{ x: 0, y: 0, opacity: 1, rotate: card.faceDown ? 0 : idx === 0 ? -4 : 4, scale: 1 }}
                 transition={{ type: "spring", stiffness: 140, damping: 13 }}
-                style={{ marginLeft: idx > 0 ? "-24px" : "0px" }}
+                style={{ marginLeft: idx > 0 ? (typeof window !== 'undefined' && window.innerWidth < 640 ? "-18px" : "-24px") : "0px" }}
               >
                 <PremiumCard
                   val={card.val}
                   suit={card.suit}
                   faceDown={card.faceDown}
                   themeBack={themeBackKey}
-                  className="w-18 h-26 sm:w-20 sm:h-30"
+                  className="w-14 h-21 sm:w-20 sm:h-30"
                 />
               </motion.div>
             ))}
@@ -738,27 +737,27 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         </div>
 
         {/* Player Section */}
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex items-center gap-1.5 bg-blue-500/10 border border-blue-500/20 px-3 py-1 rounded-full text-blue-400 font-black text-[10px] tracking-wider uppercase shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+        <div className="flex flex-col items-center gap-1.5">
+          <div className="flex items-center gap-1 bg-blue-500/10 border border-blue-500/20 px-2.5 py-0.5 rounded-full text-blue-400 font-black text-[9px] tracking-wider uppercase shadow-[0_0_15px_rgba(59,130,246,0.15)]">
             <span>Player</span>
             {playerHand.length > 0 && (
               <span className="text-yellow-400 font-mono font-bold">({playerScore})</span>
             )}
           </div>
-          <div className="flex gap-[-20px] min-h-[110px] sm:min-h-[130px] justify-center items-center">
+          <div className="flex gap-[-20px] min-h-[90px] sm:min-h-[130px] justify-center items-center">
             {playerHand.map((card, idx) => (
               <motion.div
                 key={idx}
                 initial={{ x: 200, y: -200, opacity: 0, rotate: 45, scale: 0.6 }}
                 animate={{ x: 0, y: 0, opacity: 1, rotate: idx === 0 ? -4 : 4, scale: 1 }}
                 transition={{ type: "spring", stiffness: 140, damping: 13 }}
-                style={{ marginLeft: idx > 0 ? "-24px" : "0px" }}
+                style={{ marginLeft: idx > 0 ? (typeof window !== 'undefined' && window.innerWidth < 640 ? "-18px" : "-24px") : "0px" }}
               >
                 <PremiumCard
                   val={card.val}
                   suit={card.suit}
                   themeBack={themeBackKey}
-                  className="w-18 h-26 sm:w-20 sm:h-30"
+                  className="w-14 h-21 sm:w-20 sm:h-30"
                 />
               </motion.div>
             ))}
@@ -787,9 +786,9 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
       </div>
 
       {/* Premium Betting felt slots (Only shown in betting/idle phase) */}
-      <div className="relative z-20 w-full max-w-sm mx-auto flex justify-center items-center gap-6 my-2">
+      <div className="relative z-20 w-full max-w-sm mx-auto flex justify-center items-center gap-4 sm:gap-6 my-1.5 sm:my-2">
         {/* Left: Perfect Pairs */}
-        <div className="flex flex-col items-center gap-1.5">
+        <div className="flex flex-col items-center gap-1">
           <button
             disabled={phase !== "betting"}
             onClick={() => {
@@ -797,7 +796,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
               playSound("chip");
             }}
             className={cn(
-              "w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
+              "w-11 h-11 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
               sideBets.pairs 
                 ? "border-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.3)] scale-105" 
                 : "border-slate-700 bg-black/40 hover:border-amber-500/40"
@@ -805,36 +804,36 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
           >
             {sideBets.pairs ? (
               <div className="flex flex-col items-center justify-center leading-none">
-                <Coins className="w-5 h-5 text-amber-400 animate-bounce" />
-                <span className="text-[7.5px] font-black text-amber-300 mt-0.5">25:1</span>
+                <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 animate-bounce" />
+                <span className="text-[7px] sm:text-[7.5px] font-black text-amber-300 mt-0.5">25:1</span>
               </div>
             ) : (
-              <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest text-center">Pairs</span>
+              <span className="text-[7.5px] sm:text-[8px] font-black text-slate-500 uppercase tracking-widest text-center">Pairs</span>
             )}
           </button>
-          <span className="text-[7.5px] font-black uppercase text-slate-500 tracking-wider">Perfect Pairs</span>
+          <span className="text-[7px] sm:text-[7.5px] font-black uppercase text-slate-500 tracking-wider">Perfect Pairs</span>
         </div>
 
         {/* Center: Main Hand */}
-        <div className="flex flex-col items-center gap-1.5">
+        <div className="flex flex-col items-center gap-1">
           <div
             className={cn(
-              "w-16 h-16 sm:w-18 sm:h-18 rounded-full border-2 flex items-center justify-center relative shadow-inner select-none",
+              "w-14 h-14 sm:w-18 sm:h-18 rounded-full border-2 flex items-center justify-center relative shadow-inner select-none",
               phase === "betting" 
                 ? "border-amber-400 bg-amber-400/5 shadow-[0_0_20px_rgba(245,158,11,0.25)]" 
                 : "border-blue-500/80 bg-blue-500/10 shadow-[0_0_20px_rgba(59,130,246,0.3)]"
             )}
           >
             <div className="flex flex-col items-center justify-center leading-none">
-              <Coins className="w-7 h-7 text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] animate-pulse" />
-              <span className="text-[8.5px] font-black text-slate-350 mt-1 uppercase tracking-wider">Main Bet</span>
+              <Coins className="w-6 h-6 sm:w-7 sm:h-7 text-amber-500 drop-shadow-[0_2px_4px_rgba(0,0,0,0.5)] animate-pulse" />
+              <span className="text-[7.5px] sm:text-[8.5px] font-black text-slate-350 mt-0.5 sm:mt-1 uppercase tracking-wider">Main Bet</span>
             </div>
           </div>
-          <span className="text-[8px] font-black uppercase text-slate-400 tracking-widest">Main Seat</span>
+          <span className="text-[7.5px] sm:text-[8px] font-black uppercase text-slate-400 tracking-widest">Main Seat</span>
         </div>
 
         {/* Right: 21+3 */}
-        <div className="flex flex-col items-center gap-1.5">
+        <div className="flex flex-col items-center gap-1">
           <button
             disabled={phase !== "betting"}
             onClick={() => {
@@ -842,7 +841,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
               playSound("chip");
             }}
             className={cn(
-              "w-12 h-12 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
+              "w-11 h-11 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
               sideBets.three 
                 ? "border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-105" 
                 : "border-slate-700 bg-black/40 hover:border-emerald-500/40"
@@ -850,51 +849,51 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
           >
             {sideBets.three ? (
               <div className="flex flex-col items-center justify-center leading-none">
-                <Coins className="w-5 h-5 text-emerald-400 animate-bounce" />
-                <span className="text-[7.5px] font-black text-emerald-300 mt-0.5">100:1</span>
+                <Coins className="w-4 h-4 sm:w-5 sm:h-5 text-emerald-400 animate-bounce" />
+                <span className="text-[7px] sm:text-[7.5px] font-black text-emerald-300 mt-0.5">100:1</span>
               </div>
             ) : (
-              <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest text-center">21+3</span>
+              <span className="text-[7.5px] sm:text-[8px] font-black text-slate-500 uppercase tracking-widest text-center">21+3</span>
             )}
           </button>
-          <span className="text-[7.5px] font-black uppercase text-slate-500 tracking-wider">21+3 Side</span>
+          <span className="text-[7px] sm:text-[7.5px] font-black uppercase text-slate-500 tracking-wider">21+3 Side</span>
         </div>
       </div>
 
-      {/* Premium Dealer card shoe dispenser silhouette */}
-      <div className={cn("absolute top-4 right-6 w-16 h-12 bg-gradient-to-br rounded-lg border shadow-[0_10px_20px_rgba(0,0,0,0.8)] flex items-center justify-center z-15 pointer-events-none opacity-85 overflow-hidden", theme.shoeBg)}>
+      {/* Premium Dealer card shoe dispenser silhouette (Hidden on mobile to save space) */}
+      <div className={cn("hidden sm:flex absolute top-4 right-6 w-16 h-12 bg-gradient-to-br rounded-lg border shadow-[0_10px_20px_rgba(0,0,0,0.8)] items-center justify-center z-15 pointer-events-none opacity-85 overflow-hidden", theme.shoeBg)}>
         <div className="w-full h-2 bg-black border-b border-white/10 transform rotate-12 translate-y-1" />
         <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/10" />
       </div>
 
       {/* Decision HUD & Controls */}
-      <div className="relative z-30 w-full max-w-md bg-slate-900/60 backdrop-blur-xl p-3.5 rounded-2xl border border-white/5 shadow-2xl flex flex-col gap-3 items-center">
+      <div className="relative z-30 w-full max-w-md bg-slate-900/60 backdrop-blur-xl p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5 shadow-2xl flex flex-col gap-2 sm:gap-3 items-center">
         
         {/* Status message */}
         <div className="text-center">
           {phase === "betting" && (
-            <span className="text-[9.5px] font-black text-slate-400 uppercase tracking-widest leading-none">
+            <span className="text-[9px] sm:text-[9.5px] font-black text-slate-400 uppercase tracking-widest leading-none">
               Place wagers and toggle side bets to begin
             </span>
           )}
           {phase === "dealing" && (
-            <span className="text-[9.5px] font-black text-amber-400 uppercase tracking-widest leading-none animate-pulse">
+            <span className="text-[9px] sm:text-[9.5px] font-black text-amber-400 uppercase tracking-widest leading-none animate-pulse">
               Dealer dealing cards...
             </span>
           )}
           {phase === "player-turn" && (
-            <span className="text-[10px] font-black text-emerald-400 uppercase tracking-wider leading-none">
+            <span className="text-[9.5px] sm:text-[10px] font-black text-emerald-400 uppercase tracking-wider leading-none">
               Your turn • Hit or Stand?
             </span>
           )}
           {phase === "dealer-turn" && (
-            <span className="text-[10px] font-black text-yellow-400 uppercase tracking-wider leading-none animate-pulse">
+            <span className="text-[9.5px] sm:text-[10px] font-black text-yellow-400 uppercase tracking-wider leading-none animate-pulse">
               Dealer's turn...
             </span>
           )}
           {phase === "resolved" && resultMsg && (
             <span className={cn(
-              "text-lg font-black uppercase tracking-widest drop-shadow",
+              "text-base sm:text-lg font-black uppercase tracking-widest drop-shadow",
               resultMsg.includes("Wins") || resultMsg.includes("Blackjack") ? "text-amber-400" :
               resultMsg.includes("Push") ? "text-slate-350" : "text-rose-500"
             )}>
@@ -910,18 +909,18 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
               {/* Stand Button */}
               <button
                 onClick={handleStand}
-                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-black text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(239,68,68,0.1)] active:scale-97"
+                className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 sm:py-3 rounded-xl border border-rose-500/20 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 font-black text-[9.5px] sm:text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(239,68,68,0.1)] active:scale-97"
               >
-                <Hand className="w-4 h-4" />
+                <Hand className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Stand</span>
               </button>
 
               {/* Hit Button */}
               <button
                 onClick={handleHit}
-                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 font-black text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-97"
+                className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 sm:py-3 rounded-xl border border-emerald-500/20 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-450 font-black text-[9.5px] sm:text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(16,185,129,0.1)] active:scale-97"
               >
-                <Plus className="w-4 h-4" />
+                <Plus className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Hit</span>
               </button>
 
@@ -929,14 +928,14 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
               <button
                 disabled={playerHand.length > 2}
                 onClick={handleDoubleDown}
-                className="flex-1 flex flex-col items-center justify-center gap-1.5 py-3 rounded-xl border border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-black text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.1)] active:scale-97 disabled:opacity-40 disabled:pointer-events-none"
+                className="flex-1 flex flex-col items-center justify-center gap-1 py-2.5 sm:py-3 rounded-xl border border-amber-500/20 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 font-black text-[9.5px] sm:text-[10px] uppercase tracking-wider transition-all duration-200 cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.1)] active:scale-97 disabled:opacity-40 disabled:pointer-events-none"
               >
-                <Zap className="w-4 h-4" />
+                <Zap className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 <span>Double</span>
               </button>
             </>
           ) : (
-            <div className="flex items-center justify-center py-4 text-slate-500 font-black text-[10px] uppercase tracking-widest gap-2">
+            <div className="flex items-center justify-center py-2 sm:py-4 text-slate-500 font-black text-[9.5px] sm:text-[10px] uppercase tracking-widest gap-2">
               <RefreshCw className="w-3.5 h-3.5 animate-spin text-slate-600" />
               <span>Awaiting Next Bet Lock</span>
             </div>
@@ -944,7 +943,6 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         </div>
 
       </div>
-
     </div>
   );
 }
