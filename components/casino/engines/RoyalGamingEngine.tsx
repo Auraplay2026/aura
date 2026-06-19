@@ -1344,9 +1344,47 @@ export function RoyalGamingEngine({ isPlaying, betAmount = 100, onComplete, game
         const currentStackHeight = chip.sweepStart ? 0 : (stackCounts[targetId] || 0);
         const stackOffset = currentStackHeight * (isMobile ? -2.5 : -3.5);
 
-        // Target coordinates in CSS pixels
-        let targetX = chip.xPct !== undefined ? (chip.xPct / 100) * canvas.clientWidth : (chip.x || 0);
-        let targetY = chip.yPct !== undefined ? (chip.yPct / 100) * canvas.clientHeight : (chip.y || 0);
+        // Calculate dynamic button centers matching CSS overlay button layout
+        const getButtonCenter = (targetId: string, width: number, height: number) => {
+          const targetIdx = currentConfig.targets.findIndex(t => t.id === targetId);
+          if (targetIdx === -1) return { x: width * 0.5, y: height * 0.5 };
+          
+          const total = currentConfig.targets.length;
+          const gridWidth = isMobile 
+            ? Math.min(width - 16, 448) 
+            : Math.min(width - 32, 512);
+          
+          const leftEdge = (width - gridWidth) / 2;
+          const colWidth = gridWidth / total;
+          
+          // Deterministic random offset based on chip ID to look like a realistic pile of chips
+          const seed = chip.id ? (parseInt(chip.id.replace(/\D/g, '')) || 0) : 0;
+          const jitterX = ((seed % 7) / 7 - 0.5) * (colWidth * 0.22);
+          const jitterY = (((seed >> 2) % 7) / 7 - 0.5) * 8;
+
+          const x = leftEdge + (targetIdx + 0.5) * colWidth + jitterX;
+          
+          // Calculate center dynamically matching bottom-16 sm:bottom-18 md:bottom-20 and h-[60px] xs:h-[70px] sm:h-[78px]
+          let buttonCenterFromBottom = 119; // Default desktop
+          if (isMobile) {
+            const isXS = width >= 380;
+            const bottomOffset = 64; // bottom-16
+            const btnHeight = isXS ? 70 : 60;
+            buttonCenterFromBottom = bottomOffset + btnHeight / 2;
+          } else {
+            const isTab = width < 768;
+            const bottomOffset = isTab ? 72 : 80; // bottom-18 vs bottom-20
+            buttonCenterFromBottom = bottomOffset + 39; // 78 / 2
+          }
+
+          const y = height - buttonCenterFromBottom + jitterY;
+          
+          return { x, y };
+        };
+
+        const center = getButtonCenter(chip.targetId, canvas.clientWidth, canvas.clientHeight);
+        let targetX = center.x;
+        let targetY = center.y;
 
         if (!chip.sweepStart) {
           targetY += stackOffset;
@@ -1902,7 +1940,8 @@ setPlacedChips([]);
         {/* 2D Interactive Canvas Overlay (Click-through visual chips layer) */}
         <canvas
           ref={canvasRef}
-          className="absolute inset-0 w-full h-full pointer-events-none z-10"
+          className="absolute inset-0 w-full h-full pointer-events-none z-26"
+          style={{ transform: 'translateZ(0)' }}
         />
 
         {/* Sequential Live Dealer Physical Card Reveals (Aligned with Felt Slots) */}
@@ -1928,7 +1967,7 @@ setPlacedChips([]);
 
         {/* Interactive Transparent Glass-morphism Betting Grid Layer */}
         {phase === 'open' && ping <= 500 && showOverlay && (
-          <div className="absolute bottom-11 sm:bottom-12 md:bottom-14 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
+          <div className="absolute bottom-16 sm:bottom-18 md:bottom-20 inset-x-2 sm:inset-x-4 flex items-end justify-center z-25 pointer-events-auto animate-in fade-in zoom-in-95 duration-200">
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5 w-full max-w-md md:max-w-lg">
               {currentConfig.targets.map(target => {
                 const activeWager = bets[target.id] || 0;
