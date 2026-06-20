@@ -4,6 +4,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { calculateGameOutcome } from "@/lib/casino-math";
+import { playGameSound } from "@/lib/audio";
 
 interface CoinflipEngineProps {
   isPlaying: boolean;
@@ -41,6 +42,23 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
 
     setFlipping(true);
     setLanded(false);
+
+    // Play spin sound immediately
+    playGameSound("spin");
+
+    // Play decelerating click-ticks to simulate physics deceleration audio cues
+    let tickDelay = 60;
+    let isActive = true;
+    const playTickSequence = () => {
+      if (!isActive) return;
+      playGameSound("tick");
+      tickDelay = tickDelay * 1.25;
+      if (tickDelay < 450) {
+        setTimeout(playTickSequence, tickDelay);
+      }
+    };
+    setTimeout(playTickSequence, tickDelay);
+
     const outcome = calculateGameOutcome("ORIGINAL");
     const won = outcome.isWin;
     
@@ -51,13 +69,21 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
     setRotationX(prev => prev + extraSpins);
 
     const timer = setTimeout(() => {
+      isActive = false;
       setResult(finalResult);
       setFlipping(false);
       setLanded(true);
+      
+      // Play win or lose sound on landing
+      playGameSound(won ? "win" : "lose");
+      
       onCompleteRef.current(2.0, won);
     }, 2500);
 
-    return () => clearTimeout(timer);
+    return () => {
+      isActive = false;
+      clearTimeout(timer);
+    };
   }, [isPlaying, selectedSide]);
 
   return (
@@ -81,77 +107,187 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
         {/* Ambient base glow */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-yellow-500/20 rounded-full blur-[50px]" />
         
-        {/* Landed Win Glow Halos */}
+        {/* Landed Win Glow Halos and Particle Sparks */}
         <AnimatePresence>
           {result && !flipping && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ 
-                opacity: [0.4, 0.8, 0.4], 
-                scale: [1, 1.25, 1],
-                transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
-              }}
-              exit={{ opacity: 0 }}
-              className={cn(
-                "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 rounded-full blur-[40px] pointer-events-none z-0",
-                result === "AURA" ? "bg-amber-400/40" : "bg-rose-500/30"
-              )}
-            />
+            <>
+              {/* Outer Glow Halo */}
+              <motion.div
+                initial={{ opacity: 0, scale: 0.6 }}
+                animate={{ 
+                  opacity: [0.5, 0.9, 0.5], 
+                  scale: [1, 1.3, 1],
+                  transition: { duration: 1.5, repeat: Infinity, ease: "easeInOut" }
+                }}
+                exit={{ opacity: 0 }}
+                className={cn(
+                  "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-52 h-52 rounded-full blur-[50px] pointer-events-none z-0",
+                  result === "AURA" ? "bg-amber-400/45" : "bg-cyan-500/35"
+                )}
+              />
+              {/* Shockwave expanding ring */}
+              <motion.div
+                initial={{ opacity: 1, scale: 0.8 }}
+                animate={{ opacity: 0, scale: 1.8 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className={cn(
+                  "absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-40 h-40 rounded-full border-4 pointer-events-none z-20",
+                  result === "AURA" ? "border-amber-400/80 shadow-[0_0_15px_rgba(251,191,36,0.6)]" : "border-cyan-400/80 shadow-[0_0_15px_rgba(34,211,238,0.6)]"
+                )}
+              />
+              {/* Subtle spark particles */}
+              <motion.div
+                initial={{ opacity: 1, scale: 0.5 }}
+                animate={{ opacity: 0, scale: 1.4 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.6, ease: "easeOut" }}
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-48 h-48 pointer-events-none z-20"
+              >
+                {[...Array(6)].map((_, i) => {
+                  const angle = (i * 360) / 6;
+                  return (
+                    <motion.div
+                      key={i}
+                      className={cn(
+                        "absolute top-1/2 left-1/2 w-2.5 h-2.5 rounded-full",
+                        result === "AURA" ? "bg-amber-400" : "bg-cyan-400"
+                      )}
+                      style={{
+                        x: "-50%",
+                        y: "-50%",
+                      }}
+                      animate={{
+                        x: [0, Math.cos((angle * Math.PI) / 180) * 80],
+                        y: [0, Math.sin((angle * Math.PI) / 180) * 80],
+                      }}
+                      transition={{ duration: 0.7, ease: "easeOut" }}
+                    />
+                  );
+                })}
+              </motion.div>
+            </>
           )}
         </AnimatePresence>
         
         <motion.div
           animate={
             flipping 
-              ? { rotateX: rotationX, y: [-20, -150, -20, 0], scale: [1, 1.5, 0.8, 1] }
+              ? { 
+                  rotateX: rotationX, 
+                  rotateY: [0, 25, -20, 18, -15, 12, -8, 5, -2, 0],
+                  rotateZ: [0, 12, -8, 10, -6, 5, -3, 2, -1, 0],
+                  y: [-20, -180, -80, -120, -40, 0], 
+                  scale: [1, 1.35, 1.15, 1.25, 0.95, 1] 
+                }
               : landed 
-                ? { rotateX: result === "AURA" ? 0 : 180, y: [0, -20, 0], scale: [1, 1.12, 1] }
-                : { rotateX: selectedSide === "AURA" ? 0 : 180, y: 0, scale: 1 }
+                ? { 
+                    rotateX: result === "AURA" ? 0 : 180, 
+                    rotateY: [15, -10, 6, -3, 0],
+                    rotateZ: [8, -5, 3, -1, 0],
+                    y: [0, -15, 0], 
+                    scale: [1, 1.08, 1] 
+                  }
+                : { 
+                    rotateX: selectedSide === "AURA" ? 0 : 180, 
+                    rotateY: 0,
+                    rotateZ: 0,
+                    y: 0, 
+                    scale: 1 
+                  }
           }
           transition={
             flipping 
-              ? { duration: 2.5, ease: [0.32, 0.72, 0, 1] }
+              ? { 
+                  duration: 2.5,
+                  rotateX: { duration: 2.5, ease: [0.15, 0.85, 0.3, 1] },
+                  rotateY: { duration: 2.5, ease: "easeInOut" },
+                  rotateZ: { duration: 2.5, ease: "easeInOut" },
+                  y: { duration: 2.5, ease: [0.25, 0.46, 0.45, 0.94] },
+                  scale: { duration: 2.5, ease: "easeInOut" }
+                }
               : landed
-                ? { duration: 0.6, ease: "easeOut" }
+                ? { 
+                    duration: 0.8,
+                    rotateX: { duration: 0.3, ease: "easeOut" },
+                    rotateY: { duration: 0.8, ease: "easeOut" },
+                    rotateZ: { duration: 0.8, ease: "easeOut" },
+                    y: { duration: 0.5, ease: "easeOut" },
+                    scale: { duration: 0.4, ease: "easeOut" }
+                  }
                 : { duration: 0.5, type: "spring", stiffness: 100 }
           }
-          className="w-40 h-40 relative font-black drop-shadow-[0_25px_30px_rgba(0,0,0,0.4)]"
+          className="w-40 h-40 relative font-black drop-shadow-[0_25px_30px_rgba(0,0,0,0.35)]"
           style={{ transformStyle: "preserve-3d" }}
         >
+          {/* 3D Reeded Edge Stack representing coin body thickness */}
+          {[-3, -2, -1, 0, 1, 2, 3].map((z) => (
+            <div
+              key={z}
+              className="absolute inset-0 rounded-full bg-[repeating-conic-gradient(from_0deg,#d97706_0deg_4deg,#78350f_4deg_8deg)]"
+              style={{ transform: `translateZ(${z}px)` }}
+            />
+          ))}
+
           {/* Side A (AURA) - Gold Coin Face */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#fef08a_0%,#eab308_60%,#ca8a04_100%)] border-[8px] border-amber-400 shadow-[inset_0_0_20px_rgba(0,0,0,0.5),0_8px_20px_rgba(0,0,0,0.4)]" 
-            style={{ backfaceVisibility: "hidden" }}
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#fffbeb_0%,#fef08a_25%,#eab308_60%,#ca8a04_85%,#854d0e_100%)] border-[8px] border-amber-500 shadow-[inset_0_4px_12px_rgba(0,0,0,0.4),0_8px_20px_rgba(0,0,0,0.4)]" 
+            style={{ backfaceVisibility: "hidden", transform: "translateZ(4px)" }}
           >
-            <div className="absolute inset-2 rounded-full border-2 border-yellow-600/30 border-dotted animate-spin-slow opacity-60" />
-            <svg className="w-16 h-16 text-amber-950 drop-shadow-[0_2px_3px_rgba(0,0,0,0.3)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-              <polygon points="12 2 2 7 12 12 22 7 12 2" />
-              <polyline points="2 17 12 22 22 17" />
-              <polyline points="2 12 12 17 22 12" />
+            {/* Elegant embossed background letter */}
+            <div className="absolute inset-0 flex items-center justify-center text-[110px] font-serif font-extrabold text-yellow-600/10 select-none pointer-events-none">A</div>
+
+            {/* Inner rotating detail ring */}
+            <div className="absolute inset-2 rounded-full border-2 border-yellow-600/30 border-dotted animate-spin-slow opacity-60 pointer-events-none" />
+            
+            {/* Crown Crest */}
+            <svg className="w-16 h-16 text-yellow-950 drop-shadow-[0_3px_5px_rgba(133,77,14,0.4)] z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" fill="currentColor" opacity="0.15" />
+              <path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7z" />
+              <path d="M3 20h18" strokeWidth="2.5" />
+              <circle cx="12" cy="4" r="1" fill="currentColor" />
+              <circle cx="2" cy="4" r="1" fill="currentColor" />
+              <circle cx="22" cy="4" r="1" fill="currentColor" />
             </svg>
-            <span className="text-[10px] text-amber-950 font-black tracking-[0.25em] mt-3 uppercase drop-shadow-[0_1px_0_rgba(255,255,255,0.4)]">AURA</span>
+            <span className="text-[11px] text-yellow-950 font-black tracking-[0.3em] mt-3 uppercase drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)] z-10">AURA</span>
+
+            {/* Specular Glare highlight sheen */}
+            <motion.div 
+              className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none z-20"
+              animate={flipping ? { x: ["-100%", "100%"] } : landed ? { x: ["-100%", "100%"], transition: { duration: 1.2, ease: "easeOut" } } : { x: "-100%" }}
+              transition={flipping ? { duration: 0.8, repeat: Infinity, ease: "linear" } : {}}
+            />
           </div>
 
-          {/* Side B (SKULL) - Midnight Obsidian Coin Face with matching Gold Rim */}
+          {/* Side B (SKULL) - Midnight Obsidian Coin Face */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#3f3f46_0%,#18181b_70%,#09090b_100%)] border-[8px] border-amber-400 shadow-[inset_0_0_20px_rgba(0,0,0,0.6),0_8px_20px_rgba(0,0,0,0.4)]"
-            style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-700 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.4)]"
+            style={{ backfaceVisibility: "hidden", transform: "translateZ(-4px) rotateX(180deg)" }}
           >
-            <div className="absolute inset-2 rounded-full border-2 border-rose-500/20 border-dashed animate-[spin_4s_linear_infinite_reverse] opacity-50" />
-            <svg className="w-16 h-16 text-rose-400 drop-shadow-[0_0_8px_rgba(244,63,94,0.6)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z" fill="rgba(244,63,94,0.08)" />
-              <circle cx="8.5" cy="11" r="2" fill="#f43f5e" className="animate-pulse" stroke="none" />
-              <circle cx="15.5" cy="11" r="2" fill="#f43f5e" className="animate-pulse" stroke="none" />
-              <polygon points="12,13 11,14.5 13,14.5" fill="#f43f5e" stroke="none" />
-              <path d="M9 17.5h6" stroke="#f43f5e" strokeWidth="1.5" />
-              <path d="M10.5 17.5v2.5M12 17.5v2.5M13.5 17.5v2.5" stroke="#f43f5e" strokeWidth="1.5" />
-            </svg>
-            <span className="text-[10px] text-rose-400 font-black tracking-[0.25em] mt-3 uppercase drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]">SKULL</span>
-          </div>
+            {/* Elegant embossed background letter */}
+            <div className="absolute inset-0 flex items-center justify-center text-[110px] font-serif font-extrabold text-slate-800/15 select-none pointer-events-none">S</div>
 
-          {/* Reeded coin edge effect */}
-          <div className="absolute inset-0 rounded-full border-[10px] border-amber-500/10 mix-blend-overlay pointer-events-none z-30" />
-          <div className="absolute inset-0 rounded-full border-[2px] border-white/20 pointer-events-none z-30" />
+            {/* Inner counter-rotating detail ring */}
+            <div className="absolute inset-2 rounded-full border-2 border-cyan-500/20 border-dashed animate-[spin_6s_linear_infinite_reverse] opacity-50 pointer-events-none" />
+            
+            {/* Skull SVG with teal accents */}
+            <svg className="w-16 h-16 text-cyan-400 drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 10a8 8 0 0 1 16 0c0 2-.5 3.5-1.5 5l-.5 2v3a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-3l-.5-2C4.5 13.5 4 12 4 10z" fill="rgba(6,182,212,0.06)" />
+              <circle cx="8.5" cy="10.5" r="2.5" fill="currentColor" stroke="none" className="animate-pulse" />
+              <circle cx="15.5" cy="10.5" r="2.5" fill="currentColor" stroke="none" className="animate-pulse" />
+              <path d="M12 12.5l-1 1.5h2z" fill="currentColor" stroke="none" />
+              <path d="M8 17h8" strokeWidth="1.5" />
+              <path d="M9.5 17v3M12 17v3M14.5 17v3" strokeWidth="1.5" />
+            </svg>
+            <span className="text-[11px] text-cyan-400 font-black tracking-[0.3em] mt-3 uppercase drop-shadow-[0_1px_4px_rgba(6,182,212,0.5)] z-10">SKULL</span>
+
+            {/* Specular Glare highlight sheen */}
+            <motion.div 
+              className="absolute inset-0 rounded-full bg-gradient-to-tr from-transparent via-white/20 to-transparent pointer-events-none z-20"
+              animate={flipping ? { x: ["-100%", "100%"] } : landed ? { x: ["-100%", "100%"], transition: { duration: 1.2, ease: "easeOut" } } : { x: "-100%" }}
+              transition={flipping ? { duration: 0.8, repeat: Infinity, ease: "linear" } : {}}
+            />
+          </div>
         </motion.div>
       </div>
 
@@ -163,7 +299,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "AURA"
               ? "bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 text-yellow-950 border-yellow-250 shadow-[0_4px_12px_rgba(234,179,8,0.25)] scale-105"
-              : "bg-white text-slate-555 border-slate-200/80 hover:border-amber-400/40 hover:text-slate-800"
+              : "bg-white text-slate-600 border-slate-200/80 hover:border-amber-400/40 hover:text-slate-800"
           }`}
         >
           {/* Miniature Gold Coin Preview */}
@@ -180,13 +316,13 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
           onClick={() => setSelectedSide("SKULL")}
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "SKULL"
-              ? "bg-gradient-to-br from-slate-700 via-slate-800 to-zinc-900 text-slate-100 border-slate-600 shadow-[0_4px_12px_rgba(39,39,42,0.25)] scale-105"
-              : "bg-white text-slate-555 border-slate-200/80 hover:border-rose-400/40 hover:text-slate-800"
+              ? "bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 text-white border-slate-700 shadow-[0_4px_12px_rgba(8,145,178,0.25)] scale-105"
+              : "bg-white text-slate-600 border-slate-200/80 hover:border-cyan-400/40 hover:text-slate-800"
           }`}
         >
           {/* Miniature Silver/Charcoal Coin Preview */}
-          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-400 to-slate-600 border border-slate-200 shadow-sm flex items-center justify-center scale-95">
-            <svg className="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-600 to-cyan-700 border border-cyan-500/50 shadow-sm flex items-center justify-center scale-95">
+            <svg className="w-3 h-3 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z"/>
               <circle cx="9" cy="11" r="1" fill="currentColor"/>
               <circle cx="15" cy="11" r="1" fill="currentColor"/>
@@ -200,29 +336,27 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
       <AnimatePresence>
         {result && !flipping && (
           <motion.div 
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={{ opacity: 0, scale: 0.85, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className={cn(
-              "mt-8 px-8 py-3.5 rounded-2xl text-center border shadow-xl backdrop-blur-md flex items-center gap-3 relative overflow-hidden",
-              result === 'AURA' 
-                ? 'bg-amber-500/5 border-amber-500/20 text-amber-900 shadow-amber-500/5' 
-                : 'bg-rose-500/5 border-rose-500/20 text-rose-700 shadow-rose-500/5'
-            )}
+            exit={{ opacity: 0, scale: 0.9, y: 10 }}
+            className="mt-8 px-10 py-4.5 rounded-2xl text-center border border-slate-200/80 bg-white/90 shadow-[0_12px_36px_rgba(0,0,0,0.08)] backdrop-blur-md flex items-center gap-4 relative overflow-hidden z-20"
           >
             {/* Ambient background shimmer */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent translate-x-[-100%] animate-[shimmer_2s_infinite]" />
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-slate-100 to-transparent translate-x-[-100%] animate-[shimmer_2.5s_infinite]" />
 
             <div className={cn(
-              "w-8 h-8 rounded-xl flex items-center justify-center border",
-              result === 'AURA' ? 'bg-amber-500/10 border-amber-500/25 text-amber-600' : 'bg-rose-500/10 border-rose-500/25 text-rose-500'
+              "w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm",
+              result === 'AURA' 
+                ? 'bg-amber-100 border-amber-200 text-amber-600' 
+                : 'bg-cyan-100 border-cyan-200 text-cyan-600'
             )}>
               {result === 'AURA' ? (
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <polygon points="12 2 2 7 12 12 22 7 12 2" />
                   <polyline points="2 12 12 17 22 12" />
                 </svg>
               ) : (
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z"/>
                   <circle cx="9" cy="11" r="1" fill="currentColor"/>
                   <circle cx="15" cy="11" r="1" fill="currentColor"/>
@@ -230,14 +364,19 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
               )}
             </div>
             
-            <div className="text-left">
-              <span className="text-[9px] text-slate-500 font-black uppercase tracking-wider block">Result</span>
-              <span className={cn(
-                "text-lg font-black tracking-widest uppercase font-mono",
-                result === 'AURA' ? 'text-amber-600' : 'text-rose-500'
-              )}>
-                {result}
-              </span>
+            <div className="text-left select-none">
+              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">WINNING SIDE</span>
+              <div className="flex items-baseline gap-2">
+                <span className={cn(
+                  "text-xl font-black tracking-widest uppercase font-mono",
+                  result === 'AURA' ? 'text-amber-650' : 'text-cyan-600'
+                )}>
+                  {result}
+                </span>
+                <span className="text-[11px] font-extrabold text-emerald-600 bg-emerald-50 border border-emerald-100 rounded px-1.5 py-0.5">
+                  2.0x
+                </span>
+              </div>
             </div>
           </motion.div>
         )}
