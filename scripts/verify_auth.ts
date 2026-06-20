@@ -1,6 +1,6 @@
 import { signJWT, verifyJWT } from '../lib/jwt';
 import { generateSecret, generateTOTP, verifyTOTP } from '../lib/totp';
-import { middleware } from '../middleware';
+import { proxy as middleware } from '../proxy';
 import { NextRequest } from 'next/server';
 
 async function testJWT() {
@@ -88,7 +88,11 @@ async function testMiddlewareBOLA() {
   console.log("\n--- Testing Middleware BOLA Gating ---");
   
   // 1. Test missing cookies
-  const reqNoCookies = new NextRequest("http://localhost:3000/admin/dashboard");
+  const reqNoCookies = new NextRequest("http://localhost:3000/admin/dashboard", {
+    headers: {
+      "authorization": "Basic YWRtaW46QXVyYUFkbWluMjAyNiE="
+    }
+  });
   const resNoCookies = await middleware(reqNoCookies);
   if (resNoCookies && resNoCookies.status === 307) {
     console.log("✅ Unauthenticated request correctly redirected to home page.");
@@ -102,7 +106,8 @@ async function testMiddlewareBOLA() {
 
   const reqMismatch = new NextRequest("http://localhost:3000/admin/dashboard", {
     headers: {
-      "cookie": `user_email=hacker@gmail.com; admin_auth_token=${validToken}`
+      "cookie": `user_email=hacker@gmail.com; admin_auth_token=${validToken}`,
+      "authorization": "Basic YWRtaW46QXVyYUFkbWluMjAyNiE="
     }
   });
   const resMismatch = await middleware(reqMismatch);
@@ -118,7 +123,8 @@ async function testMiddlewareBOLA() {
 
   const reqFake = new NextRequest("http://localhost:3000/admin/dashboard", {
     headers: {
-      "cookie": `user_email=fakeadmin@gmail.com; admin_auth_token=${fakeToken}`
+      "cookie": `user_email=fakeadmin@gmail.com; admin_auth_token=${fakeToken}`,
+      "authorization": "Basic YWRtaW46QXVyYUFkbWluMjAyNiE="
     }
   });
   const resFake = await middleware(reqFake);
@@ -131,7 +137,8 @@ async function testMiddlewareBOLA() {
   // 4. Test authorized access with sliding window renewal check
   const reqAuth = new NextRequest("http://localhost:3000/admin/dashboard", {
     headers: {
-      "cookie": `user_email=twintubrovquattro@gmail.com; admin_auth_token=${validToken}`
+      "cookie": `user_email=twintubrovquattro@gmail.com; admin_auth_token=${validToken}`,
+      "authorization": "Basic YWRtaW46QXVyYUFkbWluMjAyNiE="
     }
   });
   const resAuth = await middleware(reqAuth);
