@@ -49,13 +49,17 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
 
     const willWin = winsSoFar < targetWinLength;
     
+    // Scale destination coordinates for smaller mobile viewports (under 400px wide)
+    const isMobileViewport = typeof window !== "undefined" && window.innerWidth < 400;
+    const scalingFactor = isMobileViewport ? 0.85 : 1.0;
+
     // Determine ball destination
     const dests: Record<GoalZone, { x: number, y: number }> = {
-      "TL": { x: -120, y: -80 },
-      "TR": { x: 120, y: -80 },
-      "C": { x: 0, y: -20 },
-      "BL": { x: -120, y: 40 },
-      "BR": { x: 120, y: 40 },
+      "TL": { x: -120 * scalingFactor, y: -80 * scalingFactor },
+      "TR": { x: 120 * scalingFactor, y: -80 * scalingFactor },
+      "C": { x: 0, y: -20 * scalingFactor },
+      "BL": { x: -120 * scalingFactor, y: 40 * scalingFactor },
+      "BR": { x: 120 * scalingFactor, y: 40 * scalingFactor },
     };
 
     const ballDest = dests[zone];
@@ -130,7 +134,7 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
   }, [gameState, multiplier]);
 
   return (
-    <div className="w-full h-full min-h-[300px] sm:min-h-[480px] md:min-h-[600px] bg-sky-900 rounded-[2.5rem] sm:rounded-[3rem] border-4 sm:border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden perspective-[1000px]">
+    <div className="w-full h-full min-h-[260px] sm:min-h-[360px] md:min-h-[600px] bg-sky-900 rounded-[1.5rem] sm:rounded-[2.5rem] md:rounded-[3rem] border-2 sm:border-4 md:border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden perspective-[1000px]">
       
       {/* 3D Grass Pitch Background */}
       <div 
@@ -160,7 +164,7 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
       <div className="relative flex-1 w-full max-w-md flex flex-col items-center justify-center scale-[0.75] xs:scale-[0.85] sm:scale-100 origin-center -translate-y-6 sm:translate-y-0">
         
         {/* Goal Post */}
-        <div className="relative z-10 w-[300px] md:w-[400px] h-[160px] md:h-[200px] border-[8px] border-white rounded-t-lg flex items-center justify-center bg-black/10">
+        <div className="relative z-10 w-[250px] xs:w-[300px] md:w-[400px] h-[130px] xs:h-[160px] md:h-[200px] border-[6px] xs:border-[8px] border-white rounded-t-lg flex items-center justify-center bg-black/10">
           {/* Goal Net Illusion */}
           <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagonal-striped-brick.png')] opacity-20 pointer-events-none" />
           
@@ -168,9 +172,9 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
           <motion.div 
             animate={{ x: gkPos.x, y: gkPos.y }}
             transition={{ type: "spring", stiffness: 150, damping: 15 }}
-            className="absolute z-20 w-16 h-24 bg-yellow-500 rounded-t-[2rem] rounded-b-md border-2 border-slate-900 shadow-2xl flex flex-col items-center pt-2"
+            className="absolute z-20 w-12 xs:w-16 h-20 xs:h-24 bg-yellow-500 rounded-t-[1.5rem] xs:rounded-t-[2rem] rounded-b-md border-2 border-slate-900 shadow-2xl flex flex-col items-center pt-1 xs:pt-2"
           >
-            <div className="w-8 h-8 bg-pink-300 rounded-full border-2 border-slate-900" />
+            <div className="w-6 xs:w-8 h-6 xs:h-8 bg-pink-300 rounded-full border-2 border-slate-900" />
           </motion.div>
 
           {/* Interactive Shoot Zones */}
@@ -194,7 +198,7 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
                 initial={{ scale: 1, y: 100 }}
                 animate={{ x: ballPos.x, y: ballPos.y, scale: ballPos.scale }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
-                className="w-12 h-12 bg-white rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.5),inset_-5px_-5px_10px_rgba(0,0,0,0.5)] border-2 border-slate-300 flex items-center justify-center"
+                className="w-10 xs:w-12 h-10 xs:h-12 bg-white rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.5),inset_-5px_-5px_10px_rgba(0,0,0,0.5)] border-2 border-slate-300 flex items-center justify-center"
                 style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, white, #cbd5e1)' }}
               >
                 <div className="w-4 h-4 bg-slate-50 rounded-full opacity-50" />

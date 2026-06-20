@@ -937,7 +937,7 @@ export default function GamePlayerPage() {
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-36 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-28 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-3">
@@ -1549,7 +1549,7 @@ export default function GamePlayerPage() {
                     )}>
                       
                       {/* Central Canvas Area */}
-                      <div className="flex-1 w-full flex flex-col md:flex-row gap-4 md:gap-6 relative z-10 min-h-[280px] sm:min-h-[400px] md:min-h-[600px]">
+                      <div className="flex-1 w-full flex flex-col md:flex-row gap-4 md:gap-6 relative z-10 min-h-0 sm:min-h-0 md:min-h-[600px]">
                         
                         <div className={cn(
                           "flex-1 flex flex-col items-center justify-start relative w-full overflow-y-auto scrollbar-none",
@@ -1560,7 +1560,7 @@ export default function GamePlayerPage() {
                               : "bg-[#faf8f2] rounded-3xl shadow-[inset_0_0_20px_rgba(0,0,0,0.03)] border border-amber-200/40"
                         )}>
                           {!isCloudRenting ? (
-                            <div className="relative w-full flex-1 flex flex-col items-center py-4">
+                            <div className="relative w-full flex-1 flex flex-col items-center py-0.5 sm:py-4">
                               {renderEngine()}
 
                               {/* Win Overlay */}

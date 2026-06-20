@@ -676,7 +676,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
   }, [stopAudio]);
 
   return (
-    <div className="w-full h-full min-h-[300px] sm:min-h-[480px] md:min-h-[600px] bg-[#02050a] rounded-[2rem] sm:rounded-[2.5rem] border-4 border-slate-800 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden font-sans select-none">
+    <div className="w-full h-full min-h-[260px] sm:min-h-[360px] md:min-h-[600px] bg-[#02050a] rounded-[1.5rem] sm:rounded-[2rem] md:rounded-[2.5rem] border-2 sm:border-4 border-slate-800 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden font-sans select-none">
       
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 block" />
 
@@ -809,21 +809,21 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
       </div>
 
       {gameState === "playing" && (
-        <div className="absolute inset-x-0 bottom-6 z-30 flex justify-between px-6 pointer-events-none md:hidden">
+        <div className="absolute inset-x-0 bottom-4 z-30 flex justify-between px-4 pointer-events-none md:hidden">
           <button 
             onTouchStart={steerLeft}
             onClick={steerLeft}
-            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-slate-900 active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
+            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-slate-900 active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
           >
-            <ArrowLeft className="w-8 h-8 stroke-[3]" />
+            <ArrowLeft className="w-6 h-6 stroke-[3]" />
           </button>
 
           <button 
             onTouchStart={steerRight}
             onClick={steerRight}
-            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-slate-900 active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
+            className="w-12 h-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-slate-900 active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
           >
-            <ArrowRight className="w-8 h-8 stroke-[3]" />
+            <ArrowRight className="w-6 h-6 stroke-[3]" />
           </button>
         </div>
       )}
