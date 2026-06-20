@@ -288,8 +288,7 @@ export default function GamePlayerPage() {
   const [sidebarTab, setSidebarTab] = useState<'stakes' | 'strategy'>('stakes');
   const [highReaches, setHighReaches] = useState<HighReachOutcome[]>(INITIAL_HIGH_REACHES);
   const [recentActivities, setRecentActivities] = useState<ActivityLog[]>([]);
-  const [scoreboardTab, setScoreboardTab] = useState<"top-one-percent" | "recent-runs" | "platform-feed">("top-one-percent");
-  const [platformBets, setPlatformBets] = useState<any[]>([]);
+  const [scoreboardTab, setScoreboardTab] = useState<"top-one-percent" | "recent-runs">("top-one-percent");
   const [selectedTarget, setSelectedTarget] = useState<string>("");
   const [isStatsExpanded, setIsStatsExpanded] = useState(false);
   const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false);
@@ -314,34 +313,7 @@ export default function GamePlayerPage() {
     return () => clearTimeout(timer);
   }, [currentUser]);
 
-  useEffect(() => {
-    const fetchHypeData = async () => {
-      try {
-        const res = await fetch("/api/casino/high-rollers");
-        if (res.ok) {
-          const json = await res.json();
-          const mappedBets = json.bets.map((b: any) => {
-            return {
-              user: b.user,
-              bet: b.bet,
-              mult: b.mult,
-              win: b.win,
-              color: b.color,
-              game: b.game,
-              type: b.type
-            };
-          });
-          setPlatformBets(mappedBets);
-        }
-      } catch (err) {
-        console.error("Failed to fetch platform VIP feed", err);
-      }
-    };
 
-    fetchHypeData();
-    const interval = setInterval(fetchHypeData, 30000);
-    return () => clearInterval(interval);
-  }, []);
 
   const game = GAMES.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === id.toLowerCase() || g.id.toLowerCase() === id.toLowerCase());
 
@@ -1208,7 +1180,7 @@ export default function GamePlayerPage() {
                                         <span>Chip Selector</span>
                                         <span>Double click to 2x</span>
                                       </div>
-                                      <div className="flex items-center justify-between gap-1 mt-1.5 overflow-x-auto py-1.5 scrollbar-none">
+                                      <div className="flex flex-wrap items-center justify-between gap-2 mt-1.5 py-1.5">
                                         {[
                                           { amount: 100, label: "100", color: "from-red-650 to-red-700 border-red-500" },
                                           { amount: 500, label: "500", color: "from-teal-650 to-teal-700 border-teal-500" },
@@ -1905,7 +1877,7 @@ export default function GamePlayerPage() {
                         </div>
 
                         {/* Row 2: Chips + mobile extras + balance */}
-                        <div className="flex items-center gap-1.5 px-3 pb-3 md:px-5 md:pb-4 overflow-x-auto scrollbar-none">
+                        <div className="flex flex-wrap items-center gap-1.5 px-3 pb-3 md:px-5 md:pb-4">
                           {[
                             {amount:100, label:"₹100", color:"from-red-600 to-red-700"},
                             {amount:500, label:"₹500", color:"from-teal-600 to-teal-700"},
@@ -2114,10 +2086,8 @@ export default function GamePlayerPage() {
                       <h2 className="text-sm sm:text-base font-black text-slate-100 truncate flex items-center gap-2">
                         {scoreboardTab === "top-one-percent" 
                           ? (isCrash ? "Crash High Reaches" : "Highest Multipliers") 
-                          : scoreboardTab === "recent-runs" 
-                            ? "Session Live Activities" 
-                            : "Platform Live Hub Feed"}
-                        {(scoreboardTab === "recent-runs" || scoreboardTab === "platform-feed") && (
+                          : "Session Live Activities"}
+                        {scoreboardTab === "recent-runs" && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
                             <span className="relative flex h-1.5 w-1.5"><span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" /><span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500" /></span>
                             Live
@@ -2127,9 +2097,7 @@ export default function GamePlayerPage() {
                       <p className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5 truncate">
                         {scoreboardTab === "top-one-percent" 
                           ? "Top payouts & outlier multipliers" 
-                          : scoreboardTab === "recent-runs" 
-                            ? "Your recent session wagers and rounds" 
-                            : "Real-time wagers and game activity platform-wide"}
+                          : "Your recent session wagers and rounds"}
                       </p>
                     </div>
                   </div>
@@ -2173,25 +2141,6 @@ export default function GamePlayerPage() {
                         />
                       )}
                       ⚡ Live Activities
-                    </button>
-                    <button 
-                      onClick={() => setScoreboardTab("platform-feed")}
-                      className={cn(
-                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
-                        scoreboardTab === "platform-feed" 
-                          ? "text-white" 
-                          : "text-slate-500 hover:text-slate-800"
-                      )}
-                    >
-                      {scoreboardTab === "platform-feed" && (
-                        <motion.div 
-                          layoutId="activeScoreboardTab"
-                          className="absolute inset-0 bg-gradient-to-r from-[#e11d48] to-[#be123c] rounded-xl -z-10"
-                          style={{ boxShadow: '0 4px 12px rgba(225,29,72,0.25)' }}
-                          transition={{ type: "spring", stiffness: 400, damping: 28 }}
-                        />
-                      )}
-                      🔥 Live Hub Feed
                     </button>
                   </div>
                 </div>
@@ -2529,147 +2478,7 @@ export default function GamePlayerPage() {
                       </div>
                     </>
                   )}
-                  {scoreboardTab === "platform-feed" && (
-                    <>
-                      {/* Desktop Table for Platform Live Feed */}
-                      <div className="hidden sm:block overflow-x-auto sb-scrollbar">
-                        <table className="w-full text-left text-xs font-bold border-collapse" style={{ transform: 'translateZ(0)' }}>
-                          <thead>
-                            <tr className="text-slate-500 border-b border-slate-200 uppercase tracking-widest text-[9px]">
-                              <th className="pb-3 pr-4">Game</th>
-                              <th className="pb-3 pr-4">User</th>
-                              <th className="pb-3 pr-4 text-center">Type</th>
-                              <th className="pb-3 pr-4 text-right">Wager/Cost</th>
-                              <th className="pb-3 pr-4 text-center">Mult/Rate</th>
-                              <th className="pb-3 text-right">Total Payout</th>
-                            </tr>
-                          </thead>
-                          <tbody className="divide-y divide-slate-100 font-semibold text-slate-700">
-                            {platformBets.length === 0 ? (
-                              <tr>
-                                <td colSpan={6} className="py-12 text-center">
-                                  <div className="flex flex-col items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
-                                      <Activity className="w-5 h-5 text-slate-600" />
-                                    </div>
-                                    <span className="text-slate-500 text-xs font-bold">No platform live wagers yet.</span>
-                                  </div>
-                                </td>
-                              </tr>
-                            ) : (
-                              platformBets.map((act, idx) => (
-                                <motion.tr 
-                                  key={`${act.user}-${act.bet}-${idx}`} 
-                                  initial={{ opacity: 0, y: 10 }}
-                                  animate={{ opacity: 1, y: 0 }}
-                                  transition={{ duration: 0.3, delay: Math.min(idx * 0.02, 0.3), ease: [0.22, 1, 0.36, 1] }}
-                                  className={cn(
-                                    "hover:bg-slate-50 transition-colors", 
-                                    act.user === "You" && "bg-gradient-to-r from-rose-50 to-transparent border-l-2 border-rose-500"
-                                  )}
-                                >
-                                  <td className="py-3.5 pr-4 text-purple-600 font-bold">🎮 {act.game}</td>
-                                  <td className="py-3.5 pr-4">
-                                    <span className={cn(
-                                      "text-xs",
-                                      act.user === "You" ? "text-rose-600 font-extrabold" : "text-slate-700 font-bold"
-                                    )}>
-                                      {act.user}
-                                    </span>
-                                  </td>
-                                  <td className="py-3.5 pr-4 text-center">
-                                    <span className={cn(
-                                      "inline-flex items-center px-2 py-0.5 rounded-lg text-[9px] font-black uppercase tracking-wider",
-                                      act.type === "rental" 
-                                        ? "bg-amber-50 text-amber-700 border border-amber-200/40" 
-                                        : "bg-emerald-50 text-emerald-600 border border-emerald-200/40"
-                                    )}>
-                                      {act.type === "rental" ? "Rent" : "Bet"}
-                                    </span>
-                                  </td>
-                                  <td className="py-3.5 pr-4 text-right font-mono text-slate-600 text-[11px]">{act.bet}</td>
-                                  <td className="py-3.5 pr-4 text-center font-mono text-slate-700 text-[11px]">{act.mult}</td>
-                                  <td className={cn("py-3.5 text-right font-mono font-black text-[11px]", act.win !== "₹0" ? "text-emerald-600" : "text-slate-500")}>
-                                    {act.win}
-                                  </td>
-                                </motion.tr>
-                              ))
-                            )}
-                          </tbody>
-                        </table>
-                      </div>
 
-                      {/* Mobile Card Layout for Platform Live Feed */}
-                      <div className="sm:hidden space-y-2">
-                        {platformBets.length === 0 ? (
-                          <div className="flex flex-col items-center justify-center py-10 gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
-                              <Activity className="w-5 h-5 text-slate-600" />
-                            </div>
-                            <span className="text-slate-500 text-xs font-bold text-center">No platform live wagers yet.</span>
-                          </div>
-                        ) : (
-                          platformBets.map((act, idx) => (
-                            <motion.div
-                              key={`${act.user}-${act.bet}-${idx}`}
-                              initial={{ opacity: 0, y: 10 }}
-                              animate={{ opacity: 1, y: 0 }}
-                              transition={{ duration: 0.25, delay: Math.min(idx * 0.02, 0.2), ease: [0.22, 1, 0.36, 1] }}
-                              className={cn(
-                                "relative rounded-2xl p-3 border transition-colors",
-                                act.user === "You"
-                                  ? "bg-gradient-to-br from-rose-50 to-rose-100/50 border-rose-200"
-                                  : "bg-slate-50 border-slate-200/80"
-                              )}
-                              style={{ willChange: 'transform', transform: 'translateZ(0)' }}
-                            >
-                              {/* Header: game + user */}
-                              <div className="flex items-center justify-between mb-2.5">
-                                <div className="flex items-center gap-2 min-w-0">
-                                  <span className="text-[10px] text-purple-600 font-black uppercase truncate">🎮 {act.game}</span>
-                                  <span className={cn(
-                                    "text-xs truncate",
-                                    act.user === "You" ? "text-rose-600 font-extrabold" : "text-slate-700 font-bold"
-                                  )}>
-                                    {act.user}
-                                  </span>
-                                </div>
-                                <span className={cn(
-                                  "inline-flex items-center px-1.5 py-0.5 rounded text-[8px] font-black uppercase tracking-wider shrink-0",
-                                  act.type === "rental"
-                                    ? "bg-amber-50 text-amber-700 border border-amber-250/20"
-                                    : "bg-emerald-50 text-emerald-600 border border-emerald-250/20"
-                                )}>
-                                  {act.type === "rental" ? "Rent" : "Bet"}
-                                </span>
-                              </div>
-
-                              {/* Data row */}
-                              <div className="flex items-center justify-between gap-2">
-                                <div className="flex items-center gap-3">
-                                  <div>
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{act.type === "rental" ? "Cost" : "Wager"}</span>
-                                    <span className="text-[11px] font-bold font-mono text-slate-700">{act.bet}</span>
-                                  </div>
-                                  <div className="w-px h-6 bg-slate-200" />
-                                  <div>
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{act.type === "rental" ? "Rate" : "Mult"}</span>
-                                    <span className="text-[11px] font-bold font-mono text-slate-700">{act.mult}</span>
-                                  </div>
-                                </div>
-                                <div className="text-right shrink-0">
-                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Payout</span>
-                                  <span className={cn("text-xs font-black font-mono", act.win !== "₹0" ? "text-emerald-600" : "text-slate-500")}>
-                                    {act.win}
-                                  </span>
-                                </div>
-                              </div>
-                            </motion.div>
-                          ))
-                        )}
-                      </div>
-                    </>
-                  )}
                 </div>
 
                 {/* Bottom stats bar */}
@@ -2680,7 +2489,7 @@ export default function GamePlayerPage() {
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-[9px] text-slate-500 font-mono font-bold">
-                      {scoreboardTab === "top-one-percent" ? `${highReaches.length} Records` : scoreboardTab === "recent-runs" ? `${recentActivities.length} Wagers` : `${platformBets.length} Live Bets`}
+                      {scoreboardTab === "top-one-percent" ? `${highReaches.length} Records` : `${recentActivities.length} Wagers`}
                     </span>
                     <div className="w-1 h-1 bg-slate-100 rounded-full" />
                     <span className="text-[9px] text-slate-500 font-mono font-bold">24h Window</span>

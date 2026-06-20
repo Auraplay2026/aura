@@ -193,7 +193,7 @@ export default function PromotionsPage() {
 
         {/* Categories Navbar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 sticky top-16 z-20 bg-slate-50/80 backdrop-blur-xl py-4 -mx-4 px-4 sm:mx-0 sm:px-0 border-b border-slate-200">
-          <div className="flex items-center gap-2 overflow-x-auto w-full custom-scrollbar pb-2 sm:pb-0">
+          <div className="flex flex-wrap items-center gap-2 w-full pb-2 sm:pb-0">
             {CATEGORIES.map(cat => (
               <button
                 key={cat}

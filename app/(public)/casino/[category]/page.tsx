@@ -922,8 +922,8 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       <div className="max-w-[1600px] mx-auto w-full space-y-6">
         
         {/* Category horizontal scroll navigation sub-header */}
-        <div className="w-full overflow-x-auto pb-2 scrollbar-none shrink-0">
-          <div className="flex gap-2 min-w-max">
+        <div className="w-full shrink-0">
+          <div className="flex flex-wrap gap-2">
             {LOBBY_CATEGORIES.map((cat) => {
               const isActive = categorySlug === cat.slug;
               return (

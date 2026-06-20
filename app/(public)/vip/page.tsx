@@ -125,11 +125,11 @@ export default function VIPClubPage() {
       <div className="w-full mt-8">
         <div className="flex items-center justify-between mb-6 px-2">
           <h2 className="text-xl sm:text-2xl font-black text-slate-900 tracking-wide">VIP Tiers</h2>
-          <div className="text-xs font-bold text-slate-500 uppercase tracking-widest">Swipe to view all <ChevronRight className="inline w-3 h-3" /></div>
+          <div className="hidden sm:block text-xs font-bold text-slate-500 uppercase tracking-widest">VIP progression details</div>
         </div>
 
-        <div className="w-full overflow-x-auto custom-scrollbar snap-x snap-mandatory pb-8 -mx-4 px-4 sm:mx-0 sm:px-0">
-          <div className="flex sm:grid sm:grid-cols-4 gap-4 sm:gap-6 min-w-max sm:min-w-0">
+        <div className="w-full pb-8">
+          <div className="flex flex-col sm:grid sm:grid-cols-4 gap-4 sm:gap-6 w-full">
             {TIERS.map((tier, i) => {
               const isCurrent = isClient && isLoggedIn && currentTier.name === tier.name;
               const isLocked = isClient && isLoggedIn && simulatedWager < tier.wagerNum;
@@ -141,7 +141,7 @@ export default function VIPClubPage() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: i * 0.1 }}
                   className={cn(
-                    "snap-center w-[280px] sm:w-auto shrink-0 rounded-3xl p-6 sm:p-8 flex flex-col relative overflow-hidden backdrop-blur-xl border transition-all duration-500 hover:-translate-y-2 group",
+                    "w-full sm:w-auto rounded-3xl p-6 sm:p-8 flex flex-col relative overflow-hidden backdrop-blur-xl border transition-all duration-500 hover:-translate-y-2 group",
                     tier.bg, tier.border, tier.glow,
                     isLocked ? "opacity-60 grayscale-[30%]" : "opacity-100"
                   )}

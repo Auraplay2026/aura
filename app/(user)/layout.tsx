@@ -41,7 +41,7 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
       </div>
 
       {/* Mobile Horizontal Scroll Navigation */}
-      <div className="md:hidden w-full overflow-x-auto bg-slate-50 border-b border-slate-200/60 py-2.5 px-4 sticky top-14 z-20 scrollbar-none flex gap-2">
+      <div className="md:hidden w-full bg-slate-50 border-b border-slate-200/60 py-2.5 px-4 sticky top-14 z-20 flex flex-wrap gap-2">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           return (

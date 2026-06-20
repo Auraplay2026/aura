@@ -38,7 +38,7 @@ export function UltraHubTabs({ categories }: UltraHubTabsProps) {
       </div>
 
       {/* Tabs */}
-      <div className="flex overflow-x-auto custom-scrollbar pb-3 gap-3 px-1 snap-x">
+      <div className="flex flex-wrap pb-3 gap-3 px-1">
         {categories.map(cat => (
           <button
             key={cat.id}
@@ -64,10 +64,10 @@ export function UltraHubTabs({ categories }: UltraHubTabsProps) {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.3, ease: "easeOut" }}
-            className="flex overflow-x-auto gap-4 md:gap-6 custom-scrollbar pb-6 pt-2 px-1 scroll-smooth snap-x"
+            className="grid grid-cols-2 sm:flex sm:overflow-x-auto gap-4 md:gap-6 pb-6 pt-2 px-1 scroll-smooth snap-x"
           >
             {activeCategory?.games.map((game) => (
-              <div key={game.id} className="min-w-[160px] md:min-w-[200px] lg:min-w-[220px] snap-start shrink-0">
+              <div key={game.id} className="w-full sm:min-w-[160px] md:min-w-[200px] lg:min-w-[220px] snap-start shrink-0">
                 <GameCard {...game} />
               </div>
             ))}

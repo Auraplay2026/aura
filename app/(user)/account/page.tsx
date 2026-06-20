@@ -208,7 +208,7 @@ export default function AccountSettingsPage() {
       </motion.div>
 
       {/* Mobile Tab Chooser Selector (lg:hidden) */}
-      <div className="flex lg:hidden overflow-x-auto gap-1.5 p-1 bg-slate-100 rounded-2xl mb-6 scrollbar-none sticky top-14 z-20 shadow-sm border border-slate-200/55 backdrop-blur-xl">
+      <div className="flex lg:hidden flex-wrap gap-1.5 p-1 bg-slate-100 rounded-2xl mb-6 sticky top-14 z-20 shadow-sm border border-slate-200/55 backdrop-blur-xl">
         {(currentUser?.role === 'admin' 
           ? (['personal', 'security', 'verification', 'admin'] as const) 
           : (['personal', 'security', 'verification'] as const)

@@ -105,7 +105,6 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   const [activeBucketIndex, setActiveBucketIndex] = useState<number | null>(null);
   
   // Lobby activity log data
-  const [liveActivities, setLiveActivities] = useState<ActivityLog[]>([]);
   const [winsCount, setWinsCount] = useState(32);
   const [dailyProgress, setDailyProgress] = useState(45);
 
@@ -651,16 +650,6 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           // Update lobby stats
           const actWin = ball.multiplier >= 1.0;
           setLastResult({ mult: ball.multiplier, won: actWin });
-          setLiveActivities(prev => [
-            {
-              id: `act-${Date.now()}-${Math.random()}`,
-              user: email.split("@")[0],
-              bet: betAmount / ballCount,
-              multiplier: ball.multiplier,
-              won: actWin
-            },
-            ...prev
-          ].slice(0, 8));
 
           if (actWin) {
             setWinsCount(prev => prev + 1);
@@ -830,37 +819,8 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           </div>
         </div>
 
-        {/* Live Community Wins activity feed */}
-        <div className="bg-white/60 backdrop-blur-md border border-slate-200 p-4 rounded-2xl flex-grow flex flex-col justify-between shadow-sm min-h-[180px] md:min-h-0">
-          <div className="text-left mb-3">
-            <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-pink-500" /> Live Feed
-            </span>
-          </div>
-
-          <div className="flex-grow overflow-y-auto space-y-2 max-h-[140px] pr-1.5 scrollbar-thin">
-            {liveActivities.length === 0 ? (
-              <div className="text-center text-xs text-slate-400 py-6 font-bold">
-                Waiting for drops...
-              </div>
-            ) : (
-              liveActivities.map((act) => (
-                <div key={act.id} className="flex items-center justify-between text-xs py-1.5 px-2 bg-slate-50/50 border border-slate-100 rounded-lg">
-                  <span className="text-slate-650 font-bold truncate max-w-[90px]">{act.user}</span>
-                  <div className="flex items-center gap-2">
-                    <span className="text-slate-500">₹{act.bet.toFixed(0)}</span>
-                    <span className={`font-mono font-black ${act.won ? 'text-emerald-600 font-bold' : 'text-slate-450'}`}>
-                      {act.multiplier.toFixed(1)}x
-                    </span>
-                  </div>
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-
         {/* Gamified Achievements progressions */}
-        <div className="bg-white/60 border border-slate-200 p-4 rounded-2xl text-left shadow-sm">
+        <div className="bg-white/60 border border-slate-200 p-4 rounded-2xl text-left shadow-sm flex-grow">
           <div className="flex items-center justify-between mb-2">
             <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider flex items-center gap-1">
               <Trophy className="w-3.5 h-3.5 text-yellow-600" /> Progression
