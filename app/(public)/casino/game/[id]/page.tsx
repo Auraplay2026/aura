@@ -1619,7 +1619,7 @@ export default function GamePlayerPage() {
                               : "bg-[#faf8f2] rounded-3xl shadow-[inset_0_0_20px_rgba(0,0,0,0.03)] border border-amber-200/40"
                         )}>
                           {!isCloudRenting ? (
-                            <div className="relative w-full min-h-full flex flex-col items-center my-auto py-4">
+                            <div className="relative w-full flex-1 flex flex-col items-center py-4">
                               {renderEngine()}
 
                               {/* Win Overlay */}
@@ -1670,7 +1670,7 @@ export default function GamePlayerPage() {
                             </div>
                           ) : (
                             isSessionActive ? (
-                              <div className="relative w-full min-h-full flex flex-col items-center my-auto py-4">
+                              <div className="relative w-full flex-1 flex flex-col items-center py-4">
                                 {renderEngine()}
                                 {/* Rental countdown HUD */}
                                 <div className="absolute top-4 right-4 bg-white/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-right z-30 shadow-lg pointer-events-none">
@@ -1905,7 +1905,7 @@ export default function GamePlayerPage() {
                         </div>
 
                         {/* Row 2: Chips + mobile extras + balance */}
-                        <div className="flex flex-wrap items-center gap-1.5 px-3 pb-3 md:px-5 md:pb-4">
+                        <div className="flex flex-wrap items-center gap-1.5 px-3 pb-6 md:px-5 md:pb-6">
                           {[
                             {amount:100, label:"₹100", color:"from-red-600 to-red-700"},
                             {amount:500, label:"₹500", color:"from-teal-600 to-teal-700"},
