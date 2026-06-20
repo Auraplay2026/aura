@@ -1708,15 +1708,15 @@ export default function GamePlayerPage() {
                       <div className="flex-1 w-full flex flex-col md:flex-row gap-4 md:gap-6 relative z-10 min-h-[280px] sm:min-h-[400px] md:min-h-[600px]">
                         
                         <div className={cn(
-                          "flex-1 flex items-center justify-center relative w-full",
+                          "flex-1 flex flex-col items-center justify-start relative w-full overflow-y-auto scrollbar-none",
                           isRoyalEngine 
                             ? "bg-transparent border-none" 
                             : (game.id === "orig-21" || game.id === "orig-19" || game.title.toLowerCase().includes("ludo") || game.title.toLowerCase().includes("roulette"))
-                              ? "bg-[#0a0f16] rounded-3xl shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5 md:overflow-hidden"
-                              : "bg-[#0a0f16] rounded-3xl overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+                              ? "bg-[#0a0f16] rounded-3xl shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
+                              : "bg-[#0a0f16] rounded-3xl shadow-[inset_0_0_50px_rgba(0,0,0,0.5)] border border-white/5"
                         )}>
                           {!isCloudRenting ? (
-                            <div className="relative w-full h-full flex items-center justify-center">
+                            <div className="relative w-full min-h-full flex flex-col items-center my-auto py-4">
                               {renderEngine()}
 
                               {/* Win Overlay */}
@@ -1767,7 +1767,7 @@ export default function GamePlayerPage() {
                             </div>
                           ) : (
                             isSessionActive ? (
-                              <div className="relative w-full h-full flex items-center justify-center">
+                              <div className="relative w-full min-h-full flex flex-col items-center my-auto py-4">
                                 {renderEngine()}
                                 {/* Rental countdown HUD */}
                                 <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-right z-30 shadow-lg pointer-events-none">
