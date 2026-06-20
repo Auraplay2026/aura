@@ -293,6 +293,7 @@ export default function GamePlayerPage() {
   const [selectedTarget, setSelectedTarget] = useState<string>("");
   const [isStatsExpanded, setIsStatsExpanded] = useState(false);
   const [isLeaderboardExpanded, setIsLeaderboardExpanded] = useState(false);
+  const [isMobileLeaderboardLimitExpanded, setIsMobileLeaderboardLimitExpanded] = useState(false);
   
   const [isDemoLimitReached, setIsDemoLimitReached] = useState(false);
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
@@ -913,7 +914,7 @@ export default function GamePlayerPage() {
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-4 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-36 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-3">
@@ -960,40 +961,7 @@ export default function GamePlayerPage() {
             className={`relative w-full h-auto md:h-auto min-h-0 md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-visible md:overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence mode="wait">
-              {!currentUser ? (
-                <motion.div
-                  key="auth-gate"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-md"
-                >
-                  <div className="bg-white border border-slate-800 shadow-2xl w-full max-w-md rounded-3xl overflow-hidden p-8 text-center relative">
-                    <div className="absolute top-0 left-1/4 w-1/2 h-32 bg-gradient-to-b from-rose-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
-                    
-                    <Lock className="w-16 h-16 text-rose-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
-                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wider mb-2">Authentication Required</h2>
-                    <p className="text-slate-650 text-sm font-medium mb-8">
-                      To ensure fair play and secure transaction recording, you must login or register a Demo / Real account to start playing.
-                    </p>
-                    
-                    <div className="flex flex-col gap-3">
-                      <button 
-                        onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
-                        className="w-full py-4 font-black text-slate-800 bg-white hover:bg-slate-100 rounded-xl transition-all uppercase tracking-wider text-sm shadow-lg border border-slate-200"
-                      >
-                        Sign In
-                      </button>
-                      <button 
-                        onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-                        className="w-full py-4 font-black text-white bg-red-600 hover:bg-red-700 border border-red-500/30 rounded-xl transition-all uppercase tracking-wider text-sm"
-                      >
-                        Create Demo/Real Account
-                      </button>
-                    </div>
-                  </div>
-                </motion.div>
-              ) : !hasTransferred ? (
+              {currentUser && !hasTransferred ? (
                 <motion.div 
                   key="modal"
                   exit={{ opacity: 0, scale: 0.95 }}
@@ -1553,7 +1521,7 @@ export default function GamePlayerPage() {
 
                     {/* FULL-WIDTH GAME CANVAS */}
                     <div className={cn(
-                      "min-h-[480px] h-[540px] sm:h-[580px] md:h-[600px] lg:h-[680px] flex flex-col relative z-10",
+                      "min-h-[320px] h-[380px] sm:min-h-[480px] sm:h-[480px] md:h-[600px] lg:h-[680px] flex flex-col relative z-10",
                       isRoyalEngine ? "bg-transparent p-0" : "bg-[#faf8f2] border border-amber-200/30 rounded-3xl p-2 md:p-4 shadow-inner"
                     )}>
                       
@@ -1601,7 +1569,7 @@ export default function GamePlayerPage() {
 
                               {/* Low Balance Overlay */}
                               <AnimatePresence>
-                                {balance < betAmount && !isSpinning && (
+                                {currentUser && balance < betAmount && !isSpinning && (
                                   <motion.div initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(12px)" }} className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 rounded-3xl border border-red-500/30">
                                     <div className="text-center p-8 max-w-md">
                                       <AlertCircle className="w-20 h-20 text-red-500 mx-auto mb-6" />
@@ -1772,7 +1740,33 @@ export default function GamePlayerPage() {
 
                     {/* ═══════ INLINE BETTING PANEL ═══════ */}
                     {!isCloudRenting && !isRoyalEngine && (
-                      <div className="relative z-30 bg-white border-t border-slate-200 shadow-inner flex flex-col">
+                      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] pb-safe md:relative md:bottom-auto md:left-auto md:right-auto md:z-30 md:shadow-inner flex flex-col">
+                        {!currentUser ? (
+                          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 md:p-6 bg-slate-900 text-white">
+                            <div className="flex items-center gap-3">
+                              <Lock className="w-5 h-5 text-red-500 animate-pulse shrink-0" />
+                              <div className="text-left">
+                                <p className="text-xs font-black uppercase tracking-wider text-slate-100">Guest Observation Mode</p>
+                                <p className="text-[10px] font-semibold text-slate-400 leading-tight">Create an account or login to start wagering</p>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 w-full sm:w-auto shrink-0">
+                              <button 
+                                onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
+                                className="flex-1 sm:flex-none px-4 py-2.5 font-black text-slate-900 bg-white hover:bg-slate-100 rounded-xl transition-all uppercase tracking-wider text-[10px] text-center cursor-pointer"
+                              >
+                                Sign In
+                              </button>
+                              <button 
+                                onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
+                                className="flex-1 sm:flex-none px-4 py-2.5 font-black text-white bg-red-650 hover:bg-red-700 rounded-xl transition-all uppercase tracking-wider text-[10px] text-center border border-red-500/25 cursor-pointer"
+                              >
+                                Register
+                              </button>
+                            </div>
+                          </div>
+                        ) : (
+                          <>
                         {/* Row 1: Bet input + BET button */}
                         <div className="flex items-stretch gap-2 px-3 pt-3 pb-2 md:px-5">
                           {/* Bet Amount */}
@@ -1913,6 +1907,8 @@ export default function GamePlayerPage() {
                             {stats.totalRounds > 0 && <span className={`ml-2 font-black ${stats.netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{stats.netProfit >= 0 ? '+' : ''}₹{stats.netProfit.toFixed(0)}</span>}
                           </span>
                         </div>
+                          </>
+                        )}
                       </div>
                     )}
                   </div>
@@ -2085,11 +2081,11 @@ export default function GamePlayerPage() {
                   </div>
                   
                   {/* Tab Switcher — touch-optimized with swipe hint */}
-                  <div className="flex bg-slate-100 border border-slate-200 p-1 sm:p-1.5 rounded-2xl shrink-0 self-stretch sm:self-auto relative z-10">
+                  <div className="flex bg-slate-100 border border-slate-200 p-1 sm:p-1.5 rounded-2xl shrink-0 self-stretch sm:self-auto relative z-10 overflow-x-auto scrollbar-none flex-nowrap max-w-full">
                     <button 
                       onClick={() => setScoreboardTab("top-one-percent")}
                       className={cn(
-                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
+                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0 shrink-0",
                         scoreboardTab === "top-one-percent" 
                           ? "text-white" 
                           : "text-slate-650 hover:text-slate-800"
@@ -2103,12 +2099,22 @@ export default function GamePlayerPage() {
                           transition={{ type: "spring", stiffness: 400, damping: 28 }}
                         />
                       )}
-                      {isCrash ? "🏆 Top 1% Reach" : "🏆 Top Multipliers"}
+                      {isCrash ? (
+                        <>
+                          <span className="hidden sm:inline">🏆 Top 1% Reach</span>
+                          <span className="sm:hidden">🏆 Top 1%</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="hidden sm:inline">🏆 Top Multipliers</span>
+                          <span className="sm:hidden">🏆 Top Mults</span>
+                        </>
+                      )}
                     </button>
                     <button 
                       onClick={() => setScoreboardTab("recent-runs")}
                       className={cn(
-                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
+                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0 shrink-0",
                         scoreboardTab === "recent-runs" 
                           ? "text-white" 
                           : "text-slate-650 hover:text-slate-800"
@@ -2122,12 +2128,13 @@ export default function GamePlayerPage() {
                           transition={{ type: "spring", stiffness: 400, damping: 28 }}
                         />
                       )}
-                      ⚡ Live Activities
+                      <span className="hidden sm:inline">⚡ Live Activities</span>
+                      <span className="sm:hidden">⚡ Live</span>
                     </button>
                     <button 
                       onClick={() => setScoreboardTab("platform-feed")}
                       className={cn(
-                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
+                        "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0 shrink-0",
                         scoreboardTab === "platform-feed" 
                           ? "text-white" 
                           : "text-slate-650 hover:text-slate-800"
@@ -2141,7 +2148,8 @@ export default function GamePlayerPage() {
                           transition={{ type: "spring", stiffness: 400, damping: 28 }}
                         />
                       )}
-                      🔥 Live Hub Feed
+                      <span className="hidden sm:inline">🔥 Live Hub Feed</span>
+                      <span className="sm:hidden">🔥 Hub Feed</span>
                     </button>
                   </div>
                 </div>
@@ -2232,7 +2240,7 @@ export default function GamePlayerPage() {
 
                       {/* Mobile Card Layout — visible only on small screens */}
                       <div className="sm:hidden space-y-2.5">
-                        {highReaches.map((row, idx) => {
+                        {highReaches.slice(0, isMobileLeaderboardLimitExpanded ? undefined : 5).map((row, idx) => {
                           const badge = rankBadge(idx);
                           return (
                             <motion.div 
@@ -2311,6 +2319,14 @@ export default function GamePlayerPage() {
                             </motion.div>
                           );
                         })}
+                        {highReaches.length > 5 && (
+                          <button
+                            onClick={() => setIsMobileLeaderboardLimitExpanded(!isMobileLeaderboardLimitExpanded)}
+                            className="w-full mt-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-700 transition-all cursor-pointer"
+                          >
+                            {isMobileLeaderboardLimitExpanded ? "Show Less" : `Show More (${highReaches.length - 5} more)`}
+                          </button>
+                        )}
                       </div>
                     </>
                   )}
@@ -2406,7 +2422,7 @@ export default function GamePlayerPage() {
                             <span className="text-slate-650 text-xs font-bold text-center">No session wagers yet.<br />Place a bet to begin!</span>
                           </div>
                         ) : (
-                          recentActivities.map((act, idx) => (
+                          recentActivities.slice(0, isMobileLeaderboardLimitExpanded ? undefined : 5).map((act, idx) => (
                             <motion.div
                               key={act.id}
                               initial={{ opacity: 0, y: 10 }}
@@ -2475,6 +2491,14 @@ export default function GamePlayerPage() {
                               </div>
                             </motion.div>
                           ))
+                        )}
+                        {recentActivities.length > 5 && (
+                          <button
+                            onClick={() => setIsMobileLeaderboardLimitExpanded(!isMobileLeaderboardLimitExpanded)}
+                            className="w-full mt-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-700 transition-all cursor-pointer"
+                          >
+                            {isMobileLeaderboardLimitExpanded ? "Show Less" : `Show More (${recentActivities.length - 5} more)`}
+                          </button>
                         )}
                       </div>
                     </>
@@ -2559,7 +2583,7 @@ export default function GamePlayerPage() {
                             <span className="text-slate-650 text-xs font-bold text-center">No platform live wagers yet.</span>
                           </div>
                         ) : (
-                          platformBets.map((act, idx) => (
+                          platformBets.slice(0, isMobileLeaderboardLimitExpanded ? undefined : 5).map((act, idx) => (
                             <motion.div
                               key={`${act.user}-${act.bet}-${idx}`}
                               initial={{ opacity: 0, y: 10 }}
@@ -2616,6 +2640,14 @@ export default function GamePlayerPage() {
                               </div>
                             </motion.div>
                           ))
+                        )}
+                        {platformBets.length > 5 && (
+                          <button
+                            onClick={() => setIsMobileLeaderboardLimitExpanded(!isMobileLeaderboardLimitExpanded)}
+                            className="w-full mt-3 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl text-[10px] font-black uppercase tracking-wider text-slate-700 transition-all cursor-pointer"
+                          >
+                            {isMobileLeaderboardLimitExpanded ? "Show Less" : `Show More (${platformBets.length - 5} more)`}
+                          </button>
                         )}
                       </div>
                     </>
