@@ -62,7 +62,19 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
         })}
       </div>
 
-      {/* Secondary Dashboard Navigation */}
+      {/* Main Dashboard Content Area */}
+      <div className="flex-1 min-w-0 relative px-4 sm:px-6 md:px-0">
+        <motion.div
+          key={pathname}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.2 }}
+        >
+          {children}
+        </motion.div>
+      </div>
+
+      {/* Secondary Dashboard Navigation (Right Sidebar) */}
       <div className="hidden md:block w-64 shrink-0 mt-0">
         <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-4 backdrop-blur-2xl sticky top-24 shadow-2xl">
           <div className="flex items-center gap-4 mb-6 p-2">
@@ -103,18 +115,6 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
             ))}
           </nav>
         </div>
-      </div>
-
-      {/* Main Dashboard Content Area */}
-      <div className="flex-1 min-w-0 relative px-4 sm:px-6 md:px-0">
-        <motion.div
-          key={pathname}
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.2 }}
-        >
-          {children}
-        </motion.div>
       </div>
 
     </div>
