@@ -188,7 +188,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   };
 
   return (
-    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full relative bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 flex flex-col p-3 md:p-6 gap-3 md:gap-6">
+    <div className="w-full h-full min-h-[300px] h-[330px] md:min-h-[600px] md:h-full relative bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 flex flex-col p-2 md:p-6 gap-2 md:gap-6">
       
       {/* Premium Light Casino Floor Background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(167,243,208,0.18)_0%,transparent_60%)] pointer-events-none" />
@@ -211,9 +211,9 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
         className="relative z-10 flex-1 flex flex-col"
       >
         {/* Header UI */}
-        <div className="flex items-center justify-between bg-white/80 p-4 rounded-2xl border border-slate-200 backdrop-blur-md mb-4 shadow-md">
+        <div className="flex items-center justify-between bg-white/80 p-2 md:p-4 rounded-xl md:rounded-2xl border border-slate-200 backdrop-blur-md mb-2 md:mb-4 shadow-md">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
+            <div className="flex items-center gap-1 bg-slate-50 px-2 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl border border-slate-200 shadow-inner">
               <Bomb className="w-5 h-5 text-red-500" />
               <select 
                 disabled={gameState === "playing"}
@@ -241,7 +241,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
 
         {/* 3D Mines Grid Container */}
         <div className="relative flex-1 flex items-center justify-center perspective-[1200px]">
-          <div className={`grid grid-cols-5 gap-2 md:gap-3 w-full max-w-[260px] sm:max-w-[340px] md:max-w-[450px] aspect-square p-2.5 md:p-4 bg-white/60 rounded-[1.5rem] md:rounded-[2rem] border transition-all duration-300 shadow-[inset_0_0_30px_rgba(0,0,0,0.04),0_8px_40px_rgba(0,0,0,0.06)] transform-style-3d rotate-x-[15deg] ${
+          <div className={`grid grid-cols-5 gap-1.5 md:gap-3 w-full max-w-[210px] sm:max-w-[340px] md:max-w-[450px] aspect-square p-2 md:p-4 bg-white/60 rounded-2xl md:rounded-[2rem] border transition-all duration-300 shadow-[inset_0_0_30px_rgba(0,0,0,0.04),0_8px_40px_rgba(0,0,0,0.06)] transform-style-3d rotate-x-[15deg] ${
             (gameState === "playing" && clickCount >= 4)
               ? "border-rose-400/60 shadow-[0_0_30px_rgba(244,63,94,0.15)] animate-[heartbeat-glow_1.2s_infinite_ease-in-out]" 
               : "border-slate-200/80"
@@ -259,7 +259,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
                     onClick={() => handleTileClick(i)}
                     whileHover={gameState === "playing" && !isRevealed ? { y: -5, scale: 1.05 } : {}}
                     whileTap={gameState === "playing" && !isRevealed ? { y: 2, scale: 0.95 } : {}}
-                    className={`relative w-full h-full rounded-2xl flex items-center justify-center transition-all duration-300 transform-style-3d outline-none
+                    className={`relative w-full h-full rounded-xl md:rounded-2xl flex items-center justify-center transition-all duration-300 transform-style-3d outline-none
                       ${!isRevealed 
                         ? "bg-gradient-to-b from-slate-200 to-slate-300 shadow-[0_6px_0_rgb(148,163,184),0_10px_20px_rgba(0,0,0,0.12)] border-t-2 border-white/80 cursor-pointer hover:from-slate-100 hover:to-slate-200" 
                         : "bg-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] border border-slate-200"
@@ -275,7 +275,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
                       className="absolute inset-0 w-full h-full flex items-center justify-center transform-style-3d"
                     >
                       {/* Front of tile (hidden when flipped) */}
-                      <div className="absolute inset-0 backface-hidden rounded-2xl overflow-hidden">
+                      <div className="absolute inset-0 backface-hidden rounded-xl md:rounded-2xl overflow-hidden">
                         <div className="absolute top-0 left-0 w-full h-1/2 bg-white/40" />
                       </div>
 

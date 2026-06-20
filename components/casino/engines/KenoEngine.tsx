@@ -161,7 +161,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
   const hitsCount = drawnNumbers.filter(n => selectedNumbers.includes(n)).length;
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] flex flex-col p-3 md:p-6 relative bg-gradient-to-br from-slate-50 via-white to-violet-50/60 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 perspective-[1200px]">
+    <div className="w-full h-full min-h-[300px] h-[330px] md:min-h-[600px] md:h-full flex flex-col p-2 md:p-6 relative bg-gradient-to-br from-slate-50 via-white to-violet-50/60 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 perspective-[1200px]">
       
       {/* Soft ambient grid */}
       <div className="absolute inset-0 pointer-events-none">
@@ -178,35 +178,35 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
       </div>
 
       {/* Header UI */}
-      <div className="relative z-20 flex items-center justify-between bg-white/80 p-4 rounded-2xl border border-slate-200 backdrop-blur-md mb-6 shadow-md">
-        <div className="flex gap-2">
+      <div className="relative z-20 flex items-center justify-between bg-white/80 p-2 md:p-4 rounded-xl md:rounded-2xl border border-slate-200 backdrop-blur-md mb-3 md:mb-6 shadow-md">
+        <div className="flex gap-1.5">
           <button 
             onClick={clearSelection}
             disabled={gameState !== "idle"}
-            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-black uppercase tracking-wider rounded-xl transition-colors disabled:opacity-50"
+            className="px-3 py-1.5 md:px-4 md:py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg md:rounded-xl transition-colors disabled:opacity-50"
           >
             Clear
           </button>
           <button 
             onClick={autoPick}
             disabled={gameState !== "idle"}
-            className="px-4 py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 text-xs font-black uppercase tracking-wider rounded-xl border border-violet-300/50 transition-colors flex items-center gap-2 disabled:opacity-50"
+            className="px-3 py-1.5 md:px-4 md:py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 text-[10px] md:text-xs font-black uppercase tracking-wider rounded-lg md:rounded-xl border border-violet-300/50 transition-colors flex items-center gap-1.5 disabled:opacity-50"
           >
-            <Zap className="w-4 h-4" /> Auto Pick
+            <Zap className="w-3.5 h-3.5" /> Auto Pick
           </button>
         </div>
 
         <div className="flex flex-col items-end">
-          <span className="text-[10px] uppercase tracking-widest text-[#71717a] font-black">Selected</span>
-          <span className="text-2xl font-black font-mono text-slate-900 drop-shadow-md">
-            {selectedNumbers.length} <span className="text-[#52525b] text-base">/ 10</span>
+          <span className="text-[8px] md:text-[10px] uppercase tracking-widest text-[#71717a] font-black leading-none mb-0.5">Selected</span>
+          <span className="text-lg md:text-2xl font-black font-mono text-slate-900 drop-shadow-md leading-none">
+            {selectedNumbers.length} <span className="text-[#52525b] text-xs md:text-base">/ 10</span>
           </span>
         </div>
       </div>
 
       {/* 3D Grid container */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center transform-style-3d rotate-x-[15deg]">
-        <div className="grid grid-cols-8 gap-2 md:gap-3 w-full max-w-[600px] bg-white/70 p-4 rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
+        <div className="grid grid-cols-8 gap-1.5 md:gap-3 w-full max-w-[290px] md:max-w-[600px] bg-white/70 p-2 md:p-4 rounded-2xl md:rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
           {Array.from({ length: 40 }, (_, i) => i + 1).map(num => {
             const isSelected = selectedNumbers.includes(num);
             const isDrawn = drawnNumbers.includes(num);
@@ -227,7 +227,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
                 }
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`
-                  relative aspect-square rounded-xl font-black text-sm md:text-lg flex items-center justify-center transform-style-3d outline-none
+                  relative aspect-square rounded-lg md:rounded-xl font-black text-[10px] md:text-lg flex items-center justify-center transform-style-3d outline-none
                   ${isSelected && !isDrawn ? "bg-gradient-to-b from-violet-400 to-violet-600 text-white shadow-[0_8px_0_rgba(109,40,217,0.4),0_12px_20px_rgba(139,92,246,0.3)] border-t border-violet-300 z-10" : ""}
                   ${isHit ? "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-[0_10px_0_rgba(6,95,70,0.4),0_15px_25px_rgba(16,185,129,0.4)] border-t border-emerald-300 z-20" : ""}
                   ${isMiss ? "bg-slate-200 text-slate-500 border border-slate-300 shadow-inner opacity-80" : ""}
@@ -243,7 +243,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
                       initial={{ scale: 0, opacity: 1 }}
                       animate={{ scale: [1, 2.5], opacity: [1, 0] }}
                       transition={{ duration: 0.8, ease: "easeOut" }}
-                      className="absolute inset-0 bg-emerald-400 rounded-xl z-0 mix-blend-screen blur-sm"
+                      className="absolute inset-0 bg-emerald-400 rounded-lg md:rounded-xl z-0 mix-blend-screen blur-sm"
                     />
                   )}
                 </AnimatePresence>
@@ -254,7 +254,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
                     <motion.div
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
-                      className="absolute inset-0 bg-[#09090b]/60 rounded-xl z-20 flex items-center justify-center"
+                      className="absolute inset-0 bg-[#09090b]/60 rounded-lg md:rounded-xl z-20 flex items-center justify-center"
                     >
                       <div className="w-2 h-2 rounded-full bg-[#52525b]" />
                     </motion.div>
@@ -267,11 +267,11 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
       </div>
 
       {/* Footer Info / Results */}
-      <div className="relative z-20 flex items-center justify-between h-16 bg-white/80 rounded-2xl border border-slate-200 px-6 mt-6 shadow-md backdrop-blur-md">
-        <div className="flex items-center gap-4">
-          <Target className="w-6 h-6 text-violet-500" />
-          <span className="text-sm font-black uppercase tracking-widest text-slate-600">
-            Hits: <span className="text-slate-900 text-xl ml-1">{hitsCount}</span>
+      <div className="relative z-20 flex items-center justify-between h-10 md:h-16 bg-white/80 rounded-xl md:rounded-2xl border border-slate-200 px-3 md:px-6 mt-3 md:mt-6 shadow-md backdrop-blur-md">
+        <div className="flex items-center gap-2 md:gap-4">
+          <Target className="w-4.5 h-4.5 md:w-6 md:h-6 text-violet-500" />
+          <span className="text-xs md:text-sm font-black uppercase tracking-widest text-slate-600">
+            Hits: <span className="text-slate-900 text-sm md:text-xl ml-1">{hitsCount}</span>
           </span>
         </div>
         
@@ -280,7 +280,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
             <motion.div 
               initial={{ opacity: 0, x: 20, scale: 0.8 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
-              className={`font-black uppercase tracking-widest text-lg md:text-xl px-6 py-2 rounded-lg border
+              className={`font-black uppercase tracking-widest text-xs md:text-xl px-3 py-1 rounded-lg border
                 ${hitsCount >= 4 ? "bg-emerald-50 text-emerald-700 border-emerald-300 shadow-sm" : "bg-red-50 text-red-600 border-red-300"}
               `}
             >

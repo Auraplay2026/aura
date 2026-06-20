@@ -601,7 +601,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         { x: 0, y: 0 }
       }
       transition={isPlaying ? { repeat: Infinity, duration: 0.08 } : {}}
-      className="w-full h-full min-h-[500px] rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]"
+      className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]"
     >
       {/* ── Cinematic Canvas Background ── */}
       <canvas

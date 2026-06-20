@@ -799,17 +799,17 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
 
 
       {/* 2. PLINKO X 3D Canvas Board Viewport */}
-      <div className="flex-grow bg-white border border-slate-200 rounded-xl md:rounded-2xl relative overflow-hidden flex flex-col justify-between p-2.5 md:p-6 z-10 min-h-[260px] md:min-h-[500px]">
+      <div className="flex-grow bg-white border border-slate-200 rounded-xl md:rounded-2xl relative overflow-hidden flex flex-col justify-between p-2 md:p-6 z-10 min-h-[260px] md:min-h-[500px]">
         
         {/* Header HUD odds indicators */}
         <div className="w-full flex items-center justify-between z-10">
           
           {/* Risk Level skin status indicator */}
-          <div className={`flex items-center gap-2 bg-slate-50 border ${theme.border} rounded-2xl px-4 py-2.5 shadow-sm`}>
-            <Zap className={`w-4 h-4 ${theme.text}`} />
+          <div className={`flex items-center gap-1.5 bg-slate-50 border ${theme.border} rounded-xl px-2.5 py-1 md:py-2.5 shadow-sm`}>
+            <Zap className={`w-3.5 h-3.5 ${theme.text}`} />
             <div className="text-left">
-              <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest block">RISK MODE</span>
-              <span className={`text-xs font-black uppercase tracking-wider ${theme.text}`}>
+              <span className="hidden md:block text-[8px] text-slate-600 font-bold uppercase tracking-widest leading-none mb-0.5">RISK MODE</span>
+              <span className={`text-[10px] md:text-xs font-black uppercase tracking-wider leading-none ${theme.text}`}>
                 {risk}
               </span>
             </div>
@@ -822,7 +822,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
                 initial={{ opacity: 0, scale: 0.8, y: -10 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8 }}
-                className={`px-5 py-2 rounded-xl text-sm font-black border ${
+                className={`px-3 py-1 md:px-5 md:py-2 rounded-xl text-xs md:text-sm font-black border ${
                   lastResult.won 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm" 
                     : "bg-white border-slate-200 text-slate-650"
@@ -836,9 +836,9 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           {/* Audio toggle speaker */}
           <button
             onClick={() => setIsMuted(prev => !prev)}
-            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-650 hover:text-slate-800 transition-all cursor-pointer shadow-sm"
+            className="p-1.5 md:p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-650 hover:text-slate-800 transition-all cursor-pointer shadow-sm"
           >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            {isMuted ? <VolumeX className="w-3.5 h-3.5" /> : <Volume2 className="w-3.5 h-3.5" />}
           </button>
 
         </div>
@@ -846,7 +846,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         {/* 3D Transform projected canvas box wrapper */}
         <div className="flex-grow flex items-center justify-center py-2 md:py-4 overflow-hidden perspective-[1200px]">
           <div 
-            className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/5] rounded-xl md:rounded-[24px] bg-white/50 border-[6px] md:border-[10px] border-[#f4f0e6] shadow-[0_20px_45px_rgba(224,87,62,0.08),inset_0_2px_4px_rgba(255,255,255,1)] transition-transform duration-1000 transform-style-3d overflow-hidden"
+            className="relative w-full max-w-[210px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/5] rounded-xl md:rounded-[24px] bg-white/50 border-[6px] md:border-[10px] border-[#f4f0e6] shadow-[0_20px_45px_rgba(224,87,62,0.08),inset_0_2px_4px_rgba(255,255,255,1)] transition-transform duration-1000 transform-style-3d overflow-hidden"
             style={{ transform: "rotateX(22deg)" }}
           >
             {/* Table inner rails border glow */}
@@ -860,7 +860,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         </div>
 
         {/* Bottom controls panel */}
-        <div className="w-full flex flex-col sm:flex-row items-center gap-2 md:gap-4 justify-between border-t border-slate-100 pt-3 md:pt-4 mt-2 z-10 flex-wrap justify-center">
+        <div className="w-full flex flex-row items-center gap-1.5 md:gap-4 justify-center md:justify-between border-t border-slate-100 pt-2 md:pt-4 mt-1.5 z-10 flex-wrap">
           
           {/* Risk Level Selectors */}
           <div className="flex items-center gap-1 md:gap-2 bg-slate-50/80 p-1 md:p-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-inner flex-wrap justify-center scale-95 md:scale-100">
@@ -869,7 +869,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
                 key={r}
                 disabled={isPlaying}
                 onClick={() => setRisk(r)}
-                className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black capitalize active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all duration-300 cursor-pointer ${
+                className={`px-2 py-1 md:px-4 md:py-2 rounded-lg md:rounded-xl text-[8px] md:text-xs font-black capitalize active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all duration-300 cursor-pointer ${
                   risk === r
                     ? r === "low" ? "bg-cyan-500 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]" :
                       r === "medium" ? "bg-purple-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]" :
@@ -890,7 +890,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
                 key={count}
                 disabled={isPlaying}
                 onClick={() => setBallCount(count as 1 | 3 | 5 | 10)}
-                className={`px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all cursor-pointer ${
+                className={`px-2 py-1 md:px-3 md:py-2 rounded-lg md:rounded-xl text-[8px] md:text-xs font-black transition-all cursor-pointer ${
                   ballCount === count
                     ? "bg-white text-slate-950 border border-slate-200 shadow-sm"
                     : "text-slate-500 hover:text-slate-800 border border-transparent"
@@ -905,7 +905,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           <button
             onClick={triggerDrops}
             disabled={isPlaying}
-            className="w-full sm:w-auto px-5 py-2.5 md:px-8 md:py-3.5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-black uppercase text-[10px] md:text-xs tracking-widest shadow-[0_10px_20px_rgba(168,85,247,0.18)] hover:shadow-[0_10px_30px_rgba(168,85,247,0.3)] active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 group scale-95 md:scale-100 cursor-pointer"
+            className="hidden sm:flex px-5 py-2.5 md:px-8 md:py-3.5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-black uppercase text-[10px] md:text-xs tracking-widest shadow-[0_10px_20px_rgba(168,85,247,0.18)] hover:shadow-[0_10px_30px_rgba(168,85,247,0.3)] active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none items-center justify-center gap-2 group scale-95 md:scale-100 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
             DROP BALLS
