@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
-import { Zap, Volume2, VolumeX, Shield, Trophy, Activity, AlertTriangle, Layers, Play, Sparkles } from "lucide-react";
+import { Zap, Volume2, VolumeX, Shield, AlertTriangle, Layers, Play, Sparkles } from "lucide-react";
 
 interface PlinkoEngineProps {
   isPlaying: boolean;
@@ -106,7 +106,6 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   
   // Lobby activity log data
   const [winsCount, setWinsCount] = useState(32);
-  const [dailyProgress, setDailyProgress] = useState(45);
 
   const currentUser = useTradingStore(state => state.currentUser);
   const email = currentUser?.email || "admin@aurabet.io";
@@ -653,7 +652,6 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
 
           if (actWin) {
             setWinsCount(prev => prev + 1);
-            setDailyProgress(prev => Math.min(100, prev + 3));
           }
 
           // Complete parent bet callback
@@ -798,47 +796,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
       {/* Background visual beams */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.04)_0%,transparent_60%)] pointer-events-none z-0" />
 
-      {/* 1. HUD Left Panel (Player feed, Daily Missions, Live Stats) */}
-      <div className="hidden md:flex w-full md:w-72 flex-col gap-4 z-10 shrink-0 select-none">
-        
-        {/* User VIP badge card */}
-        <div className="bg-white/80 backdrop-blur-md border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
-          <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center p-0.5 bg-gradient-to-tr from-indigo-500 to-pink-500 shadow-[0_0_12px_rgba(99,102,241,0.15)]`}>
-              <div className="w-full h-full rounded-[10px] bg-white flex items-center justify-center font-bold text-xs text-indigo-500 font-mono">
-                VIP
-              </div>
-            </div>
-            <div className="text-left">
-              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">VIP ACCOUNT</span>
-              <span className="text-xs text-slate-850 font-black truncate max-w-[110px]">{email.split("@")[0]}</span>
-            </div>
-          </div>
-          <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-0.5 text-center">
-            <span className="text-[9px] font-black font-mono text-amber-600">PLATINUM</span>
-          </div>
-        </div>
 
-        {/* Gamified Achievements progressions */}
-        <div className="bg-white/60 border border-slate-200 p-4 rounded-2xl text-left shadow-sm flex-grow">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider flex items-center gap-1">
-              <Trophy className="w-3.5 h-3.5 text-yellow-600" /> Progression
-            </span>
-            <span className="text-[10px] font-mono font-black text-indigo-600">{dailyProgress}%</span>
-          </div>
-          <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
-            Hit <span className="text-cyan-600 font-semibold">10 wagers</span> in extreme risk mode to claim a seasonal loot crate.
-          </p>
-          <div className="h-1.5 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden shadow-inner">
-            <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-pink-500 shadow-sm transition-all duration-300"
-              style={{ width: `${dailyProgress}%` }}
-            />
-          </div>
-        </div>
-
-      </div>
 
       {/* 2. PLINKO X 3D Canvas Board Viewport */}
       <div className="flex-grow bg-white border border-slate-200 rounded-xl md:rounded-2xl relative overflow-hidden flex flex-col justify-between p-2.5 md:p-6 z-10 min-h-[380px] md:min-h-[500px]">
