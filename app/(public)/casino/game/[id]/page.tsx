@@ -1919,139 +1919,146 @@ export default function GamePlayerPage() {
 
                     {/* ═══════ INLINE BETTING PANEL ═══════ */}
                     {!isCloudRenting && !isRoyalEngine && (
-                      <div className="relative z-30 bg-[#0a0f18] border-t border-white/8 px-3 py-3 md:px-5 md:py-4 flex flex-col gap-3">
-
-                        {/* Row 1: Bet + Chips + Action Button */}
-                        <div className="flex items-center gap-2 md:gap-3 flex-wrap">
-
-                          {/* Bet Amount Input */}
-                          <div className="flex items-center bg-white/5 border border-white/10 rounded-xl overflow-hidden h-10 md:h-11 shrink-0 focus-within:border-white/30 transition-colors">
-                            <span className="px-2.5 text-slate-400 font-bold text-sm border-r border-white/10 h-full flex items-center">₹</span>
+                      <div className="relative z-30 bg-[#080c14] border-t border-white/10 flex flex-col">
+                        {/* Row 1: Bet input + BET button */}
+                        <div className="flex items-stretch gap-2 px-3 pt-3 pb-2 md:px-5">
+                          {/* Bet Amount */}
+                          <div className="flex items-center bg-[#0f1520] border border-white/15 rounded-xl overflow-hidden shrink-0 h-12 focus-within:border-white/40 transition-all">
+                            <div className="px-3 border-r border-white/10 h-full flex items-center">
+                              <span className="text-slate-200 font-black text-lg leading-none">₹</span>
+                            </div>
                             <input
                               type="number"
                               value={betAmount}
                               onChange={(e) => setBetAmount(Math.max(1, Number(e.target.value)))}
                               disabled={isSpinning}
-                              className="w-20 md:w-24 bg-transparent text-white font-black text-sm px-2.5 focus:outline-none disabled:opacity-50"
+                              className="w-20 sm:w-24 bg-transparent text-white font-black text-lg px-2.5 h-full focus:outline-none disabled:opacity-50 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
-                            <button onClick={() => { setBetAmount(prev => Math.max(1, Math.floor(prev / 2))); playGameSound('click'); }} disabled={isSpinning} className="px-2 h-full text-[10px] font-bold text-slate-400 hover:text-white border-l border-white/10 hover:bg-white/10 transition-colors disabled:opacity-40">½</button>
-                            <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} disabled={isSpinning} className="px-2 h-full text-[10px] font-bold text-slate-400 hover:text-white border-l border-white/10 hover:bg-white/10 transition-colors disabled:opacity-40">2×</button>
+                            <div className="flex flex-col h-full border-l border-white/10">
+                              <button onClick={() => { setBetAmount(prev => Math.max(1, Math.floor(prev / 2))); playGameSound('click'); }} disabled={isSpinning}
+                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-white hover:bg-white/10 border-b border-white/10 transition-colors disabled:opacity-30">½</button>
+                              <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} disabled={isSpinning}
+                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30">2×</button>
+                            </div>
                           </div>
 
-                          {/* Chip Presets */}
-                          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none flex-1">
-                            {[
-                              { amount: 100, label: "100", color: "from-red-600 to-red-700" },
-                              { amount: 500, label: "500", color: "from-teal-600 to-teal-700" },
-                              { amount: 1000, label: "1k", color: "from-amber-500 to-amber-600" },
-                              { amount: 5000, label: "5k", color: "from-pink-500 to-pink-600" },
-                              { amount: 10000, label: "10k", color: "from-rose-600 to-rose-700" },
-                              { amount: 50000, label: "50k", color: "from-purple-700 to-purple-900" },
-                            ].map((chip) => (
-                              <button
-                                key={chip.amount}
-                                type="button"
-                                onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }}
-                                disabled={isSpinning}
-                                className={`relative w-9 h-9 md:w-10 md:h-10 rounded-full flex-shrink-0 flex items-center justify-center font-black text-white text-[9px] transition-all border border-white/20 bg-gradient-to-br ${chip.color} ${
-                                  betAmount === chip.amount ? 'ring-2 ring-white ring-offset-1 ring-offset-[#0a0f18] scale-110' : 'opacity-70 hover:opacity-100 hover:scale-105'
-                                } disabled:opacity-30`}
-                              >
-                                <div className="absolute inset-[2px] rounded-full border border-dashed border-white/30" />
-                                {chip.label}
-                              </button>
-                            ))}
-                          </div>
-
-                          {/* Auto Cashout (crash games) */}
+                          {/* Auto Cashout — crash + desktop */}
                           {game.categories.includes("crash") && (
-                            <div className="flex items-center bg-white/5 border border-white/10 rounded-xl overflow-hidden h-10 md:h-11 shrink-0 focus-within:border-red-400/50 transition-colors">
-                              <span className="px-2 text-slate-400 text-[9px] font-bold border-r border-white/10 h-full flex items-center whitespace-nowrap">Auto</span>
-                              <input
-                                type="number"
-                                step="0.01" min="1.01"
-                                placeholder="1.01×"
-                                value={autoCashoutVal}
+                            <div className="hidden sm:flex items-center bg-[#0f1520] border border-white/10 rounded-xl overflow-hidden h-12 shrink-0 focus-within:border-emerald-400/50 transition-colors">
+                              <div className="px-2.5 h-full flex flex-col justify-center border-r border-white/10">
+                                <span className="text-[8px] font-black text-slate-500 uppercase leading-none">Auto</span>
+                                <span className="text-[8px] font-bold text-slate-600 leading-none mt-0.5">cashout</span>
+                              </div>
+                              <input type="number" step="0.01" min="1.01" placeholder="2.00" value={autoCashoutVal}
                                 onChange={(e) => setAutoCashoutVal(e.target.value === "" ? "" : parseFloat(e.target.value))}
                                 disabled={isSpinning}
-                                className="w-16 bg-transparent text-white font-black text-xs px-2 focus:outline-none text-center disabled:opacity-50"
-                              />
-                              <span className="pr-2 text-slate-400 font-bold text-xs">×</span>
+                                className="w-14 bg-transparent text-white font-black text-sm px-2 h-full focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                              <span className="pr-2 text-slate-600 font-black">×</span>
                             </div>
                           )}
 
-                          {/* Target Selector (coin/baccarat/dice etc) */}
+                          {/* Target selector — desktop */}
                           {(() => {
-                            const titleLower = game.title.toLowerCase();
-                            const idLower = game.id.toLowerCase();
-                            let options: { id: string; name: string }[] = [];
-                            if (titleLower.includes("coin") || idLower.includes("coin")) options = [{ id: "AURA", name: "Aura" }, { id: "SKULL", name: "Skull" }];
-                            else if (titleLower.includes("andar")) options = [{ id: "andar", name: "Andar" }, { id: "bahar", name: "Bahar" }];
-                            else if (titleLower.includes("dragon")) options = [{ id: "dragon", name: "Dragon" }, { id: "tiger", name: "Tiger" }, { id: "tie", name: "Tie" }];
-                            else if (titleLower.includes("teen patti") || idLower.includes("patti")) options = [{ id: "player_a", name: "A" }, { id: "player_b", name: "B" }, { id: "tie", name: "Tie" }];
-                            else if (titleLower.includes("roulette")) options = [{ id: "red", name: "Red" }, { id: "black", name: "Black" }, { id: "zero", name: "0" }];
-                            else if (titleLower.includes("baccarat")) options = [{ id: "PLAYER", name: "Player" }, { id: "BANKER", name: "Banker" }, { id: "TIE", name: "Tie" }];
-                            else if (titleLower.includes("dice")) options = [{ id: "over", name: "Over" }, { id: "under", name: "Under" }];
-                            if (options.length === 0) return null;
+                            const tl = game.title.toLowerCase(), il = game.id.toLowerCase();
+                            let opts: {id:string;name:string}[] = [];
+                            if (tl.includes("coin")||il.includes("coin")) opts=[{id:"AURA",name:"Aura"},{id:"SKULL",name:"Skull"}];
+                            else if (tl.includes("andar")) opts=[{id:"andar",name:"Andar"},{id:"bahar",name:"Bahar"}];
+                            else if (tl.includes("dragon")) opts=[{id:"dragon",name:"Dragon"},{id:"tiger",name:"Tiger"},{id:"tie",name:"Tie"}];
+                            else if (tl.includes("teen patti")||il.includes("patti")) opts=[{id:"player_a",name:"A"},{id:"player_b",name:"B"},{id:"tie",name:"Tie"}];
+                            else if (tl.includes("roulette")) opts=[{id:"red",name:"Red"},{id:"black",name:"Black"},{id:"zero",name:"0"}];
+                            else if (tl.includes("baccarat")) opts=[{id:"PLAYER",name:"Player"},{id:"BANKER",name:"Banker"},{id:"TIE",name:"Tie"}];
+                            else if (tl.includes("dice")) opts=[{id:"over",name:"Over"},{id:"under",name:"Under"}];
+                            if (!opts.length) return null;
                             return (
-                              <div className="flex items-center gap-1 shrink-0">
-                                {options.map(opt => (
-                                  <button
-                                    key={opt.id}
-                                    type="button"
-                                    onClick={() => { setSelectedTarget(opt.id); playGameSound('click'); }}
-                                    disabled={isSpinning}
-                                    className={`h-10 md:h-11 px-3 rounded-xl font-black text-[10px] uppercase tracking-wider border transition-all disabled:opacity-40 ${
-                                      selectedTarget === opt.id
-                                        ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent shadow-lg`
-                                        : 'bg-white/5 text-slate-300 border-white/10 hover:border-white/25'
-                                    }`}
-                                  >
-                                    {opt.name}
+                              <div className="hidden sm:flex items-center gap-1 shrink-0">
+                                {opts.map(o => (
+                                  <button key={o.id} type="button" onClick={() => { setSelectedTarget(o.id); playGameSound('click'); }} disabled={isSpinning}
+                                    className={`h-12 px-3 rounded-xl font-black text-xs uppercase tracking-wider border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent shadow-lg` : 'bg-[#0f1520] text-slate-300 border-white/10 hover:border-white/25'}`}>
+                                    {o.name}
                                   </button>
                                 ))}
                               </div>
                             );
                           })()}
 
-                          {/* BET / CASHOUT Button */}
+                          <div className="flex-1"/>
+
+                          {/* BET / CASHOUT */}
                           <button
                             onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
                             disabled={isSpinning && !isCashoutActive}
-                            className={`h-10 md:h-11 px-6 md:px-8 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 ${
+                            className={`h-12 px-5 sm:px-8 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 whitespace-nowrap ${
                               isSpinning && isCashoutActive
-                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-white shadow-[0_0_20px_rgba(16,185,129,0.4)] animate-pulse cursor-pointer'
+                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse cursor-pointer'
                                 : isSpinning
-                                  ? 'bg-white/10 text-slate-500 cursor-not-allowed'
-                                  : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_4px_20px_rgba(0,0,0,0.3)] hover:shadow-[0_4px_30px_rgba(0,0,0,0.5)] hover:scale-[1.03] active:scale-[0.97] cursor-pointer`
-                            }`}
-                          >
+                                  ? 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/10'
+                                  : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/10`
+                            }`}>
                             {isSpinning && isCashoutActive
-                              ? `CASHOUT ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
-                              : isSpinning
-                                ? 'PLAYING...'
-                                : game.title.toLowerCase().includes('slot') ? 'SPIN' : 'BET NOW'}
+                              ? `💰 ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
+                              : isSpinning ? '⏳ Playing...'
+                              : game.title.toLowerCase().includes('slot') ? '🎰 SPIN' : '🚀 BET'}
                           </button>
                         </div>
 
-                        {/* Row 2: Balance + Live Multiplier + Session Stats (compact) */}
-                        <div className="flex items-center justify-between text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                          <div className="flex items-center gap-3">
-                            <span>Balance: <span className="text-white font-mono">₹{balance.toLocaleString()}</span></span>
-                            {stats.totalRounds > 0 && (
-                              <span>Net: <span className={stats.netProfit >= 0 ? 'text-emerald-400' : 'text-rose-400'}>{stats.netProfit >= 0 ? '+' : ''}₹{stats.netProfit.toFixed(0)}</span></span>
-                            )}
-                            {stats.totalRounds > 0 && (
-                              <span>Rounds: <span className="text-white">{stats.totalRounds}</span></span>
-                            )}
-                          </div>
-                          {liveMultiplier && isSpinning && (
-                            <span className="text-neon-green font-black text-sm font-mono animate-pulse">{liveMultiplier.toFixed(2)}×</span>
+                        {/* Row 2: Chips + mobile extras + balance */}
+                        <div className="flex items-center gap-1.5 px-3 pb-3 md:px-5 md:pb-4 overflow-x-auto scrollbar-none">
+                          {[
+                            {amount:100, label:"₹100", color:"from-red-600 to-red-700"},
+                            {amount:500, label:"₹500", color:"from-teal-600 to-teal-700"},
+                            {amount:1000, label:"1k", color:"from-amber-500 to-amber-600"},
+                            {amount:5000, label:"5k", color:"from-pink-500 to-pink-600"},
+                            {amount:10000, label:"10k", color:"from-rose-600 to-rose-700"},
+                            {amount:50000, label:"50k", color:"from-violet-700 to-violet-900"},
+                          ].map(chip => (
+                            <button key={chip.amount} type="button" onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }} disabled={isSpinning}
+                              className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 font-black text-white text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${
+                                betAmount === chip.amount ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-[#080c14] scale-105 opacity-100 border-white/30' : 'opacity-55 hover:opacity-85 border-white/15'
+                              } disabled:opacity-20`}>
+                              {chip.label}
+                            </button>
+                          ))}
+
+                          {/* Mobile: target selector */}
+                          {(() => {
+                            const tl = game.title.toLowerCase(), il = game.id.toLowerCase();
+                            let opts: {id:string;name:string}[] = [];
+                            if (tl.includes("coin")||il.includes("coin")) opts=[{id:"AURA",name:"Aura"},{id:"SKULL",name:"Skull"}];
+                            else if (tl.includes("andar")) opts=[{id:"andar",name:"Andar"},{id:"bahar",name:"Bahar"}];
+                            else if (tl.includes("dragon")) opts=[{id:"dragon",name:"Dragon"},{id:"tiger",name:"Tiger"},{id:"tie",name:"Tie"}];
+                            else if (tl.includes("teen patti")||il.includes("patti")) opts=[{id:"player_a",name:"A"},{id:"player_b",name:"B"},{id:"tie",name:"Tie"}];
+                            else if (tl.includes("roulette")) opts=[{id:"red",name:"Red"},{id:"black",name:"Black"},{id:"zero",name:"0"}];
+                            else if (tl.includes("baccarat")) opts=[{id:"PLAYER",name:"Player"},{id:"BANKER",name:"Banker"},{id:"TIE",name:"Tie"}];
+                            else if (tl.includes("dice")) opts=[{id:"over",name:"Over"},{id:"under",name:"Under"}];
+                            if (!opts.length) return null;
+                            return (
+                              <div className="flex sm:hidden items-center gap-1 ml-1 shrink-0">
+                                {opts.map(o => (
+                                  <button key={o.id} type="button" onClick={() => { setSelectedTarget(o.id); playGameSound('click'); }} disabled={isSpinning}
+                                    className={`h-8 px-2.5 rounded-lg font-black text-[9px] uppercase border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent` : 'bg-white/5 text-slate-400 border-white/10'}`}>
+                                    {o.name}
+                                  </button>
+                                ))}
+                              </div>
+                            );
+                          })()}
+
+                          {/* Mobile: auto cashout (crash) */}
+                          {game.categories.includes("crash") && (
+                            <div className="flex sm:hidden items-center bg-[#0f1520] border border-white/10 rounded-lg overflow-hidden h-8 shrink-0 ml-1">
+                              <span className="px-2 text-[8px] font-black text-slate-500 border-r border-white/10 h-full flex items-center whitespace-nowrap">Auto×</span>
+                              <input type="number" step="0.01" min="1.01" placeholder="2.0" value={autoCashoutVal}
+                                onChange={(e) => setAutoCashoutVal(e.target.value === "" ? "" : parseFloat(e.target.value))}
+                                disabled={isSpinning}
+                                className="w-12 bg-transparent text-white font-black text-[10px] px-1.5 focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                            </div>
                           )}
-                          <div className="flex items-center gap-2">
-                            <span className="flex items-center gap-1 text-emerald-500"><Hand className="w-3 h-3" /> Manual</span>
-                            <span className="flex h-1.5 w-1.5"><span className="animate-ping absolute h-1.5 w-1.5 rounded-full bg-emerald-400 opacity-75" /><span className="relative rounded-full h-1.5 w-1.5 bg-emerald-500" /></span>
-                          </div>
+
+                          <div className="flex-1 min-w-2"/>
+                          <span className="text-[9px] font-bold text-slate-500 whitespace-nowrap shrink-0">
+                            Bal: <span className="text-slate-300 font-mono font-black">₹{balance.toLocaleString()}</span>
+                            {stats.totalRounds > 0 && <span className={`ml-2 font-black ${stats.netProfit >= 0 ? 'text-emerald-500' : 'text-rose-500'}`}>{stats.netProfit >= 0 ? '+' : ''}₹{stats.netProfit.toFixed(0)}</span>}
+                          </span>
                         </div>
                       </div>
                     )}

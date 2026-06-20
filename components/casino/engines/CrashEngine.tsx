@@ -1,8 +1,6 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/casino-math";
-import { AlertTriangle, Crosshair } from "lucide-react";
 import { startCrashAudio, updateCrashPitch, stopCrashAudio } from "@/lib/audio";
 import { useTradingStore } from "@/lib/store";
 
@@ -14,366 +12,677 @@ interface CrashEngineProps {
   onComplete: (multiplier: number, won: boolean) => void;
 }
 
+// ─── Particle System ─────────────────────────────────────────
+interface Particle {
+  x: number; y: number; vx: number; vy: number;
+  life: number; maxLife: number; size: number;
+  color: string; type: "trail" | "spark" | "star" | "explosion" | "nebula";
+}
+
+interface Star { x: number; y: number; size: number; brightness: number; twinkle: number; }
+
+function getMultiplierColor(mult: number): { primary: string; secondary: string; glow: string } {
+  if (mult >= 100) return { primary: "#fff", secondary: "#a78bfa", glow: "rgba(167,139,250,0.9)" };
+  if (mult >= 50)  return { primary: "#f59e0b", secondary: "#fbbf24", glow: "rgba(251,191,36,0.8)" };
+  if (mult >= 25)  return { primary: "#f97316", secondary: "#fb923c", glow: "rgba(249,115,22,0.75)" };
+  if (mult >= 10)  return { primary: "#ef4444", secondary: "#f87171", glow: "rgba(239,68,68,0.7)" };
+  if (mult >= 5)   return { primary: "#06b6d4", secondary: "#22d3ee", glow: "rgba(6,182,212,0.6)" };
+  return { primary: "#10b981", secondary: "#34d399", glow: "rgba(16,185,129,0.5)" };
+}
+
 export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick, onComplete }: CrashEngineProps) {
-  const [multiplier, setMultiplier] = useState(1.0);
-  const [crashed, setCrashed] = useState(false);
-  const [hasCashedOut, setHasCashedOut] = useState(false);
-  const [xPos, setXPos] = useState(0);
-  const [yPos, setYPos] = useState(0); // For rocket trajectory mapping
-  const graphRef = useRef<HTMLDivElement>(null);
-  const [sessionId, setSessionId] = useState<string | null>(null);
-  const [dims, setDims] = useState({ width: 600, height: 400 });
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const animFrameRef = useRef<number>(0);
+  const stateRef = useRef({
+    multiplier: 1.0,
+    crashed: false,
+    cashedOut: false,
+    isPlaying: false,
+    sessionId: null as string | null,
+    tick: 0,
+    shipX: 0, shipY: 0,
+    trailPoints: [] as { x: number; y: number; mult: number }[],
+    particles: [] as Particle[],
+    stars: [] as Star[],
+    explosionTime: 0,
+    cameraShake: 0,
+    lastMultiplier: 1.0,
+  });
 
-  const currentUser = useTradingStore(state => state.currentUser);
+  const [uiState, setUiState] = useState({
+    multiplier: 1.0, crashed: false, cashedOut: false,
+    cashoutAmount: 0, phase: "idle" as "idle" | "flying" | "crashed" | "cashedout",
+  });
+
+  const currentUser = useTradingStore(s => s.currentUser);
   const email = currentUser?.email || "admin@aurabet.io";
-
   const onCompleteRef = useRef(onComplete);
-  useEffect(() => {
-    onCompleteRef.current = onComplete;
-  }, [onComplete]);
-
-  const hasCashedOutRef = useRef(hasCashedOut);
-  useEffect(() => {
-    hasCashedOutRef.current = hasCashedOut;
-  }, [hasCashedOut]);
-
+  useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
   const onLiveTickRef = useRef(onLiveTick);
+  useEffect(() => { onLiveTickRef.current = onLiveTick; }, [onLiveTick]);
+  const isPlayingRef = useRef(isPlaying);
+  useEffect(() => { isPlayingRef.current = isPlaying; }, [isPlaying]);
+
+  // ─── Init Stars ───────────────────────────────────────────
+  const initStars = useCallback((w: number, h: number) => {
+    const stars: Star[] = [];
+    for (let i = 0; i < 280; i++) {
+      stars.push({ x: Math.random() * w, y: Math.random() * h, size: Math.random() * 2.2 + 0.3, brightness: Math.random(), twinkle: Math.random() * Math.PI * 2 });
+    }
+    stateRef.current.stars = stars;
+  }, []);
+
+  // ─── Spawn Particle ───────────────────────────────────────
+  const spawnParticle = (x: number, y: number, type: Particle["type"], colors: { primary: string; secondary: string }) => {
+    const p = stateRef.current.particles;
+    const count = type === "explosion" ? 60 : type === "spark" ? 3 : 1;
+    for (let i = 0; i < count; i++) {
+      const angle = type === "explosion" ? Math.random() * Math.PI * 2 : Math.PI + (Math.random() - 0.5) * 1.2;
+      const speed = type === "explosion" ? Math.random() * 8 + 2 : Math.random() * 3 + 1;
+      p.push({
+        x, y,
+        vx: Math.cos(angle) * speed,
+        vy: Math.sin(angle) * speed - (type === "trail" ? 1 : 0),
+        life: 1, maxLife: 1,
+        size: type === "explosion" ? Math.random() * 8 + 3 : Math.random() * 3 + 1,
+        color: Math.random() > 0.5 ? colors.primary : colors.secondary,
+        type,
+      });
+    }
+    if (p.length > 500) p.splice(0, p.length - 500);
+  };
+
+  // ─── Main Canvas Renderer ─────────────────────────────────
+  const render = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    const W = canvas.width, H = canvas.height;
+    const s = stateRef.current;
+    const colors = getMultiplierColor(s.multiplier);
+    const t = Date.now() * 0.001;
+
+    // Camera shake
+    let shakeX = 0, shakeY = 0;
+    if (s.cameraShake > 0) {
+      shakeX = (Math.random() - 0.5) * s.cameraShake;
+      shakeY = (Math.random() - 0.5) * s.cameraShake;
+      s.cameraShake *= 0.85;
+    }
+    ctx.save();
+    ctx.translate(shakeX, shakeY);
+
+    // ── Background: Deep Space ──
+    const bgGrad = ctx.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, Math.max(W, H) * 0.9);
+    const intensity = Math.min(1, (s.multiplier - 1) / 50);
+    bgGrad.addColorStop(0, `rgba(${8 + intensity * 20},${5 + intensity * 5},${30 + intensity * 20},1)`);
+    bgGrad.addColorStop(0.6, `rgba(4,3,20,1)`);
+    bgGrad.addColorStop(1, "rgba(0,0,0,1)");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(-10, -10, W + 20, H + 20);
+
+    // ── Nebula clouds ──
+    for (let i = 0; i < 4; i++) {
+      const nx = W * (0.1 + i * 0.25) + Math.sin(t * 0.1 + i) * 30;
+      const ny = H * (0.2 + Math.sin(i * 1.3) * 0.3) + Math.cos(t * 0.08 + i) * 20;
+      const nr = W * (0.25 + i * 0.05);
+      const nc = i % 2 === 0 ? `rgba(${80 + i * 10},20,${120 + i * 15},` : `rgba(10,${60 + i * 20},${100 + i * 20},`;
+      const ng = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
+      ng.addColorStop(0, nc + `${0.06 + intensity * 0.06})`);
+      ng.addColorStop(1, nc + "0)");
+      ctx.fillStyle = ng;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // ── Stars ──
+    s.stars.forEach(star => {
+      const twinkle = 0.4 + 0.6 * Math.sin(t * (2 + star.twinkle) + star.twinkle);
+      const alpha = star.brightness * twinkle;
+      const speed = s.multiplier > 5 ? (s.multiplier - 5) * 0.015 : 0;
+      star.y = (star.y + speed) % H;
+      ctx.beginPath();
+      ctx.arc(star.x, star.y, star.size * twinkle, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(255,255,255,${alpha})`;
+      ctx.fill();
+      if (star.size > 1.5) {
+        ctx.shadowBlur = 6; ctx.shadowColor = "rgba(180,200,255,0.6)";
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      }
+    });
+
+    // ── Grid lines (subtle) ──
+    ctx.save();
+    ctx.strokeStyle = `rgba(${s.multiplier > 10 ? "239,68,68" : "16,185,129"},0.06)`;
+    ctx.lineWidth = 1;
+    const gridSize = 60;
+    for (let gx = 0; gx < W; gx += gridSize) {
+      ctx.beginPath(); ctx.moveTo(gx, 0); ctx.lineTo(gx, H); ctx.stroke();
+    }
+    for (let gy = 0; gy < H; gy += gridSize) {
+      ctx.beginPath(); ctx.moveTo(0, gy); ctx.lineTo(W, gy); ctx.stroke();
+    }
+    ctx.restore();
+
+    // ── Plasma trail ──
+    if (s.trailPoints.length > 1) {
+      const trailLen = s.trailPoints.length;
+      // Glow outer
+      ctx.save();
+      ctx.lineWidth = 10;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
+      ctx.strokeStyle = colors.glow.replace("0.5)", "0.15)").replace("0.6)", "0.15)").replace("0.7)", "0.15)").replace("0.8)", "0.15)").replace("0.9)", "0.15)");
+      ctx.shadowBlur = 30; ctx.shadowColor = colors.glow;
+      ctx.beginPath();
+      ctx.moveTo(s.trailPoints[0].x, s.trailPoints[0].y);
+      for (let i = 1; i < trailLen; i++) ctx.lineTo(s.trailPoints[i].x, s.trailPoints[i].y);
+      ctx.stroke();
+      // Core trail with gradient
+      const tGrad = ctx.createLinearGradient(s.trailPoints[0].x, s.trailPoints[0].y, s.trailPoints[trailLen - 1].x, s.trailPoints[trailLen - 1].y);
+      tGrad.addColorStop(0, "rgba(255,255,255,0.05)");
+      tGrad.addColorStop(0.7, colors.secondary + "cc");
+      tGrad.addColorStop(1, colors.primary + "ff");
+      ctx.strokeStyle = tGrad;
+      ctx.lineWidth = 3;
+      ctx.shadowBlur = 20; ctx.shadowColor = colors.glow;
+      ctx.beginPath();
+      ctx.moveTo(s.trailPoints[0].x, s.trailPoints[0].y);
+      for (let i = 1; i < trailLen; i++) ctx.lineTo(s.trailPoints[i].x, s.trailPoints[i].y);
+      ctx.stroke();
+      ctx.restore();
+    }
+
+    // ── Particles ──
+    s.particles = s.particles.filter(p => p.life > 0.02);
+    s.particles.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      p.vy += p.type === "explosion" ? 0.15 : 0.03;
+      p.vx *= 0.97; p.vy *= 0.97;
+      p.life -= p.type === "explosion" ? 0.025 : 0.04;
+      const alpha = p.life;
+      ctx.save();
+      ctx.globalAlpha = alpha;
+      ctx.shadowBlur = 8; ctx.shadowColor = p.color;
+      ctx.fillStyle = p.color;
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+
+    // ── Spacecraft ──
+    if (s.isPlaying && !s.crashed) {
+      const sx = s.shipX, sy = s.shipY;
+      // Dynamic angle based on trail
+      let angle = -Math.PI * 0.28;
+      if (s.trailPoints.length > 2) {
+        const prev = s.trailPoints[s.trailPoints.length - 2];
+        const curr = s.trailPoints[s.trailPoints.length - 1];
+        angle = Math.atan2(curr.y - prev.y, curr.x - prev.x) - Math.PI / 2;
+      }
+
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(angle);
+
+      // Engine glow
+      const engGlow = ctx.createRadialGradient(0, 28, 0, 0, 28, 35 + s.multiplier * 0.3);
+      engGlow.addColorStop(0, "rgba(255,200,50,0.9)");
+      engGlow.addColorStop(0.3, "rgba(255,100,20,0.6)");
+      engGlow.addColorStop(1, "rgba(255,50,0,0)");
+      ctx.fillStyle = engGlow;
+      ctx.beginPath(); ctx.ellipse(0, 32, 18 + s.multiplier * 0.1, 40 + s.multiplier * 0.3, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Ship body
+      ctx.shadowBlur = 20; ctx.shadowColor = colors.glow;
+      ctx.fillStyle = ctx.createLinearGradient(-12, -30, 12, 30) as unknown as string;
+      const bodyG = ctx.createLinearGradient(-12, -30, 12, 30);
+      bodyG.addColorStop(0, "#e2e8f0");
+      bodyG.addColorStop(0.5, "#94a3b8");
+      bodyG.addColorStop(1, "#334155");
+      ctx.fillStyle = bodyG;
+      ctx.beginPath();
+      ctx.moveTo(0, -30); ctx.bezierCurveTo(14, -10, 14, 10, 10, 30);
+      ctx.lineTo(-10, 30); ctx.bezierCurveTo(-14, 10, -14, -10, 0, -30);
+      ctx.fill();
+
+      // Cockpit
+      const cockG = ctx.createRadialGradient(-3, -16, 0, -3, -16, 9);
+      cockG.addColorStop(0, "rgba(100,200,255,0.95)");
+      cockG.addColorStop(1, "rgba(0,50,100,0.5)");
+      ctx.fillStyle = cockG;
+      ctx.beginPath(); ctx.ellipse(0, -16, 6, 9, 0, 0, Math.PI * 2); ctx.fill();
+
+      // Wing fins
+      ctx.fillStyle = "#475569";
+      ctx.beginPath(); ctx.moveTo(10, 15); ctx.lineTo(26, 32); ctx.lineTo(10, 28); ctx.closePath(); ctx.fill();
+      ctx.beginPath(); ctx.moveTo(-10, 15); ctx.lineTo(-26, 32); ctx.lineTo(-10, 28); ctx.closePath(); ctx.fill();
+
+      // Nozzle
+      ctx.fillStyle = "#1e293b";
+      ctx.beginPath(); ctx.roundRect(-7, 26, 14, 8, 2); ctx.fill();
+
+      ctx.restore();
+
+      // Spawn trail particles
+      if (s.tick % 2 === 0) spawnParticle(sx + Math.sin(angle + Math.PI) * 28, sy + Math.cos(angle + Math.PI) * 28, "trail", colors);
+      if (s.tick % 5 === 0) spawnParticle(sx + (Math.random() - 0.5) * 20, sy + (Math.random() - 0.5) * 20, "spark", colors);
+    }
+
+    // ── Crash Explosion ──
+    if (s.crashed && s.explosionTime < 60) {
+      const et = s.explosionTime / 60;
+      const ex = s.shipX, ey = s.shipY;
+      for (let ring = 0; ring < 3; ring++) {
+        const r = et * (W * 0.3) * (ring + 1) * 0.4;
+        const alpha = (1 - et) * (0.8 - ring * 0.25);
+        ctx.save();
+        ctx.beginPath(); ctx.arc(ex, ey, r, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(239,68,68,${alpha})`;
+        ctx.lineWidth = 4 - ring;
+        ctx.shadowBlur = 30; ctx.shadowColor = "rgba(239,68,68,0.8)";
+        ctx.stroke();
+        ctx.restore();
+      }
+      // Core flash
+      if (et < 0.2) {
+        const fg = ctx.createRadialGradient(ex, ey, 0, ex, ey, et * W * 0.5);
+        fg.addColorStop(0, `rgba(255,255,255,${(0.2 - et) * 5})`);
+        fg.addColorStop(0.4, `rgba(255,100,0,${(0.2 - et) * 3})`);
+        fg.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = fg;
+        ctx.fillRect(0, 0, W, H);
+      }
+      s.explosionTime++;
+    }
+
+    // ── Multiplier display on canvas ──
+    if (s.isPlaying || s.crashed || s.cashedOut) {
+      const multText = s.multiplier.toFixed(2) + "×";
+      const fontSize = Math.min(W * 0.16, 120);
+      ctx.save();
+      ctx.font = `900 ${fontSize}px 'Inter', system-ui, sans-serif`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      const multY = H * 0.38;
+
+      if (s.crashed) {
+        ctx.fillStyle = "#ef4444";
+        ctx.shadowBlur = 60; ctx.shadowColor = "rgba(239,68,68,0.9)";
+        ctx.fillText(multText, W / 2, multY);
+        ctx.font = `800 ${fontSize * 0.28}px 'Inter', sans-serif`;
+        ctx.fillStyle = "rgba(239,68,68,0.85)";
+        ctx.shadowBlur = 20;
+        ctx.fillText("CRASHED!", W / 2, multY + fontSize * 0.62);
+      } else if (s.cashedOut) {
+        ctx.fillStyle = "#10b981";
+        ctx.shadowBlur = 60; ctx.shadowColor = "rgba(16,185,129,0.9)";
+        ctx.fillText(multText, W / 2, multY);
+        ctx.font = `800 ${fontSize * 0.26}px 'Inter', sans-serif`;
+        ctx.fillStyle = "#34d399";
+        ctx.shadowBlur = 20;
+        ctx.fillText(`₹${(betAmount * s.multiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })} SECURED`, W / 2, multY + fontSize * 0.62);
+      } else {
+        // Pulsing glow at high multipliers
+        const pulse = Math.sin(t * (3 + s.multiplier * 0.05)) * 0.15 + 0.85;
+        ctx.globalAlpha = pulse;
+        ctx.fillStyle = colors.primary;
+        ctx.shadowBlur = 40 + s.multiplier * 0.5; ctx.shadowColor = colors.glow;
+        ctx.fillText(multText, W / 2, multY);
+        ctx.globalAlpha = 1;
+
+        // Label
+        ctx.font = `700 ${fontSize * 0.2}px 'Inter', sans-serif`;
+        ctx.fillStyle = "rgba(255,255,255,0.4)";
+        ctx.shadowBlur = 0;
+        ctx.fillText("CRASH X", W / 2, multY - fontSize * 0.68);
+      }
+      ctx.restore();
+
+      // ── High multiplier ambient ring ──
+      if (s.multiplier >= 5 && !s.crashed) {
+        const ring = ctx.createRadialGradient(W / 2, H / 2, H * 0.2, W / 2, H / 2, H * 0.75);
+        const a = Math.min(0.35, (s.multiplier - 5) / 100);
+        ring.addColorStop(0, "rgba(0,0,0,0)");
+        ring.addColorStop(0.7, "rgba(0,0,0,0)");
+        ring.addColorStop(1, colors.glow.replace(/[\d.]+\)$/, `${a})`));
+        ctx.fillStyle = ring;
+        ctx.fillRect(0, 0, W, H);
+      }
+    }
+
+    // ── Idle screen ──
+    if (!s.isPlaying && !s.crashed) {
+      ctx.save();
+      ctx.font = `700 ${Math.min(W * 0.06, 32)}px 'Inter', sans-serif`;
+      ctx.textAlign = "center";
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.fillText("PLACE YOUR BET TO LAUNCH", W / 2, H * 0.65);
+      // Animated crosshair
+      const cr = 28 + Math.sin(t * 2) * 4;
+      ctx.strokeStyle = "rgba(16,185,129,0.4)";
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.arc(W / 2, H * 0.48, cr, 0, Math.PI * 2); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W / 2 - cr * 1.5, H * 0.48); ctx.lineTo(W / 2 + cr * 1.5, H * 0.48); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(W / 2, H * 0.48 - cr * 1.5); ctx.lineTo(W / 2, H * 0.48 + cr * 1.5); ctx.stroke();
+      ctx.restore();
+    }
+
+    ctx.restore(); // camera shake restore
+    s.tick++;
+    animFrameRef.current = requestAnimationFrame(render);
+  }, [betAmount]);
+
+  // ─── Resize Handler ───────────────────────────────────────
   useEffect(() => {
-    onLiveTickRef.current = onLiveTick;
-  }, [onLiveTick]);
+    const canvas = canvasRef.current;
+    const container = containerRef.current;
+    if (!canvas || !container) return;
+    const resize = () => {
+      canvas.width = container.clientWidth;
+      canvas.height = container.clientHeight;
+      initStars(canvas.width, canvas.height);
+    };
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(container);
+    animFrameRef.current = requestAnimationFrame(render);
+    return () => { ro.disconnect(); cancelAnimationFrame(animFrameRef.current); };
+  }, [render, initStars]);
 
-  const handleCashout = useCallback(async (cashoutMultiplier?: number) => {
-    if (crashed || hasCashedOut || !isPlaying || !sessionId) return;
-    const targetMultiplier = cashoutMultiplier || multiplier;
-    setHasCashedOut(true);
+  // ─── Cashout Handler ─────────────────────────────────────
+  const handleCashout = useCallback(async (cashoutMult?: number) => {
+    const s = stateRef.current;
+    if (s.crashed || s.cashedOut || !s.isPlaying || !s.sessionId) return;
+    const targetMult = cashoutMult ?? s.multiplier;
+    s.cashedOut = true;
     stopCrashAudio(false);
-
+    setUiState(prev => ({ ...prev, cashedOut: true, cashoutAmount: betAmount * targetMult, phase: "cashedout" }));
+    spawnParticle(s.shipX, s.shipY, "explosion", getMultiplierColor(targetMult));
     try {
-      const res = await fetch('/api/casino/mines/action', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'cashout',
-          email,
-          sessionId,
-          clientMultiplier: targetMultiplier
-        })
+      const res = await fetch("/api/casino/mines/action", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "cashout", email, sessionId: s.sessionId, clientMultiplier: targetMult }),
       });
       const data = await res.json();
       if (res.ok && data.success && !data.isBust) {
-        onCompleteRef.current(targetMultiplier, true);
+        onCompleteRef.current(targetMult, true);
       } else {
-        // Crashed or server rejected
         onCompleteRef.current(0, false);
       }
-    } catch (err) {
-      console.error("Cashout failed", err);
-      onCompleteRef.current(0, false);
-    }
-  }, [crashed, hasCashedOut, isPlaying, sessionId, multiplier, email]);
+    } catch { onCompleteRef.current(0, false); }
+  }, [betAmount, email]);
 
   const handleCashoutRef = useRef(handleCashout);
-  useEffect(() => {
-    handleCashoutRef.current = handleCashout;
-  }, [handleCashout]);
+  useEffect(() => { handleCashoutRef.current = handleCashout; }, [handleCashout]);
 
-  // Measure container dimensions dynamically
+  // ─── Game Loop ────────────────────────────────────────────
   useEffect(() => {
-    if (!graphRef.current) return;
-    const updateDims = () => {
-      if (graphRef.current) {
-        setDims({
-          width: graphRef.current.clientWidth,
-          height: graphRef.current.clientHeight
-        });
-      }
-    };
-    updateDims();
-    window.addEventListener("resize", updateDims);
-    return () => window.removeEventListener("resize", updateDims);
-  }, []);
-
-  useEffect(() => {
+    const s = stateRef.current;
     if (!isPlaying) {
-      setMultiplier(1.0);
-      setCrashed(false);
-      setHasCashedOut(false);
-      setYPos(0);
-      setXPos(0);
-      setSessionId(null);
+      s.isPlaying = false;
+      s.multiplier = 1.0;
+      s.crashed = false;
+      s.cashedOut = false;
+      s.trailPoints = [];
+      s.particles = [];
+      s.explosionTime = 0;
+      s.sessionId = null;
+      s.tick = 0;
       stopCrashAudio(false);
+      setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "idle" });
       return;
     }
 
+    s.isPlaying = true;
+    s.crashed = false;
+    s.cashedOut = false;
+    s.trailPoints = [];
+    s.particles = [];
+    s.explosionTime = 0;
+    s.multiplier = 1.0;
     startCrashAudio();
+    setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "flying" });
 
     let active = true;
     let interval: NodeJS.Timeout | null = null;
 
     const executeBet = async () => {
       try {
-        const res = await fetch('/api/casino/bet', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email,
-            gameId: "orig-1",
-            gameTitle: "Crash",
-            betAmount
-          })
+        const res = await fetch("/api/casino/bet", {
+          method: "POST", headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, gameId: "orig-1", gameTitle: "Crash", betAmount }),
         });
         const data = await res.json();
         if (!active) return;
-
         if (res.ok && data.success) {
-          setSessionId(data.sessionId);
+          s.sessionId = data.sessionId;
           const target = data.crashPoint;
-
           let current = 1.0;
           let tick = 0;
+
           interval = setInterval(() => {
+            if (!active) return;
             tick++;
-            current += 0.01 + (current * 0.015);
+            current += 0.01 + current * 0.015;
             updateCrashPitch(current);
+            s.multiplier = current;
+            s.lastMultiplier = current;
 
-            // Responsive flight path trajectory math
-            const targetX = Math.min(dims.width * 0.85, (tick / 120) * dims.width * 0.85);
-            const targetY = Math.min(dims.height * 0.7, Math.log10(current) * dims.height * 1.0);
+            // Ship flight path (canvas-space)
+            const canvas = canvasRef.current;
+            if (canvas) {
+              const W = canvas.width, H = canvas.height;
+              const maxTick = 180;
+              const progress = Math.min(1, tick / maxTick);
+              // Curved arc: x goes right, y goes up as multiplier grows
+              const targetX = W * 0.08 + progress * W * 0.82;
+              const heightFactor = Math.min(0.82, Math.log10(Math.max(1.01, current)) * 0.52);
+              const targetY = H * 0.88 - heightFactor * H * 0.85;
+              s.shipX = targetX;
+              s.shipY = targetY;
+              s.trailPoints.push({ x: targetX, y: targetY, mult: current });
+              if (s.trailPoints.length > 300) s.trailPoints.shift();
 
-            setXPos(targetX);
-            setYPos(targetY);
+              // Camera shake at high multipliers
+              if (current > 10) s.cameraShake = Math.min(8, (current - 10) * 0.15);
+            }
+
+            onLiveTickRef.current?.(current);
+            setUiState(prev => ({ ...prev, multiplier: current }));
 
             if (current >= target) {
               if (interval) clearInterval(interval);
-              setMultiplier(target);
-              setCrashed(true);
+              s.multiplier = target;
+              s.crashed = true;
+              s.isPlaying = false;
+              s.explosionTime = 0;
               stopCrashAudio(true);
-              if (!hasCashedOutRef.current) {
-                onCompleteRef.current(target, false);
-              }
-            } else {
-              setMultiplier(current);
-              onLiveTickRef.current?.(current);
-
-              // Auto cashout check
-              if (autoCashout && current >= autoCashout && !hasCashedOutRef.current) {
-                if (interval) clearInterval(interval);
-                handleCashoutRef.current(current);
-              }
+              // Explosion particles
+              spawnParticle(s.shipX, s.shipY, "explosion", { primary: "#ef4444", secondary: "#fbbf24" });
+              s.cameraShake = 20;
+              setUiState({ multiplier: target, crashed: true, cashedOut: false, cashoutAmount: 0, phase: "crashed" });
+              if (!s.cashedOut) onCompleteRef.current(target, false);
+            } else if (autoCashout && current >= autoCashout && !s.cashedOut) {
+              if (interval) clearInterval(interval);
+              handleCashoutRef.current(current);
             }
-          }, 60);
-
+          }, 55);
         } else {
           onCompleteRef.current(0, false);
-          alert(data.error || "Wager placement failed.");
         }
-      } catch (err) {
-        console.error("Crash bet initiation failed", err);
-        onCompleteRef.current(0, false);
-      }
+      } catch { onCompleteRef.current(0, false); }
     };
 
     executeBet();
+    return () => { active = false; if (interval) clearInterval(interval); stopCrashAudio(false); };
+  }, [isPlaying, betAmount, autoCashout, email]);
 
-    return () => {
-      active = false;
-      if (interval) clearInterval(interval);
-      stopCrashAudio(false);
-    };
-  }, [isPlaying, autoCashout, betAmount, email, dims.width, dims.height]);
-
-  // Keyboard and event cashout hotkey
+  // ─── Event listeners ──────────────────────────────────────
   useEffect(() => {
-    const handleTriggerCashout = () => {
-      if (isPlaying && !crashed && !hasCashedOut) {
-        handleCashout();
-      }
+    const onCashout = () => {
+      if (stateRef.current.isPlaying && !stateRef.current.crashed && !stateRef.current.cashedOut)
+        handleCashoutRef.current();
     };
-    window.addEventListener("trigger-cashout", handleTriggerCashout);
-    window.addEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+    window.addEventListener("trigger-cashout", onCashout);
+    window.addEventListener("sidebar-trigger-cashout", onCashout);
     return () => {
-      window.removeEventListener("trigger-cashout", handleTriggerCashout);
-      window.removeEventListener("sidebar-trigger-cashout", handleTriggerCashout);
+      window.removeEventListener("trigger-cashout", onCashout);
+      window.removeEventListener("sidebar-trigger-cashout", onCashout);
     };
-  }, [isPlaying, crashed, hasCashedOut, multiplier]);
+  }, []);
+
+  const colors = getMultiplierColor(uiState.multiplier);
 
   return (
-    <motion.div 
-      animate={
-        crashed ? { x: 0, y: 0 } :
-        isPlaying ? {
-          x: multiplier > 20 ? [-3, 3, -3, 3, 0] :
-             multiplier > 10 ? [-2, 2, -2, 2, 0] :
-             multiplier > 5  ? [-1, 1, -1, 1, 0] : [0],
-          y: multiplier > 20 ? [-3, 3, -3, 3, 0] :
-             multiplier > 10 ? [-2, 2, -2, 2, 0] :
-             multiplier > 5  ? [-1, 1, -1, 1, 0] : [0],
-        } : { x: 0, y: 0 }
-      }
-      transition={isPlaying ? { repeat: Infinity, duration: 0.08 } : {}}
-      className="w-full h-full min-h-[440px] bg-[#0a0f1c] rounded-3xl border border-white/5 relative flex flex-col items-center justify-center overflow-hidden shadow-[inset_0_0_150px_rgba(0,0,0,0.8)]"
-    >
-      
-      {/* Photorealistic Deep Space Nebula Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center opacity-80"
-        style={{ backgroundImage: "url('/images/space_background.png')" }}
-      />
-      
-      {/* Tactical Radar Grid Overlay */}
-      <div 
-        className="absolute inset-0 z-0 opacity-30 mix-blend-screen"
-        style={{
-          backgroundImage: `
-            linear-gradient(rgba(16, 185, 129, 0.1) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(16, 185, 129, 0.1) 1px, transparent 1px)
-          `,
-          backgroundSize: '40px 40px',
-          backgroundPosition: 'center center'
-        }}
-      />
-      
-      {/* Sweeping Radar Scanline */}
-      <motion.div 
-        animate={{ top: ["-10%", "110%"] }}
-        transition={{ repeat: Infinity, duration: 3, ease: "linear" }}
-        className="absolute left-0 right-0 h-16 bg-gradient-to-b from-transparent via-emerald-500/10 to-emerald-500/30 border-b border-emerald-500/50 z-0 pointer-events-none"
-      />
+    <div ref={containerRef} className="relative w-full h-full min-h-[420px] overflow-hidden bg-[#03020f] rounded-xl">
+      {/* Canvas arena */}
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
 
-      {/* Axis Labels */}
-      <div className="absolute left-4 top-4 bottom-4 w-12 border-r border-emerald-300 flex flex-col justify-between py-10 z-0 opacity-50 font-mono text-[10px] text-emerald-500">
-        <span>100x</span>
-        <span>50x</span>
-        <span>10x</span>
-        <span>2x</span>
-        <span>1x</span>
-      </div>
-
-      {/* Main Multiplier Display */}
-      <motion.div 
-        animate={crashed ? { scale: [1, 1.1, 1], filter: ["blur(0px)", "blur(10px)", "blur(0px)"] } : { scale: 1 }}
-        transition={{ duration: 0.3 }}
-        className="z-20 relative flex flex-col items-center"
-      >
-        <motion.div 
-          animate={crashed ? { scale: [1, 1.2, 1], rotate: [-2, 2, -2, 2, 0] } : { scale: 1 }}
-          transition={{ duration: 0.5 }}
-          className={`text-6xl md:text-8xl font-black font-mono tracking-tighter drop-shadow-2xl ${
-            crashed ? 'text-red-500 drop-shadow-[0_0_30px_rgba(239,68,68,0.8)]' : 
-            hasCashedOut ? 'text-emerald-400 drop-shadow-[0_0_30px_rgba(16,185,129,0.8)]' : 
-            'text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]'
-          }`}
-        >
-          {multiplier.toFixed(2)}x
-        </motion.div>
-        
-        <AnimatePresence>
-          {hasCashedOut && !crashed && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0 }}
-              className="mt-4 px-6 py-2 bg-emerald-900/20 border border-emerald-500/30 rounded-xl backdrop-blur-md flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.2)]"
-            >
-              <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Secured</span>
-              <span className="text-white font-black text-xl">₹{(betAmount * multiplier).toFixed(2)}</span>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </motion.div>
-
-      {/* Manual Cashout Interaction Panel */}
+      {/* ── Live multiplier HUD (top center) ── */}
       <AnimatePresence>
-        {isPlaying && !crashed && !hasCashedOut && (
+        {uiState.phase === "flying" && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            key="live-hud"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            className="absolute top-4 left-1/2 -translate-x-1/2 z-20 pointer-events-none"
+          >
+            <div
+              className="flex flex-col items-center px-5 py-2 rounded-2xl border backdrop-blur-md"
+              style={{
+                background: "rgba(0,0,0,0.55)",
+                borderColor: colors.glow.replace(/[\d.]+\)$/, "0.35)"),
+                boxShadow: `0 0 30px ${colors.glow.replace(/[\d.]+\)$/, "0.2)")}`,
+              }}
+            >
+              <span className="text-[10px] font-black uppercase tracking-[0.2em] text-white/40 mb-0.5">LIVE MULTIPLIER</span>
+              <span
+                className="text-4xl sm:text-5xl font-black font-mono tracking-tighter leading-none tabular-nums"
+                style={{ color: colors.primary, textShadow: `0 0 30px ${colors.glow}` }}
+              >
+                {uiState.multiplier.toFixed(2)}×
+              </span>
+              {isPlaying && (
+                <span className="text-[10px] font-bold mt-1" style={{ color: colors.secondary }}>
+                  ₹{(betAmount * uiState.multiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                </span>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Crashed overlay ── */}
+      <AnimatePresence>
+        {uiState.phase === "crashed" && (
+          <motion.div
+            key="crashed"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-30 flex flex-col items-center justify-center pointer-events-none"
+          >
+            <motion.div
+              initial={{ scale: 0.5, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 400, damping: 20 }}
+              className="flex flex-col items-center gap-2"
+            >
+              <div className="text-[10px] font-black uppercase tracking-[0.25em] text-red-400/70">Round Ended</div>
+              <div className="text-6xl sm:text-8xl font-black font-mono text-red-500 leading-none"
+                style={{ textShadow: "0 0 60px rgba(239,68,68,0.9), 0 0 120px rgba(239,68,68,0.4)" }}>
+                {uiState.multiplier.toFixed(2)}×
+              </div>
+              <div className="text-xl font-black text-red-400 uppercase tracking-widest">CRASHED</div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Cashed out overlay ── */}
+      <AnimatePresence>
+        {uiState.phase === "cashedout" && (
+          <motion.div
+            key="cashedout"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            transition={{ type: "spring", stiffness: 300, damping: 25 }}
+            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none flex flex-col items-center"
+          >
+            <div className="px-8 py-5 rounded-3xl border text-center backdrop-blur-xl"
+              style={{ background: "rgba(0,0,0,0.75)", borderColor: "rgba(16,185,129,0.4)", boxShadow: "0 0 60px rgba(16,185,129,0.3)" }}>
+              <div className="text-[10px] font-black uppercase tracking-widest text-emerald-400/70 mb-1">Secured at</div>
+              <div className="text-5xl sm:text-7xl font-black font-mono text-emerald-400 leading-none"
+                style={{ textShadow: "0 0 40px rgba(16,185,129,0.8)" }}>
+                {uiState.multiplier.toFixed(2)}×
+              </div>
+              <div className="text-2xl font-black text-white mt-2">
+                ₹{uiState.cashoutAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* ── Cashout button (floating, in-canvas) ── */}
+      <AnimatePresence>
+        {isPlaying && !uiState.crashed && !uiState.cashedOut && (
+          <motion.div
+            key="cashout-btn"
+            initial={{ opacity: 0, scale: 0.85, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="hidden md:block absolute bottom-8 z-50 w-[90%] max-w-[300px]"
+            exit={{ opacity: 0, scale: 0.85, y: 10 }}
+            transition={{ type: "spring", stiffness: 400, damping: 25 }}
+            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-40"
           >
             <button
               onClick={() => handleCashout()}
-              className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95"
+              className="group relative overflow-hidden flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-black text-base sm:text-lg uppercase tracking-wider text-black transition-all active:scale-95 cursor-pointer"
+              style={{
+                background: `linear-gradient(135deg, #10b981, #059669)`,
+                boxShadow: `0 0 30px rgba(16,185,129,0.5), 0 8px 25px rgba(0,0,0,0.4)`,
+              }}
             >
-              <span>Cashout</span>
-              <span className="bg-black/20 px-3 py-1 rounded-lg">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <motion.div
+                animate={{ opacity: [0.6, 1, 0.6] }}
+                transition={{ repeat: Infinity, duration: 1.2 }}
+                className="absolute inset-0 bg-white/15 rounded-2xl"
+              />
+              <span className="relative">CASHOUT</span>
+              <span className="relative bg-black/25 px-3 py-1 rounded-xl text-sm font-black">
+                ₹{(betAmount * uiState.multiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              </span>
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* The Rocket & Trajectory Graph */}
-      <div ref={graphRef} className="absolute inset-x-16 inset-y-10 z-10 pointer-events-none">
-        
-        {/* Trajectory Line (SVG) */}
-        <svg className="absolute inset-0 w-full h-full overflow-visible">
-          <motion.path 
-            d={`M 0,${dims.height} Q ${xPos * 0.55},${dims.height - yPos * 0.25} ${xPos},${dims.height - yPos}`}
-            fill="none" 
-            stroke={crashed ? "#ef4444" : "#10b981"} 
-            strokeWidth="4" 
-            strokeLinecap="round"
-            style={{ filter: `drop-shadow(0 0 10px ${crashed ? '#ef4444' : '#10b981'})` }}
-            initial={{ pathLength: 0 }}
-            animate={{ pathLength: isPlaying ? 1 : 0 }}
-            transition={{ duration: 0.1 }}
-          />
-        </svg>
-
-        {/* The Rocket (SpaceX Style Heavy) */}
-        <AnimatePresence>
-          {!crashed && isPlaying && (
-            <motion.div 
-              className="absolute w-20 h-40 -ml-10 -mt-20"
-              initial={{ left: 0, bottom: 0 }}
-              animate={{ left: `${xPos}px`, bottom: `${yPos}px`, rotate: 35 }}
-              transition={{ ease: "linear", duration: 0.1 }}
-            >
-              <motion.div animate={{ y: [-2, 2, -2], x: [-1, 1, -1] }} transition={{ repeat: Infinity, duration: 0.05 }} className="w-full h-full relative">
-                {/* Heavy Booster SVG */}
-                <svg viewBox="0 0 100 200" className="w-full h-full filter drop-shadow-[0_0_15px_rgba(255,255,255,0.4)]">
-                  <path d="M50,10 C50,10 70,50 70,120 L30,120 C30,50 50,10 50,10 Z" fill="#e2e8f0" />
-                  <path d="M50,10 C50,10 60,50 60,120 L40,120 C40,50 50,10 50,10 Z" fill="#cbd5e1" />
-                  {/* Fins */}
-                  <path d="M70,100 L90,140 L70,120 Z" fill="#94a3b8" />
-                  <path d="M30,100 L10,140 L30,120 Z" fill="#94a3b8" />
-                  {/* Engine Nozzle */}
-                  <rect x="40" y="120" width="20" height="10" fill="#334155" />
-                  <rect x="35" y="130" width="30" height="15" fill="#1e293b" />
-                </svg>
-
-                {/* Fire Plume Particle Emitters */}
-                <motion.div 
-                  className="absolute bottom-[-60px] left-1/2 -translate-x-1/2 w-8 h-24 bg-gradient-to-t from-transparent via-orange-500 to-yellow-300 rounded-full blur-md opacity-80"
-                  style={{ transform: `scale(${Math.min(2.5, 1.0 + (multiplier - 1.0) * 0.1)}) translateX(-50%)`, transformOrigin: 'top center' }}
-                  animate={{ scaleY: [1, 1.3, 1], opacity: [0.8, 1, 0.8] }}
-                  transition={{ repeat: Infinity, duration: 0.1 }}
-                />
-                <motion.div 
-                  className="absolute bottom-[-30px] left-1/2 -translate-x-1/2 w-4 h-12 bg-white rounded-full blur-sm"
-                  style={{ transform: `scale(${Math.min(2.2, 1.0 + (multiplier - 1.0) * 0.08)}) translateX(-50%)`, transformOrigin: 'top center' }}
-                  animate={{ scaleY: [1, 1.2, 1] }}
-                  transition={{ repeat: Infinity, duration: 0.05 }}
-                />
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-
-        {/* Cinematic Explosion on Crash */}
-        <AnimatePresence>
-          {crashed && (
-            <motion.div 
-              initial={{ scale: 0, opacity: 1 }}
-              animate={{ scale: [0, 3, 4], opacity: [1, 1, 0] }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="absolute w-64 h-64 -ml-32 -mb-32 rounded-full mix-blend-screen"
-              style={{ left: `${xPos}px`, bottom: `${yPos}px`, background: "radial-gradient(circle, rgba(255,255,255,1) 0%, rgba(239,68,68,1) 30%, rgba(0,0,0,0) 70%)" }}
-            />
-          )}
-        </AnimatePresence>
+      {/* ── Floating live wins (cosmetic) ── */}
+      <div className="absolute top-4 right-4 z-20 flex flex-col gap-2 pointer-events-none">
+        {isPlaying && uiState.multiplier > 2 && (
+          <motion.div
+            key={Math.floor(uiState.multiplier * 2)}
+            initial={{ opacity: 0, x: 20 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 20 }}
+            className="text-[10px] font-black px-2.5 py-1 rounded-lg border backdrop-blur-sm"
+            style={{
+              background: "rgba(0,0,0,0.6)",
+              borderColor: colors.glow.replace(/[\d.]+\)$/, "0.3)"),
+              color: colors.primary,
+            }}
+          >
+            🔥 {(Math.random() * 8 + 2).toFixed(0)} players flying
+          </motion.div>
+        )}
       </div>
-
-    </motion.div>
+    </div>
   );
 }
