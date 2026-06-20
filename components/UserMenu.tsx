@@ -25,6 +25,50 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
     return name.substring(0, 2).toUpperCase();
   };
 
+  const getVipRingStyles = (level: string) => {
+    switch (level) {
+      case 'Bronze':
+        return {
+          border: 'border-[2px] border-amber-600/90 shadow-[0_0_6px_rgba(217,119,6,0.25)]',
+          bg: 'from-amber-50 to-amber-100/80',
+          text: 'text-amber-800'
+        };
+      case 'Silver':
+        return {
+          border: 'border-[2px] border-slate-400 shadow-[0_0_6px_rgba(148,163,184,0.25)]',
+          bg: 'from-slate-50 to-slate-100/80',
+          text: 'text-slate-600'
+        };
+      case 'Gold':
+        return {
+          border: 'border-[2px] border-yellow-500 shadow-[0_0_8px_rgba(234,179,8,0.45)]',
+          bg: 'from-yellow-50 to-yellow-100/80',
+          text: 'text-yellow-800'
+        };
+      case 'Platinum':
+        return {
+          border: 'border-[2px] border-cyan-400 shadow-[0_0_8px_rgba(34,211,238,0.45)]',
+          bg: 'from-cyan-50 to-cyan-100/80',
+          text: 'text-cyan-800'
+        };
+      case 'Diamond':
+        return {
+          border: 'border-[2px] border-purple-500 shadow-[0_0_10px_rgba(168,85,247,0.55)] animate-pulse',
+          bg: 'from-purple-50 to-purple-100/80',
+          text: 'text-purple-800'
+        };
+      default:
+        return {
+          border: 'border-[2px] border-rose-200/80',
+          bg: 'from-rose-50 to-rose-100/80',
+          text: 'text-rose-600'
+        };
+    }
+  };
+
+  const vipLevel = currentUser?.vipLevel || 'Bronze';
+  const ring = getVipRingStyles(vipLevel);
+
   const MENU_ITEMS = [
     { label: "My Profile", icon: User, href: "/account" },
     { label: "Balance & Funds", icon: Wallet, href: "/account/balance" },
@@ -43,8 +87,12 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
         onClick={() => setIsOpen(!isOpen)}
         className="flex items-center gap-2 h-10 px-2 rounded-sm hover:bg-slate-100 hover:scale-105 active:scale-95 transition-all focus:outline-none"
       >
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-100 to-rose-100 flex items-center justify-center border border-red-200/80">
-          <span className="font-bold text-red-600 text-xs">
+        <div className={cn(
+          "w-8 h-8 rounded-full flex items-center justify-center bg-gradient-to-br shrink-0",
+          ring.border,
+          ring.bg
+        )}>
+          <span className={cn("font-bold text-xs", ring.text)}>
             {currentUser ? getInitials(currentUser.username) : "P1"}
           </span>
         </div>
