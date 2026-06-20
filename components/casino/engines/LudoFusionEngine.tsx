@@ -900,8 +900,8 @@ export function LudoFusionEngine({
 
   if (showSetup) {
     return (
-      <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="bg-white/70 border border-purple-500/20 backdrop-blur-2xl p-6 sm:p-10 rounded-[3rem] shadow-[0_30px_80px_rgba(168,85,247,0.15),inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden">
+      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-3 sm:py-6">
+        <div className="bg-white/70 border border-purple-500/20 backdrop-blur-2xl p-4 sm:p-10 rounded-3xl sm:rounded-[3rem] shadow-[0_30px_80px_rgba(168,85,247,0.15),inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden">
           
           {/* Animated Background neon glows */}
           <div className="absolute -top-24 -left-24 w-80 h-80 bg-purple-600/10 rounded-full blur-[80px] pointer-events-none" />
@@ -909,7 +909,7 @@ export function LudoFusionEngine({
 
           <div className="flex flex-col md:flex-row gap-10 items-center justify-between relative z-10">
             {/* Left Brand Area */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-2">
+            <div className="hidden md:flex flex-1 flex-col items-center justify-center text-center p-2">
               <div className="relative mb-3">
                 <Crown className="w-20 h-20 text-fuchsia-400 mx-auto drop-shadow-[0_0_20px_#d8b4fe] animate-bounce" />
                 <div className="absolute inset-0 bg-fuchsia-500/20 blur-[25px] rounded-full pointer-events-none" />
@@ -943,7 +943,13 @@ export function LudoFusionEngine({
             </div>
 
             {/* Right Control Panels */}
-            <div className="flex-1 w-full max-w-md bg-white/90 border border-purple-200 p-6 rounded-[2.5rem] flex flex-col gap-6 shadow-sm">
+            <div className="flex-1 w-full max-w-md bg-white/90 border border-purple-200 p-4 sm:p-6 rounded-[2.5rem] flex flex-col gap-4 sm:gap-5 shadow-sm">
+              {/* Mobile-Only Header */}
+              <div className="block md:hidden text-center pb-2 border-b border-purple-100">
+                <span className="text-[10px] font-black text-purple-500 uppercase tracking-widest block mb-0.5">Premium Board Game</span>
+                <h3 className="text-xl font-black text-slate-800 uppercase tracking-wider">Ludo Fusion</h3>
+              </div>
+
               <div>
                 <span className="text-[9px] text-purple-450 font-black uppercase tracking-widest block mb-3">Arena Combat Mode</span>
                 <div className="grid grid-cols-2 gap-4">
@@ -985,7 +991,7 @@ export function LudoFusionEngine({
                           className={`flex flex-col items-center gap-2 p-2 rounded-2xl border transition-all duration-300 cursor-pointer ${
                             isSelected
                               ? `border-purple-500 bg-purple-500/10 shadow-[0_0_12px_rgba(168,85,247,0.2)] scale-[1.03]`
-                              : "border-purple-200 bg-white/40 hover:border-purple-300 text-purple-600"
+                              : "border-purple-200 bg-white/40 hover:border-purple-350 text-purple-600"
                           }`}
                         >
                           <div className="relative">
@@ -1000,7 +1006,7 @@ export function LudoFusionEngine({
               )}
 
               {/* Stake input box */}
-              <div className="bg-white/95 border border-purple-200 rounded-2xl p-4 shadow-sm">
+              <div className="hidden sm:block bg-white/95 border border-purple-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-center mb-2.5">
                   <span className="text-[9px] text-purple-500 font-black uppercase tracking-widest">Entry stake amount</span>
                   <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
@@ -1063,18 +1069,22 @@ export function LudoFusionEngine({
               {/* Enter Button */}
               <button
                 onClick={onStartGame}
-                className="w-full py-4 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest shadow-[0_12px_35px_rgba(168,85,247,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98] border border-purple-400 bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400 cursor-pointer animate-pulse"
+                className="w-full py-3.5 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest shadow-[0_12px_35px_rgba(168,85,247,0.25)] transition-all hover:scale-[1.02] active:scale-[0.98] border border-purple-400 bg-gradient-to-r from-purple-400 via-fuchsia-400 to-indigo-400 cursor-pointer animate-pulse"
               >
                 🎰 Initiate Fusion Strike
               </button>
 
               {/* Missions Display */}
-              <div className="border border-purple-200 bg-purple-550/5 p-3 rounded-xl">
+              <div className="hidden sm:block border border-purple-200 bg-purple-550/5 p-3 rounded-xl">
                 <span className="text-[8px] font-black uppercase text-purple-700 tracking-wider block mb-1.5">⚡ ACTIVE MISSIONS (+XP)</span>
                 <div className="space-y-1">
                   <div className="flex items-center gap-2 text-[8px] text-slate-700"><Star className="w-2.5 h-2.5 text-amber-500" /> Capture bot piece (+50 XP)</div>
                   <div className="flex items-center gap-2 text-[8px] text-slate-700"><Star className="w-2.5 h-2.5 text-amber-500" /> Roll a Critical Six (+75 XP)</div>
                 </div>
+              </div>
+
+              <div className="text-center mt-1 text-[8px] text-purple-550 font-black uppercase tracking-widest block sm:hidden">
+                RTP: 95.0% • Est. Win Pot: 3.80x
               </div>
 
             </div>

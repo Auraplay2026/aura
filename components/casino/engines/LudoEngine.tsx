@@ -719,11 +719,11 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
 
   if (showSetup) {
     return (
-      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
-        <div className="bg-white/90 border border-amber-500/25 backdrop-blur-2xl p-6 sm:p-8 rounded-[2.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]">
+      <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-3 sm:py-6">
+        <div className="bg-white/90 border border-amber-500/25 backdrop-blur-2xl p-4 sm:p-8 rounded-3xl sm:rounded-[2.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]">
           <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
             {/* Left Decorative Banner */}
-            <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
+            <div className="hidden md:flex flex-1 flex-col items-center justify-center text-center p-4">
               <div className="relative">
                 <div className="absolute inset-0 bg-amber-500/10 blur-[35px] rounded-full pointer-events-none" />
                 <Crown className="w-16 h-16 text-amber-400 mx-auto mb-4 drop-shadow-[0_0_15px_#fbbf24]" />
@@ -749,7 +749,12 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
             </div>
 
             {/* Right Setup Controls */}
-            <div className="flex-1 w-full max-w-md bg-white/90 border border-slate-200 p-5 sm:p-6 rounded-[2rem] flex flex-col gap-5 shadow-sm">
+            <div className="flex-1 w-full max-w-md bg-white/90 border border-slate-200 p-4 sm:p-6 rounded-[2rem] flex flex-col gap-4 sm:gap-5 shadow-sm">
+              {/* Mobile-Only Header */}
+              <div className="block md:hidden text-center pb-2 border-b border-slate-100">
+                <span className="text-[10px] font-black text-amber-500 uppercase tracking-widest block mb-0.5">Premium Board Game</span>
+                <h3 className="text-xl font-black text-slate-800 uppercase tracking-wider">Ludo Royale</h3>
+              </div>
               <div>
                 <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2.5">Select Arena Mode</span>
                 <div className="grid grid-cols-2 gap-3">
@@ -807,7 +812,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 </div>
               )}
 
-              <div className="bg-white/95 border border-slate-200 rounded-2xl p-4 shadow-sm">
+              <div className="hidden sm:block bg-white/95 border border-slate-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Entry Fee Stake</span>
                   <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
@@ -872,6 +877,10 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
               >
                 🎰 Enter Arena
               </button>
+
+              <div className="text-center mt-1 text-[8px] text-slate-400 font-black uppercase tracking-widest block sm:hidden">
+                RTP: 95.0% • Est. Win Pot: 3.80x
+              </div>
             </div>
           </div>
         </div>
