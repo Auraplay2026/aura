@@ -115,10 +115,10 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   // Physics simulation constants
   const WIDTH = 600;
   const HEIGHT = 720;
-  const PEG_RADIUS = 5.5;
-  const BALL_RADIUS = 10.5;
-  const GRAVITY = 0.17;
-  const RESTITUTION = 0.48;
+  const PEG_RADIUS = 7;        // Larger pegs — clearly visible
+  const BALL_RADIUS = 11;
+  const GRAVITY = 0.18;
+  const RESTITUTION = 0.45;
 
   // Refs for animation loop
   const ballsRef = useRef<Ball[]>([]);
@@ -350,116 +350,188 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
     let animId: number;
 
     const render = () => {
-      // 1. Draw Space Dark Felt
-      ctx.fillStyle = "#020617";
+      // 1. Background — deep dark felt with depth layers
+      ctx.fillStyle = "#03060f";
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
-      // Radial energy background glow
+      // Tunnel vignette for depth
       const theme = RISK_THEMES[risk];
-      const glowGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT / 2, 50, WIDTH / 2, HEIGHT / 2, WIDTH * 0.7);
-      glowGrad.addColorStop(0, theme.glow.replace("0.4", "0.08"));
-      glowGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
-      ctx.fillStyle = glowGrad;
+      const vigGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT * 0.4, 80, WIDTH / 2, HEIGHT * 0.4, WIDTH * 0.85);
+      vigGrad.addColorStop(0, "rgba(10,15,35,0)");
+      vigGrad.addColorStop(0.6, "rgba(4,8,22,0.5)");
+      vigGrad.addColorStop(1, "rgba(0,0,0,0.85)");
+      ctx.fillStyle = vigGrad;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Ambient risk-color glow at center top
+      const riskGlow = ctx.createRadialGradient(WIDTH / 2, 30, 10, WIDTH / 2, 30, WIDTH * 0.6);
+      riskGlow.addColorStop(0, theme.glow.replace(/[\d.]+\)$/, "0.12)"));
+      riskGlow.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = riskGlow;
+      ctx.fillRect(0, 0, WIDTH, HEIGHT);
+
+      // Faint dot grid for depth perception
+      ctx.fillStyle = "rgba(255,255,255,0.025)";
+      for (let gx = 30; gx < WIDTH; gx += 38) {
+        for (let gy = 30; gy < HEIGHT; gy += 38) {
+          ctx.beginPath();
+          ctx.arc(gx, gy, 1, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+
+      // ── Side Rail Guides ──
+      const railLeft = 30;
+      const railRight = WIDTH - 30;
+      const railTopY = 50;
+      const railBotY = HEIGHT - 58;
+      // Left rail
+      const leftRailGrad = ctx.createLinearGradient(railLeft, 0, railLeft + 8, 0);
+      leftRailGrad.addColorStop(0, "rgba(255,255,255,0.18)");
+      leftRailGrad.addColorStop(0.4, theme.glow.replace(/[\d.]+\)$/, "0.25)"));
+      leftRailGrad.addColorStop(1, "rgba(255,255,255,0.04)");
+      ctx.fillStyle = leftRailGrad;
       ctx.beginPath();
-      ctx.arc(WIDTH / 2, HEIGHT / 2, WIDTH * 0.7, 0, Math.PI * 2);
+      ctx.roundRect(railLeft - 4, railTopY, 8, railBotY - railTopY, 4);
       ctx.fill();
+      // Right rail
+      const rightRailGrad = ctx.createLinearGradient(railRight - 8, 0, railRight, 0);
+      rightRailGrad.addColorStop(0, "rgba(255,255,255,0.04)");
+      rightRailGrad.addColorStop(0.6, theme.glow.replace(/[\d.]+\)$/, "0.25)"));
+      rightRailGrad.addColorStop(1, "rgba(255,255,255,0.18)");
+      ctx.fillStyle = rightRailGrad;
+      ctx.beginPath();
+      ctx.roundRect(railRight - 4, railTopY, 8, railBotY - railTopY, 4);
+      ctx.fill();
+      // Glowing edge lines
+      ctx.shadowBlur = 10; ctx.shadowColor = theme.color;
+      ctx.strokeStyle = theme.glow.replace(/[\d.]+\)$/, "0.6)");
+      ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(railLeft, railTopY); ctx.lineTo(railLeft, railBotY); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(railRight, railTopY); ctx.lineTo(railRight, railBotY); ctx.stroke();
+      ctx.shadowBlur = 0;
 
-      // Subtle grid lines
-      ctx.strokeStyle = "rgba(255, 255, 255, 0.02)";
-      ctx.lineWidth = 0.5;
-      for (let x = 0; x < WIDTH; x += 40) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, HEIGHT);
-        ctx.stroke();
-      }
-      for (let y = 0; y < HEIGHT; y += 40) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(WIDTH, y);
-        ctx.stroke();
-      }
-
-      // 2. Render Pockets / Buckets at the bottom
+      // 2. Render Pockets / Buckets — always visually rich
       const bucketWidth = WIDTH / (ROWS + 1);
-      const bucketY = HEIGHT - 55;
-      const bucketH = 38;
+      const bucketY = HEIGHT - 60;
+      const bucketH = 42;
 
       MULTIPLIERS[risk].forEach((m, idx) => {
-        const bx = idx * bucketWidth + 3;
-        const bw = bucketWidth - 6;
-
+        const bx = idx * bucketWidth + 2;
+        const bw = bucketWidth - 4;
         const isActive = activeBucketIndex === idx;
 
-        // Bucket backdrop color based on multiplier value
-        let bColor = "#334155"; // Slate for low
-        let shadowCol = "rgba(0,0,0,0)";
-        if (m >= 10) {
-          bColor = "#ef4444"; // Red for high
-          shadowCol = "rgba(239, 68, 68, 0.5)";
-        } else if (m >= 2) {
-          bColor = "#f97316"; // Orange
-          shadowCol = "rgba(249, 115, 22, 0.4)";
-        } else if (m >= 1) {
-          bColor = "#eab308"; // Gold
-          shadowCol = "rgba(234, 179, 8, 0.3)";
+        // Color tiers
+        let c0: string, c1: string, glowC: string;
+        if (m >= 25)       { c0 = "#ff3b3b"; c1 = "#7f0000"; glowC = "rgba(255,59,59,0.8)"; }
+        else if (m >= 10)  { c0 = "#ff6a00"; c1 = "#a03300"; glowC = "rgba(255,106,0,0.7)"; }
+        else if (m >= 3)   { c0 = "#f59e0b"; c1 = "#7c5300"; glowC = "rgba(245,158,11,0.6)"; }
+        else if (m >= 1)   { c0 = "#22c55e"; c1 = "#0f5c2e"; glowC = "rgba(34,197,94,0.5)"; }
+        else               { c0 = "#475569"; c1 = "#1e293b"; glowC = "rgba(71,85,105,0.3)"; }
+
+        const liftY = isActive ? 6 : 0;
+        const by = bucketY - liftY;
+
+        // Outer glow when active
+        if (isActive) {
+          ctx.shadowBlur = 28; ctx.shadowColor = glowC;
         }
 
-        ctx.shadowBlur = isActive ? 20 : 0;
-        ctx.shadowColor = shadowCol;
-
-        // Draw Bucket container
-        ctx.fillStyle = isActive ? bColor : "rgba(15, 23, 42, 0.75)";
-        ctx.strokeStyle = isActive ? "#ffffff" : bColor;
-        ctx.lineWidth = isActive ? 2.5 : 1.5;
-
-        // Rounded bucket corners
+        // Gradient fill
+        const bg = ctx.createLinearGradient(bx, by, bx, by + bucketH);
+        bg.addColorStop(0, c0 + (isActive ? "ff" : "cc"));
+        bg.addColorStop(1, c1 + (isActive ? "ff" : "88"));
+        ctx.fillStyle = bg;
         ctx.beginPath();
-        ctx.roundRect(bx, isActive ? bucketY - 4 : bucketY, bw, bucketH, 8);
+        ctx.roundRect(bx, by, bw, bucketH, [6, 6, 4, 4]);
         ctx.fill();
+
+        // Top sheen highlight
+        const sheen = ctx.createLinearGradient(bx, by, bx, by + bucketH * 0.45);
+        sheen.addColorStop(0, "rgba(255,255,255,0.30)");
+        sheen.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = sheen;
+        ctx.beginPath();
+        ctx.roundRect(bx + 1, by + 1, bw - 2, bucketH * 0.45, [5, 5, 0, 0]);
+        ctx.fill();
+
+        // Border
+        ctx.strokeStyle = isActive ? "rgba(255,255,255,0.9)" : c0 + "99";
+        ctx.lineWidth = isActive ? 2 : 1;
+        ctx.beginPath();
+        ctx.roundRect(bx, by, bw, bucketH, [6, 6, 4, 4]);
         ctx.stroke();
+        ctx.shadowBlur = 0;
 
-        ctx.shadowBlur = 0; // reset
-
-        // Label Multiplier text
-        ctx.fillStyle = isActive && m < 1 ? "#0f172a" : "#ffffff";
-        ctx.font = "bold 11px monospace";
+        // Multiplier label
+        const fontSize = m >= 10 ? 11 : 10;
+        ctx.font = `900 ${fontSize}px 'Inter', monospace`;
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
-        ctx.fillText(`${m}x`, bx + bw / 2, (isActive ? bucketY - 4 : bucketY) + bucketH / 2);
+        ctx.fillStyle = m < 1 ? "rgba(255,255,255,0.65)" : "#ffffff";
+        if (isActive) { ctx.shadowBlur = 8; ctx.shadowColor = "#fff"; }
+        ctx.fillText(`${m}×`, bx + bw / 2, by + bucketH / 2);
+        ctx.shadowBlur = 0;
       });
 
-      // 3. Update & Draw Pegs
+      // Bucket trough line
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(30, bucketY - 2);
+      ctx.lineTo(WIDTH - 30, bucketY - 2);
+      ctx.stroke();
+
+      // 3. Update & Draw Pegs — premium diamond pins
       const pegs = pegsRef.current;
       pegs.forEach(peg => {
-        // Hit expand animation decay
         if (peg.hitProgress > 0) {
-          peg.hitProgress -= 0.08;
+          peg.hitProgress -= 0.07;
           if (peg.hitProgress < 0) peg.hitProgress = 0;
         }
 
-        const size = peg.radius + peg.hitProgress * 4;
+        const hit = peg.hitProgress;
+        const size = peg.radius + hit * 5;
 
-        // Glow behind lit peg
-        if (peg.hitProgress > 0) {
-          ctx.shadowBlur = 15;
-          ctx.shadowColor = theme.color;
+        // Outer glow halo (always present, stronger on hit)
+        ctx.shadowBlur = hit > 0 ? 22 : 8;
+        ctx.shadowColor = hit > 0 ? theme.color : theme.glow.replace(/[\d.]+\)$/, "0.5)");
+
+        // Outer chrome ring — always visible metallic look
+        const ringGrad = ctx.createRadialGradient(peg.x - size * 0.3, peg.y - size * 0.3, 0, peg.x, peg.y, size + 3.5);
+        ringGrad.addColorStop(0, hit > 0 ? "rgba(255,255,255,0.9)" : "rgba(200,210,230,0.7)");
+        ringGrad.addColorStop(0.6, hit > 0 ? theme.glow.replace(/[\d.]+\)$/, "0.5)") : "rgba(100,120,160,0.4)");
+        ringGrad.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = ringGrad;
+        ctx.beginPath();
+        ctx.arc(peg.x, peg.y, size + 3.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Main peg body — chrome sphere
+        const pegGrad = ctx.createRadialGradient(
+          peg.x - size * 0.35, peg.y - size * 0.35, size * 0.05,
+          peg.x, peg.y, size
+        );
+        if (hit > 0) {
+          pegGrad.addColorStop(0, "#ffffff");
+          pegGrad.addColorStop(0.35, theme.color);
+          pegGrad.addColorStop(1, darkenColor(theme.color, 0.5));
+        } else {
+          pegGrad.addColorStop(0, "#e2e8f0");   // bright chrome top
+          pegGrad.addColorStop(0.4, "#94a3b8");
+          pegGrad.addColorStop(1, "#1e293b");   // dark base
         }
-
-        // Inner peg circle
-        ctx.fillStyle = peg.hitProgress > 0 ? "#ffffff" : "#475569";
+        ctx.fillStyle = pegGrad;
         ctx.beginPath();
         ctx.arc(peg.x, peg.y, size, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowBlur = 0;
 
-        ctx.shadowBlur = 0; // reset
-
-        // Outer glow rim ring
-        ctx.strokeStyle = peg.hitProgress > 0 ? theme.color : "rgba(71, 85, 105, 0.3)";
-        ctx.lineWidth = 1.5;
+        // Specular micro-glint (top-left highlight)
+        ctx.fillStyle = hit > 0 ? "rgba(255,255,255,0.95)" : "rgba(255,255,255,0.65)";
         ctx.beginPath();
-        ctx.arc(peg.x, peg.y, size + 2.5, 0, Math.PI * 2);
-        ctx.stroke();
+        ctx.arc(peg.x - size * 0.28, peg.y - size * 0.28, size * 0.28, 0, Math.PI * 2);
+        ctx.fill();
       });
 
       // 4. Update & Draw Balls
@@ -625,32 +697,66 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         ctx.globalAlpha = 1.0;
       });
 
-      // Draw Active Balls (Hero Assets)
+      // Draw Active Balls — premium casino sphere
       balls.forEach(ball => {
-        // Drop shadow illusion offset
-        ctx.fillStyle = "rgba(0, 0, 0, 0.3)";
+        const r = ball.radius;
+
+        // Layer 0: drop shadow
+        ctx.fillStyle = "rgba(0,0,0,0.45)";
         ctx.beginPath();
-        ctx.arc(ball.x + 3, ball.y + 4, ball.radius, 0, Math.PI * 2);
+        ctx.ellipse(ball.x + 2, ball.y + 5, r * 0.9, r * 0.5, 0, 0, Math.PI * 2);
         ctx.fill();
 
-        // Shiny Radial Glass Sphere Gradient
-        const ballGrad = ctx.createRadialGradient(
-          ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.1,
-          ball.x, ball.y, ball.radius
+        // Layer 1: outer glow halo
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = ball.color;
+        const haloGrad = ctx.createRadialGradient(ball.x, ball.y, r * 0.7, ball.x, ball.y, r + 4);
+        haloGrad.addColorStop(0, "rgba(0,0,0,0)");
+        haloGrad.addColorStop(1, ball.color + "55");
+        ctx.fillStyle = haloGrad;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, r + 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Layer 2: outer chrome rim stroke
+        ctx.strokeStyle = "rgba(255,255,255,0.35)";
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, r, 0, Math.PI * 2);
+        ctx.stroke();
+
+        // Layer 3: main sphere body gradient
+        const sphereGrad = ctx.createRadialGradient(
+          ball.x - r * 0.35, ball.y - r * 0.35, r * 0.05,
+          ball.x, ball.y, r
         );
-        ballGrad.addColorStop(0, "#ffffff"); // white glossy center spot
-        ballGrad.addColorStop(0.2, ball.color);
-        ballGrad.addColorStop(1, darkenColor(ball.color, 0.45));
-
-        ctx.fillStyle = ballGrad;
+        sphereGrad.addColorStop(0, "#ffffff");
+        sphereGrad.addColorStop(0.15, ball.color);
+        sphereGrad.addColorStop(0.6, darkenColor(ball.color, 0.25));
+        sphereGrad.addColorStop(1, darkenColor(ball.color, 0.55));
+        ctx.fillStyle = sphereGrad;
         ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius, 0, Math.PI * 2);
+        ctx.arc(ball.x, ball.y, r, 0, Math.PI * 2);
         ctx.fill();
 
-        // Inner glowing core energy
-        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        // Layer 4: top specular sheen (lens flare)
+        const sheenGrad = ctx.createRadialGradient(
+          ball.x - r * 0.3, ball.y - r * 0.38, 0,
+          ball.x - r * 0.1, ball.y - r * 0.15, r * 0.65
+        );
+        sheenGrad.addColorStop(0, "rgba(255,255,255,0.85)");
+        sheenGrad.addColorStop(0.5, "rgba(255,255,255,0.15)");
+        sheenGrad.addColorStop(1, "rgba(255,255,255,0)");
+        ctx.fillStyle = sheenGrad;
         ctx.beginPath();
-        ctx.arc(ball.x - ball.radius * 0.2, ball.y - ball.radius * 0.2, 1.8, 0, Math.PI * 2);
+        ctx.arc(ball.x, ball.y, r, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Layer 5: pinpoint specular dot
+        ctx.fillStyle = "rgba(255,255,255,0.95)";
+        ctx.beginPath();
+        ctx.arc(ball.x - r * 0.28, ball.y - r * 0.32, r * 0.18, 0, Math.PI * 2);
         ctx.fill();
       });
 
