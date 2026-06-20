@@ -325,7 +325,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   const sportQuery = searchParams.get("sport");
   const { setIsMobileMenuOpen } = useSidebarContext();
 
-  const initialSportSlug = unwrappedParams.sport?.[0] ? unwrappedParams.sport[0].replace(/-/g, ' ') : "soccer";
+  const initialSportSlug = unwrappedParams.sport?.[0] ? unwrappedParams.sport[0].replace(/-/g, ' ') : "football";
   const sportParam = initialSportSlug.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
   const [activeSport, setActiveSport] = useState(sportParam);

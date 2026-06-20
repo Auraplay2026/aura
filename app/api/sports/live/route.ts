@@ -158,13 +158,15 @@ async function fetchESPINScoreboard(url: string, sportKey: string): Promise<Exte
 }
 
 async function fetchSoccerMatches(): Promise<ExtendedMatch[]> {
-  // Aggregate top worldwide soccer leagues
+  // Aggregate top worldwide soccer leagues and FIFA-recognized international competitions
   const urls = [
     { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/eng.1/scoreboard", name: "EPL" },
     { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/esp.1/scoreboard", name: "LaLiga" },
     { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/ita.1/scoreboard", name: "SerieA" },
     { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/uefa.champions/scoreboard", name: "UCL" },
-    { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard", name: "MLS" }
+    { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/usa.1/scoreboard", name: "MLS" },
+    { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard", name: "FIFA World Cup" },
+    { url: "https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.friendly/scoreboard", name: "FIFA Friendlies" }
   ];
 
   const allMatches: ExtendedMatch[] = [];
@@ -292,7 +294,7 @@ export async function GET(req: Request) {
 
     let matches: ExtendedMatch[] = [];
 
-    if (sport === "soccer") {
+    if (sport === "soccer" || sport === "football") {
       matches = await fetchSoccerMatches();
       if (matches.length === 0) {
         matches = generateMatches("soccer", 15);

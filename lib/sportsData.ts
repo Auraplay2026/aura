@@ -79,7 +79,7 @@ export function generateMatches(sportName: string, count: number): Match[] {
   const shuffledTeams = shuffle(teamList);
   const matches: Match[] = [];
 
-  const supportsDraw = key === "soccer" || key === "cricket";
+  const supportsDraw = key === "soccer" || key === "cricket" || key === "football";
 
   let idCounter = seed * 10;
 
@@ -113,7 +113,7 @@ export function generateMatches(sportName: string, count: number): Match[] {
     // Score generation
     let score = "";
     if (isLive) {
-      if (key === "soccer") {
+      if (key === "soccer" || key === "football") {
         score = `${Math.floor(random() * 4)} - ${Math.floor(random() * 4)} (${Math.floor(random() * 90) + 1}')`;
       } else if (key === "tennis" || key === "table tennis") {
         score = `Set ${Math.floor(random() * 5) + 1} (${Math.floor(random() * 6)}-${Math.floor(random() * 6)})`;
