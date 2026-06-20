@@ -49,6 +49,9 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   const onCompleteRef = useRef(onComplete);
   const phaseRef = useRef(phase);
   const liveCounterRef = useRef(liveCounter);
+  const targetMultiplierRef = useRef(targetMultiplier);
+  const isWinRef = useRef(false);
+  const inTensionRef = useRef(false);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -61,6 +64,14 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   useEffect(() => {
     liveCounterRef.current = liveCounter;
   }, [liveCounter]);
+
+  useEffect(() => {
+    targetMultiplierRef.current = targetMultiplier;
+  }, [targetMultiplier]);
+
+  useEffect(() => {
+    isWinRef.current = result !== null && result >= targetMultiplier;
+  }, [result, targetMultiplier]);
 
   // Audio Context Ref
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -83,59 +94,62 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
       const now = ctx.currentTime;
 
       if (type === "charge") {
-        // Tension generator: Ramping pitch up
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "sine";
-        osc.frequency.setValueAtTime(100, now);
-        osc.frequency.exponentialRampToValueAtTime(800, now + 0.65);
-        gain.gain.setValueAtTime(0.001, now);
-        gain.gain.linearRampToValueAtTime(0.18, now + 0.15);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
-        osc.start(now);
-        osc.stop(now + 0.65);
-      } else if (type === "counting") {
-        // High click pulse
-        const osc = ctx.createOscillator();
-        const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.type = "triangle";
-        osc.frequency.setValueAtTime(500, now);
-        gain.gain.setValueAtTime(0.06, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.02);
-        osc.start(now);
-        osc.stop(now + 0.02);
-      } else if (type === "reveal_win") {
-        // Major Arpeggio Chord
-        const freqs = [329.63, 392.00, 523.25, 659.25, 783.99];
-        freqs.forEach((f, idx) => {
-          const o = ctx.createOscillator();
-          const g = ctx.createGain();
-          o.connect(g);
-          g.connect(ctx.destination);
-          o.type = "sine";
-          o.frequency.setValueAtTime(f, now + idx * 0.06);
-          g.gain.setValueAtTime(0.1, now + idx * 0.06);
-          g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.06 + 0.35);
-          o.start(now + idx * 0.06);
-          o.stop(now + idx * 0.06 + 0.35);
-        });
-      } else if (type === "reveal_lose") {
-        // low impact boom
+        // Low power hum ramping up
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.type = "sawtooth";
-        osc.frequency.setValueAtTime(140, now);
-        osc.frequency.linearRampToValueAtTime(40, now + 0.4);
-        gain.gain.setValueAtTime(0.22, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
+        osc.frequency.setValueAtTime(80, now);
+        osc.frequency.exponentialRampToValueAtTime(180, now + 0.65);
+        gain.gain.setValueAtTime(0.001, now);
+        gain.gain.linearRampToValueAtTime(0.12, now + 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
         osc.start(now);
-        osc.stop(now + 0.4);
+        osc.stop(now + 0.65);
+      } else if (type === "counting") {
+        // Proportional pitch ticking sound
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sine";
+        
+        // Pitch rises as the live counter increases:
+        const currentPitch = 300 + Math.min(liveCounterRef.current * 15, 800);
+        osc.frequency.setValueAtTime(currentPitch, now);
+        gain.gain.setValueAtTime(0.05, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+        osc.start(now);
+        osc.stop(now + 0.04);
+      } else if (type === "reveal_win") {
+        // Celebratory major arpeggio chord + laser sweep
+        const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 1046.50]; // C4, E4, G4, C5, E5, C6
+        notes.forEach((f, idx) => {
+          const o = ctx.createOscillator();
+          const g = ctx.createGain();
+          o.connect(g);
+          g.connect(ctx.destination);
+          o.type = "sine";
+          o.frequency.setValueAtTime(f, now + idx * 0.05);
+          g.gain.setValueAtTime(0.08, now + idx * 0.05);
+          g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.05 + 0.4);
+          o.start(now + idx * 0.05);
+          o.stop(now + idx * 0.05 + 0.4);
+        });
+      } else if (type === "reveal_lose") {
+        // Deep low pitch sweep drop (sawtooth + pitch bend)
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = "sawtooth";
+        osc.frequency.setValueAtTime(150, now);
+        osc.frequency.linearRampToValueAtTime(30, now + 0.65);
+        gain.gain.setValueAtTime(0.18, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.65);
+        osc.start(now);
+        osc.stop(now + 0.65);
       }
     } catch (e) {
       console.warn("Synth playback failed", e);
@@ -154,6 +168,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
       setLiveCounter(1.00);
       setResult(null);
       setPhase("idle");
+      inTensionRef.current = false;
       return;
     }
 
@@ -161,10 +176,11 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
     setPhase("charging");
     setLiveCounter(1.00);
     setResult(null);
+    inTensionRef.current = false;
     playSound("charge");
 
     let active = true;
-    let interval: any = null;
+    let animId: number;
 
     const executeBet = async () => {
       // Wait for charging animation
@@ -191,16 +207,66 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
 
         if (res.ok && data.success) {
           const finalResult = parseFloat(data.multiplier.toFixed(2));
-          let current = 1.00;
-          const step = (finalResult - 1.00) / 25; // 25 intervals
+          const duration = Math.min(1000 + Math.log(finalResult) * 550, 2600); // Dynamic climb duration
+          let startClimbTime = performance.now();
+          let tensionDuration = 380; // 380ms tension pause
+          let tensionStartTime = 0;
+          let inTension = false;
+          let tensionDone = false;
+          let soundRateLimit = 75; // ms
+          let lastSoundTime = 0;
 
-          interval = setInterval(() => {
-            current = Math.min(current + step + (current * 0.06), finalResult);
-            setLiveCounter(parseFloat(current.toFixed(2)));
-            playSound("counting");
+          const tick = (now: number) => {
+            if (!active) return;
+            let elapsed = now - startClimbTime;
+            
+            // Proximity check: is current raw value close to the target?
+            // Raw progress without tension:
+            let rawT = Math.min(1, elapsed / duration);
+            let rawVal = 1.0 + (finalResult - 1.0) * Math.pow(rawT, 2.5);
 
-            if (current >= finalResult) {
-              clearInterval(interval);
+            const proximityStart = targetMultiplier * 0.94;
+            const willWin = finalResult >= targetMultiplier;
+
+            if (willWin && rawVal >= proximityStart && !tensionDone) {
+              if (!inTension) {
+                inTension = true;
+                inTensionRef.current = true;
+                tensionStartTime = now;
+              }
+              
+              let tensionElapsed = now - tensionStartTime;
+              if (tensionElapsed < tensionDuration) {
+                const tProgress = tensionElapsed / tensionDuration;
+                const crawlVal = proximityStart + (targetMultiplier * 0.99 - proximityStart) * tProgress;
+                setLiveCounter(parseFloat(crawlVal.toFixed(2)));
+                
+                if (now - lastSoundTime > soundRateLimit) {
+                  playSound("counting");
+                  lastSoundTime = now;
+                }
+                
+                animId = requestAnimationFrame(tick);
+                return;
+              } else {
+                inTension = false;
+                inTensionRef.current = false;
+                tensionDone = true;
+                startClimbTime += tensionDuration;
+                elapsed = now - startClimbTime;
+              }
+            }
+
+            let t = Math.min(1, elapsed / duration);
+            let val = 1.0 + (finalResult - 1.0) * Math.pow(t, 2.5);
+            setLiveCounter(parseFloat(val.toFixed(2)));
+
+            if (now - lastSoundTime > soundRateLimit) {
+              playSound("counting");
+              lastSoundTime = now;
+            }
+
+            if (t >= 1) {
               setResult(finalResult);
               setPhase("reveal");
               const won = finalResult >= targetMultiplier;
@@ -218,9 +284,13 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
                 if (active) {
                   onCompleteRef.current(won ? finalResult : 0, won);
                 }
-              }, 1200);
+              }, 1500);
+            } else {
+              animId = requestAnimationFrame(tick);
             }
-          }, 45);
+          };
+
+          animId = requestAnimationFrame(tick);
         } else {
           setPhase("idle");
           onCompleteRef.current(0, false);
@@ -237,11 +307,24 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
 
     return () => {
       active = false;
-      if (interval) clearInterval(interval);
+      if (animId) cancelAnimationFrame(animId);
     };
   }, [isPlaying, targetMultiplier, betAmount, playSound]);
 
   const isWin = result !== null && result >= targetMultiplier;
+
+  // Canvas Reactor Core Particle Interface
+  interface ReactorParticle {
+    x: number;
+    y: number;
+    vx: number;
+    vy: number;
+    size: number;
+    color: string;
+    alpha: number;
+    decay: number;
+    type: "plasma" | "spark" | "debris";
+  }
 
   // Canvas Warp Tunnel & Particle System Loop
   useEffect(() => {
@@ -257,36 +340,8 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
     canvas.width = width;
     canvas.height = height;
 
-    // Warp Tunnel parameters
-    const warpLines: WarpLine[] = [];
-    const maxWarpLines = 65;
-    for (let i = 0; i < maxWarpLines; i++) {
-      warpLines.push({
-        x: Math.random() * width - width / 2,
-        y: Math.random() * height - height / 2,
-        z: Math.random() * width,
-        color: `hsl(${190 + Math.random() * 30}, 80%, 60%)`,
-        speed: 8 + Math.random() * 6
-      });
-    }
-
-    // Spark particles on Win
-    const sparks: Spark[] = [];
-    const spawnSparks = (x: number, y: number, color: string, count = 20) => {
-      for (let i = 0; i < count; i++) {
-        const angle = Math.random() * Math.PI * 2;
-        const speed = 2 + Math.random() * 6;
-        sparks.push({
-          x,
-          y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed,
-          size: 2 + Math.random() * 3,
-          color,
-          alpha: 1.0
-        });
-      }
-    };
+    // Particle storage
+    const particles: ReactorParticle[] = [];
 
     let ringPulse = 0;
     let shockwaveRad = 0;
@@ -300,18 +355,29 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
       const centerX = width / 2;
       const centerY = height / 2;
 
+      // Screen shake translation during tension moments:
+      let offsetX = 0;
+      let offsetY = 0;
+      if (phaseRef.current === "counting" && inTensionRef.current) {
+        offsetX = (Math.random() - 0.5) * 6;
+        offsetY = (Math.random() - 0.5) * 6;
+      }
+
+      ctx.save();
+      ctx.translate(offsetX, offsetY);
+
       const radialGrad = ctx.createRadialGradient(centerX, centerY, 5, centerX, centerY, width * 0.5);
-      if (phaseRef.current === "reveal" && isWin) {
+      if (phaseRef.current === "reveal" && isWinRef.current) {
         radialGrad.addColorStop(0, "rgba(16, 185, 129, 0.25)");
         radialGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
-      } else if (phaseRef.current === "reveal" && !isWin) {
-        radialGrad.addColorStop(0, "rgba(239, 68, 68, 0.25)");
+      } else if (phaseRef.current === "reveal" && !isWinRef.current) {
+        radialGrad.addColorStop(0, "rgba(244, 63, 94, 0.25)");
         radialGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
       } else if (phaseRef.current === "counting") {
-        radialGrad.addColorStop(0, "rgba(59, 130, 246, 0.2)");
+        radialGrad.addColorStop(0, "rgba(6, 182, 212, 0.18)");
         radialGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
       } else {
-        radialGrad.addColorStop(0, "rgba(99, 102, 241, 0.1)");
+        radialGrad.addColorStop(0, "rgba(99, 102, 241, 0.08)");
         radialGrad.addColorStop(1, "rgba(2, 6, 23, 0)");
       }
       ctx.fillStyle = radialGrad;
@@ -320,7 +386,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
       ctx.fill();
 
       // Dynamic Grid floor projection
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.05)";
+      ctx.strokeStyle = "rgba(6, 182, 212, 0.04)";
       ctx.lineWidth = 1;
       const gridSpacing = 40;
       for (let x = 0; x < width; x += gridSpacing) {
@@ -330,65 +396,223 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
         ctx.stroke();
       }
 
-      // 2. Warp Lines logic
-      let tunnelSpeed = 2.0;
-      if (phaseRef.current === "charging") tunnelSpeed = 8.0;
-      else if (phaseRef.current === "counting") tunnelSpeed = 24.0 + (liveCounterRef.current * 1.2);
-      else if (phaseRef.current === "reveal") tunnelSpeed = 0.5;
+      // Vertical cylindrical tube measurements
+      const tubeWidth = 240;
+      const tubeLeft = centerX - tubeWidth / 2;
+      const tubeRight = centerX + tubeWidth / 2;
+      const tubeTop = 40;
+      const tubeBottom = 360;
+      const tubeHeight = tubeBottom - tubeTop;
 
-      warpLines.forEach(line => {
-        // Move depth closer to screen
-        line.z -= line.speed * (tunnelSpeed * 0.12);
+      // Draw glass tube background
+      ctx.fillStyle = "rgba(15, 23, 42, 0.65)";
+      ctx.strokeStyle = "rgba(148, 163, 184, 0.2)";
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.moveTo(tubeLeft, tubeTop + 20);
+      ctx.quadraticCurveTo(centerX, tubeTop, tubeRight, tubeTop + 20);
+      ctx.lineTo(tubeRight, tubeBottom - 20);
+      ctx.quadraticCurveTo(centerX, tubeBottom, tubeLeft, tubeBottom - 20);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
 
-        // Reset if lines pass screen viewport
-        if (line.z <= 0) {
-          line.z = width;
-          line.x = Math.random() * width - width / 2;
-          line.y = Math.random() * height - height / 2;
+      // Draw logarithmic milestones grid lines
+      const milestones = [1.0, 1.5, 2.0, 3.0, 5.0, 10.0, 25.0, 50.0, 100.0];
+      milestones.forEach(m => {
+        const y = tubeBottom - 20 - (tubeHeight - 40) * (Math.log10(m) / 2);
+        ctx.strokeStyle = "rgba(148, 163, 184, 0.08)";
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(tubeLeft + 8, y);
+        ctx.lineTo(tubeRight - 8, y);
+        ctx.stroke();
+
+        ctx.fillStyle = "rgba(148, 163, 184, 0.4)";
+        ctx.font = "bold 9px monospace";
+        ctx.textAlign = "right";
+        ctx.fillText(`${m.toFixed(1)}x`, tubeLeft - 12, y + 3.5);
+      });
+
+      // Target peg indicator line
+      const targetY = tubeBottom - 20 - (tubeHeight - 40) * (Math.log10(targetMultiplierRef.current) / 2);
+      ctx.strokeStyle = "rgba(244, 63, 94, 0.85)";
+      ctx.lineWidth = 2.5;
+      ctx.shadowBlur = 10;
+      ctx.shadowColor = "#f43f5e";
+      ctx.beginPath();
+      ctx.moveTo(tubeLeft - 5, targetY);
+      ctx.lineTo(tubeRight + 5, targetY);
+      ctx.stroke();
+      ctx.shadowBlur = 0;
+
+      // Draw peg flag label
+      ctx.fillStyle = "#f43f5e";
+      ctx.beginPath();
+      ctx.moveTo(tubeRight + 5, targetY);
+      ctx.lineTo(tubeRight + 13, targetY - 6);
+      ctx.lineTo(tubeRight + 60, targetY - 6);
+      ctx.lineTo(tubeRight + 60, targetY + 6);
+      ctx.lineTo(tubeRight + 13, targetY + 6);
+      ctx.closePath();
+      ctx.fill();
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "black 9px sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText(`${targetMultiplierRef.current.toFixed(2)}x`, tubeRight + 34, targetY + 3);
+
+      // Draw plasma particles during count-up or charge
+      if (phaseRef.current === "counting" || phaseRef.current === "charging") {
+        if (Math.random() < 0.35) {
+          particles.push({
+            x: centerX + (Math.random() - 0.5) * 50,
+            y: tubeBottom - 25,
+            vx: (Math.random() - 0.5) * 1.5,
+            vy: -2.5 - Math.random() * 3.5,
+            size: 2.5 + Math.random() * 3.5,
+            color: "rgba(34, 211, 238, 0.6)",
+            alpha: 1.0,
+            decay: 0.012 + Math.random() * 0.015,
+            type: "plasma"
+          });
+        }
+      }
+
+      // Draw rising plasma beam
+      if (phaseRef.current === "counting" || phaseRef.current === "reveal") {
+        const currentY = tubeBottom - 20 - (tubeHeight - 40) * (Math.log10(liveCounterRef.current) / 2);
+        const beamGrad = ctx.createLinearGradient(centerX, tubeBottom - 20, centerX, currentY);
+
+        let beamColorStart = "rgba(6, 182, 212, 0.85)";
+        let beamColorEnd = "rgba(34, 211, 238, 0.3)";
+        let shadowColor = "#06b6d4";
+
+        if (phaseRef.current === "reveal") {
+          if (isWinRef.current) {
+            beamColorStart = "rgba(16, 185, 129, 0.85)";
+            beamColorEnd = "rgba(52, 211, 153, 0.3)";
+            shadowColor = "#10b981";
+          } else {
+            beamColorStart = "rgba(244, 63, 94, 0.4)";
+            beamColorEnd = "rgba(244, 63, 94, 0.1)";
+            shadowColor = "#f43f5e";
+          }
         }
 
-        // Project coordinate math to 3D depth perspective
-        const k = width / line.z;
-        const px = line.x * k + centerX;
-        const py = line.y * k + centerY;
+        beamGrad.addColorStop(0, beamColorStart);
+        beamGrad.addColorStop(1, beamColorEnd);
 
-        // Tail calculation
-        const tailK = width / (line.z + line.speed * 2);
-        const tx = line.x * tailK + centerX;
-        const ty = line.y * tailK + centerY;
-
-        // Fade based on depth
-        const alpha = Math.min(1, (width - line.z) / (width * 0.5));
-
-        ctx.globalAlpha = alpha;
-        ctx.strokeStyle = phaseRef.current === "reveal" && isWin ? "#34d399" : 
-                          phaseRef.current === "reveal" ? "#f87171" : line.color;
-        ctx.lineWidth = Math.max(1, k * 0.8);
+        ctx.fillStyle = beamGrad;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = shadowColor;
+        
         ctx.beginPath();
-        ctx.moveTo(px, py);
-        ctx.lineTo(tx, ty);
-        ctx.stroke();
-      });
-      ctx.globalAlpha = 1.0;
+        ctx.moveTo(centerX - 15, tubeBottom - 20);
+        ctx.lineTo(centerX - 10, currentY);
+        ctx.lineTo(centerX + 10, currentY);
+        ctx.lineTo(centerX + 15, tubeBottom - 20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.shadowBlur = 0;
 
-      // 3. Draw energy ripples/shockwave
+        // Draw floating reactor orb core
+        const orbRadius = 16;
+        ctx.beginPath();
+        ctx.arc(centerX, currentY, orbRadius, 0, Math.PI * 2);
+        
+        const orbGrad = ctx.createRadialGradient(centerX - 4, currentY - 4, 2, centerX, currentY, orbRadius);
+        if (phaseRef.current === "reveal") {
+          if (isWinRef.current) {
+            orbGrad.addColorStop(0, "#ffffff");
+            orbGrad.addColorStop(0.3, "#34d399");
+            orbGrad.addColorStop(1, "#047857");
+          } else {
+            orbGrad.addColorStop(0, "#fca5a5");
+            orbGrad.addColorStop(0.3, "#ef4444");
+            orbGrad.addColorStop(1, "#7f1d1d");
+          }
+        } else {
+          orbGrad.addColorStop(0, "#ffffff");
+          orbGrad.addColorStop(0.3, "#22d3ee");
+          orbGrad.addColorStop(1, "#0891b2");
+        }
+        
+        ctx.fillStyle = orbGrad;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = shadowColor;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+
+        // Orbital rings
+        const ringTime = Date.now() * 0.005;
+        ctx.strokeStyle = shadowColor;
+        ctx.lineWidth = 1.5;
+        ctx.save();
+        ctx.translate(centerX, currentY);
+        ctx.rotate(ringTime);
+        ctx.scale(1.8, 0.4);
+        ctx.beginPath();
+        ctx.arc(0, 0, orbRadius, 0, Math.PI * 2);
+        ctx.stroke();
+        ctx.restore();
+
+        // Reveal shockwave trigger
+        if (phaseRef.current === "reveal") {
+          if (isWinRef.current && particles.filter(p => p.type === "spark").length === 0) {
+            for (let i = 0; i < 45; i++) {
+              const angle = Math.random() * Math.PI * 2;
+              const speed = 2.5 + Math.random() * 8.5;
+              particles.push({
+                x: centerX,
+                y: targetY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: 1.5 + Math.random() * 3,
+                color: Math.random() < 0.65 ? "#10b981" : "#fbbf24",
+                alpha: 1.0,
+                decay: 0.012 + Math.random() * 0.018,
+                type: "spark"
+              });
+            }
+          } else if (!isWinRef.current && particles.filter(p => p.type === "debris").length === 0) {
+            for (let i = 0; i < 30; i++) {
+              const angle = Math.random() * Math.PI + Math.PI;
+              const speed = 1.5 + Math.random() * 3.5;
+              particles.push({
+                x: centerX,
+                y: currentY,
+                vx: Math.cos(angle) * speed,
+                vy: Math.sin(angle) * speed,
+                size: 2.2 + Math.random() * 3,
+                color: Math.random() < 0.5 ? "#f43f5e" : "#475569",
+                alpha: 1.0,
+                decay: 0.015 + Math.random() * 0.018,
+                type: "debris"
+              });
+            }
+          }
+        }
+      }
+
+      // Energy ripples/shockwave
       if (phaseRef.current === "reveal") {
         shockwaveRad += 8;
         if (shockwaveRad < width * 0.8) {
-          ctx.strokeStyle = isWin ? `rgba(52, 211, 153, ${1 - shockwaveRad / (width * 0.8)})` : `rgba(239, 68, 68, ${1 - shockwaveRad / (width * 0.8)})`;
+          ctx.strokeStyle = isWinRef.current ? `rgba(52, 211, 153, ${1 - shockwaveRad / (width * 0.8)})` : `rgba(244, 63, 94, ${1 - shockwaveRad / (width * 0.8)})`;
           ctx.lineWidth = 4;
           ctx.shadowBlur = 15;
-          ctx.shadowColor = isWin ? "#10b981" : "#ef4444";
+          ctx.shadowColor = isWinRef.current ? "#10b981" : "#ef4444";
           ctx.beginPath();
           ctx.arc(centerX, centerY, shockwaveRad, 0, Math.PI * 2);
           ctx.stroke();
-          ctx.shadowBlur = 0; // reset
+          ctx.shadowBlur = 0;
         }
       } else {
         shockwaveRad = 0;
       }
 
-      // Charging pulse ring animation
+      // Charging pulse rings
       if (phaseRef.current === "charging") {
         ringPulse += 4;
         ctx.strokeStyle = "rgba(6, 182, 212, 0.4)";
@@ -398,30 +622,38 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
         ctx.stroke();
       }
 
-      // 4. Update and Draw spark particles on win screen
-      if (phaseRef.current === "reveal" && isWin && sparks.length === 0) {
-        spawnSparks(centerX, centerY, "#34d399", 35);
-        spawnSparks(centerX, centerY, "#fbbf24", 15);
-      }
+      // Render/Update particle system
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= p.decay;
 
-      for (let i = sparks.length - 1; i >= 0; i--) {
-        const s = sparks[i];
-        s.x += s.vx;
-        s.y += s.vy;
-        s.alpha -= 0.02;
+        if (p.type === "debris") {
+          p.vy += 0.16; // Gravity
+        }
 
-        if (s.alpha <= 0) {
-          sparks.splice(i, 1);
+        if (p.alpha <= 0) {
+          particles.splice(i, 1);
           continue;
         }
 
-        ctx.globalAlpha = s.alpha;
-        ctx.fillStyle = s.color;
+        ctx.globalAlpha = p.alpha;
+        ctx.fillStyle = p.color;
+
+        if (p.type === "spark") {
+          ctx.shadowBlur = 8;
+          ctx.shadowColor = p.color;
+        }
+
         ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
         ctx.fill();
+        ctx.shadowBlur = 0;
       }
       ctx.globalAlpha = 1.0;
+
+      ctx.restore(); // restores from translate grid offsets
 
       animId = requestAnimationFrame(render);
     };
@@ -429,7 +661,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
     render();
 
     return () => cancelAnimationFrame(animId);
-  }, [isWin]);
+  }, []);
 
   return (
     <div className="w-full h-full min-h-[450px] md:min-h-[600px] flex flex-col md:flex-row gap-6 relative p-4 md:p-6 rounded-3xl overflow-hidden border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
@@ -616,18 +848,32 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
           <AnimatePresence>
             {phase === "reveal" && (
               <motion.div
-                initial={{ opacity: 0, y: 20, scale: 0.85 }}
+                initial={{ opacity: 0, y: 20, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.85 }}
-                className="absolute -bottom-2 flex items-center justify-center gap-4 w-full"
+                exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                className="absolute -bottom-6 flex flex-col items-center justify-center gap-1 z-30"
               >
-                <div className={`h-[1px] flex-grow max-w-[80px] bg-gradient-to-r ${isWin ? 'from-transparent to-emerald-500' : 'from-transparent to-red-500'}`} />
-                <span className={`text-xs font-black uppercase tracking-widest px-5 py-2 rounded-xl border bg-white backdrop-blur-md shadow-2xl ${
-                  isWin ? "text-emerald-400 border-emerald-500/40 shadow-[0_0_15px_rgba(52,211,153,0.25)]" : "text-red-500 border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
+                <div className={`flex items-center gap-2 px-6 py-3 rounded-2xl border bg-white/95 backdrop-blur-md shadow-[0_20px_50px_rgba(0,0,0,0.15)] ${
+                  isWin 
+                    ? "text-emerald-600 border-emerald-200 shadow-[0_0_30px_rgba(16,185,129,0.15)]" 
+                    : "text-rose-600 border-rose-200 shadow-[0_0_30px_rgba(244,63,94,0.15)]"
                 }`}>
-                  {isWin ? `TARGET SMASHED` : `CRASHED BELOW TARGET`}
-                </span>
-                <div className={`h-[1px] flex-grow max-w-[80px] bg-gradient-to-l ${isWin ? 'from-transparent to-emerald-500' : 'from-transparent to-red-500'}`} />
+                  {isWin ? (
+                    <>
+                      <Trophy className="w-5 h-5 text-emerald-500 animate-bounce" />
+                      <span className="text-sm font-black uppercase tracking-wider">
+                        BREACHED AT {result?.toFixed(2)}x (Payout: ₹{(betAmount * targetMultiplier).toFixed(0)})
+                      </span>
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="w-5 h-5 text-rose-500 animate-pulse" />
+                      <span className="text-sm font-black uppercase tracking-wider">
+                        MELTDOWN AT {result?.toFixed(2)}x (Below {targetMultiplier.toFixed(2)}x)
+                      </span>
+                    </>
+                  )}
+                </div>
               </motion.div>
             )}
           </AnimatePresence>
