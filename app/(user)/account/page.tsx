@@ -140,71 +140,72 @@ export default function AccountSettingsPage() {
         <div className="absolute inset-0 bg-gradient-to-r from-neon-purple/20 via-blue-600/10 to-transparent" />
         <div className="absolute -top-24 -right-24 w-64 h-64 bg-neon-purple/20 blur-[100px] rounded-full" />
         
-        <div className="relative z-10 flex flex-col md:flex-row items-center gap-8">
-          {/* Avatar */}
-          <div className="relative group cursor-pointer shrink-0">
-            <div className="w-28 h-28 rounded-full p-1 bg-gradient-to-b from-neon-purple to-slate-800">
-              <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative">
-                <User className="w-12 h-12 text-slate-500" />
-                <div className="absolute inset-0 bg-white/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                  <Camera className="w-6 h-6 text-slate-900" />
+        <div className="relative z-10 flex flex-col lg:flex-row items-center gap-6 justify-between w-full">
+          {/* Avatar & Profile Info Container */}
+          <div className="flex flex-col sm:flex-row items-center gap-6 w-full lg:w-auto min-w-0">
+            {/* Avatar */}
+            <div className="relative group cursor-pointer shrink-0">
+              <div className="w-28 h-28 rounded-full p-1 bg-gradient-to-b from-neon-purple to-slate-800">
+                <div className="w-full h-full rounded-full bg-white flex items-center justify-center overflow-hidden relative">
+                  <User className="w-12 h-12 text-slate-500" />
+                  <div className="absolute inset-0 bg-white/60 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <Camera className="w-6 h-6 text-slate-900" />
+                  </div>
                 </div>
               </div>
+              <div className="absolute -bottom-2 -right-2 bg-slate-50 border border-slate-200 rounded-xl p-2 shadow-xl">
+                <Trophy className="w-5 h-5 text-yellow-500" />
+              </div>
             </div>
-            <div className="absolute -bottom-2 -right-2 bg-slate-50 border border-slate-200 rounded-xl p-2 shadow-xl">
-              <Trophy className="w-5 h-5 text-yellow-500" />
+
+            {/* Profile Info */}
+            <div className="flex-1 text-center sm:text-left min-w-0">
+              <h1 className="text-xl sm:text-2xl lg:text-3xl font-black text-slate-900 tracking-tight mb-2 break-all">
+                {currentUser?.username || "Player"}
+              </h1>
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-2 sm:gap-3 text-xs sm:text-sm font-bold">
+                {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
+                  <span className="flex items-center gap-1.5 text-neon-green bg-neon-green/10 px-3 py-1 rounded-full border border-neon-green/20">
+                    <CheckCircle2 className="w-4 h-4" /> KYC Verified
+                  </span>
+                ) : currentUser?.kycStatus === 'PENDING' || currentUser?.kycStatus === 'PROCESSING' ? (
+                  <span className="flex items-center gap-1.5 text-yellow-500 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">
+                    <Activity className="w-4 h-4 animate-pulse" /> KYC Pending
+                  </span>
+                ) : currentUser?.kycStatus === 'REJECTED' ? (
+                  <span className="flex items-center gap-1.5 text-red-500 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
+                    <AlertCircle className="w-4 h-4" /> KYC Rejected
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-1.5 text-slate-600 bg-slate-500/10 px-3 py-1 rounded-full border border-slate-700">
+                    <Shield className="w-4 h-4" /> KYC Unverified
+                  </span>
+                )}
+                <span className="text-slate-650 bg-slate-500/10 px-3 py-1 rounded-full border border-slate-700/25">
+                  Account Active
+                </span>
+                <span className="text-neon-purple px-3 py-1 rounded-full border border-neon-purple/20 bg-neon-purple/10">
+                  {currentUser?.role === 'admin' ? "Platform Admin" : `VIP ${currentUser?.accountType === 'real' ? (currentUser?.vipLevel || 'Bronze') : 'Guest'}`}
+                </span>
+                {(currentUser?.kycStatus === 'VERIFIED' || currentUser?.kycStatus === 'APPROVED') && (
+                  <span className="text-emerald-650 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10">
+                    Tier 2 Verified
+                  </span>
+                )}
+                <button 
+                  onClick={() => logout()}
+                  className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black uppercase text-red-650 bg-red-500/10 border border-red-500/20 hover:bg-red-500/20 active:scale-95 transition-all cursor-pointer shadow-sm shrink-0"
+                >
+                  <LogOut className="w-3.5 h-3.5" /> Log Out
+                </button>
+              </div>
             </div>
           </div>
- 
-          {/* Profile Info */}
-          <div className="flex-1 text-center md:text-left">
-            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2 flex flex-col sm:flex-row sm:items-center gap-3 justify-center md:justify-start break-all sm:break-normal">
-              <span>{currentUser?.username || "Player"}</span>
-              <button 
-                onClick={() => logout()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase text-red-600 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 active:scale-95 transition-all cursor-pointer w-fit mx-auto sm:mx-0 shadow-sm shrink-0"
-              >
-                <LogOut className="w-3.5 h-3.5" /> Log Out
-              </button>
-            </h1>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 text-xs sm:text-sm font-bold">
-              {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
-                <span className="flex items-center gap-1.5 text-neon-green bg-neon-green/10 px-3 py-1 rounded-full border border-neon-green/20">
-                  <CheckCircle2 className="w-4 h-4" /> KYC Verified
-                </span>
-              ) : currentUser?.kycStatus === 'PENDING' || currentUser?.kycStatus === 'PROCESSING' ? (
-                <span className="flex items-center gap-1.5 text-yellow-500 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20">
-                  <Activity className="w-4 h-4 animate-pulse" /> KYC Pending
-                </span>
-              ) : currentUser?.kycStatus === 'REJECTED' ? (
-                <span className="flex items-center gap-1.5 text-red-500 bg-red-500/10 px-3 py-1 rounded-full border border-red-500/20">
-                  <AlertCircle className="w-4 h-4" /> KYC Rejected
-                </span>
-              ) : (
-                <span className="flex items-center gap-1.5 text-slate-600 bg-slate-500/10 px-3 py-1 rounded-full border border-slate-700">
-                  <Shield className="w-4 h-4" /> KYC Unverified
-                </span>
-              )}
-              <span className="text-slate-600 bg-slate-500/10 px-3 py-1 rounded-full border border-slate-700/25">
-                Account Active
-              </span>
-              <span className="text-neon-purple px-3 py-1 rounded-full border border-neon-purple/20 bg-neon-purple/10">
-                {currentUser?.role === 'admin' ? "Platform Admin" : `VIP ${currentUser?.accountType === 'real' ? (currentUser?.vipLevel || 'Bronze') : 'Guest'}`}
-              </span>
-              {(currentUser?.kycStatus === 'VERIFIED' || currentUser?.kycStatus === 'APPROVED') && (
-                <span className="text-emerald-600 px-3 py-1 rounded-full border border-emerald-500/20 bg-emerald-500/10">
-                  Tier 2 Verified
-                </span>
-              )}
-            </div>
-          </div>
- 
+
           {/* Quick Stats */}
-          <div className="flex gap-6 shrink-0 mt-6 md:mt-0">
-            <div className="text-center md:text-right">
-              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total Net Worth</p>
-              <p className="text-3xl font-black text-slate-900 font-mono tracking-tight font-bold">₹{netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-            </div>
+          <div className="shrink-0 mt-6 lg:mt-0 text-center lg:text-right w-full lg:w-auto">
+            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total Net Worth</p>
+            <p className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">₹{netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
           </div>
         </div>
       </motion.div>
@@ -234,17 +235,17 @@ export default function AccountSettingsPage() {
       </div>
 
       {/* Platform HFT HUD Dashboard */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6">
+      <div className="grid grid-cols-2 lg:grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-6">
         
         {/* Wallet Balance Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }}
-          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
               <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Available Balance</p>
-              <h3 className="text-sm sm:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate">₹{balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h3>
+              <h3 className="text-base sm:text-lg lg:text-xl xl:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate">₹{balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h3>
             </div>
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
               <Wallet className="w-4 h-4 sm:w-5 sm:h-5 text-slate-700" />
@@ -259,13 +260,13 @@ export default function AccountSettingsPage() {
         {/* Net P&L Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
               <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Overall Net P&L</p>
               <h3 className={cn(
-                "text-sm sm:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
+                "text-base sm:text-lg lg:text-xl xl:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
                 overallPnL >= 0 ? "text-[#16A34A]" : "text-red-650"
               )}>
                 {overallPnL >= 0 ? "+" : ""}₹{overallPnL.toLocaleString(undefined, { maximumFractionDigits: 2 })}
@@ -289,13 +290,13 @@ export default function AccountSettingsPage() {
         {/* ROI Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }}
-          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
               <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Return on Capital</p>
               <h3 className={cn(
-                "text-sm sm:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
+                "text-base sm:text-lg lg:text-xl xl:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
                 roiPercentage >= 0 ? "text-[#16A34A]" : "text-red-650"
               )}>
                 {roiPercentage >= 0 ? "+" : ""}{roiPercentage.toFixed(1)}%
@@ -314,12 +315,12 @@ export default function AccountSettingsPage() {
         {/* Turnover Ratio Card */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}
-          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-6 shadow-sm flex flex-col justify-between overflow-hidden"
+          className="bg-white border border-slate-200/80 rounded-2xl sm:rounded-[1.5rem] p-4 sm:p-5 shadow-sm flex flex-col justify-between overflow-hidden"
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
               <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Deposits/Withdrawals</p>
-              <h3 className="text-sm sm:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate">₹{(totalDeposits + totalWithdrawals).toLocaleString(undefined, { maximumFractionDigits: 0 })}</h3>
+              <h3 className="text-base sm:text-lg lg:text-xl xl:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate font-bold">₹{(totalDeposits + totalWithdrawals).toLocaleString(undefined, { maximumFractionDigits: 0 })}</h3>
             </div>
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
               <Activity className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-500" />

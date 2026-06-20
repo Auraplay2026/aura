@@ -27,11 +27,11 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
   const vipLevel = currentUser ? calculateVipLevel(currentUser.totalWagered || 0, currentUser.manualVipLevel) : "Gold";
 
   return (
-    <div className="w-full max-w-[1200px] mx-auto flex flex-col md:flex-row gap-8 md:p-6 lg:p-10 md:pt-8">
+    <div className="w-full max-w-[1200px] mx-auto flex flex-col lg:flex-row gap-8 md:p-6 lg:p-10 md:pt-8">
       <BackToTop />
       
       {/* Mobile Back Header */}
-      <div className="md:hidden flex items-center gap-3 px-4 h-14 border-b border-slate-200 bg-white sticky top-0 z-30 shrink-0 shadow-sm">
+      <div className="lg:hidden flex items-center gap-3 px-4 h-14 border-b border-slate-200 bg-white sticky top-0 z-30 shrink-0 shadow-sm">
         <Link href="/" className="p-2 -ml-2 text-slate-500 hover:text-slate-900 transition-colors">
           <ArrowLeft className="w-6 h-6" />
         </Link>
@@ -41,7 +41,7 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
       </div>
 
       {/* Mobile Horizontal Scroll Navigation */}
-      <div className="md:hidden w-full bg-slate-50 border-b border-slate-200/60 py-2.5 px-4 sticky top-14 z-20 flex flex-nowrap overflow-x-auto gap-2 [&::-webkit-scrollbar]:hidden scroll-smooth">
+      <div className="lg:hidden w-full bg-slate-50 border-b border-slate-200/60 py-2.5 px-4 sticky top-14 z-20 flex flex-nowrap overflow-x-auto gap-2 [&::-webkit-scrollbar]:hidden scroll-smooth">
         {NAV_ITEMS.map((item) => {
           const isActive = pathname === item.href;
           return (
@@ -75,7 +75,7 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
       </div>
 
       {/* Secondary Dashboard Navigation (Right Sidebar) */}
-      <div className="hidden md:block w-64 shrink-0 mt-0">
+      <div className="hidden lg:block w-64 shrink-0 mt-0">
         <div className="bg-slate-50/40 border border-slate-200/80 rounded-3xl p-4 backdrop-blur-2xl sticky top-24 shadow-2xl">
           <div className="flex items-center gap-4 mb-6 p-2">
             <div className="w-12 h-12 rounded-full bg-gradient-to-tr from-neon-purple to-neon-green p-0.5 shadow-[0_0_15px_rgba(168,85,247,0.4)]">
