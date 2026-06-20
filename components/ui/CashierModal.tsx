@@ -211,21 +211,63 @@ interface PaymentSettingsState {
     onClose();
   };
 
+const compressImage = (base64Str: string): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.src = base64Str;
+    img.onload = () => {
+      const canvas = document.createElement("canvas");
+      let width = img.width;
+      let height = img.height;
+      const MAX_WIDTH = 1200;
+
+      if (width > MAX_WIDTH) {
+        height = Math.round((height * MAX_WIDTH) / width);
+        width = MAX_WIDTH;
+      }
+
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        resolve(base64Str);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+      resolve(canvas.toDataURL("image/jpeg", 0.75));
+    };
+    img.onerror = () => {
+      reject(new Error("Failed to load image"));
+    };
+  });
+};
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 3 * 1024 * 1024) {
-      setVerificationError("Screenshot size exceeds 3MB limit.");
+    if (file.size > 15 * 1024 * 1024) {
+      setVerificationError("Screenshot size exceeds 15MB limit.");
       return;
     }
 
     setScreenshotName(file.name);
     setVerificationError(null);
+    setIsProcessing(true);
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setScreenshot(reader.result as string);
+    reader.onloadend = async () => {
+      try {
+        const compressed = await compressImage(reader.result as string);
+        setScreenshot(compressed);
+      } catch (err) {
+        console.error("Compression error:", err);
+        setVerificationError("Failed to process image. Please try another screenshot.");
+      } finally {
+        setIsProcessing(false);
+      }
     };
     reader.readAsDataURL(file);
   };
@@ -359,7 +401,7 @@ interface PaymentSettingsState {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-white/80 z-[9990] backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 bg-white/80 z-[9990] backdrop-blur-md flex items-end justify-center sm:items-center p-0 sm:p-6"
           >
             <motion.div
               ref={modalRef}
@@ -371,7 +413,7 @@ interface PaymentSettingsState {
               aria-modal="true"
               aria-labelledby="cashier-modal-title"
               tabIndex={-1}
-              className="bg-white w-full max-w-xl rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.8)] border border-slate-200 flex flex-col max-h-[90vh] ring-1 ring-white/5 outline-none"
+              className="bg-white w-full max-w-xl rounded-t-[2rem] sm:rounded-[32px] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.15)] border-t sm:border border-slate-200 flex flex-col max-h-[95dvh] sm:max-h-[90vh] ring-1 ring-white/5 outline-none"
             >
               {/* Header & Tabs */}
               <div className="bg-slate-50 border-b border-slate-200 shrink-0">
@@ -870,7 +912,7 @@ interface PaymentSettingsState {
                                 />
                                 <Upload className="w-6 h-6 text-slate-500 group-hover:text-emerald-600 transition-colors mb-2" />
                                 <span className="text-xs text-slate-600 group-hover:text-slate-700 font-bold">Click to upload image receipt</span>
-                                <span className="text-[9px] text-slate-600 mt-1 uppercase font-bold tracking-wider">PNG, JPG up to 3MB</span>
+                                <span className="text-[9px] text-slate-600 mt-1 uppercase font-bold tracking-wider">PNG, JPG up to 15MB (Auto-compressed)</span>
                               </label>
                             )}
                           </div>

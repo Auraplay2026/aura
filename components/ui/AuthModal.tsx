@@ -319,13 +319,13 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
             aria-modal="true"
             aria-labelledby="auth-modal-title"
             tabIndex={-1}
-            className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md z-[9999] p-4 outline-none"
+            className="fixed bottom-0 top-auto left-0 translate-y-0 translate-x-0 sm:top-1/2 sm:left-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 w-full max-w-none sm:max-w-md z-[9999] p-0 sm:p-4 outline-none max-h-[90dvh] sm:max-h-none flex flex-col"
           >
-            <div className="bg-white border border-slate-200 rounded-2xl shadow-2xl overflow-hidden relative">
+            <div className="bg-white border-t sm:border border-slate-200 rounded-t-[2rem] sm:rounded-2xl shadow-2xl overflow-hidden relative flex flex-col flex-1 min-h-0">
               {/* Glow effects */}
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-64 h-32 bg-yellow-500/10 blur-[60px] rounded-full pointer-events-none" />
               
-              <div className="flex justify-between items-center p-6 border-b border-slate-200">
+              <div className="flex justify-between items-center p-6 border-b border-slate-200 shrink-0">
                 <h2 id="auth-modal-title" className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-yellow-500" />
                   {view === 'login' && 'Welcome Back'}
@@ -342,7 +342,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                 </button>
               </div>
 
-              <div className="p-6">
+              <div className="p-6 overflow-y-auto custom-scrollbar flex-1 min-h-0">
                 {error && (
                   <motion.div
                     initial={{ opacity: 0, y: -10 }}
