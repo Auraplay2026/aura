@@ -223,24 +223,24 @@ html {
 }
 
 :root {
-  --background: #f8f9fa;
-  --foreground: #1e293b;
+  --background: #fdfbf7; /* Premium warm organic cream */
+  --foreground: #191919; /* Rich charcoal */
   color-scheme: light;
 }
 
 /* Design tokens - Light-first system */
 :root {
   --surface: #ffffff; /* primary card / panel surface */
-  --surface-2: #f8fafc; /* elevated surface */
-  --surface-3: #f1f5f9; /* subtle surface */
-  --muted: #64748b; /* secondary text */
-  --border: #e6eef7; /* soft border */
-  --accent: #ef4444; /* primary accent (red) */
-  --accent-600: #dc2626;
-  --success: #10b981;
-  --warning: #f59e0b;
-  --info: #60a5fa;
-  --shadow-1: 0 4px 18px rgba(2,6,23,0.06);
+  --surface-2: #faf8f5; /* elevated warm cream */
+  --surface-3: #f3efe6; /* warm accent card surface */
+  --muted: #6e6e6e; /* premium warm muted text */
+  --border: #e9e2d3; /* elegant warm border */
+  --accent: #e0573e; /* Claude-like deep coral terracotta accent */
+  --accent-600: #c24732;
+  --success: #0f766e; /* Rich teal emerald */
+  --warning: #d97706; /* Rich warm amber */
+  --info: #2563eb; /* Sapphire blue */
+  --shadow-1: 0 1px 3px rgba(224,87,62,0.02), 0 8px 30px rgba(224,87,62,0.05), inset 0 1px 0 rgba(255,255,255,1);
 }
 
 /* Utility surface classes to standardize light visuals */
@@ -250,9 +250,9 @@ html {
 .text-foreground { color: var(--foreground) !important; }
 .text-muted { color: var(--muted) !important; }
 .border-soft { border-color: var(--border) !important; }
-.surface-overlay { background-color: rgba(255,255,255,0.6) !important; backdrop-filter: blur(6px); }
-.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-1); }
-.btn-primary { background: linear-gradient(90deg,var(--accent),var(--accent-600)); color: #fff; }
+.surface-overlay { background-color: rgba(255,255,255,0.7) !important; backdrop-filter: blur(8px); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow-1); }
+.btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent-600)); color: #fff; box-shadow: 0 4px 15px rgba(224,87,62,0.25); }
 
 /* Helpful alias for dark->light conversions */
 .replace-bg-white { background-color: var(--surface) !important; }

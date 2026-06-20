@@ -352,23 +352,23 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
     let animId: number;
 
     const render = () => {
-      // 1. Background — clean light slate felt
-      ctx.fillStyle = "#f8fafc";
+      // 1. Background — clean light warm felt
+      ctx.fillStyle = "#faf9f6";
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       // Tunnel vignette for depth
       const theme = RISK_THEMES[risk];
       const vigGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT * 0.4, 80, WIDTH / 2, HEIGHT * 0.4, WIDTH * 0.85);
-      vigGrad.addColorStop(0, "rgba(248,250,252,0)");
-      vigGrad.addColorStop(0.6, "rgba(226,232,240,0.3)");
-      vigGrad.addColorStop(1, "rgba(203,213,225,0.65)");
+      vigGrad.addColorStop(0, "rgba(250,249,246,0)");
+      vigGrad.addColorStop(0.6, "rgba(232,226,213,0.3)");
+      vigGrad.addColorStop(1, "rgba(215,207,190,0.6)");
       ctx.fillStyle = vigGrad;
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       // Ambient risk-color glow at center top
       const riskGlow = ctx.createRadialGradient(WIDTH / 2, 30, 10, WIDTH / 2, 30, WIDTH * 0.6);
       riskGlow.addColorStop(0, theme.glow.replace(/[\d.]+\)$/, "0.08)"));
-      riskGlow.addColorStop(1, "rgba(248,250,252,0)");
+      riskGlow.addColorStop(1, "rgba(250,249,246,0)");
       ctx.fillStyle = riskGlow;
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
@@ -519,9 +519,9 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           pegGrad.addColorStop(0.35, theme.color);
           pegGrad.addColorStop(1, darkenColor(theme.color, 0.5));
         } else {
-          pegGrad.addColorStop(0, "#f8fafc");   // bright chrome top
-          pegGrad.addColorStop(0.4, "#cbd5e1");
-          pegGrad.addColorStop(1, "#64748b");   // soft slate base
+          pegGrad.addColorStop(0, "#ffffff");   // bright shiny top
+          pegGrad.addColorStop(0.45, "#e2dcd0"); // warm bronze-silver mid
+          pegGrad.addColorStop(1, "#8a7e72");   // warm bronze base
         }
         ctx.fillStyle = pegGrad;
         ctx.beginPath();
@@ -928,11 +928,11 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         {/* 3D Transform projected canvas box wrapper */}
         <div className="flex-grow flex items-center justify-center py-2 md:py-4 overflow-hidden perspective-[1200px]">
           <div 
-            className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/5] rounded-xl md:rounded-[24px] bg-white/50 border-[6px] md:border-[10px] border-slate-100 shadow-[0_15px_30px_rgba(0,0,0,0.06),inset_0_2px_4px_rgba(255,255,255,1)] transition-transform duration-1000 transform-style-3d overflow-hidden"
+            className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/5] rounded-xl md:rounded-[24px] bg-white/50 border-[6px] md:border-[10px] border-[#f4f0e6] shadow-[0_20px_45px_rgba(224,87,62,0.08),inset_0_2px_4px_rgba(255,255,255,1)] transition-transform duration-1000 transform-style-3d overflow-hidden"
             style={{ transform: "rotateX(22deg)" }}
           >
             {/* Table inner rails border glow */}
-            <div className="absolute inset-0 border border-indigo-500/5 pointer-events-none shadow-[inset_0_0_15px_rgba(99,102,241,0.05)] z-20" />
+            <div className="absolute inset-0 border border-amber-500/5 pointer-events-none shadow-[inset_0_0_20px_rgba(224,87,62,0.08)] z-20" />
 
             <canvas
               ref={canvasRef}
