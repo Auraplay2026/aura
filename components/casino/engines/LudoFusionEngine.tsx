@@ -782,10 +782,10 @@ export function LudoFusionEngine({
                 <div className="absolute inset-0 bg-fuchsia-500/20 blur-[25px] rounded-full pointer-events-none" />
               </div>
               
-              <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-300 via-fuchsia-400 to-indigo-400 uppercase tracking-widest leading-none mb-4 drop-shadow-sm font-sans">
+              <h2 className="text-4xl sm:text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-purple-600 via-fuchsia-600 to-indigo-600 uppercase tracking-widest leading-none mb-4 drop-shadow-sm font-sans">
                 Ludo Fusion
               </h2>
-              <div className="inline-block bg-purple-500/10 border border-purple-500/25 px-4 py-1.5 rounded-full text-xs text-purple-300 font-bold uppercase tracking-widest mb-6">
+              <div className="inline-block bg-purple-500/10 border border-purple-500/25 px-4 py-1.5 rounded-full text-xs text-purple-700 font-bold uppercase tracking-widest mb-6">
                 🌌 ARENA OF SENTINELS
               </div>
 
@@ -804,13 +804,13 @@ export function LudoFusionEngine({
                 
                 <div className="flex flex-col items-center justify-center text-center z-10">
                   <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-0.5">EST. RETURN</span>
-                  <span className="text-xl font-black font-mono text-slate-900 drop-shadow-[0_0_8px_#d8b4fe]">3.80x POT</span>
+                  <span className="text-xl font-black font-mono text-slate-900">3.80x POT</span>
                 </div>
               </div>
             </div>
 
             {/* Right Control Panels */}
-            <div className="flex-1 w-full max-w-md bg-purple-950/20 border border-purple-500/15 p-6 rounded-[2.5rem] flex flex-col gap-6 shadow-xl">
+            <div className="flex-1 w-full max-w-md bg-white/90 border border-purple-200 p-6 rounded-[2.5rem] flex flex-col gap-6 shadow-sm">
               <div>
                 <span className="text-[9px] text-purple-450 font-black uppercase tracking-widest block mb-3">Arena Combat Mode</span>
                 <div className="grid grid-cols-2 gap-4">
@@ -824,10 +824,10 @@ export function LudoFusionEngine({
                       className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
                         gameMode === mode.id
                           ? "border-purple-500 bg-purple-500/10 shadow-[0_0_20px_rgba(168,85,247,0.2)] scale-[1.03]"
-                          : "border-purple-950/50 bg-[#090514]/40 hover:border-purple-500/40 text-purple-300/60 hover:text-slate-900"
+                          : "border-purple-200 bg-white/40 hover:border-purple-350 text-purple-600 hover:text-slate-900"
                       }`}
                     >
-                      <div className={`p-2 rounded-xl transition-colors ${gameMode === mode.id ? "bg-purple-500 text-slate-900" : "bg-purple-950 text-purple-400"}`}>
+                      <div className={`p-2 rounded-xl transition-colors ${gameMode === mode.id ? "bg-purple-500 text-slate-900" : "bg-purple-100 text-purple-600"}`}>
                         {mode.icon}
                       </div>
                       <span className="font-black text-[9px] uppercase tracking-wider">{mode.title}</span>
@@ -838,15 +838,15 @@ export function LudoFusionEngine({
               </div>
 
               {/* Stake input box */}
-              <div className="bg-[#090514]/60 border border-purple-950 rounded-2xl p-4">
+              <div className="bg-white/95 border border-purple-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-center mb-2.5">
-                  <span className="text-[9px] text-purple-400 font-black uppercase tracking-widest">Entry stake amount</span>
+                  <span className="text-[9px] text-purple-500 font-black uppercase tracking-widest">Entry stake amount</span>
                   <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
                 </div>
 
-                <div className="flex items-center bg-[#0d091a] border border-purple-950 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-purple-500/50">
-                  <div className="flex items-center pl-3.5 pr-2.5 border-r border-purple-950 bg-[#090514]/40 h-10">
-                    <span className="text-purple-400 font-black text-xs">₹</span>
+                <div className="flex items-center bg-white border border-purple-200 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-purple-500/50">
+                  <div className="flex items-center pl-3.5 pr-2.5 border-r border-purple-200 bg-purple-550/10 h-10">
+                    <span className="text-purple-600 font-black text-xs">₹</span>
                   </div>
                   <input
                     type="number"
@@ -854,9 +854,9 @@ export function LudoFusionEngine({
                     onChange={(e) => onBetAmountChange(Math.max(10, Number(e.target.value)))}
                     className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs px-3 py-2 focus:outline-none focus:ring-0 font-mono"
                   />
-                  <div className="flex items-center bg-[#090514]/45 border-l border-purple-950 h-10">
-                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2.5 h-full text-[9px] font-black text-purple-300 hover:bg-purple-500 hover:text-slate-900 border-r border-purple-950 transition-colors">1/2</button>
-                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2.5 h-full text-[9px] font-black text-purple-300 hover:bg-purple-500 hover:text-slate-900 transition-colors">2X</button>
+                  <div className="flex items-center bg-white/40 border-l border-purple-200 h-10">
+                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2.5 h-full text-[9px] font-black text-purple-650 hover:bg-purple-500 hover:text-slate-900 border-r border-purple-200 transition-colors">1/2</button>
+                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2.5 h-full text-[9px] font-black text-purple-650 hover:bg-purple-500 hover:text-slate-900 transition-colors">2X</button>
                   </div>
                 </div>
 
@@ -877,7 +877,7 @@ export function LudoFusionEngine({
                         type="button"
                         onClick={() => onBetAmountChange(chip.amount)}
                         className={`relative w-8.5 h-8.5 rounded-full shrink-0 flex items-center justify-center font-black text-slate-900 shadow-lg transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/60 select-none ${
-                          isSelected ? "scale-110 ring-2 ring-purple-500 ring-offset-2 ring-offset-slate-950 opacity-100 z-10" : "hover:scale-105 opacity-60 hover:opacity-100"
+                          isSelected ? "scale-110 ring-2 ring-purple-500 ring-offset-2 ring-offset-purple-100 opacity-100 z-10" : "hover:scale-105 opacity-60 hover:opacity-100"
                         } bg-gradient-to-br ${chip.color}`}
                       >
                         <div className="absolute inset-[2.5px] rounded-full border border-dashed border-white/50 flex items-center justify-center">
@@ -907,11 +907,11 @@ export function LudoFusionEngine({
               </button>
 
               {/* Missions Display */}
-              <div className="border border-purple-500/10 bg-[#090514]/40 p-3 rounded-xl">
-                <span className="text-[8px] font-black uppercase text-purple-400 tracking-wider block mb-1.5">⚡ ACTIVE MISSIONS (+XP)</span>
+              <div className="border border-purple-200 bg-purple-550/5 p-3 rounded-xl">
+                <span className="text-[8px] font-black uppercase text-purple-700 tracking-wider block mb-1.5">⚡ ACTIVE MISSIONS (+XP)</span>
                 <div className="space-y-1">
-                  <div className="flex items-center gap-2 text-[8px] text-slate-350"><Star className="w-2.5 h-2.5 text-amber-400" /> Capture bot piece (+50 XP)</div>
-                  <div className="flex items-center gap-2 text-[8px] text-slate-355"><Star className="w-2.5 h-2.5 text-amber-450" /> Roll a Critical Six (+75 XP)</div>
+                  <div className="flex items-center gap-2 text-[8px] text-slate-700"><Star className="w-2.5 h-2.5 text-amber-500" /> Capture bot piece (+50 XP)</div>
+                  <div className="flex items-center gap-2 text-[8px] text-slate-700"><Star className="w-2.5 h-2.5 text-amber-500" /> Roll a Critical Six (+75 XP)</div>
                 </div>
               </div>
 
@@ -960,30 +960,30 @@ export function LudoFusionEngine({
         </div>
 
         {/* Mid-screen HUD Info */}
-        <div className="flex items-center gap-5 bg-[#090514]/80 border border-purple-950 px-4 py-2 rounded-xl">
+        <div className="flex items-center gap-5 bg-white border border-purple-200 px-4 py-2 rounded-xl shadow-sm">
           <div className="flex items-center gap-2">
-            <Coins className="w-3.5 h-3.5 text-purple-400" />
+            <Coins className="w-3.5 h-3.5 text-purple-600" />
             <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Buy-In:</span>
-            <span className="text-xs font-black font-mono text-slate-200">₹{betAmount.toLocaleString()}</span>
+            <span className="text-xs font-black font-mono text-slate-850">₹{betAmount.toLocaleString()}</span>
           </div>
-          <div className="w-px h-4 bg-purple-950" />
+          <div className="w-px h-4 bg-purple-200" />
           <div className="flex items-center gap-2">
-            <Trophy className="w-3.5 h-3.5 text-fuchsia-400 animate-pulse" />
+            <Trophy className="w-3.5 h-3.5 text-fuchsia-600 animate-pulse" />
             <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Winner Pot:</span>
-            <span className="text-xs font-black font-mono text-fuchsia-400">₹{(betAmount * 3.8).toLocaleString()}</span>
+            <span className="text-xs font-black font-mono text-fuchsia-600">₹{(betAmount * 3.8).toLocaleString()}</span>
           </div>
         </div>
 
         {/* Player Profile & XP HUD */}
-        <div className="hidden lg:flex items-center gap-3 bg-[#090514]/40 border border-purple-500/10 px-3.5 py-1 rounded-xl">
-          <Award className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_#fbbf24]" />
+        <div className="hidden lg:flex items-center gap-3 bg-white border border-purple-200 px-3.5 py-1 rounded-xl shadow-sm">
+          <Award className="w-5 h-5 text-amber-500" />
           <div className="text-left">
-            <p className="text-[9px] font-black text-slate-350 uppercase leading-none">Lvl {level} Champion</p>
-            <div className="w-20 bg-purple-950 h-1 rounded-full mt-1.5 overflow-hidden">
+            <p className="text-[9px] font-black text-slate-800 uppercase leading-none">Lvl {level} Champion</p>
+            <div className="w-20 bg-purple-100 h-1 rounded-full mt-1.5 overflow-hidden">
               <div className="bg-gradient-to-r from-purple-400 to-fuchsia-500 h-full" style={{ width: `${(xp / 400) * 100}%` }} />
             </div>
           </div>
-          <div className="text-[9px] font-mono font-black text-slate-500 ml-1">
+          <div className="text-[9px] font-mono font-black text-slate-600 ml-1">
             {xp}/400 XP
           </div>
         </div>
@@ -993,7 +993,7 @@ export function LudoFusionEngine({
       <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-8 w-full overflow-visible font-sans">
         
         {/* Left Column: 3D Floating Ludo Platform */}
-        <div className="w-full md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center overflow-visible">
+        <div className="w-full max-w-[230px] md:max-w-none md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center overflow-visible">
           
           {/* Perspective Container */}
           <div 
@@ -1016,18 +1016,18 @@ export function LudoFusionEngine({
             >
               {/* Volumetric Thickness (3D Edge Panel) */}
               <div 
-                className="absolute inset-0 bg-gradient-to-b from-purple-800 via-purple-900 to-indigo-950 rounded-[2.5rem] border border-purple-500/40 pointer-events-none"
-                style={{ transform: "translateZ(-14px)", boxShadow: "0 25px 60px rgba(0,0,0,0.85), 0 0 35px rgba(168,85,247,0.25)" }}
+                className="absolute inset-0 bg-gradient-to-b from-purple-400 via-purple-500 to-indigo-750 rounded-[2.5rem] border border-purple-300 pointer-events-none"
+                style={{ transform: "translateZ(-14px)", boxShadow: "0 20px 40px rgba(168,85,247,0.12)" }}
               />
               <div 
-                className="absolute inset-0 bg-[#06030c] rounded-[2.5rem] border-2 border-purple-500/20"
+                className="absolute inset-0 bg-[#fdfaff] rounded-[2.5rem] border-2 border-purple-200"
                 style={{ transform: "translateZ(0px)" }}
               />
 
               {/* Neon Grid Pattern background */}
               <div className="absolute inset-0 z-0 pointer-events-none opacity-30 rounded-[2.5rem] overflow-hidden"
                 style={{
-                  backgroundImage: "radial-gradient(#a855f7 1px, transparent 0), radial-gradient(#d8b4fe 1.5px, transparent 0)",
+                  backgroundImage: "radial-gradient(rgba(168,85,247,0.12) 1px, transparent 0), radial-gradient(rgba(168,85,247,0.15) 1.5px, transparent 0)",
                   backgroundSize: "24px 24px",
                   backgroundPosition: "0 0, 12px 12px",
                   transform: "translateZ(0.5px)"
@@ -1186,11 +1186,11 @@ export function LudoFusionEngine({
                       left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
                       width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
                       backgroundColor: isValidTarget 
-                        ? "rgba(168,85,247,0.12)" 
+                        ? "rgba(168,85,247,0.15)" 
                         : startColor 
-                          ? `${FACTIONS[startColor].token}15` 
-                          : "rgba(10,5,22,0.6)",
-                      border: "0.5px solid rgba(168,85,247,0.06)",
+                          ? `${FACTIONS[startColor].token}20` 
+                          : "#ffffff",
+                      border: "0.5px solid rgba(168,85,247,0.12)",
                       boxShadow: isValidTarget ? "inset 0 0 8px rgba(168,85,247,0.3)" : "none",
                       transform: "translateZ(1px)",
                     }}
@@ -1220,8 +1220,8 @@ export function LudoFusionEngine({
                     style={{
                       left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
                       width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
-                      backgroundColor: `${FACTIONS[color].token}15`,
-                      border: `0.5px solid ${FACTIONS[color].token}25`,
+                      backgroundColor: `${FACTIONS[color].token}20`,
+                      border: `0.5px solid ${FACTIONS[color].token}30`,
                       boxShadow: `inset 0 0 6px ${FACTIONS[color].glow}`,
                       transform: "translateZ(1.5px)"
                     }}
@@ -1262,16 +1262,22 @@ export function LudoFusionEngine({
                         style={{
                           left: `${pos.x}%`,
                           top: `${pos.y}%`,
-                          transform: "translate(-50%, -50%) translateZ(10px)",
-                          marginLeft: `${tokenOffset.x}px`,
                           zIndex: 30 + tokenIdx,
                         }}
                         onClick={() => handleTokenClick(player.color, token.id)}
                       >
-                        <HeroToken color={player.color} size={cellTokens.length > 2 ? "small" : "medium"} isActive={isMovable} />
-                        {isMovable && (
-                          <div className="absolute inset-0 rounded-full border border-amber-400 animate-ping opacity-50 pointer-events-none" />
-                        )}
+                        <div
+                          className="absolute flex items-center justify-center animate-none"
+                          style={{
+                            marginLeft: `${tokenOffset.x}px`,
+                            transform: "translate(-50%, -50%) translateZ(10px)",
+                          }}
+                        >
+                          <HeroToken color={player.color} size={cellTokens.length > 2 ? "small" : "medium"} isActive={isMovable} />
+                          {isMovable && (
+                            <div className="absolute inset-0 rounded-full border border-amber-400 animate-ping opacity-50 pointer-events-none" />
+                          )}
+                        </div>
                       </motion.div>
                     );
                   })
@@ -1331,11 +1337,11 @@ export function LudoFusionEngine({
               </button>
             ) : (
               <div className="flex-1 text-right pr-2">
-                <span className="text-[9px] font-black text-fuchsia-400 uppercase tracking-widest block">
-                  {currentPlayer?.isHuman ? "Deploy Target" : "PROCESSING..."}
+                <span className="text-[9px] font-black text-fuchsia-600 uppercase tracking-widest block">
+                  {message}
                 </span>
-                <span className="text-[8px] text-slate-455 italic block mt-0.5 leading-tight">
-                  {currentPlayer?.isHuman ? "Tap your glowing faction token" : `${FACTIONS[currentPlayer?.color]?.name} is computing`}
+                <span className="text-[8px] text-slate-500 italic block mt-0.5 leading-tight">
+                  {currentPlayer?.isHuman ? "Tap your glowing faction token" : "Computing next action"}
                 </span>
               </div>
             )}
@@ -1361,10 +1367,10 @@ export function LudoFusionEngine({
         <div className="hidden md:flex flex-col flex-1 w-full gap-4">
           <div className="bg-white/70 border border-purple-500/15 backdrop-blur-md rounded-3xl p-5 flex flex-col gap-4 shadow-xl">
             
-            <div className="flex items-center justify-between border-b border-purple-950 pb-3 font-sans">
+            <div className="flex items-center justify-between border-b border-purple-200 pb-3 font-sans">
               <div className="flex items-center gap-2">
                 <Activity className="w-3.5 h-3.5 text-fuchsia-400 animate-pulse" />
-                <span className="text-[9px] font-black text-slate-350 uppercase tracking-widest">
+                <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest">
                   {currentPlayer?.isHuman ? "YOUR PHASE" : `${FACTIONS[currentPlayer?.color]?.name} PHASE`}
                 </span>
               </div>
@@ -1405,17 +1411,17 @@ export function LudoFusionEngine({
               ) : (
                 <div className="flex-1 text-right pr-2">
                   <span className="text-[10px] font-black text-fuchsia-400 uppercase tracking-widest block">
-                    {currentPlayer?.isHuman ? "Deploy Hologram" : "COMPUTING VALUE..."}
+                    {message}
                   </span>
                   <span className="text-[9px] text-slate-500 italic block mt-0.5">
-                    {currentPlayer?.isHuman ? "Select highlighted token on board" : "Bot faction processing path"}
+                    {currentPlayer?.isHuman ? "Select highlighted token on board" : "Computing next action"}
                   </span>
                 </div>
               )}
             </div>
 
             {/* Spectator Feed ticker */}
-            <div className="flex justify-between items-center bg-[#090514]/20 px-3 py-1.5 rounded-lg border border-purple-950/40">
+            <div className="flex justify-between items-center bg-purple-50/30 px-3 py-1.5 rounded-lg border border-purple-200">
               <span className="text-[8px] font-black text-purple-400 uppercase tracking-widest">Spectators</span>
               <span className="text-[9px] font-black text-slate-900 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
@@ -1425,19 +1431,19 @@ export function LudoFusionEngine({
 
             {/* Player Faction Standings */}
             <div className="space-y-2">
-              <span className="text-[9px] text-purple-455 uppercase tracking-widest font-black block">Faction Status Grid</span>
+              <span className="text-[9px] text-purple-600 uppercase tracking-widest font-black block">Faction Status Grid</span>
               <div className="grid grid-cols-2 gap-2">
                 {players.map((p) => {
                   const isPlayerTurn = currentPlayer?.color === p.color && !winner;
                   return (
                     <div key={p.color} className={`p-2.5 rounded-xl border flex items-center justify-between transition-all relative ${
                       isPlayerTurn 
-                        ? "bg-purple-950/30 border-purple-500/60 shadow-[0_0_12px_rgba(168,85,247,0.1)]" 
-                        : "bg-[#090514]/40 border-purple-950/70"
+                        ? "bg-white border-purple-200 shadow-sm" 
+                        : "bg-white/65 border-purple-200/50"
                     }`}>
                       <div className="flex items-center gap-2">
                         <span className="w-2 h-2 rounded-full shadow-[0_0_6px_currentColor]" style={{ color: FACTIONS[p.color].token, backgroundColor: FACTIONS[p.color].token }} />
-                        <span className="text-xs font-bold text-slate-300 truncate max-w-[90px]">{p.name}</span>
+                        <span className="text-xs font-bold text-slate-800 truncate max-w-[90px]">{p.name}</span>
                       </div>
                       <span className="text-[9px] font-mono font-black text-purple-400 flex items-center shrink-0">
                         {p.tokensHome}/4 👑
@@ -1450,8 +1456,8 @@ export function LudoFusionEngine({
 
             {/* Chat Reaction System */}
             <div>
-              <span className="text-[9px] text-purple-455 uppercase tracking-widest font-black block mb-2">Send Chat Reaction</span>
-              <div className="flex gap-2 justify-between bg-[#090514]/50 border border-purple-950/60 p-2 rounded-xl">
+              <span className="text-[9px] text-purple-600 uppercase tracking-widest font-black block mb-2">Send Chat Reaction</span>
+              <div className="flex gap-2 justify-between bg-purple-50/40 border border-purple-200 p-2 rounded-xl">
                 {["😂", "👍", "😮", "🔥", "💀", "👑"].map((emoji) => (
                   <button
                     key={emoji}
@@ -1466,8 +1472,8 @@ export function LudoFusionEngine({
 
             {/* Live Feed Ticker */}
             <div className="space-y-1.5">
-              <span className="text-[9px] text-purple-455 uppercase tracking-widest font-black block">Arena Combat Log</span>
-              <div className="bg-[#090514]/90 border border-purple-950 rounded-xl p-3 h-24 overflow-hidden">
+              <span className="text-[9px] text-purple-600 uppercase tracking-widest font-black block">Arena Combat Log</span>
+              <div className="bg-slate-50 border border-purple-200 rounded-xl p-3 h-24 overflow-hidden">
                 <div className="space-y-1 overflow-y-auto h-full scrollbar-none">
                   {moveLog.length === 0 ? (
                     <p className="text-[8px] text-slate-600 text-center py-5 uppercase font-bold tracking-widest">Feed Standby • Awaiting Rolls</p>

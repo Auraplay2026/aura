@@ -123,61 +123,55 @@ export function HiLoEngine({ isPlaying, onLiveTick, onComplete }: HiLoEngineProp
   return (
     <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full bg-gradient-to-br from-violet-50 via-white to-indigo-50 rounded-3xl border border-violet-200/60 shadow-[0_8px_40px_rgba(109,40,217,0.08),inset_0_1px_0_rgba(255,255,255,1)] relative flex flex-col items-center p-2 md:p-6 overflow-hidden perspective-[1000px]">
       
-      {/* Light Ambient Glow */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(167,139,250,0.12),_transparent_60%)] pointer-events-none" />
       <div className="absolute inset-0 bg-[linear-gradient(rgba(196,181,253,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(196,181,253,0.08)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
 
-      {/* Header */}
-      <div className="relative z-10 w-full flex justify-between items-center mb-3 md:mb-12 bg-white/80 backdrop-blur-md px-3 py-2 md:px-6 md:py-3 rounded-xl md:rounded-2xl border border-violet-200/60 shadow-md">
-        <div>
+      <div className="relative z-10 w-full flex justify-between items-center mb-1.5 md:mb-12 bg-white/80 backdrop-blur-md px-3 py-1.5 md:px-6 md:py-3 rounded-xl md:rounded-2xl border border-violet-200/60 shadow-sm md:shadow-md">
+        <div className="hidden md:block">
           <h2 className="text-violet-600 font-black text-base md:text-xl tracking-widest uppercase">Aura HiLo</h2>
           <span className="text-slate-500 text-[8px] md:text-[10px] font-bold tracking-[0.2em] block">PREDICT THE NEXT CARD</span>
         </div>
-        <div className="flex flex-col items-end">
-          <span className="text-[8px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest mb-0.5 md:mb-1">Current Multiplier</span>
-          <span className={`text-lg md:text-2xl font-mono font-black ${multiplier > 1.0 ? "text-emerald-600" : "text-slate-800"}`}>
+        <div className="flex md:flex-col justify-between items-center md:items-end w-full md:w-auto gap-2">
+          <span className="text-[8px] md:text-[10px] text-slate-500 font-black uppercase tracking-widest md:mb-1">Current Multiplier</span>
+          <span className={`text-sm md:text-2xl font-mono font-black ${multiplier > 1.0 ? "text-emerald-600" : "text-slate-800"}`}>
             {multiplier.toFixed(2)}x
           </span>
         </div>
       </div>
 
-      {/* Play Area */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center w-full transform-style-3d rotate-x-[10deg]">
         
-        {/* Card Stack / History */}
         <div className="absolute top-0 flex gap-[-30px] opacity-60 scale-75 blur-[2px] pointer-events-none">
           {prevCards.slice(-3).map((card, idx) => (
-            <div key={idx} className={`w-14 h-20 md:w-20 md:h-28 bg-slate-200 rounded-lg border border-slate-400 shadow-md relative flex items-center justify-center ${card.color} -ml-8 first:ml-0 rotate-[-5deg]`}>
-              <span className="absolute top-1 left-2 font-black text-xs">{card.val}</span>
-              <span className="text-xl md:text-2xl">{card.suit}</span>
+            <div key={idx} className={`w-11 h-15 md:w-20 md:h-28 bg-slate-200 rounded-lg border border-slate-400 shadow-md relative flex items-center justify-center ${card.color} -ml-8 first:ml-0 rotate-[-5deg]`}>
+              <span className="absolute top-1 left-2 font-black text-[10px]">{card.val}</span>
+              <span className="text-lg md:text-2xl">{card.suit}</span>
             </div>
           ))}
         </div>
 
-        {/* Current Active Card */}
-        <div className="relative mt-8">
-          <AnimatePresence mode="wait">
+        <div className="relative flex items-center justify-center mt-6 md:mt-12 w-full">
+          <AnimatePresence mode="popLayout">
             {currentCard ? (
               <motion.div
-                key={`${currentCard.val}-${currentCard.suit}-${prevCards.length}`}
-                initial={{ y: -300, rotateY: 180, scale: 0.5, opacity: 0 }}
+                key={`${currentCard.val}-${currentCard.suit}`}
+                initial={{ y: 150, rotateY: 180, scale: 0.8, opacity: 0 }}
                 animate={{ y: 0, rotateY: 0, scale: 1, opacity: 1 }}
                 exit={{ x: -200, opacity: 0, rotateZ: -20 }}
                 transition={{ type: "spring", stiffness: 200, damping: 20 }}
-                className={`w-28 md:w-56 h-40 md:h-80 bg-gradient-to-br from-white to-slate-100 border-[3px] md:border-4 border-slate-200 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-3 md:p-4 transform-style-3d z-30`}
+                className={`w-24 md:w-56 h-34 md:h-80 bg-gradient-to-br from-white to-slate-100 border-[3px] md:border-4 border-slate-200 rounded-2xl shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_0_20px_rgba(0,0,0,0.1)] relative flex flex-col justify-between p-2.5 md:p-4 transform-style-3d z-30`}
               >
-                <span className={`font-black text-xl md:text-4xl leading-none ${currentCard.color}`}>{currentCard.val}</span>
-                <span className={`text-5xl md:text-9xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${currentCard.color} drop-shadow-lg`}>{currentCard.suit}</span>
-                <span className={`font-black text-xl md:text-4xl leading-none self-end rotate-180 ${currentCard.color}`}>{currentCard.val}</span>
+                <span className={`font-black text-base md:text-4xl leading-none ${currentCard.color}`}>{currentCard.val}</span>
+                <span className={`text-4xl md:text-9xl absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ${currentCard.color} drop-shadow-lg`}>{currentCard.suit}</span>
+                <span className={`font-black text-base md:text-4xl leading-none self-end rotate-180 ${currentCard.color}`}>{currentCard.val}</span>
               </motion.div>
             ) : (
-              <div className="w-28 md:w-56 h-40 md:h-80 bg-slate-50/50 border-4 border-dashed border-slate-700 rounded-2xl flex items-center justify-center backdrop-blur-sm z-30">
-                <span className="text-slate-600 font-black uppercase tracking-widest text-xs md:text-sm">Place Bet</span>
+              <div className="w-24 md:w-56 h-34 md:h-80 bg-slate-50/50 border-4 border-dashed border-slate-700 rounded-2xl flex items-center justify-center backdrop-blur-sm z-30">
+                <span className="text-slate-600 font-black uppercase tracking-widest text-[10px] md:text-sm">Place Bet</span>
               </div>
             )}
           </AnimatePresence>
 
-          {/* Result Overlays */}
           <AnimatePresence>
             {gameState === "busted" && (
               <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-40 flex items-center justify-center">

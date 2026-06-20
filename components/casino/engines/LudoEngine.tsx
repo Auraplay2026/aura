@@ -607,7 +607,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
             </div>
 
             {/* Right Setup Controls */}
-            <div className="flex-1 w-full max-w-md bg-white/40 border border-slate-800/80 p-5 sm:p-6 rounded-[2rem] flex flex-col gap-5">
+            <div className="flex-1 w-full max-w-md bg-white/90 border border-slate-200 p-5 sm:p-6 rounded-[2rem] flex flex-col gap-5 shadow-sm">
               <div>
                 <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2.5">Select Arena Mode</span>
                 <div className="grid grid-cols-2 gap-3">
@@ -634,14 +634,14 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 </div>
               </div>
 
-              <div className="bg-white/60 border border-slate-900 rounded-2xl p-4">
+              <div className="bg-white/95 border border-slate-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Entry Fee Stake</span>
                   <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
                 </div>
 
-                <div className="flex items-center bg-white border border-slate-850 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-amber-500/50">
-                  <div className="flex items-center pl-3 pr-2 border-r border-slate-850 bg-white/40 h-10">
+                <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-amber-500/50">
+                  <div className="flex items-center pl-3 pr-2 border-r border-slate-200 bg-slate-50/50 h-10">
                     <span className="text-slate-500 font-bold text-xs">₹</span>
                   </div>
                   <input
@@ -650,8 +650,8 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                     onChange={(e) => onBetAmountChange(Math.max(10, Number(e.target.value)))}
                     className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs px-2 py-1.5 focus:outline-none focus:ring-0 font-mono"
                   />
-                  <div className="flex items-center bg-white/40 border-l border-slate-850 h-10">
-                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2 h-full text-[9px] font-black text-slate-650 hover:bg-slate-50 hover:text-slate-900 border-r border-slate-800 transition-colors">1/2</button>
+                  <div className="flex items-center bg-white/40 border-l border-slate-200 h-10">
+                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2 h-full text-[9px] font-black text-slate-650 hover:bg-slate-50 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
                     <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2 h-full text-[9px] font-black text-slate-650 hover:bg-slate-50 hover:text-slate-900 transition-colors">2X</button>
                   </div>
                 </div>
@@ -672,7 +672,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                         type="button"
                         onClick={() => onBetAmountChange(chip.amount)}
                         className={`relative w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-slate-900 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/70 select-none ${
-                          isSelected ? "scale-110 ring-2 ring-amber-500 ring-offset-2 ring-offset-slate-950 opacity-100 z-10" : "hover:scale-105 opacity-70 hover:opacity-100"
+                          isSelected ? "scale-110 ring-2 ring-amber-500 ring-offset-2 ring-offset-slate-200 opacity-100 z-10" : "hover:scale-105 opacity-70 hover:opacity-100"
                         } bg-gradient-to-br ${chip.color}`}
                       >
                         <div className="absolute inset-[2px] rounded-full border border-dashed border-white/50 flex items-center justify-center">
@@ -685,10 +685,10 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   })}
                 </div>
 
-                <div className="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-4 pt-3.5 border-t border-slate-900">
+                <div className="flex justify-between items-center text-[9px] text-slate-500 font-bold uppercase tracking-wider mt-4 pt-3.5 border-t border-slate-200">
                   <span>RTP: 95.0%</span>
-                  <span className="text-amber-400 font-extrabold flex items-center gap-1 text-right">
-                    WIN POT: <span className="text-emerald-400">3.80x → ₹{(betAmount * 3.8).toLocaleString()}</span>
+                  <span className="text-amber-600 font-extrabold flex items-center gap-1 text-right">
+                    WIN POT: <span className="text-emerald-600">3.80x → ₹{(betAmount * 3.8).toLocaleString()}</span>
                   </span>
                 </div>
               </div>
@@ -949,7 +949,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
           </div>
 
           {/* Mobile Dice Action Bar (Visible only on mobile right below board) */}
-          <div className="w-full md:hidden mt-3 bg-[#121b28]/90 border border-slate-700/30 backdrop-blur-md rounded-2xl p-3 flex items-center justify-between gap-4 shadow-xl">
+          <div className="w-full md:hidden mt-3 bg-white/90 border border-slate-200 backdrop-blur-md rounded-2xl p-3 flex items-center justify-between gap-4 shadow-md">
             <div className="flex items-center gap-3">
               <DiceFace 
                 value={displayDice} 
@@ -974,11 +974,11 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
               </button>
             ) : (
               <div className="flex-1 text-right pr-2">
-                <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
-                  {currentPlayer?.isHuman ? "Select Piece" : "Waiting..."}
+                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">
+                  {message}
                 </span>
-                <span className="text-[9px] text-slate-550 italic block mt-0.5">
-                  {currentPlayer?.isHuman ? "Tap your glowing token" : `${currentPlayer?.name} is thinking`}
+                <span className="text-[9px] text-slate-500 italic block mt-0.5">
+                  {currentPlayer?.isHuman ? "Tap your glowing token" : "Bot makes its move"}
                 </span>
               </div>
             )}
@@ -1002,21 +1002,21 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
 
         {/* Right Column: Desktop Command Center (Hidden on mobile) */}
         <div className="hidden md:flex flex-col flex-1 w-full gap-4">
-          <div className="bg-[#121b28]/80 border border-slate-700/40 backdrop-blur-md rounded-3xl p-5 flex flex-col gap-4 shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+          <div className="bg-white/90 border border-slate-200 backdrop-blur-md rounded-3xl p-5 flex flex-col gap-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
-                <span className="text-xs font-black text-slate-350 uppercase tracking-widest">
+                <span className="text-xs font-black text-slate-700 uppercase tracking-widest">
                   {currentPlayer?.isHuman ? "Your Turn" : `${currentPlayer?.name}'s Turn`}
                 </span>
               </div>
-              <span className="text-[10px] font-mono font-bold text-slate-500 bg-white px-2 py-0.5 rounded-lg border border-slate-800">
+              <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-50 px-2 py-0.5 rounded-lg border border-slate-200">
                 TURN #{moveLog.length + 1}
               </span>
             </div>
 
             {/* Dice Control Box */}
-            <div className="flex items-center justify-between bg-white/40 border border-slate-800/50 p-4 rounded-2xl gap-4">
+            <div className="flex items-center justify-between bg-slate-50/50 border border-slate-200 p-4 rounded-2xl gap-4">
               <div className="flex items-center gap-4">
                 <DiceFace 
                   value={displayDice} 
@@ -1041,8 +1041,8 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 </button>
               ) : (
                 <div className="flex-1 text-right pr-2">
-                  <span className="text-[10px] font-bold text-amber-400 uppercase tracking-wider block">
-                    {currentPlayer?.isHuman ? "Choose Piece" : "Waiting for Bot..."}
+                  <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">
+                    {message}
                   </span>
                   <span className="text-[9px] text-slate-500 italic block mt-0.5">
                     {currentPlayer?.isHuman ? "Click highlighted piece on board" : "Bot makes its move"}
