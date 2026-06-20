@@ -41,6 +41,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     multiplier: 1.0,
     crashed: false,
     cashedOut: false,
+    cashoutMultiplier: 1.0,
     isPlaying: false,
     sessionId: null as string | null,
     tick: 0,
@@ -432,24 +433,46 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     });
 
     // ── Ship ──
-    if (s.isPlaying && !s.crashed) {
+    if (s.isPlaying || s.crashed) {
       let angle = -Math.PI * 0.25; // default upward-right tilt
       if (s.trailPoints.length > 3) {
         const prev = s.trailPoints[s.trailPoints.length - 3];
         const curr = s.trailPoints[s.trailPoints.length - 1];
         angle = Math.atan2(curr.y - prev.y, curr.x - prev.x) - Math.PI / 2;
       }
-      drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, s.multiplier, tier);
 
-      // Exhaust particles
-      if (s.tick % 2 === 0) {
-        const exhaustAngle = angle + Math.PI;
-        const ex = s.shipWorldX + Math.cos(exhaustAngle) * 38;
-        const ey = s.shipWorldY + Math.sin(exhaustAngle) * 38;
-        spawnParticles(ex, ey, "exhaust", tier.color, 2);
-      }
-      if (s.tick % 4 === 0 && s.multiplier > 3) {
-        spawnParticles(s.shipWorldX + (Math.random() - 0.5) * 30, s.shipWorldY + (Math.random() - 0.5) * 30, "spark", tier.secondary, 1);
+      if (s.crashed) {
+        ctx.save();
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = "rgba(239, 68, 68, 0.9)";
+        
+        // Spawn smoke particles in world space from the crash point
+        if (s.tick % 3 === 0 && s.explosionTime < 100) {
+          spawnParticles(s.shipWorldX, s.shipWorldY, "exhaust", "#1e293b", 3, 0.6); // thick dark smoke
+          spawnParticles(s.shipWorldX, s.shipWorldY, "spark", "#f97316", 1, 0.4);   // burning embers
+        }
+        
+        drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, s.multiplier, {
+          name: "crashed",
+          color: "#7f1d1d", // dark burnt red
+          glow: "rgba(239, 68, 68, 0.5)",
+          secondary: "#450a0a",
+          intensity: 0
+        });
+        ctx.restore();
+      } else {
+        drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, s.multiplier, tier);
+
+        // Exhaust particles
+        if (s.tick % 2 === 0) {
+          const exhaustAngle = angle + Math.PI;
+          const ex = s.shipWorldX + Math.cos(exhaustAngle) * 38;
+          const ey = s.shipWorldY + Math.sin(exhaustAngle) * 38;
+          spawnParticles(ex, ey, "exhaust", tier.color, 2);
+        }
+        if (s.tick % 4 === 0 && s.multiplier > 3) {
+          spawnParticles(s.shipWorldX + (Math.random() - 0.5) * 30, s.shipWorldY + (Math.random() - 0.5) * 30, "spark", tier.secondary, 1);
+        }
       }
     }
 
@@ -632,23 +655,20 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     if (s.crashed || s.cashedOut || !s.isPlaying || !s.sessionId) return;
     const targetMult = cashoutMult ?? s.multiplier;
     s.cashedOut = true;
+    s.cashoutMultiplier = targetMult;
     stopCrashAudio(false);
     // Gold celebration burst
     spawnParticles(s.shipWorldX, s.shipWorldY, "cashout", "#fbbf24", 40, 1.5);
     spawnParticles(s.shipWorldX, s.shipWorldY, "cashout", "#34d399", 25, 1.2);
     setUiState(prev => ({ ...prev, cashedOut: true, cashoutAmount: betAmount * targetMult, phase: "cashedout" }));
     try {
-      const res = await fetch("/api/casino/mines/action", {
+      await fetch("/api/casino/mines/action", {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action: "cashout", email, sessionId: s.sessionId, clientMultiplier: targetMult }),
       });
-      const data = await res.json();
-      if (res.ok && data.success && !data.isBust) {
-        onCompleteRef.current(targetMult, true);
-      } else {
-        onCompleteRef.current(0, false);
-      }
-    } catch { onCompleteRef.current(0, false); }
+    } catch (e) {
+      console.warn("Cashout API sync error:", e);
+    }
   }, [betAmount, email]);
 
   const handleCashoutRef = useRef(handleCashout);
@@ -662,6 +682,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       s.multiplier = 1.0;
       s.crashed = false;
       s.cashedOut = false;
+      s.cashoutMultiplier = 1.0;
       s.trailPoints = [];
       s.particles = [];
       s.explosionTime = 0;
@@ -744,8 +765,20 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
               spawnParticles(s.shipWorldX, s.shipWorldY, "explosion", "#fbbf24", 30, 1);
               spawnParticles(s.shipWorldX, s.shipWorldY, "shockwave", "rgba(239,68,68,0.6)", 3);
               s.cameraShake = 25;
-              setUiState({ multiplier: target, crashed: true, cashedOut: false, cashoutAmount: 0, phase: "crashed" });
-              if (!s.cashedOut) onCompleteRef.current(target, false);
+              
+              setUiState(prev => ({
+                ...prev,
+                multiplier: target,
+                crashed: true,
+                phase: "crashed"
+              }));
+
+              // Wait 3 seconds for the user to review the crash wreckage
+              setTimeout(() => {
+                if (active) {
+                  onCompleteRef.current(s.cashedOut ? s.cashoutMultiplier : target, s.cashedOut);
+                }
+              }, 3000);
             } else if (autoCashout && current >= autoCashout && !s.cashedOut) {
               if (interval) clearInterval(interval);
               handleCashoutRef.current(current);
