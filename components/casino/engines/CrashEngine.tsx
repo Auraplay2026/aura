@@ -58,6 +58,9 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     cameraShake: 0,
     // Camera Virtual Coordinates
     cameraX: 120, cameraY: 800, cameraZoom: 1.1,
+    shipScreenX: 120,
+    shipScreenY: 800,
+    lastAngle: -Math.PI * 0.25,
   });
 
   const [uiState, setUiState] = useState({
@@ -296,71 +299,52 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       const safeMultiplier = isNaN(s.multiplier) || s.multiplier <= 0 ? 1.0 : s.multiplier;
       const tier = getTier(safeMultiplier);
 
-      // ── Dynamic Screen Offset for visual momentum ──
-      let offsetX = W * 0.35;
-      let offsetY = H * 0.60;
+      // ── Bounded Screen-Relative Flight Path (Aviator-style) ──
+      const launchX = W * 0.15;
+      const launchY = H * 0.82;
 
-      // ── Decoupled Camera Tracking ───────────────────────────
-      let targetCamX = 120;
-      let targetCamY = 800;
-      let targetZoom = 1.1;
+      // Rocket X progress moves from launchX to 80% of width over 120 ticks
+      const progressX = Math.min(1.0, s.tick / 120);
+      const xPos = s.isPlaying && !s.crashed
+        ? launchX + progressX * (W * 0.80 - launchX)
+        : s.crashed
+          ? s.shipScreenX
+          : launchX;
 
-      if (s.isPlaying && !s.crashed) {
-        // As the ship speeds up, it smoothly climbs from bottom-left to top-right on the screen
-        const progress = Math.min(1.0, Math.log10(safeMultiplier) / Math.log10(15));
-        offsetX = W * (0.22 + progress * 0.53);
-        offsetY = H * (0.78 - progress * 0.53);
+      // Rocket Y progress scales logarithmically with the multiplier, capped at 18% height
+      const maxFlightHeight = H * 0.62;
+      const progressY = Math.min(1.0, Math.log10(safeMultiplier) / Math.log10(15));
+      const yPos = s.isPlaying && !s.crashed
+        ? launchY - progressY * maxFlightHeight
+        : s.crashed
+          ? s.shipScreenY
+          : launchY;
 
-        targetCamX = s.shipWorldX;
-        targetCamY = s.shipWorldY;
-        targetZoom = Math.max(0.62, 1.15 - Math.log10(safeMultiplier) * 0.22);
-      } else if (s.crashed) {
-        // Center the wreckage exactly at the screen center
-        offsetX = W * 0.5;
-        offsetY = H * 0.48;
-        targetCamX = s.shipWorldX;
-        targetCamY = s.shipWorldY;
-        targetZoom = 0.85;
+      // Angle calculation based on coordinate delta
+      const lastX = s.shipScreenX || launchX;
+      const lastY = s.shipScreenY || launchY;
+      const dx = xPos - lastX;
+      const dy = yPos - lastY;
+
+      let angle = s.lastAngle || -Math.PI * 0.25;
+      if (Math.abs(dx) > 0.001 || Math.abs(dy) > 0.001) {
+        angle = Math.atan2(dy, dx) + Math.PI / 2;
+        s.lastAngle = angle;
       }
 
-      // Sanitize inputs
-      if (isNaN(targetCamX) || !isFinite(targetCamX)) targetCamX = 120;
-      if (isNaN(targetCamY) || !isFinite(targetCamY)) targetCamY = 800;
-      if (isNaN(targetZoom) || !isFinite(targetZoom)) targetZoom = 1.1;
-      if (isNaN(offsetX) || !isFinite(offsetX)) offsetX = W * 0.35;
-      if (isNaN(offsetY) || !isFinite(offsetY)) offsetY = H * 0.60;
+      s.shipScreenX = xPos;
+      s.shipScreenY = yPos;
 
-      // Dynamic tracking factor: gets tighter at higher speeds to keep the rocket strictly inside viewport bounds
-      const lerpFactor = Math.min(0.95, 0.12 + Math.max(0, safeMultiplier - 1) * 0.03);
-      s.cameraX += (targetCamX - s.cameraX) * lerpFactor;
-      s.cameraY += (targetCamY - s.cameraY) * lerpFactor;
-      s.cameraZoom += (targetZoom - s.cameraZoom) * lerpFactor;
+      // Infinite scroll values for stars/grid
+      const scrollSpeedX = s.isPlaying && !s.crashed ? 2.5 : 0;
+      const scrollSpeedY = s.isPlaying && !s.crashed ? -1.25 : 0;
 
-      // Keep ship strictly within viewport bounds with a 45px margin
-      const margin = 45;
-      if (s.cameraZoom > 0.01) {
-        const minCamX = s.shipWorldX - (W - margin - offsetX) / s.cameraZoom;
-        const maxCamX = s.shipWorldX - (margin - offsetX) / s.cameraZoom;
-        const minCamY = s.shipWorldY - (H - margin - offsetY) / s.cameraZoom;
-        const maxCamY = s.shipWorldY - (margin - offsetY) / s.cameraZoom;
-
-        if (minCamX <= maxCamX) {
-          s.cameraX = Math.max(minCamX, Math.min(maxCamX, s.cameraX));
-        } else {
-          s.cameraX = s.shipWorldX;
-        }
-
-        if (minCamY <= maxCamY) {
-          s.cameraY = Math.max(minCamY, Math.min(maxCamY, s.cameraY));
-        } else {
-          s.cameraY = s.shipWorldY;
-        }
-      }
+      s.cameraX += scrollSpeedX;
+      s.cameraY += scrollSpeedY;
 
       // Final camera sanitization
-      if (isNaN(s.cameraX) || !isFinite(s.cameraX)) s.cameraX = 120;
-      if (isNaN(s.cameraY) || !isFinite(s.cameraY)) s.cameraY = 800;
-      if (isNaN(s.cameraZoom) || !isFinite(s.cameraZoom)) s.cameraZoom = 1.1;
+      if (isNaN(s.cameraX) || !isFinite(s.cameraX)) s.cameraX = 0;
+      if (isNaN(s.cameraY) || !isFinite(s.cameraY)) s.cameraY = 0;
 
       // Apply viewport camera shake only during explosion impact
       let shakeX = 0, shakeY = 0;
@@ -400,8 +384,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       // Draw horizontal grid lines (Altitude / Risk indicator)
       const startGridY = Math.floor(s.cameraY / gridSpacing) * gridSpacing;
       for (let gy = startGridY - H; gy < startGridY + H * 2; gy += gridSpacing) {
-        // Map virtual Y coordinate to screen space
-        const screenY = gy - s.cameraY + offsetY;
+        const screenY = gy - s.cameraY;
         ctx.beginPath();
         ctx.moveTo(0, screenY);
         ctx.lineTo(W, screenY);
@@ -411,85 +394,68 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       // Draw vertical grid lines (Distance / Reward indicator)
       const startGridX = Math.floor(s.cameraX / gridSpacing) * gridSpacing;
       for (let gx = startGridX - W; gx < startGridX + W * 2; gx += gridSpacing) {
-        // Map virtual X coordinate to screen space
-        const screenX = gx - s.cameraX + offsetX;
+        const screenX = gx - s.cameraX;
         ctx.beginPath();
         ctx.moveTo(screenX, 0);
         ctx.lineTo(screenX, H);
         ctx.stroke();
       }
 
-      // ══════════════════════════════════════════════════════════
-      // WORLD-SPACE LAYER (Warp Trails & Ship)
-      // ══════════════════════════════════════════════════════════
-      ctx.save();
-      // Center scaling exactly at the ship's relative screen location
-      ctx.translate(offsetX, offsetY);
-      ctx.scale(s.cameraZoom, s.cameraZoom);
-      ctx.translate(-offsetX, -offsetY);
-      
-      // Pan camera: map virtual world origin to screen space relative to camera
-      ctx.translate(offsetX - s.cameraX, offsetY - s.cameraY);
-
-      // Draw Launch Pad / Ground platform in world space
+      // Draw Launch Pad / Ground platform in screen coordinates
       ctx.fillStyle = "#1e293b";
       ctx.strokeStyle = "rgba(255,255,255,0.15)";
       ctx.lineWidth = 2;
       
+      const rx = launchX - 45, ry = launchY + 26, rw = 90, rh = 10, rr = 4;
+      ctx.beginPath();
       if (typeof ctx.roundRect === "function") {
-        ctx.beginPath();
-        ctx.roundRect(120 - 45, 800 + 26, 90, 10, 4);
-        ctx.fill();
-        ctx.stroke();
+        ctx.roundRect(rx, ry, rw, rh, rr);
       } else {
-        const rx = 120 - 45, ry = 800 + 26, rw = 90, rh = 10, rr = 4;
-        ctx.beginPath();
-        ctx.moveTo(rx + rr, ry);
-        ctx.lineTo(rx + rw - rr, ry);
-        ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + rr);
-        ctx.lineTo(rx + rw, ry + rh - rr);
-        ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - rr, ry + rh);
-        ctx.lineTo(rx + rr, ry + rh);
-        ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - rr);
-        ctx.lineTo(rx, ry + rr);
-        ctx.quadraticCurveTo(rx, ry, rx + rr, ry);
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
+        ctx.rect(rx, ry, rw, rh);
       }
+      ctx.fill();
+      ctx.stroke();
 
-      // ── Flight Path: Clean, Predictable rocket curve ──
-      if (s.trailPoints.length > 1) {
-        const pts = s.trailPoints;
+      // ── Flight Path: Bounded, glowing, multi-layered Bezier curve ──
+      if (s.isPlaying || s.crashed) {
+        const controlX = launchX + (xPos - launchX) * 0.55;
+        const controlY = launchY; // flat takeoff path
+
+        // 1. Shaded gradient area under flight path
+        try {
+          const pathGrad = ctx.createLinearGradient(launchX, yPos, launchX, launchY);
+          pathGrad.addColorStop(0, "rgba(6, 182, 212, 0.20)");
+          pathGrad.addColorStop(1, "rgba(6, 182, 212, 0)");
+          ctx.fillStyle = pathGrad;
+          ctx.beginPath();
+          ctx.moveTo(launchX, launchY);
+          ctx.quadraticCurveTo(controlX, controlY, xPos, yPos);
+          ctx.lineTo(xPos, launchY);
+          ctx.closePath();
+          ctx.fill();
+        } catch (e) {}
+
+        // 2. Glowing Outer neon path
         ctx.save();
+        ctx.strokeStyle = tier.color;
         ctx.lineWidth = 6;
         ctx.lineCap = "round";
-        ctx.lineJoin = "round";
-
-        const dx = pts[pts.length - 1].x - pts[0].x;
-        const dy = pts[pts.length - 1].y - pts[0].y;
-        const dist = Math.sqrt(dx * dx + dy * dy);
-
-        let strokeStyle: string | CanvasGradient = tier.color;
-        if (dist > 1) {
-          try {
-            const tGrad = ctx.createLinearGradient(pts[0].x, pts[0].y, pts[pts.length - 1].x, pts[pts.length - 1].y);
-            tGrad.addColorStop(0, "rgba(16, 185, 129, 0.35)");
-            tGrad.addColorStop(0.5, tier.secondary + "cc");
-            tGrad.addColorStop(1, tier.color);
-            strokeStyle = tGrad;
-          } catch (e) {}
-        }
-
-        ctx.strokeStyle = strokeStyle;
-        ctx.shadowBlur = 15;
+        ctx.shadowBlur = 12;
         ctx.shadowColor = tier.glow;
-
         ctx.beginPath();
-        ctx.moveTo(pts[0].x, pts[0].y);
-        for (let i = 1; i < pts.length; i++) {
-          ctx.lineTo(pts[i].x, pts[i].y);
-        }
+        ctx.moveTo(launchX, launchY);
+        ctx.quadraticCurveTo(controlX, controlY, xPos, yPos);
+        ctx.stroke();
+        ctx.restore();
+
+        // 3. Volumetric White inner core
+        ctx.save();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 2.0;
+        ctx.lineCap = "round";
+        ctx.beginPath();
+        ctx.moveTo(launchX, launchY);
+        ctx.quadraticCurveTo(controlX, controlY, xPos, yPos);
         ctx.stroke();
         ctx.restore();
       }
@@ -497,8 +463,10 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       // ── Particles update ──
       s.particles = s.particles.filter(p => p.life > 0.01);
       s.particles.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
+        // Drift with camera scroll speed
+        p.x += p.vx - scrollSpeedX;
+        p.y += p.vy - scrollSpeedY;
+
         if (p.type === "exhaust") { p.vy += 0.01; p.vx *= 0.99; }
         else if (p.type === "smoke") { p.vy -= 0.04; p.vx *= 0.98; }
         else { p.vy += 0.03; p.vx *= 0.98; p.vy *= 0.98; }
@@ -523,23 +491,12 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
 
       // ── Ship / Wreckage pieces render ──
       if (s.isPlaying || s.crashed || uiState.phase === "idle") {
-        let angle = -Math.PI * 0.25;
-        if (s.trailPoints.length > 3) {
-          const prev = s.trailPoints[s.trailPoints.length - 3];
-          const curr = s.trailPoints[s.trailPoints.length - 1];
-          const dy = curr.y - prev.y;
-          const dx = curr.x - prev.x;
-          angle = Math.atan2(dy, dx) + Math.PI / 2;
-        }
-        if (isNaN(angle) || !isFinite(angle)) {
-          angle = -Math.PI * 0.25;
-        }
-
         if (s.crashed) {
           if (s.wreckagePieces.length > 0) {
             s.wreckagePieces.forEach(piece => {
-              piece.x += piece.vx;
-              piece.y += piece.vy;
+              // Drift with camera scroll speed
+              piece.x += piece.vx - scrollSpeedX;
+              piece.y += piece.vy - scrollSpeedY;
               piece.angle += piece.vAngle;
               piece.vy += 0.12;
               piece.vx *= 0.99;
@@ -553,13 +510,13 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
             });
           }
         } else {
-          // Ship is always at the leading edge of the curve
-          drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, safeMultiplier, tier);
+          // Draw dynamic thumping engine flame inside drawShip
+          drawShip(ctx, xPos, yPos, angle, safeMultiplier, tier);
 
           if (s.tick % 2 === 0 && (s.isPlaying || safeMultiplier > 1.01)) {
             const exhaustAngle = angle + Math.PI;
-            const ex = s.shipWorldX + Math.cos(exhaustAngle) * 26;
-            const ey = s.shipWorldY + Math.sin(exhaustAngle) * 26;
+            const ex = xPos + Math.cos(exhaustAngle) * 26;
+            const ey = yPos + Math.sin(exhaustAngle) * 26;
             spawnParticles(ex, ey, "exhaust", tier.color, 1);
           }
         }
@@ -568,7 +525,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       // ── Crash Explosion Ring ──
       if (s.crashed && s.explosionTime < 70) {
         const et = s.explosionTime / 70;
-        const ex = s.shipWorldX, ey = s.shipWorldY;
+        const ex = s.shipScreenX, ey = s.shipScreenY;
         
         ctx.save();
         for (let ring = 0; ring < 2; ring++) {
@@ -583,8 +540,6 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         ctx.restore();
         s.explosionTime++;
       }
-
-      ctx.restore(); // end camera projection
       ctx.restore(); // end camera shake
     } catch (e) {
       console.error("CrashEngine render loop error:", e);
@@ -619,7 +574,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     s.cashedOut = true;
     s.cashoutMultiplier = targetMult;
     stopCrashAudio(false);
-    spawnParticles(s.shipWorldX, s.shipWorldY, "cashout", "#fbbf24", 30, 1.2);
+    spawnParticles(s.shipScreenX, s.shipScreenY, "cashout", "#fbbf24", 30, 1.2);
     setUiState(prev => ({ ...prev, cashedOut: true, cashoutAmount: betAmount * targetMult, phase: "cashedout" }));
     try {
       await fetch("/api/casino/mines/action", {
@@ -733,14 +688,14 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
 
               const crashAngle = -Math.PI * 0.25;
               s.wreckagePieces = [
-                { x: s.shipWorldX, y: s.shipWorldY, vx: Math.cos(crashAngle - 0.45) * speed * 0.25, vy: Math.sin(crashAngle - 0.45) * speed * 0.25, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 7, type: "nose" },
-                { x: s.shipWorldX, y: s.shipWorldY, vx: Math.cos(crashAngle + 0.45) * speed * 0.25, vy: Math.sin(crashAngle + 0.45) * speed * 0.25, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 5, type: "wingLeft" },
-                { x: s.shipWorldX, y: s.shipWorldY, vx: Math.cos(crashAngle + Math.PI - 0.3) * speed * 0.2, vy: Math.sin(crashAngle + Math.PI - 0.3) * speed * 0.2, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 5, type: "wingRight" },
-                { x: s.shipWorldX, y: s.shipWorldY, vx: (Math.random() - 0.5) * 2.5, vy: (Math.random() - 0.5) * 2.5, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.3, size: 8, type: "core" }
+                { x: s.shipScreenX, y: s.shipScreenY, vx: Math.cos(crashAngle - 0.45) * speed * 0.25, vy: Math.sin(crashAngle - 0.45) * speed * 0.25, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 7, type: "nose" },
+                { x: s.shipScreenX, y: s.shipScreenY, vx: Math.cos(crashAngle + 0.45) * speed * 0.25, vy: Math.sin(crashAngle + 0.45) * speed * 0.25, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 5, type: "wingLeft" },
+                { x: s.shipScreenX, y: s.shipScreenY, vx: Math.cos(crashAngle + Math.PI - 0.3) * speed * 0.2, vy: Math.sin(crashAngle + Math.PI - 0.3) * speed * 0.2, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 5, type: "wingRight" },
+                { x: s.shipScreenX, y: s.shipScreenY, vx: (Math.random() - 0.5) * 2.5, vy: (Math.random() - 0.5) * 2.5, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.3, size: 8, type: "core" }
               ];
 
-              spawnParticles(s.shipWorldX, s.shipWorldY, "explosion", "#f43f5e", 50, 1.4);
-              spawnParticles(s.shipWorldX, s.shipWorldY, "shockwave", "rgba(244,63,94,0.65)", 2);
+              spawnParticles(s.shipScreenX, s.shipScreenY, "explosion", "#f43f5e", 50, 1.4);
+              spawnParticles(s.shipScreenX, s.shipScreenY, "shockwave", "rgba(244,63,94,0.65)", 2);
               s.cameraShake = 22;
 
               setHistory(prev => {
