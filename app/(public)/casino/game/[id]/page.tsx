@@ -959,7 +959,7 @@ export default function GamePlayerPage() {
           <motion.div 
             animate={isMegaWin ? { x: [-10, 10, -10, 10, -5, 5, 0], y: [-5, 5, -5, 5, 0] } : {}}
             transition={{ duration: 0.6 }}
-            className={`relative w-full h-auto md:h-auto min-h-0 md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-visible md:overflow-hidden ${theme.shadowClass} flex flex-col group`}
+            className={`relative w-full h-auto md:h-auto ${!hasTransferred ? 'min-h-[460px]' : 'min-h-0'} md:min-h-[600px] bg-white rounded-2xl border border-slate-200 overflow-visible md:overflow-hidden ${theme.shadowClass} flex flex-col group`}
           >
             <AnimatePresence mode="wait">
               {currentUser && !hasTransferred ? (
@@ -967,22 +967,22 @@ export default function GamePlayerPage() {
                   key="modal"
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-100/90 backdrop-blur-sm"
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-100/90 backdrop-blur-sm p-4 sm:p-0"
                 >
-                  <div className="bg-white border border-slate-200 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
-                    <div className="p-6 text-center border-b border-slate-200">
-                      <h2 className="text-xl font-black text-slate-900 uppercase tracking-wider">Sub-Wallet Transfer</h2>
-                      <p className="text-slate-650 text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
+                  <div className="bg-white border border-slate-200 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden my-auto">
+                    <div className="p-4 md:p-6 text-center border-b border-slate-200">
+                      <h2 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-wider">Sub-Wallet Transfer</h2>
+                      <p className="text-slate-650 text-xs md:text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
                     </div>
-                    <div className="p-6 space-y-6">
-                      <div className="flex justify-between items-center text-xs font-black text-slate-600 uppercase tracking-widest">
+                    <div className="p-4 md:p-6 space-y-4 md:space-y-6">
+                      <div className="flex justify-between items-center text-[10px] md:text-xs font-black text-slate-600 uppercase tracking-widest">
                         <div className="flex flex-col items-start">
-                          <span className="text-[10px] text-slate-600">Main Balance</span>
-                          <span className="text-slate-900 font-mono text-sm mt-0.5">₹{(rawBalance - transferAmount).toFixed(2)}</span>
+                          <span className="text-[9px] md:text-[10px] text-slate-500">Main Balance</span>
+                          <span className="text-slate-900 font-mono text-xs md:text-sm mt-0.5">₹{(rawBalance - transferAmount).toFixed(2)}</span>
                         </div>
                         <div className="flex flex-col items-end">
-                          <span className="text-[10px] text-slate-600">Sub-Wallet</span>
-                          <span className="text-red-600 font-mono text-sm mt-0.5">₹{transferAmount}</span>
+                          <span className="text-[9px] md:text-[10px] text-slate-500">Sub-Wallet</span>
+                          <span className="text-red-650 font-mono text-xs md:text-sm mt-0.5">₹{transferAmount}</span>
                         </div>
                       </div>
                       <input 
@@ -996,14 +996,14 @@ export default function GamePlayerPage() {
                       />
                       
                       {/* Percent shortcuts */}
-                      <div className="flex justify-between gap-2">
+                      <div className="flex justify-between gap-1.5 md:gap-2">
                         {[0.25, 0.50, 0.75, 1.00].map(pct => {
                           const amt = Math.max(10, Math.floor(rawBalance * pct));
                           return (
                             <button
                               key={pct}
                               onClick={() => setTransferAmount(amt)}
-                              className="flex-1 py-1 px-2 border border-slate-200 hover:border-red-600 rounded text-[10px] font-black text-slate-700 hover:text-red-600 uppercase tracking-wider transition-colors"
+                              className="flex-1 py-1 px-1.5 border border-slate-200 hover:border-red-600 rounded text-[9px] md:text-[10px] font-black text-slate-700 hover:text-red-600 uppercase tracking-wider transition-colors"
                             >
                               {pct * 100}%
                             </button>
@@ -1011,15 +1011,15 @@ export default function GamePlayerPage() {
                         })}
                       </div>
 
-                      <div className="text-center bg-slate-50 border border-slate-200/60 p-3 rounded-lg">
-                        <span className="text-xs font-bold text-slate-600 block uppercase tracking-widest mb-1">Allocated Amount</span>
-                        <span className="text-3xl font-black text-slate-900 font-mono tracking-tighter">₹{transferAmount.toLocaleString()}</span>
+                      <div className="text-center bg-slate-50 border border-slate-200/60 p-2 md:p-3 rounded-lg">
+                        <span className="text-[10px] md:text-xs font-bold text-slate-600 block uppercase tracking-widest mb-0.5 md:mb-1">Allocated Amount</span>
+                        <span className="text-2xl md:text-3xl font-black text-slate-900 font-mono tracking-tighter">₹{transferAmount.toLocaleString()}</span>
                       </div>
                     </div>
-                    <div className="p-4 bg-slate-50 flex gap-4">
+                    <div className="p-3 md:p-4 bg-slate-50 flex gap-3 md:gap-4">
                       <button 
                         onClick={() => router.back()}
-                        className="flex-1 py-3 font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-wider text-sm"
+                        className="flex-1 py-2 md:py-3 font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-wider text-xs md:text-sm"
                       >
                         Cancel
                       </button>
@@ -1031,7 +1031,7 @@ export default function GamePlayerPage() {
                           }
                           setHasTransferred(true);
                         }}
-                        className="flex-1 py-3 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-sm"
+                        className="flex-1 py-2 md:py-3 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-xs md:text-sm"
                       >
                         Transfer & Enter
                       </button>
