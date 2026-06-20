@@ -847,11 +847,11 @@ export default function GlobalHomepage() {
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
               AuraPlay <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 to-blue-600 drop-shadow-sm">In-House Originals</span>
             </h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+            <p className="text-[10px] text-slate-650 font-bold uppercase tracking-wider">
               Ultra High-Frame-Rate physics-based games operating on verifiably fair seed hashes.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-cyan-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-600 hover:text-cyan-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             All Casino <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -877,11 +877,11 @@ export default function GlobalHomepage() {
 
                 <div className="grid grid-cols-2 gap-3 mt-4">
                   <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                    <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">RTP RATE</span>
+                    <span className="block text-[8px] text-slate-600 font-bold uppercase tracking-wider">RTP RATE</span>
                     <span className="text-[11px] text-emerald-600 font-black font-mono">99.0%</span>
                   </div>
                   <div className="bg-white border border-slate-200 rounded-xl p-2.5 shadow-sm">
-                    <span className="block text-[8px] text-slate-400 font-bold uppercase tracking-wider">MAX WIN</span>
+                    <span className="block text-[8px] text-slate-600 font-bold uppercase tracking-wider">MAX WIN</span>
                     <span className="text-[11px] text-purple-600 font-black font-mono">10,000x</span>
                   </div>
                 </div>
@@ -932,7 +932,7 @@ export default function GlobalHomepage() {
                         {game.title}
                       </h4>
                       <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                        <p className="text-[7px] text-slate-400 font-bold uppercase">RTP {game.rtp}%</p>
+                        <p className="text-[7px] text-slate-600 font-bold uppercase">RTP {game.rtp}%</p>
                         <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                           PLAY <Play className="w-1.5 h-1.5 fill-white" />
                         </div>
@@ -974,7 +974,7 @@ export default function GlobalHomepage() {
                         <span className="text-xs font-black text-emerald-600 font-mono">₹{win.profit}</span>
                         <span className="text-[8px] text-slate-500 font-bold uppercase font-mono">Mult: {win.multiplier.toFixed(2)}x</span>
                       </div>
-                      <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{win.time}</span>
+                      <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{win.time}</span>
                     </div>
                   </div>
                 ))}
@@ -993,7 +993,7 @@ export default function GlobalHomepage() {
               <div className="space-y-3">
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] text-slate-500 font-black uppercase tracking-widest">Client Seed / Nonce</label>
+                    <label className="text-[8px] text-slate-650 font-black uppercase tracking-widest">Client Seed / Nonce</label>
                     <input 
                       type="text" 
                       value={clientSeed}
@@ -1002,7 +1002,7 @@ export default function GlobalHomepage() {
                     />
                   </div>
                   <div className="flex flex-col gap-1">
-                    <label className="text-[8px] text-slate-500 font-black uppercase tracking-widest">Round Nonce</label>
+                    <label className="text-[8px] text-slate-650 font-black uppercase tracking-widest">Round Nonce</label>
                     <div className="flex gap-2">
                       <input 
                         type="number" 
@@ -1012,7 +1012,7 @@ export default function GlobalHomepage() {
                       />
                       <button 
                         onClick={() => setNonce(prev => prev + 1)}
-                        className="px-2.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-500 hover:text-slate-950 transition-colors cursor-pointer"
+                        className="px-2.5 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg text-slate-650 hover:text-slate-950 transition-colors cursor-pointer"
                       >
                         +1
                       </button>
@@ -1021,7 +1021,7 @@ export default function GlobalHomepage() {
                 </div>
 
                 <div className="flex flex-col gap-1">
-                  <label className="text-[8px] text-slate-500 font-black uppercase tracking-widest">Active Server Seed (SHA-256 Hash)</label>
+                  <label className="text-[8px] text-slate-650 font-black uppercase tracking-widest">Active Server Seed (SHA-256 Hash)</label>
                   <input 
                     type="text" 
                     value={serverSeed}
@@ -1032,11 +1032,11 @@ export default function GlobalHomepage() {
 
                 {calculatedHash && (
                   <div className="bg-white border border-slate-200 rounded-xl p-3 space-y-1 shadow-sm">
-                    <span className="block text-[8px] text-slate-400 font-black uppercase tracking-widest">RESULTING COMBINED HASH</span>
+                    <span className="block text-[8px] text-slate-600 font-black uppercase tracking-widest">RESULTING COMBINED HASH</span>
                     <span className="block text-[9px] text-slate-700 font-mono break-all font-semibold select-all">{calculatedHash}</span>
                     {calculatedMultiplier && (
                       <div className="pt-2 border-t border-slate-100 mt-2 flex justify-between items-center">
-                        <span className="text-[8px] text-slate-400 font-black uppercase tracking-widest">VERIFIED OUTCOME</span>
+                        <span className="text-[8px] text-slate-600 font-black uppercase tracking-widest">VERIFIED OUTCOME</span>
                         <span className="text-xs text-emerald-600 font-black font-mono">{calculatedMultiplier.toFixed(2)}x</span>
                       </div>
                     )}
@@ -1082,11 +1082,11 @@ export default function GlobalHomepage() {
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
               AAA <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-600 to-fuchsia-600 drop-shadow-sm">Cloud Rentals</span>
             </h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+            <p className="text-[10px] text-slate-650 font-bold uppercase tracking-wider">
               Instantly rent high-end gaming rigs. WebRTC 4K streams with less than 1ms node latency.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-purple-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-600 hover:text-purple-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             Enter Cloud Arena <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -1127,7 +1127,7 @@ export default function GlobalHomepage() {
                       {game.title}
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-400 font-bold uppercase">GPU RTX 4090</p>
+                      <p className="text-[7px] text-slate-600 font-bold uppercase">GPU RTX 4090</p>
                       <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                         RENT <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
@@ -1161,11 +1161,11 @@ export default function GlobalHomepage() {
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
               Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-600 drop-shadow-sm">3D Slots</span>
             </h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+            <p className="text-[10px] text-slate-650 font-bold uppercase tracking-wider">
               Stunning visual effects, rolling multipliers, and huge free spin trigger potentials.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-rose-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-600 hover:text-rose-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             All Slots <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -1206,7 +1206,7 @@ export default function GlobalHomepage() {
                       {game.title}
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-400 font-bold uppercase">3D RENDERED</p>
+                      <p className="text-[7px] text-slate-600 font-bold uppercase">3D RENDERED</p>
                       <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                         SPIN <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
@@ -1240,11 +1240,11 @@ export default function GlobalHomepage() {
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
               Live <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-600 drop-shadow-sm">VR Casino</span>
             </h2>
-            <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+            <p className="text-[10px] text-slate-650 font-bold uppercase tracking-wider">
               Interact with real dealers. 4K WebRTC feed broadcasts with physical table integrations.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-400 hover:text-amber-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-600 hover:text-amber-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             Enter Live Arena <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -1278,14 +1278,14 @@ export default function GlobalHomepage() {
                   </div>
 
                   <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
-                    <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-slate-500`}>
+                    <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-slate-600`}>
                       LIVE DEALER
                     </span>
                     <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-amber-600 transition-colors">
                       {game.title}
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-400 font-bold uppercase">4K WebRTC</p>
+                      <p className="text-[7px] text-slate-600 font-bold uppercase">4K WebRTC</p>
                       <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                         JOIN <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
@@ -1331,13 +1331,13 @@ export default function GlobalHomepage() {
                   <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
                     <Trophy className="w-4 h-4 text-red-600" /> Quick Wager Slip
                   </span>
-                  <button onClick={() => setSelectedBet(null)} className="text-slate-400 hover:text-slate-600">
+                  <button onClick={() => setSelectedBet(null)} className="text-slate-600 hover:text-slate-800">
                     <X className="w-5 h-5" />
                   </button>
                 </div>
 
                 <div className="p-5 space-y-4">
-                  <div className="text-slate-500 text-[10px] font-bold uppercase tracking-wider">{selectedBet.matchTitle}</div>
+                  <div className="text-slate-605 text-[10px] font-bold uppercase tracking-wider">{selectedBet.matchTitle}</div>
                   <div className="flex justify-between items-center">
                     <span className="font-black text-slate-900 text-sm">{selectedBet.selectionName}</span>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase font-mono ${selectedBet.type === 'back' ? 'bg-emerald-100 text-emerald-800' : 'bg-pink-100 text-pink-800'}`}>
@@ -1360,7 +1360,7 @@ export default function GlobalHomepage() {
                       )}
 
                       <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-0.5">Stake Amount (₹)</label>
+                        <label className="text-[10px] font-bold text-slate-650 uppercase tracking-widest pl-0.5">Stake Amount (₹)</label>
                         <input 
                           type="number"
                           value={stake}

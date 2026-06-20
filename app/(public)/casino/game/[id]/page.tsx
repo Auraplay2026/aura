@@ -741,8 +741,8 @@ export default function GamePlayerPage() {
     return (
       <div className="flex flex-col items-center justify-center h-[80vh]">
         <Gamepad2 className="w-16 h-16 text-slate-700 mb-4" />
-        <h1 className="text-2xl font-bold text-slate-100 mb-2">Game Not Found</h1>
-        <button onClick={() => router.push('/')} className="bg-neon-purple hover:bg-purple-600 text-slate-100 px-6 py-2 rounded-lg font-bold">Back to Lobby</button>
+        <h1 className="text-2xl font-bold text-slate-900 mb-2">Game Not Found</h1>
+        <button onClick={() => router.push('/')} className="bg-neon-purple hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-bold">Back to Lobby</button>
       </div>
     );
   }
@@ -926,7 +926,7 @@ export default function GamePlayerPage() {
             alt={game.title}
           />
           <div>
-            <h1 className="text-lg font-black text-slate-100 tracking-wide leading-tight">{game.title}</h1>
+            <h1 className="text-lg font-black text-slate-900 tracking-wide leading-tight">{game.title}</h1>
             <p className="text-[11px] text-slate-600 font-semibold leading-none mt-0.5">Publisher: <span className="text-neon-yellow">{game.provider}</span></p>
           </div>
         </div>
@@ -972,21 +972,21 @@ export default function GamePlayerPage() {
                     <div className="absolute top-0 left-1/4 w-1/2 h-32 bg-gradient-to-b from-rose-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
                     
                     <Lock className="w-16 h-16 text-rose-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
-                    <h2 className="text-2xl font-black text-slate-100 uppercase tracking-wider mb-2">Authentication Required</h2>
-                    <p className="text-slate-400 text-sm font-medium mb-8">
+                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wider mb-2">Authentication Required</h2>
+                    <p className="text-slate-650 text-sm font-medium mb-8">
                       To ensure fair play and secure transaction recording, you must login or register a Demo / Real account to start playing.
                     </p>
                     
                     <div className="flex flex-col gap-3">
                       <button 
                         onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
-                        className="w-full py-4 font-black text-slate-50 bg-white hover:bg-slate-100 rounded-xl transition-all uppercase tracking-wider text-sm shadow-lg shadow-white/5"
+                        className="w-full py-4 font-black text-slate-800 bg-white hover:bg-slate-100 rounded-xl transition-all uppercase tracking-wider text-sm shadow-lg border border-slate-200"
                       >
                         Sign In
                       </button>
                       <button 
                         onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-                        className="w-full py-4 font-black text-slate-100 bg-red-600 hover:bg-red-700 border border-red-500/30 rounded-xl transition-all uppercase tracking-wider text-sm"
+                        className="w-full py-4 font-black text-white bg-red-600 hover:bg-red-700 border border-red-500/30 rounded-xl transition-all uppercase tracking-wider text-sm"
                       >
                         Create Demo/Real Account
                       </button>
@@ -1002,17 +1002,17 @@ export default function GamePlayerPage() {
                 >
                   <div className="bg-white border border-slate-200 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden">
                     <div className="p-6 text-center border-b border-slate-200">
-                      <h2 className="text-xl font-black text-slate-100 uppercase tracking-wider">Sub-Wallet Transfer</h2>
-                      <p className="text-slate-500 text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
+                      <h2 className="text-xl font-black text-slate-900 uppercase tracking-wider">Sub-Wallet Transfer</h2>
+                      <p className="text-slate-650 text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
                     </div>
                     <div className="p-6 space-y-6">
                       <div className="flex justify-between items-center text-xs font-black text-slate-600 uppercase tracking-widest">
                         <div className="flex flex-col items-start">
-                          <span className="text-[10px] text-slate-400">Main Balance</span>
-                          <span className="text-slate-100 font-mono text-sm mt-0.5">₹{(rawBalance - transferAmount).toFixed(2)}</span>
+                          <span className="text-[10px] text-slate-600">Main Balance</span>
+                          <span className="text-slate-900 font-mono text-sm mt-0.5">₹{(rawBalance - transferAmount).toFixed(2)}</span>
                         </div>
                         <div className="flex flex-col items-end">
-                          <span className="text-[10px] text-slate-400">Sub-Wallet</span>
+                          <span className="text-[10px] text-slate-600">Sub-Wallet</span>
                           <span className="text-red-600 font-mono text-sm mt-0.5">₹{transferAmount}</span>
                         </div>
                       </div>
@@ -1043,14 +1043,14 @@ export default function GamePlayerPage() {
                       </div>
 
                       <div className="text-center bg-slate-50 border border-slate-200/60 p-3 rounded-lg">
-                        <span className="text-xs font-bold text-slate-400 block uppercase tracking-widest mb-1">Allocated Amount</span>
-                        <span className="text-3xl font-black text-slate-100 font-mono tracking-tighter">₹{transferAmount.toLocaleString()}</span>
+                        <span className="text-xs font-bold text-slate-600 block uppercase tracking-widest mb-1">Allocated Amount</span>
+                        <span className="text-3xl font-black text-slate-900 font-mono tracking-tighter">₹{transferAmount.toLocaleString()}</span>
                       </div>
                     </div>
                     <div className="p-4 bg-slate-50 flex gap-4">
                       <button 
                         onClick={() => router.back()}
-                        className="flex-1 py-3 font-bold text-slate-500 hover:text-slate-100 transition-colors uppercase tracking-wider text-sm"
+                        className="flex-1 py-3 font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-wider text-sm"
                       >
                         Cancel
                       </button>
@@ -1062,7 +1062,7 @@ export default function GamePlayerPage() {
                           }
                           setHasTransferred(true);
                         }}
-                        className="flex-1 py-3 font-black text-slate-100 bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-sm"
+                        className="flex-1 py-3 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-sm"
                       >
                         Transfer & Enter
                       </button>
@@ -1081,7 +1081,7 @@ export default function GamePlayerPage() {
                       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="absolute inset-0 border-2 border-neon-purple border-t-transparent rounded-full shadow-[0_0_30px_rgba(168,85,247,0.4)]" />
                       <motion.div animate={{ rotate: -360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="absolute inset-4 border border-neon-green border-b-transparent rounded-full" />
                       <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-full backdrop-blur-sm">
-                        <Gamepad2 className="w-10 h-10 text-slate-100 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
+                        <Gamepad2 className="w-10 h-10 text-slate-800 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
                       </div>
                     </div>
 
@@ -1141,17 +1141,17 @@ export default function GamePlayerPage() {
                         {isCloudRenting ? (
                           <div className="p-4 md:p-6 flex flex-col gap-6 h-full justify-between">
                             <div className="flex flex-col">
-                              <span className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Instance Cost</span>
+                              <span className="text-[10px] uppercase tracking-widest text-slate-600 font-bold mb-1">Instance Cost</span>
                               <div className="flex items-center gap-2">
                                 <Coins className="w-4 h-4 text-[#a855f7]" />
-                                <span className="text-xl font-black text-slate-100">₹{STAKE_PRESETS[1]}</span>
-                                <span className="text-xs text-slate-500 font-bold">/ hour</span>
+                                <span className="text-xl font-black text-slate-900">₹{STAKE_PRESETS[1]}</span>
+                                <span className="text-xs text-slate-600 font-bold">/ hour</span>
                               </div>
                             </div>
                             <button 
                               onClick={handlePlay}
                               disabled={isSpinning || isSessionActive}
-                              className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${isSessionActive ? 'bg-slate-200 text-slate-400' : isSpinning ? 'bg-slate-200 text-slate-400' : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-100 hover:scale-[1.02] shadow-lg shadow-yellow-500/20'}`}
+                              className={`w-full py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${isSessionActive ? 'bg-slate-200 text-slate-600' : isSpinning ? 'bg-slate-200 text-slate-600' : 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-slate-950 hover:scale-[1.02] shadow-lg shadow-yellow-500/20'}`}
                             >
                               {isSessionActive ? "Active" : isSpinning ? "Booting..." : "Rent Instance"}
                             </button>
@@ -1169,8 +1169,8 @@ export default function GamePlayerPage() {
                                     className={cn(
                                       "flex-1 py-1.5 rounded-lg font-black text-[10px] uppercase tracking-wider transition-all cursor-pointer",
                                       sidebarTab === tab
-                                        ? "bg-white text-slate-100 shadow-sm"
-                                        : "text-slate-500 hover:text-slate-800"
+                                        ? "bg-white text-slate-900 shadow-sm"
+                                        : "text-slate-650 hover:text-slate-800"
                                     )}
                                   >
                                     {tab === 'stakes' ? 'Stake' : 'Strategy'}
@@ -1184,27 +1184,27 @@ export default function GamePlayerPage() {
                                     {/* Bet Amount Control */}
                                     <div className="flex flex-col gap-2">
                                       <div className="flex justify-between items-center">
-                                        <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Bet Amount</span>
-                                        <span className="text-xs font-black text-slate-100">₹{betAmount.toLocaleString()}</span>
+                                        <span className="text-xs text-slate-650 font-bold uppercase tracking-wider">Bet Amount</span>
+                                        <span className="text-xs font-black text-slate-900">₹{betAmount.toLocaleString()}</span>
                                       </div>
                                       
                                       <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-neon-purple focus-within:border-neon-purple transition-all">
                                         <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-10 sm:h-12">
-                                          <span className="text-slate-400 font-bold">₹</span>
+                                          <span className="text-slate-600 font-bold">₹</span>
                                         </div>
                                         <input 
                                           type="number" 
                                           value={betAmount} 
                                           onChange={(e) => setBetAmount(Number(e.target.value))}
-                                          className="flex-1 bg-transparent border-none text-slate-100 font-black text-xs sm:text-sm px-3 py-2 h-10 sm:h-12 focus:outline-none focus:ring-0"
+                                          className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs sm:text-sm px-3 py-2 h-10 sm:h-12 focus:outline-none focus:ring-0"
                                         />
                                         <div className="flex items-center bg-slate-50 border-l border-slate-200 h-10 sm:h-12">
-                                          <button onClick={() => { setBetAmount(prev => prev / 2); playGameSound('click'); }} className="px-2.5 sm:px-3 h-full text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-100 border-r border-slate-200 transition-colors">1/2</button>
-                                          <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} className="px-2.5 sm:px-3 h-full text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-100 border-r border-slate-200 transition-colors">2x</button>
+                                          <button onClick={() => { setBetAmount(prev => prev / 2); playGameSound('click'); }} className="px-2.5 sm:px-3 h-full text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">1/2</button>
+                                          <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} className="px-2.5 sm:px-3 h-full text-[10px] sm:text-xs font-bold text-slate-600 hover:bg-slate-200 hover:text-slate-900 border-r border-slate-200 transition-colors">2x</button>
                                         </div>
                                       </div>
                                       
-                                      <div className="flex justify-between items-center text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1 px-1">
+                                      <div className="flex justify-between items-center text-[9px] text-slate-650 font-bold uppercase tracking-wider mt-1 px-1">
                                         <span>Chip Selector</span>
                                         <span>Double click to 2x</span>
                                       </div>
@@ -1225,7 +1225,8 @@ export default function GamePlayerPage() {
                                               onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }}
                                               onDoubleClick={() => { setBetAmount(chip.amount * 2); playGameSound('click'); }}
                                               className={cn(
-                                                "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-100 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none",
+                                                chip.amount === 1000 ? "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-950 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none" : "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-100 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none",
+
                                                 isSelected ? "scale-110 ring-2 ring-slate-100 ring-offset-1 ring-offset-white z-10 opacity-100" : "hover:scale-105 opacity-80 hover:opacity-100",
                                                 `bg-gradient-to-br ${chip.color}`
                                               )}
@@ -1233,7 +1234,7 @@ export default function GamePlayerPage() {
                                             >
                                               {/* Inner dotted ring to look like a real casino chip */}
                                               <div className="absolute inset-[2px] rounded-full border border-dashed border-white/45 flex items-center justify-center">
-                                                <span className="text-[9px] sm:text-[10px] font-black tracking-tight drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]">
+                                                <span className={cn("text-[9px] sm:text-[10px] font-black tracking-tight", chip.amount === 1000 ? "text-slate-950" : "text-white drop-shadow-[0_1px_1.5px_rgba(0,0,0,0.6)]")}>
                                                   {chip.label}
                                                 </span>
                                               </div>
@@ -1247,14 +1248,14 @@ export default function GamePlayerPage() {
                                     {game.categories.includes("crash") && (
                                       <div className="flex flex-col gap-2">
                                         <div className="flex justify-between items-center">
-                                          <span className="text-xs text-slate-500 font-bold uppercase tracking-wider">Auto Cashout</span>
+                                          <span className="text-xs text-slate-650 font-bold uppercase tracking-wider">Auto Cashout</span>
                                           {autoCashoutVal !== "" && (
-                                            <span className="text-xs font-black text-slate-100">{(autoCashoutVal as number).toFixed(2)}x</span>
+                                            <span className="text-xs font-black text-slate-900">{(autoCashoutVal as number).toFixed(2)}x</span>
                                           )}
                                         </div>
                                         <div className="flex items-center bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm focus-within:ring-2 focus-within:ring-red-500 focus-within:border-red-500 transition-all">
                                           <div className="flex items-center pl-3 pr-2 bg-slate-50 border-r border-slate-200 h-10 sm:h-12">
-                                            <span className="text-slate-400 font-bold text-xs">Auto Cashout</span>
+                                            <span className="text-slate-600 font-bold text-xs">Auto Cashout</span>
                                           </div>
                                           <input 
                                             type="number" 
@@ -1267,10 +1268,10 @@ export default function GamePlayerPage() {
                                               setAutoCashoutVal(v);
                                             }}
                                             disabled={isSpinning}
-                                            className="flex-1 bg-transparent border-none text-slate-100 font-black text-xs sm:text-sm px-3 py-2 h-10 sm:h-12 focus:outline-none focus:ring-0 text-right pr-2"
+                                            className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs sm:text-sm px-3 py-2 h-10 sm:h-12 focus:outline-none focus:ring-0 text-right pr-2"
                                           />
                                           <div className="flex items-center pr-3">
-                                            <span className="text-slate-400 font-bold text-xs sm:text-sm">x</span>
+                                            <span className="text-slate-600 font-bold text-xs sm:text-sm">x</span>
                                           </div>
                                         </div>
                                       </div>
@@ -1335,7 +1336,7 @@ export default function GamePlayerPage() {
 
                                       return (
                                         <div className="flex flex-col gap-2">
-                                          <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Bet Target Selector</span>
+                                          <span className="text-[10px] uppercase tracking-widest text-slate-650 font-black">Bet Target Selector</span>
                                           <div className="grid grid-cols-2 gap-2">
                                             {options.map((opt) => {
                                               const isActive = selectedTarget === opt.id;
@@ -1350,7 +1351,7 @@ export default function GamePlayerPage() {
                                                   className={cn(
                                                     "py-2 sm:py-3.5 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 text-center",
                                                     isActive 
-                                                      ? `bg-gradient-to-br ${theme.buttonGradient} text-slate-100 border-red-500 shadow-md scale-[1.02]`
+                                                      ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-red-500 shadow-md scale-[1.02]`
                                                       : "bg-white text-slate-700 border-slate-200 hover:border-slate-350 hover:bg-slate-50"
                                                   )}
                                                 >
@@ -1366,7 +1367,7 @@ export default function GamePlayerPage() {
                                     {/* Play Mode Control — Manual Only by Default */}
                                     <div className="relative">
                                       <div className="flex items-center justify-between mb-2">
-                                        <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Play Mode</span>
+                                        <span className="text-[10px] uppercase tracking-widest text-slate-650 font-black">Play Mode</span>
                                         <div className="flex items-center gap-1">
                                           <Shield className="w-3 h-3 text-emerald-500" />
                                           <span className="text-[9px] font-black text-emerald-600 uppercase tracking-wider">Protected</span>
@@ -1379,7 +1380,7 @@ export default function GamePlayerPage() {
                                           onClick={() => { setPlayMode("manual"); setAutoplayWarning(false); }}
                                           className={`relative overflow-hidden group flex flex-col items-center justify-center gap-1.5 py-2 sm:py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 ${
                                             playMode === "manual"
-                                              ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-slate-100 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
+                                              ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
                                               : "bg-white text-slate-600 border-slate-200 hover:border-emerald-300"
                                           }`}
                                         >
@@ -1400,11 +1401,11 @@ export default function GamePlayerPage() {
                                             setAutoplayWarning(true);
                                             setTimeout(() => setAutoplayWarning(false), 3000);
                                           }}
-                                          className="relative flex flex-col items-center justify-center gap-1.5 py-2 sm:py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed opacity-60"
+                                          className="relative flex flex-col items-center justify-center gap-1.5 py-2 sm:py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 bg-slate-100 text-slate-600 border-slate-200 cursor-not-allowed opacity-60"
                                         >
                                           <Lock className="w-5 h-5" />
                                           <span>Auto</span>
-                                          <span className="absolute -top-1 -right-1 bg-red-500 text-slate-100 text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md">OFF</span>
+                                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md">OFF</span>
                                         </button>
                                       </div>
 
@@ -1415,7 +1416,7 @@ export default function GamePlayerPage() {
                                             initial={{ opacity: 0, y: 8, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 4, scale: 0.95 }}
-                                            className="absolute -bottom-14 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-rose-600 text-slate-100 text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-xl shadow-lg flex items-center gap-2"
+                                            className="absolute -bottom-14 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-xl shadow-lg flex items-center gap-2"
                                           >
                                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                                             <span>Autoplay is disabled. Manual play only.</span>
@@ -1434,19 +1435,19 @@ export default function GamePlayerPage() {
                                         const recommendedBet = Math.max(10, Math.round((balance * strat.recommendedBetPercent) / 100));
                                         return (
                                           <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
-                                            <div className={`absolute top-0 right-0 ${riskBg} text-slate-100 text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg`}>
+                                            <div className={`absolute top-0 right-0 ${riskBg} text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg`}>
                                               {strat.risk} Risk
                                             </div>
                                             <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
                                               <span>{strat.emoji}</span> {strat.name}
                                             </h4>
-                                            <p className="text-[10px] text-slate-500 font-semibold leading-relaxed">
+                                            <p className="text-[10px] text-slate-650 font-semibold leading-relaxed">
                                               {strat.description}
                                             </p>
                                             <div className="bg-slate-50 border border-slate-200/50 p-2.5 rounded-xl space-y-1.5">
-                                              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">Target / Tip</span>
+                                              <span className="text-[9px] text-slate-600 font-bold uppercase tracking-wider block">Target / Tip</span>
                                               <p className="text-[10px] text-slate-700 font-medium leading-relaxed font-semibold">{strat.tip}</p>
-                                              <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-200/50 text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                                              <div className="flex justify-between items-center mt-2 pt-2 border-t border-slate-200/50 text-[9px] text-slate-600 font-bold uppercase tracking-wider">
                                                 <span>Rec. Rounds: <strong className="text-slate-700 font-mono">{strat.recommendedRounds}</strong></span>
                                                 <span>Rec. Bet: <strong className="text-slate-700 font-mono">₹{recommendedBet} ({strat.recommendedBetPercent}%)</strong></span>
                                               </div>
@@ -1457,7 +1458,7 @@ export default function GamePlayerPage() {
                                                 setBetAmount(recommendedBet);
                                                 playGameSound('click');
                                               }}
-                                              className="w-full py-2 bg-white hover:bg-slate-50 text-slate-100 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
+                                              className="w-full py-2 bg-white hover:bg-slate-50 text-slate-800 border border-slate-200 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
                                             >
                                               Apply Recommended Bet (₹{recommendedBet})
                                             </button>
@@ -1483,13 +1484,13 @@ export default function GamePlayerPage() {
                                   <button
                                     type="button"
                                     onClick={() => setIsStatsExpanded(!isStatsExpanded)}
-                                    className="flex items-center justify-between w-full text-slate-850 font-black text-xs uppercase tracking-widest py-1 hover:text-slate-100 cursor-pointer"
+                                    className="flex items-center justify-between w-full text-slate-850 font-black text-xs uppercase tracking-widest py-1 hover:text-slate-900 cursor-pointer"
                                   >
                                     <span className="flex items-center gap-2">
                                       <Activity className="w-4 h-4 text-emerald-600 animate-pulse" />
                                       Session Analytics
                                     </span>
-                                    <span className="text-[9px] text-slate-500 font-bold font-mono flex items-center gap-1.5">
+                                    <span className="text-[9px] text-slate-650 font-bold font-mono flex items-center gap-1.5">
                                       {stats.totalRounds} ROUNDS
                                       <span className="text-[8px] transition-transform duration-200" style={{ transform: isStatsExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
                                     </span>
@@ -1501,13 +1502,13 @@ export default function GamePlayerPage() {
                                   )}>
                                     {/* Line Chart */}
                                     <div className="space-y-2">
-                                      <span className="text-[10px] text-slate-400 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
+                                      <span className="text-[10px] text-slate-600 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
                                       <SVGProfitChart history={stats.profitHistory} />
                                     </div>
 
                                     {/* Ratio Bar */}
                                     <div className="space-y-2">
-                                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-500 uppercase tracking-wider">
+                                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-650 uppercase tracking-wider">
                                         <span>Win vs Loss Ratio</span>
                                         <span className="text-emerald-600">{stats.winRatio.toFixed(0)}% Win</span>
                                       </div>
@@ -1526,17 +1527,17 @@ export default function GamePlayerPage() {
                                     {/* Stats Grid */}
                                     <div className="grid grid-cols-2 gap-3">
                                       <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
-                                        <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Wagered</span>
+                                        <span className="text-[8px] text-slate-650 font-black uppercase tracking-wider block">Wagered</span>
                                         <span className="text-xs font-black text-slate-800 font-mono block mt-1">₹{stats.totalWagered.toLocaleString()}</span>
                                       </div>
                                       <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
-                                        <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Net Profit</span>
+                                        <span className="text-[8px] text-slate-650 font-black uppercase tracking-wider block">Net Profit</span>
                                         <span className={cn("text-xs font-black font-mono block mt-1", stats.netProfit >= 0 ? "text-emerald-600" : "text-rose-600")}>
                                           ₹{stats.netProfit >= 0 ? "+" : ""}{stats.netProfit.toLocaleString()}
                                         </span>
                                       </div>
                                       <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center col-span-2">
-                                        <span className="text-[8px] text-slate-500 font-black uppercase tracking-wider block">Highest Multiplier</span>
+                                        <span className="text-[8px] text-slate-650 font-black uppercase tracking-wider block">Highest Multiplier</span>
                                         <span className="text-sm font-black text-emerald-650 font-mono block mt-1">{stats.maxMultiplier.toFixed(2)}x</span>
                                       </div>
                                     </div>
@@ -1587,7 +1588,7 @@ export default function GamePlayerPage() {
                             <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
                               <div className="flex items-center gap-2">
                                 <Users className="w-4 h-4 text-cyan-400" />
-                                <span className="text-[10px] md:text-xs font-black uppercase text-slate-300 hidden sm:inline">Lobby</span>
+                                <span className="text-[10px] md:text-xs font-black uppercase text-slate-800 hidden sm:inline">Lobby</span>
                               </div>
                               <button 
                                 onClick={() => setIsMultiplayer(!isMultiplayer)}
@@ -1655,11 +1656,11 @@ export default function GamePlayerPage() {
                                   <motion.div initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(12px)" }} className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 rounded-3xl border border-red-500/30">
                                     <div className="text-center p-8 max-w-md">
                                       <AlertCircle className="w-20 h-20 text-red-500 mx-auto mb-6" />
-                                      <h2 className="text-3xl md:text-4xl font-black text-slate-100 mb-4 uppercase tracking-wider">Low Balance</h2>
-                                      <p className="text-slate-300 mb-8 font-medium text-lg">Your balance (₹{balance.toLocaleString()}) is insufficient for a ₹{betAmount.toLocaleString()} bet.</p>
+                                      <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-wider">Low Balance</h2>
+                                      <p className="text-slate-700 mb-8 font-medium text-lg">Your balance (₹{balance.toLocaleString()}) is insufficient for a ₹{betAmount.toLocaleString()} bet.</p>
                                       <button 
                                         onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                        className={`w-full py-5 mb-3 bg-gradient-to-r ${theme.buttonGradient} text-slate-100 font-black text-xl uppercase tracking-widest rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95`}
+                                        className={`w-full py-5 mb-3 bg-gradient-to-r ${theme.buttonGradient} text-white font-black text-xl uppercase tracking-widest rounded-xl shadow-sm transition-all transform hover:scale-105 active:scale-95`}
                                       >
                                         Deposit to Continue
                                       </button>
@@ -1674,7 +1675,7 @@ export default function GamePlayerPage() {
                                 {renderEngine()}
                                 {/* Rental countdown HUD */}
                                 <div className="absolute top-4 right-4 bg-white/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-right z-30 shadow-lg pointer-events-none">
-                                  <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Session Time Left</p>
+                                  <p className="text-[10px] text-slate-650 uppercase tracking-widest font-black">Session Time Left</p>
                                   <p className="text-neon-yellow font-mono font-black text-base flex items-center justify-end gap-1.5 mt-0.5">
                                     <Clock className="w-4 h-4 text-neon-yellow animate-pulse" />
                                     {formatTime(sessionTimeLeft)}
@@ -1688,14 +1689,14 @@ export default function GamePlayerPage() {
                                 className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center shadow-[0_30px_60px_rgba(0,0,0,0.8)]"
                               >
                                 <Gamepad2 className="w-16 h-16 text-cyan-400 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]" />
-                                <h2 className="text-2xl font-black text-slate-100 mb-2 uppercase tracking-wide">Premium Cloud Streaming</h2>
-                                <p className="text-slate-300 text-sm font-medium mb-6">
-                                  Rent <span className="text-slate-100 font-bold">{game.title}</span> for cloud-native gaming at 60 FPS, with saves synced instantly to your profile.
+                                <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-wide">Premium Cloud Streaming</h2>
+                                <p className="text-slate-700 text-sm font-medium mb-6">
+                                  Rent <span className="text-slate-900 font-bold">{game.title}</span> for cloud-native gaming at 60 FPS, with saves synced instantly to your profile.
                                 </p>
 
                                 <div className="bg-white/40 border border-white/10 rounded-2xl p-4 mb-6">
                                   <div className="flex justify-between items-center mb-3">
-                                    <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Hourly Rental Rate</span>
+                                    <span className="text-xs text-slate-600 font-bold uppercase tracking-wider">Hourly Rental Rate</span>
                                     <span className="text-base font-black text-neon-green">₹{game.hourlyRate}/hr</span>
                                   </div>
 
@@ -1707,7 +1708,7 @@ export default function GamePlayerPage() {
                                         className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all border
                                           ${selectedHours === hrs && !customHoursVal
                                             ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.2)]"
-                                            : "bg-white/50 text-slate-300 border-white/20 hover:border-white/50"
+                                            : "bg-white text-slate-700 border-slate-200 hover:border-slate-400"
                                           }`}
                                       >
                                         {hrs}h
@@ -1727,34 +1728,34 @@ export default function GamePlayerPage() {
                                           setSelectedHours(val);
                                         }
                                       }}
-                                      className="w-24 px-2 py-1.5 rounded-xl bg-white/50 border border-white/20 focus:border-cyan-400 focus:outline-none text-slate-100 text-center text-xs font-black placeholder:text-slate-500 font-mono"
+                                      className="w-24 px-2 py-1.5 rounded-xl bg-white border border-slate-200 focus:border-cyan-500 focus:outline-none text-slate-900 text-center text-xs font-black placeholder:text-slate-500 font-mono"
                                     />
                                   </div>
                                 </div>
 
                                 <div className="flex items-center justify-between mb-6 px-1">
-                                  <span className="text-sm text-slate-400 font-bold">Total Cost ({selectedHours} hrs)</span>
-                                  <span className="text-2xl font-black text-slate-100 font-mono">₹{rentCost.toLocaleString()}</span>
+                                  <span className="text-sm text-slate-650 font-bold">Total Cost ({selectedHours} hrs)</span>
+                                  <span className="text-2xl font-black text-slate-900 font-mono">₹{rentCost.toLocaleString()}</span>
                                 </div>
 
                                 {isDemoLimitReached ? (
                                   <button
                                     onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-50 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-yellow-400 to-yellow-600 text-slate-950 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
                                   >
                                     Deposit & Activate
                                   </button>
                                 ) : balance < rentCost ? (
                                   <button
                                     onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-red-700 text-slate-100 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-red-700 text-white font-black uppercase text-sm tracking-wider shadow-lg transition-all"
                                   >
                                     Insufficient Funds
                                   </button>
                                 ) : (
                                   <button
                                     onClick={handleRent}
-                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-slate-100 font-black uppercase text-sm tracking-widest shadow-lg shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-black uppercase text-sm tracking-widest shadow-lg shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                                   >
                                     Rent & Stream Game
                                   </button>
@@ -1775,11 +1776,11 @@ export default function GamePlayerPage() {
                             className="w-full md:w-[280px] shrink-0 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[500px]"
                           >
                             <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                              <span className="text-slate-100 font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                              <span className="text-slate-900 font-black text-xs uppercase tracking-wider flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 bg-neon-green rounded-full animate-pulse" />
                                 Lobby #91A-STAKE
                               </span>
-                              <span className="text-[9px] text-slate-400 font-mono font-bold">4/8 Active</span>
+                              <span className="text-[9px] text-slate-600 font-mono font-bold">4/8 Active</span>
                             </div>
                             
                             {/* List of mock players */}
@@ -1787,32 +1788,32 @@ export default function GamePlayerPage() {
                               <div className="flex justify-between items-center bg-white/20 p-2.5 rounded-xl border border-white/5">
                                 <div className="flex items-center gap-2">
                                   <div className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold">U1</div>
-                                  <span className="text-slate-300 font-bold text-xs">CryptoWhale</span>
+                                  <span className="text-slate-800 font-bold text-xs">CryptoWhale</span>
                                 </div>
                                 <span className="text-neon-green text-[10px] font-black font-mono">₹1,500</span>
                               </div>
                               <div className="flex justify-between items-center bg-white/20 p-2.5 rounded-xl border border-white/5">
                                 <div className="flex items-center gap-2">
                                   <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-[10px] font-bold">U2</div>
-                                  <span className="text-slate-300 font-bold text-xs">WagerGod</span>
+                                  <span className="text-slate-800 font-bold text-xs">WagerGod</span>
                                 </div>
                                 <span className="text-neon-green text-[10px] font-black font-mono">₹4,200</span>
                               </div>
                               <div className="flex justify-between items-center bg-white/20 p-2.5 rounded-xl border border-white/5">
                                 <div className="flex items-center gap-2">
                                   <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">ME</div>
-                                  <span className="text-slate-100 font-black text-xs">You</span>
+                                  <span className="text-slate-900 font-black text-xs">You</span>
                                 </div>
                                 <span className="text-neon-yellow text-[10px] font-black font-mono font-bold">₹{balance.toLocaleString()}</span>
                               </div>
                             </div>
 
                             <div className="border-t border-white/10 pt-3 flex flex-col gap-2">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Table Chat</span>
+                              <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Table Chat</span>
                               <div className="bg-white/30 rounded-xl p-2 h-32 overflow-y-auto text-[10px] space-y-2 font-medium custom-scrollbar">
-                                <p className="text-slate-300"><span className="text-cyan-400 font-bold">CryptoWhale</span>: lets win this round guys</p>
-                                <p className="text-slate-300"><span className="text-purple-400 font-bold">WagerGod</span>: going high stake next spin</p>
-                                <p className="text-slate-500 italic">User joined the channel</p>
+                                <p className="text-slate-700"><span className="text-cyan-600 font-bold">CryptoWhale</span>: lets win this round guys</p>
+                                <p className="text-slate-700"><span className="text-purple-600 font-bold">WagerGod</span>: going high stake next spin</p>
+                                <p className="text-slate-650 italic">User joined the channel</p>
                               </div>
                             </div>
                           </motion.div>
@@ -1828,20 +1829,20 @@ export default function GamePlayerPage() {
                           {/* Bet Amount */}
                           <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-12 focus-within:border-slate-300 transition-all">
                             <div className="px-3 border-r border-slate-200 h-full flex items-center">
-                              <span className="text-slate-500 font-black text-lg leading-none">₹</span>
+                              <span className="text-slate-650 font-black text-lg leading-none">₹</span>
                             </div>
                             <input
                               type="number"
                               value={betAmount}
                               onChange={(e) => setBetAmount(Math.max(1, Number(e.target.value)))}
                               disabled={isSpinning}
-                              className="w-20 sm:w-24 bg-transparent text-slate-100 font-black text-lg px-2.5 h-full focus:outline-none disabled:opacity-50 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="w-20 sm:w-24 bg-transparent text-slate-900 font-black text-lg px-2.5 h-full focus:outline-none disabled:opacity-50 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <div className="flex flex-col h-full border-l border-slate-200">
                               <button onClick={() => { setBetAmount(prev => Math.max(1, Math.floor(prev / 2))); playGameSound('click'); }} disabled={isSpinning}
-                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-slate-100 hover:bg-slate-100 border-b border-slate-200 transition-colors disabled:opacity-30">½</button>
+                                className="flex-1 px-2.5 text-[11px] font-black text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-b border-slate-200 transition-colors disabled:opacity-30">½</button>
                               <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} disabled={isSpinning}
-                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-slate-100 hover:bg-slate-100 transition-colors disabled:opacity-30">2×</button>
+                                className="flex-1 px-2.5 text-[11px] font-black text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors disabled:opacity-30">2×</button>
                             </div>
                           </div>
 
@@ -1849,13 +1850,13 @@ export default function GamePlayerPage() {
                           {game.categories.includes("crash") && (
                             <div className="hidden sm:flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden h-12 shrink-0 focus-within:border-emerald-600/50 transition-colors">
                               <div className="px-2.5 h-full flex flex-col justify-center border-r border-white/10">
-                                <span className="text-[8px] font-black text-slate-500 uppercase leading-none">Auto</span>
+                                <span className="text-[8px] font-black text-slate-650 uppercase leading-none">Auto</span>
                                 <span className="text-[8px] font-bold text-slate-600 leading-none mt-0.5">cashout</span>
                               </div>
                               <input type="number" step="0.01" min="1.01" placeholder="2.00" value={autoCashoutVal}
                                 onChange={(e) => setAutoCashoutVal(e.target.value === "" ? "" : parseFloat(e.target.value))}
                                 disabled={isSpinning}
-                                className="w-14 bg-transparent text-slate-100 font-black text-sm px-2 h-full focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                                className="w-14 bg-transparent text-slate-900 font-black text-sm px-2 h-full focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
                               <span className="pr-2 text-slate-600 font-black">×</span>
                             </div>
                           )}
@@ -1876,7 +1877,7 @@ export default function GamePlayerPage() {
                               <div className="hidden sm:flex items-center gap-1 shrink-0">
                                 {opts.map(o => (
                                   <button key={o.id} type="button" onClick={() => { setSelectedTarget(o.id); playGameSound('click'); }} disabled={isSpinning}
-                                    className={`h-12 px-3 rounded-xl font-black text-xs uppercase tracking-wider border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-slate-100 border-transparent shadow-lg` : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}>
+                                    className={`h-12 px-3 rounded-xl font-black text-xs uppercase tracking-wider border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent shadow-lg` : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}>
                                     {o.name}
                                   </button>
                                 ))}
@@ -1895,7 +1896,7 @@ export default function GamePlayerPage() {
                                 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse cursor-pointer'
                                 : isSpinning
                                   ? 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/10'
-                                  : `bg-gradient-to-br ${theme.buttonGradient} text-slate-100 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/10`
+                                  : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-sm hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/10`
                             }`}>
                             {isSpinning && isCashoutActive
                               ? `💰 ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
@@ -1915,7 +1916,7 @@ export default function GamePlayerPage() {
                             {amount:50000, label:"50k", color:"from-violet-700 to-violet-100"},
                           ].map(chip => (
                             <button key={chip.amount} type="button" onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }} disabled={isSpinning}
-                              className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 font-black text-slate-100 text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${
+                              className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${chip.amount === 1000 ? 'text-slate-950 font-black' : 'text-white font-black'} ${
                                 betAmount === chip.amount ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-white scale-105 opacity-100 border-white/30' : 'opacity-55 hover:opacity-85 border-white/15'
                               } disabled:opacity-20`}>
                               {chip.label}
@@ -1938,7 +1939,7 @@ export default function GamePlayerPage() {
                               <div className="flex sm:hidden items-center gap-1 ml-1 shrink-0">
                                 {opts.map(o => (
                                   <button key={o.id} type="button" onClick={() => { setSelectedTarget(o.id); playGameSound('click'); }} disabled={isSpinning}
-                                    className={`h-8 px-2.5 rounded-lg font-black text-[9px] uppercase border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-slate-100 border-transparent` : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}>
+                                    className={`h-8 px-2.5 rounded-lg font-black text-[9px] uppercase border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent` : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'}`}>
                                     {o.name}
                                   </button>
                                 ))}
@@ -1949,16 +1950,16 @@ export default function GamePlayerPage() {
                           {/* Mobile: auto cashout (crash) */}
                           {game.categories.includes("crash") && (
                             <div className="flex sm:hidden items-center bg-slate-50 border border-slate-200 rounded-lg overflow-hidden h-8 shrink-0 ml-1">
-                              <span className="px-2 text-[8px] font-black text-slate-500 border-r border-slate-200 h-full flex items-center whitespace-nowrap">Auto×</span>
+                              <span className="px-2 text-[8px] font-black text-slate-650 border-r border-slate-200 h-full flex items-center whitespace-nowrap">Auto×</span>
                               <input type="number" step="0.01" min="1.01" placeholder="2.0" value={autoCashoutVal}
                                 onChange={(e) => setAutoCashoutVal(e.target.value === "" ? "" : parseFloat(e.target.value))}
                                 disabled={isSpinning}
-                                className="w-12 bg-transparent text-slate-100 font-black text-[10px] px-1.5 focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                                className="w-12 bg-transparent text-slate-900 font-black text-[10px] px-1.5 focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
                             </div>
                           )}
 
                           <div className="flex-1 min-w-2"/>
-                          <span className="text-[9px] font-bold text-slate-500 whitespace-nowrap shrink-0">
+                          <span className="text-[9px] font-bold text-slate-650 whitespace-nowrap shrink-0">
                             Bal: <span className="text-slate-700 font-mono font-black">₹{balance.toLocaleString()}</span>
                             {stats.totalRounds > 0 && <span className={`ml-2 font-black ${stats.netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{stats.netProfit >= 0 ? '+' : ''}₹{stats.netProfit.toFixed(0)}</span>}
                           </span>
@@ -2111,7 +2112,7 @@ export default function GamePlayerPage() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <h2 className="text-sm sm:text-base font-black text-slate-100 truncate flex items-center gap-2">
+                      <h2 className="text-sm sm:text-base font-black text-slate-900 truncate flex items-center gap-2">
                         {scoreboardTab === "top-one-percent" 
                           ? (isCrash ? "Crash High Reaches" : "Highest Multipliers") 
                           : scoreboardTab === "recent-runs" 
@@ -2124,7 +2125,7 @@ export default function GamePlayerPage() {
                           </span>
                         )}
                       </h2>
-                      <p className="text-[9px] sm:text-[10px] text-slate-500 font-bold uppercase tracking-wider mt-0.5 truncate">
+                      <p className="text-[9px] sm:text-[10px] text-slate-650 font-bold uppercase tracking-wider mt-0.5 truncate">
                         {scoreboardTab === "top-one-percent" 
                           ? "Top payouts & outlier multipliers" 
                           : scoreboardTab === "recent-runs" 
@@ -2142,7 +2143,7 @@ export default function GamePlayerPage() {
                         "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
                         scoreboardTab === "top-one-percent" 
                           ? "text-white" 
-                          : "text-slate-500 hover:text-slate-800"
+                          : "text-slate-650 hover:text-slate-800"
                       )}
                     >
                       {scoreboardTab === "top-one-percent" && (
@@ -2161,7 +2162,7 @@ export default function GamePlayerPage() {
                         "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
                         scoreboardTab === "recent-runs" 
                           ? "text-white" 
-                          : "text-slate-500 hover:text-slate-800"
+                          : "text-slate-650 hover:text-slate-800"
                       )}
                     >
                       {scoreboardTab === "recent-runs" && (
@@ -2180,7 +2181,7 @@ export default function GamePlayerPage() {
                         "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
                         scoreboardTab === "platform-feed" 
                           ? "text-white" 
-                          : "text-slate-500 hover:text-slate-800"
+                          : "text-slate-650 hover:text-slate-800"
                       )}
                     >
                       {scoreboardTab === "platform-feed" && (
@@ -2206,7 +2207,7 @@ export default function GamePlayerPage() {
                       <div className="hidden sm:block overflow-x-auto sb-scrollbar">
                         <table className="w-full text-left text-xs font-bold border-collapse" style={{ transform: 'translateZ(0)' }}>
                           <thead>
-                            <tr className="text-slate-500 border-b border-slate-200 uppercase tracking-widest text-[9px]">
+                            <tr className="text-slate-650 border-b border-slate-200 uppercase tracking-widest text-[9px]">
                               <th className="pb-3 pr-2 w-8 text-center">#</th>
                               <th className="pb-3 pr-4">User</th>
                               <th className="pb-3 pr-4 text-right">Bet Size</th>
@@ -2267,9 +2268,9 @@ export default function GamePlayerPage() {
                                   <td className="py-3.5 pr-4 text-center font-mono font-black text-amber-400">
                                     <span className="bg-amber-50 border border-amber-200/40 px-2.5 py-1 rounded-lg text-[11px]" style={{ boxShadow: '0 0 12px rgba(245,158,11,0.08)' }}>{row.crashPoint.toFixed(2)}×</span>
                                   </td>
-                                  <td className="py-3.5 pr-4 text-center text-[10px] text-slate-500 font-mono">{row.time}</td>
+                                  <td className="py-3.5 pr-4 text-center text-[10px] text-slate-650 font-mono">{row.time}</td>
                                   <td className="py-3.5 text-right font-mono font-black text-[11px]">
-                                    <span className={cn(row.payout > 0 ? "text-emerald-600" : "text-slate-500")}>
+                                    <span className={cn(row.payout > 0 ? "text-emerald-600" : "text-slate-650")}>
                                       {row.payout > 0 ? `+₹${row.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "₹0"}
                                     </span>
                                   </td>
@@ -2323,17 +2324,17 @@ export default function GamePlayerPage() {
                                     </span>
                                   </div>
                                 </div>
-                                <span className="text-[9px] text-slate-500 font-mono shrink-0">{row.time}</span>
+                                <span className="text-[9px] text-slate-650 font-mono shrink-0">{row.time}</span>
                               </div>
 
                               {/* Data grid */}
                               <div className="grid grid-cols-2 gap-2">
                                 <div className="bg-white/[0.02] rounded-xl px-3 py-2">
-                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Bet</span>
-                                  <span className="text-xs font-bold font-mono text-slate-300 mt-0.5 block">₹{row.bet.toLocaleString()}</span>
+                                  <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">Bet</span>
+                                  <span className="text-xs font-bold font-mono text-slate-700 mt-0.5 block">₹{row.bet.toLocaleString()}</span>
                                 </div>
                                 <div className="bg-white/[0.02] rounded-xl px-3 py-2">
-                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{isCrash ? "Cashout" : "Win ×"}</span>
+                                  <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">{isCrash ? "Cashout" : "Win ×"}</span>
                                   <span className={cn(
                                     "text-xs font-black font-mono mt-0.5 block",
                                     row.cashout > 0 ? "text-emerald-400" : "text-rose-500"
@@ -2342,14 +2343,14 @@ export default function GamePlayerPage() {
                                   </span>
                                 </div>
                                 <div className="bg-white/[0.02] rounded-xl px-3 py-2">
-                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{isCrash ? "Crash" : "Game ×"}</span>
+                                  <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">{isCrash ? "Crash" : "Game ×"}</span>
                                   <span className="text-xs font-black font-mono text-amber-400 mt-0.5 block">{row.crashPoint.toFixed(2)}×</span>
                                 </div>
                                 <div className="bg-white/[0.02] rounded-xl px-3 py-2">
-                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Payout</span>
+                                  <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">Payout</span>
                                   <span className={cn(
                                     "text-xs font-black font-mono mt-0.5 block",
-                                    row.payout > 0 ? "text-emerald-600" : "text-slate-500"
+                                    row.payout > 0 ? "text-emerald-600" : "text-slate-650"
                                   )}>
                                     {row.payout > 0 ? `+₹${(row.payout / 1000).toFixed(1)}K` : "₹0"}
                                   </span>
@@ -2370,7 +2371,7 @@ export default function GamePlayerPage() {
                       <div className="hidden sm:block overflow-x-auto sb-scrollbar">
                         <table className="w-full text-left text-xs font-bold border-collapse" style={{ transform: 'translateZ(0)' }}>
                           <thead>
-                            <tr className="text-slate-500 border-b border-slate-200 uppercase tracking-widest text-[9px]">
+                            <tr className="text-slate-650 border-b border-slate-200 uppercase tracking-widest text-[9px]">
                               <th className="pb-3 pr-4">Status</th>
                               <th className="pb-3 pr-4">User</th>
                               <th className="pb-3 pr-4 text-right">Wager</th>
@@ -2387,7 +2388,7 @@ export default function GamePlayerPage() {
                                     <div className="w-12 h-12 rounded-2xl bg-slate-50/50 flex items-center justify-center">
                                       <Activity className="w-5 h-5 text-slate-600" />
                                     </div>
-                                    <span className="text-slate-500 text-xs font-bold">No session wagers yet. Place a bet to begin!</span>
+                                    <span className="text-slate-650 text-xs font-bold">No session wagers yet. Place a bet to begin!</span>
                                   </div>
                                 </td>
                               </tr>
@@ -2436,7 +2437,7 @@ export default function GamePlayerPage() {
                                   <td className="py-3.5 pr-4 text-center font-mono text-slate-500 text-[11px]">
                                     {act.crashPoint ? `${act.crashPoint.toFixed(2)}×` : "—"}
                                   </td>
-                                  <td className={cn("py-3.5 text-right font-mono font-black text-[11px]", act.payout > 0 ? "text-emerald-600" : "text-slate-500")}>
+                                  <td className={cn("py-3.5 text-right font-mono font-black text-[11px]", act.payout > 0 ? "text-emerald-600" : "text-slate-650")}>
                                     {act.payout > 0 ? `+₹${act.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "₹0"}
                                   </td>
                                 </motion.tr>
@@ -2453,7 +2454,7 @@ export default function GamePlayerPage() {
                             <div className="w-12 h-12 rounded-2xl bg-slate-50/50 flex items-center justify-center">
                               <Activity className="w-5 h-5 text-slate-600" />
                             </div>
-                            <span className="text-slate-500 text-xs font-bold text-center">No session wagers yet.<br />Place a bet to begin!</span>
+                            <span className="text-slate-650 text-xs font-bold text-center">No session wagers yet.<br />Place a bet to begin!</span>
                           </div>
                         ) : (
                           recentActivities.map((act, idx) => (
@@ -2489,19 +2490,19 @@ export default function GamePlayerPage() {
                                     {act.username}
                                   </span>
                                 </div>
-                                <span className="text-[9px] text-slate-500 font-mono shrink-0">{act.time}</span>
+                                <span className="text-[9px] text-slate-650 font-mono shrink-0">{act.time}</span>
                               </div>
 
                               {/* Data row */}
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-3">
                                   <div>
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Wager</span>
-                                    <span className="text-[11px] font-bold font-mono text-slate-300">₹{act.bet.toLocaleString()}</span>
+                                    <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">Wager</span>
+                                    <span className="text-[11px] font-bold font-mono text-slate-700">₹{act.bet.toLocaleString()}</span>
                                   </div>
                                   <div className="w-px h-6 bg-slate-50/50" />
                                   <div>
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Cashout</span>
+                                    <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">Cashout</span>
                                     <span className={cn("text-[11px] font-black font-mono", act.multiplier ? "text-emerald-600" : "text-rose-600")}>
                                       {act.multiplier ? `${act.multiplier.toFixed(2)}×` : "—"}
                                     </span>
@@ -2510,15 +2511,15 @@ export default function GamePlayerPage() {
                                     <>
                                       <div className="w-px h-6 bg-slate-50/50" />
                                       <div>
-                                        <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Crash</span>
-                                        <span className="text-[11px] font-bold font-mono text-slate-400">{act.crashPoint.toFixed(2)}×</span>
+                                        <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">Crash</span>
+                                        <span className="text-[11px] font-bold font-mono text-slate-650">{act.crashPoint.toFixed(2)}×</span>
                                       </div>
                                     </>
                                   )}
                                 </div>
                                 <div className="text-right shrink-0">
-                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Payout</span>
-                                  <span className={cn("text-xs font-black font-mono", act.payout > 0 ? "text-emerald-600" : "text-slate-500")}>
+                                  <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">Payout</span>
+                                  <span className={cn("text-xs font-black font-mono", act.payout > 0 ? "text-emerald-600" : "text-slate-650")}>
                                     {act.payout > 0 ? `+₹${act.payout.toLocaleString(undefined, { maximumFractionDigits: 0 })}` : "₹0"}
                                   </span>
                                 </div>
@@ -2535,7 +2536,7 @@ export default function GamePlayerPage() {
                       <div className="hidden sm:block overflow-x-auto sb-scrollbar">
                         <table className="w-full text-left text-xs font-bold border-collapse" style={{ transform: 'translateZ(0)' }}>
                           <thead>
-                            <tr className="text-slate-500 border-b border-slate-200 uppercase tracking-widest text-[9px]">
+                            <tr className="text-slate-650 border-b border-slate-200 uppercase tracking-widest text-[9px]">
                               <th className="pb-3 pr-4">Game</th>
                               <th className="pb-3 pr-4">User</th>
                               <th className="pb-3 pr-4 text-center">Type</th>
@@ -2552,7 +2553,7 @@ export default function GamePlayerPage() {
                                     <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
                                       <Activity className="w-5 h-5 text-slate-600" />
                                     </div>
-                                    <span className="text-slate-500 text-xs font-bold">No platform live wagers yet.</span>
+                                    <span className="text-slate-650 text-xs font-bold">No platform live wagers yet.</span>
                                   </div>
                                 </td>
                               </tr>
@@ -2589,7 +2590,7 @@ export default function GamePlayerPage() {
                                   </td>
                                   <td className="py-3.5 pr-4 text-right font-mono text-slate-600 text-[11px]">{act.bet}</td>
                                   <td className="py-3.5 pr-4 text-center font-mono text-slate-700 text-[11px]">{act.mult}</td>
-                                  <td className={cn("py-3.5 text-right font-mono font-black text-[11px]", act.win !== "₹0" ? "text-emerald-600" : "text-slate-500")}>
+                                  <td className={cn("py-3.5 text-right font-mono font-black text-[11px]", act.win !== "₹0" ? "text-emerald-600" : "text-slate-650")}>
                                     {act.win}
                                   </td>
                                 </motion.tr>
@@ -2606,7 +2607,7 @@ export default function GamePlayerPage() {
                             <div className="w-12 h-12 rounded-2xl bg-slate-50 flex items-center justify-center">
                               <Activity className="w-5 h-5 text-slate-600" />
                             </div>
-                            <span className="text-slate-500 text-xs font-bold text-center">No platform live wagers yet.</span>
+                            <span className="text-slate-650 text-xs font-bold text-center">No platform live wagers yet.</span>
                           </div>
                         ) : (
                           platformBets.map((act, idx) => (
@@ -2648,18 +2649,18 @@ export default function GamePlayerPage() {
                               <div className="flex items-center justify-between gap-2">
                                 <div className="flex items-center gap-3">
                                   <div>
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{act.type === "rental" ? "Cost" : "Wager"}</span>
+                                    <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">{act.type === "rental" ? "Cost" : "Wager"}</span>
                                     <span className="text-[11px] font-bold font-mono text-slate-700">{act.bet}</span>
                                   </div>
                                   <div className="w-px h-6 bg-slate-200" />
                                   <div>
-                                    <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">{act.type === "rental" ? "Rate" : "Mult"}</span>
+                                    <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">{act.type === "rental" ? "Rate" : "Mult"}</span>
                                     <span className="text-[11px] font-bold font-mono text-slate-700">{act.mult}</span>
                                   </div>
                                 </div>
                                 <div className="text-right shrink-0">
-                                  <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Payout</span>
-                                  <span className={cn("text-xs font-black font-mono", act.win !== "₹0" ? "text-emerald-600" : "text-slate-500")}>
+                                  <span className="text-[8px] text-slate-650 font-black uppercase tracking-widest block">Payout</span>
+                                  <span className={cn("text-xs font-black font-mono", act.win !== "₹0" ? "text-emerald-600" : "text-slate-650")}>
                                     {act.win}
                                   </span>
                                 </div>
@@ -2674,16 +2675,16 @@ export default function GamePlayerPage() {
 
                 {/* Bottom stats bar */}
                 <div className="mt-4 sm:mt-5 pt-3 sm:pt-4 border-t border-slate-800/40 flex items-center justify-between relative z-10">
-                  <div className="flex items-center gap-2 text-[9px] text-slate-500 font-bold uppercase tracking-wider">
+                  <div className="flex items-center gap-2 text-[9px] text-slate-650 font-bold uppercase tracking-wider">
                     <Shield className="w-3.5 h-3.5 text-slate-600" />
                     <span>Provably Fair · Verified</span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="text-[9px] text-slate-500 font-mono font-bold">
+                    <span className="text-[9px] text-slate-650 font-mono font-bold">
                       {scoreboardTab === "top-one-percent" ? `${highReaches.length} Records` : scoreboardTab === "recent-runs" ? `${recentActivities.length} Wagers` : `${platformBets.length} Live Bets`}
                     </span>
                     <div className="w-1 h-1 bg-slate-100 rounded-full" />
-                    <span className="text-[9px] text-slate-500 font-mono font-bold">24h Window</span>
+                    <span className="text-[9px] text-slate-650 font-mono font-bold">24h Window</span>
                   </div>
                 </div>
                 </div>

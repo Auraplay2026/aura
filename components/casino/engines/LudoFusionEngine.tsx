@@ -950,7 +950,7 @@ export function LudoFusionEngine({
             <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-fuchsia-500" />
           </span>
           <div>
-            <h3 className="text-xs sm:text-sm font-black text-slate-100 uppercase tracking-widest leading-none">
+            <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-widest leading-none">
               Ludo Fusion Arena
             </h3>
             <p className="text-[9px] text-purple-400 font-bold uppercase tracking-wider mt-1">
@@ -1526,7 +1526,7 @@ export function LudoFusionEngine({
               <h2 className="text-3xl font-black text-slate-900 uppercase tracking-widest mb-1.5">Level Promoted</h2>
               <p className="text-xs text-purple-300 font-bold uppercase tracking-wider mb-4">REACHED LEVEL {level} CHAMPION</p>
               <div className="bg-purple-950 p-3.5 rounded-xl border border-purple-500/10 mb-6">
-                <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">UNLOCKED COSMETIC SKIN</span>
+                <span className="text-[9px] font-black text-slate-650 uppercase tracking-widest block mb-1">UNLOCKED COSMETIC SKIN</span>
                 <span className="text-xs font-black text-amber-300 uppercase tracking-widest block">🔮 Obsidian Neon Dice</span>
               </div>
               <button 
@@ -1645,7 +1645,7 @@ export function LudoFusionEngine({
                     setShowSetup(true);
                     startedRef.current = false;
                   }}
-                  className="flex-1 py-3 rounded-xl bg-white text-slate-300 border border-slate-800 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="flex-1 py-3 rounded-xl bg-white text-slate-700 border border-slate-800 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Close Lobby
                 </button>

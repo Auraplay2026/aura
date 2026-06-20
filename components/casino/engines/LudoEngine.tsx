@@ -587,7 +587,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 <Crown className="w-16 h-16 text-amber-400 mx-auto mb-4 drop-shadow-[0_0_15px_#fbbf24]" />
               </div>
               <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-600 uppercase tracking-widest leading-none mb-3">Ludo Royale</h2>
-              <p className="text-slate-400 text-xs font-bold uppercase tracking-widest max-w-xs">Premium Casino Board Game • 95% RTP</p>
+              <p className="text-slate-650 text-xs font-bold uppercase tracking-widest max-w-xs">Premium Casino Board Game • 95% RTP</p>
               
               <div className="relative w-44 h-44 mt-8 rounded-full border border-dashed border-amber-500/30 flex items-center justify-center bg-white/40 shadow-inner">
                 <motion.div
@@ -601,7 +601,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 <div className="absolute left-4 top-1/2 -translate-y-1/2"><TokenPiece color="blue" size="small" /></div>
                 <div className="flex flex-col items-center justify-center text-center">
                   <Trophy className="w-8 h-8 text-amber-400 animate-bounce" />
-                  <span className="text-[10px] font-black text-slate-350 uppercase mt-1 tracking-wider">3.80x POT</span>
+                  <span className="text-[10px] font-black text-slate-700 uppercase mt-1 tracking-wider">3.80x POT</span>
                 </div>
               </div>
             </div>
@@ -621,10 +621,10 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden ${
                         gameMode === mode.id
                           ? "border-amber-500/60 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.15)] scale-[1.02]"
-                          : "border-slate-850 bg-white/40 hover:border-slate-700 text-slate-455 hover:text-slate-200"
+                          : "border-slate-850 bg-white/40 hover:border-slate-700 text-slate-650 hover:text-slate-900"
                       }`}
                     >
-                      <div className={`p-1.5 rounded-lg transition-colors ${gameMode === mode.id ? "bg-amber-500 text-slate-950" : "bg-white text-slate-400"}`}>
+                      <div className={`p-1.5 rounded-lg transition-colors ${gameMode === mode.id ? "bg-amber-500 text-slate-950" : "bg-white text-slate-650"}`}>
                         {mode.icon}
                       </div>
                       <span className="font-black text-[10px] uppercase tracking-wider">{mode.title}</span>
@@ -651,8 +651,8 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                     className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs px-2 py-1.5 focus:outline-none focus:ring-0 font-mono"
                   />
                   <div className="flex items-center bg-white/40 border-l border-slate-850 h-10">
-                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-50 hover:text-slate-900 border-r border-slate-800 transition-colors">1/2</button>
-                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-colors">2X</button>
+                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2 h-full text-[9px] font-black text-slate-650 hover:bg-slate-50 hover:text-slate-900 border-r border-slate-800 transition-colors">1/2</button>
+                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2 h-full text-[9px] font-black text-slate-650 hover:bg-slate-50 hover:text-slate-900 transition-colors">2X</button>
                   </div>
                 </div>
 
@@ -729,7 +729,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
             <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${currentPlayer?.isHuman ? "bg-emerald-400" : "bg-amber-400"}`} />
             <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${currentPlayer?.isHuman ? "bg-emerald-500" : "bg-amber-500"}`} />
           </span>
-          <h3 className="text-xs sm:text-sm font-black text-slate-100 uppercase tracking-wider leading-none">
+          <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider leading-none">
             {message}
           </h3>
         </div>
@@ -739,7 +739,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
           <div className="flex items-center gap-1.5">
             <Coins className="w-3.5 h-3.5 text-amber-500" />
             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Wager:</span>
-            <span className="text-xs font-black font-mono text-slate-200">₹{betAmount.toLocaleString()}</span>
+            <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
           </div>
           <div className="w-px h-3 bg-slate-50" />
           <div className="flex items-center gap-1.5">
@@ -1065,7 +1065,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                         <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[p.color].token }} />
                         <span className="text-xs font-bold text-slate-355">{p.name}</span>
                       </div>
-                      <span className="text-[10px] font-mono font-black text-slate-400">
+                      <span className="text-[10px] font-mono font-black text-slate-650">
                         {p.tokensHome}/4 🏆
                       </span>
                     </div>

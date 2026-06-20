@@ -215,7 +215,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
               scale: activeRow === idx ? 1.1 : 1,
               opacity: activeRow >= idx ? 1 : 0.3
             }}
-            className={`w-full text-right font-mono font-bold text-lg transition-colors duration-300 ${activeRow === idx ? 'text-blue-500' : activeRow > idx ? 'text-emerald-600' : 'text-slate-400'}`}
+            className={`w-full text-right font-mono font-bold text-lg transition-colors duration-300 ${activeRow === idx ? 'text-blue-500' : activeRow > idx ? 'text-emerald-600' : 'text-slate-600'}`}
           >
             {mult.toFixed(2)}x
           </motion.div>
@@ -294,7 +294,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
             <div className="bg-white border border-red-500/30 p-8 rounded-3xl flex flex-col items-center shadow-[0_0_50px_rgba(239,68,68,0.2)]">
               <Skull className="w-16 h-16 text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]" />
               <h2 className="text-3xl font-black text-slate-900 tracking-wider">BUSTED</h2>
-              <p className="text-slate-400 mt-2 font-mono">Row {activeRow + 1} Failed</p>
+              <p className="text-slate-650 mt-2 font-mono">Row {activeRow + 1} Failed</p>
             </div>
           </motion.div>
         )}

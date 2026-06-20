@@ -70,13 +70,13 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
               <div className="flex bg-slate-50 p-1 rounded-xl">
                 <button 
                   onClick={() => setActiveTab("crypto")}
-                  className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "crypto" ? "bg-slate-100 text-slate-900 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "crypto" ? "bg-slate-100 text-slate-900 shadow-md" : "text-slate-650 hover:text-slate-800"}`}
                 >
                   <Bitcoin className="w-4 h-4" /> Crypto
                 </button>
                 <button 
                   onClick={() => setActiveTab("fiat")}
-                  className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "fiat" ? "bg-slate-100 text-slate-900 shadow-md" : "text-slate-500 hover:text-slate-700"}`}
+                  className={`flex-1 py-2 text-sm font-bold rounded-lg flex items-center justify-center gap-2 transition-all ${activeTab === "fiat" ? "bg-slate-100 text-slate-900 shadow-md" : "text-slate-650 hover:text-slate-800"}`}
                 >
                   <CreditCard className="w-4 h-4" /> Buy Crypto
                 </button>
@@ -119,7 +119,7 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
 
                   {/* Address Box */}
                   <div className="space-y-2">
-                    <label className="text-xs font-bold text-slate-500 uppercase tracking-widest pl-1">Your Deposit Address</label>
+                    <label className="text-xs font-bold text-slate-650 uppercase tracking-widest pl-1">Your Deposit Address</label>
                     <div className="flex items-center gap-2 bg-slate-50 p-2 rounded-xl border border-slate-200">
                       <input 
                         type="text" 

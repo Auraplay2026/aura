@@ -108,27 +108,27 @@ export function Footer() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 p-8 rounded-3xl bg-white border border-slate-850 shadow-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-transparent pointer-events-none" />
           <div className="text-center md:text-left">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Paid Out</span>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Total Paid Out</span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">₹2.4Cr+</h3>
-            <p className="text-[10px] text-slate-500 mt-1">Processed instantly today</p>
+            <p className="text-[10px] text-slate-700 mt-1">Processed instantly today</p>
           </div>
           <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Players Online</span>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Players Online</span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1 flex items-center justify-center md:justify-start gap-2">
               <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
               14,208
             </h3>
-            <p className="text-[10px] text-slate-500 mt-1">Active global traders</p>
+            <p className="text-[10px] text-slate-700 mt-1">Active global traders</p>
           </div>
           <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Games Streamed</span>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Games Streamed</span>
             <h3 className="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1">942,800+</h3>
-            <p className="text-[10px] text-slate-500 mt-1">Via low-latency cloud nodes</p>
+            <p className="text-[10px] text-slate-700 mt-1">Via low-latency cloud nodes</p>
           </div>
           <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Provably Fair</span>
+            <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">Provably Fair</span>
             <h3 className="text-2xl sm:text-3xl font-black text-emerald-450 font-mono mt-1">100%</h3>
-            <p className="text-[10px] text-slate-500 mt-1">Cryptographic RNG verification</p>
+            <p className="text-[10px] text-slate-700 mt-1">Cryptographic RNG verification</p>
           </div>
         </div>
 
@@ -302,7 +302,7 @@ export function Footer() {
                         </svg>
                       </div>
 
-                      <div className="w-full border-t border-slate-100 pt-2 flex justify-between items-center text-[8px] text-slate-400 font-bold uppercase tracking-widest mt-auto">
+                      <div className="w-full border-t border-slate-100 pt-2 flex justify-between items-center text-[8px] text-slate-600 font-bold uppercase tracking-widest mt-auto">
                         <span className="text-red-600 font-black">{award.winnerLabel}</span>
                         <span className="text-slate-600">{award.organizer}</span>
                       </div>
@@ -324,7 +324,7 @@ export function Footer() {
                         <div className="absolute -left-1 -right-1 top-3 bottom-3 border-t border-b border-transparent"></div>
                       </div>
 
-                      <div className="text-[9px] text-slate-400 font-mono tracking-widest relative z-10 mt-1">— 2023 —</div>
+                      <div className="text-[9px] text-slate-600 font-mono tracking-widest relative z-10 mt-1">— 2023 —</div>
                       
                       <div className="flex flex-col items-center relative z-10 my-2">
                         <span className="text-xl text-slate-900 font-black tracking-tighter">affpapa</span>
@@ -380,7 +380,7 @@ export function Footer() {
                           </h5>
                         </div>
                         <div className="mt-auto pt-1 border-t border-slate-100">
-                          <p className="text-[6.5px] text-slate-400 font-bold uppercase tracking-wider leading-none">{award.subOrganizer}</p>
+                          <p className="text-[6.5px] text-slate-600 font-bold uppercase tracking-wider leading-none">{award.subOrganizer}</p>
                           <p className="text-[7.5px] text-slate-600 font-black tracking-wider uppercase mt-1 overflow-hidden text-ellipsis whitespace-nowrap">{award.organizer}</p>
                         </div>
                       </div>
@@ -398,11 +398,11 @@ export function Footer() {
                       
                       <div className="flex items-center gap-1.5 mt-1">
                         <div className="bg-[#e11d48] text-slate-900 font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wide leading-none">EGR</div>
-                        <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
+                        <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
                       </div>
 
                       <div className="my-2 flex flex-col items-center">
-                        <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
+                        <span className="text-[8px] text-slate-600 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
                         <span className="text-[10.5px] text-slate-800 font-black uppercase tracking-tight leading-tight">{award.title}</span>
                       </div>
 
@@ -423,11 +423,11 @@ export function Footer() {
                       
                       <div className="flex items-center gap-1.5 mt-1">
                         <div className="bg-[#10b981] text-slate-900 font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wider leading-none">SBC</div>
-                        <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
+                        <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
                       </div>
 
                       <div className="my-2 flex flex-col items-center">
-                        <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
+                        <span className="text-[8px] text-slate-600 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
                         <span className="text-[10.5px] text-slate-800 font-black uppercase tracking-tight leading-tight">{award.title}</span>
                       </div>
 
@@ -448,11 +448,11 @@ export function Footer() {
                       
                       <div className="flex items-center gap-1.5 mt-1">
                         <div className="bg-red-600 text-slate-900 font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wider leading-none">GGA</div>
-                        <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
+                        <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
                       </div>
 
                       <div className="my-2 flex flex-col items-center">
-                        <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
+                        <span className="text-[8px] text-slate-600 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
                         <span className="text-[10.5px] text-slate-800 font-black uppercase tracking-tight leading-tight">{award.title}</span>
                       </div>
 
@@ -474,11 +474,11 @@ export function Footer() {
                       <div className="flex items-center gap-1.5 mt-1">
                         <Trophy className="w-3 h-3 text-yellow-600" />
                         <span className="text-[9px] text-yellow-600 font-black tracking-wider">IGA</span>
-                        <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
+                        <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
                       </div>
 
                       <div className="my-2 flex flex-col items-center">
-                        <span className="text-[8px] text-slate-400 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
+                        <span className="text-[8px] text-slate-600 font-black uppercase tracking-wider mb-0.5">{award.winnerLabel}</span>
                         <span className="text-[10.5px] text-slate-800 font-black uppercase tracking-tight leading-tight">{award.title}</span>
                       </div>
 
@@ -512,7 +512,7 @@ export function Footer() {
             </div>
           </div>
           
-          <div className="flex items-center gap-4 text-xs text-slate-500 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
+          <div className="flex items-center gap-4 text-xs text-slate-650 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200">
             <span className="flex items-center gap-1.5"><Shield className="w-4 h-4 text-green-600" /> SSL Secure Connection</span>
             <span className="text-slate-700">|</span>
             <span className="flex items-center gap-1.5"><ShieldCheck className="w-4 h-4 text-red-600" /> Provably Fair RNG</span>

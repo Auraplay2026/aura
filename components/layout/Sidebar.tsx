@@ -66,7 +66,7 @@ const NAV_SECTIONS = [
       { name: "Activity Log", href: "/account/activity", icon: Zap, color: "text-slate-500" },
       { name: "Refer & Earn", href: "/refer", icon: Gift, color: "text-slate-500" },
       { name: "Provably Fair", href: "/casino/verify", icon: Shield, color: "text-indigo-400" },
-      { name: "Safe Play", href: "/rg", icon: Shield, color: "text-slate-400" },
+      { name: "Safe Play", href: "/rg", icon: Shield, color: "text-slate-500" },
       { name: "Support Desk", href: "/support", icon: HeadphonesIcon, color: "text-slate-500" },
     ]
   }
@@ -181,7 +181,7 @@ export function Sidebar() {
               className="flex flex-col w-full pb-1"
             >
               <div className="flex items-center justify-between px-2 mb-1.5 select-none">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                <span className="text-[10px] font-black text-slate-600 uppercase tracking-widest">
                   {section.title}
                 </span>
               </div>
@@ -232,7 +232,7 @@ export function Sidebar() {
                       onClick={() => setIsMobileMenuOpen(false)}
                     >
                       <div className="flex items-center gap-2.5">
-                        <item.icon className={cn("w-4 h-4 transition-all duration-200 shrink-0", isActive ? "" : "text-slate-400 group-hover:text-slate-700")} />
+                        <item.icon className={cn("w-4 h-4 transition-all duration-200 shrink-0", isActive ? "" : "text-slate-500 group-hover:text-slate-700")} />
                         <span className="font-semibold">{item.name}</span>
                       </div>
                       {item.badge && (

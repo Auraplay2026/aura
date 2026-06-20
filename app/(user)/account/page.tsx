@@ -200,7 +200,7 @@ export default function AccountSettingsPage() {
           {/* Quick Stats */}
           <div className="flex gap-6 shrink-0 mt-6 md:mt-0">
             <div className="text-center md:text-right">
-              <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Total Net Worth</p>
+              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total Net Worth</p>
               <p className="text-3xl font-black text-slate-900 font-mono tracking-tight font-bold">₹{netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
             </div>
           </div>
@@ -222,7 +222,7 @@ export default function AccountSettingsPage() {
                 "flex-1 py-2.5 px-3 rounded-xl font-black text-[11px] uppercase tracking-wider transition-all whitespace-nowrap text-center cursor-pointer",
                 isActive 
                   ? "bg-white text-slate-900 shadow-[0_4px_12px_rgba(0,0,0,0.05)] scale-102"
-                  : "text-slate-500 hover:text-slate-800"
+                  : "text-slate-600 hover:text-slate-800"
               )}
             >
               {tab === 'personal' ? 'Profile' : tab === 'security' ? 'Security' : tab === 'verification' ? 'Identity' : 'Admin'}
@@ -241,7 +241,7 @@ export default function AccountSettingsPage() {
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
-              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Available Balance</p>
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Available Balance</p>
               <h3 className="text-sm sm:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate">₹{balance.toLocaleString(undefined, { maximumFractionDigits: 2 })}</h3>
             </div>
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
@@ -249,7 +249,7 @@ export default function AccountSettingsPage() {
             </div>
           </div>
           <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] sm:text-xs">
-            <span className="text-slate-500 truncate">Portfolio:</span>
+            <span className="text-slate-650 truncate">Portfolio:</span>
             <span className="font-mono font-bold text-slate-750 truncate ml-1">₹{currentPortfolioValue.toLocaleString(undefined, { maximumFractionDigits: 1 })}</span>
           </div>
         </motion.div>
@@ -261,7 +261,7 @@ export default function AccountSettingsPage() {
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
-              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Overall Net P&L</p>
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Overall Net P&L</p>
               <h3 className={cn(
                 "text-sm sm:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
                 overallPnL >= 0 ? "text-[#16A34A]" : "text-red-650"
@@ -277,7 +277,7 @@ export default function AccountSettingsPage() {
             </div>
           </div>
           <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] sm:text-xs">
-            <span className="text-slate-500 truncate">Status:</span>
+            <span className="text-slate-650 truncate">Status:</span>
             <span className={cn("font-bold truncate ml-1", overallPnL >= 0 ? "text-[#16A34A]" : "text-red-650")}>
               {overallPnL >= 0 ? "IN PROFIT" : "IN LOSS"}
             </span>
@@ -291,7 +291,7 @@ export default function AccountSettingsPage() {
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
-              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Return on Capital</p>
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Return on Capital</p>
               <h3 className={cn(
                 "text-sm sm:text-2xl font-black font-mono mt-0.5 sm:mt-1 truncate",
                 roiPercentage >= 0 ? "text-[#16A34A]" : "text-red-650"
@@ -304,7 +304,7 @@ export default function AccountSettingsPage() {
             </div>
           </div>
           <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 flex justify-between items-center text-[10px] sm:text-xs">
-            <span className="text-slate-500 truncate">Performance:</span>
+            <span className="text-slate-650 truncate">Performance:</span>
             <span className="font-bold text-slate-750 truncate ml-1">Excellent</span>
           </div>
         </motion.div>
@@ -316,7 +316,7 @@ export default function AccountSettingsPage() {
         >
           <div className="flex justify-between items-start">
             <div className="min-w-0 flex-1 pr-1.5">
-              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-400 tracking-wider block truncate">Deposits/Withdrawals</p>
+              <p className="text-[8px] sm:text-[10px] font-black uppercase text-slate-600 tracking-wider block truncate">Deposits/Withdrawals</p>
               <h3 className="text-sm sm:text-2xl font-black text-slate-900 font-mono mt-0.5 sm:mt-1 truncate">₹{(totalDeposits + totalWithdrawals).toLocaleString(undefined, { maximumFractionDigits: 0 })}</h3>
             </div>
             <div className="w-7 h-7 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center shrink-0">
@@ -324,7 +324,7 @@ export default function AccountSettingsPage() {
             </div>
           </div>
           <div className="mt-3 sm:mt-4 pt-2 sm:pt-3 border-t border-slate-100 space-y-1.5">
-            <div className="flex justify-between text-[8px] sm:text-[10px] text-slate-500 font-bold gap-1">
+            <div className="flex justify-between text-[8px] sm:text-[10px] text-slate-650 font-bold gap-1">
               <span className="truncate">DEP: ₹{totalDeposits.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
               <span className="truncate">WIT: ₹{totalWithdrawals.toLocaleString(undefined, { maximumFractionDigits: 0 })}</span>
             </div>
@@ -372,7 +372,7 @@ export default function AccountSettingsPage() {
             
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 relative z-10">
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Full Name</label>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pl-1">Full Name</label>
                 <input 
                   type="text" 
                   value={fullName}
@@ -381,7 +381,7 @@ export default function AccountSettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Date of Birth</label>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pl-1">Date of Birth</label>
                 <input 
                   type="text" 
                   value={dob}
@@ -391,7 +391,7 @@ export default function AccountSettingsPage() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Residential Address</label>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pl-1">Residential Address</label>
                 <input 
                   type="text" 
                   value={address}
@@ -400,7 +400,7 @@ export default function AccountSettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Username</label>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pl-1">Username</label>
                 <input 
                   type="text" 
                   value={username}
@@ -415,13 +415,13 @@ export default function AccountSettingsPage() {
                     type="email" 
                     defaultValue={currentUser?.email || ""}
                     readOnly
-                    className="w-full bg-slate-50 border border-slate-200/50 rounded-xl px-4 py-3.5 text-slate-500 font-bold focus:outline-none cursor-not-allowed"
+                    className="w-full bg-slate-50 border border-slate-200/50 rounded-xl px-4 py-3.5 text-slate-650 font-bold focus:outline-none cursor-not-allowed"
                   />
                   <CheckCircle2 className="w-5 h-5 text-neon-green absolute right-4 top-1/2 -translate-y-1/2" />
                 </div>
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Phone Number</label>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pl-1">Phone Number</label>
                 <input 
                   type="text" 
                   value={phoneNumber}
@@ -431,7 +431,7 @@ export default function AccountSettingsPage() {
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">State / Region</label>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pl-1">State / Region</label>
                 <input 
                   type="text" 
                   value={gamingState}
@@ -441,7 +441,7 @@ export default function AccountSettingsPage() {
                 />
               </div>
               <div className="space-y-2 sm:col-span-2">
-                <label className="text-[10px] font-bold text-slate-500 uppercase tracking-widest pl-1">Wallet Address / UPI ID</label>
+                <label className="text-[10px] font-bold text-slate-600 uppercase tracking-widest pl-1">Wallet Address / UPI ID</label>
                 <div className="relative">
                   <input 
                     type="text" 
@@ -621,7 +621,7 @@ export default function AccountSettingsPage() {
                 ) : currentUser?.kycStatus === 'PENDING' || currentUser?.kycStatus === 'PROCESSING' ? (
                   <button 
                     disabled
-                    className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-400 uppercase tracking-widest border border-slate-200 cursor-not-allowed flex items-center justify-center gap-1.5"
+                    className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-600 uppercase tracking-widest border border-slate-200 cursor-not-allowed flex items-center justify-center gap-1.5"
                   >
                     <Activity className="w-4 h-4 animate-pulse text-yellow-600" /> Under Review {kycCountdown ? `(${kycCountdown})` : ""}
                   </button>
@@ -724,7 +724,7 @@ export default function AccountSettingsPage() {
                   <Key className="w-4 h-4 text-red-600" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Security Center</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Security Center</h3>
                   <h2 className="text-base font-black text-slate-900">Change Password</h2>
                 </div>
               </div>
@@ -753,7 +753,7 @@ export default function AccountSettingsPage() {
               ) : (
                 <div className="space-y-4">
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Current Password</label>
+                    <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-1">Current Password</label>
                     <input 
                       type="password"
                       value={currentPassword}
@@ -763,7 +763,7 @@ export default function AccountSettingsPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">New Password</label>
+                    <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-1">New Password</label>
                     <input 
                       type="password"
                       value={newPassword}
@@ -773,7 +773,7 @@ export default function AccountSettingsPage() {
                     />
                   </div>
                   <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Confirm New Password</label>
+                    <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-1">Confirm New Password</label>
                     <input 
                       type="password"
                       value={confirmPassword}
@@ -841,7 +841,7 @@ export default function AccountSettingsPage() {
                   <Smartphone className="w-4.5 h-4.5 text-indigo-600" />
                 </div>
                 <div>
-                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-400">Security Center</h3>
+                  <h3 className="text-xs font-black uppercase tracking-widest text-slate-600">Security Center</h3>
                   <h2 className="text-base font-black text-slate-900">Two-Factor Authentication</h2>
                 </div>
               </div>
@@ -946,7 +946,7 @@ export default function AccountSettingsPage() {
                       </div>
 
                       <div className="space-y-2 text-center">
-                        <p className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Manual Account Secret Key</p>
+                        <p className="text-[10px] font-bold text-slate-600 uppercase tracking-wider">Manual Account Secret Key</p>
                         <div className="flex items-center justify-between bg-slate-50 border border-slate-200 rounded-xl px-4 py-2 text-sm font-mono text-slate-700">
                           <span>{twoFactorSecret}</span>
                           <button 
@@ -966,7 +966,7 @@ export default function AccountSettingsPage() {
                       </div>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Authenticator Code</label>
+                        <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-1">Authenticator Code</label>
                         <input 
                           type="text"
                           maxLength={6}
@@ -1004,7 +1004,7 @@ export default function AccountSettingsPage() {
                       </p>
 
                       <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider pl-1">Authenticator Code</label>
+                        <label className="text-[10px] font-bold text-slate-600 uppercase tracking-wider pl-1">Authenticator Code</label>
                         <input 
                           type="text"
                           maxLength={6}

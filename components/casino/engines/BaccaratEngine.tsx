@@ -246,7 +246,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
               selectedSide === "PLAYER"
                 ? "bg-gradient-to-br from-blue-500 to-blue-600 text-slate-900 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105"
-                : "bg-white text-slate-400 border-slate-800 hover:border-blue-500/30"
+                : "bg-white text-slate-650 border-slate-800 hover:border-blue-500/30"
             }`}
           >
             Player (2x)
@@ -256,7 +256,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
               selectedSide === "BANKER"
                 ? "bg-gradient-to-br from-red-550 to-red-650 text-slate-900 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
-                : "bg-white text-slate-400 border-slate-800 hover:border-red-500/30"
+                : "bg-white text-slate-650 border-slate-800 hover:border-red-500/30"
             }`}
           >
             Banker (1.95x)
@@ -266,7 +266,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
               selectedSide === "TIE"
                 ? "bg-gradient-to-br from-yellow-500 to-yellow-650 text-yellow-950 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-105"
-                : "bg-white text-slate-400 border-slate-800 hover:border-yellow-500/30"
+                : "bg-white text-slate-650 border-slate-800 hover:border-yellow-500/30"
             }`}
           >
             Tie (9x)

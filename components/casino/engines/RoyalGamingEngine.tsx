@@ -2573,14 +2573,14 @@ setPlacedChips([]);
         {/* 1. Low Balance Alert Modal */}
         {showLowBalance && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
-            <div className="bg-white border border-white/10 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-100">
+            <div className="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-900">
               <AlertTriangle className="w-12 h-12 text-[#BE185D] mx-auto animate-bounce" />
               <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">Low Balance</h4>
-              <p className="text-xs text-slate-400 leading-normal">
+              <p className="text-xs text-slate-650 leading-normal">
                 Low Balance: Your balance is low, please visit the cashier.
               </p>
               <div className="flex gap-2">
-                <button onClick={() => setShowLowBalance(false)} className="flex-1 py-2 bg-slate-50 hover:bg-slate-100 border border-white/5 rounded-lg text-[10px] font-black uppercase text-slate-300">Cancel</button>
+                <button onClick={() => setShowLowBalance(false)} className="flex-1 py-2 bg-slate-50 hover:bg-slate-100 border border-white/5 rounded-lg text-[10px] font-black uppercase text-slate-700">Cancel</button>
                 <button 
                   onClick={() => {
                     setShowLowBalance(false);
@@ -2598,10 +2598,10 @@ setPlacedChips([]);
         {/* 2. Connection Lost Alert Modal */}
         {showConnectionLost && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
-            <div className="bg-white border border-white/10 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-100">
+            <div className="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-900">
               <RefreshCw className="w-12 h-12 text-indigo-500 mx-auto animate-spin" />
               <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">Connection Lost</h4>
-              <p className="text-xs text-slate-400 leading-normal">
+              <p className="text-xs text-slate-650 leading-normal">
                 Connection Lost: Attempting to reconnect to live dealer room...
               </p>
             </div>
@@ -2611,10 +2611,10 @@ setPlacedChips([]);
         {/* 3. Server Maintenance Alert Modal */}
         {showMaintenance && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
-            <div className="bg-white border border-white/10 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-100">
+            <div className="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-900">
               <AlertTriangle className="w-12 h-12 text-[#D97706] mx-auto animate-pulse" />
               <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">Notice</h4>
-              <p className="text-xs text-slate-400 leading-normal">
+              <p className="text-xs text-slate-650 leading-normal">
                 Notice: Game is under maintenance. Returning to primary game vault selection.
               </p>
               <button 
@@ -2622,7 +2622,7 @@ setPlacedChips([]);
                   setShowMaintenance(false);
                   window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }));
                 }}
-                className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-100 rounded-lg text-[10px] font-black uppercase tracking-wider border border-white/5"
+                className="w-full py-2.5 bg-slate-50 hover:bg-slate-100 text-slate-800 rounded-lg text-[10px] font-black uppercase tracking-wider border border-slate-200"
               >
                 Okay
               </button>

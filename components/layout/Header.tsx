@@ -164,14 +164,14 @@ export function Header() {
           )}
         >
           <div className="pl-3 py-1.5 transition-colors group-hover:text-slate-600">
-            <Search className="w-4 h-4 text-slate-400 group-hover:text-slate-500 transition-colors" />
+            <Search className="w-4 h-4 text-slate-550 group-hover:text-slate-700 transition-colors" />
           </div>
-          <span className="w-full text-left text-[13px] text-slate-400 group-hover:text-slate-500 font-medium px-2 py-1.5 transition-colors">
+          <span className="w-full text-left text-[13px] text-slate-550 group-hover:text-slate-700 font-medium px-2 py-1.5 transition-colors">
             Search games & markets...
           </span>
           <div className="hidden lg:flex items-center gap-0.5 pr-2">
-            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-sm px-1.5 py-0.5">⌘</kbd>
-            <kbd className="text-[10px] font-bold text-slate-400 bg-white border border-slate-200 rounded-sm px-1.5 py-0.5">K</kbd>
+            <kbd className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-sm px-1.5 py-0.5">⌘</kbd>
+            <kbd className="text-[10px] font-bold text-slate-600 bg-white border border-slate-200 rounded-sm px-1.5 py-0.5">K</kbd>
           </div>
         </button>
 
@@ -192,7 +192,7 @@ export function Header() {
             {/* Wallet Balance Widget */}
             <div className="flex items-center gap-1 sm:gap-3 pr-0.5 sm:pr-2 shrink-0">
               <div className="flex flex-col items-end leading-none">
-                <span className="text-[7px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-0.5">Balance</span>
+                <span className="text-[7px] font-extrabold text-slate-650 uppercase tracking-[0.15em] mb-0.5">Balance</span>
                 <span className={cn(
                   "text-[10px] sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
                   balanceFlash === "up" ? "text-emerald-600 scale-105" :
@@ -203,7 +203,7 @@ export function Header() {
               </div>
               <div className="hidden sm:block w-[1px] h-6 bg-slate-200 shrink-0" />
               <div className="hidden sm:flex flex-col items-end leading-none">
-                <span className="text-[7px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-0.5">Exposure</span>
+                <span className="text-[7px] font-extrabold text-slate-650 uppercase tracking-[0.15em] mb-0.5">Exposure</span>
                 <span className={cn(
                   "text-[10px] sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
                   exposureFlash === "up" ? "text-red-500 scale-105" :
@@ -215,7 +215,7 @@ export function Header() {
 
               {/* VIP Level Badge HUD */}
               <div className="hidden sm:flex flex-col items-start leading-none pl-1">
-                <span className="text-[7px] font-extrabold text-slate-400 uppercase tracking-[0.15em] mb-0.5">VIP Tier</span>
+                <span className="text-[7px] font-extrabold text-slate-650 uppercase tracking-[0.15em] mb-0.5">VIP Tier</span>
                 <span className="text-[9px] font-bold text-amber-600 bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 rounded-sm uppercase tracking-wider select-none">
                   LVL {Math.floor((xp || 0) / 1000) + 1}
                 </span>
@@ -292,7 +292,7 @@ export function Header() {
                       </div>
                       <div className="max-h-[320px] overflow-y-auto custom-scrollbar divide-y divide-slate-100">
                         {!currentUser?.notifications || currentUser.notifications.length === 0 ? (
-                          <div className="p-8 text-center text-xs text-slate-400 italic">No notifications yet.</div>
+                          <div className="p-8 text-center text-xs text-slate-600 italic">No notifications yet.</div>
                         ) : (
                           currentUser.notifications.map((notif: any) => {
                             const timeDesc = new Date(notif.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -324,8 +324,8 @@ export function Header() {
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <h4 className="text-xs font-black text-slate-800 truncate">{notif.title || "Notification"}</h4>
-                                  <p className="text-[11px] text-slate-500 leading-normal mt-0.5 break-words">{notif.message}</p>
-                                  <span className="text-[9px] text-slate-400 font-extrabold block mt-1">{timeDesc}</span>
+                                  <p className="text-[11px] text-slate-650 leading-normal mt-0.5 break-words">{notif.message}</p>
+                                  <span className="text-[9px] text-slate-550 font-extrabold block mt-1">{timeDesc}</span>
                                 </div>
                               </div>
                             );

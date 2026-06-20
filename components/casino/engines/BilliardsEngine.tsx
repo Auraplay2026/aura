@@ -970,7 +970,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         {/* Audio Speaker Mute Toggle */}
         <button
           onClick={() => setIsMuted(prev => !prev)}
-          className="p-2 rounded-xl bg-white/40 hover:bg-white/80 border border-slate-800 text-slate-400 hover:text-slate-900 transition-all shadow-inner"
+          className="p-2 rounded-xl bg-white/40 hover:bg-white/80 border border-slate-800 text-slate-650 hover:text-slate-900 transition-all shadow-inner"
         >
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
@@ -1007,17 +1007,17 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
           <button
             onClick={() => setCueAngle(prev => prev - 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-400 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
+            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-650 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
           >
             ↺
           </button>
-          <span className="text-xs text-slate-400 font-black font-mono uppercase tracking-wider">
+          <span className="text-xs text-slate-650 font-black font-mono uppercase tracking-wider">
             Aim Fine-tune
           </span>
           <button
             onClick={() => setCueAngle(prev => prev + 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-400 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
+            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-650 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
           >
             ↻
           </button>
@@ -1148,7 +1148,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
                 SCRATCHED OR MISSED
               </h2>
 
-              <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+              <p className="text-slate-650 text-sm mb-8 leading-relaxed">
                 Your cue ball scratched or the shot missed the target pockets. Refine your laser guides and try again!
               </p>
 
@@ -1158,7 +1158,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
                   initBalls();
                   onComplete(0, false);
                 }}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-300 hover:text-slate-900 font-black uppercase text-sm tracking-widest border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-300 hover:text-white font-black uppercase text-sm tracking-widest border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 PLAY AGAIN

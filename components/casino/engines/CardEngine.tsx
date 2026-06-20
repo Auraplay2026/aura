@@ -281,7 +281,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
           <div className="flex flex-col md:flex-row gap-12 w-full justify-center">
             {/* Dealer Hand (or Banker) */}
             <div className="flex flex-col items-center gap-2">
-              <span className="text-[10px] text-slate-200 opacity-60 font-black uppercase tracking-wider">
+              <span className="text-[10px] text-slate-800 opacity-80 font-black uppercase tracking-wider">
                 {isBaccarat ? "Banker Hand" : "Dealer Hand"}
               </span>
               <div className="flex gap-2">
@@ -309,7 +309,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
 
             {/* Player Hand */}
             <div className="flex flex-col items-center gap-2">
-              <span className="text-[10px] text-slate-200 opacity-60 font-black uppercase tracking-wider">Player Hand</span>
+              <span className="text-[10px] text-slate-800 opacity-80 font-black uppercase tracking-wider">Player Hand</span>
               <div className="flex gap-2">
                 {playerHand.map((card, idx) => (
                   <motion.div
@@ -336,7 +336,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
         ) : (
           /* Poker 5-card layout */
           <div className="flex flex-col items-center gap-3">
-            <span className="text-[10px] text-slate-200 opacity-60 font-black uppercase tracking-wider">Player Poker Hand</span>
+            <span className="text-[10px] text-slate-800 opacity-80 font-black uppercase tracking-wider">Player Poker Hand</span>
             <div className="flex gap-3 justify-center">
               {playerHand.map((card, idx) => (
                 <motion.div
@@ -385,7 +385,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "PLAYER"
                     ? "bg-gradient-to-br from-blue-500 to-blue-600 text-slate-900 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105"
-                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-blue-500/30"
+                    : "bg-white/90 text-slate-650 border-slate-800 hover:border-blue-500/30"
                 }`}
               >
                 Player (2x)
@@ -396,7 +396,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "BANKER"
                     ? "bg-gradient-to-br from-red-500 to-red-650 text-slate-900 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
-                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-red-500/30"
+                    : "bg-white/90 text-slate-650 border-slate-800 hover:border-red-500/30"
                 }`}
               >
                 Banker (1.95x)
@@ -407,7 +407,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "TIE"
                     ? "bg-gradient-to-br from-yellow-500 to-yellow-600 text-yellow-950 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-105"
-                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-yellow-500/30"
+                    : "bg-white/90 text-slate-650 border-slate-800 hover:border-yellow-500/30"
                 }`}
               >
                 Tie (9x)
@@ -421,7 +421,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "PLAYER"
                     ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-slate-900 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-105"
-                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-emerald-500/30"
+                    : "bg-white/90 text-slate-650 border-slate-800 hover:border-emerald-500/30"
                 }`}
               >
                 Player (2x)
@@ -432,7 +432,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "DEALER"
                     ? "bg-gradient-to-br from-red-500 to-red-650 text-slate-900 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
-                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-red-500/30"
+                    : "bg-white/90 text-slate-650 border-slate-800 hover:border-red-500/30"
                 }`}
               >
                 Dealer (2x)

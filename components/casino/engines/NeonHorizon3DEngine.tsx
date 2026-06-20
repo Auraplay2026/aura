@@ -713,7 +713,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
         <div className="flex items-center gap-4">
           <button 
             onClick={toggleMute}
-            className="w-10 h-10 rounded-xl bg-white/60 border border-slate-700/60 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors backdrop-blur-md"
+            className="w-10 h-10 rounded-xl bg-white/60 border border-slate-700/60 flex items-center justify-center text-slate-650 hover:text-slate-900 transition-colors backdrop-blur-md"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -745,7 +745,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
                 <Zap className="w-8 h-8 text-slate-900 stroke-[2.5]" />
               </div>
               <h3 className="text-slate-900 font-black text-xl uppercase tracking-widest">Manual Drive Mode</h3>
-              <p className="text-slate-400 text-xs font-semibold leading-relaxed">
+              <p className="text-slate-650 text-xs font-semibold leading-relaxed">
                 Steer using <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">A</kbd> / <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">D</kbd> or <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">←</kbd> / <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">→</kbd> on keyboard. Dodge neon blockades. Cashout before crashing!
               </p>
               
@@ -777,7 +777,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
               <span className="text-red-500 font-mono font-black text-4xl uppercase tracking-widest leading-none drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">
                 COLLISION!
               </span>
-              <span className="text-slate-400 text-xs font-bold font-mono tracking-wider mt-1">
+              <span className="text-slate-650 text-xs font-bold font-mono tracking-wider mt-1">
                 Wreckage multiplier locked at 0.00x
               </span>
             </motion.div>

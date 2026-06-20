@@ -259,7 +259,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
     return {
       val: targetValObj.val,
       suit,
-      color: isRed ? "text-rose-500" : "text-slate-200",
+      color: isRed ? "text-rose-500" : "text-slate-900",
       score: targetValObj.score
     };
   };
@@ -296,8 +296,8 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
       const sameSuit = Math.random() < 0.5;
       const suit2 = sameSuit ? suit1 : SUITS.filter(s => s !== suit1)[Math.floor(Math.random() * 3)];
       
-      pCard1 = { val: matchValObj.val, suit: suit1, color: ["♥", "♦"].includes(suit1) ? "text-rose-500" : "text-slate-200", score: matchValObj.score };
-      pCard2 = { val: matchValObj.val, suit: suit2, color: ["♥", "♦"].includes(suit2) ? "text-rose-500" : "text-slate-200", score: matchValObj.score };
+      pCard1 = { val: matchValObj.val, suit: suit1, color: ["♥", "♦"].includes(suit1) ? "text-rose-500" : "text-slate-900", score: matchValObj.score };
+      pCard2 = { val: matchValObj.val, suit: suit2, color: ["♥", "♦"].includes(suit2) ? "text-rose-500" : "text-slate-900", score: matchValObj.score };
     } else {
       pCard1 = getRandomCard();
       pCard2 = getRandomCard();
@@ -315,9 +315,9 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
       const c1 = VALUES[4]; // 5
       const c2 = VALUES[5]; // 6
       const c3 = VALUES[6]; // 7
-      pCard1 = { val: c1.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-200", score: c1.score };
-      pCard2 = { val: c2.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-200", score: c2.score };
-      dCard1 = { val: c3.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-200", score: c3.score };
+      pCard1 = { val: c1.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c1.score };
+      pCard2 = { val: c2.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c2.score };
+      dCard1 = { val: c3.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c3.score };
     } else {
       dCard1 = getRandomCard();
     }
@@ -687,7 +687,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         <div className="flex items-center gap-1.5">
           <button 
             onClick={() => setIsMuted(!isMuted)} 
-            className="p-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-slate-400 hover:text-slate-900"
+            className="p-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-slate-650 hover:text-slate-900"
           >
             {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -699,7 +699,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         <h2 className={cn("font-serif font-black text-lg sm:text-2xl tracking-[0.3em] uppercase drop-shadow-md", theme.textColor)}>
           {theme.displayName}
         </h2>
-        <span className="text-slate-400 text-[8px] sm:text-[9px] font-black tracking-[0.4em] block mt-0.5">
+        <span className="text-slate-650 text-[8px] sm:text-[9px] font-black tracking-[0.4em] block mt-0.5">
           {theme.subName}
         </span>
       </div>
@@ -709,7 +709,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         
         {/* Dealer Section */}
         <div className="flex flex-col items-center gap-1.5">
-          <div className="flex items-center gap-1 bg-white/45 border border-white/5 px-2.5 py-0.5 rounded-full text-slate-300 font-black text-[9px] tracking-wider uppercase">
+          <div className="flex items-center gap-1 bg-white/45 border border-white/5 px-2.5 py-0.5 rounded-full text-slate-750 font-black text-[9px] tracking-wider uppercase">
             <span>Dealer</span>
             {dealerHand.length > 0 && (
               <span className="text-amber-400 font-mono font-bold">({dealerScore})</span>
@@ -829,7 +829,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
               <span className="text-[7.5px] sm:text-[8.5px] font-black text-slate-350 mt-0.5 sm:mt-1 uppercase tracking-wider">Main Bet</span>
             </div>
           </div>
-          <span className="text-[7.5px] sm:text-[8px] font-black uppercase text-slate-400 tracking-widest">Main Seat</span>
+          <span className="text-[7.5px] sm:text-[8px] font-black uppercase text-slate-655 tracking-widest">Main Seat</span>
         </div>
 
         {/* Right: 21+3 */}
@@ -872,7 +872,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         {/* Status message */}
         <div className="text-center">
           {phase === "betting" && (
-            <span className="text-[9px] sm:text-[9.5px] font-black text-slate-400 uppercase tracking-widest leading-none">
+            <span className="text-[9px] sm:text-[9.5px] font-black text-slate-650 uppercase tracking-widest leading-none">
               Place wagers and toggle side bets to begin
             </span>
           )}

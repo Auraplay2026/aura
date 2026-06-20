@@ -808,7 +808,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           <div className={`flex items-center gap-2 bg-slate-50 border ${theme.border} rounded-2xl px-4 py-2.5 shadow-sm`}>
             <Zap className={`w-4 h-4 ${theme.text}`} />
             <div className="text-left">
-              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest block">RISK MODE</span>
+              <span className="text-[8px] text-slate-600 font-bold uppercase tracking-widest block">RISK MODE</span>
               <span className={`text-xs font-black uppercase tracking-wider ${theme.text}`}>
                 {risk}
               </span>
@@ -825,7 +825,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
                 className={`px-5 py-2 rounded-xl text-sm font-black border ${
                   lastResult.won 
                     ? "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm" 
-                    : "bg-white border-slate-200 text-slate-500"
+                    : "bg-white border-slate-200 text-slate-650"
                 }`}
               >
                 Avg Outcome: <span className="font-mono">{lastResult.mult.toFixed(2)}x</span>
@@ -836,7 +836,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           {/* Audio toggle speaker */}
           <button
             onClick={() => setIsMuted(prev => !prev)}
-            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-800 transition-all cursor-pointer shadow-sm"
+            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-650 hover:text-slate-800 transition-all cursor-pointer shadow-sm"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
