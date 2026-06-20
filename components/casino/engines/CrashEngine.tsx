@@ -336,6 +336,27 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       s.cameraY += (targetCamY - s.cameraY) * lerpFactor;
       s.cameraZoom += (targetZoom - s.cameraZoom) * lerpFactor;
 
+      // Keep ship strictly within viewport bounds with a 45px margin
+      const margin = 45;
+      if (s.cameraZoom > 0.01) {
+        const minCamX = s.shipWorldX - (W - margin - offsetX) / s.cameraZoom;
+        const maxCamX = s.shipWorldX - (margin - offsetX) / s.cameraZoom;
+        const minCamY = s.shipWorldY - (H - margin - offsetY) / s.cameraZoom;
+        const maxCamY = s.shipWorldY - (margin - offsetY) / s.cameraZoom;
+
+        if (minCamX <= maxCamX) {
+          s.cameraX = Math.max(minCamX, Math.min(maxCamX, s.cameraX));
+        } else {
+          s.cameraX = s.shipWorldX;
+        }
+
+        if (minCamY <= maxCamY) {
+          s.cameraY = Math.max(minCamY, Math.min(maxCamY, s.cameraY));
+        } else {
+          s.cameraY = s.shipWorldY;
+        }
+      }
+
       // Final camera sanitization
       if (isNaN(s.cameraX) || !isFinite(s.cameraX)) s.cameraX = 120;
       if (isNaN(s.cameraY) || !isFinite(s.cameraY)) s.cameraY = 800;
@@ -686,12 +707,12 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
           interval = setInterval(() => {
             if (!active) return;
             tick++;
-            current += 0.005 + current * 0.0085;
+            current += 0.004 + current * 0.0072;
             updateCrashPitch(current);
             s.multiplier = current;
 
-            // Flight path: smooth accelerating upward curve
-            const speed = 2.0 + current * 0.65;
+            // Flight path: smooth accelerating upward curve (logarithmic speed cap)
+            const speed = 2.0 + Math.min(6.5, Math.log10(current) * 3.0);
             const baseAngle = -0.15 - Math.min(0.55, Math.log10(Math.max(1.01, current)) * 0.28);
             s.shipWorldX += Math.cos(baseAngle) * speed;
             s.shipWorldY += Math.sin(baseAngle) * speed;
