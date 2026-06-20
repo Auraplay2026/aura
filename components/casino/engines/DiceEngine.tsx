@@ -90,7 +90,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
   const winChance = target.toFixed(2);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-4 md:p-12">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl p-3 md:p-12">
       
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-900/20 via-slate-950 to-slate-950 pointer-events-none" />
 

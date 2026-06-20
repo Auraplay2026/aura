@@ -201,7 +201,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   const currentMultiplier = activeRow > 0 ? MULTIPLIERS[activeRow - 1] : 1.0;
 
   return (
-    <div className="w-full h-full min-h-[460px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 relative flex flex-col md:flex-row items-center justify-center overflow-hidden p-6 gap-8 shadow-2xl">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 relative flex flex-col md:flex-row items-center justify-center overflow-hidden p-3 md:p-6 gap-4 md:gap-8 shadow-2xl">
       
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />

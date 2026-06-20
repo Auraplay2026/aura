@@ -1647,7 +1647,7 @@ export default function GamePlayerPage() {
 
                     {/* FULL-WIDTH GAME CANVAS */}
                     <div className={cn(
-                      "h-[420px] sm:h-[520px] md:h-[600px] lg:h-[680px] flex flex-col relative z-10",
+                      "min-h-[480px] h-[540px] sm:h-[580px] md:h-[600px] lg:h-[680px] flex flex-col relative z-10",
                       isRoyalEngine ? "bg-transparent p-0" : "bg-[#0f1923] p-2 md:p-4"
                     )}>
                       

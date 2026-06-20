@@ -432,10 +432,10 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   }, [isWin]);
 
   return (
-    <div className="w-full h-full min-h-[600px] flex flex-col md:flex-row gap-6 relative p-4 md:p-6 rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
+    <div className="w-full h-full min-h-[450px] md:min-h-[600px] flex flex-col md:flex-row gap-6 relative p-4 md:p-6 rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
       
       {/* 1. AAA HUD Sidebar Panel (Stats, Live, achievement progression) */}
-      <div className="w-full md:w-80 flex flex-col gap-4 z-20 shrink-0">
+      <div className="hidden md:flex w-full md:w-80 flex-col gap-4 z-20 shrink-0">
         
         {/* VIP Player Stats Card */}
         <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-inner">
@@ -503,7 +503,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
       </div>
 
       {/* 2. Main Game Viewport with Canvas tunnel & giant multiplier engine */}
-      <div className="flex-grow relative rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden flex flex-col justify-between p-4 md:p-6 min-h-[500px]">
+      <div className="flex-grow relative rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden flex flex-col justify-between p-4 md:p-6 min-h-[380px] md:min-h-[500px]">
         
         {/* Canvas background rendering */}
         <canvas

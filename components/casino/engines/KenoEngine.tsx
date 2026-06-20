@@ -161,7 +161,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
   const hitsCount = drawnNumbers.filter(n => selectedNumbers.includes(n)).length;
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] flex flex-col p-4 md:p-6 relative bg-[#09090b] rounded-3xl overflow-hidden shadow-2xl border border-[#27272a] perspective-[1200px]">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] flex flex-col p-3 md:p-6 relative bg-[#09090b] rounded-3xl overflow-hidden shadow-2xl border border-[#27272a] perspective-[1200px]">
       
       {/* Dynamic 3D Neon Background */}
       <div className="absolute inset-0 pointer-events-none">

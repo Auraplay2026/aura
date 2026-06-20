@@ -188,7 +188,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   };
 
   return (
-    <div className="w-full h-full min-h-[460px] md:min-h-[600px] relative bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col p-4 md:p-6 gap-6">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] relative bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col p-3 md:p-6 gap-6">
       
       {/* Deep Space / Casino Floor Background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-slate-950 to-slate-950 pointer-events-none" />
