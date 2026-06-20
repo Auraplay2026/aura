@@ -939,13 +939,47 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
           })}
         </div>
 
-        {/* Right: Compact Stake / Info */}
-        <div className="flex items-center gap-2 text-right">
-          <div className="flex items-center gap-1 font-mono">
+        {/* Right: Compact Stake & Dice Roll */}
+        <div className="flex items-center gap-3">
+          {/* Stake */}
+          <div className="hidden xs:flex items-center gap-1 font-mono">
             <Coins className="w-3 h-3 text-amber-500" />
             <span className="text-[10px] font-black text-slate-800">
               ₹{betAmount.toLocaleString()}
             </span>
+          </div>
+
+          {/* Dice Roll Trigger */}
+          <div className="relative">
+            <button
+              disabled={!(currentPlayer?.isHuman && gamePhase === "playing" && !winner)}
+              onClick={rollDice}
+              className={`w-9 h-9 rounded-xl flex items-center justify-center border font-black text-sm transition-all select-none ${
+                currentPlayer?.isHuman && gamePhase === "playing" && !winner
+                  ? "border-amber-500 bg-amber-500/10 text-amber-600 shadow-[0_0_10px_rgba(245,158,11,0.2)] animate-pulse scale-105 active:scale-95 cursor-pointer"
+                  : "border-slate-200 bg-slate-50/50 text-slate-400 opacity-60"
+              }`}
+            >
+              {isRolling ? (
+                <motion.span
+                  animate={{ rotate: 360 }}
+                  transition={{ repeat: Infinity, duration: 0.6, ease: "linear" }}
+                  className="text-base"
+                >
+                  🎲
+                </motion.span>
+              ) : (
+                <span className="font-mono text-xs">{dice || "🎲"}</span>
+              )}
+            </button>
+            
+            {/* Pulsing indicator when it's your turn to roll */}
+            {currentPlayer?.isHuman && gamePhase === "playing" && !winner && (
+              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-400" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500" />
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -953,7 +987,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
       {/* Main Content Area */}
       <div className="flex flex-col md:flex-row items-start justify-center gap-6 w-full overflow-visible">
         {/* Left Column: Ludo Board */}
-        <div className="w-full md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center">
+        <div className="w-full max-w-[340px] xs:max-w-[380px] sm:max-w-[420px] md:max-w-none md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center">
           <div className="relative aspect-square w-full select-none overflow-hidden bg-white/90 border-4 border-slate-800/80 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85),inset_0_0_35px_rgba(0,0,0,0.7)]">
             <div className="absolute inset-0 z-0 pointer-events-none opacity-20"
               style={{
@@ -1236,56 +1270,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
             })}
           </div>
 
-          {/* Mobile Dice Action Bar (Visible only on mobile right below board) */}
-          <div className="w-full md:hidden mt-3 bg-white/90 border border-slate-200 backdrop-blur-md rounded-2xl p-3 flex items-center justify-between gap-4 shadow-md">
-            <div className="flex items-center gap-3">
-              <DiceFace 
-                value={displayDice} 
-                isRolling={isRolling} 
-                isActive={currentPlayer?.isHuman && gamePhase === "playing" && !winner}
-                onClick={rollDice}
-              />
-              {dice > 0 && !isRolling && (
-                <div className="text-left">
-                  <span className="text-[8px] text-slate-500 uppercase tracking-widest font-black block">Rolled</span>
-                  <span className="text-base font-black text-slate-900 font-mono">{dice}</span>
-                </div>
-              )}
-            </div>
-
-            {currentPlayer?.isHuman && gamePhase === "playing" && !winner ? (
-              <button
-                onClick={rollDice}
-                className="flex-1 py-3 px-4 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest border border-amber-400 bg-gradient-to-r from-amber-400 to-yellow-500 hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer shadow-[0_0_15px_rgba(245,158,11,0.25)] animate-pulse"
-              >
-                🎲 Roll Dice
-              </button>
-            ) : (
-              <div className="flex-1 text-right pr-2">
-                <span className="text-[10px] font-bold text-amber-600 uppercase tracking-wider block">
-                  {message}
-                </span>
-                <span className="text-[9px] text-slate-500 italic block mt-0.5">
-                  {currentPlayer?.isHuman ? "Tap your glowing token" : "Bot makes its move"}
-                </span>
-              </div>
-            )}
-
-            {winner && (
-              <button
-                onClick={() => {
-                  setGamePhase("idle");
-                  setPlayers([]);
-                  setWinner(null);
-                  setShowSetup(true);
-                  startedRef.current = false;
-                }}
-                className="py-3 px-4 rounded-xl border border-slate-700 bg-slate-50/80 text-slate-900 font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
-              >
-                Reset
-              </button>
-            )}
-          </div>
+          {/* Mobile Dice Action Bar Removed - Dice integrated in header */}
         </div>
 
         {/* Right Column: Desktop Command Center (Hidden on mobile) */}
