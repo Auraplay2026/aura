@@ -16,20 +16,22 @@ interface CrashEngineProps {
 interface Particle {
   x: number; y: number; vx: number; vy: number;
   life: number; size: number;
-  color: string; type: "exhaust" | "spark" | "explosion" | "streak" | "shockwave" | "cashout";
+  color: string; type: "exhaust" | "spark" | "explosion" | "streak" | "shockwave" | "cashout" | "smoke";
 }
 interface Star { x: number; y: number; size: number; speed: number; brightness: number; }
 interface TrailPoint { x: number; y: number; mult: number; time: number; }
+interface Debris { x: number; y: number; size: number; vx: number; vy: number; rot: number; rotSpeed: number; color: string; }
+interface WreckagePiece { x: number; y: number; vx: number; vy: number; angle: number; vAngle: number; size: number; type: string; }
 
 // ─── Multiplier → Tier System ────────────────────────────────
 function getTier(m: number): { name: string; color: string; glow: string; secondary: string; intensity: number } {
-  if (m >= 100) return { name: "legendary", color: "#fbbf24", glow: "rgba(251,191,36,0.9)", secondary: "#f59e0b", intensity: 1.0 };
-  if (m >= 50)  return { name: "cosmic",    color: "#a78bfa", glow: "rgba(167,139,250,0.85)", secondary: "#c4b5fd", intensity: 0.88 };
-  if (m >= 25)  return { name: "hyper",     color: "#f97316", glow: "rgba(249,115,22,0.8)", secondary: "#fb923c", intensity: 0.75 };
-  if (m >= 10)  return { name: "surge",     color: "#ef4444", glow: "rgba(239,68,68,0.7)", secondary: "#f87171", intensity: 0.6 };
-  if (m >= 5)   return { name: "boost",     color: "#06b6d4", glow: "rgba(6,182,212,0.6)", secondary: "#22d3ee", intensity: 0.45 };
-  if (m >= 2)   return { name: "climb",     color: "#10b981", glow: "rgba(16,185,129,0.5)", secondary: "#34d399", intensity: 0.3 };
-  return { name: "launch", color: "#10b981", glow: "rgba(16,185,129,0.4)", secondary: "#6ee7b7", intensity: 0.15 };
+  if (m >= 100) return { name: "mythic",       color: "#f43f5e", glow: "rgba(244,63,94,0.95)", secondary: "#fda4af", intensity: 1.0 };   // Rose Red
+  if (m >= 50)  return { name: "legendary",    color: "#fbbf24", glow: "rgba(251,191,36,0.9)",  secondary: "#f59e0b", intensity: 0.88 };  // Gold Solar
+  if (m >= 25)  return { name: "hyperspace",   color: "#a78bfa", glow: "rgba(167,139,250,0.85)", secondary: "#c4b5fd", intensity: 0.75 };  // Purple Warp
+  if (m >= 10)  return { name: "escape",       color: "#3b82f6", glow: "rgba(59,130,246,0.7)",  secondary: "#60a5fa", intensity: 0.6 };   // Blue Atmospheric
+  if (m >= 5)   return { name: "danger",       color: "#ef4444", glow: "rgba(239,68,68,0.7)",   secondary: "#f87171", intensity: 0.45 };  // Red Warning
+  if (m >= 2)   return { name: "acceleration", color: "#06b6d4", glow: "rgba(6,182,212,0.6)",   secondary: "#22d3ee", intensity: 0.3 };   // Cyan Flare
+  return { name: "launch", color: "#10b981", glow: "rgba(16,185,129,0.4)", secondary: "#6ee7b7", intensity: 0.15 };   // Green Ignition
 }
 
 export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick, onComplete }: CrashEngineProps) {
@@ -51,14 +53,14 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     trailPoints: [] as TrailPoint[],
     particles: [] as Particle[],
     stars: [] as Star[],
+    debrisList: [] as Debris[],
+    wreckagePieces: [] as WreckagePiece[],
     explosionTime: 0,
     cameraShake: 0,
     // Camera
-    cameraX: 0, cameraY: 0, cameraZoom: 1,
-    // Idle engine charge
-    engineCharge: 0,
-    // Post-crash silence timer
-    silenceTimer: 0,
+    cameraX: 0, cameraY: 0, cameraZoom: 1.25,
+    // Cashout camera effect
+    cashoutZoomTimer: 0,
   });
 
   const [uiState, setUiState] = useState({
@@ -78,14 +80,30 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     const stars: Star[] = [];
     for (let i = 0; i < 350; i++) {
       stars.push({
-        x: Math.random() * w * 3 - w, // wider than screen for camera pan
-        y: Math.random() * h * 3 - h,
+        x: Math.random() * w * 4 - w * 1.5,
+        y: Math.random() * h * 4 - h * 1.5,
         size: Math.random() * 2 + 0.4,
-        speed: 0.3 + Math.random() * 2,
+        speed: 0.3 + Math.random() * 2.5,
         brightness: 0.3 + Math.random() * 0.7,
       });
     }
     stateRef.current.stars = stars;
+
+    // Initialize flying debris/asteroids
+    const debrisList: Debris[] = [];
+    for (let i = 0; i < 20; i++) {
+      debrisList.push({
+        x: Math.random() * w * 3 - w,
+        y: Math.random() * h * 3 - h,
+        size: 4 + Math.random() * 12,
+        vx: -6 - Math.random() * 8,
+        vy: 2 + Math.random() * 4,
+        rot: Math.random() * Math.PI * 2,
+        rotSpeed: (Math.random() - 0.5) * 0.08,
+        color: `hsl(${20 + Math.random() * 15}, 15%, ${30 + Math.random() * 20}%)`
+      });
+    }
+    stateRef.current.debrisList = debrisList;
   }, []);
 
   // ─── Spawn Particles ──────────────────────────────────────
@@ -93,118 +111,125 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     const p = stateRef.current.particles;
     for (let i = 0; i < count; i++) {
       const angle = type === "exhaust"
-        ? Math.PI * 0.5 + (Math.random() - 0.5) * 0.8  // downward cone
+        ? Math.PI * 0.75 + (Math.random() - 0.5) * 0.5  // thrust angle backwards
         : Math.random() * Math.PI * 2;
-      const speed = type === "explosion" ? 2 + Math.random() * 10 * spread
-        : type === "shockwave" ? 5 + Math.random() * 3
+      const speed = type === "explosion" ? 3 + Math.random() * 12 * spread
+        : type === "shockwave" ? 7 + Math.random() * 4
         : type === "cashout" ? 2 + Math.random() * 6
-        : 0.5 + Math.random() * 3 * spread;
+        : type === "smoke" ? 0.4 + Math.random() * 1.5
+        : 0.5 + Math.random() * 4 * spread;
       p.push({
         x: x + (Math.random() - 0.5) * 8,
         y: y + (Math.random() - 0.5) * 8,
         vx: Math.cos(angle) * speed,
         vy: Math.sin(angle) * speed,
-        life: 1, size: type === "explosion" ? 3 + Math.random() * 8 : type === "shockwave" ? 2 : 1.5 + Math.random() * 3,
+        life: 1, size: type === "explosion" ? 4 + Math.random() * 8 : type === "shockwave" ? 2 : type === "smoke" ? 6 + Math.random() * 12 : 1.5 + Math.random() * 3,
         color, type,
       });
     }
-    if (p.length > 600) p.splice(0, p.length - 600);
+    if (p.length > 700) p.splice(0, p.length - 700);
+  };
+
+  // ─── Draw Ship Wreckage Piece ──────────────────────────────
+  const drawWreckagePiece = (ctx: CanvasRenderingContext2D, piece: WreckagePiece) => {
+    ctx.save();
+    ctx.translate(piece.x, piece.y);
+    ctx.rotate(piece.angle);
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = "#7f1d1d";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    if (piece.type === "nose") {
+      ctx.moveTo(0, -12); ctx.lineTo(6, 6); ctx.lineTo(-6, 6);
+    } else if (piece.type === "wingLeft" || piece.type === "wingRight") {
+      ctx.moveTo(-10, 0); ctx.lineTo(10, 8); ctx.lineTo(0, -8);
+    } else {
+      ctx.rect(-piece.size/2, -piece.size/2, piece.size, piece.size);
+    }
+    ctx.closePath();
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
   };
 
   // ─── Draw Ship ────────────────────────────────────────────
   const drawShip = (ctx: CanvasRenderingContext2D, sx: number, sy: number, angle: number, mult: number, tier: ReturnType<typeof getTier>) => {
-    const scale = 1 + Math.min(0.3, mult * 0.003); // slight grow at high mult
+    const scale = 1 + Math.min(0.25, mult * 0.002);
     ctx.save();
     ctx.translate(sx, sy);
     ctx.rotate(angle);
     ctx.scale(scale, scale);
 
     // ── Engine exhaust flame ──
-    const flameLen = 25 + mult * 1.5 + Math.sin(stateRef.current.tick * 0.3) * 8;
-    const flameWidth = 14 + mult * 0.3;
+    const flameLen = 22 + mult * 2.2 + Math.sin(stateRef.current.tick * 0.45) * 9;
+    const flameWidth = 12 + mult * 0.4;
     // Outer flame (orange/yellow)
-    const outerFlame = ctx.createRadialGradient(0, 34, 2, 0, 34 + flameLen * 0.6, flameLen);
-    outerFlame.addColorStop(0, "rgba(255,200,50,0.95)");
-    outerFlame.addColorStop(0.3, "rgba(255,100,20,0.7)");
-    outerFlame.addColorStop(0.7, tier.glow.replace(/[\d.]+\)$/, "0.3)"));
+    const outerFlame = ctx.createRadialGradient(0, 32, 2, 0, 32 + flameLen * 0.6, flameLen);
+    outerFlame.addColorStop(0, "rgba(255,190,40,0.95)");
+    outerFlame.addColorStop(0.35, "rgba(255,90,15,0.7)");
+    outerFlame.addColorStop(0.7, tier.glow.replace(/[\d.]+\)$/, "0.2)"));
     outerFlame.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = outerFlame;
     ctx.beginPath();
-    ctx.ellipse(0, 34 + flameLen * 0.4, flameWidth, flameLen, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 32 + flameLen * 0.4, flameWidth, flameLen, 0, 0, Math.PI * 2);
     ctx.fill();
-    // Core flame (white)
-    const coreFlame = ctx.createRadialGradient(0, 34, 1, 0, 34 + flameLen * 0.3, flameLen * 0.5);
+
+    // Core flame (white-blue warp)
+    const coreFlame = ctx.createRadialGradient(0, 32, 1, 0, 32 + flameLen * 0.35, flameLen * 0.45);
     coreFlame.addColorStop(0, "rgba(255,255,255,0.95)");
-    coreFlame.addColorStop(0.5, "rgba(200,220,255,0.5)");
+    coreFlame.addColorStop(0.4, "rgba(180,240,255,0.6)");
     coreFlame.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = coreFlame;
     ctx.beginPath();
-    ctx.ellipse(0, 34 + flameLen * 0.2, flameWidth * 0.4, flameLen * 0.6, 0, 0, Math.PI * 2);
+    ctx.ellipse(0, 32 + flameLen * 0.18, flameWidth * 0.45, flameLen * 0.55, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // ── Ship Body ──
-    // Fuselage glow
-    ctx.shadowBlur = 15 + mult * 0.3;
+    ctx.shadowBlur = 12 + mult * 0.4;
     ctx.shadowColor = tier.glow;
-    // Main body
-    const bodyG = ctx.createLinearGradient(-16, -36, 16, 36);
-    bodyG.addColorStop(0, "#e2e8f0");
-    bodyG.addColorStop(0.3, "#94a3b8");
-    bodyG.addColorStop(0.7, "#475569");
-    bodyG.addColorStop(1, "#1e293b");
+    const bodyG = ctx.createLinearGradient(-15, -34, 15, 34);
+    bodyG.addColorStop(0, "#f1f5f9");
+    bodyG.addColorStop(0.4, "#cbd5e1");
+    bodyG.addColorStop(0.8, "#475569");
+    bodyG.addColorStop(1, "#0f172a");
     ctx.fillStyle = bodyG;
     ctx.beginPath();
-    ctx.moveTo(0, -36);
-    ctx.bezierCurveTo(18, -14, 16, 14, 12, 34);
-    ctx.lineTo(-12, 34);
-    ctx.bezierCurveTo(-16, 14, -18, -14, 0, -36);
+    ctx.moveTo(0, -34);
+    ctx.bezierCurveTo(16, -12, 14, 12, 10, 32);
+    ctx.lineTo(-10, 32);
+    ctx.bezierCurveTo(-16, 12, -14, -12, 0, -34);
     ctx.closePath();
     ctx.fill();
     ctx.shadowBlur = 0;
 
-    // Accent stripe
-    ctx.fillStyle = tier.color + "88";
+    // Accent stripes
+    ctx.fillStyle = tier.color + "99";
     ctx.beginPath();
-    ctx.moveTo(0, -28);
-    ctx.bezierCurveTo(6, -12, 5, 8, 4, 28);
-    ctx.lineTo(-4, 28);
-    ctx.bezierCurveTo(-5, 8, -6, -12, 0, -28);
+    ctx.moveTo(0, -26);
+    ctx.bezierCurveTo(5, -10, 4, 8, 3, 26);
+    ctx.lineTo(-3, 26);
+    ctx.bezierCurveTo(-5, 8, -6, -10, 0, -26);
     ctx.closePath();
     ctx.fill();
 
     // Cockpit window
-    const cockG = ctx.createRadialGradient(-3, -20, 0, 0, -18, 10);
-    cockG.addColorStop(0, "rgba(140,220,255,0.95)");
-    cockG.addColorStop(0.5, "rgba(40,120,200,0.7)");
-    cockG.addColorStop(1, "rgba(10,30,60,0.4)");
+    const cockG = ctx.createRadialGradient(-2, -18, 0, 0, -16, 8);
+    cockG.addColorStop(0, "rgba(160,245,255,0.95)");
+    cockG.addColorStop(0.6, "rgba(30,140,225,0.85)");
+    cockG.addColorStop(1, "rgba(8,20,50,0.5)");
     ctx.fillStyle = cockG;
     ctx.beginPath();
-    ctx.ellipse(0, -18, 7, 10, 0, 0, Math.PI * 2);
-    ctx.fill();
-    // Cockpit shine
-    ctx.fillStyle = "rgba(255,255,255,0.6)";
-    ctx.beginPath();
-    ctx.ellipse(-2, -22, 3, 4, -0.3, 0, Math.PI * 2);
+    ctx.ellipse(0, -16, 6, 9, 0, 0, Math.PI * 2);
     ctx.fill();
 
     // Wings
-    ctx.fillStyle = "#334155";
-    ctx.beginPath(); ctx.moveTo(12, 12); ctx.lineTo(32, 34); ctx.lineTo(12, 30); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-12, 12); ctx.lineTo(-32, 34); ctx.lineTo(-12, 30); ctx.closePath(); ctx.fill();
-    // Wing accent
-    ctx.fillStyle = tier.color + "55";
-    ctx.beginPath(); ctx.moveTo(14, 18); ctx.lineTo(28, 32); ctx.lineTo(14, 28); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-14, 18); ctx.lineTo(-28, 32); ctx.lineTo(-14, 28); ctx.closePath(); ctx.fill();
-
-    // Engine nozzle
-    ctx.fillStyle = "#0f172a";
-    ctx.beginPath();
-    ctx.roundRect(-8, 28, 16, 8, 2);
-    ctx.fill();
-    ctx.fillStyle = tier.color + "cc";
-    ctx.beginPath();
-    ctx.roundRect(-6, 30, 12, 4, 1);
-    ctx.fill();
+    ctx.fillStyle = "#1e293b";
+    ctx.beginPath(); ctx.moveTo(10, 10); ctx.lineTo(30, 32); ctx.lineTo(10, 28); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-10, 10); ctx.lineTo(-30, 32); ctx.lineTo(-10, 28); ctx.closePath(); ctx.fill();
+    // Wing accent glow strip
+    ctx.fillStyle = tier.color + "77";
+    ctx.beginPath(); ctx.moveTo(12, 16); ctx.lineTo(26, 30); ctx.lineTo(12, 26); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(-12, 16); ctx.lineTo(-26, 30); ctx.lineTo(-12, 26); ctx.closePath(); ctx.fill();
 
     ctx.restore();
   };
@@ -220,209 +245,216 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     const tier = getTier(s.multiplier);
     const t = Date.now() * 0.001;
 
-    // ── Camera System ──────────────────────────────────────
-    let targetCamX = 0, targetCamY = 0, targetZoom = 1;
+    // ── Camera Physics Rebuild ──────────────────────────────
+    let targetCamX = 0, targetCamY = 0, targetZoom = 1.15;
     if (s.isPlaying && !s.crashed) {
-      // Camera follows ship, keeping it at ~35% from left, ~55% from top
-      targetCamX = s.shipWorldX - W * 0.35;
-      targetCamY = s.shipWorldY - H * 0.55;
-      // Dynamic zoom based on multiplier — zooms out as it climbs
-      targetZoom = Math.max(0.55, 1.0 - Math.log10(Math.max(1, s.multiplier)) * 0.18);
-    } else if (s.crashed) {
-      // Hold on crash position, zoom in slightly
-      targetCamX = s.shipWorldX - W * 0.5;
-      targetCamY = s.shipWorldY - H * 0.45;
-      targetZoom = 0.9;
-    }
-    // Smooth camera interpolation
-    s.cameraX += (targetCamX - s.cameraX) * 0.06;
-    s.cameraY += (targetCamY - s.cameraY) * 0.06;
-    s.cameraZoom += (targetZoom - s.cameraZoom) * 0.04;
+      // Acceleration camera zoom pull-back
+      targetZoom = Math.max(0.48, 1.25 - Math.log10(s.multiplier) * 0.32);
 
-    // Camera shake
+      // Camera drift lag under high-G acceleration
+      const lag = Math.min(W * 0.16, (s.multiplier - 1) * 7.5);
+      targetCamX = s.shipWorldX - (W * 0.33 - lag);
+      targetCamY = s.shipWorldY - (H * 0.58 + lag * 0.4);
+
+      // If user cashed out, do a dramatic cinematic snap zoom
+      if (s.cashedOut && s.cashoutZoomTimer > 0) {
+        targetZoom = 1.6; // Dramatic zoom in
+        targetCamX = s.shipWorldX - W * 0.5;
+        targetCamY = s.shipWorldY - H * 0.5;
+        s.cashoutZoomTimer--;
+      }
+    } else if (s.crashed) {
+      // Lock onto wreckage site, slow cinematic pull-back
+      targetCamX = s.shipWorldX - W * 0.5;
+      targetCamY = s.shipWorldY - H * 0.48;
+      targetZoom = 0.85;
+    }
+
+    // Smooth camera interpolation
+    s.cameraX += (targetCamX - s.cameraX) * 0.065;
+    s.cameraY += (targetCamY - s.cameraY) * 0.065;
+    s.cameraZoom += (targetZoom - s.cameraZoom) * 0.055;
+
+    // Camera shake based on flight speed & warp progression
+    let currentShake = s.cameraShake;
+    if (s.isPlaying && !s.crashed) {
+      const flightJitter = Math.min(6, (s.multiplier - 1) * 0.3);
+      currentShake = Math.max(currentShake, flightJitter);
+    }
     let shakeX = 0, shakeY = 0;
-    if (s.cameraShake > 0) {
-      shakeX = (Math.random() - 0.5) * s.cameraShake;
-      shakeY = (Math.random() - 0.5) * s.cameraShake;
-      s.cameraShake *= 0.88;
-      if (s.cameraShake < 0.1) s.cameraShake = 0;
+    if (currentShake > 0) {
+      shakeX = (Math.random() - 0.5) * currentShake;
+      shakeY = (Math.random() - 0.5) * currentShake;
+      s.cameraShake *= 0.86;
     }
 
     ctx.save();
     ctx.translate(shakeX, shakeY);
 
     // ══════════════════════════════════════════════════════════
-    // BACKGROUND LAYER
+    // BACKGROUND & ENVIRONMENT LAYERS (Every second feels different)
     // ══════════════════════════════════════════════════════════
-    const bgGrad = ctx.createRadialGradient(W * 0.5, H * 0.4, 0, W * 0.5, H * 0.5, Math.max(W, H));
+    const bgGrad = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.5, Math.max(W, H));
     const bgIntensity = tier.intensity;
-    bgGrad.addColorStop(0, `rgba(${10 + bgIntensity * 30},${4 + bgIntensity * 8},${25 + bgIntensity * 25},1)`);
-    bgGrad.addColorStop(0.5, "rgba(4,2,18,1)");
+    // Stage color transforms: green -> cyan -> crimson -> deep space purple -> golden solar wind -> reality fracture
+    bgGrad.addColorStop(0, `rgba(${10 + bgIntensity * 40},${3 + bgIntensity * 10},${22 + bgIntensity * 28},1)`);
+    bgGrad.addColorStop(0.55, "rgba(3,1,16,1)");
     bgGrad.addColorStop(1, "rgba(0,0,0,1)");
     ctx.fillStyle = bgGrad;
     ctx.fillRect(0, 0, W, H);
 
-    // Nebula clouds — react to multiplier
-    const nebulaAlpha = 0.04 + bgIntensity * 0.08;
+    // Nebula dust shifts based on warp progression
+    const nebulaAlpha = 0.03 + bgIntensity * 0.06;
     for (let i = 0; i < 3; i++) {
-      const nx = W * (0.2 + i * 0.3) + Math.sin(t * 0.05 + i * 2) * 60;
-      const ny = H * (0.3 + i * 0.15) + Math.cos(t * 0.04 + i * 1.5) * 40;
-      const nr = W * 0.35;
+      const nx = W * (0.25 + i * 0.3) + Math.sin(t * 0.06 + i) * 80;
+      const ny = H * (0.35 + i * 0.15) + Math.cos(t * 0.05 + i) * 60;
+      const nr = W * 0.38;
       const ng = ctx.createRadialGradient(nx, ny, 0, nx, ny, nr);
-      const nebulaColors = [
-        `rgba(100,20,150,${nebulaAlpha})`,
-        `rgba(20,80,140,${nebulaAlpha})`,
-        `rgba(140,30,80,${nebulaAlpha})`,
+      const colors = [
+        `rgba(90,15,140,${nebulaAlpha})`,
+        `rgba(15,70,120,${nebulaAlpha})`,
+        `rgba(120,20,70,${nebulaAlpha})`
       ];
-      ng.addColorStop(0, nebulaColors[i]);
+      ng.addColorStop(0, colors[i]);
       ng.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = ng;
       ctx.fillRect(0, 0, W, H);
     }
 
-    // ── Stars with parallax & speed streaks ──
-    const starSpeedMult = s.isPlaying && !s.crashed ? Math.min(8, 1 + (s.multiplier - 1) * 0.3) : 0;
+    // ── Stars and Space Dust parallax lines ──
+    const starSpeedMult = s.isPlaying && !s.crashed ? Math.min(15, 1 + (s.multiplier - 1) * 0.45) : 0;
     s.stars.forEach(star => {
-      // Parallax: stars move opposite to camera
-      let drawX = star.x - s.cameraX * star.speed * 0.03;
-      let drawY = star.y - s.cameraY * star.speed * 0.03;
-      // Wrap
-      drawX = ((drawX % (W * 2)) + W * 2) % (W * 2) - W * 0.5;
-      drawY = ((drawY % (H * 2)) + H * 2) % (H * 2) - H * 0.5;
+      let drawX = star.x - s.cameraX * star.speed * 0.025;
+      let drawY = star.y - s.cameraY * star.speed * 0.025;
+      drawX = ((drawX % (W * 3.5)) + W * 3.5) % (W * 3.5) - W * 1.25;
+      drawY = ((drawY % (H * 3.5)) + H * 3.5) % (H * 3.5) - H * 1.25;
 
-      // Speed streaks at high multiplier
-      if (starSpeedMult > 2 && star.speed > 1) {
-        const streakLen = Math.min(40, starSpeedMult * star.speed * 2);
-        ctx.strokeStyle = `rgba(255,255,255,${star.brightness * 0.5})`;
-        ctx.lineWidth = star.size * 0.5;
+      // Speed streak warping
+      if (starSpeedMult > 1.8 && star.speed > 0.8) {
+        const streakLen = Math.min(55, starSpeedMult * star.speed * 2.8);
+        ctx.strokeStyle = `rgba(255,255,255,${star.brightness * 0.6})`;
+        ctx.lineWidth = star.size * 0.4;
         ctx.beginPath();
         ctx.moveTo(drawX, drawY);
-        ctx.lineTo(drawX - streakLen * 0.3, drawY + streakLen);
+        // Streak vectors matching diagonal forward flight path
+        ctx.lineTo(drawX - streakLen * 0.65, drawY + streakLen * 0.55);
         ctx.stroke();
       } else {
-        const twinkle = 0.5 + 0.5 * Math.sin(t * (1.5 + star.speed) + star.x);
-        ctx.fillStyle = `rgba(255,255,255,${star.brightness * twinkle})`;
+        ctx.fillStyle = `rgba(255,255,255,${star.brightness * (0.3 + Math.sin(t * 3 + star.x) * 0.2)})`;
         ctx.beginPath();
         ctx.arc(drawX, drawY, star.size, 0, Math.PI * 2);
         ctx.fill();
       }
     });
 
-    // ── Environment reactions at high multipliers ──
-    // 25x+: passing asteroids
-    if (s.multiplier >= 25 && s.isPlaying && !s.crashed) {
-      const asteroidCount = Math.min(4, Math.floor((s.multiplier - 25) / 15) + 1);
-      for (let i = 0; i < asteroidCount; i++) {
-        const ax = (W * 0.8 + Math.sin(t * 0.4 + i * 3) * W * 0.5 - s.cameraX * 0.02) % W;
-        const ay = (t * 80 * (i + 1) + i * 300) % (H + 200) - 100;
-        const aSize = 8 + i * 5;
-        ctx.save();
-        ctx.translate(ax, ay);
-        ctx.rotate(t * (0.5 + i * 0.3));
-        ctx.fillStyle = "#1e293b";
-        ctx.strokeStyle = "rgba(100,116,139,0.5)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        for (let j = 0; j < 7; j++) {
-          const a = (j / 7) * Math.PI * 2;
-          const r = aSize + Math.sin(a * 3 + i) * aSize * 0.3;
-          j === 0 ? ctx.moveTo(Math.cos(a) * r, Math.sin(a) * r) : ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r);
-        }
-        ctx.closePath();
-        ctx.fill();
-        ctx.stroke();
-        ctx.restore();
-      }
-    }
+    // ── Obstacles & Space Debris flying past (parallax speed indicators) ──
+    s.debrisList.forEach(deb => {
+      // Move debris relative to flight vector
+      let dx = deb.x - s.cameraX * 0.035;
+      let dy = deb.y - s.cameraY * 0.035;
 
-    // 50x+: space distortion rings
-    if (s.multiplier >= 50 && s.isPlaying && !s.crashed) {
-      const distortAlpha = Math.min(0.3, (s.multiplier - 50) / 200);
-      for (let ring = 0; ring < 3; ring++) {
-        const r = 100 + ring * 80 + Math.sin(t * 2 + ring) * 30;
-        ctx.strokeStyle = tier.glow.replace(/[\d.]+\)$/, `${distortAlpha})`);
-        ctx.lineWidth = 2;
-        ctx.setLineDash([8, 12]);
-        ctx.beginPath();
-        ctx.arc(W * 0.5, H * 0.4, r, 0, Math.PI * 2);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      }
-    }
+      // Add relative flight velocity
+      dx += deb.vx * starSpeedMult * 0.3;
+      dy += deb.vy * starSpeedMult * 0.3;
 
-    // 100x+: reality fracture
-    if (s.multiplier >= 100 && s.isPlaying && !s.crashed) {
+      // Wrap around grid boundaries
+      dx = ((dx % (W * 3)) + W * 3) % (W * 3) - W;
+      dy = ((dy % (H * 3)) + H * 3) % (H * 3) - H;
+
+      deb.rot += deb.rotSpeed;
+
       ctx.save();
-      ctx.globalAlpha = 0.08 + Math.sin(t * 4) * 0.04;
-      ctx.fillStyle = tier.color;
-      ctx.fillRect(0, 0, W, H);
-      ctx.globalAlpha = 1;
+      ctx.translate(dx, dy);
+      ctx.rotate(deb.rot);
+      ctx.fillStyle = deb.color;
+      ctx.strokeStyle = "rgba(255,255,255,0.06)";
+      ctx.lineWidth = 1;
+      
+      // Draw simple rocky debris geometry
+      ctx.beginPath();
+      ctx.moveTo(0, -deb.size);
+      ctx.lineTo(deb.size * 0.8, -deb.size * 0.5);
+      ctx.lineTo(deb.size, deb.size * 0.6);
+      ctx.lineTo(-deb.size * 0.4, deb.size * 0.8);
+      ctx.lineTo(-deb.size, -deb.size * 0.2);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
       ctx.restore();
-    }
+    });
 
     // ══════════════════════════════════════════════════════════
-    // WORLD-SPACE CONTENT (Camera transformed)
+    // WORLD-SPACE CONTENT (Warp Trails, Ship, Shockwaves)
     // ══════════════════════════════════════════════════════════
     ctx.save();
-    // Apply camera zoom from center
     ctx.translate(W / 2, H / 2);
     ctx.scale(s.cameraZoom, s.cameraZoom);
     ctx.translate(-W / 2, -H / 2);
-    // Apply camera pan
     ctx.translate(-s.cameraX, -s.cameraY);
 
-    // ── Plasma Trail ──
+    // ── No Chart feeling: dynamic ribbon plasma exhaust warp trail ──
     if (s.trailPoints.length > 1) {
       const pts = s.trailPoints;
-      // Outer glow trail
+      
+      // Outer warp exhaust ribbon
       ctx.save();
-      ctx.lineWidth = 12;
+      ctx.lineWidth = 14 + bgIntensity * 10;
       ctx.lineCap = "round";
       ctx.lineJoin = "round";
-      ctx.strokeStyle = tier.glow.replace(/[\d.]+\)$/, "0.12)");
-      ctx.shadowBlur = 35;
+      ctx.strokeStyle = tier.glow.replace(/[\d.]+\)$/, "0.14)");
+      ctx.shadowBlur = 40;
       ctx.shadowColor = tier.glow;
       ctx.beginPath();
       ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      for (let i = 1; i < pts.length; i++) {
+        // Add waving exhaust plasma turbulence
+        const wave = Math.sin(i * 0.2 - t * 12) * (3 + i * 0.05);
+        ctx.lineTo(pts[i].x + wave * 0.4, pts[i].y + wave * 0.4);
+      }
       ctx.stroke();
 
-      // Core energy ribbon
+      // Energetic core trail ribbon
       const tGrad = ctx.createLinearGradient(pts[0].x, pts[0].y, pts[pts.length - 1].x, pts[pts.length - 1].y);
-      tGrad.addColorStop(0, "rgba(255,255,255,0.02)");
-      tGrad.addColorStop(0.6, tier.secondary + "88");
+      tGrad.addColorStop(0, "rgba(255,255,255,0.0)");
+      tGrad.addColorStop(0.55, tier.secondary + "99");
       tGrad.addColorStop(1, tier.color);
       ctx.strokeStyle = tGrad;
-      ctx.lineWidth = 3.5;
-      ctx.shadowBlur = 20;
+      ctx.lineWidth = 4 + bgIntensity * 4;
+      ctx.shadowBlur = 24;
       ctx.shadowColor = tier.glow;
       ctx.beginPath();
       ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+      for (let i = 1; i < pts.length; i++) {
+        const wave = Math.sin(i * 0.15 - t * 18) * (2 + i * 0.03);
+        ctx.lineTo(pts[i].x + wave * 0.3, pts[i].y + wave * 0.3);
+      }
       ctx.stroke();
       ctx.restore();
     }
 
-    // ── Particles (world-space) ──
+    // ── Particles update ──
     s.particles = s.particles.filter(p => p.life > 0.01);
     s.particles.forEach(p => {
       p.x += p.vx;
       p.y += p.vy;
-      if (p.type === "exhaust") { p.vy += 0.02; p.vx *= 0.98; }
-      else if (p.type === "shockwave") { p.vx *= 1.01; p.vy *= 1.01; } // expand
-      else { p.vy += 0.05; p.vx *= 0.97; p.vy *= 0.97; }
-      p.life -= p.type === "explosion" ? 0.018 : p.type === "shockwave" ? 0.025 : 0.035;
+      if (p.type === "exhaust") { p.vy += 0.015; p.vx *= 0.985; }
+      else if (p.type === "smoke") { p.vy -= 0.05; p.vx *= 0.98; }
+      else if (p.type === "shockwave") { p.vx *= 1.015; p.vy *= 1.015; }
+      else { p.vy += 0.04; p.vx *= 0.975; p.vy *= 0.975; }
+      p.life -= p.type === "explosion" ? 0.015 : p.type === "shockwave" ? 0.022 : p.type === "smoke" ? 0.014 : 0.032;
 
       ctx.save();
       ctx.globalAlpha = p.life;
       if (p.type === "shockwave") {
         ctx.strokeStyle = p.color;
-        ctx.lineWidth = 2;
+        ctx.lineWidth = 3;
+        ctx.shadowBlur = 20;
+        ctx.shadowColor = p.color;
         ctx.beginPath();
-        ctx.arc(p.x, p.y, (1 - p.life) * 80, 0, Math.PI * 2);
+        ctx.arc(p.x, p.y, (1 - p.life) * 140, 0, Math.PI * 2);
         ctx.stroke();
       } else {
-        ctx.shadowBlur = p.type === "explosion" ? 12 : 6;
+        ctx.shadowBlur = p.type === "explosion" ? 14 : 6;
         ctx.shadowColor = p.color;
         ctx.fillStyle = p.color;
         ctx.beginPath();
@@ -432,9 +464,9 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       ctx.restore();
     });
 
-    // ── Ship ──
+    // ── Ship / Wreckage pieces render ──
     if (s.isPlaying || s.crashed) {
-      let angle = -Math.PI * 0.25; // default upward-right tilt
+      let angle = -Math.PI * 0.25;
       if (s.trailPoints.length > 3) {
         const prev = s.trailPoints[s.trailPoints.length - 3];
         const curr = s.trailPoints[s.trailPoints.length - 1];
@@ -442,192 +474,133 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       }
 
       if (s.crashed) {
-        ctx.save();
-        ctx.shadowBlur = 30;
-        ctx.shadowColor = "rgba(239, 68, 68, 0.9)";
-        
-        // Spawn smoke particles in world space from the crash point
-        if (s.tick % 3 === 0 && s.explosionTime < 100) {
-          spawnParticles(s.shipWorldX, s.shipWorldY, "exhaust", "#1e293b", 3, 0.6); // thick dark smoke
-          spawnParticles(s.shipWorldX, s.shipWorldY, "spark", "#f97316", 1, 0.4);   // burning embers
-        }
-        
-        drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, s.multiplier, {
-          name: "crashed",
-          color: "#7f1d1d", // dark burnt red
-          glow: "rgba(239, 68, 68, 0.5)",
-          secondary: "#450a0a",
-          intensity: 0
-        });
-        ctx.restore();
-      } else {
-        drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, s.multiplier, tier);
+        // Physical wreckage tumbling simulation
+        if (s.wreckagePieces.length > 0) {
+          s.wreckagePieces.forEach(piece => {
+            piece.x += piece.vx;
+            piece.y += piece.vy;
+            piece.angle += piece.vAngle;
+            // Gravity pulls pieces down
+            piece.vy += 0.15;
+            piece.vx *= 0.99;
+            piece.vy *= 0.99;
 
-        // Exhaust particles
+            // Emit wreckage trails
+            if (s.tick % 4 === 0 && s.explosionTime < 70) {
+              spawnParticles(piece.x, piece.y, "smoke", "#1e293b", 1); // black smoke
+              spawnParticles(piece.x, piece.y, "spark", "#f97316", 1, 0.5); // orange sparks
+            }
+
+            drawWreckagePiece(ctx, piece);
+          });
+        }
+      } else {
+        // Ship Engine micro-vibrations
+        const vib = Math.min(3.5, (s.multiplier - 1) * 0.14 + 0.2);
+        const vx = (Math.random() - 0.5) * vib;
+        const vy = (Math.random() - 0.5) * vib;
+
+        drawShip(ctx, s.shipWorldX + vx, s.shipWorldY + vy, angle, s.multiplier, tier);
+
+        // Friction nose-cone glow at danger threshold (5x+)
+        if (s.multiplier >= 5) {
+          ctx.save();
+          ctx.translate(s.shipWorldX, s.shipWorldY);
+          ctx.rotate(angle);
+          const fGlow = ctx.createRadialGradient(0, -32, 0, 0, -32, 14 + s.multiplier * 0.5);
+          fGlow.addColorStop(0, "rgba(255,90,30,0.85)");
+          fGlow.addColorStop(0.5, "rgba(255,20,0,0.35)");
+          fGlow.addColorStop(1, "rgba(0,0,0,0)");
+          ctx.fillStyle = fGlow;
+          ctx.beginPath();
+          ctx.arc(0, -32, 14 + s.multiplier * 0.5, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+
+        // Exhaust smoke plumes
         if (s.tick % 2 === 0) {
           const exhaustAngle = angle + Math.PI;
-          const ex = s.shipWorldX + Math.cos(exhaustAngle) * 38;
-          const ey = s.shipWorldY + Math.sin(exhaustAngle) * 38;
+          const ex = s.shipWorldX + Math.cos(exhaustAngle) * 32;
+          const ey = s.shipWorldY + Math.sin(exhaustAngle) * 32;
           spawnParticles(ex, ey, "exhaust", tier.color, 2);
         }
-        if (s.tick % 4 === 0 && s.multiplier > 3) {
-          spawnParticles(s.shipWorldX + (Math.random() - 0.5) * 30, s.shipWorldY + (Math.random() - 0.5) * 30, "spark", tier.secondary, 1);
+        if (s.tick % 4 === 0 && s.multiplier > 5) {
+          spawnParticles(s.shipWorldX + (Math.random() - 0.5) * 25, s.shipWorldY + (Math.random() - 0.5) * 25, "spark", tier.secondary, 1);
         }
       }
     }
 
-    // ── Crash explosion (world-space) ──
-    if (s.crashed && s.explosionTime < 80) {
-      const et = s.explosionTime / 80;
+    // ── Crash Explosion visualizer ring ──
+    if (s.crashed && s.explosionTime < 75) {
+      const et = s.explosionTime / 75;
       const ex = s.shipWorldX, ey = s.shipWorldY;
-      // Expanding rings
-      for (let ring = 0; ring < 4; ring++) {
-        const r = et * 200 * (ring + 1) * 0.5;
-        const alpha = (1 - et) * (0.9 - ring * 0.2);
-        ctx.strokeStyle = `rgba(239,68,68,${alpha})`;
-        ctx.lineWidth = 4 - ring;
-        ctx.shadowBlur = 25;
-        ctx.shadowColor = "rgba(239,68,68,0.8)";
+      
+      ctx.save();
+      // Multi-layer shockwave expands outward
+      for (let ring = 0; ring < 3; ring++) {
+        const r = et * 220 * (ring + 1) * 0.55;
+        const alpha = (1 - et) * (0.9 - ring * 0.28);
+        ctx.strokeStyle = `rgba(244,63,94,${alpha})`;
+        ctx.lineWidth = 5 - ring;
+        ctx.shadowBlur = 30;
+        ctx.shadowColor = "rgba(244,63,94,0.85)";
         ctx.beginPath();
         ctx.arc(ex, ey, r, 0, Math.PI * 2);
         ctx.stroke();
-        ctx.shadowBlur = 0;
       }
-      // Core flash
-      if (et < 0.15) {
-        const flashR = et * 300;
-        const fg = ctx.createRadialGradient(ex, ey, 0, ex, ey, flashR);
-        fg.addColorStop(0, `rgba(255,255,255,${(0.15 - et) * 7})`);
-        fg.addColorStop(0.3, `rgba(255,120,20,${(0.15 - et) * 4})`);
-        fg.addColorStop(1, "rgba(0,0,0,0)");
-        ctx.fillStyle = fg;
-        ctx.beginPath();
-        ctx.arc(ex, ey, flashR, 0, Math.PI * 2);
-        ctx.fill();
-      }
+      ctx.restore();
       s.explosionTime++;
     }
 
-    ctx.restore(); // end world-space
+    ctx.restore(); // end camera projection
+    ctx.restore(); // end world space shake
 
     // ══════════════════════════════════════════════════════════
-    // HUD LAYER (screen-space, always on top)
+    // SCREEN SPACE HUD LAYER (UI Dominance Rebuild)
     // ══════════════════════════════════════════════════════════
-
-    // ── Multiplier display ──
     if (s.isPlaying || s.crashed || s.cashedOut) {
       const multText = s.multiplier.toFixed(2) + "×";
-      const baseFontSize = Math.min(W * 0.14, 100);
-      // Dynamic size — pulses with multiplier growth
-      const growPulse = s.isPlaying && !s.crashed && !s.cashedOut
-        ? 1 + Math.sin(t * (2 + s.multiplier * 0.03)) * 0.03
+      const baseFontSize = Math.min(W * 0.16, 90);
+      const pulse = s.isPlaying && !s.crashed && !s.cashedOut
+        ? 1 + Math.sin(t * (2.5 + s.multiplier * 0.045)) * 0.025
         : 1;
-      const fontSize = baseFontSize * growPulse;
+      const fontSize = baseFontSize * pulse;
 
       ctx.save();
-      ctx.font = `900 ${fontSize}px 'Inter', system-ui, sans-serif`;
+      ctx.font = `900 ${fontSize}px 'Outfit', 'Inter', system-ui, sans-serif`;
       ctx.textAlign = "center";
       ctx.textBaseline = "middle";
 
       const multX = W / 2;
-      const multY = s.crashed ? H * 0.38 : H * 0.22; // higher when flying so ship has room
+      const multY = H * 0.23;
 
       if (s.crashed) {
         ctx.fillStyle = "#ef4444";
-        ctx.shadowBlur = 60;
+        ctx.shadowBlur = 45;
         ctx.shadowColor = "rgba(239,68,68,0.9)";
         ctx.fillText(multText, multX, multY);
-        // CRASHED label
-        ctx.font = `800 ${fontSize * 0.3}px 'Inter', sans-serif`;
-        ctx.fillStyle = "#f87171";
-        ctx.shadowBlur = 30;
-        ctx.fillText("CRASHED", multX, multY + fontSize * 0.6);
-      } else if (s.cashedOut) {
-        ctx.fillStyle = "#10b981";
-        ctx.shadowBlur = 60;
-        ctx.shadowColor = "rgba(16,185,129,0.9)";
-        ctx.fillText(multText, multX, multY);
-        ctx.font = `800 ${fontSize * 0.28}px 'Inter', sans-serif`;
-        ctx.fillStyle = "#34d399";
-        ctx.shadowBlur = 20;
-        ctx.fillText(`₹${(betAmount * s.multiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })} SECURED`, multX, multY + fontSize * 0.6);
+        // CRASHED status
+        ctx.font = `800 ${fontSize * 0.28}px 'Outfit', sans-serif`;
+        ctx.fillStyle = "#fecaca";
+        ctx.shadowBlur = 12;
+        ctx.fillText("CRASHED", multX, multY + fontSize * 0.65);
       } else {
-        // Active — breathing glow
-        const glowIntensity = 30 + tier.intensity * 50;
-        ctx.fillStyle = tier.color;
-        ctx.shadowBlur = glowIntensity;
+        // Multiplier glow changes based on stages
+        ctx.fillStyle = "#ffffff";
+        ctx.shadowBlur = 24 + s.multiplier * 0.5;
         ctx.shadowColor = tier.glow;
         ctx.fillText(multText, multX, multY);
-      }
-      ctx.restore();
 
-      // CRASH X label (subtle, only when flying)
-      if (s.isPlaying && !s.crashed && !s.cashedOut) {
-        ctx.save();
-        ctx.font = `700 ${Math.min(W * 0.025, 16)}px 'Inter', sans-serif`;
-        ctx.textAlign = "center";
-        ctx.fillStyle = "rgba(255,255,255,0.2)";
-        ctx.fillText("CRASH X", W / 2, H * 0.22 - baseFontSize * 0.6);
-        ctx.restore();
-      }
-    }
-
-    // ── Idle state: "waiting to launch" ──
-    if (!s.isPlaying && !s.crashed && !s.cashedOut) {
-      // Engine charge animation
-      s.engineCharge = (s.engineCharge + 0.015) % 1;
-      const chargeRadius = 40 + Math.sin(s.engineCharge * Math.PI * 2) * 8;
-
-      // Ship silhouette at center
-      drawShip(ctx, W / 2, H * 0.52, -Math.PI * 0.25, 1, getTier(1));
-
-      // Charging circle
-      ctx.strokeStyle = "rgba(16,185,129,0.3)";
-      ctx.lineWidth = 2;
-      ctx.setLineDash([4, 6]);
-      ctx.beginPath();
-      ctx.arc(W / 2, H * 0.52, chargeRadius, 0, s.engineCharge * Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-
-      // Text
-      ctx.save();
-      ctx.font = `700 ${Math.min(W * 0.04, 22)}px 'Inter', sans-serif`;
-      ctx.textAlign = "center";
-      ctx.fillStyle = "rgba(255,255,255,0.25)";
-      ctx.fillText("READY TO LAUNCH", W / 2, H * 0.72);
-      ctx.font = `600 ${Math.min(W * 0.028, 14)}px 'Inter', sans-serif`;
-      ctx.fillStyle = "rgba(255,255,255,0.12)";
-      ctx.fillText("Place a bet to begin", W / 2, H * 0.77);
-      ctx.restore();
-    }
-
-    // ── Edge vignette ──
-    const vig = ctx.createRadialGradient(W / 2, H / 2, Math.min(W, H) * 0.3, W / 2, H / 2, Math.max(W, H) * 0.75);
-    vig.addColorStop(0, "rgba(0,0,0,0)");
-    vig.addColorStop(1, "rgba(0,0,0,0.5)");
-    ctx.fillStyle = vig;
-    ctx.fillRect(0, 0, W, H);
-
-    // ── Speed lines at edges (10x+) ──
-    if (s.multiplier >= 10 && s.isPlaying && !s.crashed) {
-      const lineCount = Math.min(12, Math.floor(s.multiplier / 5));
-      ctx.save();
-      for (let i = 0; i < lineCount; i++) {
-        const ly = (t * 200 * (i + 1) + i * 100) % H;
-        const side = i % 2 === 0 ? 0 : W;
-        const len = 40 + Math.random() * 60;
-        ctx.strokeStyle = `rgba(255,255,255,${0.06 + Math.random() * 0.06})`;
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.moveTo(side, ly);
-        ctx.lineTo(side + (side === 0 ? len : -len), ly + len * 0.5);
-        ctx.stroke();
+        // Stage Title status HUD
+        ctx.font = `700 10px 'Outfit', sans-serif`;
+        ctx.fillStyle = tier.color;
+        ctx.shadowBlur = 5;
+        ctx.fillText(tier.name.toUpperCase() + " PHASE", multX, multY - fontSize * 0.55);
       }
       ctx.restore();
     }
 
-    ctx.restore(); // camera shake restore
     s.tick++;
     animFrameRef.current = requestAnimationFrame(render);
   }, [betAmount]);
@@ -656,10 +629,11 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     const targetMult = cashoutMult ?? s.multiplier;
     s.cashedOut = true;
     s.cashoutMultiplier = targetMult;
+    s.cashoutZoomTimer = 35; // Trigger cinematic camera snap
     stopCrashAudio(false);
-    // Gold celebration burst
-    spawnParticles(s.shipWorldX, s.shipWorldY, "cashout", "#fbbf24", 40, 1.5);
-    spawnParticles(s.shipWorldX, s.shipWorldY, "cashout", "#34d399", 25, 1.2);
+    // Gold celebration particles
+    spawnParticles(s.shipWorldX, s.shipWorldY, "cashout", "#fbbf24", 50, 1.6);
+    spawnParticles(s.shipWorldX, s.shipWorldY, "cashout", "#34d399", 30, 1.3);
     setUiState(prev => ({ ...prev, cashedOut: true, cashoutAmount: betAmount * targetMult, phase: "cashedout" }));
     try {
       await fetch("/api/casino/mines/action", {
@@ -678,20 +652,24 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
   useEffect(() => {
     const s = stateRef.current;
     if (!isPlaying) {
-      s.isPlaying = false;
-      s.multiplier = 1.0;
-      s.crashed = false;
-      s.cashedOut = false;
-      s.cashoutMultiplier = 1.0;
-      s.trailPoints = [];
-      s.particles = [];
-      s.explosionTime = 0;
-      s.sessionId = null;
-      s.tick = 0;
-      s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1;
-      s.shipWorldX = 0; s.shipWorldY = 0;
-      stopCrashAudio(false);
-      setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "idle" });
+      // Reset only if not in active flight/crash review
+      if (uiState.phase === "idle" || (!s.isPlaying && !s.crashed)) {
+        s.isPlaying = false;
+        s.multiplier = 1.0;
+        s.crashed = false;
+        s.cashedOut = false;
+        s.cashoutMultiplier = 1.0;
+        s.trailPoints = [];
+        s.particles = [];
+        s.wreckagePieces = [];
+        s.explosionTime = 0;
+        s.sessionId = null;
+        s.tick = 0;
+        s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1.25;
+        s.shipWorldX = 0; s.shipWorldY = 0;
+        stopCrashAudio(false);
+        setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "idle" });
+      }
       return;
     }
 
@@ -700,9 +678,10 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     s.cashedOut = false;
     s.trailPoints = [];
     s.particles = [];
+    s.wreckagePieces = [];
     s.explosionTime = 0;
     s.multiplier = 1.0;
-    s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1;
+    s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1.25;
     startCrashAudio();
     setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "flying" });
 
@@ -723,32 +702,32 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
           let current = 1.0;
           let tick = 0;
 
-          // Starting position
+          // Compute starting coords based on canvas size
           const canvas = canvasRef.current;
-          const startX = canvas ? canvas.width * 0.15 : 100;
-          const startY = canvas ? canvas.height * 0.85 : 500;
+          const startX = canvas ? canvas.width * 0.12 : 90;
+          const startY = canvas ? canvas.height * 0.88 : 500;
           s.shipWorldX = startX;
           s.shipWorldY = startY;
 
           interval = setInterval(() => {
             if (!active) return;
             tick++;
-            current += 0.01 + current * 0.015;
+            // Accelerating game loop tick multiplier increments
+            current += 0.008 + current * 0.014;
             updateCrashPitch(current);
             s.multiplier = current;
 
-            // ── Flight path: accelerating arc upward-right ──
-            const speed = 1.5 + current * 0.5;
-            // Angle: starts shallow (~10°), steepens as multiplier grows
-            const baseAngle = -0.15 - Math.min(0.5, Math.log10(Math.max(1.01, current)) * 0.25);
+            // Flight path: accelerating dynamic arc (upward-right)
+            const speed = 2.0 + current * 0.72;
+            const baseAngle = -0.15 - Math.min(0.55, Math.log10(Math.max(1.01, current)) * 0.28);
             s.shipWorldX += Math.cos(baseAngle) * speed;
             s.shipWorldY += Math.sin(baseAngle) * speed;
 
             s.trailPoints.push({ x: s.shipWorldX, y: s.shipWorldY, mult: current, time: tick });
-            if (s.trailPoints.length > 400) s.trailPoints.shift();
+            if (s.trailPoints.length > 500) s.trailPoints.shift();
 
-            // Camera shake increases with multiplier
-            if (current > 8) s.cameraShake = Math.min(12, (current - 8) * 0.12);
+            // Camera shake scaling with G-force / speed threshold
+            if (current > 5) s.cameraShake = Math.min(10, (current - 5) * 0.16);
 
             onLiveTickRef.current?.(current);
             setUiState(prev => ({ ...prev, multiplier: current }));
@@ -759,13 +738,24 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
               s.crashed = true;
               s.isPlaying = false;
               s.explosionTime = 0;
-              stopCrashAudio(true);
-              // Massive explosion
-              spawnParticles(s.shipWorldX, s.shipWorldY, "explosion", "#ef4444", 60, 1.5);
-              spawnParticles(s.shipWorldX, s.shipWorldY, "explosion", "#fbbf24", 30, 1);
-              spawnParticles(s.shipWorldX, s.shipWorldY, "shockwave", "rgba(239,68,68,0.6)", 3);
-              s.cameraShake = 25;
-              
+              stopCrashAudio(true); // Sudden mute silence
+
+              // Spawn physical ship wreckage pieces for dramatic destruction
+              const crashAngle = -Math.PI * 0.25;
+              s.wreckagePieces = [
+                { x: s.shipWorldX, y: s.shipWorldY, vx: Math.cos(crashAngle - 0.45) * speed * 0.3, vy: Math.sin(crashAngle - 0.45) * speed * 0.3, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 8, type: "nose" },
+                { x: s.shipWorldX, y: s.shipWorldY, vx: Math.cos(crashAngle + 0.45) * speed * 0.3, vy: Math.sin(crashAngle + 0.45) * speed * 0.3, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 6, type: "wingLeft" },
+                { x: s.shipWorldX, y: s.shipWorldY, vx: Math.cos(crashAngle + Math.PI - 0.3) * speed * 0.25, vy: Math.sin(crashAngle + Math.PI - 0.3) * speed * 0.25, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.2, size: 6, type: "wingRight" },
+                { x: s.shipWorldX, y: s.shipWorldY, vx: (Math.random() - 0.5) * 3, vy: (Math.random() - 0.5) * 3, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.3, size: 10, type: "core" },
+                { x: s.shipWorldX, y: s.shipWorldY, vx: (Math.random() - 0.5) * 4, vy: (Math.random() - 0.5) * 4, angle: crashAngle, vAngle: (Math.random() - 0.5) * 0.4, size: 5, type: "thruster" }
+              ];
+
+              // Spawn massive explosion particles & shockwaves
+              spawnParticles(s.shipWorldX, s.shipWorldY, "explosion", "#f43f5e", 70, 1.6);
+              spawnParticles(s.shipWorldX, s.shipWorldY, "explosion", "#fbbf24", 40, 1.1);
+              spawnParticles(s.shipWorldX, s.shipWorldY, "shockwave", "rgba(244,63,94,0.65)", 3);
+              s.cameraShake = 28;
+
               setUiState(prev => ({
                 ...prev,
                 multiplier: target,
@@ -773,7 +763,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
                 phase: "crashed"
               }));
 
-              // Wait 3 seconds for the user to review the crash wreckage
+              // Wait 3 seconds for the player to review the wreckage and final outcome
               setTimeout(() => {
                 if (active) {
                   onCompleteRef.current(s.cashedOut ? s.cashoutMultiplier : target, s.cashedOut);
@@ -794,92 +784,63 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     return () => { active = false; if (interval) clearInterval(interval); stopCrashAudio(false); };
   }, [isPlaying, betAmount, autoCashout, email]);
 
-  // ─── Event listeners ──────────────────────────────────────
-  useEffect(() => {
-    const onCashout = () => {
-      if (stateRef.current.isPlaying && !stateRef.current.crashed && !stateRef.current.cashedOut)
-        handleCashoutRef.current();
-    };
-    window.addEventListener("trigger-cashout", onCashout);
-    window.addEventListener("sidebar-trigger-cashout", onCashout);
-    return () => {
-      window.removeEventListener("trigger-cashout", onCashout);
-      window.removeEventListener("sidebar-trigger-cashout", onCashout);
-    };
-  }, []);
-
   const tier = getTier(uiState.multiplier);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full min-h-[420px] overflow-hidden bg-black rounded-xl">
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+    <div ref={containerRef} className="relative w-full h-full min-h-[420px] overflow-hidden bg-black rounded-2xl border border-slate-900 shadow-3xl select-none">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
 
-      {/* ── Floating Cashout Button ── */}
+      {/* ── Floating Cashout HUD button ── */}
       <AnimatePresence>
-        {isPlaying && !uiState.crashed && !uiState.cashedOut && (
+        {uiState.phase === "flying" && !uiState.cashedOut && (
           <motion.div
-            key="cashout-btn"
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 10 }}
-            transition={{ type: "spring", stiffness: 400, damping: 25 }}
-            className="absolute bottom-5 left-1/2 -translate-x-1/2 z-40"
+            initial={{ opacity: 0, y: 15, scale: 0.95 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10, scale: 0.95 }}
+            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-full max-w-[220px]"
           >
             <button
               onClick={() => handleCashout()}
-              className="group relative overflow-hidden flex items-center gap-3 px-6 sm:px-8 py-3 sm:py-4 rounded-2xl font-black text-base sm:text-lg uppercase tracking-wider text-black transition-all active:scale-95 cursor-pointer"
-              style={{
-                background: `linear-gradient(135deg, #10b981, #059669)`,
-                boxShadow: `0 0 30px rgba(16,185,129,0.5), 0 8px 25px rgba(0,0,0,0.4)`,
-              }}
+              className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-black font-black text-xs uppercase tracking-widest shadow-[0_0_35px_rgba(52,211,153,0.55)] border border-emerald-300/30 active:scale-95 transition-all flex items-center justify-center gap-2 group"
             >
-              <motion.div
-                animate={{ opacity: [0.5, 1, 0.5] }}
-                transition={{ repeat: Infinity, duration: 1.2 }}
-                className="absolute inset-0 bg-white/15 rounded-2xl"
-              />
-              <span className="relative">CASHOUT</span>
-              <span className="relative bg-black/20 px-3 py-1 rounded-xl text-sm font-black">
-                ₹{(betAmount * uiState.multiplier).toLocaleString(undefined, { maximumFractionDigits: 2 })}
+              <span>💰 CASHOUT</span>
+              <span className="font-mono text-sm font-black bg-black/10 px-2 py-0.5 rounded-md">
+                ₹{(betAmount * uiState.multiplier).toFixed(2)}
               </span>
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Cashed out celebration ── */}
+      {/* ── Cashout Success celebration banner ── */}
       <AnimatePresence>
         {uiState.phase === "cashedout" && (
           <motion.div
-            key="cashedout-badge"
-            initial={{ opacity: 0, scale: 0.6 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 1.2 }}
-            transition={{ type: "spring", stiffness: 300, damping: 22 }}
-            className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 z-30 pointer-events-none"
+            initial={{ opacity: 0, scale: 0.9, y: 10 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 1.1 }}
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] pointer-events-none"
           >
-            <div className="px-10 py-6 rounded-3xl border text-center backdrop-blur-xl"
-              style={{ background: "rgba(0,0,0,0.7)", borderColor: "rgba(16,185,129,0.5)", boxShadow: "0 0 80px rgba(16,185,129,0.35)" }}>
-              <div className="text-[11px] font-black uppercase tracking-widest text-emerald-400/80 mb-2">Secured at</div>
-              <div className="text-6xl sm:text-8xl font-black font-mono text-emerald-400 leading-none"
-                style={{ textShadow: "0 0 50px rgba(16,185,129,0.8)" }}>
-                {uiState.multiplier.toFixed(2)}×
-              </div>
-              <div className="text-3xl font-black text-white mt-3 font-mono">
-                ₹{uiState.cashoutAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}
-              </div>
+            <div className="bg-slate-950/80 border border-emerald-500/30 px-6 py-5 rounded-2xl text-center shadow-[0_0_40px_rgba(16,185,129,0.2)]">
+              <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-widest block">CASHOUT SUCCESSFUL</span>
+              <span className="text-3xl font-black text-white font-mono mt-1 block">
+                {stateRef.current.cashoutMultiplier.toFixed(2)}x
+              </span>
+              <span className="text-xs font-black text-emerald-300 mt-2 block">
+                Won: ₹{uiState.cashoutAmount.toFixed(2)}
+              </span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Tier indicator (top-right, subtle) ── */}
-      {isPlaying && !uiState.crashed && !uiState.cashedOut && uiState.multiplier > 2 && (
-        <div className="absolute top-3 right-3 z-20 px-3 py-1.5 rounded-xl border backdrop-blur-sm pointer-events-none"
-          style={{ background: "rgba(0,0,0,0.5)", borderColor: tier.glow.replace(/[\d.]+\)$/, "0.3)") }}>
-          <span className="text-[9px] font-black uppercase tracking-widest" style={{ color: tier.color }}>
-            {tier.name}
-          </span>
+      {/* ── Takeoff phase countdown HUD ── */}
+      {uiState.phase === "idle" && (
+        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-transparent pointer-events-none">
+          <div className="text-center">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block animate-pulse">SYSTEM ENGINES READY</span>
+            <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest mt-1 block">PLACE BET TO INITIATE TAKEOFF</span>
+          </div>
         </div>
       )}
     </div>
