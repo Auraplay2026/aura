@@ -101,7 +101,7 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-amber-50/60 via-white to-slate-50 rounded-3xl border border-amber-200/60 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
+    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full bg-gradient-to-br from-amber-50/60 via-white to-slate-50 rounded-3xl border border-amber-200/60 p-3 md:p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
       
       {/* Subtle warm radial glow - casino felt feel */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(251,191,36,0.06)_0%,transparent_70%)] pointer-events-none" />
@@ -112,11 +112,13 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
         {/* Glow behind wheel */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-amber-500/10 rounded-full blur-[50px] pointer-events-none" />
 
-        {/* The Rotated Wheel Assembly */}
-        <div 
-          className="relative w-[90%] h-[90%] rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.8)] transform-style-3d"
-          style={{ transform: "rotateX(60deg)" }}
-        >
+        {/* Scale Wrapper for Mobile */}
+        <div className="w-[90%] h-[90%] flex items-center justify-center scale-[0.48] sm:scale-100 transform-style-3d z-10">
+          {/* The Rotated Wheel Assembly */}
+          <div 
+            className="w-full h-full rounded-full shadow-[0_20px_50px_rgba(0,0,0,0.8)] transform-style-3d"
+            style={{ transform: "rotateX(60deg)" }}
+          >
           {/* Wooden Rim (Outer edge illusion) */}
           <div className="absolute -inset-6 rounded-full border-[12px] border-amber-900 shadow-[inset_0_5px_20px_rgba(0,0,0,0.8)] bg-amber-800 flex items-center justify-center">
             {/* Inner gold track */}
@@ -188,6 +190,7 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
           </AnimatePresence>
 
         </div>
+      </div>
       </div>
 
       {/* Winning Indicator / Result HUD */}

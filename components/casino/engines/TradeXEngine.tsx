@@ -97,7 +97,7 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
   const isUpTrend = dataPoints[dataPoints.length - 1] > dataPoints[dataPoints.length - 2];
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-[#020617] rounded-3xl border border-slate-800 shadow-2xl relative flex flex-col p-4 md:p-8 overflow-hidden">
+    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full bg-[#020617] rounded-3xl border border-slate-800 shadow-2xl relative flex flex-col p-3 md:p-8 overflow-hidden">
       
       {/* Background Grid */}
       <div 
@@ -109,20 +109,20 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
       />
       
       {/* Header */}
-      <div className="relative z-10 flex justify-between items-center mb-6">
+      <div className="relative z-10 flex justify-between items-center mb-3 md:mb-6">
         <div className="flex items-center gap-3">
           <div className={`p-2 rounded-lg ${isUpTrend ? "bg-emerald-500/20 text-emerald-400" : "bg-rose-500/20 text-rose-400"}`}>
-            <Activity className="w-6 h-6 animate-pulse" />
+            <Activity className="w-5 h-5 md:w-6 md:h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-slate-900 font-black text-xl tracking-widest uppercase">TradeX</h2>
-            <p className="text-slate-500 text-xs font-mono">BTC/USD Binary Options</p>
+            <h2 className="text-slate-100 font-black text-lg md:text-xl tracking-widest uppercase">TradeX</h2>
+            <p className="text-slate-550 text-[10px] md:text-xs font-mono">BTC/USD Binary Options</p>
           </div>
         </div>
         
         <div className="text-right">
-          <p className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Live Price</p>
-          <p className={`font-mono font-black text-2xl drop-shadow-md ${isUpTrend ? "text-emerald-400" : "text-rose-400"}`}>
+          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-0.5 md:mb-1">Live Price</p>
+          <p className={`font-mono font-black text-lg md:text-2xl drop-shadow-md ${isUpTrend ? "text-emerald-400" : "text-rose-400"}`}>
             ${(50000 + dataPoints[dataPoints.length - 1] * 100).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
         </div>

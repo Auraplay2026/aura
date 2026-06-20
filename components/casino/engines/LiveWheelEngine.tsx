@@ -102,25 +102,25 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-[#09090b] rounded-3xl border border-[#27272a] p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl perspective-[1200px]">
+    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full bg-[#09090b] rounded-3xl border border-[#27272a] p-3 md:p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl perspective-[1200px]">
       
       {/* Studio Lighting Background */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(236,72,153,0.15),_transparent_40%),radial-gradient(circle_at_bottom,_rgba(139,92,246,0.15),_transparent_40%)] pointer-events-none" />
       <div className="absolute top-0 w-full h-1/3 bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none" />
 
-      <div className="text-center mb-8 z-20">
-        <h3 className="text-slate-900 font-black text-2xl uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Live Game Show</h3>
-        <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mt-1">Spin the Massive Multiplier Wheel</p>
+      <div className="text-center mb-4 md:mb-8 z-20">
+        <h3 className="text-slate-100 font-black text-lg md:text-2xl uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Live Game Show</h3>
+        <p className="text-purple-400 text-[10px] md:text-xs font-bold uppercase tracking-wider mt-1">Spin the Massive Multiplier Wheel</p>
       </div>
 
       {/* The Giant 3D Wheel Container */}
-      <div className="relative w-full max-w-[450px] aspect-square flex items-center justify-center select-none transform-style-3d rotate-x-[15deg]">
+      <div className="relative w-full max-w-[210px] sm:max-w-[450px] aspect-square flex items-center justify-center select-none transform-style-3d rotate-x-[15deg]">
         
         {/* Glow behind wheel */}
         <div className="absolute inset-10 bg-yellow-500/10 rounded-full blur-[60px] pointer-events-none" />
 
         {/* Thick Outer Rim */}
-        <div className="absolute inset-0 rounded-full border-[16px] border-[#fbbf24] shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_5px_15px_rgba(0,0,0,0.5)] bg-[#b45309] flex items-center justify-center transform-style-3d">
+        <div className="absolute inset-0 rounded-full border-[8px] md:border-[16px] border-[#fbbf24] shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_5px_15px_rgba(0,0,0,0.5)] bg-[#b45309] flex items-center justify-center transform-style-3d">
           <div className="absolute inset-2 rounded-full border-4 border-yellow-300/40 shadow-inner" />
         </div>
 
@@ -128,7 +128,7 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
         <motion.div 
           animate={{ rotate: pointerTick }}
           transition={{ type: "spring", stiffness: 500, damping: 10 }}
-          className="absolute top-[-25px] left-1/2 -translate-x-1/2 w-10 h-14 bg-gradient-to-b from-red-500 to-red-700 border-2 border-white/50 rounded-b-xl shadow-[0_10px_20px_rgba(0,0,0,0.8)] z-40 flex items-center justify-center origin-top"
+          className="absolute top-[-15px] md:top-[-25px] left-1/2 -translate-x-1/2 w-6 h-9 md:w-10 md:h-14 bg-gradient-to-b from-red-500 to-red-700 border border-white/50 rounded-b-lg md:rounded-b-xl shadow-[0_10px_20px_rgba(0,0,0,0.8)] z-40 flex items-center justify-center origin-top"
         >
           <div className="w-3 h-3 bg-white rounded-full shadow-inner" />
         </motion.div>
@@ -137,7 +137,7 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
         <motion.div
           animate={{ rotate: rotation }}
           transition={{ duration: 6, ease: [0.1, 0.9, 0.2, 1] }}
-          className="absolute inset-[16px] rounded-full overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-4 border-yellow-600 bg-white"
+          className="absolute inset-[8px] md:inset-[16px] rounded-full overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-4 border-yellow-600 bg-white"
         >
           {WHEEL_SECTORS.map((sec, i) => {
             const angle = (360 / WHEEL_SECTORS.length) * i;

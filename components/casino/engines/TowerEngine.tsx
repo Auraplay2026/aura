@@ -201,7 +201,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   const currentMultiplier = activeRow > 0 ? MULTIPLIERS[activeRow - 1] : 1.0;
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-gradient-to-br from-slate-50 via-white to-blue-50/40 rounded-3xl border border-slate-200/80 relative flex flex-col md:flex-row items-center justify-center overflow-hidden p-3 md:p-6 gap-4 md:gap-8 shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
+    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full bg-gradient-to-br from-slate-50 via-white to-blue-50/40 rounded-3xl border border-slate-200/80 relative flex flex-col md:flex-row items-center justify-center overflow-hidden p-3 md:p-6 gap-4 md:gap-8 shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
       
       {/* Background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-400/[0.06] rounded-full blur-[100px] pointer-events-none" />
@@ -259,7 +259,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
                     key={cIndex}
                     disabled={!isActive}
                     onClick={() => handleTileClick(rIndex, cIndex)}
-                    className={`relative h-14 md:h-16 rounded-xl border flex items-center justify-center transition-all duration-300 ${isActive ? 'cursor-pointer hover:scale-[1.02] active:scale-95 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:border-blue-500/50' : 'cursor-default'} ${bgClass}`}
+                    className={`relative h-10 md:h-16 rounded-xl border flex items-center justify-center transition-all duration-300 ${isActive ? 'cursor-pointer hover:scale-[1.02] active:scale-95 hover:shadow-[0_0_20px_rgba(59,130,246,0.3)] hover:border-blue-500/50' : 'cursor-default'} ${bgClass}`}
                   >
                     {isActive && tile === 'hidden' && (
                       <div className="absolute inset-0 bg-blue-400/10 rounded-xl animate-pulse" />
