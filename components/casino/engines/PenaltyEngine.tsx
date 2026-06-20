@@ -130,7 +130,7 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
   }, [gameState, multiplier]);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-sky-900 rounded-[3rem] border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden perspective-[1000px]">
+    <div className="w-full h-full min-h-[300px] sm:min-h-[480px] md:min-h-[600px] bg-sky-900 rounded-[2.5rem] sm:rounded-[3rem] border-4 sm:border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden perspective-[1000px]">
       
       {/* 3D Grass Pitch Background */}
       <div 
@@ -144,60 +144,64 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
       <div className="absolute top-0 w-full h-[60%] bg-gradient-to-b from-sky-900 via-sky-800 to-sky-700 pointer-events-none" />
 
       {/* Header */}
-      <div className="relative z-20 w-full flex justify-between items-center p-6 mb-4">
-        <div className="bg-white/50 backdrop-blur-md px-6 py-2 rounded-2xl border border-slate-700/50">
-          <h2 className="text-slate-900 font-black text-xl tracking-widest uppercase drop-shadow-md">Penalty X</h2>
+      <div className="relative z-20 w-full flex justify-between items-center p-3 sm:p-6 mb-1 sm:mb-4">
+        <div className="bg-white/50 backdrop-blur-md px-3 sm:px-6 py-1 sm:py-2 rounded-xl sm:rounded-2xl border border-slate-700/50">
+          <h2 className="text-slate-900 font-black text-sm sm:text-xl tracking-widest uppercase drop-shadow-md">Penalty X</h2>
         </div>
-        <div className="bg-white/80 backdrop-blur-md px-6 py-2 rounded-2xl border border-emerald-500/30 flex flex-col items-end">
-          <span className="text-[10px] text-emerald-500 font-black uppercase tracking-widest mb-1">Multiplier</span>
-          <span className="text-2xl font-mono font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">
+        <div className="bg-white/80 backdrop-blur-md px-3 sm:px-6 py-1 sm:py-2 rounded-xl sm:rounded-2xl border border-emerald-500/30 flex flex-col items-end">
+          <span className="text-[8px] sm:text-[10px] text-emerald-500 font-black uppercase tracking-widest mb-0.5 sm:mb-1">Multiplier</span>
+          <span className="text-lg sm:text-2xl font-mono font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">
             {multiplier.toFixed(2)}x
           </span>
         </div>
       </div>
 
-      {/* Goal Post */}
-      <div className="relative z-10 w-[300px] md:w-[400px] h-[160px] md:h-[200px] mt-10 border-[8px] border-white rounded-t-lg flex items-center justify-center">
-        {/* Goal Net Illusion */}
-        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagonal-striped-brick.png')] opacity-20 pointer-events-none" />
+      {/* Scaling Goalpost & Ball Arena */}
+      <div className="relative flex-1 w-full max-w-md flex flex-col items-center justify-center scale-[0.75] xs:scale-[0.85] sm:scale-100 origin-center -translate-y-6 sm:translate-y-0">
         
-        {/* Goalkeeper */}
-        <motion.div 
-          animate={{ x: gkPos.x, y: gkPos.y }}
-          transition={{ type: "spring", stiffness: 150, damping: 15 }}
-          className="absolute z-20 w-16 h-24 bg-yellow-500 rounded-t-[2rem] rounded-b-md border-2 border-slate-900 shadow-2xl flex flex-col items-center pt-2"
-        >
-          <div className="w-8 h-8 bg-pink-300 rounded-full border-2 border-slate-900" />
-        </motion.div>
+        {/* Goal Post */}
+        <div className="relative z-10 w-[300px] md:w-[400px] h-[160px] md:h-[200px] border-[8px] border-white rounded-t-lg flex items-center justify-center bg-black/10">
+          {/* Goal Net Illusion */}
+          <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/diagonal-striped-brick.png')] opacity-20 pointer-events-none" />
+          
+          {/* Goalkeeper */}
+          <motion.div 
+            animate={{ x: gkPos.x, y: gkPos.y }}
+            transition={{ type: "spring", stiffness: 150, damping: 15 }}
+            className="absolute z-20 w-16 h-24 bg-yellow-500 rounded-t-[2rem] rounded-b-md border-2 border-slate-900 shadow-2xl flex flex-col items-center pt-2"
+          >
+            <div className="w-8 h-8 bg-pink-300 rounded-full border-2 border-slate-900" />
+          </motion.div>
 
-        {/* Interactive Shoot Zones */}
-        {gameState === "playing" && (
-          <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-2 p-2 z-30">
-            <button onClick={() => handleShoot("TL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
-            <div className="bg-transparent" /> {/* Top Middle gap */}
-            <button onClick={() => handleShoot("TR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
-            <button onClick={() => handleShoot("BL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
-            <button onClick={() => handleShoot("C")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
-            <button onClick={() => handleShoot("BR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
-          </div>
-        )}
-      </div>
-
-      {/* The Ball */}
-      <div className="absolute bottom-20 z-40">
-        <AnimatePresence>
-          {(gameState === "playing" || gameState === "shooting" || gameState === "busted") && (
-            <motion.div
-              initial={{ scale: 1, y: 100 }}
-              animate={{ x: ballPos.x, y: ballPos.y, scale: ballPos.scale }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="w-12 h-12 bg-white rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.5),inset_-5px_-5px_10px_rgba(0,0,0,0.5)] border-2 border-slate-300 flex items-center justify-center"
-              style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, white, #cbd5e1)' }}
-            >
-              <div className="w-4 h-4 bg-slate-50 rounded-full opacity-50" />
-            </motion.div>
+          {/* Interactive Shoot Zones */}
+          {gameState === "playing" && (
+            <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-2 p-2 z-30">
+              <button onClick={() => handleShoot("TL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+              <div className="bg-transparent" /> {/* Top Middle gap */}
+              <button onClick={() => handleShoot("TR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+              <button onClick={() => handleShoot("BL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+              <button onClick={() => handleShoot("C")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+              <button onClick={() => handleShoot("BR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+            </div>
           )}
-        </AnimatePresence>
+        </div>
+
+        {/* The Ball */}
+        <div className="absolute bottom-4 z-40">
+          <AnimatePresence>
+            {(gameState === "playing" || gameState === "shooting" || gameState === "busted") && (
+              <motion.div
+                initial={{ scale: 1, y: 100 }}
+                animate={{ x: ballPos.x, y: ballPos.y, scale: ballPos.scale }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+                className="w-12 h-12 bg-white rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.5),inset_-5px_-5px_10px_rgba(0,0,0,0.5)] border-2 border-slate-300 flex items-center justify-center"
+                style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, white, #cbd5e1)' }}
+              >
+                <div className="w-4 h-4 bg-slate-50 rounded-full opacity-50" />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
 
       {/* Result Overlays */}

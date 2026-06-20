@@ -676,7 +676,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
   }, [stopAudio]);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-[#02050a] rounded-[2.5rem] border-4 border-slate-800 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden font-sans select-none">
+    <div className="w-full h-full min-h-[300px] sm:min-h-[480px] md:min-h-[600px] bg-[#02050a] rounded-[2rem] sm:rounded-[2.5rem] border-4 border-slate-800 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden font-sans select-none">
       
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 block" />
 
@@ -697,30 +697,30 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
         )}
       </AnimatePresence>
 
-      <div className="relative z-20 w-full flex justify-between items-center p-6 bg-gradient-to-b from-black/85 to-transparent">
+      <div className="relative z-20 w-full flex justify-between items-center p-3 sm:p-6 bg-gradient-to-b from-black/85 to-transparent">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 bg-white/80 border border-slate-700/60 rounded-xl px-4 py-1.5 shadow-md">
-            <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
-            <h2 className="text-slate-900 font-black text-sm uppercase tracking-widest leading-none">Neon Horizon 3D</h2>
+          <div className="flex items-center gap-2 bg-white/80 border border-slate-700/60 rounded-lg sm:rounded-xl px-2.5 sm:px-4 py-1 sm:py-1.5 shadow-md">
+            <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-cyan-400 animate-ping" />
+            <h2 className="text-slate-900 font-black text-xs sm:text-sm uppercase tracking-widest leading-none">Neon Horizon 3D</h2>
           </div>
           {gameState === "playing" && (
-            <span className="text-[10px] text-cyan-400 font-mono font-bold tracking-widest pl-2">
+            <span className="text-[9px] sm:text-[10px] text-cyan-400 font-mono font-bold tracking-widest pl-1 sm:pl-2">
               🏎️ SPEED: {Math.round(gameSpeedRef.current * 18)} KM/H
             </span>
           )}
         </div>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2 sm:gap-4">
           <button 
             onClick={toggleMute}
-            className="w-10 h-10 rounded-xl bg-white/60 border border-slate-700/60 flex items-center justify-center text-slate-650 hover:text-slate-900 transition-colors backdrop-blur-md"
+            className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/60 border border-slate-700/60 flex items-center justify-center text-slate-650 hover:text-slate-900 transition-colors backdrop-blur-md"
           >
-            {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
 
-          <div className="bg-white/80 backdrop-blur-md border border-slate-700/50 px-5 py-2.5 rounded-2xl flex flex-col items-end shadow-lg shadow-black/40 min-w-[120px]">
-            <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">Multiplier</span>
-            <span className={`text-2xl font-mono font-black tabular-nums transition-all ${
+          <div className="bg-white/80 backdrop-blur-md border border-slate-700/50 px-3 sm:px-5 py-1 sm:py-2.5 rounded-xl sm:rounded-2xl flex flex-col items-end shadow-lg shadow-black/40 min-w-[90px] sm:min-w-[120px]">
+            <span className="text-[7px] sm:text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">Multiplier</span>
+            <span className={`text-lg sm:text-2xl font-mono font-black tabular-nums transition-all ${
               gameState === "crashed" ? "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
               gameState === "cashed_out" ? "text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.7)]" :
               gameState === "playing" ? "text-cyan-400 drop-shadow-[0_0_10px_rgba(34,211,238,0.5)] animate-pulse" : "text-slate-600"
@@ -739,14 +739,14 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="flex flex-col items-center gap-4 bg-white/80 backdrop-blur-md border border-slate-700/50 p-8 rounded-3xl text-center max-w-sm mx-4 shadow-2xl"
+              className="flex flex-col items-center gap-2 sm:gap-4 bg-white/80 backdrop-blur-md border border-slate-700/50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl text-center max-w-[280px] sm:max-w-sm mx-4 shadow-2xl"
             >
-              <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Zap className="w-8 h-8 text-slate-900 stroke-[2.5]" />
+              <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
+                <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-slate-900 stroke-[2.5]" />
               </div>
-              <h3 className="text-slate-900 font-black text-xl uppercase tracking-widest">Manual Drive Mode</h3>
-              <p className="text-slate-650 text-xs font-semibold leading-relaxed">
-                Steer using <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">A</kbd> / <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">D</kbd> or <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">←</kbd> / <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">→</kbd> on keyboard. Dodge neon blockades. Cashout before crashing!
+              <h3 className="text-slate-900 font-black text-sm sm:text-xl uppercase tracking-widest">Manual Drive Mode</h3>
+              <p className="text-slate-650 text-[10px] sm:text-xs font-semibold leading-relaxed">
+                Steer using screen buttons or <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[9px] sm:text-[10px]">A</kbd> / <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[9px] sm:text-[10px]">D</kbd> keys on keyboard. Dodge neon blockades. Cashout before crashing!
               </p>
               
               {!isPlaying ? (
