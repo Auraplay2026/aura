@@ -88,7 +88,7 @@ export function Coinflip() {
               }`}
             >
               {/* Mini Gold Coin Preview */}
-              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 border border-yellow-250 flex items-center justify-center scale-90">
+              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-yellow-300 to-amber-500 border border-yellow-200 shadow-sm flex items-center justify-center scale-90">
                 <svg className="w-2.5 h-2.5 text-yellow-900" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
                   <polygon points="12 2 2 7 12 12 22 7 12 2" />
                   <polyline points="2 12 12 17 22 12" />
@@ -106,8 +106,20 @@ export function Coinflip() {
               }`}
             >
               {/* Mini Skull Coin Preview */}
-              <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-600 to-cyan-700 border border-cyan-500/50 flex items-center justify-center scale-90">
-                <svg className="w-3 h-3 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <div 
+                className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-600 to-slate-800 border flex items-center justify-center scale-90"
+                style={{ borderColor: "#00f0ff" }}
+              >
+                <svg 
+                  className="w-3 h-3" 
+                  style={{ color: "#00f0ff" }}
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  stroke="currentColor" 
+                  strokeWidth="2.5" 
+                  strokeLinecap="round" 
+                  strokeLinejoin="round"
+                >
                   <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z"/>
                   <circle cx="9" cy="11" r="1" fill="currentColor"/>
                   <circle cx="15" cy="11" r="1" fill="currentColor"/>
@@ -144,6 +156,36 @@ export function Coinflip() {
         <div className="h-64 flex items-center justify-center relative select-none perspective-[1000px]">
           {/* Ambient base glow */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-yellow-500/20 rounded-full blur-[50px] pointer-events-none" />
+
+          {/* Realistic 3D floor shadow */}
+          <motion.div 
+            className="absolute w-36 h-36 bg-black/25 rounded-full blur-xl pointer-events-none"
+            animate={
+              gameState === "flipping"
+                ? { 
+                    scale: [0.8, 0.45, 0.95, 0.8],
+                    opacity: [0.5, 0.15, 0.65, 0.5],
+                    y: 40
+                  }
+                : gameState === "resolved"
+                  ? {
+                      scale: 0.9,
+                      opacity: 0.5,
+                      y: 35
+                    }
+                  : { 
+                      scale: 1, 
+                      opacity: 0.5,
+                      y: 35
+                    }
+            }
+            transition={
+              gameState === "flipping" 
+                ? { duration: 2.5, ease: [0.15, 0.85, 0.3, 1] }
+                : { duration: 0.5 }
+            }
+            style={{ transform: "rotateX(75deg)" }}
+          />
 
           {/* Landed Win Glow Halos and Particle Sparks */}
           <AnimatePresence>
@@ -255,8 +297,8 @@ export function Coinflip() {
                     }
                   : { duration: 0.5, type: "spring", stiffness: 100 }
             }
-            className="w-40 h-40 relative font-black drop-shadow-[0_25px_30px_rgba(0,0,0,0.35)]"
-            style={{ transformStyle: "preserve-3d" }}
+            className="w-40 h-40 relative font-black"
+            style={{ transformStyle: "preserve-3d", WebkitTransformStyle: "preserve-3d" }}
           >
             {/* 3D Reeded Edge Stack representing coin body thickness */}
             {[-3, -2, -1, 0, 1, 2, 3].map((z) => (
@@ -269,8 +311,13 @@ export function Coinflip() {
 
             {/* Side A (AURA) - Gold Coin Face */}
             <div 
-              className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#fffbeb_0%,#fef08a_25%,#eab308_60%,#ca8a04_85%,#854d0e_100%)] border-[8px] border-amber-500 shadow-[inset_0_4px_12px_rgba(0,0,0,0.4),0_8px_20px_rgba(0,0,0,0.4)]" 
-              style={{ backfaceVisibility: "hidden", transform: "translateZ(4px)" }}
+              className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#fffbeb_0%,#fef08a_25%,#eab308_60%,#ca8a04_85%,#854d0e_100%)] border-[8px] border-amber-500 shadow-[inset_0_4px_12px_rgba(0,0,0,0.4),0_8px_20px_rgba(0,0,0,0.25)]" 
+              style={{ 
+                backfaceVisibility: "hidden", 
+                WebkitBackfaceVisibility: "hidden", 
+                transform: "rotateX(0deg) translateZ(4px)",
+                display: (gameState === "flipping" || (result ? result === "heads" : selectedSide === "heads" || !selectedSide)) ? "flex" : "none"
+              }}
             >
               {/* Elegant embossed background letter */}
               <div className="absolute inset-0 flex items-center justify-center text-[110px] font-serif font-extrabold text-yellow-600/10 select-none pointer-events-none">A</div>
@@ -287,7 +334,7 @@ export function Coinflip() {
                 <circle cx="2" cy="4" r="1" fill="currentColor" />
                 <circle cx="22" cy="4" r="1" fill="currentColor" />
               </svg>
-              <span className="text-[11px] text-yellow-950 font-black tracking-[0.3em] mt-3 uppercase drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)] z-10">AURA</span>
+              <span className="text-[11px] text-yellow-950 font-black tracking-[0.3em] mt-3 uppercase drop-shadow-[0_1px_1px_rgba(255,255,255,0.6)] z-10">HEADS</span>
 
               {/* Specular Glare highlight sheen */}
               <motion.div 
@@ -299,25 +346,30 @@ export function Coinflip() {
 
             {/* Side B (SKULL) - Midnight Obsidian Coin Face */}
             <div 
-              className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-700 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.4)]"
-              style={{ backfaceVisibility: "hidden", transform: "translateZ(-4px) rotateX(180deg)" }}
+              className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-800 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.25)]"
+              style={{ 
+                backfaceVisibility: "hidden", 
+                WebkitBackfaceVisibility: "hidden", 
+                transform: "rotateX(180deg) translateZ(4px)",
+                display: (gameState === "flipping" || (result ? result === "tails" : selectedSide === "tails")) ? "flex" : "none"
+              }}
             >
               {/* Elegant embossed background letter */}
               <div className="absolute inset-0 flex items-center justify-center text-[110px] font-serif font-extrabold text-slate-800/15 select-none pointer-events-none">S</div>
 
               {/* Inner counter-rotating detail ring */}
-              <div className="absolute inset-2 rounded-full border-2 border-cyan-500/20 border-dashed animate-[spin_6s_linear_infinite_reverse] opacity-50 pointer-events-none" />
+              <div className="absolute inset-2 rounded-full border-2 border-dashed animate-[spin_6s_linear_infinite_reverse] opacity-50 pointer-events-none" style={{ borderColor: "rgba(0, 240, 255, 0.25)" }} />
               
               {/* Skull SVG with teal accents */}
-              <svg className="w-16 h-16 text-cyan-400 drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M4 10a8 8 0 0 1 16 0c0 2-.5 3.5-1.5 5l-.5 2v3a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-3l-.5-2C4.5 13.5 4 12 4 10z" fill="rgba(6,182,212,0.06)" />
+              <svg className="w-16 h-16 z-10" style={{ color: "#00f0ff", filter: "drop-shadow(0 0 12px rgba(0, 240, 255, 0.6))" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M4 10a8 8 0 0 1 16 0c0 2-.5 3.5-1.5 5l-.5 2v3a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-3l-.5-2C4.5 13.5 4 12 4 10z" fill="rgba(0, 240, 255, 0.08)" />
                 <circle cx="8.5" cy="10.5" r="2.5" fill="currentColor" stroke="none" className="animate-pulse" />
                 <circle cx="15.5" cy="10.5" r="2.5" fill="currentColor" stroke="none" className="animate-pulse" />
                 <path d="M12 12.5l-1 1.5h2z" fill="currentColor" stroke="none" />
                 <path d="M8 17h8" strokeWidth="1.5" />
                 <path d="M9.5 17v3M12 17v3M14.5 17v3" strokeWidth="1.5" />
               </svg>
-              <span className="text-[11px] text-cyan-400 font-black tracking-[0.3em] mt-3 uppercase drop-shadow-[0_1px_4px_rgba(6,182,212,0.5)] z-10">SKULL</span>
+              <span className="text-[11px] font-black tracking-[0.3em] mt-3 uppercase z-10" style={{ color: "#00f0ff", filter: "drop-shadow(0 1px 4px rgba(0, 240, 255, 0.5))" }}>TAILS</span>
 
               {/* Specular Glare highlight sheen */}
               <motion.div 

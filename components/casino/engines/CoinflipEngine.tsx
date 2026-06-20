@@ -105,7 +105,37 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
 
       <div className="h-64 flex items-center justify-center relative z-10 select-none perspective-[1000px]">
         {/* Ambient base glow */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-yellow-500/20 rounded-full blur-[50px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-32 h-32 bg-yellow-500/20 rounded-full blur-[50px] pointer-events-none" />
+
+        {/* Realistic 3D floor shadow */}
+        <motion.div 
+          className="absolute w-36 h-36 bg-black/25 rounded-full blur-xl pointer-events-none"
+          animate={
+            flipping 
+              ? { 
+                  scale: [0.8, 0.45, 0.95, 0.8],
+                  opacity: [0.5, 0.15, 0.65, 0.5],
+                  y: 40
+                }
+              : landed
+                ? {
+                    scale: 0.9,
+                    opacity: 0.5,
+                    y: 35
+                  }
+                : { 
+                    scale: 1, 
+                    opacity: 0.5,
+                    y: 35
+                  }
+          }
+          transition={
+            flipping 
+              ? { duration: 2.5, ease: [0.15, 0.85, 0.3, 1] }
+              : { duration: 0.5 }
+          }
+          style={{ transform: "rotateX(75deg)" }}
+        />
         
         {/* Landed Win Glow Halos and Particle Sparks */}
         <AnimatePresence>
@@ -217,8 +247,8 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
                   }
                 : { duration: 0.5, type: "spring", stiffness: 100 }
           }
-          className="w-40 h-40 relative font-black drop-shadow-[0_25px_30px_rgba(0,0,0,0.35)]"
-          style={{ transformStyle: "preserve-3d" }}
+          className="w-40 h-40 relative font-black"
+          style={{ transformStyle: "preserve-3d", WebkitTransformStyle: "preserve-3d" }}
         >
           {/* 3D Reeded Edge Stack representing coin body thickness */}
           {[-3, -2, -1, 0, 1, 2, 3].map((z) => (
@@ -231,8 +261,13 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
 
           {/* Side A (AURA) - Gold Coin Face */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#fffbeb_0%,#fef08a_25%,#eab308_60%,#ca8a04_85%,#854d0e_100%)] border-[8px] border-amber-500 shadow-[inset_0_4px_12px_rgba(0,0,0,0.4),0_8px_20px_rgba(0,0,0,0.4)]" 
-            style={{ backfaceVisibility: "hidden", transform: "translateZ(4px)" }}
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#fffbeb_0%,#fef08a_25%,#eab308_60%,#ca8a04_85%,#854d0e_100%)] border-[8px] border-amber-500 shadow-[inset_0_4px_12px_rgba(0,0,0,0.4),0_8px_20px_rgba(0,0,0,0.25)]" 
+            style={{ 
+              backfaceVisibility: "hidden", 
+              WebkitBackfaceVisibility: "hidden", 
+              transform: "rotateX(0deg) translateZ(4px)",
+              display: (!flipping && (result ? result !== "AURA" : selectedSide !== "AURA")) ? "none" : "flex"
+            }}
           >
             {/* Elegant embossed background letter */}
             <div className="absolute inset-0 flex items-center justify-center text-[110px] font-serif font-extrabold text-yellow-600/10 select-none pointer-events-none">A</div>
@@ -261,25 +296,30 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
 
           {/* Side B (SKULL) - Midnight Obsidian Coin Face */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-700 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.4)]"
-            style={{ backfaceVisibility: "hidden", transform: "translateZ(-4px) rotateX(180deg)" }}
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-800 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.25)]"
+            style={{ 
+              backfaceVisibility: "hidden", 
+              WebkitBackfaceVisibility: "hidden", 
+              transform: "rotateX(180deg) translateZ(4px)",
+              display: (!flipping && (result ? result !== "SKULL" : selectedSide !== "SKULL")) ? "none" : "flex"
+            }}
           >
             {/* Elegant embossed background letter */}
             <div className="absolute inset-0 flex items-center justify-center text-[110px] font-serif font-extrabold text-slate-800/15 select-none pointer-events-none">S</div>
 
             {/* Inner counter-rotating detail ring */}
-            <div className="absolute inset-2 rounded-full border-2 border-cyan-500/20 border-dashed animate-[spin_6s_linear_infinite_reverse] opacity-50 pointer-events-none" />
+            <div className="absolute inset-2 rounded-full border-2 border-dashed animate-[spin_6s_linear_infinite_reverse] opacity-50 pointer-events-none" style={{ borderColor: "rgba(0, 240, 255, 0.25)" }} />
             
             {/* Skull SVG with teal accents */}
-            <svg className="w-16 h-16 text-cyan-400 drop-shadow-[0_0_12px_rgba(6,182,212,0.5)] z-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 10a8 8 0 0 1 16 0c0 2-.5 3.5-1.5 5l-.5 2v3a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-3l-.5-2C4.5 13.5 4 12 4 10z" fill="rgba(6,182,212,0.06)" />
+            <svg className="w-16 h-16 z-10" style={{ color: "#00f0ff", filter: "drop-shadow(0 0 12px rgba(0, 240, 255, 0.6))" }} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M4 10a8 8 0 0 1 16 0c0 2-.5 3.5-1.5 5l-.5 2v3a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2v-3l-.5-2C4.5 13.5 4 12 4 10z" fill="rgba(0, 240, 255, 0.08)" />
               <circle cx="8.5" cy="10.5" r="2.5" fill="currentColor" stroke="none" className="animate-pulse" />
               <circle cx="15.5" cy="10.5" r="2.5" fill="currentColor" stroke="none" className="animate-pulse" />
               <path d="M12 12.5l-1 1.5h2z" fill="currentColor" stroke="none" />
               <path d="M8 17h8" strokeWidth="1.5" />
               <path d="M9.5 17v3M12 17v3M14.5 17v3" strokeWidth="1.5" />
             </svg>
-            <span className="text-[11px] text-cyan-400 font-black tracking-[0.3em] mt-3 uppercase drop-shadow-[0_1px_4px_rgba(6,182,212,0.5)] z-10">SKULL</span>
+            <span className="text-[11px] font-black tracking-[0.3em] mt-3 uppercase z-10" style={{ color: "#00f0ff", filter: "drop-shadow(0 1px 4px rgba(0, 240, 255, 0.5))" }}>SKULL</span>
 
             {/* Specular Glare highlight sheen */}
             <motion.div 
@@ -316,13 +356,25 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
           onClick={() => setSelectedSide("SKULL")}
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "SKULL"
-              ? "bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 text-white border-slate-700 shadow-[0_4px_12px_rgba(8,145,178,0.25)] scale-105"
-              : "bg-white text-slate-600 border-slate-200/80 hover:border-cyan-400/40 hover:text-slate-800"
+              ? "bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 text-white border-slate-700 shadow-[0_4px_12px_rgba(0,240,255,0.25)] scale-105"
+              : "bg-white text-slate-600 border-slate-200/80 hover:border-teal-400/40 hover:text-slate-800"
           }`}
         >
           {/* Miniature Silver/Charcoal Coin Preview */}
-          <div className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-600 to-cyan-700 border border-cyan-500/50 shadow-sm flex items-center justify-center scale-95">
-            <svg className="w-3 h-3 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <div 
+            className="w-5 h-5 rounded-full bg-gradient-to-br from-slate-700 to-slate-950 border shadow-sm flex items-center justify-center scale-95"
+            style={{ borderColor: "#00f0ff" }}
+          >
+            <svg 
+              className="w-3 h-3" 
+              style={{ color: "#00f0ff" }}
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              strokeWidth="2.5" 
+              strokeLinecap="round" 
+              strokeLinejoin="round"
+            >
               <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z"/>
               <circle cx="9" cy="11" r="1" fill="currentColor"/>
               <circle cx="15" cy="11" r="1" fill="currentColor"/>
@@ -348,7 +400,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
               "w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm",
               result === 'AURA' 
                 ? 'bg-amber-100 border-amber-200 text-amber-600' 
-                : 'bg-cyan-100 border-cyan-200 text-cyan-600'
+                : 'bg-teal-100 border-teal-200 text-teal-600'
             )}>
               {result === 'AURA' ? (
                 <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -356,7 +408,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
                   <polyline points="2 12 12 17 22 12" />
                 </svg>
               ) : (
-                <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <svg className="w-5 h-5 text-teal-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                   <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z"/>
                   <circle cx="9" cy="11" r="1" fill="currentColor"/>
                   <circle cx="15" cy="11" r="1" fill="currentColor"/>
@@ -369,7 +421,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
               <div className="flex items-baseline gap-2">
                 <span className={cn(
                   "text-xl font-black tracking-widest uppercase font-mono",
-                  result === 'AURA' ? 'text-amber-650' : 'text-cyan-600'
+                  result === 'AURA' ? 'text-amber-600' : 'text-teal-600'
                 )}>
                   {result}
                 </span>

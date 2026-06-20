@@ -15,15 +15,7 @@ import { GAMES, getGamesByCategory, CategoryId } from "@/lib/games";
 const PROVIDERS = ["All", "Originals", "Pragmatic Play", "Evolution", "Spribe", "NetEnt"];
 const TOKENS = [100, 500, 1000, 5000, 10000];
 
-const LOBBY_CATEGORIES = [
-  { slug: "hot", name: "HOT", emoji: "🔥" },
-  { slug: "slots", name: "Slots & Drops", emoji: "🎰" },
-  { slug: "live", name: "Live Dealers", emoji: "🔴" },
-  { slug: "crash", name: "Crash Games", emoji: "🚀" },
-  { slug: "roulette", name: "Table Roulette", emoji: "🎡" },
-  { slug: "blackjack", name: "Blackjack", emoji: "🃏" },
-  { slug: "poker", name: "Poker Heads Up", emoji: "♠️" },
-];
+
 
 export default function CasinoCategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const unwrappedParams = use(params);
@@ -920,28 +912,6 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
     <div className="flex flex-col h-[calc(100vh-56px)] w-full bg-slate-50 p-4 sm:p-6 overflow-y-auto">
       <div className="max-w-[1600px] mx-auto w-full space-y-6">
         
-        {/* Category horizontal scroll navigation sub-header */}
-        <div className="w-full shrink-0">
-          <div className="flex flex-wrap gap-2">
-            {LOBBY_CATEGORIES.map((cat) => {
-              const isActive = categorySlug === cat.slug;
-              return (
-                <Link
-                  key={cat.slug}
-                  href={`/casino/${cat.slug}`}
-                  className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-300 border cursor-pointer ${
-                    isActive
-                      ? "bg-gradient-to-br from-red-550 to-red-650 text-slate-900 border-red-500 shadow-md scale-102"
-                      : "bg-white text-slate-600 border-slate-200/80 hover:bg-slate-50 hover:border-slate-300"
-                  }`}
-                >
-                  <span className="text-sm">{cat.emoji}</span>
-                  {cat.name}
-                </Link>
-              );
-            })}
-          </div>
-        </div>
 
         {/* Category Hero / Stats Header Card */}
         <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 relative overflow-hidden shadow-sm flex flex-col lg:flex-row lg:items-center justify-between gap-6">
