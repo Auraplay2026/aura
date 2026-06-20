@@ -710,6 +710,7 @@ export default function GamePlayerPage() {
 
       if (e.code === "Space") {
         e.preventDefault();
+        if (e.repeat) return; // Prevent hold-down auto-repeats
         handlePlay();
       } else if (e.code === "KeyC") {
         e.preventDefault();

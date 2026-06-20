@@ -53,6 +53,8 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   const targetMultiplierRef = useRef(targetMultiplier);
   const isWinRef = useRef(false);
   const inTensionRef = useRef(false);
+  const betAmountRef = useRef(betAmount);
+  const playSoundRef = useRef<any>(null);
 
   useEffect(() => {
     onCompleteRef.current = onComplete;
@@ -73,6 +75,14 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   useEffect(() => {
     isWinRef.current = result !== null && result >= targetMultiplier;
   }, [result, targetMultiplier]);
+
+  useEffect(() => {
+    betAmountRef.current = betAmount;
+  }, [betAmount]);
+
+  useEffect(() => {
+    playSoundRef.current = playSound;
+  });
 
   // Audio Context Ref
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -178,7 +188,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
     setLiveCounter(1.00);
     setResult(null);
     inTensionRef.current = false;
-    playSound("charge");
+    playSoundRef.current("charge");
 
     let active = true;
     let animId: number;
@@ -199,8 +209,8 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
             email: currentUser?.email || "admin@aurabet.io",
             gameId: "orig-2",
             gameTitle: "Limbo",
-            betAmount: betAmount,
-            targetMultiplier: targetMultiplier
+            betAmount: betAmountRef.current,
+            targetMultiplier: targetMultiplierRef.current
           })
         });
         const data = await res.json();
@@ -226,8 +236,8 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
             let rawT = Math.min(1, elapsed / duration);
             let rawVal = 1.0 + (finalResult - 1.0) * Math.pow(rawT, 2.5);
 
-            const proximityStart = targetMultiplier * 0.94;
-            const willWin = finalResult >= targetMultiplier;
+            const proximityStart = targetMultiplierRef.current * 0.94;
+            const willWin = finalResult >= targetMultiplierRef.current;
 
             if (willWin && rawVal >= proximityStart && !tensionDone) {
               if (!inTension) {
@@ -239,11 +249,11 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
               let tensionElapsed = now - tensionStartTime;
               if (tensionElapsed < tensionDuration) {
                 const tProgress = tensionElapsed / tensionDuration;
-                const crawlVal = proximityStart + (targetMultiplier * 0.99 - proximityStart) * tProgress;
+                const crawlVal = proximityStart + (targetMultiplierRef.current * 0.99 - proximityStart) * tProgress;
                 setLiveCounter(parseFloat(crawlVal.toFixed(2)));
                 
                 if (now - lastSoundTime > soundRateLimit) {
-                  playSound("counting");
+                  playSoundRef.current("counting");
                   lastSoundTime = now;
                 }
                 
@@ -263,15 +273,15 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
             setLiveCounter(parseFloat(val.toFixed(2)));
 
             if (now - lastSoundTime > soundRateLimit) {
-              playSound("counting");
+              playSoundRef.current("counting");
               lastSoundTime = now;
             }
 
             if (t >= 1) {
               setResult(finalResult);
               setPhase("reveal");
-              const won = finalResult >= targetMultiplier;
-              playSound(won ? "reveal_win" : "reveal_lose");
+              const won = finalResult >= targetMultiplierRef.current;
+              playSoundRef.current(won ? "reveal_win" : "reveal_lose");
 
               if (won) {
                 setWinsCount(prev => prev + 1);
@@ -310,7 +320,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
       active = false;
       if (animId) cancelAnimationFrame(animId);
     };
-  }, [isPlaying, targetMultiplier, betAmount, playSound]);
+  }, [isPlaying]);
 
   const isWin = result !== null && result >= targetMultiplier;
 
