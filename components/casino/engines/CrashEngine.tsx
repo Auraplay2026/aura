@@ -330,10 +330,11 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       if (isNaN(offsetX) || !isFinite(offsetX)) offsetX = W * 0.35;
       if (isNaN(offsetY) || !isFinite(offsetY)) offsetY = H * 0.60;
 
-      // Direct tracking with responsive lag on camera coordinates
-      s.cameraX += (targetCamX - s.cameraX) * 0.12;
-      s.cameraY += (targetCamY - s.cameraY) * 0.12;
-      s.cameraZoom += (targetZoom - s.cameraZoom) * 0.12;
+      // Dynamic tracking factor: gets tighter at higher speeds to keep the rocket strictly inside viewport bounds
+      const lerpFactor = Math.min(0.95, 0.12 + Math.max(0, safeMultiplier - 1) * 0.03);
+      s.cameraX += (targetCamX - s.cameraX) * lerpFactor;
+      s.cameraY += (targetCamY - s.cameraY) * lerpFactor;
+      s.cameraZoom += (targetZoom - s.cameraZoom) * lerpFactor;
 
       // Final camera sanitization
       if (isNaN(s.cameraX) || !isFinite(s.cameraX)) s.cameraX = 120;
@@ -685,7 +686,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
           interval = setInterval(() => {
             if (!active) return;
             tick++;
-            current += 0.008 + current * 0.014;
+            current += 0.005 + current * 0.0085;
             updateCrashPitch(current);
             s.multiplier = current;
 
