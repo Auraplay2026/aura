@@ -46,17 +46,17 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     isPlaying: false,
     sessionId: null as string | null,
     tick: 0,
-    // Ship position in WORLD space (camera offsets applied during render)
-    shipWorldX: 0,
-    shipWorldY: 0,
+    // Decoupled Virtual Coordinates (physics simulation is fixed on this grid)
+    shipWorldX: 120,
+    shipWorldY: 800,
     trailPoints: [] as TrailPoint[],
     particles: [] as Particle[],
     stars: [] as Star[],
     wreckagePieces: [] as WreckagePiece[],
     explosionTime: 0,
     cameraShake: 0,
-    // Camera
-    cameraX: 0, cameraY: 0, cameraZoom: 1.1,
+    // Camera Virtual Coordinates
+    cameraX: 120, cameraY: 800, cameraZoom: 1.1,
   });
 
   const [uiState, setUiState] = useState({
@@ -195,16 +195,22 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     const s = stateRef.current;
     const tier = getTier(s.multiplier);
 
-    // ── Camera: Predictable Follow ──────────────────────────
-    let targetCamX = 0, targetCamY = 0, targetZoom = 1.05;
+    // ── Decoupled Camera Tracking ───────────────────────────
+    let targetCamX = 120;
+    let targetCamY = 800;
+    let targetZoom = 1.1;
+
     if (s.isPlaying && !s.crashed) {
-      // Pinned offset: Ship always at 35% from left, 60% from top (leads path)
-      targetCamX = s.shipWorldX - W * 0.35;
-      targetCamY = s.shipWorldY - H * 0.60;
-      targetZoom = Math.max(0.65, 1.15 - Math.log10(s.multiplier) * 0.2);
+      // Ship sits at W * 0.35 and H * 0.60 relative to the screen
+      targetCamX = s.shipWorldX;
+      targetCamY = s.shipWorldY;
+      targetZoom = Math.max(0.62, 1.15 - Math.log10(s.multiplier) * 0.22);
     } else if (s.crashed) {
-      targetCamX = s.shipWorldX - W * 0.5;
-      targetCamY = s.shipWorldY - H * 0.45;
+      // Shift targets so that the ship (at shipWorldX, shipWorldY) moves to (W * 0.5, H * 0.48)
+      // Screen X = shipWorldX - cameraX + W * 0.35 => cameraX = shipWorldX - W * 0.15
+      // Screen Y = shipWorldY - cameraY + H * 0.60 => cameraY = shipWorldY + H * 0.12
+      targetCamX = s.shipWorldX - W * 0.15;
+      targetCamY = s.shipWorldY + H * 0.12;
       targetZoom = 0.85;
     }
 
@@ -228,11 +234,10 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     ctx.fillStyle = "#02040a";
     ctx.fillRect(0, 0, W, H);
 
-    // Subtle moving sky stars for simple velocity feedback
-    const starSpeedMult = s.isPlaying && !s.crashed ? Math.min(10, 1 + (s.multiplier - 1) * 0.35) : 0;
+    // Subtle moving sky stars for simple velocity feedback (mapped to virtual camera coords)
     s.stars.forEach(star => {
-      let drawX = star.x - s.cameraX * star.speed * 0.02;
-      let drawY = star.y - s.cameraY * star.speed * 0.02;
+      let drawX = star.x - s.cameraX * star.speed * 0.025;
+      let drawY = star.y - s.cameraY * star.speed * 0.025;
       drawX = ((drawX % (W * 3)) + W * 3) % (W * 3) - W;
       drawY = ((drawY % (H * 3)) + H * 3) % (H * 3) - H;
 
@@ -248,9 +253,10 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     const gridSpacing = 90;
     
     // Draw horizontal grid lines (Altitude / Risk indicator)
-    const startY = Math.floor(s.cameraY / gridSpacing) * gridSpacing;
-    for (let gy = startY - H; gy < startY + H * 2; gy += gridSpacing) {
-      const screenY = gy - s.cameraY;
+    const startGridY = Math.floor(s.cameraY / gridSpacing) * gridSpacing;
+    for (let gy = startGridY - H; gy < startGridY + H * 2; gy += gridSpacing) {
+      // Map virtual Y coordinate to screen space
+      const screenY = gy - s.cameraY + H * 0.60;
       ctx.beginPath();
       ctx.moveTo(0, screenY);
       ctx.lineTo(W, screenY);
@@ -258,9 +264,10 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     }
     
     // Draw vertical grid lines (Distance / Reward indicator)
-    const startX = Math.floor(s.cameraX / gridSpacing) * gridSpacing;
-    for (let gx = startX - W; gx < startX + W * 2; gx += gridSpacing) {
-      const screenX = gx - s.cameraX;
+    const startGridX = Math.floor(s.cameraX / gridSpacing) * gridSpacing;
+    for (let gx = startGridX - W; gx < startGridX + W * 2; gx += gridSpacing) {
+      // Map virtual X coordinate to screen space
+      const screenX = gx - s.cameraX + W * 0.35;
       ctx.beginPath();
       ctx.moveTo(screenX, 0);
       ctx.lineTo(screenX, H);
@@ -271,10 +278,22 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     // WORLD-SPACE LAYER (Warp Trails & Ship)
     // ══════════════════════════════════════════════════════════
     ctx.save();
-    ctx.translate(W / 2, H / 2);
+    // Center scaling exactly at the ship's relative screen location (W * 0.35, H * 0.60)
+    ctx.translate(W * 0.35, H * 0.60);
     ctx.scale(s.cameraZoom, s.cameraZoom);
-    ctx.translate(-W / 2, -H / 2);
-    ctx.translate(-s.cameraX, -s.cameraY);
+    ctx.translate(-W * 0.35, -H * 0.60);
+    
+    // Pan camera: map virtual world origin to screen space relative to camera
+    ctx.translate(W * 0.35 - s.cameraX, H * 0.60 - s.cameraY);
+
+    // Draw Launch Pad / Ground platform in world space
+    ctx.fillStyle = "#1e293b";
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(120 - 45, 800 + 26, 90, 10, 4);
+    ctx.fill();
+    ctx.stroke();
 
     // ── Flight Path: Clean, Predictable rocket curve ──
     if (s.trailPoints.length > 1) {
@@ -331,7 +350,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     });
 
     // ── Ship / Wreckage pieces render ──
-    if (s.isPlaying || s.crashed) {
+    if (s.isPlaying || s.crashed || uiState.phase === "idle") {
       let angle = -Math.PI * 0.25;
       if (s.trailPoints.length > 3) {
         const prev = s.trailPoints[s.trailPoints.length - 3];
@@ -361,7 +380,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         // Ship is always at the leading edge of the curve
         drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, s.multiplier, tier);
 
-        if (s.tick % 2 === 0) {
+        if (s.tick % 2 === 0 && (s.isPlaying || s.multiplier > 1.01)) {
           const exhaustAngle = angle + Math.PI;
           const ex = s.shipWorldX + Math.cos(exhaustAngle) * 26;
           const ey = s.shipWorldY + Math.sin(exhaustAngle) * 26;
@@ -426,7 +445,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
 
     s.tick++;
     animFrameRef.current = requestAnimationFrame(render);
-  }, []);
+  }, [uiState.phase]);
 
   // ─── Resize Handler ───────────────────────────────────────
   useEffect(() => {
@@ -484,8 +503,8 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         s.explosionTime = 0;
         s.sessionId = null;
         s.tick = 0;
-        s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1.1;
-        s.shipWorldX = 0; s.shipWorldY = 0;
+        s.cameraX = 120; s.cameraY = 800; s.cameraZoom = 1.1;
+        s.shipWorldX = 120; s.shipWorldY = 800;
         stopCrashAudio(false);
         setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "idle" });
       }
@@ -495,12 +514,13 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     s.isPlaying = true;
     s.crashed = false;
     s.cashedOut = false;
-    s.trailPoints = [];
+    s.trailPoints = [{ x: 120, y: 800, mult: 1.0, time: 0 }];
     s.particles = [];
     s.wreckagePieces = [];
     s.explosionTime = 0;
     s.multiplier = 1.0;
-    s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1.1;
+    s.cameraX = 120; s.cameraY = 800; s.cameraZoom = 1.1;
+    s.shipWorldX = 120; s.shipWorldY = 800;
     startCrashAudio();
     setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "flying" });
 
@@ -521,11 +541,8 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
           let current = 1.0;
           let tick = 0;
 
-          const canvas = canvasRef.current;
-          const startX = canvas ? canvas.width * 0.12 : 90;
-          const startY = canvas ? canvas.height * 0.88 : 500;
-          s.shipWorldX = startX;
-          s.shipWorldY = startY;
+          s.shipWorldX = 120;
+          s.shipWorldY = 800;
 
           interval = setInterval(() => {
             if (!active) return;
