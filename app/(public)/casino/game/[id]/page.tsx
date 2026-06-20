@@ -298,6 +298,28 @@ export default function GamePlayerPage() {
   const [isDemoLimitReached, setIsDemoLimitReached] = useState(false);
   const [demoRentalsCount, setDemoRentalsCount] = useState(0);
 
+  const [ludoState, setLudoState] = useState<{
+    isHumanTurn: boolean;
+    isRolling: boolean;
+    dice: number;
+    winner: string | null;
+  } | null>(null);
+
+  useEffect(() => {
+    const handleStateChange = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      setLudoState(customEvent.detail);
+    };
+    window.addEventListener("ludo-state-change", handleStateChange);
+    return () => window.removeEventListener("ludo-state-change", handleStateChange);
+  }, []);
+
+  useEffect(() => {
+    if (!isSpinning) {
+      setLudoState(null);
+    }
+  }, [isSpinning]);
+
   useEffect(() => {
     const timer = setTimeout(() => {
       const isDemo = !currentUser || currentUser.accountType === 'demo';
@@ -1831,22 +1853,48 @@ export default function GamePlayerPage() {
 
                           <div className="flex-1"/>
 
-                          {/* BET / CASHOUT */}
-                          <button
-                            onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
-                            disabled={isSpinning && !isCashoutActive}
-                            className={`h-12 px-5 sm:px-8 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 whitespace-nowrap ${
-                              isSpinning && isCashoutActive
-                                ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse cursor-pointer'
-                                : isSpinning
-                                  ? 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/10'
-                                  : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-sm hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/10`
-                            }`}>
-                            {isSpinning && isCashoutActive
-                              ? `💰 ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
-                              : isSpinning ? '⏳ Playing...'
-                              : game.title.toLowerCase().includes('slot') ? '🎰 SPIN' : '🚀 BET'}
-                          </button>
+                          {/* BET / CASHOUT / LUDO DICE */}
+                          {isSpinning && game.title.toLowerCase().includes('ludo') ? (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                window.dispatchEvent(new CustomEvent("ludo-trigger-roll"));
+                                playGameSound('click');
+                              }}
+                              disabled={!ludoState?.isHumanTurn || ludoState?.isRolling}
+                              className={`h-12 px-6 sm:px-10 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 whitespace-nowrap ${
+                                ludoState?.isHumanTurn && !ludoState?.isRolling
+                                  ? `bg-gradient-to-r ${theme.buttonGradient} text-white shadow-lg hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/20`
+                                  : 'bg-slate-100 text-slate-400 border border-slate-200 cursor-not-allowed'
+                              }`}
+                            >
+                              {ludoState?.isRolling ? (
+                                <span className="flex items-center gap-2">
+                                  <span className="inline-block animate-spin">🎲</span> ROLLING...
+                                </span>
+                              ) : ludoState?.isHumanTurn ? (
+                                <span>🎲 ROLL DICE</span>
+                              ) : (
+                                <span>⏳ WAITING TURN</span>
+                              )}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
+                              disabled={isSpinning && !isCashoutActive}
+                              className={`h-12 px-5 sm:px-8 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 whitespace-nowrap ${
+                                isSpinning && isCashoutActive
+                                  ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse cursor-pointer'
+                                  : isSpinning
+                                    ? 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/10'
+                                    : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-sm hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/10`
+                              }`}>
+                              {isSpinning && isCashoutActive
+                                ? `💰 ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
+                                : isSpinning ? '⏳ Playing...'
+                                : game.title.toLowerCase().includes('slot') ? '🎰 SPIN' : '🚀 BET'}
+                            </button>
+                          )}
                         </div>
 
                         {/* Row 2: Chips + mobile extras + balance */}

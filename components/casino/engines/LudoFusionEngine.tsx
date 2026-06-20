@@ -890,6 +890,35 @@ export function LudoFusionEngine({
     }
   }, [gamePhase, currentIdx, players, validMoves, executeMove]);
 
+  const currentPlayer = players[currentIdx];
+
+  useEffect(() => {
+    if (gamePhase === "idle" || showSetup) {
+      window.dispatchEvent(new CustomEvent("ludo-state-change", { detail: null }));
+      return;
+    }
+    const isHumanTurn = !!(currentPlayer?.isHuman && gamePhase === "playing" && !winner);
+    window.dispatchEvent(new CustomEvent("ludo-state-change", {
+      detail: {
+        isHumanTurn,
+        isRolling,
+        dice,
+        winner
+      }
+    }));
+  }, [currentPlayer, gamePhase, winner, isRolling, dice, showSetup]);
+
+  useEffect(() => {
+    const handleTrigger = () => {
+      const isHumanTurn = currentPlayer?.isHuman && gamePhase === "playing" && !winner;
+      if (isHumanTurn && !isRolling) {
+        rollDice();
+      }
+    };
+    window.addEventListener("ludo-trigger-roll", handleTrigger);
+    return () => window.removeEventListener("ludo-trigger-roll", handleTrigger);
+  }, [currentPlayer, gamePhase, winner, isRolling, rollDice]);
+
   // SVG Flowing Energy Loop along the path
   const getFlowingTrackPoints = () => {
     return [...MAIN_PATH, MAIN_PATH[0]].map(([r, c]) => {
@@ -1106,8 +1135,6 @@ export function LudoFusionEngine({
     }
   }
 
-  const currentPlayer = players[currentIdx];
-
   return (
     <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible select-none font-sans">
       
@@ -1165,14 +1192,12 @@ export function LudoFusionEngine({
             </span>
           </div>
 
-          {/* Dice Roll Trigger */}
+          {/* Dice Roll Display */}
           <div className="relative">
-            <button
-              disabled={!(currentPlayer?.isHuman && gamePhase === "playing" && !winner)}
-              onClick={rollDice}
+            <div
               className={`w-9 h-9 rounded-xl flex items-center justify-center border font-black text-sm transition-all select-none ${
                 currentPlayer?.isHuman && gamePhase === "playing" && !winner
-                  ? "border-amber-400 bg-amber-500/10 text-amber-350 shadow-[0_0_10px_rgba(245,158,11,0.2)] animate-pulse scale-105 active:scale-95 cursor-pointer"
+                  ? "border-amber-400 bg-amber-500/5 text-amber-355 cursor-default"
                   : "border-purple-500/10 bg-purple-950/20 text-purple-400 opacity-60"
               }`}
             >
@@ -1187,15 +1212,7 @@ export function LudoFusionEngine({
               ) : (
                 <span className="font-mono text-xs">{dice || "🎲"}</span>
               )}
-            </button>
-            
-            {/* Pulsing indicator when it's your turn to roll */}
-            {currentPlayer?.isHuman && gamePhase === "playing" && !winner && (
-              <span className="absolute -top-1 -right-1 flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-fuchsia-400" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-fuchsia-500" />
-              </span>
-            )}
+            </div>
           </div>
         </div>
       </div>
