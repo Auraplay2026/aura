@@ -90,7 +90,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
   const winChance = target.toFixed(2);
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-white rounded-3xl border border-[#e9e2d3] flex flex-col items-center justify-center relative overflow-hidden shadow-[0_20px_45px_rgba(224,87,62,0.04)] p-3 md:p-12">
+    <div className="w-full h-full min-h-[300px] h-[320px] md:min-h-[600px] md:h-full bg-white rounded-3xl border border-[#e9e2d3] flex flex-col items-center justify-center relative overflow-hidden shadow-[0_20px_45px_rgba(224,87,62,0.04)] p-3 md:p-12">
       
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-amber-100/20 via-white to-white pointer-events-none" />
 
@@ -98,7 +98,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
       <div className="relative w-full max-w-2xl mx-auto z-10 flex flex-col items-center">
         
         {/* Animated Result Badge */}
-        <div className="h-32 flex items-center justify-center mb-8">
+        <div className="h-20 md:h-32 flex items-center justify-center mb-4 md:mb-8">
           <AnimatePresence mode="wait">
             {isRolling ? (
               <motion.div 
@@ -106,7 +106,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
                 initial={{ opacity: 0, scale: 0.5 }}
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.5 }}
-                className="text-6xl md:text-8xl font-black font-mono text-slate-300 animate-pulse tracking-tighter"
+                className="text-5xl md:text-8xl font-black font-mono text-slate-300 animate-pulse tracking-tighter"
               >
                 00.00
               </motion.div>
@@ -115,7 +115,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
                 key="result"
                 initial={{ opacity: 0, scale: 0.5, y: 20 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                className={`text-7xl md:text-9xl font-black font-mono tracking-tighter drop-shadow-sm ${won ? 'text-emerald-700' : 'text-rose-700'}`}
+                className={`text-6xl md:text-9xl font-black font-mono tracking-tighter drop-shadow-sm ${won ? 'text-emerald-700' : 'text-rose-700'}`}
               >
                 {rollResult.toFixed(2)}
               </motion.div>
@@ -124,7 +124,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
                 key="idle"
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-6xl md:text-8xl font-black font-mono text-slate-300 tracking-tighter"
+                className="text-5xl md:text-8xl font-black font-mono text-slate-300 tracking-tighter"
               >
                 100.00
               </motion.div>
@@ -133,7 +133,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
         </div>
 
         {/* The Precision Slider */}
-        <div className="w-full relative mt-12 mb-16">
+        <div className="w-full relative mt-6 md:mt-12 mb-10 md:mb-16">
           
           {/* Slider Background Track */}
           <div className="h-4 w-full bg-red-100/50 rounded-full overflow-hidden relative shadow-[inset_0_1px_3px_rgba(0,0,0,0.1)]">
@@ -184,18 +184,18 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
         </div>
 
         {/* Stats Readout */}
-        <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-4">
-          <div className="bg-[#faf8f5] border border-[#e9e2d3] rounded-2xl p-4 text-center">
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Multiplier</p>
-            <p className="text-slate-900 text-xl font-black font-mono mt-1">{winMultiplier}x</p>
+        <div className="w-full grid grid-cols-2 md:grid-cols-3 gap-3 md:gap-4">
+          <div className="bg-[#faf8f5] border border-[#e9e2d3] rounded-2xl p-2.5 md:p-4 text-center">
+            <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">Multiplier</p>
+            <p className="text-slate-900 text-lg md:text-xl font-black font-mono mt-0.5 md:mt-1">{winMultiplier}x</p>
           </div>
           <div className="hidden md:block bg-[#faf8f5] border border-[#e9e2d3] rounded-2xl p-4 text-center">
             <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Roll Under</p>
             <p className="text-indigo-700 text-xl font-black font-mono mt-1">{target.toFixed(2)}</p>
           </div>
-          <div className="bg-[#faf8f5] border border-[#e9e2d3] rounded-2xl p-4 text-center">
-            <p className="text-slate-500 text-xs font-bold uppercase tracking-wider">Win Chance</p>
-            <p className="text-emerald-700 text-xl font-black font-mono mt-1">{winChance}%</p>
+          <div className="bg-[#faf8f5] border border-[#e9e2d3] rounded-2xl p-2.5 md:p-4 text-center">
+            <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-wider">Win Chance</p>
+            <p className="text-emerald-700 text-lg md:text-xl font-black font-mono mt-0.5 md:mt-1">{winChance}%</p>
           </div>
         </div>
 

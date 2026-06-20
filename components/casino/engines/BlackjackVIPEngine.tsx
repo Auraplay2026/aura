@@ -658,7 +658,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
   const playerScore = getBlackjackScore(playerHand);
   const dealerScore = getBlackjackScore(dealerHand);
   return (
-    <div className={cn("w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br rounded-3xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-between p-2.5 sm:p-4 overflow-hidden select-none", theme.feltBg)}>
+    <div className={cn("w-full h-full min-h-[320px] h-[360px] md:min-h-[600px] md:h-full bg-gradient-to-br rounded-3xl border border-white/10 shadow-2xl relative flex flex-col items-center justify-between p-2.5 sm:p-4 overflow-hidden select-none", theme.feltBg)}>
       
       {/* Premium casino table felt background texture */}
       <div 

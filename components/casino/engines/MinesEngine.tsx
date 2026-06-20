@@ -188,7 +188,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   };
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] relative bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 flex flex-col p-3 md:p-6 gap-6">
+    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full relative bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 flex flex-col p-3 md:p-6 gap-3 md:gap-6">
       
       {/* Premium Light Casino Floor Background */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(167,243,208,0.18)_0%,transparent_60%)] pointer-events-none" />
@@ -241,7 +241,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
 
         {/* 3D Mines Grid Container */}
         <div className="relative flex-1 flex items-center justify-center perspective-[1200px]">
-          <div className={`grid grid-cols-5 gap-3 w-full max-w-[450px] aspect-square p-4 bg-white/60 rounded-[2rem] border transition-all duration-300 shadow-[inset_0_0_30px_rgba(0,0,0,0.04),0_8px_40px_rgba(0,0,0,0.06)] transform-style-3d rotate-x-[15deg] ${
+          <div className={`grid grid-cols-5 gap-2 md:gap-3 w-full max-w-[260px] sm:max-w-[340px] md:max-w-[450px] aspect-square p-2.5 md:p-4 bg-white/60 rounded-[1.5rem] md:rounded-[2rem] border transition-all duration-300 shadow-[inset_0_0_30px_rgba(0,0,0,0.04),0_8px_40px_rgba(0,0,0,0.06)] transform-style-3d rotate-x-[15deg] ${
             (gameState === "playing" && clickCount >= 4)
               ? "border-rose-400/60 shadow-[0_0_30px_rgba(244,63,94,0.15)] animate-[heartbeat-glow_1.2s_infinite_ease-in-out]" 
               : "border-slate-200/80"

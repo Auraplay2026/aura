@@ -675,10 +675,10 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   }, []);
 
   return (
-    <div className="w-full h-full min-h-[450px] md:min-h-[600px] relative p-4 md:p-6 rounded-3xl overflow-hidden border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] flex flex-col">
+    <div className="w-full h-full min-h-[320px] h-[350px] md:min-h-[600px] md:h-full relative p-4 md:p-6 rounded-3xl overflow-hidden border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] flex flex-col">
       
       {/* Main Game Viewport with Canvas tunnel & giant multiplier engine */}
-      <div className="w-full flex-grow relative rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col justify-between p-4 md:p-6 min-h-[380px] md:min-h-[500px]">
+      <div className="w-full flex-grow relative rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col justify-between p-4 md:p-6 min-h-[260px] md:min-h-[500px]">
         
         {/* Canvas background rendering */}
         <canvas

@@ -791,7 +791,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   const theme = RISK_THEMES[risk];
 
   return (
-    <div className="w-full h-full min-h-[480px] md:min-h-[650px] bg-white rounded-2xl md:rounded-3xl border border-slate-200/80 p-2 sm:p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 relative overflow-hidden shadow-xl">
+    <div className="w-full h-full min-h-[320px] h-[350px] md:min-h-[650px] md:h-full bg-white rounded-2xl md:rounded-3xl border border-slate-200/80 p-2 sm:p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 relative overflow-hidden shadow-xl">
       
       {/* Background visual beams */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.04)_0%,transparent_60%)] pointer-events-none z-0" />
@@ -799,7 +799,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
 
 
       {/* 2. PLINKO X 3D Canvas Board Viewport */}
-      <div className="flex-grow bg-white border border-slate-200 rounded-xl md:rounded-2xl relative overflow-hidden flex flex-col justify-between p-2.5 md:p-6 z-10 min-h-[380px] md:min-h-[500px]">
+      <div className="flex-grow bg-white border border-slate-200 rounded-xl md:rounded-2xl relative overflow-hidden flex flex-col justify-between p-2.5 md:p-6 z-10 min-h-[260px] md:min-h-[500px]">
         
         {/* Header HUD odds indicators */}
         <div className="w-full flex items-center justify-between z-10">
