@@ -1557,57 +1557,6 @@ export default function GamePlayerPage() {
                       isRoyalEngine ? "bg-transparent p-0" : "bg-[#faf8f2] border border-amber-200/30 rounded-3xl p-2 md:p-4 shadow-inner"
                     )}>
                       
-                      {/* Header Overlay */}
-                      {!isRoyalEngine && (
-                        <div className="w-full flex justify-between items-center z-20 mb-4 bg-white/5 backdrop-blur-md border border-white/10 p-2 md:p-3 rounded-2xl shadow-xl">
-                          <div className="flex items-center">
-                            <div className="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1.5 rounded-xl">
-                              <span className="relative flex h-1.5 w-1.5 shrink-0">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500"></span>
-                              </span>
-                              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-cyan-400">
-                                {isCloudRenting ? "Cloud Stream" : "Live Betting"}
-                              </span>
-                            </div>
-                          </div>
-
-                          {/* Manual Mode Badge + Multiplayer Toggle */}
-                          <div className="flex items-center gap-2">
-                            {/* Manual Mode Indicator */}
-                            <div className="flex items-center gap-1.5 bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-1.5 rounded-lg">
-                              <Hand className="w-3 h-3 text-emerald-400" />
-                              <span className="text-[9px] font-black uppercase tracking-wider text-emerald-400">Manual</span>
-                              <span className="relative flex h-1.5 w-1.5">
-                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
-                              </span>
-                            </div>
-
-                            {/* Multiplayer Toggle */}
-                            <div className="flex items-center gap-3 bg-white/5 border border-white/10 px-3 py-2 rounded-xl">
-                              <div className="flex items-center gap-2">
-                                <Users className="w-4 h-4 text-cyan-400" />
-                                <span className="text-[10px] md:text-xs font-black uppercase text-slate-800 hidden sm:inline">Lobby</span>
-                              </div>
-                              <button 
-                                onClick={() => setIsMultiplayer(!isMultiplayer)}
-                                className={cn(
-                                  "relative w-10 h-5 md:w-12 md:h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
-                                  isMultiplayer ? "bg-neon-green" : "bg-slate-100"
-                                )}
-                              >
-                                <motion.div 
-                                  layout
-                                  className="w-3 h-3 md:w-4 md:h-4 bg-white rounded-full"
-                                  style={{ marginLeft: isMultiplayer ? (typeof window !== 'undefined' && window.innerWidth < 768 ? '20px' : '24px') : '0px' }}
-                                />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-                      )}
-
                       {/* Central Canvas Area */}
                       <div className="flex-1 w-full flex flex-col md:flex-row gap-4 md:gap-6 relative z-10 min-h-[280px] sm:min-h-[400px] md:min-h-[600px]">
                         
