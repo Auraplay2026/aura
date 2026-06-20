@@ -11,7 +11,7 @@
 
 import { NextResponse } from 'next/server';
 import { gameHistory, GameRound } from '@/lib/gameHistory';
-import { findUserByEmail } from '@/lib/userDb';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 // ─────────────────────────────────────────────────────────────────────
 // Game Registry (expected RTP per game based on house edge config)
@@ -159,19 +159,13 @@ function aggregateRTPData(rounds: GameRound[], volatilityThreshold: number = 110
 // API Route Handler
 // ─────────────────────────────────────────────────────────────────────
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: Request) {
   try {
+    await verifyAdminSession();
+
     const { searchParams } = new URL(request.url);
-    const adminEmail = searchParams.get('email');
-
-    if (!adminEmail) {
-      return NextResponse.json({ error: 'Unauthorized. Admin email query parameter is required.' }, { status: 401 });
-    }
-
-    const adminUser = await findUserByEmail(adminEmail);
-    if (!adminUser || adminUser.role !== 'admin') {
-      return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
-    }
 
     const volatilityThreshold = parseFloat(searchParams.get('threshold') || '110');
     const hours = parseInt(searchParams.get('hours') || '24');

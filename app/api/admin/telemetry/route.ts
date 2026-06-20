@@ -1,5 +1,4 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmail } from '@/lib/userDb';
 import { logAdminAction } from '@/app/(admin)/admin/actions';
 import { 
   getTelemetryHistory, 
@@ -9,20 +8,13 @@ import {
   resetCircuitBreaker 
 } from '@/lib/settlementEngine';
 import { getSystemConfig } from '@/lib/systemConfig';
+import { verifyAdminSession } from '@/lib/adminAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const adminEmail = searchParams.get('email');
-    
-    if (!adminEmail) {
-      return NextResponse.json({ error: 'Unauthorized. Admin email is required.' }, { status: 401 });
-    }
-    
-    const adminUser = await findUserByEmail(adminEmail);
-    if (!adminUser || adminUser.role !== 'admin') {
-      return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
-    }
+    await verifyAdminSession();
 
     const telemetry = getTelemetryHistory();
     const riskAlerts = getRiskAlertsHistory();
@@ -38,34 +30,28 @@ export async function GET(request: Request) {
       isSuspended,
       maintenanceMode: !!systemConfig.maintenanceMode
     }, { status: 200 });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Failed to load admin telemetry data:", err);
-    return NextResponse.json({ error: 'Failed to retrieve telemetry.' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Failed to retrieve telemetry.' }, { status: 401 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { adminEmail, action } = await request.json();
+    const session = await verifyAdminSession();
+    const verifiedAdminEmail = session.email;
 
-    if (!adminEmail) {
-      return NextResponse.json({ error: 'Unauthorized. Administrator credentials required.' }, { status: 401 });
-    }
-
-    const adminUser = await findUserByEmail(adminEmail);
-    if (!adminUser || adminUser.role !== 'admin') {
-      return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
-    }
+    const { action } = await request.json();
 
     if (action === 'reset_breaker') {
       resetCircuitBreaker();
-      await logAdminAction(adminEmail, "RESET_CIRCUIT_BREAKER", "SYSTEM", "Reset circuit breaker and resumed market settlements.");
+      await logAdminAction(verifiedAdminEmail, "RESET_CIRCUIT_BREAKER", "SYSTEM", "Reset circuit breaker and resumed market settlements.");
       return NextResponse.json({ success: true, message: "Circuit breaker reset successfully." }, { status: 200 });
     }
 
     return NextResponse.json({ error: 'Invalid action.' }, { status: 400 });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Admin telemetry action error:", err);
-    return NextResponse.json({ error: 'Failed to execute telemetry action.' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Failed to execute telemetry action.' }, { status: 500 });
   }
 }

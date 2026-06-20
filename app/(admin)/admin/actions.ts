@@ -1,6 +1,7 @@
 "use server"
 
 import { getUsers, updateUser, Transaction } from "@/lib/userDb";
+import { verifyAdminSession } from "@/lib/adminAuth";
 import { parseCasinoDetails } from "@/lib/utils";
 import { getSystemConfig, saveSystemConfig, SystemConfig } from "@/lib/systemConfig";
 import { getPaymentSettings, savePaymentSettings, PaymentSettings } from "@/lib/paymentConfig";
@@ -37,10 +38,54 @@ async function checkAdminAuth() {
 }
 
 
+async function secureAction(clientAdminEmail?: string, targetUserEmail?: string, amount?: number): Promise<{ success: boolean; email: string; error?: string }> {
+  try {
+    const session = await verifyAdminSession();
+    const verifiedEmail = session.email;
+    
+    if (clientAdminEmail && clientAdminEmail !== "system@aurabet.io" && clientAdminEmail !== "admin@aurabet.io" && clientAdminEmail.toLowerCase() !== verifiedEmail.toLowerCase()) {
+      return { success: false, email: verifiedEmail, error: "Forbidden: Admin email parameter mismatch" };
+    }
+    
+    if (targetUserEmail && targetUserEmail.toLowerCase() === verifiedEmail.toLowerCase()) {
+      return { success: false, email: verifiedEmail, error: "Conflict of Interest: Admins cannot modify their own profiles or transactions" };
+    }
+    
+    if (amount !== undefined && amount > 50000) {
+      return { success: false, email: verifiedEmail, error: "Requires Dual-Approval: Balance adjustments above ₹50,000 require secondary checker sign-off" };
+    }
+    
+    return { success: true, email: verifiedEmail };
+  } catch (err: any) {
+    return { success: false, email: "", error: err.message || "Unauthorized admin session" };
+  }
+}
+
+async function getActionIP(): Promise<string> {
+  try {
+    const headersList = await headers();
+    const forwarded = headersList.get('x-forwarded-for');
+    if (forwarded) return forwarded.split(',')[0].trim();
+    const real = headersList.get('x-real-ip');
+    if (real) return real;
+    return '127.0.0.1';
+  } catch {
+    return '127.0.0.1';
+  }
+}
+
 // ─────────────────────────────────────────────────────────────────────
 // Admin Security Audit Logger
 // ─────────────────────────────────────────────────────────────────────
-export async function logAdminAction(adminEmail: string, action: string, targetUser: string, details: string) {
+export async function logAdminAction(
+  adminEmail: string,
+  action: string,
+  targetUser: string,
+  details: string,
+  oldValue?: string | number,
+  newValue?: string | number,
+  sourceIp?: string
+) {
   try {
     const dataDir = path.join(process.cwd(), 'data');
     if (!fs.existsSync(dataDir)) {
@@ -59,6 +104,9 @@ export async function logAdminAction(adminEmail: string, action: string, targetU
       action,
       targetUser,
       details,
+      oldValue: oldValue !== undefined ? String(oldValue) : undefined,
+      newValue: newValue !== undefined ? String(newValue) : undefined,
+      sourceIp: sourceIp || undefined,
       timestamp: Date.now()
     };
     
@@ -69,9 +117,11 @@ export async function logAdminAction(adminEmail: string, action: string, targetU
   }
 }
 
+
 // Get admin audit logs
 export async function getAdminAuditLogs() {
   try {
+    await verifyAdminSession();
     if (fs.existsSync(AUDIT_LOG_FILE)) {
       const fileData = fs.readFileSync(AUDIT_LOG_FILE, 'utf-8');
       return JSON.parse(fileData);
@@ -86,10 +136,15 @@ export async function getAdminAuditLogs() {
 // VIP System Manager
 // ─────────────────────────────────────────────────────────────────────
 export async function adminUpdateVip(email: string, totalWagered: number, manualVipLevel: string, adminEmail: string = "system@aurabet.io") {
+  const auth = await secureAction(adminEmail, email);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
+  const oldVip = user.vipLevel || 'Bronze';
   const resolvedVipLevel = manualVipLevel !== "Auto" 
     ? manualVipLevel 
     : (totalWagered >= 5000000 ? 'Diamond' : totalWagered >= 1000000 ? 'Platinum' : totalWagered >= 250000 ? 'Gold' : totalWagered >= 50000 ? 'Silver' : 'Bronze');
@@ -100,7 +155,8 @@ export async function adminUpdateVip(email: string, totalWagered: number, manual
     vipLevel: resolvedVipLevel
   });
 
-  await logAdminAction(adminEmail, "VIP_UPDATE", email, `Updated VIP: Wagered ₹${totalWagered}, Level: ${manualVipLevel}`);
+  const ip = await getActionIP();
+  await logAdminAction(verifiedAdminEmail, "VIP_UPDATE", email, `Updated VIP: Wagered ₹${totalWagered}, Level: ${manualVipLevel}`, oldVip, resolvedVipLevel, ip);
   revalidatePath("/admin/vip");
   return { success: true };
 }
@@ -109,6 +165,10 @@ export async function adminUpdateVip(email: string, totalWagered: number, manual
 // Balance Adjustments (God-Mode & Credit/Debit)
 // ─────────────────────────────────────────────────────────────────────
 export async function adminCreditUser(email: string, amount: number, adminEmail: string = "system@aurabet.io", walletType: 'real' | 'demo' = 'real') {
+  const auth = await secureAction(adminEmail, email, amount);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
   const users = await getUsers();
@@ -144,13 +204,18 @@ export async function adminCreditUser(email: string, amount: number, adminEmail:
 
   await updateUser(email, updates);
   
-  await logAdminAction(adminEmail, "CREDIT_USER", email, `Injected credit of ₹${amount.toLocaleString()} into ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`);
+  const ip = await getActionIP();
+  await logAdminAction(verifiedAdminEmail, "CREDIT_USER", email, `Injected credit of ₹${amount.toLocaleString()} into ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`, oldBalance, newBalance, ip);
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };
 }
 
 export async function adminDebitUser(email: string, amount: number, adminEmail: string = "system@aurabet.io", walletType: 'real' | 'demo' = 'real') {
+  const auth = await secureAction(adminEmail, email, amount);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
   const users = await getUsers();
@@ -187,7 +252,8 @@ export async function adminDebitUser(email: string, amount: number, adminEmail: 
 
   await updateUser(email, updates);
   
-  await logAdminAction(adminEmail, "DEBIT_USER", email, `Deducted balance of ₹${amount.toLocaleString()} from ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`);
+  const ip = await getActionIP();
+  await logAdminAction(verifiedAdminEmail, "DEBIT_USER", email, `Deducted balance of ₹${amount.toLocaleString()} from ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`, oldBalance, newBalance, ip);
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };
@@ -204,6 +270,10 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
   const isReal = walletType === 'real';
   const oldBalance = isReal ? user.realBalance : user.demoBalance;
   const difference = newBalance - oldBalance;
+
+  const auth = await secureAction(adminEmail, email, Math.abs(difference));
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
   
   if (Math.abs(difference) < 0.01) {
     return { success: true, message: "Balance matches requested value." };
@@ -215,7 +285,7 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
     amount: Math.abs(difference),
     balanceAfter: newBalance,
     timestamp: Date.now(),
-    details: `Admin Force Override (${isReal ? 'Real' : 'Demo'} · Ref: ${adminEmail.split('@')[0]})`,
+    details: `Admin Force Override (${isReal ? 'Real' : 'Demo'} · Ref: ${verifiedAdminEmail.split('@')[0]})`,
     status: 'Completed'
   };
 
@@ -234,7 +304,8 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
 
   await updateUser(email, updates);
 
-  await logAdminAction(adminEmail, "BALANCE_OVERRIDE", email, `Force override balance in ${walletType} wallet. Balance: ₹${oldBalance.toLocaleString()} -> ₹${newBalance.toLocaleString()} (Diff: ₹${difference.toLocaleString()})`);
+  const ip = await getActionIP();
+  await logAdminAction(verifiedAdminEmail, "BALANCE_OVERRIDE", email, `Force override balance in ${walletType} wallet. Balance: ₹${oldBalance.toLocaleString()} -> ₹${newBalance.toLocaleString()} (Diff: ₹${difference.toLocaleString()})`, oldBalance, newBalance, ip);
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };
@@ -244,16 +315,22 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
 // Suspensions & Reconciliations
 // ─────────────────────────────────────────────────────────────────────
 export async function adminBanUser(email: string, adminEmail: string = "system@aurabet.io") {
+  const auth = await secureAction(adminEmail, email);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
   
+  const oldRole = user.role || 'user';
   const newRole = user.role === 'BANNED' ? 'user' : 'BANNED';
   
   await updateUser(email, { role: newRole as any });
   
   const actionWord = newRole === 'BANNED' ? "BANNED_USER" : "PARDONED_USER";
-  await logAdminAction(adminEmail, actionWord, email, `Modified access role to ${newRole}`);
+  const ip = await getActionIP();
+  await logAdminAction(verifiedAdminEmail, actionWord, email, `Modified access role to ${newRole}`, oldRole, newRole, ip);
   
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
@@ -261,6 +338,10 @@ export async function adminBanUser(email: string, adminEmail: string = "system@a
 }
 
 export async function adminResolveDiscrepancy(email: string, adminEmail: string = "system@aurabet.io") {
+  const auth = await secureAction(adminEmail, email);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
@@ -297,7 +378,7 @@ export async function adminResolveDiscrepancy(email: string, adminEmail: string 
     realTransactions: [correctionTx, ...user.realTransactions]
   });
 
-  await logAdminAction(adminEmail, "LEDGER_RECONCILE", email, `Reconciled ledger. Discrepancy gap was ₹${gap.toLocaleString()}`);
+  await logAdminAction(verifiedAdminEmail, "LEDGER_RECONCILE", email, `Reconciled ledger. Discrepancy gap was ₹${gap.toLocaleString()}`);
 
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
@@ -312,6 +393,10 @@ export async function getAdminConfig() {
 }
 
 export async function adminUpdateGameStatus(gameId: string, disabled: boolean, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const config = getSystemConfig();
   if (!config.games[gameId]) {
     return { success: false, error: "Game not found in registry" };
@@ -321,13 +406,17 @@ export async function adminUpdateGameStatus(gameId: string, disabled: boolean, a
   saveSystemConfig(config);
   
   const actionWord = disabled ? "DISABLE_GAME" : "ENABLE_GAME";
-  await logAdminAction(adminEmail, actionWord, gameId, `Modified game status: ${config.games[gameId].name} is now ${disabled ? 'Disabled' : 'Enabled'}`);
+  await logAdminAction(verifiedAdminEmail, actionWord, gameId, `Modified game status: ${config.games[gameId].name} is now ${disabled ? 'Disabled' : 'Enabled'}`);
   
   revalidatePath("/admin");
   return { success: true, config };
 }
 
 export async function adminUpdatePaymentStatus(methodId: string, disabled: boolean, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const config = getSystemConfig();
   if (!config.paymentMethods[methodId]) {
     return { success: false, error: "Payment method not found in registry" };
@@ -337,13 +426,17 @@ export async function adminUpdatePaymentStatus(methodId: string, disabled: boole
   saveSystemConfig(config);
   
   const actionWord = disabled ? "DISABLE_PAYMENT" : "ENABLE_PAYMENT";
-  await logAdminAction(adminEmail, actionWord, methodId, `Modified payment method status: ${config.paymentMethods[methodId].name} is now ${disabled ? 'Disabled' : 'Enabled'}`);
+  await logAdminAction(verifiedAdminEmail, actionWord, methodId, `Modified payment method status: ${config.paymentMethods[methodId].name} is now ${disabled ? 'Disabled' : 'Enabled'}`);
   
   revalidatePath("/admin");
   return { success: true, config };
 }
 
 export async function adminUpdateHouseEdge(edgePercent: number, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   if (edgePercent < 0 || edgePercent > 100) {
     return { success: false, error: "House edge must be between 0% and 100%" };
   }
@@ -353,7 +446,7 @@ export async function adminUpdateHouseEdge(edgePercent: number, adminEmail: stri
   config.houseEdge = edgePercent;
   saveSystemConfig(config);
   
-  await logAdminAction(adminEmail, "UPDATE_HOUSE_EDGE", "SYSTEM", `Updated global house edge: ${oldEdge}% -> ${edgePercent}%`);
+  await logAdminAction(verifiedAdminEmail, "UPDATE_HOUSE_EDGE", "SYSTEM", `Updated global house edge: ${oldEdge}% -> ${edgePercent}%`);
   
   revalidatePath("/admin");
   return { success: true, config };
@@ -369,6 +462,10 @@ export async function adminUpdateWithdrawalStatus(
   adminEmail: string,
   declineReason?: string
 ) {
+  const auth = await secureAction(adminEmail, email);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
@@ -429,7 +526,8 @@ export async function adminUpdateWithdrawalStatus(
     notifications: user.notifications
   });
 
-  await logAdminAction(adminEmail, "WITHDRAWAL_UPDATE", email, `Updated withdrawal transaction status: ${transactionId} (${oldStatus} -> ${newStatus}). Amount: ₹${txn.amount.toLocaleString()}`);
+  const ip = await getActionIP();
+  await logAdminAction(verifiedAdminEmail, "WITHDRAWAL_UPDATE", email, `Updated withdrawal transaction status: ${transactionId} (${oldStatus} -> ${newStatus}). Amount: ₹${txn.amount.toLocaleString()}`, oldStatus, newStatus, ip);
 
   // Trigger notification if withdrawal is completed or failed
   if (newStatus === 'Completed' || newStatus === 'Failed') {
@@ -457,10 +555,15 @@ export async function adminUpdateKYCStatus(
   adminEmail: string,
   declineReason?: string
 ) {
+  const auth = await secureAction(adminEmail, email);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
+  const oldStatus = user.kycStatus || 'NONE';
   await updateUser(email, { kycStatus: newStatus });
 
   // Add user notification
@@ -479,7 +582,8 @@ export async function adminUpdateKYCStatus(
 
   await updateUser(email, { notifications: user.notifications });
 
-  await logAdminAction(adminEmail, `KYC_${newStatus}`, email, `Modified KYC status to ${newStatus}. ${newStatus === 'REJECTED' ? 'Reason: ' + declineReason : ''}`);
+  const ip = await getActionIP();
+  await logAdminAction(verifiedAdminEmail, `KYC_${newStatus}`, email, `Modified KYC status to ${newStatus}. ${newStatus === 'REJECTED' ? 'Reason: ' + declineReason : ''}`, oldStatus, newStatus, ip);
 
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
@@ -490,13 +594,17 @@ export async function adminUpdateKYCStatus(
 // Auditor Notes & Notification Logs Actions
 // ─────────────────────────────────────────────────────────────────────
 export async function adminSaveUserNotes(email: string, notes: string, adminEmail: string) {
+  const auth = await secureAction(adminEmail, email);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   const users = await getUsers();
   const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
   if (!user) return { success: false, error: "User not found" };
 
   await updateUser(email, { adminNotes: notes });
 
-  await logAdminAction(adminEmail, "SAVE_AUDITOR_NOTES", email, `Updated auditor notes.`);
+  await logAdminAction(verifiedAdminEmail, "SAVE_AUDITOR_NOTES", email, `Updated auditor notes.`);
   
   revalidatePath("/admin/analytics");
   return { success: true };
@@ -504,6 +612,7 @@ export async function adminSaveUserNotes(email: string, notes: string, adminEmai
 
 export async function getNotificationLogsAction() {
   try {
+    await verifyAdminSession();
     return getNotificationLogs();
   } catch (err) {
     console.error("Failed to fetch notification logs:", err);
@@ -512,13 +621,22 @@ export async function getNotificationLogsAction() {
 }
 
 export async function getPaymentSettingsAction() {
-  return getPaymentSettings();
+  try {
+    await verifyAdminSession();
+    return getPaymentSettings();
+  } catch {
+    return null as any;
+  }
 }
 
 export async function adminUpdatePaymentSettingsAction(settings: PaymentSettings, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     savePaymentSettings(settings);
-    await logAdminAction(adminEmail, "UPDATE_PAYMENT_SETTINGS", "SYSTEM", `Updated dynamic payment methods/QR details.`);
+    await logAdminAction(verifiedAdminEmail, "UPDATE_PAYMENT_SETTINGS", "SYSTEM", `Updated dynamic payment methods/QR details.`);
     revalidatePath("/admin");
     return { success: true };
   } catch (err: any) {
@@ -528,6 +646,10 @@ export async function adminUpdatePaymentSettingsAction(settings: PaymentSettings
 }
 
 export async function adminUploadPaymentQrAction(base64Image: string, fileNamePrefix: string, adminEmail: string = "admin@aurabet.io") {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     const uploadDir = path.join(process.cwd(), 'public', 'uploads');
     if (!fs.existsSync(uploadDir)) {
@@ -539,7 +661,7 @@ export async function adminUploadPaymentQrAction(base64Image: string, fileNamePr
     const filePath = path.join(uploadDir, fileName);
     fs.writeFileSync(filePath, buffer);
     const url = `/uploads/${fileName}`;
-    await logAdminAction(adminEmail, "UPLOAD_PAYMENT_QR", "SYSTEM", `Uploaded payment QR code image: ${url}`);
+    await logAdminAction(verifiedAdminEmail, "UPLOAD_PAYMENT_QR", "SYSTEM", `Uploaded payment QR code image: ${url}`);
     return { success: true, url };
   } catch (err: any) {
     console.error("Failed to upload payment QR image:", err);
@@ -551,13 +673,22 @@ export async function adminUploadPaymentQrAction(base64Image: string, fileNamePr
 // WhatsApp Business Settings & Notifications
 // ─────────────────────────────────────────────────────────────────────
 export async function adminGetWhatsAppConfigAction() {
-  return getWhatsAppConfig();
+  try {
+    await verifyAdminSession();
+    return getWhatsAppConfig();
+  } catch {
+    return null as any;
+  }
 }
 
 export async function adminUpdateWhatsAppConfigAction(config: WhatsAppConfig, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     saveWhatsAppConfig(config);
-    await logAdminAction(adminEmail, "UPDATE_WHATSAPP_CONFIG", "SYSTEM", `Updated WhatsApp Business notifications config.`);
+    await logAdminAction(verifiedAdminEmail, "UPDATE_WHATSAPP_CONFIG", "SYSTEM", `Updated WhatsApp Business notifications config.`);
     revalidatePath("/admin");
     return { success: true };
   } catch (err: any) {
@@ -567,9 +698,13 @@ export async function adminUpdateWhatsAppConfigAction(config: WhatsAppConfig, ad
 }
 
 export async function adminTestWhatsAppAction(toPhone: string, message: string, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     await sendTestWhatsApp(toPhone, message);
-    await logAdminAction(adminEmail, "TEST_WHATSAPP_SEND", toPhone, `Dispatched manual test WhatsApp message: ${message.slice(0, 40)}...`);
+    await logAdminAction(verifiedAdminEmail, "TEST_WHATSAPP_SEND", toPhone, `Dispatched manual test WhatsApp message: ${message.slice(0, 40)}...`);
     return { success: true };
   } catch (err: any) {
     console.error("WhatsApp test send failed:", err);
@@ -583,6 +718,10 @@ export async function adminTestWhatsAppAction(toPhone: string, message: string, 
 
 // 1. Simulate gameplay bet or rental transaction
 export async function adminSimulateWagerAction(adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     const users = await getUsers();
     if (users.length === 0) return { success: false, error: "No users in database to simulate wagers" };
@@ -640,7 +779,7 @@ export async function adminSimulateWagerAction(adminEmail: string) {
       balance: newBalance
     });
     
-    await logAdminAction(adminEmail, "SIMULATE_WAGER", targetUser.email, `Simulated gameplay: ${details}`);
+    await logAdminAction(verifiedAdminEmail, "SIMULATE_WAGER", targetUser.email, `Simulated gameplay: ${details}`);
     revalidatePath("/admin");
     revalidatePath("/admin/audit");
     return { success: true, user: targetUser.username, details };
@@ -652,6 +791,10 @@ export async function adminSimulateWagerAction(adminEmail: string) {
 
 // 2. Trigger active sports sync crawler
 export async function adminTriggerSportsSyncAction(adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     // Get host from request headers dynamically to support any active dev/prod port/domain
     const headersList = await headers();
@@ -682,7 +825,7 @@ export async function adminTriggerSportsSyncAction(adminEmail: string) {
     const cricketCount = matches.filter((m: any) => m.sport === 'cricket').length;
     const tennisCount = matches.filter((m: any) => m.sport === 'tennis').length;
 
-    await logAdminAction(adminEmail, "SPORTS_CRAWL_SYNC", "SYSTEM", `Forced live sports scraper crawl sync. Found ${cricketCount} Cricket & ${tennisCount} Tennis matches.`);
+    await logAdminAction(verifiedAdminEmail, "SPORTS_CRAWL_SYNC", "SYSTEM", `Forced live sports scraper crawl sync. Found ${cricketCount} Cricket & ${tennisCount} Tennis matches.`);
     
     return { 
       success: true, 
@@ -697,7 +840,7 @@ export async function adminTriggerSportsSyncAction(adminEmail: string) {
     const cricketCount = 10;
     const tennisCount = 10;
     
-    await logAdminAction(adminEmail, "SPORTS_CRAWL_SYNC", "SYSTEM", `Forced live sports sync fallback activated due to fetch error.`);
+    await logAdminAction(verifiedAdminEmail, "SPORTS_CRAWL_SYNC", "SYSTEM", `Forced live sports sync fallback activated due to fetch error.`);
     
     return { 
       success: true, 
@@ -710,6 +853,10 @@ export async function adminTriggerSportsSyncAction(adminEmail: string) {
 
 // 3. Clear system wagers and simulated activity
 export async function adminClearActivityAction(adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     const users = await getUsers();
     let clearedCount = 0;
@@ -731,7 +878,7 @@ export async function adminClearActivityAction(adminEmail: string) {
       });
     }
     
-    await logAdminAction(adminEmail, "CLEAR_SIMULATED_ACTIVITY", "SYSTEM", `Cleared ${clearedCount} wagers from platform log.`);
+    await logAdminAction(verifiedAdminEmail, "CLEAR_SIMULATED_ACTIVITY", "SYSTEM", `Cleared ${clearedCount} wagers from platform log.`);
     revalidatePath("/admin");
     return { success: true, clearedCount };
   } catch (err: any) {
@@ -740,11 +887,12 @@ export async function adminClearActivityAction(adminEmail: string) {
   }
 }
 
-
-
-
 // 4. Broadcast Global Notification
 export async function adminBroadcastNotificationAction(adminEmail: string, message: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     const users = await getUsers();
     let sentCount = 0;
@@ -762,7 +910,7 @@ export async function adminBroadcastNotificationAction(adminEmail: string, messa
       sentCount++;
     }
     
-    await logAdminAction(adminEmail, "BROADCAST_GLOBAL_ALERT", "ALL_USERS", "Sent broadcast message to " + sentCount + " users: '" + message + "'");
+    await logAdminAction(verifiedAdminEmail, "BROADCAST_GLOBAL_ALERT", "ALL_USERS", "Sent broadcast message to " + sentCount + " users: '" + message + "'");
     revalidatePath("/admin");
     return { success: true, sentCount };
   } catch (err: any) {
@@ -772,6 +920,10 @@ export async function adminBroadcastNotificationAction(adminEmail: string, messa
 }
 
 export async function adminUpdateWinRates(demoWinRate: number, realWinRate: number, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   if (demoWinRate < 0 || demoWinRate > 100 || realWinRate < 0 || realWinRate > 100) {
     return { success: false, error: "Win rates must be between 0% and 100%" };
   }
@@ -783,13 +935,17 @@ export async function adminUpdateWinRates(demoWinRate: number, realWinRate: numb
   config.realWinRate = realWinRate;
   saveSystemConfig(config);
   
-  await logAdminAction(adminEmail, "UPDATE_WIN_RATES", "SYSTEM", `Updated win rates: Demo: ${oldDemo}% -> ${demoWinRate}%, Real: ${oldReal}% -> ${realWinRate}%`);
+  await logAdminAction(verifiedAdminEmail, "UPDATE_WIN_RATES", "SYSTEM", `Updated win rates: Demo: ${oldDemo}% -> ${demoWinRate}%, Real: ${oldReal}% -> ${realWinRate}%`);
   
   revalidatePath("/admin");
   return { success: true, config };
 }
 
 export async function adminUpdateStrategyFrequency(frequency: number, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   if (frequency < 5 || frequency > 300) {
     return { success: false, error: "Frequency must be between 5 and 300 seconds" };
   }
@@ -799,13 +955,17 @@ export async function adminUpdateStrategyFrequency(frequency: number, adminEmail
   config.strategyFrequency = frequency;
   saveSystemConfig(config);
   
-  await logAdminAction(adminEmail, "UPDATE_STRATEGY_FREQUENCY", "SYSTEM", `Updated strategy simulation frequency: ${oldFreq}s -> ${frequency}s`);
+  await logAdminAction(verifiedAdminEmail, "UPDATE_STRATEGY_FREQUENCY", "SYSTEM", `Updated strategy simulation frequency: ${oldFreq}s -> ${frequency}s`);
   
   revalidatePath("/admin");
   return { success: true, config };
 }
 
 export async function adminUpdateMaintenanceMode(maintenanceMode: boolean, adminEmail: string) {
+  const auth = await secureAction(adminEmail);
+  if (!auth.success) return { success: false, error: auth.error };
+  const verifiedAdminEmail = auth.email;
+
   try {
     const config = getSystemConfig();
     const oldVal = config.maintenanceMode ?? false;
@@ -813,7 +973,7 @@ export async function adminUpdateMaintenanceMode(maintenanceMode: boolean, admin
     saveSystemConfig(config);
     
     const actionWord = maintenanceMode ? "ENABLE_MAINTENANCE" : "DISABLE_MAINTENANCE";
-    await logAdminAction(adminEmail, actionWord, "SYSTEM", `Modified Maintenance Mode: ${oldVal} -> ${maintenanceMode}`);
+    await logAdminAction(verifiedAdminEmail, actionWord, "SYSTEM", `Modified Maintenance Mode: ${oldVal} -> ${maintenanceMode}`);
     
     revalidatePath("/");
     revalidatePath("/admin");

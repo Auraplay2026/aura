@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { getChatSessions, getSupportConfig, saveSupportConfig } from "@/lib/supportDb";
+import { verifyAdminSession } from "@/lib/adminAuth";
+
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
+    await verifyAdminSession();
     const sessions = await getChatSessions();
     const config = await getSupportConfig();
     
@@ -20,12 +24,13 @@ export async function GET() {
       config: maskedConfig
     });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: err.message }, { status: 401 });
   }
 }
 
 export async function POST(req: Request) {
   try {
+    await verifyAdminSession();
     const body = await req.json();
     const { openRouterApiKey, aiModel, systemPrompt } = body;
     
@@ -54,6 +59,6 @@ export async function POST(req: Request) {
       message: "Support configuration updated successfully"
     });
   } catch (err: any) {
-    return NextResponse.json({ success: false, error: err.message }, { status: 500 });
+    return NextResponse.json({ success: false, error: err.message }, { status: 401 });
   }
 }

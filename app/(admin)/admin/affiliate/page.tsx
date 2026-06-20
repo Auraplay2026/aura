@@ -1,9 +1,19 @@
 import ClientAffiliateDashboard from "./ClientAffiliateDashboard";
+import { verifyAdminSession } from "@/lib/adminAuth";
+import { redirect } from "next/navigation";
 
 export const metadata = {
   title: 'Affiliate Analytics | BetMatrix Admin',
 };
 
-export default function AffiliatePage() {
+export const dynamic = 'force-dynamic';
+
+export default async function AffiliatePage() {
+  try {
+    await verifyAdminSession();
+  } catch (err) {
+    redirect("/?error=admin-auth-required");
+  }
+
   return <ClientAffiliateDashboard />;
 }

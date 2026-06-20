@@ -2,6 +2,8 @@ import { getUsers } from "@/lib/userDb";
 import { gameHistory } from "@/lib/gameHistory";
 import { getNotificationLogsAction } from "../actions";
 import ClientUserAnalytics from "./ClientUserAnalytics";
+import { verifyAdminSession } from "@/lib/adminAuth";
+import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
@@ -10,6 +12,12 @@ interface PageProps {
 }
 
 export default async function AnalyticsPage({ searchParams }: PageProps) {
+  try {
+    await verifyAdminSession();
+  } catch (err) {
+    redirect("/?error=admin-auth-required");
+  }
+
   const resolvedSearchParams = await searchParams;
   const selectedEmail = resolvedSearchParams.email || "";
 

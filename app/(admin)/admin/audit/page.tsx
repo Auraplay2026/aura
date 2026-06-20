@@ -1,6 +1,9 @@
 import { getUsers } from "@/lib/userDb";
 import { parseCasinoDetails } from "@/lib/utils";
 import ClientAuditDashboard from "./ClientAuditDashboard";
+import { verifyAdminSession } from "@/lib/adminAuth";
+import { redirect } from "next/navigation";
+import { getAdminAuditLogs } from "../actions";
 
 export const dynamic = 'force-dynamic';
 
@@ -15,6 +18,12 @@ export interface AuditAnomaly {
 }
 
 export default async function AuditLogsPage() {
+  try {
+    await verifyAdminSession();
+  } catch (err) {
+    redirect("/?error=admin-auth-required");
+  }
+
   const users = await getUsers();
   const anomalies: AuditAnomaly[] = [];
 
@@ -252,6 +261,7 @@ export default async function AuditLogsPage() {
   });
 
   const reconciliationVaultGap = platformTotalDeposits - platformTotalWithdrawals - platformTotalBalance;
+  const auditLogs = await getAdminAuditLogs();
 
   return (
     <ClientAuditDashboard 
@@ -263,6 +273,7 @@ export default async function AuditLogsPage() {
         platformTotalBalance,
         reconciliationVaultGap
       }}
+      auditLogs={auditLogs}
     />
   );
 }

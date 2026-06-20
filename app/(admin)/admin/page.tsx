@@ -1,9 +1,17 @@
 import { getUsers } from "@/lib/userDb";
 import ClientAdminDashboard from "./ClientAdminDashboard";
+import { verifyAdminSession } from "@/lib/adminAuth";
+import { redirect } from "next/navigation";
 
 export const dynamic = 'force-dynamic';
 
 export default async function AdminDashboardPage() {
+  try {
+    await verifyAdminSession();
+  } catch (err) {
+    redirect("/?error=admin-auth-required");
+  }
+
   const users = await getUsers();
   
   // Aggregate all transactions into a single feed

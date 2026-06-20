@@ -8,9 +8,28 @@ services:
       name: data-storage
       mountPath: /opt/render/project/src/data
       sizeGB: 1
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: auradb
+          property: connectionString
+      - key: ADMIN_JWT_SECRET
+        generateValue: true
+      - key: ADMIN_HMAC_SECRET
+        generateValue: true
+      - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
+        value: 61951094794-ice7e5fabt7indlo6clki10f7093hjiu.apps.googleusercontent.com
 
   - type: worker
     name: referral-worker
     env: python
     buildCommand: pip install -r scripts/requirements.txt
     startCommand: python scripts/referral_worker.py
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: auradb
+          property: connectionString
+
+databases:
+  - name: auradb

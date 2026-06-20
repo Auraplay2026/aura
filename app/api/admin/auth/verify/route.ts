@@ -1,21 +1,65 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { findUserByEmail } from '@/lib/userDb';
+import { findUserByEmail, updateUser } from '@/lib/userDb';
+import { verifyTOTP, generateSecret } from '@/lib/totp';
+import { signJWT } from '@/lib/jwt';
+import { getClientIP } from '@/lib/geo';
 
 export const dynamic = 'force-dynamic';
 
+// Server-side in-memory rate limiting map
+const rateLimitMap = new Map<string, { attempts: number; lockUntil: number }>();
+
+function checkRateLimit(key: string, maxAttempts = 5, lockDurationMs = 300000) {
+  const now = Date.now();
+  const data = rateLimitMap.get(key);
+  
+  if (!data) {
+    rateLimitMap.set(key, { attempts: 1, lockUntil: 0 });
+    return { allowed: true, remaining: maxAttempts - 1, lockTimeLeft: 0 };
+  }
+  
+  if (data.lockUntil > now) {
+    return { allowed: false, remaining: 0, lockTimeLeft: Math.ceil((data.lockUntil - now) / 1000) };
+  }
+  
+  if (data.attempts >= maxAttempts) {
+    const lockUntil = now + lockDurationMs;
+    rateLimitMap.set(key, { attempts: data.attempts + 1, lockUntil });
+    return { allowed: false, remaining: 0, lockTimeLeft: Math.ceil(lockDurationMs / 1000) };
+  }
+  
+  data.attempts += 1;
+  rateLimitMap.set(key, data);
+  return { allowed: true, remaining: maxAttempts - data.attempts, lockTimeLeft: 0 };
+}
+
+function resetRateLimit(key: string) {
+  rateLimitMap.delete(key);
+}
+
 export async function POST(req: Request) {
   try {
+    const ip = getClientIP(req);
     const body = await req.json();
-    const { email, challenge, signature, token } = body;
+    const { email, challenge, signature, totpCode } = body;
 
-    if (!email || !challenge || !signature || !token) {
+    if (!email || !challenge || !signature) {
       return NextResponse.json({ success: false, error: "Missing required authentication payloads" }, { status: 400 });
+    }
+
+    const rateLimitKey = `${ip}:${email.toLowerCase()}`;
+    const rateCheck = checkRateLimit(rateLimitKey);
+    if (!rateCheck.allowed) {
+      return NextResponse.json({ 
+        success: false, 
+        error: `Rate limit exceeded. Please wait ${rateCheck.lockTimeLeft} seconds before trying again.` 
+      }, { status: 429 });
     }
 
     // 1. Verify user exists and role matches admin L5 clearance
     const user = await findUserByEmail(email);
-    if (!user || user.role !== 'admin') {
+    if (!user || user.role !== 'admin' || user.email.toLowerCase() !== 'twintubrovquattro@gmail.com') {
       return NextResponse.json({ success: false, error: "Access Denied: Administrative role mismatch" }, { status: 403 });
     }
 
@@ -42,12 +86,81 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Cryptographic hardware signature validation failed" }, { status: 403 });
     }
 
-    // 4. Session tokens generated securely upon dual-key validation success
-    return NextResponse.json({
+    // 4. Enforce MFA (TOTP)
+    const has2fa = user.twoFactorEnabled && user.twoFactorSecret;
+    if (!has2fa) {
+      // If TOTP secret does not exist, generate and save it
+      let activeSecret = user.twoFactorSecret;
+      if (!activeSecret) {
+        activeSecret = generateSecret();
+        await updateUser(email, { twoFactorSecret: activeSecret });
+      }
+      
+      // If code is not provided, return setup required payload
+      if (!totpCode) {
+        return NextResponse.json({ 
+          success: false, 
+          error: "MFA_SETUP_REQUIRED", 
+          mfaSecret: activeSecret 
+        }, { status: 200 });
+      }
+      
+      // Verify code to complete setup
+      const isValid = verifyTOTP(totpCode, activeSecret);
+      if (!isValid) {
+        return NextResponse.json({ success: false, error: "Invalid MFA verification code" }, { status: 400 });
+      }
+      
+      // Enable MFA permanently for this admin
+      await updateUser(email, { twoFactorEnabled: true });
+    } else {
+      // MFA is already enabled, code is strictly required
+      if (!totpCode) {
+        return NextResponse.json({ success: false, error: "MFA code is required" }, { status: 400 });
+      }
+      
+      const isValid = verifyTOTP(totpCode, user.twoFactorSecret!);
+      if (!isValid) {
+        return NextResponse.json({ success: false, error: "Invalid MFA verification code" }, { status: 400 });
+      }
+    }
+
+    // Reset rate limiter on success
+    resetRateLimit(rateLimitKey);
+
+    // 5. Generate secure JWT token
+    const now = Math.floor(Date.now() / 1000);
+    const jwtPayload = {
+      sub: email.toLowerCase(),
+      role: 'admin',
+      iat: now,
+      exp: now + 900 // 15 minutes expiration
+    };
+    
+    const generatedToken = await signJWT(jwtPayload);
+    const response = NextResponse.json({
       success: true,
-      token: `AURA-L5-ADMIN-JWT-${crypto.randomBytes(16).toString('hex')}`,
+      token: generatedToken,
       hwSignature: signature
     });
+
+    response.cookies.set('user_email', email.toLowerCase(), {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 900,
+      path: '/'
+    });
+
+    response.cookies.set('admin_auth_token', generatedToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 900,
+      path: '/'
+    });
+
+    return response;
   } catch (err: any) {
     return NextResponse.json({ success: false, error: err.message }, { status: 500 });
   }

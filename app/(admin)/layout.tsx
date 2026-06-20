@@ -10,6 +10,8 @@ import { useAdminStore } from "@/lib/adminStore";
 
 function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (token: string, signature: string) => void }) {
   const [passcode, setPasscode] = useState("");
+  const [totpCode, setTotpCode] = useState("");
+  const [mfaSetupSecret, setMfaSetupSecret] = useState<string | null>(null);
   const [logs, setLogs] = useState<string[]>([]);
   const [isVerifying, setIsVerifying] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -63,12 +65,16 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
           email,
           challenge,
           signature,
-          token: "AURA-CLIENT-JWT-TOKEN-MOCK"
+          totpCode
         })
       });
 
       const verifyData = await verifyRes.json();
       if (!verifyRes.ok || !verifyData.success) {
+        if (verifyData.error === "MFA_SETUP_REQUIRED") {
+          setMfaSetupSecret(verifyData.mfaSecret);
+          throw new Error("MFA setup required. Scan/enter the secret below and input your 6-digit code.");
+        }
         throw new Error(verifyData.error || "Cryptographic verification failed");
       }
 
@@ -107,11 +113,11 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
             </span>
           </div>
         </div>
-
+ 
         <p className="text-xs text-slate-400 text-center font-medium leading-relaxed">
           Administrative dashboard access is encrypted and requires dual-key validation: your JWT session plus a dynamic server-side hardware signature.
         </p>
-
+ 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-bold text-slate-500 uppercase">Admin Identity</label>
@@ -133,8 +139,31 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
               className="bg-white border border-slate-200 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none transition-colors"
             />
           </div>
+
+          <div className="flex flex-col gap-1">
+            <label className="text-[10px] font-bold text-slate-500 uppercase">Authenticator 6-Digit Code (MFA)</label>
+            <input
+              type="text"
+              maxLength={6}
+              value={totpCode}
+              onChange={(e) => setTotpCode(e.target.value.replace(/\D/g, ''))}
+              placeholder="000000"
+              className="bg-white border border-slate-200 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 tracking-[0.3em] text-center focus:outline-none transition-colors"
+            />
+          </div>
         </div>
 
+        {mfaSetupSecret && (
+          <div className="bg-amber-500/10 border border-amber-500/30 text-amber-800 text-[10px] p-3 rounded flex flex-col gap-2 font-medium">
+            <div className="font-bold uppercase tracking-wider text-amber-700">⚠️ MFA ONBOARDING REQUIRED:</div>
+            <p>Scan or add this secret key to your authenticator app (Google Authenticator, Authy, etc.):</p>
+            <div className="bg-white/80 p-2 border border-amber-500/20 rounded text-center select-all font-mono font-bold tracking-wider text-xs">
+              {mfaSetupSecret}
+            </div>
+            <p className="text-[9px] text-amber-600">Once added, enter the 6-digit verification code above and click verify again.</p>
+          </div>
+        )}
+ 
         <button
           onClick={handleVerify}
           disabled={isVerifying}
@@ -142,7 +171,7 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
         >
           {isVerifying ? "Verifying Credentials..." : "Initiate Verification"}
         </button>
-
+ 
         {logs.length > 0 && (
           <div className="bg-white/60 rounded-lg p-3 border border-slate-200 font-mono text-[9px] text-emerald-700 flex flex-col gap-1 max-h-40 overflow-y-auto scrollbar-thin">
             {logs.map((log, idx) => (
@@ -150,13 +179,13 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
             ))}
           </div>
         )}
-
+ 
         {error && (
           <div className="bg-red-500/10 border border-red-500/30 text-red-400 text-[10px] font-bold uppercase tracking-wider p-2.5 rounded text-center">
             ⚠️ Authorization Failed: {error}
           </div>
         )}
-
+ 
       </div>
     </div>
   );
@@ -264,6 +293,15 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     const interval = setInterval(fetchPending, 10000); // Poll every 10s
     return () => clearInterval(interval);
   }, [isLoggedIn, currentUser, pendingCount, isAuthenticated]);
+
+  // 4. Synchronize cookie clearing on logout or timeout
+  useEffect(() => {
+    if (!isAuthenticated) {
+      fetch("/api/admin/auth/logout", { method: "POST" }).catch(err => {
+        console.error("Failed to clear admin cookies on server:", err);
+      });
+    }
+  }, [isAuthenticated]);
 
   const menuItems = [
     {

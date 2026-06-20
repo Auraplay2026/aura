@@ -34,10 +34,23 @@ interface VaultStats {
   reconciliationVaultGap: number;
 }
 
+interface AdminAuditLog {
+  id: string;
+  adminEmail: string;
+  action: string;
+  targetUser: string;
+  details: string;
+  oldValue?: string;
+  newValue?: string;
+  sourceIp?: string;
+  timestamp: number;
+}
+
 interface ClientAuditDashboardProps {
   userReports: UserReport[];
   anomalies: AuditAnomaly[];
   vaultStats: VaultStats;
+  auditLogs?: AdminAuditLog[];
 }
 
 interface ToastMessage {
@@ -46,7 +59,7 @@ interface ToastMessage {
   type: "success" | "error" | "info";
 }
 
-export default function ClientAuditDashboard({ userReports, anomalies, vaultStats }: ClientAuditDashboardProps) {
+export default function ClientAuditDashboard({ userReports, anomalies, vaultStats, auditLogs = [] }: ClientAuditDashboardProps) {
   const [searchTerm, setSearchTerm] = useState("");
   const [anomalySeverityFilter, setAnomalySeverityFilter] = useState<"ALL" | "CRITICAL" | "WARNING" | "INFO">("ALL");
   const [ledgerFilter, setLedgerFilter] = useState<"ALL" | "DISCREPANCIES" | "HIGH_ROLLERS">("ALL");
@@ -541,6 +554,97 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
           </div>
           </div>
 
+        </div>
+      </section>
+
+      {/* ADMINISTRATIVE ACTION AUDIT LOGS */}
+      <section className="relative z-10 mt-8">
+        <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-red-500/5 to-transparent opacity-30" />
+        <div className="relative bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl">
+          
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-200 pb-6 mb-6">
+            <div className="flex items-center gap-3">
+              <Shield className="w-5 h-5 text-red-500" />
+              <div>
+                <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Administrative Action Audit Logs</h2>
+                <p className="text-[9px] text-slate-600 tracking-widest uppercase">Immutable records of admin-controlled modifications, overrides, and security events</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <div className="w-full overflow-x-auto custom-scrollbar">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="border-b border-slate-200 bg-white/20">
+                    <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Timestamp</th>
+                    <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Admin Email</th>
+                    <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Action</th>
+                    <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Target</th>
+                    <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">IP Address</th>
+                    <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Details</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-white/[0.02] text-xs font-mono">
+                  {!auditLogs || auditLogs.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="p-8 text-center text-slate-600">
+                        <div className="flex flex-col items-center justify-center gap-1">
+                          <AlertCircle className="w-6 h-6 opacity-35" />
+                          <p className="text-[10px] font-bold uppercase tracking-widest font-sans">No administrative actions logged</p>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    auditLogs.map((log) => {
+                      const hasDiff = log.oldValue !== undefined || log.newValue !== undefined;
+                      return (
+                        <tr key={log.id} className="group hover:bg-white/[0.01] transition-all duration-300">
+                          <td className="p-4 text-slate-600 whitespace-nowrap">
+                            {new Date(log.timestamp).toLocaleString()}
+                          </td>
+                          <td className="p-4 font-sans font-bold text-slate-900">
+                            {log.adminEmail}
+                          </td>
+                          <td className="p-4">
+                            <span className="text-[10px] font-black px-2.5 py-1 rounded bg-slate-100 text-slate-700 border border-slate-200">
+                              {log.action}
+                            </span>
+                          </td>
+                          <td className="p-4 text-slate-700">
+                            {log.targetUser}
+                          </td>
+                          <td className="p-4 text-slate-600">
+                            {log.sourceIp || "127.0.0.1"}
+                          </td>
+                          <td className="p-4 text-slate-700 font-sans">
+                            <div>{log.details}</div>
+                            {hasDiff && (
+                              <div className="text-[10px] text-slate-500 font-mono mt-1 flex gap-2 items-center">
+                                {log.oldValue !== undefined && (
+                                  <span className="bg-red-50 text-red-700 px-1 py-0.5 rounded">
+                                    old: {log.oldValue}
+                                  </span>
+                                )}
+                                {log.oldValue !== undefined && log.newValue !== undefined && (
+                                  <span>&rarr;</span>
+                                )}
+                                {log.newValue !== undefined && (
+                                  <span className="bg-emerald-50 text-emerald-700 px-1 py-0.5 rounded">
+                                    new: {log.newValue}
+                                  </span>
+                                )}
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
         </div>
       </section>
 

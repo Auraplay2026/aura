@@ -1,21 +1,14 @@
 import { NextResponse } from 'next/server';
-import { getUsers, updateUser, findUserByEmail, sanitizeUserProfile } from '@/lib/userDb';
+import { getUsers, updateUser, findUserByEmail } from '@/lib/userDb';
 import { logAdminAction } from '@/app/(admin)/admin/actions';
 import { sendTransactionNotification } from '@/lib/notificationService';
+import { verifyAdminSession } from '@/lib/adminAuth';
+
+export const dynamic = 'force-dynamic';
 
 export async function GET(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const adminEmail = searchParams.get('email');
-    
-    if (!adminEmail) {
-      return NextResponse.json({ error: 'Unauthorized. Admin email query parameter is required.' }, { status: 401 });
-    }
-    
-    const adminUser = await findUserByEmail(adminEmail);
-    if (!adminUser || adminUser.role !== 'admin') {
-      return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
-    }
+    await verifyAdminSession();
 
     const users = await getUsers();
     const pendingDeposits: any[] = [];
@@ -59,24 +52,18 @@ export async function GET(request: Request) {
       completed: completedDeposits,
       rejected: rejectedDeposits
     }, { status: 200 });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Failed to load admin deposits data:", err);
-    return NextResponse.json({ error: 'Failed to retrieve deposits.' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Failed to retrieve deposits.' }, { status: 401 });
   }
 }
 
 export async function POST(request: Request) {
   try {
-    const { adminEmail, email, transactionId, action, reason } = await request.json();
+    const session = await verifyAdminSession();
+    const verifiedAdminEmail = session.email;
 
-    if (!adminEmail) {
-      return NextResponse.json({ error: 'Unauthorized. Administrator credentials required.' }, { status: 401 });
-    }
-
-    const adminUser = await findUserByEmail(adminEmail);
-    if (!adminUser || adminUser.role !== 'admin') {
-      return NextResponse.json({ error: 'Access denied. Administrator privileges required.' }, { status: 403 });
-    }
+    const { email, transactionId, action, reason } = await request.json();
 
     if (!email || !transactionId || !action) {
       return NextResponse.json({ error: 'Email, transactionId, and action are required.' }, { status: 400 });
@@ -84,6 +71,10 @@ export async function POST(request: Request) {
 
     if (action !== 'approve' && action !== 'reject') {
       return NextResponse.json({ error: 'Invalid action. Must be approve or reject.' }, { status: 400 });
+    }
+
+    if (email.toLowerCase() === verifiedAdminEmail.toLowerCase()) {
+      return NextResponse.json({ error: 'Conflict of Interest: Admins cannot approve or reject transactions for their own accounts.' }, { status: 403 });
     }
 
     const users = await getUsers();
@@ -143,7 +134,7 @@ export async function POST(request: Request) {
         user.transactions = user.realTransactions;
       }
 
-      await logAdminAction(adminEmail, "DEPOSIT_APPROVE", email, `Approved deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"})`);
+      await logAdminAction(verifiedAdminEmail, "DEPOSIT_APPROVE", email, `Approved deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"})`);
 
       // WhatsApp / Email / SMS Notification
       sendTransactionNotification({
@@ -189,7 +180,7 @@ export async function POST(request: Request) {
         read: false
       } as any);
 
-      await logAdminAction(adminEmail, "DEPOSIT_REJECT", email, `Declined deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"}). Reason: ${declineReason}`);
+      await logAdminAction(verifiedAdminEmail, "DEPOSIT_REJECT", email, `Declined deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"}). Reason: ${declineReason}`);
 
       // WhatsApp / Email / SMS Notification
       sendTransactionNotification({
@@ -214,8 +205,8 @@ export async function POST(request: Request) {
     });
 
     return NextResponse.json({ success: true, updatedBalance: user.realBalance }, { status: 200 });
-  } catch (err) {
+  } catch (err: any) {
     console.error("Admin review transaction error:", err);
-    return NextResponse.json({ error: 'Failed to process admin review request.' }, { status: 500 });
+    return NextResponse.json({ error: err.message || 'Failed to process admin review request.' }, { status: 500 });
   }
 }
