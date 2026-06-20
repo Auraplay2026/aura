@@ -12,9 +12,10 @@ interface GameCardProps {
   isNew?: boolean;
   rtp?: number;
   players?: number;
+  hideTitle?: boolean;
 }
 
-export function GameCard({ id, title, provider, image, isNew, rtp, players }: GameCardProps) {
+export function GameCard({ id, title, provider, image, isNew, rtp, players, hideTitle }: GameCardProps) {
   const [imageLoaded, setImageLoaded] = useState(false);
   // Extract category from ID to determine badge color (Light theme adaptations)
   const category = id.split('-')[0];
@@ -28,6 +29,22 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
   
   // Format players with 'k' suffix
   const formattedPlayers = players ? (players > 1000 ? (players / 1000).toFixed(1) + 'k' : players) : null;
+
+  // Determine if we should hide the HTML text title and provider overlays
+  const shouldHideTitle = hideTitle !== undefined ? hideTitle : (
+    image.startsWith('/games/') && 
+    !id.startsWith('aaa-') && 
+    !id.startsWith('action-') && 
+    !id.startsWith('fps-') && 
+    !id.startsWith('driving-') && 
+    !id.startsWith('puzzle-') && 
+    !id.startsWith('boring-') && 
+    !id.startsWith('casual-') &&
+    id !== 'orig-12' && // TradeX
+    id !== 'orig-13' && // HiLo
+    id !== 'orig-15' && // Neon Horizon 3D (image says Drift Adrenaline, show text)
+    id !== 'orig-16'    // 3D Cyber Bowling (uses stock photo, show text)
+  );
 
   return (
     <Link href={`/casino/game/${id}`} className="group relative block w-full aspect-[4/5] rounded-[24px] overflow-hidden bg-slate-100 isolation-auto transition-all duration-500 hover:shadow-[0_20px_40px_rgb(0,0,0,0.08)] hover:-translate-y-1.5 border border-slate-200/50 hover:ring-2 hover:ring-blue-200/50">
@@ -43,7 +60,9 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
       />
       
       {/* Light Glass Overlay for text readability */}
-      <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90 transition-opacity duration-500" />
+      {!shouldHideTitle && (
+        <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90 transition-opacity duration-500" />
+      )}
       
       {/* Hover Overlay: Premium Glassmorphism Play Button */}
       <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center pointer-events-none z-10">
@@ -82,23 +101,25 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
       </div>
 
       {/* Card Info Content */}
-      <div className="absolute bottom-0 w-full p-5 z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-        <h3 className="text-slate-900 font-black text-lg sm:text-xl tracking-tight leading-tight line-clamp-2 drop-shadow-sm">
-          {title}
-        </h3>
-        
-        <div className="flex items-center justify-between mt-2">
-          <p className="text-slate-900/80 text-[10px] font-bold uppercase tracking-[0.15em] drop-shadow-sm">
-            {provider}
-          </p>
-          {formattedPlayers && (
-            <div className="flex items-center gap-1.5 text-slate-900 bg-white/90 px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-400 delay-75 shadow-sm backdrop-blur-md">
-              <Users className="w-3 h-3 text-slate-500" />
-              <span className="text-[10px] font-black">{formattedPlayers}</span>
-            </div>
-          )}
+      {!shouldHideTitle && (
+        <div className="absolute bottom-0 w-full p-5 z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
+          <h3 className="text-slate-900 font-black text-lg sm:text-xl tracking-tight leading-tight line-clamp-2 drop-shadow-sm">
+            {title}
+          </h3>
+          
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-slate-900/80 text-[10px] font-bold uppercase tracking-[0.15em] drop-shadow-sm">
+              {provider}
+            </p>
+            {formattedPlayers && (
+              <div className="flex items-center gap-1.5 text-slate-900 bg-white/90 px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-400 delay-75 shadow-sm backdrop-blur-md">
+                <Users className="w-3 h-3 text-slate-500" />
+                <span className="text-[10px] font-black">{formattedPlayers}</span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
     </Link>
   );
 }

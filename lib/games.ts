@@ -11,6 +11,7 @@ export interface Game {
   rtp?: number; // RTP for casino/betting games
   players?: number; // active streams/players
   isExternal?: boolean; // If true, opens the cinematic launcher instead of an internal engine
+  hideTitle?: boolean;
 }
 
 

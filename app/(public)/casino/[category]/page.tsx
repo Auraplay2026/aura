@@ -1030,6 +1030,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                   isNew={game.isNew}
                   rtp={game.rtp}
                   players={game.players}
+                  hideTitle={game.hideTitle}
                 />
               ))}
               {displayedGames.length === 0 && (
