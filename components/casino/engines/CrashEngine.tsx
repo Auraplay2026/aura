@@ -22,6 +22,7 @@ interface Particle {
 interface Star { x: number; y: number; size: number; speed: number; brightness: number; }
 interface TrailPoint { x: number; y: number; mult: number; time: number; }
 interface WreckagePiece { x: number; y: number; vx: number; vy: number; angle: number; vAngle: number; size: number; type: string; }
+interface GalaxyStar { angle: number; r: number; size: number; color: string; }
 
 // ─── Multiplier → Tier System ────────────────────────────────
 function getTier(m: number): { name: string; color: string; glow: string; secondary: string; intensity: number } {
@@ -62,6 +63,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     shipScreenX: 120,
     shipScreenY: 800,
     lastAngle: -Math.PI * 0.25,
+    galaxyStars: [] as GalaxyStar[],
   });
 
   const [uiState, setUiState] = useState({
@@ -103,6 +105,21 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       });
     }
     stateRef.current.stars = stars;
+  }, []);
+
+  const initGalaxy = useCallback(() => {
+    const galaxyStars: GalaxyStar[] = [];
+    const colors = ["#a78bfa", "#f43f5e", "#06b6d4", "#3b82f6", "#ffffff"];
+    for (let i = 0; i < 220; i++) {
+      const theta = Math.random() * Math.PI * 4;
+      const r = (theta * 18) + Math.random() * 22;
+      const armOffset = Math.random() > 0.5 ? 0 : Math.PI;
+      const angle = theta + armOffset;
+      const size = Math.random() * 1.8 + 0.5;
+      const color = colors[Math.floor(Math.random() * colors.length)];
+      galaxyStars.push({ angle, r, size, color });
+    }
+    stateRef.current.galaxyStars = galaxyStars;
   }, []);
 
   // ─── Spawn Particles ──────────────────────────────────────
@@ -406,6 +423,59 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         ctx.fill();
       });
 
+      // ── Cosmic Nebula Clouds (Glow Layers) ──
+      const drawNebula = (cx: number, cy: number, radius: number, color1: string, color2: string) => {
+        try {
+          const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, radius);
+          g.addColorStop(0, color1);
+          g.addColorStop(0.5, color2);
+          g.addColorStop(1, "rgba(0, 0, 0, 0)");
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.arc(cx, cy, radius, 0, Math.PI * 2);
+          ctx.fill();
+        } catch (e) {}
+      };
+
+      // Draw 3 parallax nebulas drifting slowly in space
+      const neb1X = W * 0.35 - s.cameraX * 0.08;
+      const neb1Y = H * 0.45 - s.cameraY * 0.08;
+      drawNebula(neb1X, neb1Y, 320, "rgba(167, 139, 250, 0.08)", "rgba(59, 130, 246, 0.03)"); // Violet-Blue Nebula
+
+      const neb2X = W * 0.70 - s.cameraX * 0.06;
+      const neb2Y = H * 0.25 - s.cameraY * 0.06;
+      drawNebula(neb2X, neb2Y, 280, "rgba(244, 63, 94, 0.06)", "rgba(251, 191, 36, 0.02)"); // Rose-Gold Nebula
+
+      const neb3X = W * 0.15 - s.cameraX * 0.10;
+      const neb3Y = H * 0.75 - s.cameraY * 0.10;
+      drawNebula(neb3X, neb3Y, 350, "rgba(6, 182, 212, 0.07)", "rgba(79, 70, 229, 0.03)"); // Cyan-Indigo Nebula
+
+      // ── Swirling Spiral Galaxy Core & Star clusters ──
+      const galCenterX = W * 0.60 - s.cameraX * 0.12;
+      const galCenterY = H * 0.35 - s.cameraY * 0.12;
+
+      // Draw glowing galaxy core
+      drawNebula(galCenterX, galCenterY, 80, "rgba(255, 255, 255, 0.25)", "rgba(6, 182, 212, 0.08)");
+
+      // Draw galaxy spiral arms
+      if (s.galaxyStars && s.galaxyStars.length > 0) {
+        ctx.save();
+        s.galaxyStars.forEach(star => {
+          // Slow rotation over time
+          const rotAngle = star.angle + s.tick * 0.0015;
+          const drawX = galCenterX + Math.cos(rotAngle) * star.r;
+          const drawY = galCenterY + Math.sin(rotAngle) * star.r;
+
+          const alpha = Math.max(0.15, (1 - star.r / 150) * 0.85);
+          ctx.globalAlpha = alpha;
+          ctx.fillStyle = star.color;
+          ctx.beginPath();
+          ctx.arc(drawX, drawY, star.size, 0, Math.PI * 2);
+          ctx.fill();
+        });
+        ctx.restore();
+      }
+
       // ── Coordinate Grid (Higher = More Risk, Further = More Reward) ──
       ctx.strokeStyle = "rgba(255, 255, 255, 0.035)";
       ctx.lineWidth = 1;
@@ -607,13 +677,14 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       canvas.width = container.clientWidth;
       canvas.height = container.clientHeight;
       initStars(canvas.width, canvas.height);
+      initGalaxy();
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(container);
     animFrameRef.current = requestAnimationFrame(render);
     return () => { ro.disconnect(); cancelAnimationFrame(animFrameRef.current); };
-  }, [render, initStars]);
+  }, [render, initStars, initGalaxy]);
 
   // ─── Cashout Handler ─────────────────────────────────────
   const handleCashout = useCallback(async (cashoutMult?: number) => {
