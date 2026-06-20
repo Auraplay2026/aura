@@ -1194,11 +1194,11 @@ export function LudoFusionEngine({
       <div className="flex flex-col md:flex-row items-center md:items-start justify-center gap-8 w-full overflow-visible font-sans">
         
         {/* Left Column: 3D Floating Ludo Platform */}
-        <div className="w-full max-w-[340px] xs:max-w-[380px] sm:max-w-[420px] md:max-w-none md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center overflow-visible">
+        <div className="w-auto shrink-0 flex flex-col items-center overflow-visible">
           
           {/* Perspective Container */}
           <div 
-            className="w-full aspect-square relative select-none overflow-visible flex items-center justify-center p-4"
+            className="w-[calc(100dvh-340px)] h-[calc(100dvh-340px)] max-w-[90vw] max-h-[90vw] xs:max-w-[330px] xs:max-h-[330px] sm:max-w-[380px] sm:max-h-[380px] md:w-full md:h-full md:max-w-none md:max-h-none aspect-square relative select-none overflow-visible flex items-center justify-center p-4"
             style={{ perspective: "1200px" }}
           >
             <motion.div

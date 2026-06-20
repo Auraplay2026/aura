@@ -1522,7 +1522,7 @@ export default function GamePlayerPage() {
 
                     {/* FULL-WIDTH GAME CANVAS */}
                     <div className={cn(
-                      "min-h-[320px] h-[380px] sm:min-h-[480px] sm:h-[480px] md:h-[600px] lg:h-[680px] flex flex-col relative z-10",
+                      "min-h-[300px] h-[calc(100dvh-280px)] sm:min-h-[480px] sm:h-[480px] md:h-[600px] lg:h-[680px] flex flex-col relative z-10",
                       isRoyalEngine ? "bg-transparent p-0" : "bg-[#faf8f2] border border-amber-200/30 rounded-3xl p-2 md:p-4 shadow-inner"
                     )}>
                       

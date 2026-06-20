@@ -985,10 +985,10 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
       </div>
 
       {/* Main Content Area */}
-      <div className="flex flex-col md:flex-row items-start justify-center gap-6 w-full overflow-visible">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-4 w-full overflow-visible">
         {/* Left Column: Ludo Board */}
-        <div className="w-full max-w-[340px] xs:max-w-[380px] sm:max-w-[420px] md:max-w-none md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center">
-          <div className="relative aspect-square w-full select-none overflow-hidden bg-white/90 border-4 border-slate-800/80 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85),inset_0_0_35px_rgba(0,0,0,0.7)]">
+        <div className="w-auto shrink-0 flex flex-col items-center">
+          <div className="relative aspect-square w-[calc(100dvh-340px)] h-[calc(100dvh-340px)] max-w-[90vw] max-h-[90vw] xs:max-w-[330px] xs:max-h-[330px] sm:max-w-[380px] sm:max-h-[380px] md:w-full md:h-full md:max-w-none md:max-h-none select-none overflow-hidden bg-white/90 border-4 border-slate-800/80 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85),inset_0_0_35px_rgba(0,0,0,0.7)]">
             <div className="absolute inset-0 z-0 pointer-events-none opacity-20"
               style={{
                 backgroundImage: "radial-gradient(#ffffff 1px, transparent 0), radial-gradient(#ffffff 1px, transparent 0)",
