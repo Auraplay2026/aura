@@ -247,14 +247,24 @@ function getValidMoves(player: Player, dice: number, allPlayers: Player[]): Move
 function TokenPiece({ color, size = "medium", className }: { color: PlayerColor; size?: "small" | "medium" | "large"; className?: string }) {
   const s = className || (size === "small" ? "w-3 h-3 sm:w-4.5 sm:h-4.5" : "w-5 h-5 sm:w-6.5 sm:h-6.5");
   return (
-    <div
-      className={`${s} rounded-full relative flex items-center justify-center transition-all duration-205 select-none shadow-[0_5px_12px_rgba(0,0,0,0.6),inset_0_-2px_4px_rgba(0,0,0,0.5),0_0_12px_${COLORS[color].glow}]`}
-      style={{
-        background: `radial-gradient(circle at 35% 35%, #ffffff 0%, ${COLORS[color].token} 45%, ${COLORS[color].dark} 100%)`,
-        border: "1px solid rgba(255,255,255,0.4)"
-      }}
-    >
-      <div className="absolute top-[10%] left-[10%] w-[35%] h-[35%] bg-white/40 rounded-full blur-[0.4px] pointer-events-none" />
+    <div className={`${s} relative select-none filter drop-shadow-[0_4px_6px_rgba(0,0,0,0.25)]`}>
+      {/* 3D Base Disk */}
+      <div 
+        className="absolute inset-[10%] rounded-full shadow-[0_3px_5px_rgba(0,0,0,0.4)] border border-white/20"
+        style={{
+          background: `linear-gradient(135deg, ${COLORS[color].dark} 0%, ${COLORS[color].token} 50%, ${COLORS[color].dark} 100%)`,
+        }}
+      />
+      {/* 3D Inner Dome */}
+      <div
+        className="absolute inset-[20%] rounded-full flex items-center justify-center border border-white/30 shadow-[inset_0_1.5px_2px_rgba(255,255,255,0.6),0_2px_4px_rgba(0,0,0,0.4)]"
+        style={{
+          background: `radial-gradient(circle at 30% 30%, #ffffff 0%, ${COLORS[color].token} 55%, ${COLORS[color].dark} 100%)`,
+        }}
+      >
+        {/* Shiny Highlight */}
+        <div className="absolute top-[12%] left-[12%] w-[25%] h-[25%] bg-white/50 rounded-full blur-[0.3px]" />
+      </div>
     </div>
   );
 }
@@ -399,6 +409,7 @@ interface LudoEngineProps {
 }
 
 export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlaying, onComplete, onLiveTick }: LudoEngineProps) {
+  const [selectedColor, setSelectedColor] = useState<PlayerColor>("red");
   const [gamePhase, setGamePhase] = useState<GamePhase>("idle");
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
@@ -423,9 +434,9 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
   const initGame = useCallback(() => {
     const ps: Player[] = PLAYER_CONFIGS.map((cfg, i) => ({
       color: cfg.color,
-      name: gameMode === "friends" ? `Player ${i + 1}` : cfg.name,
+      name: gameMode === "friends" ? `Player ${i + 1}` : cfg.color === selectedColor ? "You" : cfg.name,
       tokens: [0, 1, 2, 3].map(id => ({ id, position: { zone: "base", index: id } })),
-      isHuman: gameMode === "friends" ? true : i === 0,
+      isHuman: gameMode === "friends" ? true : cfg.color === selectedColor,
       tokensHome: 0,
     }));
     setPlayers(ps);
@@ -436,7 +447,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
     setValidMoves([]);
     setMoveLog([]);
     setGamePhase("playing");
-  }, [gameMode]);
+  }, [gameMode, selectedColor]);
 
   useEffect(() => {
     if (isPlaying && !startedRef.current) {
@@ -752,10 +763,10 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden ${
                         gameMode === mode.id
                           ? "border-amber-500/60 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.15)] scale-[1.02]"
-                          : "border-slate-850 bg-white/40 hover:border-slate-700 text-slate-650 hover:text-slate-900"
+                          : "border-slate-200 bg-white/40 hover:border-slate-300 text-slate-650 hover:text-slate-900"
                       }`}
                     >
-                      <div className={`p-1.5 rounded-lg transition-colors ${gameMode === mode.id ? "bg-amber-500 text-slate-950" : "bg-white text-slate-650"}`}>
+                      <div className={`p-1.5 rounded-lg transition-colors ${gameMode === mode.id ? "bg-amber-500 text-slate-950" : "bg-slate-100 text-slate-650"}`}>
                         {mode.icon}
                       </div>
                       <span className="font-black text-[10px] uppercase tracking-wider">{mode.title}</span>
@@ -764,6 +775,37 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   ))}
                 </div>
               </div>
+
+              {gameMode === "ai" && (
+                <div>
+                  <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2.5">Choose Your Color Faction</span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {(["red", "green", "yellow", "blue"] as PlayerColor[]).map((color) => {
+                      const isSelected = selectedColor === color;
+                      return (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setSelectedColor(color)}
+                          className={`flex flex-col items-center gap-2 p-2 rounded-2xl border-2 transition-all duration-300 cursor-pointer ${
+                            isSelected
+                              ? `border-amber-500 bg-amber-500/5 shadow-[0_0_12px_rgba(245,158,11,0.2)] scale-[1.03]`
+                              : "border-slate-200 bg-white/45 hover:border-slate-300 text-slate-600"
+                          }`}
+                        >
+                          <div className="relative">
+                            <TokenPiece color={color} size="small" />
+                            {isSelected && (
+                              <div className="absolute inset-0 rounded-full border border-amber-400 animate-ping opacity-75" />
+                            )}
+                          </div>
+                          <span className="font-black text-[8px] uppercase tracking-wider">{color}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               <div className="bg-white/95 border border-slate-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-center mb-2">
@@ -852,31 +894,58 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
 
   return (
     <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible">
-      {/* Dynamic Header / Info Bar (Wager HUD & Message) */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 bg-white/60 border border-slate-800/80 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-lg">
-        {/* Turn Message */}
-        <div className="flex items-center gap-2.5">
-          <span className="relative flex h-2.5 w-2.5">
+      {/* Consolidated Premium Header Bar */}
+      <div className="w-full h-12 flex items-center justify-between px-3 mb-3 bg-white/80 border border-slate-200 backdrop-blur-md rounded-2xl shadow-sm select-none">
+        {/* Left: Turn / Action Indicator */}
+        <div className="flex items-center gap-2 max-w-[45%] truncate">
+          <span className="relative flex h-2 w-2 shrink-0">
             <span className={`animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 ${currentPlayer?.isHuman ? "bg-emerald-400" : "bg-amber-400"}`} />
-            <span className={`relative inline-flex rounded-full h-2.5 w-2.5 ${currentPlayer?.isHuman ? "bg-emerald-500" : "bg-amber-500"}`} />
+            <span className={`relative inline-flex rounded-full h-2 w-2 ${currentPlayer?.isHuman ? "bg-emerald-500" : "bg-amber-500"}`} />
           </span>
-          <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-wider leading-none">
+          <span className="text-[10px] font-black text-slate-800 uppercase tracking-wider truncate">
             {message}
-          </h3>
+          </span>
         </div>
 
-        {/* Wager HUD */}
-        <div className="flex items-center gap-4 bg-white/80 border border-slate-800/60 px-3 py-1.5 rounded-xl">
-          <div className="flex items-center gap-1.5">
-            <Coins className="w-3.5 h-3.5 text-amber-500" />
-            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Wager:</span>
-            <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
-          </div>
-          <div className="w-px h-3 bg-slate-50" />
-          <div className="flex items-center gap-1.5">
-            <Trophy className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Win Pot:</span>
-            <span className="text-xs font-black font-mono text-emerald-400">₹{(betAmount * 3.8).toLocaleString()}</span>
+        {/* Center: Live Player Mini Faction HUD */}
+        <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/60 px-2 py-0.5 rounded-full">
+          {(["red", "green", "yellow", "blue"] as PlayerColor[]).map((color, idx) => {
+            const p = players.find(x => x.color === color);
+            const isCurrent = currentIdx === idx && !winner;
+            const isWinner = winner === color;
+            return (
+              <div
+                key={color}
+                className={`relative w-4 h-4 rounded-full flex items-center justify-center transition-all ${
+                  isCurrent 
+                    ? "ring-2 ring-offset-1 scale-110" 
+                    : "opacity-60"
+                }`}
+                style={{
+                  backgroundColor: COLORS[color].token,
+                  borderColor: isCurrent ? COLORS[color].token : "transparent",
+                  boxShadow: isCurrent ? `0 0 8px ${COLORS[color].glow}` : "none",
+                }}
+              >
+                {isWinner ? (
+                  <span className="text-[7px] text-white">🏆</span>
+                ) : p?.isHuman ? (
+                  <span className="text-[6px] text-white font-extrabold uppercase">U</span>
+                ) : (
+                  <span className="text-[6px] text-white/80 uppercase font-bold">B</span>
+                )}
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Right: Compact Stake / Info */}
+        <div className="flex items-center gap-2 text-right">
+          <div className="flex items-center gap-1 font-mono">
+            <Coins className="w-3 h-3 text-amber-500" />
+            <span className="text-[10px] font-black text-slate-800">
+              ₹{betAmount.toLocaleString()}
+            </span>
           </div>
         </div>
       </div>
@@ -911,49 +980,50 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   className="absolute transition-all duration-300"
                   style={{
                     left: `${pos.l}%`, top: `${pos.t}%`, width: "40%", height: "40%",
-                    backgroundColor: COLORS[color].bg,
-                    border: `3px solid ${isTurn ? COLORS[color].token : "rgba(255,255,255,0.05)"}`,
-                    boxShadow: isTurn ? `0 0 25px ${COLORS[color].glow}` : "none",
+                    background: `linear-gradient(135deg, ${COLORS[color].light} 0%, rgba(255,255,255,0.95) 100%)`,
+                    border: `2px solid ${isTurn ? COLORS[color].token : "rgba(226,232,240,0.8)"}`,
+                    borderRadius: "1.5rem",
+                    boxShadow: isTurn ? `0 0 20px ${COLORS[color].glow}` : "none",
                   }}
                 >
-                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 bg-white/75 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/5 flex items-center gap-1 max-w-[90%] truncate z-10">
-                    <span className="text-[8px] sm:text-[9px] font-black text-slate-900/95 uppercase tracking-wide truncate">
+                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-2 py-0.5 rounded-full border border-slate-200 flex items-center gap-1 max-w-[90%] truncate z-10 shadow-sm">
+                    <span className="text-[8px] sm:text-[9px] font-black text-slate-800 uppercase tracking-wide truncate">
                       {p ? `${p.name} (${p.tokensHome}/4)` : ""}
                     </span>
                     {p && p.tokensHome > 0 && (
-                      <span className="text-[8px] text-amber-400 font-extrabold flex items-center shrink-0">
+                      <span className="text-[8px] text-amber-500 font-extrabold flex items-center shrink-0">
                         🏆
                       </span>
                     )}
                   </div>
 
-                  <div className="absolute inset-[20%] bg-white/85 backdrop-blur-sm rounded-2xl border border-slate-800/40" />
+                  <div className="absolute inset-[20%] bg-white rounded-2xl border border-slate-200 shadow-[inset_0_2px_4px_rgba(0,0,0,0.03)]" />
                 </motion.div>
               );
             })}
 
             <div className="absolute" style={{
               left: "40%", top: "40%", width: "20%", height: "20%",
-              background: "#090d14",
-              border: "2px solid rgba(255,255,255,0.08)",
+              background: "#ffffff",
+              border: "2px solid rgba(226,232,240,0.8)",
             }}>
               <svg viewBox="0 0 100 100" className="w-full h-full">
-                <polygon points="0,0 50,50 100,0" fill={COLORS.green.token} opacity="0.25" />
-                <polygon points="100,0 50,50 100,100" fill={COLORS.yellow.token} opacity="0.25" />
-                <polygon points="100,100 50,50 0,100" fill={COLORS.blue.token} opacity="0.25" />
-                <polygon points="0,100 50,50 0,0" fill={COLORS.red.token} opacity="0.25" />
+                <polygon points="0,0 50,50 100,0" fill={COLORS.green.token} opacity="0.2" />
+                <polygon points="100,0 50,50 100,100" fill={COLORS.yellow.token} opacity="0.2" />
+                <polygon points="100,100 50,50 0,100" fill={COLORS.blue.token} opacity="0.2" />
+                <polygon points="0,100 50,50 0,0" fill={COLORS.red.token} opacity="0.2" />
                 
-                <polygon points="0,0 50,50 100,0" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-                <polygon points="100,0 50,50 100,100" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-                <polygon points="100,100 50,50 0,100" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
-                <polygon points="0,100 50,50 0,0" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="1" />
+                <polygon points="0,0 50,50 100,0" fill="none" stroke="rgba(226,232,240,0.8)" strokeWidth="1" />
+                <polygon points="100,0 50,50 100,100" fill="none" stroke="rgba(226,232,240,0.8)" strokeWidth="1" />
+                <polygon points="100,100 50,50 0,100" fill="none" stroke="rgba(226,232,240,0.8)" strokeWidth="1" />
+                <polygon points="0,100 50,50 0,0" fill="none" stroke="rgba(226,232,240,0.8)" strokeWidth="1" />
               </svg>
               <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
                 <motion.div
                   animate={{ scale: [0.95, 1.15, 0.95] }}
                   transition={{ repeat: Infinity, duration: 2, ease: "easeInOut" }}
                 >
-                  <Crown className="w-5 h-5 text-amber-400 drop-shadow-[0_0_6px_#fbbf24]" />
+                  <Crown className="w-5 h-5 text-amber-500 drop-shadow-[0_0_6px_rgba(245,158,11,0.4)]" />
                 </motion.div>
               </div>
             </div>
@@ -967,18 +1037,24 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
               return (
                 <div
                   key={`cell-${idx}`}
-                  className="absolute flex items-center justify-center"
+                  className="absolute flex items-center justify-center rounded-sm transition-all duration-300"
                   style={{
                     left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
                     width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
-                    backgroundColor: startColor ? `${COLORS[startColor].token}15` : isValidTarget ? "rgba(245,158,11,0.15)" : "#0f1622",
-                    border: "0.5px solid rgba(255,255,255,0.03)",
-                    boxShadow: isValidTarget ? "inset 0 0 6px rgba(245,158,11,0.4)" : "none",
+                    backgroundColor: startColor 
+                      ? `${COLORS[startColor].token}18` 
+                      : isValidTarget 
+                        ? "rgba(245,158,11,0.18)" 
+                        : "#ffffff",
+                    border: "1px solid rgba(226,232,240,0.8)",
+                    boxShadow: isValidTarget 
+                      ? "inset 0 0 8px rgba(245,158,11,0.3)" 
+                      : "inset 0 1px 2px rgba(255,255,255,0.8), 0 1px 2px rgba(0,0,0,0.02)",
                   }}
                 >
-                  {isSafe && <Star className="w-[50%] h-[50%] text-amber-400 drop-shadow-[0_0_4px_#fbbf24] opacity-75" />}
+                  {isSafe && <Star className="w-[45%] h-[45%] text-amber-500 drop-shadow-[0_1px_2px_rgba(245,158,11,0.3)] opacity-90" />}
                   {isStart && startColor && (
-                    <div className="w-[35%] h-[35%] rounded-full animate-pulse" style={{ backgroundColor: `${COLORS[startColor].token}60` }} />
+                    <div className="w-[35%] h-[35%] rounded-full animate-pulse" style={{ backgroundColor: `${COLORS[startColor].token}70` }} />
                   )}
                 </div>
               );
@@ -1055,15 +1131,20 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   return (
                     <motion.div
                       key={`token-${player.color}-${token.id}`}
-                      layoutId={`token-${player.color}-${token.id}`}
-                      className="absolute cursor-pointer"
+                      className="absolute cursor-pointer animate-none"
                       style={{
-                        left: `${pos.x + dxPct}%`,
-                        top: `${pos.y + dyPct}%`,
                         width: `${sizePct}%`,
                         height: `${sizePct}%`,
                         transform: "translate(-50%, -50%)",
                         zIndex: isMoving || isCaptured ? 50 : 20 + tokenIdx,
+                      }}
+                      animate={{
+                        left: `${pos.x + dxPct}%`,
+                        top: `${pos.y + dyPct}%`,
+                      }}
+                      transition={{
+                        duration: isMoving ? 0.22 : 0,
+                        ease: "easeOut"
                       }}
                       onClick={() => handleTokenClick(player.color, token.id)}
                     >

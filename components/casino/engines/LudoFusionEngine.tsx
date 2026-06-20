@@ -523,6 +523,7 @@ export function LudoFusionEngine({
 }: LudoFusionEngineProps) {
   
   const [gamePhase, setGamePhase] = useState<GamePhase>("idle");
+  const [selectedColor, setSelectedColor] = useState<PlayerColor>("red");
   const [players, setPlayers] = useState<Player[]>([]);
   const [currentIdx, setCurrentIdx] = useState(0);
   const [dice, setDice] = useState(1);
@@ -558,9 +559,9 @@ export function LudoFusionEngine({
       color: cfg.color,
       name: gameMode === "friends" 
         ? `${FACTIONS[cfg.color].name} (P${i+1})`
-        : i === 0 ? "You (Viper)" : FACTIONS[cfg.color].name,
+        : cfg.color === selectedColor ? "You" : FACTIONS[cfg.color].name,
       tokens: [0, 1, 2, 3].map(id => ({ id, position: { zone: "base", index: id } })),
-      isHuman: gameMode === "friends" ? true : i === 0,
+      isHuman: gameMode === "friends" ? true : cfg.color === selectedColor,
       tokensHome: 0,
     }));
     setPlayers(ps);
@@ -572,7 +573,7 @@ export function LudoFusionEngine({
     setMoveLog([]);
     setGamePhase("playing");
     setSpectators(Math.floor(Math.random() * 500) + 1200);
-  }, [gameMode]);
+  }, [gameMode, selectedColor]);
 
   // Synchronize dynamic live ticks & states
   useEffect(() => {
@@ -969,6 +970,35 @@ export function LudoFusionEngine({
                 </div>
               </div>
 
+              {gameMode === "ai" && (
+                <div>
+                  <span className="text-[10px] text-purple-500 font-black uppercase tracking-widest block mb-2.5">Select Combat Faction</span>
+                  <div className="grid grid-cols-4 gap-2">
+                    {(["red", "green", "yellow", "blue"] as PlayerColor[]).map((color) => {
+                      const isSelected = selectedColor === color;
+                      const f = FACTIONS[color];
+                      return (
+                        <button
+                          key={color}
+                          type="button"
+                          onClick={() => setSelectedColor(color)}
+                          className={`flex flex-col items-center gap-2 p-2 rounded-2xl border transition-all duration-300 cursor-pointer ${
+                            isSelected
+                              ? `border-purple-500 bg-purple-500/10 shadow-[0_0_12px_rgba(168,85,247,0.2)] scale-[1.03]`
+                              : "border-purple-200 bg-white/40 hover:border-purple-300 text-purple-600"
+                          }`}
+                        >
+                          <div className="relative">
+                            <HeroToken color={color} size="small" isActive={isSelected} />
+                          </div>
+                          <span className="font-black text-[8px] uppercase tracking-wider truncate w-full text-center">{f.badge}</span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               {/* Stake input box */}
               <div className="bg-white/95 border border-purple-200 rounded-2xl p-4 shadow-sm">
                 <div className="flex justify-between items-center mb-2.5">
@@ -1071,52 +1101,57 @@ export function LudoFusionEngine({
   return (
     <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible select-none font-sans">
       
-      {/* 1. Header HUD Area */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-white/60 border border-purple-500/15 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl">
-        
-        {/* Match Details */}
-        <div className="flex items-center gap-3">
-          {/* Active flashing dot */}
-          <span className="relative flex h-2.5 w-2.5">
+      {/* Consolidated Premium Header Bar */}
+      <div className="w-full h-12 flex items-center justify-between px-3 mb-3 bg-slate-950/85 border border-purple-500/20 backdrop-blur-md rounded-2xl shadow-[0_0_15px_rgba(168,85,247,0.08)] select-none">
+        {/* Left: Turn / Action Indicator */}
+        <div className="flex items-center gap-2 max-w-[45%] truncate">
+          <span className="relative flex h-2 w-2 shrink-0">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-fuchsia-400" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-fuchsia-500" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-fuchsia-500" />
           </span>
-          <div>
-            <h3 className="text-xs sm:text-sm font-black text-slate-900 uppercase tracking-widest leading-none">
-              Ludo Fusion Arena
-            </h3>
-            <p className="text-[9px] text-purple-400 font-bold uppercase tracking-wider mt-1">
-              {message}
-            </p>
-          </div>
+          <span className="text-[10px] font-black text-purple-200 uppercase tracking-wider truncate">
+            {message}
+          </span>
         </div>
 
-        {/* Mid-screen HUD Info */}
-        <div className="flex items-center gap-5 bg-white border border-purple-200 px-4 py-2 rounded-xl shadow-sm">
-          <div className="flex items-center gap-2">
-            <Coins className="w-3.5 h-3.5 text-purple-600" />
-            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Buy-In:</span>
-            <span className="text-xs font-black font-mono text-slate-850">₹{betAmount.toLocaleString()}</span>
-          </div>
-          <div className="w-px h-4 bg-purple-200" />
-          <div className="flex items-center gap-2">
-            <Trophy className="w-3.5 h-3.5 text-fuchsia-600 animate-pulse" />
-            <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest">Winner Pot:</span>
-            <span className="text-xs font-black font-mono text-fuchsia-600">₹{(betAmount * 3.8).toLocaleString()}</span>
-          </div>
+        {/* Center: Live Player Mini Faction HUD */}
+        <div className="flex items-center gap-1.5 bg-purple-950/30 border border-purple-500/10 px-2 py-0.5 rounded-full">
+          {(["red", "green", "yellow", "blue"] as PlayerColor[]).map((color, idx) => {
+            const p = players.find(x => x.color === color);
+            const isCurrent = currentIdx === idx && !winner;
+            const isWinner = winner === color;
+            return (
+              <div
+                key={color}
+                className={`relative w-4 h-4 rounded-full flex items-center justify-center transition-all ${
+                  isCurrent 
+                    ? "ring-2 ring-purple-500 ring-offset-1 ring-offset-slate-950 scale-110" 
+                    : "opacity-60"
+                }`}
+                style={{
+                  backgroundColor: FACTIONS[color].token,
+                  boxShadow: isCurrent ? `0 0 8px ${FACTIONS[color].glow}` : "none",
+                }}
+              >
+                {isWinner ? (
+                  <span className="text-[7px] text-white">🏆</span>
+                ) : p?.isHuman ? (
+                  <span className="text-[6px] text-white font-extrabold uppercase">U</span>
+                ) : (
+                  <span className="text-[6px] text-white/80 uppercase font-bold">B</span>
+                )}
+              </div>
+            );
+          })}
         </div>
 
-        {/* Player Profile & XP HUD */}
-        <div className="hidden lg:flex items-center gap-3 bg-white border border-purple-200 px-3.5 py-1 rounded-xl shadow-sm">
-          <Award className="w-5 h-5 text-amber-500" />
-          <div className="text-left">
-            <p className="text-[9px] font-black text-slate-800 uppercase leading-none">Lvl {level} Champion</p>
-            <div className="w-20 bg-purple-100 h-1 rounded-full mt-1.5 overflow-hidden">
-              <div className="bg-gradient-to-r from-purple-400 to-fuchsia-500 h-full" style={{ width: `${(xp / 400) * 100}%` }} />
-            </div>
-          </div>
-          <div className="text-[9px] font-mono font-black text-slate-600 ml-1">
-            {xp}/400 XP
+        {/* Right: Compact Stake / Info */}
+        <div className="flex items-center gap-2 text-right">
+          <div className="flex items-center gap-1 font-mono">
+            <Coins className="w-3 h-3 text-purple-400" />
+            <span className="text-[10px] font-black text-slate-100">
+              ₹{betAmount.toLocaleString()}
+            </span>
           </div>
         </div>
       </div>
@@ -1306,17 +1341,19 @@ export function LudoFusionEngine({
                 return (
                   <div
                     key={`cell-${idx}`}
-                    className="absolute flex items-center justify-center transition-all duration-300"
+                    className="absolute flex items-center justify-center rounded-sm transition-all duration-300"
                     style={{
                       left: `${c * CELL_PCT}%`, top: `${r * CELL_PCT}%`,
                       width: `${CELL_PCT}%`, height: `${CELL_PCT}%`,
                       backgroundColor: isValidTarget 
-                        ? "rgba(168,85,247,0.15)" 
+                        ? "rgba(168,85,247,0.18)" 
                         : startColor 
-                          ? `${FACTIONS[startColor].token}20` 
-                          : "#ffffff",
-                      border: "0.5px solid rgba(168,85,247,0.12)",
-                      boxShadow: isValidTarget ? "inset 0 0 8px rgba(168,85,247,0.3)" : "none",
+                          ? `${FACTIONS[startColor].token}15` 
+                          : "rgba(15,23,42,0.92)",
+                      border: "1px solid rgba(168,85,247,0.15)",
+                      boxShadow: isValidTarget 
+                        ? "0 0 8px rgba(168,85,247,0.3), inset 0 0 6px rgba(168,85,247,0.3)" 
+                        : "inset 0 1px 1px rgba(255,255,255,0.05)",
                       transform: "translateZ(1px)",
                     }}
                   >
@@ -1410,15 +1447,20 @@ export function LudoFusionEngine({
                     return (
                       <motion.div
                         key={`token-${player.color}-${token.id}`}
-                        layoutId={`token-${player.color}-${token.id}`}
-                        className="absolute cursor-pointer overflow-visible"
+                        className="absolute cursor-pointer overflow-visible animate-none"
                         style={{
-                          left: `${pos.x + dxPct}%`,
-                          top: `${pos.y + dyPct}%`,
                           width: `${sizePct}%`,
                           height: `${sizePct}%`,
                           transform: "translate(-50%, -50%) translateZ(10px)",
                           zIndex: isMoving || isCaptured ? 50 : 30 + tokenIdx,
+                        }}
+                        animate={{
+                          left: `${pos.x + dxPct}%`,
+                          top: `${pos.y + dyPct}%`,
+                        }}
+                        transition={{
+                          duration: isMoving ? 0.22 : 0,
+                          ease: "easeOut"
                         }}
                         onClick={() => handleTokenClick(player.color, token.id)}
                       >
