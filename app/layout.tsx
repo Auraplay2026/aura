@@ -5,6 +5,7 @@ import { AppProviders } from "@/components/layout/AppProviders";
 import { GlobalAlerts } from "@/components/ui/GlobalAlerts";
 import { GlobalHypeFeed } from "@/components/ui/GlobalHypeFeed";
 import { DailyRewardModal } from "@/components/ui/DailyRewardModal";
+import { RewardsModal } from "@/components/ui/RewardsModal";
 import { AchievementToast } from "@/components/ui/AchievementToast";
 import { WinCelebration } from "@/components/ui/WinCelebration";
 import { SmartNotificationBanner } from "@/components/ui/SmartNotificationBanner";
@@ -59,6 +60,7 @@ export default function RootLayout({
           <GlobalAlerts />
           <GlobalHypeFeed />
           <DailyRewardModal />
+          <RewardsModal />
           <AchievementToast />
           <WinCelebration />
           <SmartNotificationBanner />

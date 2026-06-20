@@ -48,6 +48,7 @@ export function OnboardingModal() {
   const [agreedDemo, setAgreedDemo] = useState(false);
   
   const [formError, setFormError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Trigger modal if logged in but onboarding is not completed
   useEffect(() => {
@@ -59,6 +60,7 @@ export function OnboardingModal() {
         setPhone(currentUser.phoneNumber || "");
         setStateName(currentUser.gamingState || "Maharashtra");
         setUpiId(currentUser.upiId || "");
+        setIsSubmitting(false);
       }
     } else {
       setIsOpen(false);
@@ -109,6 +111,7 @@ export function OnboardingModal() {
   };
 
   const handleNext = async () => {
+    if (isSubmitting) return;
     setFormError(null);
 
     // Validation for Step 2
@@ -146,24 +149,41 @@ export function OnboardingModal() {
       setStep(1);
     } else if (step === 1) {
       // Apply selected type on state and proceed
-      await switchAccountType(selectedType);
-      setStep(2);
+      setIsSubmitting(true);
+      try {
+        await switchAccountType(selectedType);
+        setStep(2);
+      } catch (err) {
+        console.error("Onboarding switch failed", err);
+        setFormError("Failed to switch account mode. Please try again.");
+      } finally {
+        setIsSubmitting(false);
+      }
     } else if (step === 2) {
       setStep(3);
     } else if (step === 3) {
       setStep(4);
     } else {
       // Step 4: Complete onboarding, syncing KYC details to server database
-      if (selectedType === 'real') {
-        await completeOnboarding(phone, stateName, upiId);
-      } else {
-        await completeOnboarding();
+      setIsSubmitting(true);
+      try {
+        if (selectedType === 'real') {
+          await completeOnboarding(phone, stateName, upiId);
+        } else {
+          await completeOnboarding();
+        }
+        setIsOpen(false);
+      } catch (err) {
+        console.error("Onboarding completion failed", err);
+        setFormError("Failed to complete onboarding on server. Please try again.");
+      } finally {
+        setIsSubmitting(false);
       }
-      setIsOpen(false);
     }
   };
 
   const handleBack = () => {
+    if (isSubmitting) return;
     setFormError(null);
     if (step > 0) setStep(step - 1);
   };
@@ -559,17 +579,25 @@ export function OnboardingModal() {
                 {step > 0 && step < 4 && (
                   <button
                     onClick={handleBack}
-                    className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors cursor-pointer text-xs uppercase tracking-wider"
+                    disabled={isSubmitting}
+                    className="flex-1 bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold py-3 rounded-xl transition-colors cursor-pointer text-xs uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Back
                   </button>
                 )}
                 <button
                   onClick={handleNext}
-                  className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider"
+                  disabled={isSubmitting}
+                  className="flex-1 bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(234,179,8,0.2)] hover:scale-[1.01] flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider disabled:opacity-75 disabled:cursor-not-allowed"
                 >
-                  {step === 4 ? 'Get Trading' : (step === 2 ? 'Confirm Config' : 'Continue')}
-                  <ArrowRight className="w-4 h-4" />
+                  {isSubmitting ? (
+                    <span className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
+                  ) : (
+                    <>
+                      {step === 4 ? 'Get Trading' : (step === 2 ? 'Confirm Config' : 'Continue')}
+                      <ArrowRight className="w-4 h-4" />
+                    </>
+                  )}
                 </button>
               </div>
 

@@ -1,16 +1,32 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Lock, Unlock, Crown, ChevronRight, Zap, Calendar, Gift } from "lucide-react";
+import { X, Lock, Unlock, Crown, Zap, Calendar, Gift, AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useTradingStore } from "@/lib/store";
+import { cn } from "@/lib/utils";
 
-interface RewardsModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export function RewardsModal() {
+  const [isOpen, setIsOpen] = useState(false);
+  const onClose = () => setIsOpen(false);
 
-export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
+  const { currentUser, syncFromServer, isLoggedIn, xp } = useTradingStore();
   const [timeLeft, setTimeLeft] = useState(3600); // 1 hour in seconds
+  const [isClaimingRakeback, setIsClaimingRakeback] = useState(false);
+  const [isUnlockingVault, setIsUnlockingVault] = useState(false);
+  const [successMsg, setSuccessMsg] = useState<string | null>(null);
+  const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  // Listen to open-rewards-hub custom event for manual triggers
+  useEffect(() => {
+    const handleOpen = () => {
+      setIsOpen(true);
+      setSuccessMsg(null);
+      setErrorMsg(null);
+    };
+    window.addEventListener("open-rewards-hub", handleOpen);
+    return () => window.removeEventListener("open-rewards-hub", handleOpen);
+  }, []);
 
   useEffect(() => {
     if (!isOpen) return;
@@ -27,6 +43,78 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
     return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
+  // Derive Rakeback amount: 5% of user total wagered
+  const totalWagered = currentUser?.totalWagered || 0;
+  const rawRakeback = Math.floor(totalWagered * 0.05);
+  const rakebackAmount = Math.max(0, rawRakeback);
+
+  const claimRakeback = async () => {
+    if (isClaimingRakeback || rakebackAmount <= 0 || !isLoggedIn || !currentUser) return;
+    setIsClaimingRakeback(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      const res = await fetch('/api/rewards/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: currentUser.email,
+          rewardType: 'rakeback',
+          amount: rakebackAmount,
+          details: 'Instant Rakeback'
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuccessMsg(`Successfully claimed ₹${rakebackAmount.toLocaleString('en-IN')} rakeback!`);
+        await syncFromServer();
+      } else {
+        setErrorMsg(data.error || "Failed to claim rakeback.");
+      }
+    } catch (err) {
+      console.error("Rakeback claim failed", err);
+      setErrorMsg("Failed to connect to server. Please try again.");
+    } finally {
+      setIsClaimingRakeback(false);
+    }
+  };
+
+  const claimWeeklyDrop = async () => {
+    if (isUnlockingVault || timeLeft > 0 || !isLoggedIn || !currentUser) return;
+    setIsUnlockingVault(true);
+    setErrorMsg(null);
+    setSuccessMsg(null);
+    try {
+      const res = await fetch('/api/rewards/claim', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: currentUser.email,
+          rewardType: 'weekly',
+          amount: 500,
+          details: 'Weekly VIP Drop'
+        })
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setSuccessMsg("Successfully claimed ₹500 Weekly VIP Drop!");
+        await syncFromServer();
+      } else {
+        setErrorMsg(data.error || "Failed to claim weekly drop.");
+      }
+    } catch (err) {
+      console.error("Weekly claim failed", err);
+      setErrorMsg("Failed to connect to server. Please try again.");
+    } finally {
+      setIsUnlockingVault(false);
+    }
+  };
+
+  const xpVal = xp || 0;
+  const progressPercent = (xpVal % 1000) / 10;
+  const currentTier = currentUser?.vipLevel || "Bronze";
+  const level = Math.floor(xpVal / 1000) + 1;
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -37,7 +125,7 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 bg-white/80 z-50 backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
+            className="fixed inset-0 bg-white/80 z-[9990] backdrop-blur-md flex items-center justify-center p-4 sm:p-6"
           >
             {/* Modal Container */}
             <motion.div
@@ -51,15 +139,29 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
               <div className="flex items-center justify-between p-6 sm:p-8 pb-4 shrink-0 bg-slate-50 border-b border-slate-200">
                 <div>
                   <h2 className="text-2xl font-black text-slate-900 tracking-tight">Rewards Hub</h2>
-                  <p className="text-sm text-slate-600 mt-1">Claim your bonuses and track your VIP journey.</p>
+                  <p className="text-sm text-slate-650 mt-1">Claim your bonuses and track your VIP journey.</p>
                 </div>
                 <button 
                   onClick={onClose}
-                  className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+                  className="w-10 h-10 bg-slate-50 rounded-full flex items-center justify-center text-slate-650 hover:text-slate-900 hover:bg-slate-100 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
+
+              {/* Status Banner Messages */}
+              {successMsg && (
+                <div className="mx-6 sm:mx-8 mt-4 p-4 bg-emerald-500/15 border border-emerald-500/30 text-emerald-600 rounded-2xl text-xs font-bold flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4 shrink-0" />
+                  {successMsg}
+                </div>
+              )}
+              {errorMsg && (
+                <div className="mx-6 sm:mx-8 mt-4 p-4 bg-red-500/15 border border-red-500/30 text-red-650 rounded-2xl text-xs font-bold flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0" />
+                  {errorMsg}
+                </div>
+              )}
 
               {/* Content */}
               <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-8 bg-white/50">
@@ -72,16 +174,16 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                         <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Current Tier</p>
                         <div className="flex items-center gap-2">
                           <Crown className="w-5 h-5 text-[#a855f7]" />
-                          <span className="text-xl font-black text-slate-900">Beginner</span>
+                          <span className="text-xl font-black text-slate-900 uppercase tracking-wide">{currentTier} (LVL {level})</span>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Next: Silver I</p>
-                        <span className="text-sm font-bold text-slate-900">₹ 45,000 <span className="text-slate-500">/ ₹ 1,00,000</span></span>
+                        <p className="text-xs font-bold text-slate-500 uppercase tracking-widest mb-1">Next: LVL {level + 1}</p>
+                        <span className="text-sm font-bold text-slate-900">{(xpVal % 1000).toLocaleString()} <span className="text-slate-500">/ 1,000 XP</span></span>
                       </div>
                     </div>
                     <div className="w-full h-2 bg-white rounded-full overflow-hidden">
-                      <div className="h-full bg-gradient-to-r from-[#a855f7] to-[#22c55e] w-[45%]" />
+                      <div className="h-full bg-gradient-to-r from-[#a855f7] to-[#22c55e] transition-all duration-500" style={{ width: `${progressPercent}%` }} />
                     </div>
                   </div>
                 </section>
@@ -104,14 +206,19 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                         {formatTime(timeLeft)}
                       </div>
                       <button 
-                        disabled={timeLeft > 0}
-                        className={`px-8 py-3 rounded-full font-bold transition-all ${
-                          timeLeft > 0 
-                            ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
-                            : 'bg-[#a855f7] hover:bg-purple-500 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]'
+                        disabled={timeLeft > 0 || isUnlockingVault}
+                        onClick={claimWeeklyDrop}
+                        className={`px-8 py-3 rounded-full font-bold transition-all flex items-center justify-center gap-2 ${
+                          (timeLeft > 0 || isUnlockingVault)
+                            ? 'bg-slate-100 text-slate-500 cursor-not-allowed opacity-50'
+                            : 'bg-[#a855f7] hover:bg-purple-500 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)] cursor-pointer'
                         }`}
                       >
-                        Unlock Vault
+                        {isUnlockingVault ? (
+                          <span className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
+                        ) : (
+                          "Unlock Vault (₹500)"
+                        )}
                       </button>
                     </div>
                   </div>
@@ -130,13 +237,21 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                         </div>
                         <div>
                           <h4 className="font-bold text-slate-900 text-sm">Instant Rakeback</h4>
-                          <p className="text-xs text-slate-600 mt-0.5">Available now</p>
+                          <p className="text-xs text-slate-650 mt-0.5">Available now (5% of wagers)</p>
                         </div>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-lg font-black text-slate-900">₹ 1,250</span>
-                        <button className="bg-slate-50 hover:bg-green-500 text-slate-950 font-bold px-4 py-2 rounded-lg text-sm shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-all">
-                          Claim
+                        <span className="text-lg font-black text-slate-900">₹{rakebackAmount.toLocaleString('en-IN')}</span>
+                        <button 
+                          disabled={rakebackAmount <= 0 || isClaimingRakeback}
+                          onClick={claimRakeback}
+                          className="bg-slate-50 hover:bg-green-500 disabled:bg-slate-100 disabled:opacity-40 disabled:cursor-not-allowed text-slate-950 font-bold px-4 py-2 rounded-lg text-sm shadow-[0_0_10px_rgba(34,197,94,0.3)] transition-all cursor-pointer flex items-center justify-center min-w-[80px]"
+                        >
+                          {isClaimingRakeback ? (
+                            <span className="w-4 h-4 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
+                          ) : (
+                            "Claim"
+                          )}
                         </button>
                       </div>
                     </div>
@@ -149,28 +264,24 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                         </div>
                         <div>
                           <h4 className="font-bold text-slate-900 text-sm">Daily Bonus</h4>
-                          <p className="text-xs text-slate-600 mt-0.5">Claimed today</p>
+                          <p className="text-xs text-slate-650 mt-0.5">Configured in Streak Calendar</p>
                         </div>
                       </div>
-                      <div className="w-24 h-1.5 bg-white rounded-full overflow-hidden">
-                        <div className="h-full bg-slate-100 w-[100%]" />
-                      </div>
+                      <span className="text-xs font-bold text-slate-500">Integrated</span>
                     </div>
 
                     {/* Weekly Bonus */}
-                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex items-center justify-between group hover:border-slate-700 transition-colors">
+                    <div className="bg-slate-50 rounded-2xl p-4 border border-slate-200 flex items-center justify-between opacity-50 cursor-not-allowed">
                       <div className="flex items-center gap-4">
                         <div className="w-10 h-10 bg-white rounded-xl flex items-center justify-center shrink-0">
                           <Gift className="w-5 h-5 text-[#a855f7]" />
                         </div>
                         <div>
-                          <h4 className="font-bold text-slate-900 text-sm">Weekly Bonus</h4>
-                          <p className="text-xs text-slate-600 mt-0.5">Progress: 85%</p>
+                          <h4 className="font-bold text-slate-900 text-sm">Weekly Loyalty Drop</h4>
+                          <p className="text-xs text-slate-650 mt-0.5">Claimable at the Vault above</p>
                         </div>
                       </div>
-                      <div className="w-24 h-1.5 bg-white rounded-full overflow-hidden">
-                        <div className="h-full bg-[#a855f7] w-[85%]" />
-                      </div>
+                      <span className="text-xs font-bold text-slate-500">Weekly drop</span>
                     </div>
 
                   </div>

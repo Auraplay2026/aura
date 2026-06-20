@@ -30,6 +30,7 @@ export function DailyRewardModal() {
   const [wheelRotation, setWheelRotation] = useState(0);
   const [prizeWon, setPrizeWon] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [isClaiming, setIsClaiming] = useState(false);
 
   const spinIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const spinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -166,18 +167,26 @@ export function DailyRewardModal() {
     }, 5000);
   };
 
-  const handleClaimDaily = () => {
-    claimDailyReward();
-    setShowConfetti(true);
-    playGameSound('win');
-    setTimeout(() => {
-      if (!spinWheelClaimedToday) {
-        setActiveTab("wheel");
-      } else {
-        setIsOpen(false);
-        dismissDailyModal();
-      }
-    }, 2500);
+  const handleClaimDaily = async () => {
+    if (isClaiming) return;
+    setIsClaiming(true);
+    try {
+      await claimDailyReward();
+      setShowConfetti(true);
+      playGameSound('win');
+      setTimeout(() => {
+        setIsClaiming(false);
+        if (!spinWheelClaimedToday) {
+          setActiveTab("wheel");
+        } else {
+          setIsOpen(false);
+          dismissDailyModal();
+        }
+      }, 2500);
+    } catch (err) {
+      console.error("Daily reward claim failed", err);
+      setIsClaiming(false);
+    }
   };
 
   if (currentUser?.role === 'admin' || pathname?.startsWith('/admin') || !isOpen) return null;
@@ -288,15 +297,19 @@ export function DailyRewardModal() {
 
                 <div className="pt-4">
                   <button
-                    disabled={claimedToday}
+                    disabled={claimedToday || isClaiming}
                     onClick={handleClaimDaily}
-                    className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all duration-300 ${
+                    className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
                       claimedToday
                         ? "bg-slate-50 text-slate-500 cursor-not-allowed"
-                        : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-slate-900 shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)]"
+                        : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-slate-900 shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)] disabled:opacity-75 disabled:cursor-not-allowed"
                     }`}
                   >
-                    {claimedToday ? "Claimed Today!" : `Claim Day ${streakCount} Reward`}
+                    {isClaiming ? (
+                      <span className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
+                    ) : (
+                      claimedToday ? "Claimed Today!" : `Claim Day ${streakCount} Reward`
+                    )}
                   </button>
                 </div>
               </div>
