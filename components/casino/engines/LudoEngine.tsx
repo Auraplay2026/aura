@@ -455,12 +455,12 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
       setShowSetup(false);
       initGame();
     }
-    if (!isPlaying) {
+    if (!isPlaying && gamePhase !== "finished" && !winner) {
       startedRef.current = false;
       setShowSetup(true);
       setGamePhase("idle");
     }
-  }, [isPlaying, initGame]);
+  }, [isPlaying, initGame, gamePhase, winner]);
 
   const nextTurn = useCallback((bonusTurn = false) => {
     if (winner) return;
@@ -733,6 +733,9 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
         winner
       }
     }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("ludo-state-change", { detail: null }));
+    };
   }, [currentPlayer, gamePhase, winner, isRolling, dice, showSetup]);
 
   useEffect(() => {

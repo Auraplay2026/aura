@@ -582,12 +582,12 @@ export function LudoFusionEngine({
       setShowSetup(false);
       initGame();
     }
-    if (!isPlaying) {
+    if (!isPlaying && gamePhase !== "finished" && !winner) {
       startedRef.current = false;
       setShowSetup(true);
       setGamePhase("idle");
     }
-  }, [isPlaying, initGame]);
+  }, [isPlaying, initGame, gamePhase, winner]);
 
   // Spectators counter simulation
   useEffect(() => {
@@ -906,6 +906,9 @@ export function LudoFusionEngine({
         winner
       }
     }));
+    return () => {
+      window.dispatchEvent(new CustomEvent("ludo-state-change", { detail: null }));
+    };
   }, [currentPlayer, gamePhase, winner, isRolling, dice, showSetup]);
 
   useEffect(() => {
