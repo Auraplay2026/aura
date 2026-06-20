@@ -41,6 +41,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
 
   const stateRef = useRef({
     multiplier: 1.0,
+    targetMultiplier: 1.0,
     crashed: false,
     cashedOut: false,
     cashoutMultiplier: 1.0,
@@ -300,22 +301,51 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       const tier = getTier(safeMultiplier);
 
       // ── Bounded Screen-Relative Flight Path (Aviator-style) ──
-      const launchX = W * 0.15;
-      const launchY = H * 0.82;
+      const launchX = W * 0.08;
+      const launchY = H * 0.85;
 
-      // Rocket X progress moves from launchX to 80% of width over 120 ticks
-      const progressX = Math.min(1.0, s.tick / 120);
+      // Custom motion profile: takeoff -> middle pause/glide -> top-right crash
+      const targetVal = s.targetMultiplier || 10.0;
+      const ratio = targetVal > 1.001 ? (safeMultiplier - 1) / (targetVal - 1) : 0;
+      
+      // Piecewise progress interpolation
+      const getFlightProgress = (r: number) => {
+        const safeR = Math.max(0, Math.min(1, r));
+        let px = 0;
+        let py = 0;
+        
+        if (safeR < 0.25) {
+          // Phase 1: Takeoff to middle
+          const t = safeR / 0.25;
+          const ease = t * (2 - t); // Ease out quad
+          px = ease * 0.45;
+          py = ease * 0.45;
+        } else if (safeR < 0.75) {
+          // Phase 2: Middle pause/glide/hover
+          const t = (safeR - 0.25) / 0.50;
+          const floatOffset = Math.sin(t * Math.PI * 2) * 0.015;
+          px = 0.45 + t * 0.15;
+          py = 0.45 + t * 0.15 + floatOffset;
+        } else {
+          // Phase 3: Surge to top-right
+          const t = (safeR - 0.75) / 0.25;
+          const ease = t * t * t; // Ease in cubic
+          px = 0.60 + ease * 0.40;
+          py = 0.60 + ease * 0.40;
+        }
+        return { px, py };
+      };
+
+      const { px, py } = getFlightProgress(ratio);
+
       const xPos = s.isPlaying && !s.crashed
-        ? launchX + progressX * (W * 0.80 - launchX)
+        ? launchX + px * (W * 0.82 - launchX)
         : s.crashed
           ? s.shipScreenX
           : launchX;
 
-      // Rocket Y progress scales logarithmically with the multiplier, capped at 18% height
-      const maxFlightHeight = H * 0.62;
-      const progressY = Math.min(1.0, Math.log10(safeMultiplier) / Math.log10(15));
       const yPos = s.isPlaying && !s.crashed
-        ? launchY - progressY * maxFlightHeight
+        ? launchY - py * (launchY - H * 0.16)
         : s.crashed
           ? s.shipScreenY
           : launchY;
@@ -424,8 +454,27 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         // 1. Shaded gradient area under flight path
         try {
           const pathGrad = ctx.createLinearGradient(launchX, yPos, launchX, launchY);
-          pathGrad.addColorStop(0, "rgba(6, 182, 212, 0.20)");
-          pathGrad.addColorStop(1, "rgba(6, 182, 212, 0)");
+          const baseColor = tier.color || "#06b6d4";
+
+          const hexToRgbaLocal = (hex: string, alpha: number) => {
+            const cleanHex = hex.replace("#", "");
+            let r = 0, g = 0, b = 0;
+            if (cleanHex.length === 3) {
+              r = parseInt(cleanHex.substring(0, 1).repeat(2), 16);
+              g = parseInt(cleanHex.substring(1, 2).repeat(2), 16);
+              b = parseInt(cleanHex.substring(2, 3).repeat(2), 16);
+            } else if (cleanHex.length === 6) {
+              r = parseInt(cleanHex.substring(0, 2), 16);
+              g = parseInt(cleanHex.substring(2, 4), 16);
+              b = parseInt(cleanHex.substring(4, 6), 16);
+            }
+            return `rgba(${r}, ${g}, ${b}, ${alpha})`;
+          };
+
+          pathGrad.addColorStop(0, hexToRgbaLocal(baseColor, 0.28));
+          pathGrad.addColorStop(0.5, hexToRgbaLocal(baseColor, 0.10));
+          pathGrad.addColorStop(1, "rgba(0,0,0,0)");
+          
           ctx.fillStyle = pathGrad;
           ctx.beginPath();
           ctx.moveTo(launchX, launchY);
@@ -618,8 +667,12 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         s.explosionTime = 0;
         s.sessionId = null;
         s.tick = 0;
-        s.cameraX = 120; s.cameraY = 800; s.cameraZoom = 1.1;
+        s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1.1;
         s.shipWorldX = 120; s.shipWorldY = 800;
+        const idleW = canvasRef.current?.width || 800;
+        const idleH = canvasRef.current?.height || 500;
+        s.shipScreenX = idleW * 0.08;
+        s.shipScreenY = idleH * 0.85;
         stopCrashAudio(false);
         setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "idle" });
       }
@@ -634,8 +687,13 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     s.wreckagePieces = [];
     s.explosionTime = 0;
     s.multiplier = 1.0;
-    s.cameraX = 120; s.cameraY = 800; s.cameraZoom = 1.1;
+    s.targetMultiplier = 1.0;
+    s.cameraX = 0; s.cameraY = 0; s.cameraZoom = 1.1;
     s.shipWorldX = 120; s.shipWorldY = 800;
+    const startW = canvasRef.current?.width || 800;
+    const startH = canvasRef.current?.height || 500;
+    s.shipScreenX = startW * 0.08;
+    s.shipScreenY = startH * 0.85;
     startCrashAudio();
     setUiState({ multiplier: 1.0, crashed: false, cashedOut: false, cashoutAmount: 0, phase: "flying" });
 
@@ -653,6 +711,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         if (res.ok && data.success) {
           s.sessionId = data.sessionId;
           const target = data.crashPoint;
+          s.targetMultiplier = target;
           let current = 1.0;
           let tick = 0;
 
