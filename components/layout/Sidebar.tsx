@@ -38,7 +38,6 @@ const NAV_SECTIONS = [
       { name: "Slots & Drops", href: "/casino/slots", emoji: "🎰", isSub: true },
       { name: "Live Dealers", href: "/casino/live", emoji: "🔴", isSub: true },
       { name: "Crash Games", href: "/casino/crash", emoji: "🚀", isSub: true },
-      { name: "Dice & Originals", href: "/casino/originals", emoji: "🎲", isSub: true },
       { name: "Table Roulette", href: "/casino/roulette", emoji: "🎡", isSub: true },
       { name: "Blackjack", href: "/casino/blackjack", emoji: "🃏", isSub: true },
       { name: "Poker Heads Up", href: "/casino/poker", emoji: "♠️", isSub: true },

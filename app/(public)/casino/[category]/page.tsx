@@ -20,7 +20,6 @@ const LOBBY_CATEGORIES = [
   { slug: "slots", name: "Slots & Drops", emoji: "🎰" },
   { slug: "live", name: "Live Dealers", emoji: "🔴" },
   { slug: "crash", name: "Crash Games", emoji: "🚀" },
-  { slug: "originals", name: "Dice & Originals", emoji: "🎲" },
   { slug: "roulette", name: "Table Roulette", emoji: "🎡" },
   { slug: "blackjack", name: "Blackjack", emoji: "🃏" },
   { slug: "poker", name: "Poker Heads Up", emoji: "♠️" },
