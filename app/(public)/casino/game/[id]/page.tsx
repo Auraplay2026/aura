@@ -1020,6 +1020,11 @@ export default function GamePlayerPage() {
           <button onClick={() => router.back()} className="w-9 h-9 bg-slate-50 hover:bg-slate-100 rounded-xl flex items-center justify-center text-slate-600 transition-colors shrink-0">
             <ArrowLeft className="w-4.5 h-4.5" />
           </button>
+          <img 
+            src={game.image} 
+            className="w-10 h-10 rounded-xl object-cover shadow-sm border border-slate-200/80 shrink-0" 
+            alt={game.title}
+          />
           <div>
             <h1 className="text-lg font-black text-slate-900 tracking-wide leading-tight">{game.title}</h1>
             <p className="text-[11px] text-slate-600 font-semibold leading-none mt-0.5">Publisher: <span className="text-neon-yellow">{game.provider}</span></p>
@@ -1654,17 +1659,15 @@ export default function GamePlayerPage() {
                       {/* Header Overlay */}
                       {!isRoyalEngine && (
                         <div className="w-full flex justify-between items-center z-20 mb-4 bg-white/5 backdrop-blur-md border border-white/10 p-2 md:p-3 rounded-2xl shadow-xl">
-                          <div className="flex items-center gap-3">
-                            <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover shadow-md shrink-0 border border-white/10" />
-                            <div className="flex-1">
-                              <p className="text-slate-900 font-black text-xs md:text-sm uppercase tracking-wider leading-none truncate max-w-[150px] sm:max-w-none">{game.title}</p>
-                              <p className="text-cyan-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
-                                <span className="relative flex h-2 w-2 shrink-0">
-                                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
-                                  <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
-                                </span>
+                          <div className="flex items-center">
+                            <div className="flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1.5 rounded-xl">
+                              <span className="relative flex h-1.5 w-1.5 shrink-0">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-cyan-500"></span>
+                              </span>
+                              <span className="text-[9px] md:text-[10px] font-black uppercase tracking-widest text-cyan-400">
                                 {isCloudRenting ? "Cloud Stream" : "Live Betting"}
-                              </p>
+                              </span>
                             </div>
                           </div>
 
