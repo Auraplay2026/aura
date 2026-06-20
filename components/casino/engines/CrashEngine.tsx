@@ -3,6 +3,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { startCrashAudio, updateCrashPitch, stopCrashAudio } from "@/lib/audio";
 import { useTradingStore } from "@/lib/store";
+import { Rocket, ShieldAlert, Zap, Cpu, Terminal, Radio, Activity, Award, CheckCircle, Flame, Server, AlertTriangle, Compass } from "lucide-react";
 
 interface CrashEngineProps {
   isPlaying: boolean;
@@ -63,6 +64,8 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     multiplier: 1.0, crashed: false, cashedOut: false,
     cashoutAmount: 0, phase: "idle" as "idle" | "flying" | "crashed" | "cashedout",
   });
+  const [history, setHistory] = useState<number[]>([1.45, 2.12, 1.05, 18.42, 3.11, 1.95]);
+  const [bootStep, setBootStep] = useState(0);
 
   const currentUser = useTradingStore(s => s.currentUser);
   const email = currentUser?.email || "admin@aurabet.io";
@@ -70,6 +73,18 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);
   const onLiveTickRef = useRef(onLiveTick);
   useEffect(() => { onLiveTickRef.current = onLiveTick; }, [onLiveTick]);
+
+  // Direct state Ref synchronization
+  stateRef.current.isPlaying = isPlaying;
+
+  // Cockpit boot diagnostics log animation loop
+  useEffect(() => {
+    if (uiState.phase !== "idle") return;
+    const interval = setInterval(() => {
+      setBootStep(prev => (prev + 1) % 5);
+    }, 750);
+    return () => clearInterval(interval);
+  }, [uiState.phase]);
 
   // ─── Init Stars ───────────────────────────────────────────
   const initStars = useCallback((w: number, h: number) => {
@@ -134,317 +149,427 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
 
   // ─── Draw Ship ────────────────────────────────────────────
   const drawShip = (ctx: CanvasRenderingContext2D, sx: number, sy: number, angle: number, mult: number, tier: ReturnType<typeof getTier>) => {
-    const scale = 1 + Math.min(0.2, mult * 0.0015);
-    ctx.save();
-    ctx.translate(sx, sy);
-    ctx.rotate(angle);
-    ctx.scale(scale, scale);
+    try {
+      const safeMult = isNaN(mult) || !isFinite(mult) ? 1.0 : mult;
+      const safeAngle = isNaN(angle) || !isFinite(angle) ? -Math.PI * 0.25 : angle;
+      const scale = 1 + Math.min(0.2, safeMult * 0.0015);
+      const safeScale = isNaN(scale) || !isFinite(scale) ? 1.0 : scale;
 
-    // ── Engine exhaust flame ──
-    const flameLen = 18 + mult * 1.8 + Math.sin(stateRef.current.tick * 0.4) * 6;
-    const flameWidth = 10 + mult * 0.3;
-    const outerFlame = ctx.createRadialGradient(0, 28, 2, 0, 28 + flameLen * 0.6, flameLen);
-    outerFlame.addColorStop(0, "rgba(255,180,30,0.95)");
-    outerFlame.addColorStop(0.35, "rgba(255,80,10,0.7)");
-    outerFlame.addColorStop(0.7, tier.glow.replace(/[\d.]+\)$/, "0.15)"));
-    outerFlame.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = outerFlame;
-    ctx.beginPath();
-    ctx.ellipse(0, 28 + flameLen * 0.4, flameWidth, flameLen, 0, 0, Math.PI * 2);
-    ctx.fill();
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(safeAngle);
+      ctx.scale(safeScale, safeScale);
 
-    // ── Ship Body ──
-    ctx.shadowBlur = 10 + mult * 0.3;
-    ctx.shadowColor = tier.glow;
-    const bodyG = ctx.createLinearGradient(-12, -28, 12, 28);
-    bodyG.addColorStop(0, "#f8fafc");
-    bodyG.addColorStop(0.4, "#cbd5e1");
-    bodyG.addColorStop(0.8, "#475569");
-    bodyG.addColorStop(1, "#0f172a");
-    ctx.fillStyle = bodyG;
-    ctx.beginPath();
-    ctx.moveTo(0, -28);
-    ctx.bezierCurveTo(14, -10, 12, 10, 8, 26);
-    ctx.lineTo(-8, 26);
-    ctx.bezierCurveTo(-14, 10, -12, -10, 0, -28);
-    ctx.closePath();
-    ctx.fill();
-    ctx.shadowBlur = 0;
+      // ── Engine exhaust flame ──
+      const flameLen = 18 + safeMult * 1.8 + Math.sin(stateRef.current.tick * 0.4) * 6;
+      const flameWidth = 10 + safeMult * 0.3;
+      
+      try {
+        // 1. Outer Flame glow
+        const outerFlame = ctx.createRadialGradient(0, 28, 2, 0, 28 + flameLen * 0.6, flameLen);
+        outerFlame.addColorStop(0, "rgba(255,180,30,0.95)");
+        outerFlame.addColorStop(0.35, "rgba(255,80,10,0.7)");
+        outerFlame.addColorStop(0.7, tier.glow.replace(/[\d.]+\)$/, "0.15)"));
+        outerFlame.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = outerFlame;
+        ctx.beginPath();
+        ctx.ellipse(0, 28 + flameLen * 0.4, flameWidth, flameLen, 0, 0, Math.PI * 2);
+        ctx.fill();
 
-    // Cockpit window
-    ctx.fillStyle = "rgba(30,140,225,0.95)";
-    ctx.beginPath();
-    ctx.ellipse(0, -12, 4, 7, 0, 0, Math.PI * 2);
-    ctx.fill();
+        // 2. Inner Hot Core
+        const innerFlame = ctx.createRadialGradient(0, 28, 1, 0, 28 + flameLen * 0.3, flameLen * 0.5);
+        innerFlame.addColorStop(0, "#ffffff");
+        innerFlame.addColorStop(0.4, "rgba(255,255,200,0.95)");
+        innerFlame.addColorStop(0.8, "rgba(255,120,10,0.4)");
+        innerFlame.addColorStop(1, "rgba(0,0,0,0)");
+        ctx.fillStyle = innerFlame;
+        ctx.beginPath();
+        ctx.ellipse(0, 28 + flameLen * 0.2, flameWidth * 0.5, flameLen * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      } catch (err) {
+        // Fallback simple circle for flame
+        ctx.fillStyle = tier.color;
+        ctx.beginPath();
+        ctx.arc(0, 28 + flameLen * 0.4, Math.max(flameWidth, 8), 0, Math.PI * 2);
+        ctx.fill();
 
-    // Wings
-    ctx.fillStyle = "#1e293b";
-    ctx.beginPath(); ctx.moveTo(8, 8); ctx.lineTo(24, 26); ctx.lineTo(8, 22); ctx.closePath(); ctx.fill();
-    ctx.beginPath(); ctx.moveTo(-8, 8); ctx.lineTo(-24, 26); ctx.lineTo(-8, 22); ctx.closePath(); ctx.fill();
+        // Fallback hot core circle
+        ctx.fillStyle = "#ffffff";
+        ctx.beginPath();
+        ctx.arc(0, 28 + flameLen * 0.2, Math.max(flameWidth * 0.4, 4), 0, Math.PI * 2);
+        ctx.fill();
+      }
 
-    ctx.restore();
+      // ── Ship Body ──
+      ctx.shadowBlur = 15 + safeMult * 0.3;
+      ctx.shadowColor = tier.glow;
+      
+      let bodyStyle: string | CanvasGradient = "#f8fafc";
+      try {
+        const bodyG = ctx.createLinearGradient(-12, -28, 12, 28);
+        bodyG.addColorStop(0, "#ffffff");
+        bodyG.addColorStop(0.3, "#f1f5f9");
+        bodyG.addColorStop(0.7, "#cbd5e1");
+        bodyG.addColorStop(1, "#94a3b8");
+        bodyStyle = bodyG;
+      } catch (e) {}
+      
+      ctx.fillStyle = bodyStyle;
+      ctx.beginPath();
+      ctx.moveTo(0, -28);
+      ctx.bezierCurveTo(14, -10, 12, 10, 8, 26);
+      ctx.lineTo(-8, 26);
+      ctx.bezierCurveTo(-14, 10, -12, -10, 0, -28);
+      ctx.closePath();
+      ctx.fill();
+
+      // Fuselage neon stroke outline
+      ctx.strokeStyle = tier.color;
+      ctx.lineWidth = 2.0;
+      ctx.stroke();
+
+      ctx.shadowBlur = 0;
+
+      // Cockpit window
+      ctx.fillStyle = "#38bdf8";
+      try {
+        ctx.beginPath();
+        ctx.ellipse(0, -12, 4, 7, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.0;
+        ctx.stroke();
+      } catch (err) {
+        ctx.beginPath();
+        ctx.arc(0, -12, 4, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.strokeStyle = "#ffffff";
+        ctx.lineWidth = 1.0;
+        ctx.stroke();
+      }
+
+      // Wings
+      ctx.fillStyle = "#475569";
+      
+      // Left Wing
+      ctx.beginPath();
+      ctx.moveTo(-8, 8);
+      ctx.lineTo(-24, 26);
+      ctx.lineTo(-8, 22);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = tier.color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // Right Wing
+      ctx.beginPath();
+      ctx.moveTo(8, 8);
+      ctx.lineTo(24, 26);
+      ctx.lineTo(8, 22);
+      ctx.closePath();
+      ctx.fill();
+      ctx.strokeStyle = tier.color;
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      ctx.restore();
+    } catch (err) {
+      console.error("Error drawing ship:", err);
+      try { ctx.restore(); } catch (e) {}
+    }
   };
 
   // ─── Main Canvas Renderer ─────────────────────────────────
   const render = useCallback(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-    const W = canvas.width, H = canvas.height;
-    const s = stateRef.current;
-    const tier = getTier(s.multiplier);
-
-    // ── Decoupled Camera Tracking ───────────────────────────
-    let targetCamX = 120;
-    let targetCamY = 800;
-    let targetZoom = 1.1;
-
-    if (s.isPlaying && !s.crashed) {
-      // Ship sits at W * 0.35 and H * 0.60 relative to the screen
-      targetCamX = s.shipWorldX;
-      targetCamY = s.shipWorldY;
-      targetZoom = Math.max(0.62, 1.15 - Math.log10(s.multiplier) * 0.22);
-    } else if (s.crashed) {
-      // Shift targets so that the ship (at shipWorldX, shipWorldY) moves to (W * 0.5, H * 0.48)
-      // Screen X = shipWorldX - cameraX + W * 0.35 => cameraX = shipWorldX - W * 0.15
-      // Screen Y = shipWorldY - cameraY + H * 0.60 => cameraY = shipWorldY + H * 0.12
-      targetCamX = s.shipWorldX - W * 0.15;
-      targetCamY = s.shipWorldY + H * 0.12;
-      targetZoom = 0.85;
-    }
-
-    // Direct tracking with zero dynamic lag/vibration on camera coordinates
-    s.cameraX += (targetCamX - s.cameraX) * 0.085;
-    s.cameraY += (targetCamY - s.cameraY) * 0.085;
-    s.cameraZoom += (targetZoom - s.cameraZoom) * 0.085;
-
-    // Apply viewport camera shake only during explosion impact
-    let shakeX = 0, shakeY = 0;
-    if (s.cameraShake > 0) {
-      shakeX = (Math.random() - 0.5) * s.cameraShake;
-      shakeY = (Math.random() - 0.5) * s.cameraShake;
-      s.cameraShake *= 0.85;
-    }
-
-    ctx.save();
-    ctx.translate(shakeX, shakeY);
-
-    // ── Background: Clean, Dark Sky (Supports Motion) ──
-    ctx.fillStyle = "#02040a";
-    ctx.fillRect(0, 0, W, H);
-
-    // Subtle moving sky stars for simple velocity feedback (mapped to virtual camera coords)
-    s.stars.forEach(star => {
-      let drawX = star.x - s.cameraX * star.speed * 0.025;
-      let drawY = star.y - s.cameraY * star.speed * 0.025;
-      drawX = ((drawX % (W * 3)) + W * 3) % (W * 3) - W;
-      drawY = ((drawY % (H * 3)) + H * 3) % (H * 3) - H;
-
-      ctx.fillStyle = `rgba(255,255,255,${star.brightness * 0.4})`;
-      ctx.beginPath();
-      ctx.arc(drawX, drawY, star.size * 0.8, 0, Math.PI * 2);
-      ctx.fill();
-    });
-
-    // ── Coordinate Grid (Higher = More Risk, Further = More Reward) ──
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.035)";
-    ctx.lineWidth = 1;
-    const gridSpacing = 90;
-    
-    // Draw horizontal grid lines (Altitude / Risk indicator)
-    const startGridY = Math.floor(s.cameraY / gridSpacing) * gridSpacing;
-    for (let gy = startGridY - H; gy < startGridY + H * 2; gy += gridSpacing) {
-      // Map virtual Y coordinate to screen space
-      const screenY = gy - s.cameraY + H * 0.60;
-      ctx.beginPath();
-      ctx.moveTo(0, screenY);
-      ctx.lineTo(W, screenY);
-      ctx.stroke();
-    }
-    
-    // Draw vertical grid lines (Distance / Reward indicator)
-    const startGridX = Math.floor(s.cameraX / gridSpacing) * gridSpacing;
-    for (let gx = startGridX - W; gx < startGridX + W * 2; gx += gridSpacing) {
-      // Map virtual X coordinate to screen space
-      const screenX = gx - s.cameraX + W * 0.35;
-      ctx.beginPath();
-      ctx.moveTo(screenX, 0);
-      ctx.lineTo(screenX, H);
-      ctx.stroke();
-    }
-
-    // ══════════════════════════════════════════════════════════
-    // WORLD-SPACE LAYER (Warp Trails & Ship)
-    // ══════════════════════════════════════════════════════════
-    ctx.save();
-    // Center scaling exactly at the ship's relative screen location (W * 0.35, H * 0.60)
-    ctx.translate(W * 0.35, H * 0.60);
-    ctx.scale(s.cameraZoom, s.cameraZoom);
-    ctx.translate(-W * 0.35, -H * 0.60);
-    
-    // Pan camera: map virtual world origin to screen space relative to camera
-    ctx.translate(W * 0.35 - s.cameraX, H * 0.60 - s.cameraY);
-
-    // Draw Launch Pad / Ground platform in world space
-    ctx.fillStyle = "#1e293b";
-    ctx.strokeStyle = "rgba(255,255,255,0.15)";
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-    ctx.roundRect(120 - 45, 800 + 26, 90, 10, 4);
-    ctx.fill();
-    ctx.stroke();
-
-    // ── Flight Path: Clean, Predictable rocket curve ──
-    if (s.trailPoints.length > 1) {
-      const pts = s.trailPoints;
-      ctx.save();
-      ctx.lineWidth = 5;
-      ctx.lineCap = "round";
-      ctx.lineJoin = "round";
-
-      // Solid, elegant neon curve representing flight trajectory
-      const tGrad = ctx.createLinearGradient(pts[0].x, pts[0].y, pts[pts.length - 1].x, pts[pts.length - 1].y);
-      tGrad.addColorStop(0, "rgba(16, 185, 129, 0.05)");
-      tGrad.addColorStop(0.5, tier.secondary + "77");
-      tGrad.addColorStop(1, tier.color);
-
-      ctx.strokeStyle = tGrad;
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = tier.glow;
-
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
-      for (let i = 1; i < pts.length; i++) {
-        ctx.lineTo(pts[i].x, pts[i].y);
-      }
-      ctx.stroke();
-      ctx.restore();
-    }
-
-    // ── Particles update ──
-    s.particles = s.particles.filter(p => p.life > 0.01);
-    s.particles.forEach(p => {
-      p.x += p.vx;
-      p.y += p.vy;
-      if (p.type === "exhaust") { p.vy += 0.01; p.vx *= 0.99; }
-      else if (p.type === "smoke") { p.vy -= 0.04; p.vx *= 0.98; }
-      else { p.vy += 0.03; p.vx *= 0.98; p.vy *= 0.98; }
-      p.life -= p.type === "explosion" ? 0.018 : p.type === "shockwave" ? 0.024 : p.type === "smoke" ? 0.015 : 0.035;
-
-      ctx.save();
-      ctx.globalAlpha = p.life;
-      if (p.type === "shockwave") {
-        ctx.strokeStyle = p.color;
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, (1 - p.life) * 110, 0, Math.PI * 2);
-        ctx.stroke();
-      } else {
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.restore();
-    });
-
-    // ── Ship / Wreckage pieces render ──
-    if (s.isPlaying || s.crashed || uiState.phase === "idle") {
-      let angle = -Math.PI * 0.25;
-      if (s.trailPoints.length > 3) {
-        const prev = s.trailPoints[s.trailPoints.length - 3];
-        const curr = s.trailPoints[s.trailPoints.length - 1];
-        // Mathematical tangent of the flight curve
-        angle = Math.atan2(curr.y - prev.y, curr.x - prev.x) + Math.PI / 2;
-      }
-
-      if (s.crashed) {
-        if (s.wreckagePieces.length > 0) {
-          s.wreckagePieces.forEach(piece => {
-            piece.x += piece.vx;
-            piece.y += piece.vy;
-            piece.angle += piece.vAngle;
-            piece.vy += 0.12;
-            piece.vx *= 0.99;
-            piece.vy *= 0.99;
-
-            if (s.tick % 4 === 0 && s.explosionTime < 60) {
-              spawnParticles(piece.x, piece.y, "smoke", "#1e293b", 1);
-              spawnParticles(piece.x, piece.y, "spark", "#f97316", 1, 0.4);
-            }
-            drawWreckagePiece(ctx, piece);
-          });
-        }
-      } else {
-        // Ship is always at the leading edge of the curve
-        drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, s.multiplier, tier);
-
-        if (s.tick % 2 === 0 && (s.isPlaying || s.multiplier > 1.01)) {
-          const exhaustAngle = angle + Math.PI;
-          const ex = s.shipWorldX + Math.cos(exhaustAngle) * 26;
-          const ey = s.shipWorldY + Math.sin(exhaustAngle) * 26;
-          spawnParticles(ex, ey, "exhaust", tier.color, 1);
-        }
-      }
-    }
-
-    // ── Crash Explosion Ring ──
-    if (s.crashed && s.explosionTime < 70) {
-      const et = s.explosionTime / 70;
-      const ex = s.shipWorldX, ey = s.shipWorldY;
+    try {
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const ctx = canvas.getContext("2d");
+      if (!ctx) return;
       
+      const W = canvas.width || 300;
+      const H = canvas.height || 150;
+      if (W < 10 || H < 10) return; // Skip drawing if canvas is not yet laid out/resized
+
+      const s = stateRef.current;
+      const safeMultiplier = isNaN(s.multiplier) || s.multiplier <= 0 ? 1.0 : s.multiplier;
+      const tier = getTier(safeMultiplier);
+
+      // ── Dynamic Screen Offset for visual momentum ──
+      let offsetX = W * 0.35;
+      let offsetY = H * 0.60;
+
+      // ── Decoupled Camera Tracking ───────────────────────────
+      let targetCamX = 120;
+      let targetCamY = 800;
+      let targetZoom = 1.1;
+
+      if (s.isPlaying && !s.crashed) {
+        // As the ship speeds up, it smoothly climbs from bottom-left to top-right on the screen
+        const progress = Math.min(1.0, Math.log10(safeMultiplier) / Math.log10(15));
+        offsetX = W * (0.22 + progress * 0.53);
+        offsetY = H * (0.78 - progress * 0.53);
+
+        targetCamX = s.shipWorldX;
+        targetCamY = s.shipWorldY;
+        targetZoom = Math.max(0.62, 1.15 - Math.log10(safeMultiplier) * 0.22);
+      } else if (s.crashed) {
+        // Center the wreckage exactly at the screen center
+        offsetX = W * 0.5;
+        offsetY = H * 0.48;
+        targetCamX = s.shipWorldX;
+        targetCamY = s.shipWorldY;
+        targetZoom = 0.85;
+      }
+
+      // Sanitize inputs
+      if (isNaN(targetCamX) || !isFinite(targetCamX)) targetCamX = 120;
+      if (isNaN(targetCamY) || !isFinite(targetCamY)) targetCamY = 800;
+      if (isNaN(targetZoom) || !isFinite(targetZoom)) targetZoom = 1.1;
+      if (isNaN(offsetX) || !isFinite(offsetX)) offsetX = W * 0.35;
+      if (isNaN(offsetY) || !isFinite(offsetY)) offsetY = H * 0.60;
+
+      // Direct tracking with responsive lag on camera coordinates
+      s.cameraX += (targetCamX - s.cameraX) * 0.12;
+      s.cameraY += (targetCamY - s.cameraY) * 0.12;
+      s.cameraZoom += (targetZoom - s.cameraZoom) * 0.12;
+
+      // Final camera sanitization
+      if (isNaN(s.cameraX) || !isFinite(s.cameraX)) s.cameraX = 120;
+      if (isNaN(s.cameraY) || !isFinite(s.cameraY)) s.cameraY = 800;
+      if (isNaN(s.cameraZoom) || !isFinite(s.cameraZoom)) s.cameraZoom = 1.1;
+
+      // Apply viewport camera shake only during explosion impact
+      let shakeX = 0, shakeY = 0;
+      if (s.cameraShake > 0) {
+        shakeX = (Math.random() - 0.5) * s.cameraShake;
+        shakeY = (Math.random() - 0.5) * s.cameraShake;
+        s.cameraShake *= 0.85;
+      }
+      if (isNaN(shakeX)) shakeX = 0;
+      if (isNaN(shakeY)) shakeY = 0;
+
       ctx.save();
-      for (let ring = 0; ring < 2; ring++) {
-        const r = et * 180 * (ring + 1) * 0.6;
-        const alpha = (1 - et) * (0.8 - ring * 0.3);
-        ctx.strokeStyle = `rgba(244,63,94,${alpha})`;
-        ctx.lineWidth = 3 - ring;
+      ctx.translate(shakeX, shakeY);
+
+      // ── Background: Clean, Dark Sky (Supports Motion) ──
+      ctx.fillStyle = "#02040a";
+      ctx.fillRect(0, 0, W, H);
+
+      // Subtle moving sky stars for simple velocity feedback (mapped to virtual camera coords)
+      s.stars.forEach(star => {
+        let drawX = star.x - s.cameraX * star.speed * 0.025;
+        let drawY = star.y - s.cameraY * star.speed * 0.025;
+        drawX = ((drawX % (W * 3)) + W * 3) % (W * 3) - W;
+        drawY = ((drawY % (H * 3)) + H * 3) % (H * 3) - H;
+
+        ctx.fillStyle = `rgba(255,255,255,${star.brightness * 0.4})`;
         ctx.beginPath();
-        ctx.arc(ex, ey, r, 0, Math.PI * 2);
+        ctx.arc(drawX, drawY, star.size * 0.8, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      // ── Coordinate Grid (Higher = More Risk, Further = More Reward) ──
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.035)";
+      ctx.lineWidth = 1;
+      const gridSpacing = 90;
+      
+      // Draw horizontal grid lines (Altitude / Risk indicator)
+      const startGridY = Math.floor(s.cameraY / gridSpacing) * gridSpacing;
+      for (let gy = startGridY - H; gy < startGridY + H * 2; gy += gridSpacing) {
+        // Map virtual Y coordinate to screen space
+        const screenY = gy - s.cameraY + offsetY;
+        ctx.beginPath();
+        ctx.moveTo(0, screenY);
+        ctx.lineTo(W, screenY);
         ctx.stroke();
       }
-      ctx.restore();
-      s.explosionTime++;
-    }
-
-    ctx.restore(); // end camera projection
-    ctx.restore(); // end camera shake
-
-    // ══════════════════════════════════════════════════════════
-    // SCREEN SPACE HUD LAYER (Clean Multiplier Placement)
-    // ══════════════════════════════════════════════════════════
-    if (s.isPlaying || s.crashed || s.cashedOut) {
-      const multText = s.multiplier.toFixed(2) + "×";
-      const fontSize = Math.min(W * 0.12, 60);
-
-      ctx.save();
-      ctx.font = `900 ${fontSize}px 'Outfit', 'Inter', system-ui, sans-serif`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-
-      // Positioned at top-center, completely clear of the flight path/ship
-      const multX = W / 2;
-      const multY = H * 0.18;
-
-      if (s.crashed) {
-        ctx.fillStyle = "#ef4444";
-        ctx.fillText(multText, multX, multY);
-        
-        ctx.font = `800 ${fontSize * 0.3}px 'Outfit', sans-serif`;
-        ctx.fillStyle = "#fecaca";
-        ctx.fillText("CRASHED", multX, multY + fontSize * 0.6);
-      } else {
-        ctx.fillStyle = "#ffffff";
-        ctx.shadowBlur = 10;
-        ctx.shadowColor = tier.glow;
-        ctx.fillText(multText, multX, multY);
+      
+      // Draw vertical grid lines (Distance / Reward indicator)
+      const startGridX = Math.floor(s.cameraX / gridSpacing) * gridSpacing;
+      for (let gx = startGridX - W; gx < startGridX + W * 2; gx += gridSpacing) {
+        // Map virtual X coordinate to screen space
+        const screenX = gx - s.cameraX + offsetX;
+        ctx.beginPath();
+        ctx.moveTo(screenX, 0);
+        ctx.lineTo(screenX, H);
+        ctx.stroke();
       }
-      ctx.restore();
-    }
 
-    s.tick++;
-    animFrameRef.current = requestAnimationFrame(render);
+      // ══════════════════════════════════════════════════════════
+      // WORLD-SPACE LAYER (Warp Trails & Ship)
+      // ══════════════════════════════════════════════════════════
+      ctx.save();
+      // Center scaling exactly at the ship's relative screen location
+      ctx.translate(offsetX, offsetY);
+      ctx.scale(s.cameraZoom, s.cameraZoom);
+      ctx.translate(-offsetX, -offsetY);
+      
+      // Pan camera: map virtual world origin to screen space relative to camera
+      ctx.translate(offsetX - s.cameraX, offsetY - s.cameraY);
+
+      // Draw Launch Pad / Ground platform in world space
+      ctx.fillStyle = "#1e293b";
+      ctx.strokeStyle = "rgba(255,255,255,0.15)";
+      ctx.lineWidth = 2;
+      
+      if (typeof ctx.roundRect === "function") {
+        ctx.beginPath();
+        ctx.roundRect(120 - 45, 800 + 26, 90, 10, 4);
+        ctx.fill();
+        ctx.stroke();
+      } else {
+        const rx = 120 - 45, ry = 800 + 26, rw = 90, rh = 10, rr = 4;
+        ctx.beginPath();
+        ctx.moveTo(rx + rr, ry);
+        ctx.lineTo(rx + rw - rr, ry);
+        ctx.quadraticCurveTo(rx + rw, ry, rx + rw, ry + rr);
+        ctx.lineTo(rx + rw, ry + rh - rr);
+        ctx.quadraticCurveTo(rx + rw, ry + rh, rx + rw - rr, ry + rh);
+        ctx.lineTo(rx + rr, ry + rh);
+        ctx.quadraticCurveTo(rx, ry + rh, rx, ry + rh - rr);
+        ctx.lineTo(rx, ry + rr);
+        ctx.quadraticCurveTo(rx, ry, rx + rr, ry);
+        ctx.closePath();
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      // ── Flight Path: Clean, Predictable rocket curve ──
+      if (s.trailPoints.length > 1) {
+        const pts = s.trailPoints;
+        ctx.save();
+        ctx.lineWidth = 6;
+        ctx.lineCap = "round";
+        ctx.lineJoin = "round";
+
+        const dx = pts[pts.length - 1].x - pts[0].x;
+        const dy = pts[pts.length - 1].y - pts[0].y;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        let strokeStyle: string | CanvasGradient = tier.color;
+        if (dist > 1) {
+          try {
+            const tGrad = ctx.createLinearGradient(pts[0].x, pts[0].y, pts[pts.length - 1].x, pts[pts.length - 1].y);
+            tGrad.addColorStop(0, "rgba(16, 185, 129, 0.35)");
+            tGrad.addColorStop(0.5, tier.secondary + "cc");
+            tGrad.addColorStop(1, tier.color);
+            strokeStyle = tGrad;
+          } catch (e) {}
+        }
+
+        ctx.strokeStyle = strokeStyle;
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = tier.glow;
+
+        ctx.beginPath();
+        ctx.moveTo(pts[0].x, pts[0].y);
+        for (let i = 1; i < pts.length; i++) {
+          ctx.lineTo(pts[i].x, pts[i].y);
+        }
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      // ── Particles update ──
+      s.particles = s.particles.filter(p => p.life > 0.01);
+      s.particles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.type === "exhaust") { p.vy += 0.01; p.vx *= 0.99; }
+        else if (p.type === "smoke") { p.vy -= 0.04; p.vx *= 0.98; }
+        else { p.vy += 0.03; p.vx *= 0.98; p.vy *= 0.98; }
+        p.life -= p.type === "explosion" ? 0.018 : p.type === "shockwave" ? 0.024 : p.type === "smoke" ? 0.015 : 0.035;
+
+        ctx.save();
+        ctx.globalAlpha = p.life;
+        if (p.type === "shockwave") {
+          ctx.strokeStyle = p.color;
+          ctx.lineWidth = 2.5;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, (1 - p.life) * 110, 0, Math.PI * 2);
+          ctx.stroke();
+        } else {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size * p.life, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      });
+
+      // ── Ship / Wreckage pieces render ──
+      if (s.isPlaying || s.crashed || uiState.phase === "idle") {
+        let angle = -Math.PI * 0.25;
+        if (s.trailPoints.length > 3) {
+          const prev = s.trailPoints[s.trailPoints.length - 3];
+          const curr = s.trailPoints[s.trailPoints.length - 1];
+          const dy = curr.y - prev.y;
+          const dx = curr.x - prev.x;
+          angle = Math.atan2(dy, dx) + Math.PI / 2;
+        }
+        if (isNaN(angle) || !isFinite(angle)) {
+          angle = -Math.PI * 0.25;
+        }
+
+        if (s.crashed) {
+          if (s.wreckagePieces.length > 0) {
+            s.wreckagePieces.forEach(piece => {
+              piece.x += piece.vx;
+              piece.y += piece.vy;
+              piece.angle += piece.vAngle;
+              piece.vy += 0.12;
+              piece.vx *= 0.99;
+              piece.vy *= 0.99;
+
+              if (s.tick % 4 === 0 && s.explosionTime < 60) {
+                spawnParticles(piece.x, piece.y, "smoke", "#1e293b", 1);
+                spawnParticles(piece.x, piece.y, "spark", "#f97316", 1, 0.4);
+              }
+              drawWreckagePiece(ctx, piece);
+            });
+          }
+        } else {
+          // Ship is always at the leading edge of the curve
+          drawShip(ctx, s.shipWorldX, s.shipWorldY, angle, safeMultiplier, tier);
+
+          if (s.tick % 2 === 0 && (s.isPlaying || safeMultiplier > 1.01)) {
+            const exhaustAngle = angle + Math.PI;
+            const ex = s.shipWorldX + Math.cos(exhaustAngle) * 26;
+            const ey = s.shipWorldY + Math.sin(exhaustAngle) * 26;
+            spawnParticles(ex, ey, "exhaust", tier.color, 1);
+          }
+        }
+      }
+
+      // ── Crash Explosion Ring ──
+      if (s.crashed && s.explosionTime < 70) {
+        const et = s.explosionTime / 70;
+        const ex = s.shipWorldX, ey = s.shipWorldY;
+        
+        ctx.save();
+        for (let ring = 0; ring < 2; ring++) {
+          const r = et * 180 * (ring + 1) * 0.6;
+          const alpha = (1 - et) * (0.8 - ring * 0.3);
+          ctx.strokeStyle = `rgba(244,63,94,${alpha})`;
+          ctx.lineWidth = 3 - ring;
+          ctx.beginPath();
+          ctx.arc(ex, ey, r, 0, Math.PI * 2);
+          ctx.stroke();
+        }
+        ctx.restore();
+        s.explosionTime++;
+      }
+
+      ctx.restore(); // end camera projection
+      ctx.restore(); // end camera shake
+    } catch (e) {
+      console.error("CrashEngine render loop error:", e);
+    } finally {
+      stateRef.current.tick++;
+      animFrameRef.current = requestAnimationFrame(render);
+    }
   }, [uiState.phase]);
 
   // ─── Resize Handler ───────────────────────────────────────
@@ -486,6 +611,19 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
 
   const handleCashoutRef = useRef(handleCashout);
   useEffect(() => { handleCashoutRef.current = handleCashout; }, [handleCashout]);
+
+  // Listen to sidebar/external cashout triggers
+  useEffect(() => {
+    const handleExternalCashout = () => {
+      handleCashout();
+    };
+    window.addEventListener("sidebar-trigger-cashout", handleExternalCashout);
+    window.addEventListener("trigger-cashout", handleExternalCashout);
+    return () => {
+      window.removeEventListener("sidebar-trigger-cashout", handleExternalCashout);
+      window.removeEventListener("trigger-cashout", handleExternalCashout);
+    };
+  }, [handleCashout]);
 
   // ─── Game Loop ────────────────────────────────────────────
   useEffect(() => {
@@ -583,6 +721,12 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
               spawnParticles(s.shipWorldX, s.shipWorldY, "shockwave", "rgba(244,63,94,0.65)", 2);
               s.cameraShake = 22;
 
+              setHistory(prev => {
+                const next = [target, ...prev];
+                if (next.length > 8) next.pop();
+                return next;
+              });
+
               setUiState(prev => ({
                 ...prev,
                 multiplier: target,
@@ -611,61 +755,349 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
   }, [isPlaying, betAmount, autoCashout, email]);
 
   return (
-    <div ref={containerRef} className="relative w-full h-full min-h-[420px] overflow-hidden bg-black rounded-2xl border border-slate-900 shadow-3xl select-none">
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block" />
+    <div ref={containerRef} className="relative w-full h-full min-h-[460px] md:min-h-[520px] overflow-hidden bg-black rounded-2xl border border-slate-900 shadow-3xl select-none">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full block z-0" />
+
+
+
+      {/* ── Cockpit Targeting Grid & Brackets ── */}
+      <div className="absolute inset-3 border border-cyan-500/10 pointer-events-none rounded-xl z-10">
+        <div className="absolute top-0 left-0 w-5 h-5 border-t border-l border-cyan-400/40 rounded-tl" />
+        <div className="absolute top-0 right-0 w-5 h-5 border-t border-r border-cyan-400/40 rounded-tr" />
+        <div className="absolute bottom-0 left-0 w-5 h-5 border-b border-l border-cyan-400/40 rounded-bl" />
+        <div className="absolute bottom-0 right-0 w-5 h-5 border-b border-r border-cyan-400/40 rounded-br" />
+        
+        {/* Horizontal Laser Sweep */}
+        {uiState.phase === "flying" && (
+          <div className="absolute left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-cyan-500/25 to-transparent top-1/2 -translate-y-1/2 animate-pulse" />
+        )}
+      </div>
+
+      {/* ── Top Ribbon Bar (Status & History) ── */}
+      <div className="absolute top-4 left-4 right-4 z-20 flex items-center justify-between pointer-events-none select-none bg-slate-950/70 backdrop-blur-sm border border-slate-800/40 rounded-xl px-4 py-2 text-xs">
+        <div className="flex items-center gap-2">
+          <span className={`w-2 h-2 rounded-full ${uiState.phase === "flying" ? "bg-cyan-500 animate-ping" : uiState.phase === "crashed" ? "bg-red-500 animate-pulse" : "bg-emerald-500"}`} />
+          <span className="font-mono tracking-widest text-[9px] text-slate-400 font-bold uppercase">
+            {uiState.phase === "idle" && "COM-LINK: STANDBY"}
+            {uiState.phase === "flying" && "TELEMETRY: DYNAMIC"}
+            {uiState.phase === "cashedout" && "COMMS: ASSETS SECURED"}
+            {uiState.phase === "crashed" && "COM-LINK: FAULT"}
+          </span>
+        </div>
+
+        {/* History Chips */}
+        <div className="flex items-center gap-1.5 overflow-x-auto max-w-[50%] px-2 scrollbar-none pointer-events-auto">
+          {history.slice(0, 7).map((h, i) => {
+            const tier = getTier(h);
+            return (
+              <motion.div
+                key={i}
+                initial={{ scale: 0.8, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                className="text-[9px] font-black px-2 py-0.5 rounded border bg-slate-900/80 shrink-0 font-mono shadow-inner cursor-default"
+                style={{ color: tier.color, borderColor: `${tier.color}33` }}
+              >
+                {h.toFixed(2)}x
+              </motion.div>
+            );
+          })}
+        </div>
+
+        <div className="flex items-center gap-1.5 text-[9px] font-bold text-slate-400 font-mono">
+          <Cpu className="w-3.5 h-3.5 text-cyan-400" />
+          <span>AV-SYS v9.41</span>
+        </div>
+      </div>
+
+      {/* ── Left Telemetry Panel (Desktop only) ── */}
+      <div className="hidden md:flex flex-col gap-3.5 absolute left-5 top-[20%] z-20 w-44 p-4 bg-slate-950/75 backdrop-blur-md rounded-2xl border border-slate-800/80 shadow-[0_8px_32px_rgba(0,0,0,0.5)] select-none pointer-events-none">
+        <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2 mb-0.5">
+          <Activity className="w-4 h-4 text-cyan-400" />
+          <span className="text-[10px] text-cyan-400 font-black uppercase tracking-wider font-mono">HUD TELEMETRY</span>
+        </div>
+
+        {/* Altitude */}
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between text-[9px] text-slate-400 font-bold font-mono">
+            <span>ALTITUDE</span>
+            <span className="text-white font-black">{(uiState.multiplier * 1000).toFixed(0)}m</span>
+          </div>
+          <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden border border-slate-800">
+            <div 
+              className="bg-cyan-500 h-full rounded-full transition-all duration-75"
+              style={{ width: `${Math.min(100, (uiState.multiplier - 1) * 12)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Velocity */}
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between text-[9px] text-slate-400 font-bold font-mono">
+            <span>VELOCITY</span>
+            <span className="text-cyan-400 font-black">{(uiState.multiplier * 350).toFixed(0)} km/s</span>
+          </div>
+          <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden border border-slate-800">
+            <div 
+              className="bg-cyan-400 h-full rounded-full transition-all duration-75"
+              style={{ width: `${Math.min(100, (uiState.multiplier - 1) * 10)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* G-Force */}
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between text-[9px] text-slate-400 font-bold font-mono">
+            <span>G-FORCE</span>
+            <span className="text-white font-black">{(uiState.multiplier * 2.5).toFixed(1)} G</span>
+          </div>
+          <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden border border-slate-800">
+            <div 
+              className="bg-indigo-500 h-full rounded-full transition-all duration-75"
+              style={{ width: `${Math.min(100, (uiState.multiplier - 1) * 15)}%` }}
+            />
+          </div>
+        </div>
+
+        {/* Core Temp */}
+        <div className="flex flex-col gap-1">
+          <div className="flex justify-between text-[9px] text-slate-400 font-bold font-mono">
+            <span>CORE TEMP</span>
+            <span className={`font-black ${uiState.multiplier > 5 ? "text-red-400 animate-pulse font-extrabold" : "text-white"}`}>
+              {(100 + uiState.multiplier * 180 + Math.sin(stateRef.current.tick * 0.5) * 15).toFixed(0)}°C
+            </span>
+          </div>
+          <div className="w-full bg-slate-900 h-1 rounded-full overflow-hidden border border-slate-800">
+            <div 
+              className={`h-full rounded-full transition-all duration-75 ${uiState.multiplier > 5 ? "bg-red-500 animate-pulse" : "bg-amber-500"}`}
+              style={{ width: `${Math.min(100, uiState.multiplier * 7)}%` }}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* ── Right Mission Tiers Panel (Desktop only) ── */}
+      <div className="hidden md:flex flex-col gap-2 absolute right-5 top-[20%] z-20 w-44 p-4 bg-slate-950/75 backdrop-blur-md rounded-2xl border border-slate-800/80 shadow-[0_8px_32px_rgba(0,0,0,0.5)] select-none pointer-events-none">
+        <div className="flex items-center gap-2 border-b border-slate-800/80 pb-2 mb-1">
+          <Compass className="w-4 h-4 text-cyan-400" />
+          <span className="text-[10px] text-cyan-400 font-black uppercase tracking-wider font-mono">FLIGHT TIER</span>
+        </div>
+
+        <div className="flex flex-col gap-1 font-mono text-[9px] text-slate-500 font-bold">
+          {[
+            { name: "mythic", label: "MYTHIC (100x+)", color: "text-rose-500", threshold: 100 },
+            { name: "legendary", label: "LEGENDARY (50x)", color: "text-amber-500", threshold: 50 },
+            { name: "hyperspace", label: "HYPERSPACE (25x)", color: "text-purple-400", threshold: 25 },
+            { name: "escape", label: "ESCAPE (10x)", color: "text-blue-500", threshold: 10 },
+            { name: "danger", label: "DANGER (5x)", color: "text-red-500", threshold: 5 },
+            { name: "acceleration", label: "ACCELERATING (2x)", color: "text-cyan-400", threshold: 2 },
+            { name: "launch", label: "LAUNCH (1x)", color: "text-emerald-400", threshold: 0 }
+          ].map((tierItem) => {
+            const isActive = uiState.multiplier >= tierItem.threshold && 
+              (tierItem.threshold === 100 || uiState.multiplier < [100, 50, 25, 10, 5, 2][[100, 50, 25, 10, 5, 2].indexOf(tierItem.threshold) - 1]);
+            
+            return (
+              <div 
+                key={tierItem.name} 
+                className={`flex items-center gap-1.5 px-2 py-0.5 rounded transition-all duration-150 ${isActive ? "bg-slate-900/90 text-white font-black scale-105 border border-slate-800/40" : "opacity-35"}`}
+              >
+                {isActive && <Rocket className={`w-3 h-3 ${tierItem.color} animate-pulse`} />}
+                <span className={isActive ? tierItem.color : ""}>{tierItem.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Central Multiplier Display ── */}
+      {(uiState.phase === "flying" || uiState.phase === "crashed" || uiState.phase === "cashedout") && (
+        <div className="absolute top-[22%] left-1/2 -translate-x-1/2 z-20 flex flex-col items-center pointer-events-none select-none">
+          <div className="relative flex flex-col items-center p-6 px-10 bg-slate-950/20 backdrop-blur-[1.5px] rounded-3xl border border-white/5 shadow-2xl">
+            {/* HUD Target brackets around numbers */}
+            <div className="absolute top-0 left-4 w-4 h-2 border-t border-l border-cyan-400/40" />
+            <div className="absolute top-0 right-4 w-4 h-2 border-t border-r border-cyan-400/40" />
+            <div className="absolute bottom-0 left-4 w-4 h-2 border-b border-l border-cyan-400/40" />
+            <div className="absolute bottom-0 right-4 w-4 h-2 border-b border-r border-cyan-400/40" />
+
+            <motion.span 
+              key={getTier(uiState.multiplier).name}
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-[8px] font-black uppercase tracking-widest px-2 py-0.5 rounded bg-black/40 border border-white/10"
+              style={{ color: getTier(uiState.multiplier).color }}
+            >
+              {getTier(uiState.multiplier).name} tier
+            </motion.span>
+
+            <motion.h1 
+              className="text-4xl md:text-5xl font-black font-mono tracking-tight filter drop-shadow-[0_4px_20px_rgba(255,255,255,0.1)] mt-1"
+              style={{ color: getTier(uiState.multiplier).color }}
+              animate={{ scale: [1, 1.02, 1] }}
+              transition={{ duration: 0.15 }}
+            >
+              {uiState.multiplier.toFixed(2)}x
+            </motion.h1>
+
+            {uiState.phase === "flying" && uiState.multiplier >= 5 && (
+              <span className="text-[9px] text-red-500 font-extrabold uppercase tracking-widest flex items-center gap-1 animate-pulse mt-1">
+                <AlertTriangle className="w-3.5 h-3.5" /> CRITICAL ESCAPE VELOCITY
+              </span>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* ── Floating Cashout button ── */}
       <AnimatePresence>
         {uiState.phase === "flying" && !uiState.cashedOut && (
           <motion.div
-            initial={{ opacity: 0, y: 15, scale: 0.95 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: -10, scale: 0.95 }}
-            className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 w-full max-w-[220px]"
+            initial={{ opacity: 0, y: 20, scale: 0.95, x: "-50%" }}
+            animate={{ opacity: 1, y: 0, scale: 1, x: "-50%" }}
+            exit={{ opacity: 0, y: -10, scale: 0.95, x: "-50%" }}
+            className="absolute bottom-6 left-1/2 z-30 w-full max-w-[240px]"
           >
             <button
               onClick={() => handleCashout()}
-              className="w-full py-4 rounded-xl bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-300 hover:to-teal-400 text-black font-black text-xs uppercase tracking-widest shadow-[0_0_35px_rgba(52,211,153,0.55)] border border-emerald-300/30 active:scale-95 transition-all flex items-center justify-center gap-2 group"
+              className="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-400 via-teal-400 to-cyan-500 hover:from-emerald-300 hover:via-teal-300 hover:to-cyan-400 text-black font-black text-xs uppercase tracking-widest shadow-[0_0_35px_rgba(52,211,153,0.55)] border border-emerald-300/30 active:scale-95 transition-all flex flex-col items-center justify-center gap-0.5 group pointer-events-auto"
             >
-              <span>💰 CASHOUT</span>
-              <span className="font-mono text-sm font-black bg-black/10 px-2 py-0.5 rounded-md">
-                ₹{(betAmount * uiState.multiplier).toFixed(2)}
+              <span className="flex items-center gap-1 font-black">
+                <Zap className="w-3.5 h-3.5 fill-black" /> SECURE CASHOUT
+              </span>
+              <span className="font-mono text-[13px] font-black bg-black/10 px-2 py-0.5 rounded-md mt-0.5">
+                ₹{(betAmount * uiState.multiplier).toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </button>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Cashout Success banner ── */}
+      {/* ── Cashout Success Victory Card ── */}
       <AnimatePresence>
         {uiState.phase === "cashedout" && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9, y: 10 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 1.1 }}
-            className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-black/40 backdrop-blur-[2px] pointer-events-none"
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-slate-950/20 backdrop-blur-[1px] pointer-events-none select-none"
           >
-            <div className="bg-slate-950/80 border border-emerald-500/30 px-6 py-5 rounded-2xl text-center shadow-[0_0_40px_rgba(16,185,129,0.2)]">
-              <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-widest block">CASHOUT SUCCESSFUL</span>
+            <div className="bg-slate-950/95 border-2 border-emerald-500/40 px-6 py-5 rounded-2xl text-center shadow-[0_0_40px_rgba(16,185,129,0.3)] max-w-[280px] w-full relative">
+              <div className="absolute -top-12 -left-12 w-32 h-32 bg-emerald-500/10 blur-3xl rounded-full" />
+              
+              <div className="flex justify-center mb-2.5">
+                <div className="p-2 bg-emerald-500/10 border border-emerald-500/30 rounded-full">
+                  <Award className="w-6 h-6 text-emerald-400 animate-pulse" />
+                </div>
+              </div>
+              
+              <span className="text-[9px] text-emerald-400 font-black uppercase tracking-widest block">MISSION SECURED</span>
               <span className="text-3xl font-black text-white font-mono mt-1 block">
                 {stateRef.current.cashoutMultiplier.toFixed(2)}x
               </span>
-              <span className="text-xs font-black text-emerald-300 mt-2 block">
-                Won: ₹{uiState.cashoutAmount.toFixed(2)}
-              </span>
+              
+              <div className="w-full flex flex-col font-mono text-[9px] text-slate-500 gap-1.5 mt-3.5 border-t border-slate-900 pt-3">
+                <div className="flex justify-between text-emerald-300">
+                  <span>EXTRACTED CREDIT:</span>
+                  <span className="font-black text-sm">₹{uiState.cashoutAmount.toLocaleString("en-IN", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>PILOT ESCAPE:</span>
+                  <span className="text-emerald-400 font-bold flex items-center gap-1">SUCCESSFUL <CheckCircle className="w-3 h-3" /></span>
+                </div>
+              </div>
+
+              <div className="text-[8px] text-slate-500 font-bold uppercase mt-3">
+                VESSEL ACTIVE MULTIPLIER: {uiState.multiplier.toFixed(2)}x
+              </div>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
 
-      {/* ── Takeoff phase countdown HUD ── */}
+      {/* ── Takeoff phase diagnostics boot loader HUD ── */}
       {uiState.phase === "idle" && (
-        <div className="absolute inset-0 z-10 flex flex-col items-center justify-center bg-transparent pointer-events-none">
-          <div className="text-center">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block animate-pulse">SYSTEM ENGINES READY</span>
-            <span className="text-[9px] text-cyan-400 font-bold uppercase tracking-widest mt-1 block">PLACE BET TO INITIATE TAKEOFF</span>
+        <div className="absolute inset-0 z-10 flex items-center justify-center bg-transparent pointer-events-none select-none">
+          <div className="flex flex-col items-center max-w-[280px] w-full p-5 bg-slate-950/80 backdrop-blur-md rounded-2xl border border-slate-800/80 shadow-2xl">
+            {/* Tech Radar circular sweep loader */}
+            <div className="relative w-14 h-14 border border-cyan-500/20 rounded-full flex items-center justify-center mb-3">
+              <div className="absolute inset-0 border-t-2 border-cyan-400 rounded-full animate-spin" />
+              <Rocket className="w-5 h-5 text-cyan-400 animate-pulse" />
+            </div>
+
+            {/* Diagnostics checklist log output */}
+            <div className="w-full flex flex-col font-mono text-[9px] text-left text-slate-500 gap-1 border-t border-slate-900 pt-3 mb-3.5">
+              <div className="flex justify-between">
+                <span>AV-SYS SYSTEM BOOT:</span>
+                <span className={bootStep >= 0 ? "text-emerald-400 font-bold" : "animate-pulse"}>
+                  {bootStep >= 0 ? "READY" : "LOADING..."}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>AVIONICS DIAGNOSTIC:</span>
+                <span className={bootStep >= 1 ? "text-emerald-400 font-bold" : "animate-pulse"}>
+                  {bootStep >= 1 ? "PASSED" : bootStep >= 0 ? "CHECKING" : "PENDING"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>IONIC PROPULSION DRIVE:</span>
+                <span className={bootStep >= 2 ? "text-emerald-400 font-bold" : "animate-pulse"}>
+                  {bootStep >= 2 ? "ONLINE" : bootStep >= 1 ? "CHARGING" : "PENDING"}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span>WARP THRUST IGNITER:</span>
+                <span className={bootStep >= 3 ? "text-emerald-400 font-bold animate-pulse" : "animate-pulse"}>
+                  {bootStep >= 3 ? "STANDBY" : bootStep >= 2 ? "IGNITING" : "PENDING"}
+                </span>
+              </div>
+            </div>
+
+            <span className="text-[10px] text-cyan-400 font-black uppercase tracking-wider text-center animate-pulse">
+              IGNITION COILS DEPLOYED
+            </span>
+            <span className="text-[8px] text-slate-500 font-bold uppercase mt-1">
+              PLACE BET TO INITIATE LAUNCH
+            </span>
           </div>
         </div>
+      )}
+
+      {/* ── Wreckage blackbox overload data HUD ── */}
+      {uiState.phase === "crashed" && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          className="absolute inset-0 z-20 flex items-center justify-center bg-red-950/20 backdrop-blur-[2px] pointer-events-none select-none"
+        >
+          <div className="max-w-[280px] w-full p-5 bg-slate-950 border-2 border-red-500/40 rounded-2xl text-center shadow-[0_0_50px_rgba(239,68,68,0.25)] relative overflow-hidden">
+            {/* Scan lines glitch background overlay */}
+            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-red-500/5 to-transparent h-full w-full pointer-events-none bg-[length:100%_4px]" />
+            
+            <div className="flex justify-center mb-3">
+              <div className="p-2.5 bg-red-500/10 border border-red-500/30 rounded-full animate-bounce">
+                <ShieldAlert className="w-5 h-5 text-red-500" />
+              </div>
+            </div>
+            
+            <span className="text-[10px] text-red-500 font-black uppercase tracking-widest block">TELEMETRY LOST</span>
+            <span className="text-3xl font-black text-white font-mono mt-1.5 block">
+              {uiState.multiplier.toFixed(2)}x
+            </span>
+            
+            <div className="w-full flex flex-col font-mono text-[9px] text-slate-500 gap-1 mt-3.5 border-t border-slate-900 pt-3">
+              <div className="flex justify-between">
+                <span>ERROR CODE:</span>
+                <span className="text-red-400 font-bold">WARP CORE OVERLOAD</span>
+              </div>
+              <div className="flex justify-between">
+                <span>SHIELD STATUS:</span>
+                <span className="text-red-400 font-bold">COMPROMISED</span>
+              </div>
+              <div className="flex justify-between">
+                <span>CRASH ALTITUDE:</span>
+                <span className="text-white font-bold">{(uiState.multiplier * 1000).toFixed(0)}m</span>
+              </div>
+            </div>
+          </div>
+        </motion.div>
       )}
     </div>
   );
