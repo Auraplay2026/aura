@@ -158,16 +158,16 @@ export default function AccountSettingsPage() {
  
           {/* Profile Info */}
           <div className="flex-1 text-center md:text-left">
-            <h1 className="text-4xl font-black text-slate-900 tracking-tight mb-2 flex flex-col sm:flex-row sm:items-center gap-3 justify-center md:justify-start">
+            <h1 className="text-2xl sm:text-4xl font-black text-slate-900 tracking-tight mb-2 flex flex-col sm:flex-row sm:items-center gap-3 justify-center md:justify-start break-all sm:break-normal">
               <span>{currentUser?.username || "Player"}</span>
               <button 
                 onClick={() => logout()}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase text-red-600 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 active:scale-95 transition-all cursor-pointer w-fit mx-auto sm:mx-0 shadow-sm"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-black uppercase text-red-600 bg-red-500/10 border border-red-500/20 rounded-full hover:bg-red-500/20 active:scale-95 transition-all cursor-pointer w-fit mx-auto sm:mx-0 shadow-sm shrink-0"
               >
                 <LogOut className="w-3.5 h-3.5" /> Log Out
               </button>
             </h1>
-            <div className="flex flex-wrap items-center justify-center md:justify-start gap-4 text-sm font-bold">
+            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2 sm:gap-3 text-xs sm:text-sm font-bold">
               {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
                 <span className="flex items-center gap-1.5 text-neon-green bg-neon-green/10 px-3 py-1 rounded-full border border-neon-green/20">
                   <CheckCircle2 className="w-4 h-4" /> KYC Verified
@@ -185,7 +185,9 @@ export default function AccountSettingsPage() {
                   <Shield className="w-4 h-4" /> KYC Unverified
                 </span>
               )}
-              <span className="text-slate-600">Account Active</span>
+              <span className="text-slate-600 bg-slate-500/10 px-3 py-1 rounded-full border border-slate-700/25">
+                Account Active
+              </span>
               <span className="text-neon-purple px-3 py-1 rounded-full border border-neon-purple/20 bg-neon-purple/10">
                 {currentUser?.role === 'admin' ? "Platform Admin" : `VIP ${currentUser?.accountType === 'real' ? (currentUser?.vipLevel || 'Bronze') : 'Guest'}`}
               </span>
@@ -208,7 +210,7 @@ export default function AccountSettingsPage() {
       </motion.div>
 
       {/* Mobile Tab Chooser Selector (lg:hidden) */}
-      <div className="flex lg:hidden flex-wrap gap-1.5 p-1 bg-slate-100 rounded-2xl mb-6 sticky top-14 z-20 shadow-sm border border-slate-200/55 backdrop-blur-xl">
+      <div className="flex lg:hidden flex-wrap gap-1.5 p-1 bg-slate-100 rounded-2xl mb-6 shadow-sm border border-slate-200/55 backdrop-blur-xl">
         {(currentUser?.role === 'admin' 
           ? (['personal', 'security', 'verification', 'admin'] as const) 
           : (['personal', 'security', 'verification'] as const)
