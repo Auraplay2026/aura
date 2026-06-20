@@ -160,6 +160,65 @@ function stepsFromStart(pathIdx: number, startPos: number): number {
   return ((pathIdx - startPos) + 52) % 52;
 }
 
+function getPathPositions(from: TokenPosition, to: TokenPosition, color: PlayerColor): TokenPosition[] {
+  const seq: TokenPosition[] = [];
+  const cfg = PLAYER_CONFIGS.find(c => c.color === color)!;
+  const startPos = cfg.startPos;
+
+  if (from.zone === "base") {
+    seq.push({ zone: "path", index: startPos });
+    return seq;
+  }
+
+  if (from.zone === "path") {
+    const currentSteps = stepsFromStart(from.index, startPos);
+    
+    if (to.zone === "path") {
+      const targetSteps = stepsFromStart(to.index, startPos);
+      for (let s = currentSteps + 1; s <= targetSteps; s++) {
+        seq.push({ zone: "path", index: (startPos + s) % 52 });
+      }
+    } else if (to.zone === "home") {
+      const targetSteps = 51 + to.index;
+      for (let s = currentSteps + 1; s <= targetSteps; s++) {
+        if (s <= 50) {
+          seq.push({ zone: "path", index: (startPos + s) % 52 });
+        } else {
+          seq.push({ zone: "home", index: s - 51 });
+        }
+      }
+    } else if (to.zone === "finished") {
+      const targetSteps = 57;
+      for (let s = currentSteps + 1; s <= targetSteps; s++) {
+        if (s <= 50) {
+          seq.push({ zone: "path", index: (startPos + s) % 52 });
+        } else if (s <= 56) {
+          seq.push({ zone: "home", index: s - 51 });
+        } else {
+          seq.push({ zone: "finished", index: 0 });
+        }
+      }
+    }
+    return seq;
+  }
+
+  if (from.zone === "home") {
+    if (to.zone === "home") {
+      for (let i = from.index + 1; i <= to.index; i++) {
+        seq.push({ zone: "home", index: i });
+      }
+    } else if (to.zone === "finished") {
+      for (let i = from.index + 1; i <= 5; i++) {
+        seq.push({ zone: "home", index: i });
+      }
+      seq.push({ zone: "finished", index: 0 });
+    }
+    return seq;
+  }
+
+  return seq;
+}
+
 function checkCapture(pathIdx: number, movingColor: PlayerColor, players: Player[]): { color: PlayerColor; tokenId: number } | null {
   if (SAFE_CELLS.has(pathIdx)) return null;
   for (const p of players) {
@@ -240,11 +299,12 @@ interface HeroTokenProps {
   color: PlayerColor;
   size?: "small" | "medium";
   isActive?: boolean;
+  className?: string;
 }
 
-function HeroToken({ color, size = "medium", isActive = false }: HeroTokenProps) {
+function HeroToken({ color, size = "medium", isActive = false, className }: HeroTokenProps) {
   const f = FACTIONS[color];
-  const scaleClass = size === "small" ? "w-4 h-4 sm:w-5 sm:h-5" : "w-6 h-6 sm:w-8 sm:h-8";
+  const scaleClass = className || (size === "small" ? "w-4 h-4 sm:w-5 sm:h-5" : "w-6 h-6 sm:w-8 sm:h-8");
   
   return (
     <div className="relative flex items-center justify-center select-none overflow-visible">
@@ -339,6 +399,12 @@ function ThreeDDice({ value, isRolling, isActive = false, onClick }: ThreeDDiceP
           rotateX: [0, 15, -15, 10, 0, -3, 0],
           rotateY: [0, -15, 15, -10, 0, 3, 0],
           filter: ["blur(0px)", "blur(1px)", "blur(1.5px)", "blur(0.8px)", "blur(0px)", "blur(0px)", "blur(0px)"],
+        } : value === 6 ? {
+          scale: [1, 1.08, 1],
+          y: [0, -4, 0],
+          rotateZ: [0, 2, -2, 0],
+          rotateX: rotation.x,
+          rotateY: rotation.y,
         } : isActive ? {
           y: [0, -5, 0],
           rotateX: [rotation.x, rotation.x + 2, rotation.x - 2, rotation.x],
@@ -357,6 +423,10 @@ function ThreeDDice({ value, isRolling, isActive = false, onClick }: ThreeDDiceP
         transition={isRolling ? { 
           duration: 0.85, 
           ease: [0.25, 0.46, 0.45, 0.94] 
+        } : value === 6 ? {
+          repeat: Infinity,
+          duration: 1.4,
+          ease: "easeInOut"
         } : isActive ? {
           repeat: Infinity,
           duration: 2.2,
@@ -465,6 +535,8 @@ export function LudoFusionEngine({
   const [moveLog, setMoveLog] = useState<string[]>([]);
   const [gameMode, setGameMode] = useState<"ai" | "friends">("ai");
   const [showSetup, setShowSetup] = useState(true);
+  const [movingToken, setMovingToken] = useState<{ color: PlayerColor; id: number } | null>(null);
+  const [capturedToken, setCapturedToken] = useState<{ color: PlayerColor; id: number } | null>(null);
   
   // High-End FX states
   const [isImpactShaking, setIsImpactShaking] = useState(false);
@@ -561,57 +633,116 @@ export function LudoFusionEngine({
     
     setGamePhase("moving");
     setValidMoves([]);
-    try { playGameSound("click"); } catch {}
 
-    setPlayers(prev => {
-      const updated = prev.map((p, pIdx) => {
-        if (pIdx !== currentIdx) return p;
-        return {
-          ...p,
-          tokens: p.tokens.map(t => {
-            if (t.id !== move.tokenId) return t;
-            return { ...t, position: move.to };
-          })
-        };
-      });
+    const activePlayer = players[currentIdx];
+    if (!activePlayer) return;
 
-      if (move.captures) {
-        try { playGameSound("lose"); } catch {}
-        const { color, tokenId } = move.captures;
-        const capPlayer = PLAYER_CONFIGS.find(cfg => cfg.color === color)!;
-        setMoveLog(l => [`💥 Vaporized ${FACTIONS[color].name} piece!`, ...l]);
-        
-        // Spawn capture alert
-        triggerEmoji("💥", currentIdx);
+    // Calculate step-by-step path sequence
+    const pathSeq = getPathPositions(move.from, move.to, activePlayer.color);
+    const tokenName = `cyber-piece #${move.tokenId + 1}`;
+    setMoveLog(l => [`${FACTIONS[activePlayer.color]?.name} deployed ${tokenName}...`, ...l]);
 
-        return updated.map(p => {
-          if (p.color !== color) return p;
+    // Set moving token state for animations
+    setMovingToken({ color: activePlayer.color, id: move.tokenId });
+
+    let stepIdx = 0;
+
+    const runStep = () => {
+      if (stepIdx >= pathSeq.length) {
+        // Reached destination!
+        setMovingToken(null);
+
+        if (move.captures) {
+          // Play capture vibration/flash animation
+          const { color, tokenId } = move.captures;
+          setCapturedToken({ color, id: tokenId });
+          
+          try { playGameSound("lose"); } catch {}
+          const capPlayer = PLAYER_CONFIGS.find(cfg => cfg.color === color)!;
+          setMoveLog(l => [`💥 Vaporized ${FACTIONS[color].name} piece!`, ...l]);
+          triggerEmoji("💥", currentIdx);
+
+          // Delay to show capture animation before token teleports back to base
+          setTimeout(() => {
+            setPlayers(prev => {
+              const updated = prev.map(p => {
+                if (p.color !== color) return p;
+                return {
+                  ...p,
+                  tokens: p.tokens.map(t => {
+                    if (t.id !== tokenId) return t;
+                    return { ...t, position: { zone: "base" as const, index: t.id } };
+                  })
+                };
+              });
+
+              // Finalize moving token's target position
+              return updated.map(p => {
+                if (p.color !== activePlayer.color) return p;
+                return {
+                  ...p,
+                  tokens: p.tokens.map(t => {
+                    if (t.id !== move.tokenId) return t;
+                    return { ...t, position: move.to };
+                  })
+                };
+              });
+            });
+
+            setCapturedToken(null);
+            finalizeMove();
+          }, 500); // 500ms capture animation duration
+        } else {
+          // No capture, update moving token to final position
+          setPlayers(prev => {
+            const updated = prev.map(p => {
+              if (p.color !== activePlayer.color) return p;
+              return {
+                ...p,
+                tokens: p.tokens.map(t => {
+                  if (t.id !== move.tokenId) return t;
+                  return { ...t, position: move.to };
+                })
+              };
+            });
+
+            if (move.to.zone === "finished") {
+              try { playGameSound("win"); } catch {}
+              const updatedSelf = updated[currentIdx];
+              updatedSelf.tokensHome += 1;
+              setMoveLog(l => [`🎉 Sovereign piece entered home center!`, ...l]);
+              triggerEmoji("👑", currentIdx);
+            }
+            return updated;
+          });
+
+          // Short delay for landing settle animation
+          setTimeout(finalizeMove, 300);
+        }
+        return;
+      }
+
+      // Move to next step coordinate
+      const nextPos = pathSeq[stepIdx];
+      setPlayers(prev => {
+        return prev.map(p => {
+          if (p.color !== activePlayer.color) return p;
           return {
             ...p,
             tokens: p.tokens.map(t => {
-              if (t.id !== tokenId) return t;
-              return { ...t, position: { zone: "base" as const, index: t.id } };
+              if (t.id !== move.tokenId) return t;
+              return { ...t, position: nextPos };
             })
           };
         });
-      }
+      });
 
-      if (move.to.zone === "finished") {
-        try { playGameSound("win"); } catch {}
-        const updatedSelf = updated[currentIdx];
-        updatedSelf.tokensHome += 1;
-        setMoveLog(l => [`🎉 Sovereign piece entered home center!`, ...l]);
-        triggerEmoji("👑", currentIdx);
-      }
+      try { playGameSound("click"); } catch {}
+      stepIdx++;
+      setTimeout(runStep, 220); // 220ms per step hop
+    };
 
-      return updated;
-    });
-
-    const activePlayer = players[currentIdx];
-    const tokenName = `cyber-piece #${move.tokenId + 1}`;
-    setMoveLog(l => [`${FACTIONS[activePlayer?.color]?.name} deployed ${tokenName}`, ...l]);
-
-    const t = setTimeout(() => {
+    const finalizeMove = () => {
       setPlayers(prev => {
         const player = prev[currentIdx];
         if (player.tokensHome >= 4) {
@@ -640,8 +771,9 @@ export function LudoFusionEngine({
         }
         return prev;
       });
-    }, 550);
-    return () => clearTimeout(t);
+    };
+
+    runStep();
   }, [currentIdx, dice, winner, nextTurn, onComplete, players, triggerEmoji]);
 
   // AI Bots thinking logic
@@ -1113,14 +1245,7 @@ export function LudoFusionEngine({
                     </div>
 
                     {/* Faction Emblem Ring */}
-                    <div className="absolute inset-[20%] bg-purple-950/15 border border-purple-500/10 rounded-2xl grid grid-cols-2 grid-rows-2 gap-[15%] p-[15%]" style={{ transform: "translateZ(2px)" }}>
-                      {[0, 1, 2, 3].map(i => (
-                        <div key={i} className="rounded-full flex items-center justify-center relative overflow-visible" style={{
-                          border: `1.5px solid ${FACTIONS[color].token}20`,
-                          backgroundColor: `rgba(0,0,0,0.3)`,
-                        }} />
-                      ))}
-                    </div>
+                    <div className="absolute inset-[20%] bg-purple-950/15 border border-purple-500/10 rounded-2xl" style={{ transform: "translateZ(2px)" }} />
 
                     {/* Floating emoji overlay trigger */}
                     <div className="absolute -top-6 left-1/2 -translate-x-1/2 overflow-visible">
@@ -1231,6 +1356,28 @@ export function LudoFusionEngine({
                 ))
               )}
 
+              {/* Real Grid-Aligned Base Spot Circles */}
+              {(["red", "green", "yellow", "blue"] as PlayerColor[]).map(color =>
+                [0, 1, 2, 3].map(i => {
+                  const pos = getScreenPos({ zone: "base", index: i }, color);
+                  return (
+                    <div
+                      key={`base-spot-${color}-${i}`}
+                      className="absolute rounded-full flex items-center justify-center pointer-events-none"
+                      style={{
+                        left: `${pos.x}%`,
+                        top: `${pos.y}%`,
+                        width: `${CELL_PCT * 0.9}%`,
+                        height: `${CELL_PCT * 0.9}%`,
+                        transform: "translate(-50%, -50%) translateZ(1.5px)",
+                        border: `1.5px solid ${FACTIONS[color].token}25`,
+                        backgroundColor: `rgba(0,0,0,0.25)`,
+                      }}
+                    />
+                  );
+                })
+              )}
+
               {/* Holographic Interactive Tokens */}
               {players.flatMap(player =>
                 player.tokens
@@ -1240,44 +1387,88 @@ export function LudoFusionEngine({
                     const key = `${pos.x.toFixed(1)}-${pos.y.toFixed(1)}`;
                     const cellTokens = allTokensByCell[key] || [];
                     const tokenIdx = cellTokens.findIndex(x => x.tokenId === token.id);
-                    
-                    const tokenOffset = cellTokens.length > 1 ? {
-                      x: ((tokenIdx - (cellTokens.length - 1) / 2) * 9),
-                      y: ((tokenIdx - (cellTokens.length - 1) / 2) * -2)
-                    } : { x: 0, y: 0 };
 
                     const isMovable = validMoves.some(m => m.tokenId === token.id) && currentPlayer?.isHuman;
+                    
+                    const isMoving = movingToken?.color === player.color && movingToken?.id === token.id;
+                    const isCaptured = capturedToken?.color === player.color && capturedToken?.id === token.id;
+                    const isCurrentTurn = player.color === currentPlayer?.color && !winner;
+
+                    // Spacing offsets for 2x2 micro-grid
+                    const isMulti = cellTokens.length > 1;
+                    const sizePct = isMulti ? CELL_PCT * 0.38 : CELL_PCT * 0.7;
+
+                    let dxPct = 0;
+                    let dyPct = 0;
+                    if (isMulti) {
+                      const col = tokenIdx % 2;
+                      const row = Math.floor(tokenIdx / 2);
+                      dxPct = (col === 0 ? -1 : 1) * CELL_PCT * 0.19;
+                      dyPct = (row === 0 ? -1 : 1) * CELL_PCT * 0.19;
+                    }
 
                     return (
                       <motion.div
                         key={`token-${player.color}-${token.id}`}
                         layoutId={`token-${player.color}-${token.id}`}
-                        animate={isMovable ? {
-                          scale: [1, 1.15, 1],
-                          y: [tokenOffset.y, tokenOffset.y - 6, tokenOffset.y],
-                          filter: ["brightness(1)", "brightness(1.2)", "brightness(1)"],
-                        } : { scale: 1, y: tokenOffset.y }}
-                        transition={isMovable ? { repeat: Infinity, duration: 1.2 } : { type: "spring", stiffness: 350, damping: 20 }}
                         className="absolute cursor-pointer overflow-visible"
                         style={{
-                          left: `${pos.x}%`,
-                          top: `${pos.y}%`,
-                          zIndex: 30 + tokenIdx,
+                          left: `${pos.x + dxPct}%`,
+                          top: `${pos.y + dyPct}%`,
+                          width: `${sizePct}%`,
+                          height: `${sizePct}%`,
+                          transform: "translate(-50%, -50%) translateZ(10px)",
+                          zIndex: isMoving || isCaptured ? 50 : 30 + tokenIdx,
                         }}
                         onClick={() => handleTokenClick(player.color, token.id)}
                       >
-                        <div
-                          className="absolute flex items-center justify-center animate-none"
-                          style={{
-                            marginLeft: `${tokenOffset.x}px`,
-                            transform: "translate(-50%, -50%) translateZ(10px)",
-                          }}
+                        <motion.div
+                          key={isMoving ? `hop-${token.position.zone}-${token.position.index}` : `idle`}
+                          initial={isMoving ? { y: 0, scaleY: 1, scaleX: 1 } : false}
+                          animate={
+                            isCaptured
+                              ? {
+                                  scale: [1, 1.4, 0],
+                                  rotate: [0, 360, 720],
+                                  filter: ["brightness(1)", "brightness(2)", "brightness(2)"],
+                                }
+                              : isMoving
+                              ? {
+                                  y: [0, -12, 0],
+                                  scaleY: [1, 0.8, 1.18, 0.82, 1],
+                                  scaleX: [1, 1.18, 0.82, 1.05, 1],
+                                }
+                              : isMovable
+                              ? {
+                                  scale: [1, 1.12, 1],
+                                  filter: ["brightness(1)", "brightness(1.15)", "brightness(1)"],
+                                }
+                              : isCurrentTurn
+                              ? {
+                                  scale: 1,
+                                  filter: "brightness(1)",
+                                }
+                              : {
+                                  scale: 0.9,
+                                  filter: "brightness(0.75) saturate(0.7)",
+                                }
+                          }
+                          transition={
+                            isCaptured
+                              ? { duration: 0.45, ease: "easeInOut" }
+                              : isMoving
+                              ? { duration: 0.22, ease: "easeOut" }
+                              : isMovable
+                              ? { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
+                              : { duration: 0.2 }
+                          }
+                          className="w-full h-full flex items-center justify-center relative origin-bottom"
                         >
                           <HeroToken color={player.color} size={cellTokens.length > 2 ? "small" : "medium"} isActive={isMovable} />
                           {isMovable && (
                             <div className="absolute inset-0 rounded-full border border-amber-400 animate-ping opacity-50 pointer-events-none" />
                           )}
-                        </div>
+                          </motion.div>
                       </motion.div>
                     );
                   })
@@ -1292,19 +1483,30 @@ export function LudoFusionEngine({
                 };
                 const [ox, oy] = offsets[p.color];
                 return Array.from({ length: p.tokensHome }).map((_, i) => (
-                  <div
+                  <motion.div
                     key={`fin-${p.color}-${i}`}
-                    className="absolute"
+                    initial={{ scale: 0, rotate: -180, filter: "brightness(2)" }}
+                    animate={{ scale: 1, rotate: 0, filter: "brightness(1)" }}
+                    transition={{ type: "spring", stiffness: 180, damping: 14 }}
+                    className="absolute flex items-center justify-center overflow-visible"
                     style={{
                       left: `${(cy + ox + i * 0.12) * CELL_PCT + CELL_PCT / 2}%`,
                       top: `${(cx + oy + i * 0.12) * CELL_PCT + CELL_PCT / 2}%`,
-                      width: `${CELL_PCT * 0.38}%`, height: `${CELL_PCT * 0.38}%`,
+                      width: `${CELL_PCT * 0.38}%`,
+                      height: `${CELL_PCT * 0.38}%`,
                       transform: "translate(-50%, -50%) translateZ(6px)",
                       zIndex: 25,
                     }}
                   >
-                    <HeroToken color={p.color} size="small" />
-                  </div>
+                    {/* Concentric gold celebration ripple */}
+                    <motion.div
+                      initial={{ scale: 0.5, opacity: 1 }}
+                      animate={{ scale: 2.2, opacity: 0 }}
+                      transition={{ duration: 0.8 }}
+                      className="absolute inset-0 rounded-full border border-amber-400 pointer-events-none"
+                    />
+                    <HeroToken color={p.color} className="w-full h-full" size="small" />
+                  </motion.div>
                 ));
               })}
 
