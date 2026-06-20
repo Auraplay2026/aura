@@ -77,7 +77,7 @@ export function OriginalsShowcase() {
             onClick={() => setActiveGame(game.id)}
             className={`px-6 py-3 rounded-xl font-bold text-sm transition-colors ${
               activeGame === game.id 
-                ? "bg-slate-700 text-slate-900 shadow-lg" 
+                ? "bg-slate-100 text-slate-900 shadow-lg" 
                 : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
             }`}
           >

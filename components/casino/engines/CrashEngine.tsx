@@ -67,9 +67,9 @@ const TIER_MYTHIC     = 100;
 
 // Nebula palettes keyed by phase
 const NEBULA_PALETTES: Record<string, string[][]> = {
-  launch:      [["#4ade80","#312e81"], ["#6366f1","#14532d"]],
-  accel:       [["#22d3ee","#dc2626"], ["#7c3aed","#0e7490"]],
-  hyperspace:  [["#7c3aed","#ffd700"], ["#be185d","#1e1b4b"]],
+  launch:      [["#a7f3d0","#bae6fd"], ["#e9d5ff","#ccfbf1"]],
+  accel:       [["#cffafe","#fbcfe8"], ["#e9d5ff","#fde2e4"]],
+  hyperspace:  [["#f3e8ff","#fef9c3"], ["#fce7f3","#fae1dd"]],
 };
 
 // Chromatic hue palette for mid-layer stars
@@ -223,21 +223,20 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
                 : mult >= TIER_HYPERSPACE ? "hyperspace"
                 : mult >= 5 ? "accel"
                 : "launch";
-
     // ── 1. Clear with deep space gradient ─────────────────────────────────
     const bg = ctx.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, W * 0.75);
     if (phase === "hyperspace") {
-      bg.addColorStop(0,   "rgba(25,  10,  60, 1)");
-      bg.addColorStop(0.6, "rgba(10,   5,  25, 1)");
-      bg.addColorStop(1,   "rgba(0,    0,   5, 1)");
+      bg.addColorStop(0,   "rgba(250, 245, 255, 1)");
+      bg.addColorStop(0.6, "rgba(243, 232, 255, 1)");
+      bg.addColorStop(1,   "rgba(233, 213, 255, 1)");
     } else if (phase === "accel") {
-      bg.addColorStop(0,   "rgba(8,   18,  40, 1)");
-      bg.addColorStop(0.6, "rgba(4,   10,  20, 1)");
-      bg.addColorStop(1,   "rgba(0,    0,   5, 1)");
+      bg.addColorStop(0,   "rgba(253, 242, 248, 1)");
+      bg.addColorStop(0.6, "rgba(252, 231, 243, 1)");
+      bg.addColorStop(1,   "rgba(251, 207, 232, 1)");
     } else {
-      bg.addColorStop(0,   "rgba(5,   12,  30, 1)");
-      bg.addColorStop(0.6, "rgba(3,    8,  18, 1)");
-      bg.addColorStop(1,   "rgba(0,    0,   5, 1)");
+      bg.addColorStop(0,   "rgba(240, 249, 255, 1)");
+      bg.addColorStop(0.6, "rgba(224, 242, 254, 1)");
+      bg.addColorStop(1,   "rgba(186, 230, 253, 1)");
     }
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
@@ -361,16 +360,15 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
         const stretch = 1 + velocity * 25;
         streakLen = star.size * stretch;
       }
-
       const col = star.hue === 0
-        ? `rgba(255,255,255,${twinkle * (0.5 + star.size * 0.25)})`
-        : `hsla(${star.hue}, 80%, 75%, ${twinkle * 0.7})`;
+        ? `rgba(99, 102, 241, ${twinkle * (0.2 + star.size * 0.15)})`
+        : `hsla(${star.hue}, 60%, 45%, ${twinkle * 0.5})`;
 
       if (streakLen > 0) {
         // Draw warp streak
         ctx.save();
         const warpGrad = ctx.createLinearGradient(sx - streakLen, sy, sx, sy);
-        warpGrad.addColorStop(0, "rgba(255,255,255,0)");
+        warpGrad.addColorStop(0, "rgba(99, 102, 241, 0)");
         warpGrad.addColorStop(1, col);
         ctx.strokeStyle = warpGrad;
         ctx.lineWidth = drawSize;
@@ -455,12 +453,11 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       ctx.stroke();
     }
     ctx.globalAlpha = 1;
-
     // ── 7. Vignette Edge Gradient ─────────────────────────────────────────
     const vignette = ctx.createRadialGradient(W * 0.5, H * 0.5, H * 0.2, W * 0.5, H * 0.5, W * 0.75);
-    vignette.addColorStop(0, "rgba(0,0,0,0)");
-    vignette.addColorStop(0.65,"rgba(0,0,0,0)");
-    vignette.addColorStop(1,  "rgba(0,0,0,0.75)");
+    vignette.addColorStop(0, "rgba(255,255,255,0)");
+    vignette.addColorStop(0.65,"rgba(255,255,255,0)");
+    vignette.addColorStop(1,  "rgba(255,255,255,0.75)");
     ctx.fillStyle = vignette;
     ctx.fillRect(0, 0, W, H);
 
@@ -582,7 +579,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
     multiplier >= TIER_MYTHIC     ? "text-yellow-200 drop-shadow-[0_0_40px_rgba(255,215,0,1)]"   :
     multiplier >= TIER_LEGENDARY  ? "text-fuchsia-300 drop-shadow-[0_0_35px_rgba(217,70,239,0.9)]" :
     multiplier >= TIER_HYPERSPACE ? "text-cyan-300 drop-shadow-[0_0_30px_rgba(34,211,238,0.9)]"   :
-    "text-white drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]";
+    "text-slate-900 drop-shadow-[0_0_20px_rgba(255,255,255,0.5)]";
 
   // ── Shake intensity ────────────────────────────────────────────────────────
   const shakeAmt =
@@ -697,7 +694,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
               className="mt-4 px-6 py-2 bg-emerald-900/20 border border-emerald-500/30 rounded-xl backdrop-blur-md flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.2)]"
             >
               <span className="text-emerald-400 text-xs font-bold uppercase tracking-widest">Secured</span>
-              <span className="text-white font-black text-xl">₹{(betAmount * multiplier).toFixed(2)}</span>
+              <span className="text-slate-900 font-black text-xl">₹{(betAmount * multiplier).toFixed(2)}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -717,7 +714,7 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
               className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95"
             >
               <span>Cashout</span>
-              <span className="bg-black/20 px-3 py-1 rounded-lg">
+              <span className="bg-white/20 px-3 py-1 rounded-lg">
                 ₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </button>

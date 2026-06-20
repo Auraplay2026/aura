@@ -678,7 +678,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
       <div className={cn("absolute inset-2 sm:inset-4 rounded-[2rem] border-[1.5px] pointer-events-none z-10", theme.feltOverlayClass)} />
 
       {/* Live HUD Header */}
-      <div className="relative z-20 w-full flex justify-between items-center bg-black/40 backdrop-blur-md px-3 py-1.5 sm:py-2 rounded-2xl border border-white/5 shadow-md">
+      <div className="relative z-20 w-full flex justify-between items-center bg-white/40 backdrop-blur-md px-3 py-1.5 sm:py-2 rounded-2xl border border-white/5 shadow-md">
         <div className="flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-500 animate-ping" />
           <span className="text-[10px] font-black text-slate-350 tracking-widest uppercase">{theme.displayName}</span>
@@ -687,7 +687,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         <div className="flex items-center gap-1.5">
           <button 
             onClick={() => setIsMuted(!isMuted)} 
-            className="p-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-slate-400 hover:text-white"
+            className="p-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer text-slate-400 hover:text-slate-900"
           >
             {isMuted ? <VolumeX className="w-4 h-4 text-rose-400" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -709,7 +709,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
         
         {/* Dealer Section */}
         <div className="flex flex-col items-center gap-1.5">
-          <div className="flex items-center gap-1 bg-black/45 border border-white/5 px-2.5 py-0.5 rounded-full text-slate-300 font-black text-[9px] tracking-wider uppercase">
+          <div className="flex items-center gap-1 bg-white/45 border border-white/5 px-2.5 py-0.5 rounded-full text-slate-300 font-black text-[9px] tracking-wider uppercase">
             <span>Dealer</span>
             {dealerHand.length > 0 && (
               <span className="text-amber-400 font-mono font-bold">({dealerScore})</span>
@@ -799,7 +799,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
               "w-11 h-11 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
               sideBets.pairs 
                 ? "border-amber-500 bg-amber-500/10 shadow-[0_0_15px_rgba(245,158,11,0.3)] scale-105" 
-                : "border-slate-700 bg-black/40 hover:border-amber-500/40"
+                : "border-slate-700 bg-white/40 hover:border-amber-500/40"
             )}
           >
             {sideBets.pairs ? (
@@ -844,7 +844,7 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
               "w-11 h-11 sm:w-14 sm:h-14 rounded-full border-[1.5px] border-dashed flex items-center justify-center cursor-pointer transition-all duration-300 relative shadow-inner select-none",
               sideBets.three 
                 ? "border-emerald-500 bg-emerald-500/10 shadow-[0_0_15px_rgba(16,185,129,0.3)] scale-105" 
-                : "border-slate-700 bg-black/40 hover:border-emerald-500/40"
+                : "border-slate-700 bg-white/40 hover:border-emerald-500/40"
             )}
           >
             {sideBets.three ? (
@@ -862,12 +862,12 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
 
       {/* Premium Dealer card shoe dispenser silhouette (Hidden on mobile to save space) */}
       <div className={cn("hidden sm:flex absolute top-4 right-6 w-16 h-12 bg-gradient-to-br rounded-lg border shadow-[0_10px_20px_rgba(0,0,0,0.8)] items-center justify-center z-15 pointer-events-none opacity-85 overflow-hidden", theme.shoeBg)}>
-        <div className="w-full h-2 bg-black border-b border-white/10 transform rotate-12 translate-y-1" />
+        <div className="w-full h-2 bg-white border-b border-white/10 transform rotate-12 translate-y-1" />
         <div className="absolute right-0 top-0 bottom-0 w-2 bg-white/10" />
       </div>
 
       {/* Decision HUD & Controls */}
-      <div className="relative z-30 w-full max-w-md bg-slate-900/60 backdrop-blur-xl p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5 shadow-2xl flex flex-col gap-2 sm:gap-3 items-center">
+      <div className="relative z-30 w-full max-w-md bg-white/60 backdrop-blur-xl p-2.5 sm:p-3.5 rounded-xl sm:rounded-2xl border border-white/5 shadow-2xl flex flex-col gap-2 sm:gap-3 items-center">
         
         {/* Status message */}
         <div className="text-center">

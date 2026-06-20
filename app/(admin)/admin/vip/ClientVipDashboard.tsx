@@ -168,7 +168,7 @@ export default function ClientVipDashboard({ initialUsers }: ClientVipDashboardP
                         className="p-2 text-emerald-600 hover:bg-emerald-50 rounded-lg transition tooltip-trigger relative group"
                       >
                         <Gift className="w-4 h-4" />
-                        <span className="absolute -top-8 right-0 bg-slate-900 text-white text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
+                        <span className="absolute -top-8 right-0 bg-white text-slate-900 text-[10px] py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition whitespace-nowrap pointer-events-none">
                           Inject ₹5k Reward
                         </span>
                       </button>
@@ -195,7 +195,7 @@ export default function ClientVipDashboard({ initialUsers }: ClientVipDashboardP
 
       {/* Edit Modal */}
       {editingUser && (
-        <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 bg-white/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-white rounded-2xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between p-5 border-b border-slate-100">
               <h3 className="font-bold text-slate-900 flex items-center gap-2">
@@ -248,7 +248,7 @@ export default function ClientVipDashboard({ initialUsers }: ClientVipDashboardP
               <button 
                 onClick={handleSave}
                 disabled={loading}
-                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-white px-5 py-2 rounded-xl font-bold transition shadow-lg shadow-amber-500/20 disabled:opacity-50"
+                className="flex items-center gap-2 bg-amber-500 hover:bg-amber-600 text-slate-900 px-5 py-2 rounded-xl font-bold transition shadow-lg shadow-amber-500/20 disabled:opacity-50"
               >
                 {loading ? <span className="animate-spin text-lg leading-none">↻</span> : <Save className="w-4 h-4" />}
                 Save Changes

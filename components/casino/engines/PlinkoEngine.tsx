@@ -67,32 +67,32 @@ const MULTIPLIERS: Record<Risk, number[]> = {
 // Risk themes configurations
 const RISK_THEMES: Record<Risk, { color: string; border: string; glow: string; bg: string; text: string }> = {
   low: {
-    color: "#06b6d4", // Cyan
-    border: "border-cyan-500/30",
-    glow: "rgba(6, 182, 212, 0.4)",
-    bg: "bg-cyan-500/10",
-    text: "text-cyan-400"
+    color: "#0891b2", 
+    border: "border-cyan-200",
+    glow: "rgba(8, 145, 178, 0.15)",
+    bg: "bg-cyan-50",
+    text: "text-cyan-700"
   },
   medium: {
-    color: "#a855f7", // Purple
-    border: "border-purple-500/30",
-    glow: "rgba(168, 85, 247, 0.4)",
-    bg: "bg-purple-500/10",
-    text: "text-purple-400"
+    color: "#7c3aed", 
+    border: "border-purple-200",
+    glow: "rgba(124, 58, 237, 0.15)",
+    bg: "bg-purple-50",
+    text: "text-purple-700"
   },
   high: {
-    color: "#f97316", // Orange
-    border: "border-orange-500/30",
-    glow: "rgba(249, 115, 22, 0.4)",
-    bg: "bg-orange-500/10",
-    text: "text-orange-400"
+    color: "#ea580c", 
+    border: "border-orange-200",
+    glow: "rgba(234, 88, 12, 0.15)",
+    bg: "bg-orange-50",
+    text: "text-orange-700"
   },
   extreme: {
-    color: "#ef4444", // Red
-    border: "border-red-500/40",
-    glow: "rgba(239, 68, 68, 0.6)",
-    bg: "bg-red-500/15",
-    text: "text-red-400"
+    color: "#dc2626", 
+    border: "border-red-200",
+    glow: "rgba(220, 38, 38, 0.2)",
+    bg: "bg-red-50",
+    text: "text-red-700"
   }
 };
 
@@ -352,28 +352,28 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
     let animId: number;
 
     const render = () => {
-      // 1. Background — deep dark felt with depth layers
-      ctx.fillStyle = "#03060f";
+      // 1. Background — clean light slate felt
+      ctx.fillStyle = "#f8fafc";
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       // Tunnel vignette for depth
       const theme = RISK_THEMES[risk];
       const vigGrad = ctx.createRadialGradient(WIDTH / 2, HEIGHT * 0.4, 80, WIDTH / 2, HEIGHT * 0.4, WIDTH * 0.85);
-      vigGrad.addColorStop(0, "rgba(10,15,35,0)");
-      vigGrad.addColorStop(0.6, "rgba(4,8,22,0.5)");
-      vigGrad.addColorStop(1, "rgba(0,0,0,0.85)");
+      vigGrad.addColorStop(0, "rgba(248,250,252,0)");
+      vigGrad.addColorStop(0.6, "rgba(226,232,240,0.3)");
+      vigGrad.addColorStop(1, "rgba(203,213,225,0.65)");
       ctx.fillStyle = vigGrad;
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       // Ambient risk-color glow at center top
       const riskGlow = ctx.createRadialGradient(WIDTH / 2, 30, 10, WIDTH / 2, 30, WIDTH * 0.6);
-      riskGlow.addColorStop(0, theme.glow.replace(/[\d.]+\)$/, "0.12)"));
-      riskGlow.addColorStop(1, "rgba(0,0,0,0)");
+      riskGlow.addColorStop(0, theme.glow.replace(/[\d.]+\)$/, "0.08)"));
+      riskGlow.addColorStop(1, "rgba(248,250,252,0)");
       ctx.fillStyle = riskGlow;
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       // Faint dot grid for depth perception
-      ctx.fillStyle = "rgba(255,255,255,0.025)";
+      ctx.fillStyle = "rgba(0,0,0,0.06)";
       for (let gx = 30; gx < WIDTH; gx += 38) {
         for (let gy = 30; gy < HEIGHT; gy += 38) {
           ctx.beginPath();
@@ -389,25 +389,25 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
       const railBotY = HEIGHT - 58;
       // Left rail
       const leftRailGrad = ctx.createLinearGradient(railLeft, 0, railLeft + 8, 0);
-      leftRailGrad.addColorStop(0, "rgba(255,255,255,0.18)");
-      leftRailGrad.addColorStop(0.4, theme.glow.replace(/[\d.]+\)$/, "0.25)"));
-      leftRailGrad.addColorStop(1, "rgba(255,255,255,0.04)");
+      leftRailGrad.addColorStop(0, "rgba(0,0,0,0.06)");
+      leftRailGrad.addColorStop(0.4, theme.glow.replace(/[\d.]+\)$/, "0.15)"));
+      leftRailGrad.addColorStop(1, "rgba(0,0,0,0.01)");
       ctx.fillStyle = leftRailGrad;
       ctx.beginPath();
       ctx.roundRect(railLeft - 4, railTopY, 8, railBotY - railTopY, 4);
       ctx.fill();
       // Right rail
       const rightRailGrad = ctx.createLinearGradient(railRight - 8, 0, railRight, 0);
-      rightRailGrad.addColorStop(0, "rgba(255,255,255,0.04)");
-      rightRailGrad.addColorStop(0.6, theme.glow.replace(/[\d.]+\)$/, "0.25)"));
-      rightRailGrad.addColorStop(1, "rgba(255,255,255,0.18)");
+      rightRailGrad.addColorStop(0, "rgba(0,0,0,0.01)");
+      rightRailGrad.addColorStop(0.6, theme.glow.replace(/[\d.]+\)$/, "0.15)"));
+      rightRailGrad.addColorStop(1, "rgba(0,0,0,0.06)");
       ctx.fillStyle = rightRailGrad;
       ctx.beginPath();
       ctx.roundRect(railRight - 4, railTopY, 8, railBotY - railTopY, 4);
       ctx.fill();
       // Glowing edge lines
-      ctx.shadowBlur = 10; ctx.shadowColor = theme.color;
-      ctx.strokeStyle = theme.glow.replace(/[\d.]+\)$/, "0.6)");
+      ctx.shadowBlur = 4; ctx.shadowColor = theme.color;
+      ctx.strokeStyle = theme.glow.replace(/[\d.]+\)$/, "0.45)");
       ctx.lineWidth = 1.5;
       ctx.beginPath(); ctx.moveTo(railLeft, railTopY); ctx.lineTo(railLeft, railBotY); ctx.stroke();
       ctx.beginPath(); ctx.moveTo(railRight, railTopY); ctx.lineTo(railRight, railBotY); ctx.stroke();
@@ -519,9 +519,9 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           pegGrad.addColorStop(0.35, theme.color);
           pegGrad.addColorStop(1, darkenColor(theme.color, 0.5));
         } else {
-          pegGrad.addColorStop(0, "#e2e8f0");   // bright chrome top
-          pegGrad.addColorStop(0.4, "#94a3b8");
-          pegGrad.addColorStop(1, "#1e293b");   // dark base
+          pegGrad.addColorStop(0, "#f8fafc");   // bright chrome top
+          pegGrad.addColorStop(0.4, "#cbd5e1");
+          pegGrad.addColorStop(1, "#64748b");   // soft slate base
         }
         ctx.fillStyle = pegGrad;
         ctx.beginPath();
@@ -704,7 +704,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         const r = ball.radius;
 
         // Layer 0: drop shadow
-        ctx.fillStyle = "rgba(0,0,0,0.45)";
+        ctx.fillStyle = "rgba(15,23,42,0.15)";
         ctx.beginPath();
         ctx.ellipse(ball.x + 2, ball.y + 5, r * 0.9, r * 0.5, 0, 0, Math.PI * 2);
         ctx.fill();
@@ -804,52 +804,52 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   const theme = RISK_THEMES[risk];
 
   return (
-    <div className="w-full h-full min-h-[480px] md:min-h-[650px] bg-slate-950 rounded-2xl md:rounded-3xl border border-slate-800 p-2 sm:p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 relative overflow-hidden shadow-2xl">
+    <div className="w-full h-full min-h-[480px] md:min-h-[650px] bg-white rounded-2xl md:rounded-3xl border border-slate-200/80 p-2 sm:p-4 md:p-6 flex flex-col md:flex-row gap-4 md:gap-6 relative overflow-hidden shadow-xl">
       
       {/* Background visual beams */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-indigo-950/15 via-slate-950 to-slate-950 pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,rgba(99,102,241,0.04)_0%,transparent_60%)] pointer-events-none z-0" />
 
       {/* 1. HUD Left Panel (Player feed, Daily Missions, Live Stats) */}
       <div className="hidden md:flex w-full md:w-72 flex-col gap-4 z-10 shrink-0 select-none">
         
         {/* User VIP badge card */}
-        <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 p-4 rounded-2xl flex items-center justify-between shadow-inner">
+        <div className="bg-white/80 backdrop-blur-md border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-sm">
           <div className="flex items-center gap-3">
-            <div className={`w-9 h-9 rounded-xl flex items-center justify-center p-0.5 bg-gradient-to-tr from-indigo-500 to-pink-500 shadow-[0_0_12px_rgba(99,102,241,0.25)]`}>
-              <div className="w-full h-full rounded-[10px] bg-slate-950 flex items-center justify-center font-bold text-xs text-indigo-400 font-mono">
+            <div className={`w-9 h-9 rounded-xl flex items-center justify-center p-0.5 bg-gradient-to-tr from-indigo-500 to-pink-500 shadow-[0_0_12px_rgba(99,102,241,0.15)]`}>
+              <div className="w-full h-full rounded-[10px] bg-white flex items-center justify-center font-bold text-xs text-indigo-500 font-mono">
                 VIP
               </div>
             </div>
             <div className="text-left">
-              <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block">VIP ACCOUNT</span>
-              <span className="text-xs text-white font-black truncate max-w-[110px]">{email.split("@")[0]}</span>
+              <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block">VIP ACCOUNT</span>
+              <span className="text-xs text-slate-850 font-black truncate max-w-[110px]">{email.split("@")[0]}</span>
             </div>
           </div>
           <div className="bg-amber-500/10 border border-amber-500/20 rounded-lg px-2 py-0.5 text-center">
-            <span className="text-[9px] font-black font-mono text-amber-500">PLATINUM</span>
+            <span className="text-[9px] font-black font-mono text-amber-600">PLATINUM</span>
           </div>
         </div>
 
         {/* Live Community Wins activity feed */}
-        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-4 rounded-2xl flex-grow flex flex-col justify-between shadow-inner min-h-[180px] md:min-h-0">
+        <div className="bg-white/60 backdrop-blur-md border border-slate-200 p-4 rounded-2xl flex-grow flex flex-col justify-between shadow-sm min-h-[180px] md:min-h-0">
           <div className="text-left mb-3">
-            <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1.5">
+            <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-pink-500" /> Live Feed
             </span>
           </div>
 
           <div className="flex-grow overflow-y-auto space-y-2 max-h-[140px] pr-1.5 scrollbar-thin">
             {liveActivities.length === 0 ? (
-              <div className="text-center text-xs text-slate-600 py-6 font-bold">
+              <div className="text-center text-xs text-slate-400 py-6 font-bold">
                 Waiting for drops...
               </div>
             ) : (
               liveActivities.map((act) => (
-                <div key={act.id} className="flex items-center justify-between text-xs py-1.5 px-2 bg-slate-950/40 border border-slate-800/40 rounded-lg">
-                  <span className="text-slate-400 font-bold truncate max-w-[90px]">{act.user}</span>
+                <div key={act.id} className="flex items-center justify-between text-xs py-1.5 px-2 bg-slate-50/50 border border-slate-100 rounded-lg">
+                  <span className="text-slate-650 font-bold truncate max-w-[90px]">{act.user}</span>
                   <div className="flex items-center gap-2">
                     <span className="text-slate-500">₹{act.bet.toFixed(0)}</span>
-                    <span className={`font-mono font-black ${act.won ? 'text-emerald-400' : 'text-slate-500'}`}>
+                    <span className={`font-mono font-black ${act.won ? 'text-emerald-600 font-bold' : 'text-slate-450'}`}>
                       {act.multiplier.toFixed(1)}x
                     </span>
                   </div>
@@ -860,19 +860,19 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         </div>
 
         {/* Gamified Achievements progressions */}
-        <div className="bg-slate-900/40 border border-slate-800 p-4 rounded-2xl text-left shadow-inner">
+        <div className="bg-white/60 border border-slate-200 p-4 rounded-2xl text-left shadow-sm">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1">
-              <Trophy className="w-3.5 h-3.5 text-yellow-500" /> Progression
+            <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider flex items-center gap-1">
+              <Trophy className="w-3.5 h-3.5 text-yellow-600" /> Progression
             </span>
-            <span className="text-[10px] font-mono font-black text-indigo-400">{dailyProgress}%</span>
+            <span className="text-[10px] font-mono font-black text-indigo-600">{dailyProgress}%</span>
           </div>
-          <p className="text-[11px] text-slate-400 mb-2 leading-relaxed">
-            Hit <span className="text-cyan-400">10 wagers</span> in extreme risk mode to claim a seasonal loot crate.
+          <p className="text-[11px] text-slate-500 mb-2 leading-relaxed">
+            Hit <span className="text-cyan-600 font-semibold">10 wagers</span> in extreme risk mode to claim a seasonal loot crate.
           </p>
-          <div className="h-1.5 w-full bg-slate-800 border border-slate-700/60 rounded-full overflow-hidden shadow-inner">
+          <div className="h-1.5 w-full bg-slate-100 border border-slate-200 rounded-full overflow-hidden shadow-inner">
             <div
-              className="h-full bg-gradient-to-r from-indigo-500 to-pink-500 shadow-[0_0_8px_#a855f7] transition-all duration-300"
+              className="h-full bg-gradient-to-r from-indigo-500 to-pink-500 shadow-sm transition-all duration-300"
               style={{ width: `${dailyProgress}%` }}
             />
           </div>
@@ -881,16 +881,16 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
       </div>
 
       {/* 2. PLINKO X 3D Canvas Board Viewport */}
-      <div className="flex-grow bg-slate-950 border border-slate-800/80 rounded-xl md:rounded-2xl relative overflow-hidden flex flex-col justify-between p-2.5 md:p-6 z-10 min-h-[380px] md:min-h-[500px]">
+      <div className="flex-grow bg-white border border-slate-200 rounded-xl md:rounded-2xl relative overflow-hidden flex flex-col justify-between p-2.5 md:p-6 z-10 min-h-[380px] md:min-h-[500px]">
         
         {/* Header HUD odds indicators */}
         <div className="w-full flex items-center justify-between z-10">
           
           {/* Risk Level skin status indicator */}
-          <div className={`flex items-center gap-2 bg-slate-900/60 border ${theme.border} rounded-2xl px-4 py-2.5 shadow-lg`}>
+          <div className={`flex items-center gap-2 bg-slate-50 border ${theme.border} rounded-2xl px-4 py-2.5 shadow-sm`}>
             <Zap className={`w-4 h-4 ${theme.text}`} />
             <div className="text-left">
-              <span className="text-[8px] text-slate-500 font-bold uppercase tracking-widest block">RISK MODE</span>
+              <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest block">RISK MODE</span>
               <span className={`text-xs font-black uppercase tracking-wider ${theme.text}`}>
                 {risk}
               </span>
@@ -906,8 +906,8 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
                 exit={{ opacity: 0, scale: 0.8 }}
                 className={`px-5 py-2 rounded-xl text-sm font-black border ${
                   lastResult.won 
-                    ? "bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_15px_rgba(16,185,129,0.25)]" 
-                    : "bg-slate-900 border-slate-800 text-slate-500"
+                    ? "bg-emerald-50 text-emerald-700 border-emerald-200 shadow-sm" 
+                    : "bg-white border-slate-200 text-slate-500"
                 }`}
               >
                 Avg Outcome: <span className="font-mono">{lastResult.mult.toFixed(2)}x</span>
@@ -918,7 +918,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           {/* Audio toggle speaker */}
           <button
             onClick={() => setIsMuted(prev => !prev)}
-            className="p-2 rounded-xl bg-slate-900/40 hover:bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white transition-all shadow-inner"
+            className="p-2 rounded-xl bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-400 hover:text-slate-800 transition-all cursor-pointer shadow-sm"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
@@ -928,11 +928,11 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         {/* 3D Transform projected canvas box wrapper */}
         <div className="flex-grow flex items-center justify-center py-2 md:py-4 overflow-hidden perspective-[1200px]">
           <div 
-            className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/5] rounded-xl md:rounded-[24px] bg-slate-900/50 border-[6px] md:border-[10px] border-slate-950 shadow-[0_20px_50px_rgba(0,0,0,0.8),inset_0_2px_4px_rgba(255,255,255,0.05)] transition-transform duration-1000 transform-style-3d overflow-hidden"
+            className="relative w-full max-w-[280px] sm:max-w-[340px] md:max-w-[420px] aspect-[4/5] rounded-xl md:rounded-[24px] bg-white/50 border-[6px] md:border-[10px] border-slate-100 shadow-[0_15px_30px_rgba(0,0,0,0.06),inset_0_2px_4px_rgba(255,255,255,1)] transition-transform duration-1000 transform-style-3d overflow-hidden"
             style={{ transform: "rotateX(22deg)" }}
           >
             {/* Table inner rails border glow */}
-            <div className="absolute inset-0 border border-indigo-500/15 pointer-events-none shadow-[inset_0_0_15px_rgba(99,102,241,0.1)] z-20" />
+            <div className="absolute inset-0 border border-indigo-500/5 pointer-events-none shadow-[inset_0_0_15px_rgba(99,102,241,0.05)] z-20" />
 
             <canvas
               ref={canvasRef}
@@ -942,22 +942,22 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
         </div>
 
         {/* Bottom controls panel */}
-        <div className="w-full flex flex-col sm:flex-row items-center gap-2 md:gap-4 justify-between border-t border-slate-900/60 pt-3 md:pt-4 mt-2 z-10 flex-wrap justify-center">
+        <div className="w-full flex flex-col sm:flex-row items-center gap-2 md:gap-4 justify-between border-t border-slate-100 pt-3 md:pt-4 mt-2 z-10 flex-wrap justify-center">
           
           {/* Risk Level Selectors */}
-          <div className="flex items-center gap-1 md:gap-2 bg-slate-900/60 p-1 md:p-1.5 rounded-xl md:rounded-2xl border border-slate-800 shadow-inner flex-wrap justify-center scale-95 md:scale-100">
+          <div className="flex items-center gap-1 md:gap-2 bg-slate-50/80 p-1 md:p-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-inner flex-wrap justify-center scale-95 md:scale-100">
             {(["low", "medium", "high", "extreme"] as Risk[]).map(r => (
               <button
                 key={r}
                 disabled={isPlaying}
                 onClick={() => setRisk(r)}
-                className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black capitalize active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all duration-300 ${
+                className={`px-3 py-1.5 md:px-4 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black capitalize active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all duration-300 cursor-pointer ${
                   risk === r
-                    ? r === "low" ? "bg-cyan-500 text-white shadow-[0_0_12px_rgba(6,182,212,0.5)]" :
-                      r === "medium" ? "bg-purple-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.5)]" :
-                      r === "high" ? "bg-orange-500 text-white shadow-[0_0_12px_rgba(249,115,22,0.5)]" :
-                      "bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]"
-                    : "text-slate-500 hover:text-slate-300"
+                    ? r === "low" ? "bg-cyan-500 text-white shadow-[0_0_12px_rgba(6,182,212,0.4)]" :
+                      r === "medium" ? "bg-purple-500 text-white shadow-[0_0_12px_rgba(168,85,247,0.4)]" :
+                      r === "high" ? "bg-orange-500 text-white shadow-[0_0_12px_rgba(249,115,22,0.4)]" :
+                      "bg-red-500 text-white shadow-[0_0_12px_rgba(239,68,68,0.4)]"
+                    : "text-slate-550 hover:text-slate-800"
                 }`}
               >
                 {r}
@@ -966,16 +966,16 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           </div>
 
           {/* Ball count selection dropdown/tabs */}
-          <div className="flex items-center gap-0.5 md:gap-1 bg-slate-900/60 p-1 md:p-1.5 rounded-xl md:rounded-2xl border border-slate-800 shadow-inner scale-95 md:scale-100">
+          <div className="flex items-center gap-0.5 md:gap-1 bg-slate-50/80 p-1 md:p-1.5 rounded-xl md:rounded-2xl border border-slate-200 shadow-inner scale-95 md:scale-100">
             {[1, 3, 5, 10].map(count => (
               <button
                 key={count}
                 disabled={isPlaying}
                 onClick={() => setBallCount(count as 1 | 3 | 5 | 10)}
-                className={`px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all ${
+                className={`px-2.5 py-1.5 md:px-3 md:py-2 rounded-lg md:rounded-xl text-[10px] md:text-xs font-black transition-all cursor-pointer ${
                   ballCount === count
-                    ? "bg-slate-800 text-white border border-slate-700/60 shadow-inner"
-                    : "text-slate-500 hover:text-slate-300 border border-transparent"
+                    ? "bg-white text-slate-950 border border-slate-200 shadow-sm"
+                    : "text-slate-500 hover:text-slate-800 border border-transparent"
                 }`}
               >
                 {count} {count === 1 ? "Ball" : "Balls"}
@@ -987,7 +987,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
           <button
             onClick={triggerDrops}
             disabled={isPlaying}
-            className="w-full sm:w-auto px-5 py-2.5 md:px-8 md:py-3.5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-500 to-pink-500 hover:from-indigo-400 hover:to-pink-400 text-white font-black uppercase text-[10px] md:text-xs tracking-widest shadow-[0_0_20px_rgba(168,85,247,0.35)] hover:shadow-[0_0_35px_rgba(168,85,247,0.55)] border border-purple-300/20 active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 group scale-95 md:scale-100"
+            className="w-full sm:w-auto px-5 py-2.5 md:px-8 md:py-3.5 rounded-xl md:rounded-2xl bg-gradient-to-r from-indigo-600 to-pink-600 hover:from-indigo-500 hover:to-pink-500 text-white font-black uppercase text-[10px] md:text-xs tracking-widest shadow-[0_10px_20px_rgba(168,85,247,0.18)] hover:shadow-[0_10px_30px_rgba(168,85,247,0.3)] active:scale-95 transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center gap-2 group scale-95 md:scale-100 cursor-pointer"
           >
             <Sparkles className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
             DROP BALLS

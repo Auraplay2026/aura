@@ -184,7 +184,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
         )}
         
         {hasCashedOut && !crashed && (
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-12 bg-emerald-500 text-white font-black px-4 py-1 rounded-full text-sm animate-pulse shadow-[0_0_20px_rgba(16,185,129,0.5)]">
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 translate-y-12 bg-emerald-500 text-slate-900 font-black px-4 py-1 rounded-full text-sm animate-pulse shadow-[0_0_20px_rgba(16,185,129,0.5)]">
             CASHED OUT
           </div>
         )}
@@ -203,7 +203,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
               className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_50px_rgba(52,211,153,0.5),inset_0_2px_0_rgba(255,255,255,0.5)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
             >
               <span>Cashout</span>
-              <span className="bg-slate-900/20 px-3 py-1 rounded-lg">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="bg-white/20 px-3 py-1 rounded-lg">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </button>
           </motion.div>
         )}

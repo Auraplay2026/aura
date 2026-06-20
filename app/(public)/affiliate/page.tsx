@@ -124,7 +124,7 @@ export default function AffiliatePage() {
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
-              className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(220,38,38,0.3)] transform hover:scale-[1.02] active:scale-95"
+              className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-slate-900 font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(220,38,38,0.3)] transform hover:scale-[1.02] active:scale-95"
             >
               Sign In to Partner Account
             </button>
@@ -229,7 +229,7 @@ export default function AffiliatePage() {
               <div className="flex flex-col justify-end">
                 <button 
                   type="submit"
-                  className="bg-red-600 hover:bg-red-700 text-white font-black uppercase text-xs tracking-wider px-6 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(220,38,38,0.2)] flex items-center justify-center gap-2"
+                  className="bg-red-600 hover:bg-red-700 text-slate-900 font-black uppercase text-xs tracking-wider px-6 py-4 rounded-xl transition-all shadow-[0_0_20px_rgba(220,38,38,0.2)] flex items-center justify-center gap-2"
                 >
                   <Plus className="w-4 h-4" /> Generate URL
                 </button>
@@ -269,7 +269,7 @@ export default function AffiliatePage() {
                       <td className="py-4 pr-2 text-right">
                         <button 
                           onClick={() => handleCopy(camp.link)}
-                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ml-auto border ${copiedLink === camp.link ? 'bg-emerald-100 border-emerald-500 text-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white border-slate-200 text-slate-600 hover:text-white hover:border-slate-600'}`}
+                          className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ml-auto border ${copiedLink === camp.link ? 'bg-emerald-100 border-emerald-500 text-emerald-600 shadow-[0_0_10px_rgba(16,185,129,0.2)]' : 'bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-600'}`}
                         >
                           {copiedLink === camp.link ? (
                             <>

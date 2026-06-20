@@ -99,7 +99,7 @@ export function Wheel() {
                 disabled={isSpinning}
                 onClick={() => setRisk(r)}
                 className={`py-2 rounded-lg font-bold text-sm capitalize transition-colors ${
-                  risk === r ? "bg-slate-700 text-slate-900 shadow-lg" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
+                  risk === r ? "bg-slate-100 text-slate-900 shadow-lg" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                 }`}
               >
                 {r}

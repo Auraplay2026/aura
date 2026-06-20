@@ -93,7 +93,7 @@ export function Mines() {
                 disabled={gameState === "playing"}
                 onClick={() => setMinesCount(n)}
                 className={`py-2 rounded-lg font-bold text-sm transition-colors ${
-                  minesCount === n ? "bg-slate-700 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
+                  minesCount === n ? "bg-slate-100 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                 }`}
               >
                 {n}
@@ -113,7 +113,7 @@ export function Mines() {
           ) : (
             <button 
               onClick={startGame}
-              className="w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg bg-neon-purple hover:bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+              className="w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg bg-neon-purple hover:bg-purple-500 text-slate-900 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
             >
               Start Game
             </button>
@@ -166,14 +166,14 @@ export function Mines() {
                   style={{ transformStyle: "preserve-3d" }}
                 >
                   {/* Front (Hidden state) */}
-                  <div className="absolute inset-0 bg-slate-100 hover:bg-slate-700 rounded-xl border border-slate-700 shadow-md flex items-center justify-center backface-hidden" style={{ backfaceVisibility: "hidden" }} />
+                  <div className="absolute inset-0 bg-slate-100 hover:bg-slate-100 rounded-xl border border-slate-700 shadow-md flex items-center justify-center backface-hidden" style={{ backfaceVisibility: "hidden" }} />
                   
                   {/* Back (Revealed state) */}
                   <div 
                     className={`absolute inset-0 rounded-xl border shadow-inner flex items-center justify-center backface-hidden ${
                       isBustMine ? "bg-red-500 border-red-400 z-20" :
                       isMine ? "bg-slate-100 border-slate-700 opacity-60" :
-                      "bg-slate-700 border-slate-600"
+                      "bg-slate-100 border-slate-600"
                     }`} 
                     style={{ backfaceVisibility: "hidden", transform: "rotateY(180deg)" }}
                   >

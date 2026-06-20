@@ -94,8 +94,8 @@ export function PremiumCard({ val, suit, faceDown = false, className, themeBack 
             ))}
           </div>
           {/* Inner Golden Crest */}
-          <div className="relative w-12 h-12 rounded-full border-2 border-white/20 flex items-center justify-center bg-black/35 shadow-inner">
-            <svg viewBox="0 0 24 24" className="w-8 h-8 text-white/40 animate-pulse">
+          <div className="relative w-12 h-12 rounded-full border-2 border-white/20 flex items-center justify-center bg-white/35 shadow-inner">
+            <svg viewBox="0 0 24 24" className="w-8 h-8 text-slate-900/40 animate-pulse">
               <path fill="currentColor" d="M12 2L1 21h22L12 2zm0 4l7.5 13h-15L12 6z" />
             </svg>
           </div>

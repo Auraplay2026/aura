@@ -31,7 +31,7 @@ export function AchievementToast() {
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: 50, scale: 0.9, transition: { duration: 0.2 } }}
           transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99] w-[90%] max-w-md bg-slate-900/90 backdrop-blur-xl border border-yellow-500/40 rounded-3xl p-5 shadow-[0_20px_50px_rgba(234,179,8,0.25)] flex items-center gap-4 overflow-hidden group pointer-events-auto"
+          className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[99] w-[90%] max-w-md bg-white/90 backdrop-blur-xl border border-yellow-500/40 rounded-3xl p-5 shadow-[0_20px_50px_rgba(234,179,8,0.25)] flex items-center gap-4 overflow-hidden group pointer-events-auto"
         >
           {/* Gold Shimmer Overlay */}
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-yellow-500/10 to-transparent -translate-x-full animate-shimmer pointer-events-none" />
@@ -48,7 +48,7 @@ export function AchievementToast() {
               <Award className="w-3.5 h-3.5" />
               Achievement Unlocked
             </div>
-            <h4 className="text-white font-extrabold text-base tracking-tight truncate mt-0.5">
+            <h4 className="text-slate-900 font-extrabold text-base tracking-tight truncate mt-0.5">
               {latestAchievementUnlocked.title}
             </h4>
             <p className="text-slate-300 text-xs truncate mt-0.5">
@@ -61,7 +61,7 @@ export function AchievementToast() {
             <span className="text-[10px] font-black text-yellow-500 uppercase tracking-wider">
               Rewards
             </span>
-            <span className="text-white font-extrabold text-xs mt-0.5">
+            <span className="text-slate-900 font-extrabold text-xs mt-0.5">
               +{latestAchievementUnlocked.xpReward} XP
             </span>
           </div>

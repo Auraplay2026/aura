@@ -162,7 +162,7 @@ export function Roulette() {
           <div 
             onClick={() => { if(!isSpinning) setSelectedBet("0"); }}
             className={`w-12 border border-slate-200 flex items-center justify-center font-bold cursor-pointer transition-colors ${
-              selectedBet === "0" ? "border-green-400 bg-green-500/50 text-slate-900 shadow-[0_0_15px_rgba(34,197,94,0.5)] z-10" : "bg-green-600 text-white hover:bg-green-500"
+              selectedBet === "0" ? "border-green-400 bg-green-500/50 text-slate-900 shadow-[0_0_15px_rgba(34,197,94,0.5)] z-10" : "bg-green-600 text-slate-900 hover:bg-green-500"
             }`}
           >
             0
@@ -177,8 +177,8 @@ export function Roulette() {
                   key={num}
                   onClick={() => { if(!isSpinning) setSelectedBet(num.toString()); }}
                   className={`h-10 flex items-center justify-center font-bold text-sm cursor-pointer transition-colors ${
-                    isSelected ? "bg-blue-500 text-white shadow-[0_0_15px_rgba(59,130,246,0.8)] z-10 scale-110 rounded" :
-                    RED_NUMBERS.includes(num) ? "bg-red-600 text-white hover:bg-red-500" : "bg-slate-50 text-slate-900 hover:bg-slate-700"
+                    isSelected ? "bg-blue-500 text-slate-900 shadow-[0_0_15px_rgba(59,130,246,0.8)] z-10 scale-110 rounded" :
+                    RED_NUMBERS.includes(num) ? "bg-red-600 text-slate-900 hover:bg-red-500" : "bg-slate-50 text-slate-900 hover:bg-slate-100"
                   }`}
                 >
                   {num}

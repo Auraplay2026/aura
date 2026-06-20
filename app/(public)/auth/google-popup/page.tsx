@@ -91,7 +91,7 @@ export default function GooglePopup() {
 
               <button
                 onClick={() => setStep('custom')}
-                className="w-full flex items-center gap-3 p-4 bg-slate-900/5 hover:bg-slate-900/10 border border-dashed border-slate-200 hover:border-slate-600 rounded-2xl text-left transition-all group"
+                className="w-full flex items-center gap-3 p-4 bg-white/5 hover:bg-white/10 border border-dashed border-slate-200 hover:border-slate-600 rounded-2xl text-left transition-all group"
               >
                 <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 group-hover:text-slate-900 transition-colors">
                   +
@@ -151,7 +151,7 @@ export default function GooglePopup() {
               </button>
               <button
                 type="submit"
-                className="flex-1 bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 rounded-xl transition-colors"
+                className="flex-1 bg-blue-600 hover:bg-blue-500 text-slate-900 font-bold py-3 rounded-xl transition-colors"
               >
                 Continue
               </button>

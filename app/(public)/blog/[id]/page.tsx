@@ -190,7 +190,7 @@ export default function BlogPostDetail() {
         </p>
         <button 
           onClick={() => router.push("/blog")}
-          className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md"
+          className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-slate-900 font-black text-xs uppercase tracking-wider rounded-xl transition-all shadow-md"
         >
           Back to Chronicles
         </button>
@@ -282,7 +282,7 @@ export default function BlogPostDetail() {
             const lines = paragraph.split('\n');
             const code = lines.slice(1, lines.length - 1).join('\n');
             return (
-              <pre key={index} className="bg-slate-900 text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 shadow-inner">
+              <pre key={index} className="bg-white text-slate-100 p-4 rounded-xl font-mono text-xs overflow-x-auto border border-slate-800 shadow-inner">
                 <code>{code}</code>
               </pre>
             );

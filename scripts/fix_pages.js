@@ -22,12 +22,12 @@ filesToFix.forEach(file => {
     content = content.replace(/to-black(\/\d+)?/g, 'to-slate-50');
     content = content.replace(/from-black(\/\d+)?/g, 'from-white');
 
-    // Replace bg-black
-    content = content.replace(/bg-black(\/\d+)?/g, 'bg-slate-50');
+    // Replace bg-white
+    content = content.replace(/bg-white(\/\d+)?/g, 'bg-slate-50');
     
     // Replace custom text colors
     content = content.replace(/text-slate-400/g, 'text-slate-600');
-    content = content.replace(/text-white/g, 'text-slate-900');
+    content = content.replace(/text-slate-900/g, 'text-slate-900');
 
     if (content !== original) {
       fs.writeFileSync(file, content, 'utf8');

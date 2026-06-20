@@ -340,7 +340,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                       }`}
                     >
                       <div className="flex items-start gap-3 text-left min-w-0">
-                        <div className="mt-0.5 shrink-0 p-1.5 rounded-lg bg-slate-900/5 border border-slate-200 flex items-center justify-center">
+                        <div className="mt-0.5 shrink-0 p-1.5 rounded-lg bg-white/5 border border-slate-200 flex items-center justify-center">
                           {getAnomalyIcon(anom.type)}
                         </div>
                         <div className="min-w-0">
@@ -489,7 +489,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
           <div className="w-full overflow-x-auto custom-scrollbar">
             <table className="w-full text-left border-collapse">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-900/20">
+                <tr className="border-b border-slate-200 bg-white/20">
                   <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest">Username</th>
                   <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Deposits</th>
                   <th className="p-4 text-[9px] font-extrabold text-slate-600 uppercase tracking-widest text-right">Payouts</th>
@@ -611,7 +611,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                   <Coins className="w-5 h-5 text-emerald-600" />
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Execute Wallet Correction</h3>
                 </div>
-                <button onClick={() => setActiveReconcileUser(null)} className="w-7 h-7 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600">
+                <button onClick={() => setActiveReconcileUser(null)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-slate-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -646,7 +646,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                 <div className="flex gap-3 pt-3 border-t border-slate-200">
                   <button
                     onClick={() => setActiveReconcileUser(null)}
-                    className="flex-1 bg-transparent hover:bg-slate-900/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 transition-all"
+                    className="flex-1 bg-transparent hover:bg-white/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 transition-all"
                     disabled={isProcessing}
                   >
                     Cancel
@@ -654,7 +654,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                   <button
                     onClick={handleResolveReconciliation}
                     disabled={isProcessing}
-                    className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex items-center justify-center gap-2"
+                    className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-900 font-black py-3 rounded-xl text-[10px] uppercase tracking-widest shadow-[0_0_15px_rgba(16,185,129,0.2)] transition-all flex items-center justify-center gap-2"
                   >
                     {isProcessing ? "Executing..." : "Inject Correction"}
                   </button>
@@ -689,7 +689,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                     {activeFreezeUser.isBanned ? "Pardon Suspended Account" : "Lock Suspicious Account"}
                   </h3>
                 </div>
-                <button onClick={() => setActiveFreezeUser(null)} className="w-7 h-7 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600">
+                <button onClick={() => setActiveFreezeUser(null)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-slate-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -713,7 +713,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                 <div className="flex gap-3 pt-3 border-t border-slate-200">
                   <button
                     onClick={() => setActiveFreezeUser(null)}
-                    className="flex-1 bg-transparent hover:bg-slate-900/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 transition-all"
+                    className="flex-1 bg-transparent hover:bg-white/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 hover:text-slate-900 transition-all"
                     disabled={isProcessing}
                   >
                     Cancel
@@ -723,8 +723,8 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
                     disabled={isProcessing}
                     className={`flex-1 font-black py-3 rounded-xl text-[10px] uppercase tracking-widest shadow-lg transition-all flex items-center justify-center gap-2 ${
                       activeFreezeUser.isBanned
-                        ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-white shadow-emerald-500/20"
-                        : "bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white shadow-red-500/20"
+                        ? "bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-400 hover:to-teal-400 text-slate-900 shadow-emerald-500/20"
+                        : "bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-slate-900 shadow-red-500/20"
                     }`}
                   >
                     {isProcessing ? "Executing..." : activeFreezeUser.isBanned ? "Pardon Account" : "Confirm Freeze"}

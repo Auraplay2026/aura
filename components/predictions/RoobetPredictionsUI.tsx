@@ -448,7 +448,7 @@ export function RoobetPredictionsUI({ categoryName, predictions, balance, placeT
                       </div>
                     </td>
                     <td className="px-6 py-4 text-slate-700 flex items-center gap-2">
-                      <div className={cn("w-5 h-5 rounded-full", bet.isMine ? "bg-[#7148ff]" : "bg-slate-600")} />
+                      <div className={cn("w-5 h-5 rounded-full", bet.isMine ? "bg-[#7148ff]" : "bg-slate-100")} />
                       {bet.user}
                     </td>
                     <td className="px-6 py-4 text-slate-500 font-mono">{bet.time}</td>
@@ -562,8 +562,8 @@ export function RoobetPredictionsUI({ categoryName, predictions, balance, placeT
                     className={cn(
                       "w-full py-4 rounded-2xl text-lg font-black uppercase tracking-widest transition-all",
                       tradeModal.side === "yes"
-                        ? "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-white shadow-[0_0_30px_rgba(34,197,94,0.3)]"
-                        : "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-white shadow-[0_0_30px_rgba(239,68,68,0.3)]",
+                        ? "bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-400 text-slate-900 shadow-[0_0_30px_rgba(34,197,94,0.3)]"
+                        : "bg-gradient-to-r from-red-600 to-red-500 hover:from-red-500 hover:to-red-400 text-slate-900 shadow-[0_0_30px_rgba(239,68,68,0.3)]",
                       "disabled:opacity-30 disabled:cursor-not-allowed"
                     )}
                   >
@@ -663,7 +663,7 @@ export function RoobetPredictionsUI({ categoryName, predictions, balance, placeT
                 <button
                   onClick={handleCreateMarket}
                   disabled={!customTitle.trim()}
-                  className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-[#7148ff] hover:from-violet-500 hover:to-[#5b36ff] text-white text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-[#7148ff]/20 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed mt-4"
+                  className="w-full py-3.5 bg-gradient-to-r from-violet-600 to-[#7148ff] hover:from-violet-500 hover:to-[#5b36ff] text-slate-900 text-xs font-black uppercase tracking-widest rounded-2xl shadow-lg shadow-[#7148ff]/20 transition-all cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed mt-4"
                 >
                   Publish Prediction Market
                 </button>

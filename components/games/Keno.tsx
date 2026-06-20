@@ -156,7 +156,7 @@ export function Keno() {
                 disabled={gameState === "playing"}
                 onClick={() => setRiskLevel(r)}
                 className={`py-2 rounded-lg font-bold text-sm capitalize transition-colors ${
-                  riskLevel === r ? "bg-slate-700 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
+                  riskLevel === r ? "bg-slate-100 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                 }`}
               >
                 {r}
@@ -169,14 +169,14 @@ export function Keno() {
           <button 
             onClick={autoPick} 
             disabled={gameState === "playing"}
-            className="flex-1 py-2 bg-slate-100 hover:bg-slate-700 rounded-lg text-sm font-bold text-slate-900 transition-colors disabled:opacity-50"
+            className="flex-1 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm font-bold text-slate-900 transition-colors disabled:opacity-50"
           >
             Auto Pick
           </button>
           <button 
             onClick={clearPicks} 
             disabled={gameState === "playing"}
-            className="flex-1 py-2 bg-slate-100 hover:bg-slate-700 rounded-lg text-sm font-bold text-slate-900 transition-colors disabled:opacity-50"
+            className="flex-1 py-2 bg-slate-100 hover:bg-slate-100 rounded-lg text-sm font-bold text-slate-900 transition-colors disabled:opacity-50"
           >
             Clear
           </button>
@@ -226,7 +226,7 @@ export function Keno() {
                 whileTap={gameState !== "playing" ? { scale: 0.95 } : {}}
                 className={`relative w-full aspect-square rounded-lg flex items-center justify-center font-bold text-sm sm:text-base border transition-colors ${
                   isHit ? "bg-neon-purple border-purple-400 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.6)] z-10" :
-                  isSelected ? "bg-slate-700 border-slate-500 text-slate-900" :
+                  isSelected ? "bg-slate-100 border-slate-500 text-slate-900" :
                   isMiss ? "bg-slate-100 border-slate-700 text-slate-500 opacity-50" :
                   "bg-white border-slate-200 text-slate-600 hover:bg-slate-100"
                 }`}

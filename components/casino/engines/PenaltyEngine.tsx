@@ -145,10 +145,10 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
 
       {/* Header */}
       <div className="relative z-20 w-full flex justify-between items-center p-6 mb-4">
-        <div className="bg-slate-900/50 backdrop-blur-md px-6 py-2 rounded-2xl border border-slate-700/50">
-          <h2 className="text-white font-black text-xl tracking-widest uppercase drop-shadow-md">Penalty X</h2>
+        <div className="bg-white/50 backdrop-blur-md px-6 py-2 rounded-2xl border border-slate-700/50">
+          <h2 className="text-slate-900 font-black text-xl tracking-widest uppercase drop-shadow-md">Penalty X</h2>
         </div>
-        <div className="bg-slate-900/80 backdrop-blur-md px-6 py-2 rounded-2xl border border-emerald-500/30 flex flex-col items-end">
+        <div className="bg-white/80 backdrop-blur-md px-6 py-2 rounded-2xl border border-emerald-500/30 flex flex-col items-end">
           <span className="text-[10px] text-emerald-500 font-black uppercase tracking-widest mb-1">Multiplier</span>
           <span className="text-2xl font-mono font-black text-emerald-400 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">
             {multiplier.toFixed(2)}x
@@ -173,12 +173,12 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
         {/* Interactive Shoot Zones */}
         {gameState === "playing" && (
           <div className="absolute inset-0 grid grid-cols-3 grid-rows-2 gap-2 p-2 z-30">
-            <button onClick={() => handleShoot("TL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-white/50 group-hover:text-white group-hover:scale-125 transition-all" /></button>
+            <button onClick={() => handleShoot("TL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
             <div className="bg-transparent" /> {/* Top Middle gap */}
-            <button onClick={() => handleShoot("TR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-white/50 group-hover:text-white group-hover:scale-125 transition-all" /></button>
-            <button onClick={() => handleShoot("BL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-white/50 group-hover:text-white group-hover:scale-125 transition-all" /></button>
-            <button onClick={() => handleShoot("C")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-white/50 group-hover:text-white group-hover:scale-125 transition-all" /></button>
-            <button onClick={() => handleShoot("BR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-white/50 group-hover:text-white group-hover:scale-125 transition-all" /></button>
+            <button onClick={() => handleShoot("TR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+            <button onClick={() => handleShoot("BL")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+            <button onClick={() => handleShoot("C")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
+            <button onClick={() => handleShoot("BR")} className="bg-white/10 hover:bg-white/30 border border-white/20 rounded transition-colors flex items-center justify-center group"><Target className="w-6 h-6 text-slate-900/50 group-hover:text-slate-900 group-hover:scale-125 transition-all" /></button>
           </div>
         )}
       </div>
@@ -194,7 +194,7 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
               className="w-12 h-12 bg-white rounded-full shadow-[0_10px_20px_rgba(0,0,0,0.5),inset_-5px_-5px_10px_rgba(0,0,0,0.5)] border-2 border-slate-300 flex items-center justify-center"
               style={{ backgroundImage: 'radial-gradient(circle at 30% 30%, white, #cbd5e1)' }}
             >
-              <div className="w-4 h-4 bg-slate-800 rounded-full opacity-50" />
+              <div className="w-4 h-4 bg-slate-50 rounded-full opacity-50" />
             </motion.div>
           )}
         </AnimatePresence>
@@ -203,15 +203,15 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
       {/* Result Overlays */}
       <AnimatePresence>
         {gameState === "busted" && (
-          <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-rose-600 text-white font-black text-4xl px-12 py-6 rounded-2xl border-4 border-rose-400 shadow-[0_0_50px_rgba(225,29,72,0.8)] -rotate-6">
+          <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
+            <div className="bg-rose-600 text-slate-900 font-black text-4xl px-12 py-6 rounded-2xl border-4 border-rose-400 shadow-[0_0_50px_rgba(225,29,72,0.8)] -rotate-6">
               SAVED!
             </div>
           </motion.div>
         )}
         {gameState === "cashed_out" && (
-          <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-            <div className="bg-emerald-500 text-white font-black text-3xl px-12 py-6 rounded-2xl border-4 border-emerald-300 shadow-[0_0_50px_rgba(16,185,129,0.8)] rotate-6 flex flex-col items-center">
+          <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-50 flex items-center justify-center bg-white/40 backdrop-blur-sm">
+            <div className="bg-emerald-500 text-slate-900 font-black text-3xl px-12 py-6 rounded-2xl border-4 border-emerald-300 shadow-[0_0_50px_rgba(16,185,129,0.8)] rotate-6 flex flex-col items-center">
               <span>CASHED OUT</span>
               <span className="text-2xl mt-2">{multiplier.toFixed(2)}x</span>
             </div>
@@ -219,8 +219,8 @@ export function PenaltyEngine({ isPlaying, onLiveTick, onComplete }: PenaltyEngi
         )}
         {gameState === "idle" && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="absolute inset-0 z-50 flex items-center justify-center pointer-events-none">
-            <div className="bg-slate-900/80 backdrop-blur-md px-6 py-3 rounded-full border border-slate-700">
-              <span className="text-white font-black tracking-widest uppercase">Place Bet to Shoot</span>
+            <div className="bg-white/80 backdrop-blur-md px-6 py-3 rounded-full border border-slate-700">
+              <span className="text-slate-900 font-black tracking-widest uppercase">Place Bet to Shoot</span>
             </div>
           </motion.div>
         )}

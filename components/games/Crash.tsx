@@ -275,7 +275,7 @@ export function Crash() {
 
           {/* Multiplayer Active Ticker */}
           {gameState === "playing" && simulatedPlayers.length > 0 && (
-            <div className="flex flex-col gap-2 bg-slate-900/5 p-4 rounded-xl border border-slate-200/50">
+            <div className="flex flex-col gap-2 bg-white/5 p-4 rounded-xl border border-slate-200/50">
               <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-wider">
                 <span>Active Players</span>
                 <span className="flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {simulatedPlayers.filter(p => p.status === "playing").length} left</span>

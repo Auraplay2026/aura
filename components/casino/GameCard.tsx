@@ -23,7 +23,7 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
   if (category === "driving" || category === "racing") badgeColor = "bg-emerald-50 text-emerald-600 border-emerald-100";
   if (category === "action") badgeColor = "bg-purple-50 text-purple-600 border-purple-100";
   if (category === "aaa" || category === "3d") badgeColor = "bg-amber-50 text-amber-600 border-amber-100";
-  if (category === "orig" || category === "originals") badgeColor = "bg-slate-900 text-white border-slate-700";
+  if (category === "orig" || category === "originals") badgeColor = "bg-white text-slate-900 border-slate-700";
   if (category === "live") badgeColor = "bg-purple-50 text-purple-600 border-purple-100";
   
   // Format players with 'k' suffix
@@ -46,7 +46,7 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
       <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-90 transition-opacity duration-500" />
       
       {/* Hover Overlay: Premium Glassmorphism Play Button */}
-      <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center pointer-events-none z-10">
+      <div className="absolute inset-0 bg-white/10 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 flex flex-col items-center justify-center pointer-events-none z-10">
         <div className="relative w-16 h-16 rounded-full bg-white/90 shadow-[0_8px_30px_rgb(0,0,0,0.12)] flex items-center justify-center backdrop-blur-md transform scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-400 ease-out">
           <Play className="w-6 h-6 text-slate-900 ml-1 fill-slate-900" />
         </div>
@@ -67,7 +67,7 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
             {category}
           </span>
           {category === "live" && (
-            <span className="w-max px-2 py-0.5 bg-purple-600 text-white text-[8px] font-black uppercase tracking-widest rounded shadow-sm border border-purple-700 animate-pulse">
+            <span className="w-max px-2 py-0.5 bg-purple-600 text-slate-900 text-[8px] font-black uppercase tracking-widest rounded shadow-sm border border-purple-700 animate-pulse">
               Live Fee 3%
             </span>
           )}
@@ -83,12 +83,12 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players }: Ga
 
       {/* Card Info Content */}
       <div className="absolute bottom-0 w-full p-5 z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-        <h3 className="text-white font-black text-lg sm:text-xl tracking-tight leading-tight line-clamp-2 drop-shadow-sm">
+        <h3 className="text-slate-900 font-black text-lg sm:text-xl tracking-tight leading-tight line-clamp-2 drop-shadow-sm">
           {title}
         </h3>
         
         <div className="flex items-center justify-between mt-2">
-          <p className="text-white/80 text-[10px] font-bold uppercase tracking-[0.15em] drop-shadow-sm">
+          <p className="text-slate-900/80 text-[10px] font-bold uppercase tracking-[0.15em] drop-shadow-sm">
             {provider}
           </p>
           {formattedPlayers && (

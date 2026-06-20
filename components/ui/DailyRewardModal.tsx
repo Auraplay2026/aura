@@ -184,7 +184,7 @@ export function DailyRewardModal() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/80 backdrop-blur-md">
         <ConfettiCanvas active={showConfetti} onComplete={() => setShowConfetti(false)} />
 
         <motion.div
@@ -200,19 +200,19 @@ export function DailyRewardModal() {
               setIsOpen(false);
               dismissDailyModal();
             }}
-            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-800/50 hover:bg-slate-800 text-slate-400 hover:text-white flex items-center justify-center transition-colors z-10"
+            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50/50 hover:bg-slate-50 text-slate-400 hover:text-slate-900 flex items-center justify-center transition-colors z-10"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Header tabs */}
-          <div className="flex border-b border-slate-800 shrink-0 bg-slate-950/40 p-4 gap-2">
+          <div className="flex border-b border-slate-800 shrink-0 bg-white/40 p-4 gap-2">
             <button
               onClick={() => setActiveTab("streak")}
               className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                 activeTab === "streak"
-                  ? "bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                  ? "bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                  : "text-slate-400 hover:text-slate-900 hover:bg-slate-50/40"
               }`}
             >
               <Calendar className="w-4 h-4" />
@@ -222,8 +222,8 @@ export function DailyRewardModal() {
               onClick={() => setActiveTab("wheel")}
               className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                 activeTab === "wheel"
-                  ? "bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                  : "text-slate-400 hover:text-white hover:bg-slate-800/40"
+                  ? "bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                  : "text-slate-400 hover:text-slate-900 hover:bg-slate-50/40"
               }`}
             >
               <RotateCw className="w-4 h-4" />
@@ -235,7 +235,7 @@ export function DailyRewardModal() {
             {activeTab === "streak" ? (
               <div className="w-full text-center space-y-6">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tight text-white flex items-center justify-center gap-2">
+                  <h2 className="text-3xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
                     <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
                     Daily Login Streak
                   </h2>
@@ -257,10 +257,10 @@ export function DailyRewardModal() {
                         key={idx}
                         className={`relative rounded-2xl p-3 border flex flex-col items-center justify-between min-h-[100px] transition-all duration-300 ${
                           isClaimed
-                            ? "bg-slate-950/40 border-emerald-500/30 text-slate-500"
+                            ? "bg-white/40 border-emerald-500/30 text-slate-500"
                             : isCurrent
-                            ? "bg-purple-950/30 border-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.2)] animate-pulse"
-                            : "bg-slate-900/50 border-slate-800/60 text-slate-400"
+                            ? "bg-purple-950/30 border-purple-500 text-slate-900 shadow-[0_0_20px_rgba(168,85,247,0.2)] animate-pulse"
+                            : "bg-white/50 border-slate-800/60 text-slate-400"
                         }`}
                       >
                         <span className="text-[10px] font-black uppercase tracking-wider">
@@ -273,7 +273,7 @@ export function DailyRewardModal() {
                             }`}
                           />
                         </div>
-                        <span className="text-xs font-extrabold text-white">
+                        <span className="text-xs font-extrabold text-slate-900">
                           ₹{reward.toLocaleString()}
                         </span>
                         {isClaimed && (
@@ -292,8 +292,8 @@ export function DailyRewardModal() {
                     onClick={handleClaimDaily}
                     className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all duration-300 ${
                       claimedToday
-                        ? "bg-slate-800 text-slate-500 cursor-not-allowed"
-                        : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)]"
+                        ? "bg-slate-50 text-slate-500 cursor-not-allowed"
+                        : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-slate-900 shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)]"
                     }`}
                   >
                     {claimedToday ? "Claimed Today!" : `Claim Day ${streakCount} Reward`}
@@ -303,7 +303,7 @@ export function DailyRewardModal() {
             ) : (
               <div className="w-full flex flex-col items-center space-y-6">
                 <div className="text-center">
-                  <h2 className="text-3xl font-black tracking-tight text-white flex items-center justify-center gap-2">
+                  <h2 className="text-3xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
                     <RotateCw className="w-8 h-8 text-purple-500 animate-spin-slow" />
                     Lucky Spin Wheel
                   </h2>
@@ -370,8 +370,8 @@ export function DailyRewardModal() {
                     onClick={spinWheel}
                     className={`absolute w-14 h-14 rounded-full flex items-center justify-center font-black text-[10px] uppercase tracking-wider z-10 transition-all ${
                       spinWheelClaimedToday
-                        ? "bg-slate-800 text-slate-500 cursor-not-allowed"
-                        : "bg-purple-600 text-white hover:bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] cursor-pointer"
+                        ? "bg-slate-50 text-slate-500 cursor-not-allowed"
+                        : "bg-purple-600 text-slate-900 hover:bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] cursor-pointer"
                     }`}
                   >
                     {spinWheelClaimedToday ? "Done" : "Spin"}

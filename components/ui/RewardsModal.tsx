@@ -62,7 +62,7 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
               </div>
 
               {/* Content */}
-              <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-8 bg-slate-900/50">
+              <div className="p-6 sm:p-8 overflow-y-auto custom-scrollbar flex-1 space-y-8 bg-white/50">
                 
                 {/* VIP Journey */}
                 <section>
@@ -108,7 +108,7 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                         className={`px-8 py-3 rounded-full font-bold transition-all ${
                           timeLeft > 0 
                             ? 'bg-slate-100 text-slate-500 cursor-not-allowed'
-                            : 'bg-[#a855f7] hover:bg-purple-500 text-white shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]'
+                            : 'bg-[#a855f7] hover:bg-purple-500 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.5)] hover:shadow-[0_0_25px_rgba(168,85,247,0.6)]'
                         }`}
                       >
                         Unlock Vault
@@ -153,7 +153,7 @@ export function RewardsModal({ isOpen, onClose }: RewardsModalProps) {
                         </div>
                       </div>
                       <div className="w-24 h-1.5 bg-white rounded-full overflow-hidden">
-                        <div className="h-full bg-slate-700 w-[100%]" />
+                        <div className="h-full bg-slate-100 w-[100%]" />
                       </div>
                     </div>
 

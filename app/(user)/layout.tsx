@@ -51,7 +51,7 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
               className={cn(
                 "flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap border cursor-pointer",
                 isActive
-                  ? "bg-slate-900 text-white border-slate-950 shadow-sm"
+                  ? "bg-white text-slate-900 border-slate-950 shadow-sm"
                   : "bg-white text-slate-600 border-slate-200/80 hover:bg-slate-100/50"
               )}
             >

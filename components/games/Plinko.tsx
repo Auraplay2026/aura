@@ -98,7 +98,7 @@ export function Plinko() {
                 key={r}
                 onClick={() => setRisk(r)}
                 className={`py-2 rounded-lg font-bold text-sm capitalize transition-colors ${
-                  risk === r ? "bg-slate-700 text-slate-900 shadow-lg" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
+                  risk === r ? "bg-slate-100 text-slate-900 shadow-lg" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100"
                 }`}
               >
                 {r}
@@ -110,7 +110,7 @@ export function Plinko() {
         <div className="mt-auto">
           <button 
             onClick={handleDrop}
-            className="w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg bg-neon-purple hover:bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)]"
+            className="w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg bg-neon-purple hover:bg-purple-500 text-slate-900 shadow-[0_0_20px_rgba(168,85,247,0.3)]"
           >
             Drop Ball
           </button>
@@ -129,7 +129,7 @@ export function Plinko() {
             return (
               <div key={rIdx} className="flex justify-center gap-6 md:gap-8 w-full">
                 {Array.from({ length: pegsInRow }).map((_, pIdx) => (
-                  <div key={pIdx} className="w-2 h-2 rounded-full bg-slate-900/20 shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
+                  <div key={pIdx} className="w-2 h-2 rounded-full bg-white/20 shadow-[0_0_5px_rgba(255,255,255,0.5)]" />
                 ))}
               </div>
             );

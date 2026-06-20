@@ -38,14 +38,14 @@ export default function GlobalError({
       <div className="flex flex-col sm:flex-row gap-4">
         <button 
           onClick={() => reset()}
-          className="bg-red-600 hover:bg-red-500 text-white font-black px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:scale-105 flex items-center justify-center gap-2"
+          className="bg-red-600 hover:bg-red-500 text-slate-900 font-black px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-all shadow-[0_0_20px_rgba(220,38,38,0.3)] hover:scale-105 flex items-center justify-center gap-2"
         >
           <RefreshCcw className="w-4 h-4" />
           Reboot System
         </button>
         <Link 
           href="/"
-          className="bg-slate-100 hover:bg-slate-700 text-slate-900 font-black px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-all border border-slate-700 hover:border-slate-600 flex items-center justify-center gap-2"
+          className="bg-slate-100 hover:bg-slate-100 text-slate-900 font-black px-8 py-4 rounded-xl uppercase tracking-widest text-sm transition-all border border-slate-700 hover:border-slate-600 flex items-center justify-center gap-2"
         >
           <Home className="w-4 h-4" />
           Return to Lobby

@@ -92,7 +92,7 @@ export default function TopPortfoliosPage() {
                 className={`px-6 py-2.5 rounded-xl text-xs font-black uppercase tracking-widest transition-all ${
                   activeTab === tab
                     ? "bg-gradient-to-r from-amber-500 to-yellow-600 text-black shadow-[0_0_20px_rgba(245,158,11,0.4)]"
-                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-900/5"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-white/5"
                 }`}
               >
                 {tab.replace("-", " ")}
@@ -159,7 +159,7 @@ export default function TopPortfoliosPage() {
                 </div>
 
                 {/* Vertical Divider */}
-                <div className="hidden md:block w-px h-16 bg-slate-900/10 mx-4" />
+                <div className="hidden md:block w-px h-16 bg-white/10 mx-4" />
 
                 {/* Stats Grid */}
                 <div className={`grid grid-cols-2 xl:grid-cols-4 gap-4 flex-1 w-full ${whale.isLocked ? 'blur-md select-none' : ''}`}>
@@ -198,7 +198,7 @@ export default function TopPortfoliosPage() {
                       className={`w-full md:w-auto px-8 py-4 rounded-xl font-black text-sm uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-lg group
                         ${whale.rank === 1 
                           ? 'bg-gradient-to-r from-amber-500 to-yellow-500 text-black hover:scale-105 active:scale-95 shadow-[0_0_30px_rgba(245,158,11,0.3)]' 
-                          : 'bg-slate-900/5 hover:bg-slate-900/10 text-slate-900 border border-slate-200 hover:border-white/20 hover:scale-105 active:scale-95'
+                          : 'bg-white/5 hover:bg-white/10 text-slate-900 border border-slate-200 hover:border-white/20 hover:scale-105 active:scale-95'
                         }`}
                     >
                       <Zap className="w-4 h-4" /> Copy Trade

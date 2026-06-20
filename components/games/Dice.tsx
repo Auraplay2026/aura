@@ -74,7 +74,7 @@ export function Dice() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-200/50">
+        <div className="grid grid-cols-2 gap-4 bg-white/50 p-4 rounded-xl border border-slate-200/50">
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Multiplier</span>
             <div className="text-lg font-black text-slate-900">{multiplier}x</div>
@@ -170,7 +170,7 @@ export function Dice() {
                 animate={{ left: `${lastResult}%`, opacity: 1, scale: 1 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`absolute top-1/2 -translate-y-1/2 w-8 h-8 rounded shadow-[0_0_20px_rgba(255,255,255,0.2)] flex items-center justify-center z-30 pointer-events-none ${
-                  isWin ? "bg-neon-green text-slate-950" : "bg-red-500 text-white"
+                  isWin ? "bg-neon-green text-slate-950" : "bg-red-500 text-slate-900"
                 }`}
                 style={{ left: `${lastResult}%`, marginLeft: "-16px" }}
               >

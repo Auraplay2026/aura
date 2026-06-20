@@ -32,7 +32,7 @@ export function InteractiveArcadeShowcase() {
         <div className="absolute inset-0 bg-gradient-to-r from-white/90 via-white/40 to-transparent opacity-90" />
         
         {/* Hover State Overlay */}
-        <div className="absolute inset-0 bg-slate-900/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center pointer-events-none">
+        <div className="absolute inset-0 bg-white/20 backdrop-blur-[2px] opacity-0 group-hover:opacity-100 transition-all duration-500 flex items-center justify-center pointer-events-none">
           <div className="absolute inset-0 border-2 border-white/40 rounded-3xl scale-[0.98] transition-transform duration-500 group-hover:scale-100" />
           <div className="w-20 h-20 rounded-full bg-blue-600/90 border border-blue-400 flex items-center justify-center backdrop-blur-md transform scale-50 opacity-0 group-hover:scale-100 group-hover:opacity-100 transition-all duration-500 ease-out delay-75 shadow-xl">
             <Play className="w-8 h-8 text-slate-900 ml-1 fill-white" />

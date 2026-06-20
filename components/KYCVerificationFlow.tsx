@@ -403,7 +403,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
               <button 
                 type="submit"
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 cursor-pointer"
+                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 cursor-pointer"
               >
                 Proceed to Aadhaar <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -485,7 +485,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
               <button 
                 type="submit"
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 cursor-pointer"
+                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 cursor-pointer"
               >
                 Verify Aadhaar Details <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -567,7 +567,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
               <button 
                 type="submit"
-                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 cursor-pointer"
+                className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/10 cursor-pointer"
               >
                 Validate Signatures <ArrowRight className="w-3.5 h-3.5" />
               </button>
@@ -659,7 +659,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
               <button 
                 onClick={onCancel}
-                className="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-colors cursor-pointer"
+                className="w-full py-4 bg-red-600 hover:bg-red-700 text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-colors cursor-pointer"
               >
                 Exit Verification
               </button>
@@ -711,7 +711,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                     onClick={() => {
                       setRecoveryStep(2);
                     }}
-                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10"
+                    className="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10"
                   >
                     Continue to Step 2 <ArrowRight className="w-3.5 h-3.5" />
                   </button>
@@ -767,7 +767,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
                         }
                         setRecoveryStep(3);
                       }}
-                      className="w-2/3 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10"
+                      className="w-2/3 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-all flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-indigo-600/10"
                     >
                       Continue to Step 3 <ArrowRight className="w-3.5 h-3.5" />
                     </button>
@@ -839,7 +839,7 @@ export function KYCVerificationFlow({ onComplete, onCancel }: KYCProps) {
 
                         setPhase("SUCCESS");
                       }}
-                      className="w-2/3 py-3.5 bg-green-600 hover:bg-green-700 text-white rounded-xl font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-green-600/10"
+                      className="w-2/3 py-3.5 bg-green-600 hover:bg-green-700 text-slate-900 rounded-xl font-black uppercase tracking-widest text-xs transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-lg shadow-green-600/10"
                     >
                       Submit Recovery
                     </button>

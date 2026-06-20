@@ -121,21 +121,21 @@ export function HiLoEngine({ isPlaying, onLiveTick, onComplete }: HiLoEngineProp
   }, [gameState, multiplier]);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-indigo-950 via-purple-950 to-slate-950 rounded-[3rem] border-8 border-slate-900 shadow-[0_20px_50px_rgba(0,0,0,0.8)] relative flex flex-col items-center p-6 overflow-hidden perspective-[1000px]">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-violet-50 via-white to-indigo-50 rounded-[3rem] border border-violet-200/60 shadow-[0_8px_40px_rgba(109,40,217,0.08),inset_0_1px_0_rgba(255,255,255,1)] relative flex flex-col items-center p-6 overflow-hidden perspective-[1000px]">
       
-      {/* Deep Casino Felt */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] opacity-10 pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(168,85,247,0.15),_transparent_60%)] pointer-events-none" />
+      {/* Light Ambient Glow */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_rgba(167,139,250,0.12),_transparent_60%)] pointer-events-none" />
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(196,181,253,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(196,181,253,0.08)_1px,transparent_1px)] bg-[size:30px_30px] pointer-events-none" />
 
       {/* Header */}
-      <div className="relative z-10 w-full flex justify-between items-center mb-12 bg-slate-900/50 backdrop-blur-md px-6 py-3 rounded-2xl border border-slate-700/50 shadow-inner">
+      <div className="relative z-10 w-full flex justify-between items-center mb-12 bg-white/80 backdrop-blur-md px-6 py-3 rounded-2xl border border-violet-200/60 shadow-md">
         <div>
-          <h2 className="text-purple-400 font-black text-xl tracking-widest uppercase drop-shadow-md">Aura HiLo</h2>
+          <h2 className="text-violet-600 font-black text-xl tracking-widest uppercase">Aura HiLo</h2>
           <span className="text-slate-500 text-[10px] font-bold tracking-[0.2em] block">PREDICT THE NEXT CARD</span>
         </div>
         <div className="flex flex-col items-end">
           <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest mb-1">Current Multiplier</span>
-          <span className={`text-2xl font-mono font-black ${multiplier > 1.0 ? "text-neon-green drop-shadow-[0_0_10px_rgba(34,197,94,0.5)]" : "text-white"}`}>
+          <span className={`text-2xl font-mono font-black ${multiplier > 1.0 ? "text-emerald-600" : "text-slate-800"}`}>
             {multiplier.toFixed(2)}x
           </span>
         </div>
@@ -171,7 +171,7 @@ export function HiLoEngine({ isPlaying, onLiveTick, onComplete }: HiLoEngineProp
                 <span className={`font-black text-3xl md:text-4xl leading-none self-end rotate-180 ${currentCard.color}`}>{currentCard.val}</span>
               </motion.div>
             ) : (
-              <div className="w-40 md:w-56 h-60 md:h-80 bg-slate-800/50 border-4 border-dashed border-slate-700 rounded-2xl flex items-center justify-center backdrop-blur-sm z-30">
+              <div className="w-40 md:w-56 h-60 md:h-80 bg-slate-50/50 border-4 border-dashed border-slate-700 rounded-2xl flex items-center justify-center backdrop-blur-sm z-30">
                 <span className="text-slate-600 font-black uppercase tracking-widest text-sm">Place Bet</span>
               </div>
             )}
@@ -181,14 +181,14 @@ export function HiLoEngine({ isPlaying, onLiveTick, onComplete }: HiLoEngineProp
           <AnimatePresence>
             {gameState === "busted" && (
               <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-40 flex items-center justify-center">
-                <div className="bg-rose-600 text-white font-black text-4xl px-8 py-4 rounded-xl border-4 border-rose-400 shadow-[0_0_50px_rgba(225,29,72,0.8)] -rotate-12">
+                <div className="bg-rose-600 text-slate-900 font-black text-4xl px-8 py-4 rounded-xl border-4 border-rose-400 shadow-[0_0_50px_rgba(225,29,72,0.8)] -rotate-12">
                   BUSTED!
                 </div>
               </motion.div>
             )}
             {gameState === "cashed_out" && (
               <motion.div initial={{ scale: 0, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="absolute inset-0 z-40 flex items-center justify-center">
-                <div className="bg-emerald-500 text-white font-black text-3xl px-8 py-4 rounded-xl border-4 border-emerald-300 shadow-[0_0_50px_rgba(16,185,129,0.8)] rotate-12 flex flex-col items-center">
+                <div className="bg-emerald-500 text-slate-900 font-black text-3xl px-8 py-4 rounded-xl border-4 border-emerald-300 shadow-[0_0_50px_rgba(16,185,129,0.8)] rotate-12 flex flex-col items-center">
                   <span>CASHED OUT</span>
                   <span className="text-xl">{multiplier.toFixed(2)}x</span>
                 </div>
@@ -211,14 +211,14 @@ export function HiLoEngine({ isPlaying, onLiveTick, onComplete }: HiLoEngineProp
             <button 
               onClick={() => handleGuess("HIGHER")}
               disabled={currentCard?.rank === 14}
-              className="flex-1 bg-gradient-to-t from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-white font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(30,58,138,1),0_15px_20px_rgba(59,130,246,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(30,58,138,1),0_5px_10px_rgba(59,130,246,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
+              className="flex-1 bg-gradient-to-t from-blue-600 to-blue-400 hover:from-blue-500 hover:to-blue-300 text-slate-900 font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(30,58,138,1),0_15px_20px_rgba(59,130,246,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(30,58,138,1),0_5px_10px_rgba(59,130,246,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
             >
               HIGHER <ArrowUp className="w-6 h-6 stroke-[3]" />
             </button>
             <button 
               onClick={() => handleGuess("LOWER")}
               disabled={currentCard?.rank === 2}
-              className="flex-1 bg-gradient-to-t from-rose-600 to-rose-400 hover:from-rose-500 hover:to-rose-300 text-white font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(159,18,57,1),0_15px_20px_rgba(244,63,94,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(159,18,57,1),0_5px_10px_rgba(244,63,94,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
+              className="flex-1 bg-gradient-to-t from-rose-600 to-rose-400 hover:from-rose-500 hover:to-rose-300 text-slate-900 font-black text-xl py-5 rounded-2xl shadow-[0_8px_0_rgba(159,18,57,1),0_15px_20px_rgba(244,63,94,0.5)] active:translate-y-2 active:shadow-[0_0_0_rgba(159,18,57,1),0_5px_10px_rgba(244,63,94,0.5)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 disabled:pointer-events-none"
             >
               LOWER <ArrowDown className="w-6 h-6 stroke-[3]" />
             </button>

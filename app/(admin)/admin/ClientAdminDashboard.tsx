@@ -333,7 +333,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
           <button 
             onClick={handleResetBreaker}
             disabled={loading}
-            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase px-5 py-3 rounded-xl transition cursor-pointer shadow-lg active:scale-95 disabled:opacity-50 shrink-0"
+            className="bg-rose-600 hover:bg-rose-700 text-slate-900 font-bold text-xs uppercase px-5 py-3 rounded-xl transition cursor-pointer shadow-lg active:scale-95 disabled:opacity-50 shrink-0"
           >
             Reset Circuit Breaker & Resume
           </button>
@@ -498,7 +498,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleSportsSync}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600/20 to-transparent hover:from-cyan-600/30 border border-cyan-500/20 hover:border-cyan-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600/20 to-transparent hover:from-cyan-600/30 border border-cyan-500/20 hover:border-cyan-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
               >
                 <Activity className="w-4 h-4 text-cyan-600" />
                 <span className="text-xs uppercase tracking-wider">Sync Live Sports</span>
@@ -508,7 +508,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleSimulateWager}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600/20 to-transparent hover:from-violet-600/30 border border-violet-500/20 hover:border-violet-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600/20 to-transparent hover:from-violet-600/30 border border-violet-500/20 hover:border-violet-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
               >
                 <Bell className="w-4 h-4 text-violet-600" />
                 <span className="text-xs uppercase tracking-wider">Inject Test Bet</span>
@@ -518,7 +518,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleClearActivity}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600/20 to-transparent hover:from-rose-600/30 border border-rose-500/20 hover:border-rose-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600/20 to-transparent hover:from-rose-600/30 border border-rose-500/20 hover:border-rose-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
               >
                 <RefreshCw className="w-4 h-4 text-rose-600" />
                 <span className="text-xs uppercase tracking-wider">Purge Demo Bets</span>
@@ -528,7 +528,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               <button 
                 onClick={handleBroadcast}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600/20 to-transparent hover:from-emerald-600/30 border border-emerald-500/20 hover:border-emerald-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 sm:col-span-3"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600/20 to-transparent hover:from-emerald-600/30 border border-emerald-500/20 hover:border-emerald-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 sm:col-span-3"
               >
                 <Bell className="w-4 h-4 text-emerald-600" />
                 <span className="text-xs uppercase tracking-wider">Broadcast Global Alert</span>
@@ -537,7 +537,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               {/* VIP Manager */}
               <Link 
                 href="/admin/vip"
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600/20 to-transparent hover:from-amber-600/30 border border-amber-500/20 hover:border-amber-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-white font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 sm:col-span-3"
+                className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600/20 to-transparent hover:from-amber-600/30 border border-amber-500/20 hover:border-amber-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 sm:col-span-3"
               >
                 <Crown className="w-4 h-4 text-amber-600" />
                 <span className="text-xs uppercase tracking-wider">VIP System Manager</span>

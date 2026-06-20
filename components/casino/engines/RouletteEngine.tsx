@@ -11,41 +11,41 @@ interface RouletteEngineProps {
 const NUMBERS = [
   { n: 0, color: "bg-emerald-500 text-white border-emerald-400", label: "Green" },
   { n: 32, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 15, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 15, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 19, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 4, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 4, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 21, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 2, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 2, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 25, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 17, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 17, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 34, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 6, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 6, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 27, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 13, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 13, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 36, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 11, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 11, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 30, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 8, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 8, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 23, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 10, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 10, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 5, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 24, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 24, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 16, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 33, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 33, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 1, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 20, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 20, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 14, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 31, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 31, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 9, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 22, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 22, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 18, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 29, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 29, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 7, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 28, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 28, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 12, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 35, color: "bg-slate-900 text-white border-slate-700", label: "Black" },
+  { n: 35, color: "bg-white text-slate-900 border-slate-350", label: "Black" },
   { n: 3, color: "bg-red-600 text-white border-red-500", label: "Red" },
-  { n: 26, color: "bg-slate-900 text-white border-slate-700", label: "Black" }
+  { n: 26, color: "bg-white text-slate-900 border-slate-350", label: "Black" }
 ];
 
 export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
@@ -101,11 +101,10 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
   }, [isPlaying]);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-amber-50/60 via-white to-slate-50 rounded-3xl border border-amber-200/60 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
       
-      {/* Table Felt Background */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/black-felt.png')] opacity-20 pointer-events-none" />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_transparent_10%,_rgba(0,0,0,0.8)_100%)] pointer-events-none" />
+      {/* Subtle warm radial glow - casino felt feel */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(251,191,36,0.06)_0%,transparent_70%)] pointer-events-none" />
 
       {/* 3D Wheel Area */}
       <div className="relative w-full max-w-[500px] aspect-square flex items-center justify-center select-none perspective-[1200px]">
@@ -128,7 +127,7 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
           <motion.div
             animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
             transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
-            className="absolute inset-0 rounded-full bg-slate-900 border-[8px] border-amber-600 overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.9)]"
+            className="absolute inset-0 rounded-full bg-white border-[8px] border-amber-600 overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.9)]"
           >
             {/* Render Wheel Segments */}
             {NUMBERS.map((num, i) => {
@@ -153,7 +152,7 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
             
             {/* Center Golden Turret / Cone */}
             <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-28 h-28 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-700 shadow-[0_0_30px_rgba(0,0,0,1)] flex items-center justify-center z-20">
-              <div className="w-16 h-16 rounded-full bg-slate-900 border-2 border-yellow-500/50 flex items-center justify-center shadow-inner">
+              <div className="w-16 h-16 rounded-full bg-white border-2 border-yellow-500/50 flex items-center justify-center shadow-inner">
                 <span className="text-yellow-500 text-[10px] font-black tracking-widest uppercase drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]">AURA</span>
               </div>
             </div>
@@ -197,16 +196,16 @@ export function RouletteEngine({ isPlaying, onComplete }: RouletteEngineProps) {
           <motion.div
             initial={{ opacity: 0, scale: 0.8, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            className={`absolute top-8 left-1/2 -translate-x-1/2 px-12 py-4 rounded-2xl text-center border shadow-[0_20px_50px_rgba(0,0,0,0.5)] backdrop-blur-md z-40 ${
-              winningNumber.n === 0 ? "bg-emerald-500/20 border-emerald-500/30" : "bg-slate-900/80 border-slate-700"
+            className={`absolute top-8 left-1/2 -translate-x-1/2 px-12 py-4 rounded-2xl text-center border backdrop-blur-md z-40 shadow-lg ${
+              winningNumber.n === 0 ? "bg-emerald-50 border-emerald-300" : "bg-white/90 border-slate-200"
             }`}
           >
-            <span className="text-xs text-slate-400 font-bold uppercase tracking-widest">Winning Number</span>
+            <span className="text-xs text-slate-500 font-bold uppercase tracking-widest">Winning Number</span>
             <div className="flex items-center justify-center gap-3 mt-2">
               <div className={`w-6 h-6 rounded-full border ${winningNumber.color}`} />
               <p className={`text-5xl font-black font-mono tracking-wider ${
-                winningNumber.n === 0 ? 'text-emerald-400 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]' : 
-                winningNumber.color.includes('red') ? 'text-red-500 drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]' : 'text-white'
+                winningNumber.n === 0 ? 'text-emerald-600' : 
+                winningNumber.color.includes('red') ? 'text-red-600' : 'text-slate-800'
               }`}>
                 {winningNumber.n}
               </p>

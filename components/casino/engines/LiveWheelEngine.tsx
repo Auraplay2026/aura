@@ -10,18 +10,18 @@ interface LiveWheelEngineProps {
 }
 
 const WHEEL_SECTORS = [
-  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
-  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" },
-  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
-  { val: "5x", mult: 5, color: "bg-gradient-to-b from-purple-400 to-purple-600 text-white", label: "Purple Sector" },
-  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
-  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" },
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-slate-900", label: "Blue Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-slate-900", label: "Green Sector" },
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-slate-900", label: "Blue Sector" },
+  { val: "5x", mult: 5, color: "bg-gradient-to-b from-purple-400 to-purple-600 text-slate-900", label: "Purple Sector" },
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-slate-900", label: "Blue Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-slate-900", label: "Green Sector" },
   { val: "10x", mult: 10, color: "bg-gradient-to-b from-yellow-300 to-yellow-500 text-slate-900", label: "Gold Sector" },
-  { val: "CRAZY", mult: 25, color: "bg-gradient-to-b from-red-500 to-rose-700 text-white font-black", label: "CRAZY TIME" },
-  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-white", label: "Blue Sector" },
-  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" },
-  { val: "5x", mult: 5, color: "bg-gradient-to-b from-purple-400 to-purple-600 text-white", label: "Purple Sector" },
-  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white", label: "Green Sector" }
+  { val: "CRAZY", mult: 25, color: "bg-gradient-to-b from-red-500 to-rose-700 text-slate-900 font-black", label: "CRAZY TIME" },
+  { val: "1x", mult: 1, color: "bg-gradient-to-b from-blue-400 to-blue-600 text-slate-900", label: "Blue Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-slate-900", label: "Green Sector" },
+  { val: "5x", mult: 5, color: "bg-gradient-to-b from-purple-400 to-purple-600 text-slate-900", label: "Purple Sector" },
+  { val: "2x", mult: 2, color: "bg-gradient-to-b from-emerald-400 to-emerald-600 text-slate-900", label: "Green Sector" }
 ];
 
 export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps) {
@@ -109,7 +109,7 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
       <div className="absolute top-0 w-full h-1/3 bg-gradient-to-b from-purple-900/10 to-transparent pointer-events-none" />
 
       <div className="text-center mb-8 z-20">
-        <h3 className="text-white font-black text-2xl uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Live Game Show</h3>
+        <h3 className="text-slate-900 font-black text-2xl uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">Live Game Show</h3>
         <p className="text-purple-400 text-xs font-bold uppercase tracking-wider mt-1">Spin the Massive Multiplier Wheel</p>
       </div>
 
@@ -137,7 +137,7 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
         <motion.div
           animate={{ rotate: rotation }}
           transition={{ duration: 6, ease: [0.1, 0.9, 0.2, 1] }}
-          className="absolute inset-[16px] rounded-full overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-4 border-yellow-600 bg-slate-900"
+          className="absolute inset-[16px] rounded-full overflow-hidden shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] border-4 border-yellow-600 bg-white"
         >
           {WHEEL_SECTORS.map((sec, i) => {
             const angle = (360 / WHEEL_SECTORS.length) * i;
@@ -166,9 +166,9 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
 
         {/* Heavy Inner Center Hub */}
         <div className="absolute w-32 h-32 rounded-full bg-gradient-to-br from-yellow-300 via-amber-500 to-yellow-600 border-8 border-yellow-200 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex items-center justify-center z-30 transform-style-3d">
-          <div className="w-20 h-20 rounded-full bg-slate-900 border-2 border-yellow-500/50 flex flex-col items-center justify-center text-center shadow-inner">
+          <div className="w-20 h-20 rounded-full bg-white border-2 border-yellow-500/50 flex flex-col items-center justify-center text-center shadow-inner">
             <span className="text-yellow-500 text-[10px] font-black tracking-widest uppercase drop-shadow-[0_0_5px_rgba(234,179,8,0.5)]">LIVE</span>
-            <span className="text-white text-sm font-black tracking-tight mt-0.5">WHEEL</span>
+            <span className="text-slate-900 text-sm font-black tracking-tight mt-0.5">WHEEL</span>
           </div>
         </div>
       </div>
@@ -191,7 +191,7 @@ export function LiveWheelEngine({ isPlaying, onComplete }: LiveWheelEngineProps)
             </motion.div>
             <motion.span 
               initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }}
-              className="text-white font-black text-xl mt-6 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
+              className="text-slate-900 font-black text-xl mt-6 uppercase tracking-widest drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]"
             >
               {winningSector.label} Hit!
             </motion.span>

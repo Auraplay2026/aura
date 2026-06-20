@@ -176,7 +176,7 @@ export function TraditionalSportsbookUI() {
           {/* Filter Pills */}
           <div className="p-6 flex items-center gap-3 overflow-x-auto custom-scrollbar shrink-0">
             <button onClick={() => setActiveFilter('all')} className={`px-4 py-2 rounded-full text-xs font-bold flex items-center gap-2 border transition-all ${activeFilter === 'all' ? 'bg-slate-50 text-slate-900 border-slate-600' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
-              All <span className="bg-slate-700 px-1.5 rounded text-[10px]">{filteredMarkets.length}</span>
+              All <span className="bg-slate-100 px-1.5 rounded text-[10px]">{filteredMarkets.length}</span>
             </button>
             <button onClick={() => setActiveFilter('popular')} className={`px-4 py-2 rounded-full text-xs font-bold border transition-all ${activeFilter === 'popular' ? 'bg-[#5a4fcf] text-slate-900 border-[#5a4fcf] shadow-[0_0_10px_rgba(90,79,207,0.3)]' : 'bg-white text-slate-600 border-slate-200 hover:bg-slate-50'}`}>
               Popular

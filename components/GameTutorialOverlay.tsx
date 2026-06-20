@@ -112,7 +112,7 @@ export function GameTutorialOverlay({ categories, gameTitle, onDismiss }: GameTu
 
               <button
                 onClick={handleDismiss}
-                className="w-full flex items-center justify-center gap-3 bg-green-500 hover:bg-emerald-600 text-white px-8 py-4 rounded-xl font-black text-xl tracking-wide uppercase transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
+                className="w-full flex items-center justify-center gap-3 bg-green-500 hover:bg-emerald-600 text-slate-900 px-8 py-4 rounded-xl font-black text-xl tracking-wide uppercase transition-all transform hover:scale-[1.02] active:scale-[0.98] shadow-lg"
               >
                 <span>Play Now</span>
                 <Play className="w-5 h-5 fill-current" />

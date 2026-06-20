@@ -44,13 +44,13 @@ export function LiveWinTicker() {
   }, []);
 
   return (
-    <div className="w-full bg-slate-950 border-t border-b border-slate-900 overflow-hidden py-2.5 shrink-0 select-none">
+    <div className="w-full bg-white border-t border-b border-slate-900 overflow-hidden py-2.5 shrink-0 select-none">
       <div className="flex w-max animate-shimmer-ticker gap-8 px-4 items-center">
         {/* Double list to create seamless looping */}
         {[...wins, ...wins].map((win, idx) => (
           <div key={`${win.id}-${idx}`} className="flex items-center gap-2 whitespace-nowrap text-xs font-bold text-slate-400">
             <Coins className="w-3.5 h-3.5 text-yellow-500" />
-            <span className="text-white">{win.user}</span>
+            <span className="text-slate-900">{win.user}</span>
             <span>won</span>
             <span className="text-emerald-400 font-extrabold font-mono">₹{win.amount.toLocaleString()}</span>
             <span>on</span>

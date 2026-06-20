@@ -66,7 +66,7 @@ const CAROUSEL_SLIDES = [
     subtitle: "Get Your Online ID",
     accent: "5% BONUS ON FIRST DEPOSIT",
     bgUrl: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop",
-    gradient: "from-red-950 via-slate-900 to-slate-900",
+    gradient: "from-rose-100 via-rose-50 to-slate-50",
     buttonText: "Register Now",
     link: "/auth"
   },
@@ -76,7 +76,7 @@ const CAROUSEL_SLIDES = [
     subtitle: "Unmatched Betting Margins",
     accent: "BET LIVE ON CRICKET, SOCCER, & TENNIS",
     bgUrl: "https://images.unsplash.com/photo-1518605368461-1e128014792c?q=80&w=2000&auto=format&fit=crop",
-    gradient: "from-purple-900 via-slate-900 to-slate-900",
+    gradient: "from-indigo-100 via-indigo-50 to-slate-50",
     buttonText: "Enter Sportsbook",
     link: "/sportsbook"
   },
@@ -86,7 +86,7 @@ const CAROUSEL_SLIDES = [
     subtitle: "Play Premium Games",
     accent: "NEON SURFER, SUGAR CASCADE & ZEN ARCHERY",
     bgUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2000&auto=format&fit=crop",
-    gradient: "from-emerald-900 via-slate-900 to-slate-900",
+    gradient: "from-emerald-100 via-emerald-50 to-slate-50",
     buttonText: "Play Instants",
     link: "/arcade"
   }
@@ -635,7 +635,7 @@ export default function GlobalHomepage() {
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto pb-20 w-full overflow-hidden px-4 sm:px-6 lg:px-8 mt-6">
       
       {/* 1. TOP PROMO BANNER CAROUSEL */}
-      <div className="relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-[6/1] lg:aspect-[8/1] flex items-center bg-slate-900 shadow-sm group">
+      <div className="relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-[6/1] lg:aspect-[8/1] flex items-center bg-slate-50 border border-slate-200/60 shadow-sm group">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -647,27 +647,27 @@ export default function GlobalHomepage() {
           >
             <div className={`absolute inset-0 bg-gradient-to-r ${CAROUSEL_SLIDES[currentSlide].gradient} z-10`} />
             <div 
-              className="absolute right-0 top-0 bottom-0 w-1/2 bg-cover bg-center opacity-30 mix-blend-luminosity z-0" 
+              className="absolute right-0 top-0 bottom-0 w-1/2 bg-cover bg-center opacity-20 mix-blend-luminosity z-0" 
               style={{ backgroundImage: `url('${CAROUSEL_SLIDES[currentSlide].bgUrl}')` }}
             />
-            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-transparent to-slate-900 z-10" />
+            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-transparent to-slate-50 z-10" />
             
             <div className="relative z-20 flex items-center justify-between w-full px-6 md:px-12">
               <div className="flex flex-col">
                 <div className="flex items-center gap-2 mb-2">
-                  <Zap className="w-5 h-5 text-yellow-400 fill-yellow-400" />
-                  <span className="text-yellow-400 font-black tracking-widest uppercase text-sm md:text-base">
+                  <Zap className="w-5 h-5 text-indigo-600 fill-indigo-600/10" />
+                  <span className="text-indigo-750 font-black tracking-widest uppercase text-sm md:text-base">
                     {CAROUSEL_SLIDES[currentSlide].title}
                   </span>
                 </div>
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-white tracking-tight uppercase italic">
+                <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase italic">
                   {CAROUSEL_SLIDES[currentSlide].subtitle}
                 </h2>
-                <div className="mt-2 inline-block px-4 py-1 border-2 border-yellow-400 text-yellow-400 font-bold text-xs md:text-sm w-max uppercase tracking-wider">
+                <div className="mt-2 inline-block px-4 py-1 border-2 border-indigo-600 text-indigo-700 bg-indigo-50/50 font-bold text-xs md:text-sm w-max uppercase tracking-wider">
                   {CAROUSEL_SLIDES[currentSlide].accent}
                 </div>
               </div>
-              <Link href={CAROUSEL_SLIDES[currentSlide].link} className="hidden md:flex bg-yellow-400 text-slate-900 font-black px-6 py-3 rounded uppercase items-center gap-2 hover:bg-yellow-300 transition-colors cursor-pointer shadow-md">
+              <Link href={CAROUSEL_SLIDES[currentSlide].link} className="hidden md:flex bg-indigo-650 text-slate-900 font-black px-6 py-3 rounded uppercase items-center gap-2 hover:bg-indigo-600 transition-colors cursor-pointer shadow-md">
                 {CAROUSEL_SLIDES[currentSlide].buttonText} <ChevronRight className="w-5 h-5" />
               </Link>
             </div>
@@ -699,13 +699,13 @@ export default function GlobalHomepage() {
         {/* Arrow Navigation */}
         <button 
           onClick={() => setCurrentSlide((prev) => (prev - 1 + CAROUSEL_SLIDES.length) % CAROUSEL_SLIDES.length)}
-          className="absolute left-4 z-20 w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-900 border border-slate-700/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute left-4 z-20 w-8 h-8 rounded-full bg-white/60 hover:bg-white border border-slate-700/50 flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity"
         >
           <ChevronLeft className="w-5 h-5" />
         </button>
         <button 
           onClick={() => setCurrentSlide((prev) => (prev + 1) % CAROUSEL_SLIDES.length)}
-          className="absolute right-4 z-20 w-8 h-8 rounded-full bg-slate-900/60 hover:bg-slate-900 border border-slate-700/50 flex items-center justify-center text-white opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute right-4 z-20 w-8 h-8 rounded-full bg-white/60 hover:bg-white border border-slate-700/50 flex items-center justify-center text-slate-900 opacity-0 group-hover:opacity-100 transition-opacity"
         >
           <ChevronRight className="w-5 h-5" />
         </button>
@@ -768,12 +768,12 @@ export default function GlobalHomepage() {
         <Link href="/blog" className="md:col-span-2 relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-auto md:h-auto bg-gradient-to-br from-yellow-400 to-amber-500 group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex items-center justify-center p-6">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay z-0" />
           <div className="relative z-10 flex flex-col items-center w-full">
-            <div className="bg-red-600 text-white font-black text-6xl md:text-7xl italic tracking-tighter px-6 py-2 rounded-xl shadow-xl transform -rotate-2 mb-4 border-4 border-white">
+            <div className="bg-red-600 text-slate-900 font-black text-6xl md:text-7xl italic tracking-tighter px-6 py-2 rounded-xl shadow-xl transform -rotate-2 mb-4 border-4 border-white">
               BLOG
             </div>
             <p className="text-slate-900 font-black uppercase tracking-widest text-sm mb-6 bg-white px-3 py-1 rounded">News | Sporting Info | Etc.</p>
             
-            <div className="flex justify-center gap-4 text-slate-900 w-full bg-slate-900/10 p-3 rounded-lg">
+            <div className="flex justify-center gap-4 text-slate-900 w-full bg-white/10 p-3 rounded-lg">
               <div className="flex flex-col items-center gap-1"><Trophy className="w-6 h-6" /><span className="text-[9px] font-bold uppercase">Cricket</span></div>
               <div className="flex flex-col items-center gap-1"><Activity className="w-6 h-6" /><span className="text-[9px] font-bold uppercase">Tennis</span></div>
               <div className="flex flex-col items-center gap-1"><Star className="w-6 h-6" /><span className="text-[9px] font-bold uppercase">Football</span></div>
@@ -791,7 +791,7 @@ export default function GlobalHomepage() {
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700 opacity-60 mix-blend-overlay" />
           <div className="absolute inset-0 bg-gradient-to-t from-rose-950 to-transparent" />
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-end p-6">
-             <h3 className="text-3xl font-black text-white tracking-tighter mb-1">bet<span className="text-rose-400">radar</span></h3>
+             <h3 className="text-3xl font-black text-slate-900 tracking-tighter mb-1">bet<span className="text-rose-400">radar</span></h3>
           </div>
         </Link>
 
@@ -801,20 +801,20 @@ export default function GlobalHomepage() {
           <div className="absolute inset-0 bg-gradient-to-t from-purple-900 to-transparent" />
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-end p-6">
              <div className="flex items-center gap-2 mb-1">
-               <Flame className="w-8 h-8 text-white" />
-               <h3 className="text-3xl font-black text-white tracking-tighter">Evolution</h3>
+               <Flame className="w-8 h-8 text-slate-900" />
+               <h3 className="text-3xl font-black text-slate-900 tracking-tighter">Evolution</h3>
              </div>
           </div>
         </Link>
 
         {/* SmartSoft */}
-        <Link href="/casino?provider=smartsoft" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-slate-900 group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
+        <Link href="/casino?provider=smartsoft" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-white group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518331647614-7a1f04cd34ce?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700 opacity-50" />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 to-transparent" />
           <div className="relative z-10 w-full h-full flex flex-col items-center justify-end p-6">
              <div className="flex items-center gap-2 mb-1">
-               <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-white font-black italic">S</div>
-               <h3 className="text-3xl font-black text-white tracking-tighter">SmartSoft</h3>
+               <div className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center text-slate-900 font-black italic">S</div>
+               <h3 className="text-3xl font-black text-slate-900 tracking-tighter">SmartSoft</h3>
              </div>
           </div>
         </Link>
@@ -890,7 +890,7 @@ export default function GlobalHomepage() {
               <div className="mt-6">
                 <Link 
                   href="/casino/game/orig-15"
-                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-white font-black text-xs uppercase tracking-widest rounded-xl shadow-[0_4px_15px_rgba(6,182,212,0.2)] hover:shadow-[0_4px_20px_rgba(6,182,212,0.4)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
+                  className="w-full py-3 bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl shadow-[0_4px_15px_rgba(6,182,212,0.2)] hover:shadow-[0_4px_20px_rgba(6,182,212,0.4)] transition-all hover:scale-[1.02] flex items-center justify-center gap-2"
                 >
                   LAUNCH MISSION <Play className="w-3 h-3 fill-white" />
                 </Link>
@@ -933,7 +933,7 @@ export default function GlobalHomepage() {
                       </h4>
                       <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
                         <p className="text-[7px] text-slate-400 font-bold uppercase">RTP {game.rtp}%</p>
-                        <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                        <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                           PLAY <Play className="w-1.5 h-1.5 fill-white" />
                         </div>
                       </div>
@@ -1128,7 +1128,7 @@ export default function GlobalHomepage() {
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
                       <p className="text-[7px] text-slate-400 font-bold uppercase">GPU RTX 4090</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                         RENT <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
                     </div>
@@ -1207,7 +1207,7 @@ export default function GlobalHomepage() {
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
                       <p className="text-[7px] text-slate-400 font-bold uppercase">3D RENDERED</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                         SPIN <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
                     </div>
@@ -1286,7 +1286,7 @@ export default function GlobalHomepage() {
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
                       <p className="text-[7px] text-slate-400 font-bold uppercase">4K WebRTC</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full">
+                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
                         JOIN <Play className="w-1.5 h-1.5 fill-white" />
                       </div>
                     </div>
@@ -1317,7 +1317,7 @@ export default function GlobalHomepage() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedBet(null)}
-              className="fixed inset-0 bg-slate-900/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4"
+              className="fixed inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4"
             >
               {/* Slip Card */}
               <motion.div 
@@ -1375,7 +1375,7 @@ export default function GlobalHomepage() {
                           <button
                             key={s}
                             onClick={() => setStake(s)}
-                            className={`py-1.5 border rounded text-xs font-bold font-mono transition-colors ${stake === s ? 'bg-red-600 text-white border-red-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'}`}
+                            className={`py-1.5 border rounded text-xs font-bold font-mono transition-colors ${stake === s ? 'bg-red-600 text-slate-900 border-red-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'}`}
                           >
                             ₹{s}
                           </button>
@@ -1395,8 +1395,8 @@ export default function GlobalHomepage() {
                         disabled={isPlacingBet}
                         className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs shadow-md transition-all ${
                           selectedBet.type === 'back' 
-                            ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-emerald-500/20' 
-                            : 'bg-pink-600 hover:bg-pink-700 text-white shadow-pink-500/20'
+                            ? 'bg-emerald-600 hover:bg-emerald-700 text-slate-900 shadow-emerald-500/20' 
+                            : 'bg-pink-600 hover:bg-pink-700 text-slate-900 shadow-pink-500/20'
                         } disabled:opacity-50`}
                       >
                         {isPlacingBet ? "Processing..." : "Confirm Wager"}

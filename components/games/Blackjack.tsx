@@ -205,12 +205,12 @@ export function Blackjack() {
         <div className="flex-1 flex flex-col gap-2 justify-center">
           {gameState === "playing" && (
             <>
-              <button onClick={hit} className="w-full py-3 bg-slate-100 hover:bg-slate-700 text-slate-900 rounded-xl font-bold transition-colors">Hit</button>
-              <button onClick={stand} className="w-full py-3 bg-slate-100 hover:bg-slate-700 text-slate-900 rounded-xl font-bold transition-colors">Stand</button>
+              <button onClick={hit} className="w-full py-3 bg-slate-100 hover:bg-slate-100 text-slate-900 rounded-xl font-bold transition-colors">Hit</button>
+              <button onClick={stand} className="w-full py-3 bg-slate-100 hover:bg-slate-100 text-slate-900 rounded-xl font-bold transition-colors">Stand</button>
               <button 
                 onClick={doubleDown} 
                 disabled={playerHand.length !== 2}
-                className="w-full py-3 bg-slate-100 hover:bg-slate-700 text-slate-900 rounded-xl font-bold transition-colors disabled:opacity-50"
+                className="w-full py-3 bg-slate-100 hover:bg-slate-100 text-slate-900 rounded-xl font-bold transition-colors disabled:opacity-50"
               >
                 Double Down
               </button>

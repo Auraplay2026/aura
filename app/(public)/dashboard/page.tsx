@@ -53,7 +53,7 @@ export default function DashboardPage() {
       <div className="absolute inset-0 bg-gradient-to-b from-neon-purple/5 via-[#02050a] to-[#02050a] pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 relative z-10">
-        <h1 className="text-3xl md:text-5xl font-black text-white uppercase tracking-tighter mb-8 drop-shadow-md">
+        <h1 className="text-3xl md:text-5xl font-black text-slate-900 uppercase tracking-tighter mb-8 drop-shadow-md">
           Player <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-purple to-neon-green">Dashboard</span>
         </h1>
 
@@ -90,7 +90,7 @@ export default function DashboardPage() {
               {/* Progress Stats */}
               <div className="flex-1 w-full text-center md:text-left">
                 <p className="text-slate-400 text-sm font-bold uppercase tracking-widest mb-1">Total Wagered</p>
-                <h2 className="text-4xl md:text-5xl font-black text-white font-mono tracking-tighter mb-4">
+                <h2 className="text-4xl md:text-5xl font-black text-slate-900 font-mono tracking-tighter mb-4">
                   ₹{totalWagered.toLocaleString(undefined, { maximumFractionDigits: 0 })}
                 </h2>
                 
@@ -121,14 +121,14 @@ export default function DashboardPage() {
 
           {/* Quick Stats Card */}
           <div className="bg-[#0a0f1c] border border-white/10 rounded-3xl p-6 relative overflow-hidden flex flex-col gap-4">
-            <h3 className="text-white font-black uppercase tracking-widest text-sm flex items-center gap-2 mb-2">
+            <h3 className="text-slate-900 font-black uppercase tracking-widest text-sm flex items-center gap-2 mb-2">
               <Activity className="w-4 h-4 text-neon-yellow" /> Wallet Overview
             </h3>
             
             <div className="bg-[#131b2c] p-4 rounded-2xl border border-white/5 flex items-center justify-between">
               <div>
                 <p className="text-slate-500 text-xs font-bold uppercase tracking-wider mb-1">Current Balance</p>
-                <p className="text-2xl font-black text-white font-mono tracking-tight">₹{balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
+                <p className="text-2xl font-black text-slate-900 font-mono tracking-tight">₹{balance.toLocaleString(undefined, { minimumFractionDigits: 2 })}</p>
               </div>
               <button onClick={() => window.dispatchEvent(new CustomEvent('open-cashier'))} className="bg-neon-green text-black px-4 py-2 rounded-xl font-black text-xs uppercase tracking-widest hover:scale-105 transition-transform shadow-[0_0_15px_rgba(16,185,129,0.3)]">
                 Deposit
@@ -143,7 +143,7 @@ export default function DashboardPage() {
         </div>
 
         {/* VIP Benefits & Unlocks */}
-        <h2 className="text-2xl font-black text-white uppercase tracking-widest mt-12 mb-6 flex items-center gap-3">
+        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest mt-12 mb-6 flex items-center gap-3">
           <Gift className="w-6 h-6 text-neon-purple" /> VIP Benefits Hub
         </h2>
 

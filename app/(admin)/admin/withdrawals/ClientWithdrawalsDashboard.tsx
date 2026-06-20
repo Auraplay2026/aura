@@ -330,7 +330,7 @@ export default function ClientWithdrawalsDashboard({ initialUsers, globalTransac
                             <>
                               <button
                                 onClick={() => handleWithdrawalStatusUpdate(item.user.email, item.transaction.id, 'Processing')}
-                                className="bg-indigo-600 hover:bg-indigo-500 text-white font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition cursor-pointer shadow-lg shadow-indigo-600/15"
+                                className="bg-indigo-600 hover:bg-indigo-500 text-slate-900 font-black px-3 py-1.5 rounded-lg text-[10px] uppercase tracking-wider transition cursor-pointer shadow-lg shadow-indigo-600/15"
                               >
                                 Process
                               </button>
@@ -400,7 +400,7 @@ export default function ClientWithdrawalsDashboard({ initialUsers, globalTransac
                   <AlertCircle className="w-5 h-5 text-rose-500 animate-pulse" />
                   <h3 className="text-sm font-black text-slate-900 uppercase tracking-widest">Decline Withdrawal</h3>
                 </div>
-                <button onClick={() => setDeclineWithdrawalModal(null)} className="w-7 h-7 rounded-lg bg-slate-900/5 flex items-center justify-center text-slate-600">
+                <button onClick={() => setDeclineWithdrawalModal(null)} className="w-7 h-7 rounded-lg bg-white/5 flex items-center justify-center text-slate-600">
                   <X className="w-4 h-4" />
                 </button>
               </div>
@@ -430,13 +430,13 @@ export default function ClientWithdrawalsDashboard({ initialUsers, globalTransac
                 <div className="flex gap-3 pt-3 border-t border-slate-200">
                   <button
                     onClick={() => setDeclineWithdrawalModal(null)}
-                    className="flex-1 bg-transparent hover:bg-slate-900/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 transition"
+                    className="flex-1 bg-transparent hover:bg-white/5 border border-slate-200 py-3 rounded-xl text-[10px] font-black uppercase text-slate-600 transition"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={submitDeclineWithdrawal}
-                    className="flex-1 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-white font-black py-3 rounded-xl text-[10px] uppercase tracking-widest transition shadow-lg shadow-red-500/15"
+                    className="flex-1 bg-gradient-to-r from-red-500 to-rose-600 hover:from-red-400 hover:to-rose-500 text-slate-900 font-black py-3 rounded-xl text-[10px] uppercase tracking-widest transition shadow-lg shadow-red-500/15"
                   >
                     Decline & Refund
                   </button>

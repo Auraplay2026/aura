@@ -94,7 +94,7 @@ export function Sidebar() {
       {/* Mobile Overlay */}
       {isMobileMenuOpen && (
         <div 
-          className="fixed inset-0 bg-black/60 z-[48] lg:hidden" 
+          className="fixed inset-0 bg-white/60 z-[48] lg:hidden" 
           onClick={() => setIsMobileMenuOpen(false)} 
         />
       )}
@@ -111,8 +111,8 @@ export function Sidebar() {
         {/* Expanded Header / Logo */}
         <div className="h-14 lg:h-16 flex items-center justify-between px-6 border-b border-slate-200/50 shrink-0 bg-transparent">
           <Link href="/" className="flex items-center gap-2.5 hover:opacity-85 transition-opacity" onClick={() => setIsMobileMenuOpen(false)}>
-            <div className="w-7 h-7 bg-slate-900 rounded-lg flex items-center justify-center shrink-0 shadow-sm border border-white/10">
-              <span className="text-white font-black text-xs tracking-wider">AP</span>
+            <div className="w-7 h-7 bg-white rounded-lg flex items-center justify-center shrink-0 shadow-sm border border-white/10">
+              <span className="text-slate-900 font-black text-xs tracking-wider">AP</span>
             </div>
             <span className="text-slate-900 font-black tracking-normal uppercase text-sm flex items-center select-none">
               AuraPlay<span className="text-purple-650 font-black ml-0.5">EX</span>
@@ -238,7 +238,7 @@ export function Sidebar() {
                       {item.badge && (
                         <span className={cn(
                           "text-[8px] font-black tracking-wider px-1.5 py-0.5 rounded-sm uppercase shrink-0",
-                          item.badge === "NEW" ? "bg-violet-600 text-white shadow-[0_0_8px_rgba(109,40,217,0.4)]" : "bg-rose-600 text-white"
+                          item.badge === "NEW" ? "bg-violet-600 text-slate-900 shadow-[0_0_8px_rgba(109,40,217,0.4)]" : "bg-rose-600 text-slate-900"
                         )}>
                           {item.badge}
                         </span>

@@ -417,7 +417,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
             onClick={() => setActiveToken(token)}
             className={`w-12 h-12 rounded-full flex items-center justify-center font-black text-xs transition-all relative cursor-pointer active:scale-95 ${
               activeToken === token 
-                ? "bg-gradient-to-br from-red-500 to-red-600 text-white shadow-[0_5px_15px_rgba(239,68,68,0.3)] scale-108 border-2 border-red-200" 
+                ? "bg-gradient-to-br from-red-500 to-red-600 text-slate-900 shadow-[0_5px_15px_rgba(239,68,68,0.3)] scale-108 border-2 border-red-200" 
                 : "bg-slate-50 text-slate-600 border border-slate-200 hover:bg-slate-100"
             }`}
           >
@@ -456,7 +456,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       case "hot":
         return (
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
+            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
               HOT TEASER WHEEL
             </div>
             <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Hot Bonus Wheel</h2>
@@ -468,7 +468,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 transition={{ duration: 2.0, ease: "easeOut" }}
                 className="absolute inset-2 rounded-full border-4 border-dashed border-red-500/40 flex items-center justify-center"
               >
-                <div className="w-full h-full relative rounded-full flex items-center justify-center text-white/20 font-black text-[9px]">
+                <div className="w-full h-full relative rounded-full flex items-center justify-center text-slate-900/20 font-black text-[9px]">
                   <div className="absolute rotate-[0deg] translate-y-[-40%]">₹5,000</div>
                   <div className="absolute rotate-[72deg] translate-y-[-40%]">250% Match</div>
                   <div className="absolute rotate-[144deg] translate-y-[-40%]">50 Spins</div>
@@ -479,13 +479,13 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               <button 
                 onClick={spinHotWheel} 
                 disabled={hotSpinning}
-                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-600 hover:bg-red-700 text-white font-black uppercase text-xs sm:text-sm shadow-lg border-2 border-red-300 flex items-center justify-center cursor-pointer active:scale-95 relative z-10"
+                className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-red-600 hover:bg-red-700 text-slate-900 font-black uppercase text-xs sm:text-sm shadow-lg border-2 border-red-300 flex items-center justify-center cursor-pointer active:scale-95 relative z-10"
               >
                 SPIN
               </button>
             </div>
             {hotMsg && (
-              <div className="mt-6 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
+              <div className="mt-6 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
                 {hotMsg}
               </div>
             )}
@@ -495,13 +495,13 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       case "slots":
         return (
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
+            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
               SLOTS TEASER REELS
             </div>
             <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Mini 3-Reel Slots</h2>
             <p className="text-xs text-slate-500 font-medium mb-6">Test the slot machine simulator logic before entering live lobbies</p>
             
-            <div className="flex gap-4 p-6 bg-slate-900 border-4 border-slate-800 rounded-3xl shadow-inner max-w-md w-full justify-center">
+            <div className="flex gap-4 p-6 bg-white border-4 border-slate-800 rounded-3xl shadow-inner max-w-md w-full justify-center">
               {slotsReels.map((symbol, idx) => (
                 <div key={idx} className="w-16 h-24 sm:w-20 sm:h-28 bg-white border border-slate-350 rounded-xl flex items-center justify-center text-4xl shadow-md font-black">
                   {symbol}
@@ -511,12 +511,12 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
             <button
               onClick={spinSlotsTeaser}
               disabled={slotsSpinning}
-              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
             >
               {slotsSpinning ? "SPINNING REELS..." : "SPIN TEASER SLOT"}
             </button>
             {slotsWinMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow">
+              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow">
                 {slotsWinMsg}
               </div>
             )}
@@ -526,7 +526,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       case "live":
         return (
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
+            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
               LIVE BACCARAT TEASER
             </div>
             <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Baccarat Teaser</h2>
@@ -536,33 +536,33 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               <div className="flex gap-4 mb-6">
                 <button 
                   onClick={() => setBaccaratSide("PLAYER")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "PLAYER" ? "bg-blue-600 text-white border-blue-400" : "bg-black/40 text-slate-400 border border-white/10"}`}
+                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "PLAYER" ? "bg-blue-600 text-slate-900 border-blue-400" : "bg-white/40 text-slate-400 border border-white/10"}`}
                 >
                   Player
                 </button>
                 <button 
                   onClick={() => setBaccaratSide("TIE")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "TIE" ? "bg-emerald-600 text-white border-emerald-400" : "bg-black/40 text-slate-400 border border-white/10"}`}
+                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "TIE" ? "bg-emerald-600 text-slate-900 border-emerald-400" : "bg-white/40 text-slate-400 border border-white/10"}`}
                 >
                   Tie
                 </button>
                 <button 
                   onClick={() => setBaccaratSide("BANKER")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "BANKER" ? "bg-red-600 text-white border-red-400" : "bg-black/40 text-slate-400 border border-white/10"}`}
+                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "BANKER" ? "bg-red-600 text-slate-900 border-red-400" : "bg-white/40 text-slate-400 border border-white/10"}`}
                 >
                   Banker
                 </button>
               </div>
 
               {baccaratDealing && (
-                <div className="absolute inset-0 bg-black/40 backdrop-blur-xs flex items-center justify-center rounded-2xl z-20">
+                <div className="absolute inset-0 bg-white/40 backdrop-blur-xs flex items-center justify-center rounded-2xl z-20">
                   <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
 
               <div className="flex gap-16 justify-center w-full">
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-white/50 font-black uppercase mb-1">Player</span>
+                  <span className="text-[10px] text-slate-900/50 font-black uppercase mb-1">Player</span>
                   <div className="flex gap-1">
                     {baccaratPlayer.map((c, i) => (
                       <div key={i} className="w-10 h-15 bg-white rounded border flex flex-col justify-between p-1 text-slate-900 font-mono text-[9px] font-black">{c.val}{c.suit}</div>
@@ -570,7 +570,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                   </div>
                 </div>
                 <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-white/50 font-black uppercase mb-1">Banker</span>
+                  <span className="text-[10px] text-slate-900/50 font-black uppercase mb-1">Banker</span>
                   <div className="flex gap-1">
                     {baccaratBanker.map((c, i) => (
                       <div key={i} className="w-10 h-15 bg-white rounded border flex flex-col justify-between p-1 text-slate-900 font-mono text-[9px] font-black">{c.val}{c.suit}</div>
@@ -583,12 +583,12 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
             <button 
               onClick={dealBaccaratTeaser} 
               disabled={baccaratDealing}
-              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
             >
               DEAL CARDS
             </button>
             {baccaratMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
+              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
                 {baccaratMsg}
               </div>
             )}
@@ -598,14 +598,14 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       case "crash":
         return (
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
+            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
               CRASH SIMULATOR
             </div>
             <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Mini Crash Multiplier</h2>
             <p className="text-xs text-slate-500 font-medium mb-6">Launch the airplane and cash out before the crash occurs</p>
             
-            <div className="w-full max-w-md bg-slate-950 border border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[180px] shadow-lg relative">
-              <h1 className={`text-6xl font-black font-mono tracking-tighter ${crashFled ? "text-red-500" : "text-white"}`}>
+            <div className="w-full max-w-md bg-white border border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[180px] shadow-lg relative">
+              <h1 className={`text-6xl font-black font-mono tracking-tighter ${crashFled ? "text-red-500" : "text-slate-900"}`}>
                 {crashMultiplier.toFixed(2)}x
               </h1>
             </div>
@@ -614,20 +614,20 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               <button
                 onClick={launchCrashTeaser}
                 disabled={crashActive}
-                className="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+                className="px-6 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
               >
                 LAUNCH INSTANCE
               </button>
               <button
                 onClick={cashoutCrashTeaser}
                 disabled={!crashActive || crashCashedOut}
-                className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-40"
+                className="px-6 py-3.5 bg-emerald-600 hover:bg-emerald-700 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer disabled:opacity-40"
               >
                 CASHOUT
               </button>
             </div>
             {crashMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow">
+              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow">
                 {crashMsg}
               </div>
             )}
@@ -637,13 +637,13 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       case "originals":
         return (
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
+            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
               DICE SIMULATOR
             </div>
             <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Mini Dice Roller</h2>
             <p className="text-xs text-slate-500 font-medium mb-6">Select a target roll and roll under to win</p>
             
-            <div className="w-full max-w-md bg-slate-950 border border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[160px] shadow-lg relative gap-4">
+            <div className="w-full max-w-md bg-white border border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[160px] shadow-lg relative gap-4">
               {diceResult !== null ? (
                 <h1 className="text-5xl font-black font-mono text-emerald-400">{diceResult.toFixed(2)}</h1>
               ) : (
@@ -667,12 +667,12 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
             <button 
               onClick={rollDiceTeaser} 
               disabled={diceRolling}
-              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
             >
               {diceRolling ? "ROLLING..." : "ROLL DICE"}
             </button>
             {diceMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow">
+              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow">
                 {diceMsg}
               </div>
             )}
@@ -682,29 +682,29 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       case "roulette":
         return (
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
+            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
               ROULETTE WHEEL TEASER
             </div>
             <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Mini Roulette</h2>
             <p className="text-xs text-slate-500 font-medium mb-6">Bet on a color layout and spin the wheel cylinder</p>
             
-            <div className="w-full max-w-md bg-slate-950 border border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[180px] shadow-lg relative gap-4">
+            <div className="w-full max-w-md bg-white border border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[180px] shadow-lg relative gap-4">
               <div className="flex gap-4">
                 <button 
                   onClick={() => setRouletteBet("RED")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${rouletteBet === "RED" ? "bg-red-600 text-white border-red-400 shadow-md" : "bg-black/45 text-slate-400 border border-white/10"}`}
+                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${rouletteBet === "RED" ? "bg-red-600 text-slate-900 border-red-400 shadow-md" : "bg-white/45 text-slate-400 border border-white/10"}`}
                 >
                   Red
                 </button>
                 <button 
                   onClick={() => setRouletteBet("BLACK")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${rouletteBet === "BLACK" ? "bg-slate-900 text-white border-slate-800 shadow-md" : "bg-black/45 text-slate-400 border border-white/10"}`}
+                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${rouletteBet === "BLACK" ? "bg-white text-slate-900 border-slate-800 shadow-md" : "bg-white/45 text-slate-400 border border-white/10"}`}
                 >
                   Black
                 </button>
                 <button 
                   onClick={() => setRouletteBet("ZERO")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${rouletteBet === "ZERO" ? "bg-emerald-600 text-white border-emerald-400 shadow-md" : "bg-black/45 text-slate-400 border border-white/10"}`}
+                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${rouletteBet === "ZERO" ? "bg-emerald-600 text-slate-900 border-emerald-400 shadow-md" : "bg-white/45 text-slate-400 border border-white/10"}`}
                 >
                   Zero (0)
                 </button>
@@ -713,7 +713,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               {rouletteResult ? (
                 <div className="flex items-center gap-2">
                   <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Ball Landed on:</span>
-                  <span className={`px-4 py-1.5 rounded-full font-black text-sm text-white ${rouletteResult === "RED" ? "bg-red-600" : rouletteResult === "BLACK" ? "bg-slate-900" : "bg-emerald-600"}`}>
+                  <span className={`px-4 py-1.5 rounded-full font-black text-sm text-slate-900 ${rouletteResult === "RED" ? "bg-red-600" : rouletteResult === "BLACK" ? "bg-white" : "bg-emerald-600"}`}>
                     {rouletteResult}
                   </span>
                 </div>
@@ -725,12 +725,12 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
             <button 
               onClick={spinRouletteTeaser} 
               disabled={rouletteSpinning}
-              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-white font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
             >
               SPIN WHEEL
             </button>
             {rouletteMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
+              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
                 {rouletteMsg}
               </div>
             )}
@@ -740,7 +740,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
       case "blackjack":
         return (
           <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
+            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
               VIP Teaser Table
             </div>
             <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Blackjack Teaser</h2>
@@ -754,7 +754,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               {teaserDealt && (
                 <div className="absolute inset-0 flex items-center justify-center gap-12 sm:gap-24 z-10">
                   <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-[8px] font-black text-white/50 uppercase tracking-widest">Dealer</span>
+                    <span className="text-[8px] font-black text-slate-900/50 uppercase tracking-widest">Dealer</span>
                     <div className="flex gap-[-10px]">
                       {teaserDealerHand.map((c, i) => (
                         <motion.div 
@@ -772,7 +772,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                   </div>
 
                   <div className="flex flex-col items-center gap-1.5">
-                    <span className="text-[8px] font-black text-white/50 uppercase tracking-widest">Player</span>
+                    <span className="text-[8px] font-black text-slate-900/50 uppercase tracking-widest">Player</span>
                     <div className="flex gap-[-10px]">
                       {teaserPlayerHand.map((c, i) => (
                         <motion.div 
@@ -792,7 +792,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               )}
 
               {teaserDealing && (
-                <div className="absolute inset-0 flex items-center justify-center z-15 bg-black/40 backdrop-blur-xs">
+                <div className="absolute inset-0 flex items-center justify-center z-15 bg-white/40 backdrop-blur-xs">
                   <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
                 </div>
               )}
@@ -800,11 +800,11 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               <div className="flex gap-6 sm:gap-12 relative z-10">
                 <button 
                   onClick={() => handleBetDrop("perfect-pairs")}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-dashed border-red-500/40 flex flex-col items-center justify-center bg-black/40 hover:bg-white/5 transition-all relative cursor-pointer"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-dashed border-red-500/40 flex flex-col items-center justify-center bg-white/40 hover:bg-white/5 transition-all relative cursor-pointer"
                 >
                   <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">Pairs</span>
                   {bets["perfect-pairs"] && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white font-black text-[9px] flex items-center justify-center shadow">
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-slate-900 font-black text-[9px] flex items-center justify-center shadow">
                       ₹{bets["perfect-pairs"]}
                     </div>
                   )}
@@ -816,7 +816,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 >
                   <span className="text-[10px] font-black text-slate-800 uppercase tracking-wider">Bet Main</span>
                   {bets["main"] && (
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-red-600 text-white font-black text-xs flex items-center justify-center shadow-md">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-red-600 text-slate-900 font-black text-xs flex items-center justify-center shadow-md">
                       ₹{bets["main"]}
                     </div>
                   )}
@@ -824,11 +824,11 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
 
                 <button 
                   onClick={() => handleBetDrop("bonus")}
-                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-dashed border-red-500/40 flex flex-col items-center justify-center bg-black/40 hover:bg-white/5 transition-all relative cursor-pointer"
+                  className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border border-dashed border-red-500/40 flex flex-col items-center justify-center bg-white/40 hover:bg-white/5 transition-all relative cursor-pointer"
                 >
                   <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">Bonus</span>
                   {bets["bonus"] && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white font-black text-[9px] flex items-center justify-center shadow">
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-slate-900 font-black text-[9px] flex items-center justify-center shadow">
                       ₹{bets["bonus"]}
                     </div>
                   )}
@@ -837,7 +837,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
             </div>
 
             {teaserMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
+              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
                 {teaserMsg}
               </div>
             )}
@@ -859,7 +859,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="md:col-span-2 bg-gradient-to-br from-red-950 via-[#3a0606] to-[#1a0101] border-[12px] border-slate-800 rounded-3xl p-6 flex flex-col items-center justify-center min-h-[300px] shadow-lg relative">
-                <span className="absolute top-4 text-[9px] font-extrabold uppercase tracking-widest text-white/30">Community Cards</span>
+                <span className="absolute top-4 text-[9px] font-extrabold uppercase tracking-widest text-slate-900/30">Community Cards</span>
                 
                 {pokerCommunity.length > 0 && (
                   <div className="flex gap-2.5 sm:gap-4 mb-12 mt-4">
@@ -878,7 +878,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
 
                 {pokerHand.length > 0 && (
                   <div className="flex gap-4 relative">
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase whitespace-nowrap shadow-md">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-900 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase whitespace-nowrap shadow-md">
                       Pocket Cards
                     </div>
                     <div className="w-14 h-20 bg-white border border-slate-300 rounded-lg shadow-lg flex items-center justify-center text-base font-black text-slate-800 rotate-[-5deg]">
@@ -894,18 +894,18 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-center gap-4">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center block mb-2">Simulated Live Action</span>
                 {pokerState === "idle" ? (
-                  <button onClick={startPokerTeaser} className="text-center bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                  <button onClick={startPokerTeaser} className="text-center bg-red-600 hover:bg-red-700 text-slate-900 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer">
                     DEAL HOLE CARDS
                   </button>
                 ) : (
-                  <button onClick={advancePokerTeaser} className="text-center bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                  <button onClick={advancePokerTeaser} className="text-center bg-emerald-500 hover:bg-emerald-600 text-slate-900 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer">
                     {pokerState === "flop" ? "DEAL TURN" : pokerState === "turn" ? "DEAL RIVER" : "SHOWDOWN"}
                   </button>
                 )}
               </div>
             </div>
             {pokerMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-slate-900 border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse text-center">
+              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse text-center">
                 {pokerMsg}
               </div>
             )}
@@ -932,7 +932,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                   href={`/casino/${cat.slug}`}
                   className={`flex items-center gap-2 px-5 py-3 rounded-2xl font-black text-xs uppercase tracking-wider transition-all duration-300 border cursor-pointer ${
                     isActive
-                      ? "bg-gradient-to-br from-red-550 to-red-650 text-white border-red-500 shadow-md scale-102"
+                      ? "bg-gradient-to-br from-red-550 to-red-650 text-slate-900 border-red-500 shadow-md scale-102"
                       : "bg-white text-slate-600 border-slate-200/80 hover:bg-slate-50 hover:border-slate-300"
                   }`}
                 >

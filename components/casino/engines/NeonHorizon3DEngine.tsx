@@ -699,9 +699,9 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
 
       <div className="relative z-20 w-full flex justify-between items-center p-6 bg-gradient-to-b from-black/85 to-transparent">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 bg-slate-900/80 border border-slate-700/60 rounded-xl px-4 py-1.5 shadow-md">
+          <div className="flex items-center gap-2 bg-white/80 border border-slate-700/60 rounded-xl px-4 py-1.5 shadow-md">
             <div className="w-2.5 h-2.5 rounded-full bg-cyan-400 animate-ping" />
-            <h2 className="text-white font-black text-sm uppercase tracking-widest leading-none">Neon Horizon 3D</h2>
+            <h2 className="text-slate-900 font-black text-sm uppercase tracking-widest leading-none">Neon Horizon 3D</h2>
           </div>
           {gameState === "playing" && (
             <span className="text-[10px] text-cyan-400 font-mono font-bold tracking-widest pl-2">
@@ -713,12 +713,12 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
         <div className="flex items-center gap-4">
           <button 
             onClick={toggleMute}
-            className="w-10 h-10 rounded-xl bg-slate-900/60 border border-slate-700/60 flex items-center justify-center text-slate-400 hover:text-white transition-colors backdrop-blur-md"
+            className="w-10 h-10 rounded-xl bg-white/60 border border-slate-700/60 flex items-center justify-center text-slate-400 hover:text-slate-900 transition-colors backdrop-blur-md"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>
 
-          <div className="bg-slate-950/80 backdrop-blur-md border border-slate-700/50 px-5 py-2.5 rounded-2xl flex flex-col items-end shadow-lg shadow-black/40 min-w-[120px]">
+          <div className="bg-white/80 backdrop-blur-md border border-slate-700/50 px-5 py-2.5 rounded-2xl flex flex-col items-end shadow-lg shadow-black/40 min-w-[120px]">
             <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">Multiplier</span>
             <span className={`text-2xl font-mono font-black tabular-nums transition-all ${
               gameState === "crashed" ? "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
@@ -739,14 +739,14 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
               initial={{ scale: 0.95, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.95, opacity: 0 }}
-              className="flex flex-col items-center gap-4 bg-slate-900/80 backdrop-blur-md border border-slate-700/50 p-8 rounded-3xl text-center max-w-sm mx-4 shadow-2xl"
+              className="flex flex-col items-center gap-4 bg-white/80 backdrop-blur-md border border-slate-700/50 p-8 rounded-3xl text-center max-w-sm mx-4 shadow-2xl"
             >
               <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
-                <Zap className="w-8 h-8 text-white stroke-[2.5]" />
+                <Zap className="w-8 h-8 text-slate-900 stroke-[2.5]" />
               </div>
-              <h3 className="text-white font-black text-xl uppercase tracking-widest">Manual Drive Mode</h3>
+              <h3 className="text-slate-900 font-black text-xl uppercase tracking-widest">Manual Drive Mode</h3>
               <p className="text-slate-400 text-xs font-semibold leading-relaxed">
-                Steer using <kbd className="bg-slate-950 border border-slate-700 px-1 py-0.5 rounded text-[10px]">A</kbd> / <kbd className="bg-slate-950 border border-slate-700 px-1 py-0.5 rounded text-[10px]">D</kbd> or <kbd className="bg-slate-950 border border-slate-700 px-1 py-0.5 rounded text-[10px]">←</kbd> / <kbd className="bg-slate-950 border border-slate-700 px-1 py-0.5 rounded text-[10px]">→</kbd> on keyboard. Dodge neon blockades. Cashout before crashing!
+                Steer using <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">A</kbd> / <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">D</kbd> or <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">←</kbd> / <kbd className="bg-white border border-slate-700 px-1 py-0.5 rounded text-[10px]">→</kbd> on keyboard. Dodge neon blockades. Cashout before crashing!
               </p>
               
               {!isPlaying ? (
@@ -771,7 +771,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="flex flex-col items-center gap-2 bg-black/60 backdrop-blur-sm px-10 py-6 rounded-3xl border border-red-500/30 shadow-[0_0_80px_rgba(239,68,68,0.35)]"
+              className="flex flex-col items-center gap-2 bg-white/60 backdrop-blur-sm px-10 py-6 rounded-3xl border border-red-500/30 shadow-[0_0_80px_rgba(239,68,68,0.35)]"
             >
               <AlertTriangle className="w-12 h-12 text-red-500 animate-bounce" />
               <span className="text-red-500 font-mono font-black text-4xl uppercase tracking-widest leading-none drop-shadow-[0_0_15px_rgba(239,68,68,0.5)]">
@@ -789,7 +789,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
             <motion.div 
               initial={{ scale: 0.8, opacity: 0 }}
               animate={{ scale: 1, opacity: 1 }}
-              className="flex flex-col items-center gap-2 bg-black/65 backdrop-blur-md px-12 py-8 rounded-3xl border border-emerald-500/30 shadow-[0_0_80px_rgba(16,185,129,0.35)] rotate-3"
+              className="flex flex-col items-center gap-2 bg-white/65 backdrop-blur-md px-12 py-8 rounded-3xl border border-emerald-500/30 shadow-[0_0_80px_rgba(16,185,129,0.35)] rotate-3"
             >
               <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-400 flex items-center justify-center text-emerald-400 shadow-md">
                 <Wallet className="w-6 h-6 stroke-[2.5]" />
@@ -797,7 +797,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
               <span className="text-emerald-400 font-mono font-black text-3xl uppercase tracking-widest leading-none drop-shadow-[0_0_10px_rgba(52,211,153,0.5)]">
                 WARP CASHED
               </span>
-              <span className="text-white font-mono font-black text-4xl tracking-tighter mt-1">
+              <span className="text-slate-900 font-mono font-black text-4xl tracking-tighter mt-1">
                 {multiplier.toFixed(2)}x
               </span>
               <span className="text-emerald-400 font-bold text-xs uppercase tracking-widest mt-0.5">
@@ -813,7 +813,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
           <button 
             onTouchStart={steerLeft}
             onClick={steerLeft}
-            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-white active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
+            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-slate-900 active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
           >
             <ArrowLeft className="w-8 h-8 stroke-[3]" />
           </button>
@@ -821,7 +821,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, onLiveTick, onComple
           <button 
             onTouchStart={steerRight}
             onClick={steerRight}
-            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-white active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
+            className="w-16 h-16 rounded-full bg-white/10 hover:bg-white/20 border border-white/25 flex items-center justify-center text-slate-900 active:bg-white/35 active:scale-90 transition-all pointer-events-auto backdrop-blur-sm"
           >
             <ArrowRight className="w-8 h-8 stroke-[3]" />
           </button>

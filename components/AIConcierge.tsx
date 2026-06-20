@@ -80,7 +80,7 @@ export function AIConcierge() {
             <button 
               onClick={handleClaim}
               disabled={claimed}
-              className={`w-full font-black tracking-widest uppercase text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-95 ${claimed ? 'bg-slate-100 border border-slate-200 text-slate-600 cursor-not-allowed shadow-none' : 'bg-red-600 hover:bg-red-700 text-white shadow-md cursor-pointer'}`}
+              className={`w-full font-black tracking-widest uppercase text-sm py-3.5 rounded-xl flex items-center justify-center gap-2 transition-all transform hover:scale-[1.02] active:scale-95 ${claimed ? 'bg-slate-100 border border-slate-200 text-slate-600 cursor-not-allowed shadow-none' : 'bg-red-600 hover:bg-red-700 text-slate-900 shadow-md cursor-pointer'}`}
             >
               {claimed ? (
                 <>

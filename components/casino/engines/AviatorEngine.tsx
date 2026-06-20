@@ -192,7 +192,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
   }, [isPlaying, fled, hasCashedOut]);
 
   return (
-    <div className="w-full h-full min-h-[400px] bg-[#0c0d14] rounded-3xl border border-rose-950/40 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[inset_0_0_120px_rgba(0,0,0,0.95)]">
+    <div className="w-full h-full min-h-[400px] bg-gradient-to-br from-sky-50 via-rose-50/60 to-orange-50/80 rounded-3xl border border-rose-200/60 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[0_4px_40px_rgba(225,29,72,0.06),inset_0_1px_0_rgba(255,255,255,0.9)]">
       
       {/* Inline styles for scrolling grid, custom flight propeller spin, and button pulsing */}
       <style dangerouslySetInnerHTML={{__html: `
@@ -223,39 +223,39 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
       {/* Aviator Grid Background */}
       <div 
         className={cn(
-          "absolute inset-0 z-0 opacity-15 transition-all duration-300",
+          "absolute inset-0 z-0 opacity-40 transition-all duration-300",
           isPlaying && !fled && "animate-scroll-grid"
         )}
         style={{
           backgroundImage: `
-            linear-gradient(rgba(244, 63, 94, 0.08) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(244, 63, 94, 0.08) 1px, transparent 1px)
+            linear-gradient(rgba(186, 230, 253, 0.5) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(186, 230, 253, 0.5) 1px, transparent 1px)
           `,
           backgroundSize: '40px 40px'
         }}
       />
 
       {/* Ambient radial depth */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(225,29,72,0.12)_0%,transparent_50%)] pointer-events-none z-0" />
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-rose-600/[0.04] blur-[100px] rounded-full pointer-events-none z-0" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,rgba(251,191,36,0.08)_0%,transparent_55%)] pointer-events-none z-0" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-80 h-80 bg-rose-400/[0.06] blur-[100px] rounded-full pointer-events-none z-0" />
 
       {/* Active Flight Header */}
-      <div className="absolute top-8 text-center z-25 flex items-center gap-2 bg-rose-500/10 border border-rose-500/20 px-4 py-1.5 rounded-full backdrop-blur-md">
+      <div className="absolute top-8 text-center z-25 flex items-center gap-2 bg-white/80 border border-rose-300/60 px-4 py-1.5 rounded-full shadow-sm backdrop-blur-md">
         <div className="w-1.5 h-1.5 bg-rose-500 rounded-full animate-ping" />
-        <span className="text-rose-400 font-extrabold text-[10px] uppercase tracking-[0.25em]">Flight Deck Active</span>
+        <span className="text-rose-600 font-extrabold text-[10px] uppercase tracking-[0.25em]">Flight Deck Active</span>
       </div>
 
       {/* Big Multiplier */}
       <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 text-center z-20 flex flex-col items-center w-full">
         <h1 className={`text-8xl md:text-9xl font-black font-mono tracking-tighter transition-all duration-300 ${
-          fled ? "text-red-600 drop-shadow-[0_0_15px_rgba(220,38,38,0.4)]" : 
-          hasCashedOut ? "text-emerald-400 drop-shadow-[0_0_25px_rgba(16,185,129,0.6)]" : 
-          "text-white drop-shadow-[0_0_35px_rgba(255,255,255,0.35)]"
+          fled ? "text-red-600 drop-shadow-[0_2px_20px_rgba(220,38,38,0.25)]" : 
+          hasCashedOut ? "text-emerald-600 drop-shadow-[0_2px_20px_rgba(16,185,129,0.3)]" : 
+          "text-slate-800 drop-shadow-[0_2px_12px_rgba(0,0,0,0.12)]"
         }`}>
           {multiplier.toFixed(2)}x
         </h1>
         {fled && (
-          <div className="mt-2 bg-[#e11d48]/10 border border-[#e11d48]/30 px-6 py-1.5 rounded-full text-[#e11d48] font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 animate-bounce">
+          <div className="mt-2 bg-red-50 border border-red-300 px-6 py-1.5 rounded-full text-red-600 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 animate-bounce shadow-sm">
             <AlertCircle className="w-4 h-4" /> FLEW AWAY
           </div>
         )}
@@ -265,10 +265,10 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0 }}
-              className="mt-2 px-6 py-2 bg-green-500/10 border border-green-500/30 rounded-xl backdrop-blur-md flex flex-col items-center shadow-[0_0_30px_rgba(16,185,129,0.1)]"
+              className="mt-2 px-6 py-2 bg-emerald-50 border border-emerald-300 rounded-xl backdrop-blur-md flex flex-col items-center shadow-[0_4px_20px_rgba(16,185,129,0.15)]"
             >
-              <span className="text-green-600 text-xs font-bold uppercase tracking-widest">Secured</span>
-              <span className="text-green-400 font-black text-xl font-mono">₹{(betAmount * multiplier).toFixed(2)}</span>
+              <span className="text-emerald-700 text-xs font-bold uppercase tracking-widest">Secured</span>
+              <span className="text-emerald-600 font-black text-xl font-mono">₹{(betAmount * multiplier).toFixed(2)}</span>
             </motion.div>
           )}
         </AnimatePresence>
@@ -381,7 +381,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
               className="w-full py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-slate-950 font-black text-xl md:text-2xl rounded-2xl transition-all uppercase tracking-wider flex items-center justify-center gap-3 cursor-pointer active:scale-95 border border-yellow-300/35 relative overflow-hidden animate-btn-glow"
             >
               <span>Cashout</span>
-              <span className="bg-black/15 px-3 py-1 rounded-lg font-mono text-base">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="bg-white/15 px-3 py-1 rounded-lg font-mono text-base">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </button>
           </motion.div>
         )}

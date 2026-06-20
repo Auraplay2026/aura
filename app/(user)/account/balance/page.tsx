@@ -66,8 +66,8 @@ export default function BalanceOverviewPage() {
               disabled={isSwitching}
               className={`w-full py-4 rounded-xl font-black uppercase tracking-widest text-sm transition-all active:scale-95 flex items-center justify-center gap-2 ${
                 isDemo 
-                  ? 'bg-emerald-600 hover:bg-emerald-700 text-white shadow-lg shadow-emerald-500/20' 
-                  : 'bg-amber-500 hover:bg-amber-600 text-white shadow-lg shadow-amber-500/20'
+                  ? 'bg-emerald-600 hover:bg-emerald-700 text-slate-900 shadow-lg shadow-emerald-500/20' 
+                  : 'bg-amber-500 hover:bg-amber-600 text-slate-900 shadow-lg shadow-amber-500/20'
               } disabled:opacity-50`}
             >
               {isSwitching ? 'Switching...' : (

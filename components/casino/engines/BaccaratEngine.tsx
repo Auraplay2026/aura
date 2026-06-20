@@ -194,7 +194,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             ))}
           </div>
           {playerHand.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-white font-mono font-black text-xl bg-slate-900/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-slate-900 font-mono font-black text-xl bg-white/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
               {playerScore}
             </motion.div>
           )}
@@ -224,7 +224,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             ))}
           </div>
           {bankerHand.length > 0 && (
-            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-white font-mono font-black text-xl bg-slate-900/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
+            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="text-slate-900 font-mono font-black text-xl bg-white/80 border border-slate-700 px-6 py-2 rounded-full shadow-lg backdrop-blur-md">
               {bankerScore}
             </motion.div>
           )}
@@ -233,7 +233,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
 
       {/* Selected Bet Indicator Overlay during play */}
       {isPlaying && (
-        <div className="absolute top-4 left-4 flex items-center bg-black/60 border border-teal-500/30 rounded-full px-4 py-1.5 shadow-lg backdrop-blur-md z-30 select-none">
+        <div className="absolute top-4 left-4 flex items-center bg-white/60 border border-teal-500/30 rounded-full px-4 py-1.5 shadow-lg backdrop-blur-md z-30 select-none">
           <span className="text-[10px] font-black text-yellow-400 uppercase tracking-widest">BET ON: {selectedSide}</span>
         </div>
       )}
@@ -245,8 +245,8 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             onClick={() => setSelectedSide("PLAYER")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
               selectedSide === "PLAYER"
-                ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105"
-                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-blue-500/30"
+                ? "bg-gradient-to-br from-blue-500 to-blue-600 text-slate-900 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105"
+                : "bg-white text-slate-400 border-slate-800 hover:border-blue-500/30"
             }`}
           >
             Player (2x)
@@ -255,8 +255,8 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             onClick={() => setSelectedSide("BANKER")}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
               selectedSide === "BANKER"
-                ? "bg-gradient-to-br from-red-550 to-red-650 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
-                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-red-500/30"
+                ? "bg-gradient-to-br from-red-550 to-red-650 text-slate-900 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
+                : "bg-white text-slate-400 border-slate-800 hover:border-red-500/30"
             }`}
           >
             Banker (1.95x)
@@ -266,7 +266,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
               selectedSide === "TIE"
                 ? "bg-gradient-to-br from-yellow-500 to-yellow-650 text-yellow-950 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-105"
-                : "bg-slate-950 text-slate-400 border-slate-800 hover:border-yellow-500/30"
+                : "bg-white text-slate-400 border-slate-800 hover:border-yellow-500/30"
             }`}
           >
             Tie (9x)
@@ -281,7 +281,7 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
             initial={{ opacity: 0, scale: 0.5, y: 50 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.5, y: 50 }}
-            className="absolute bottom-10 z-50 px-12 py-4 bg-slate-900/90 border border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.3)] rounded-2xl backdrop-blur-lg"
+            className="absolute bottom-10 z-50 px-12 py-4 bg-white/90 border border-yellow-500/50 shadow-[0_0_50px_rgba(234,179,8,0.3)] rounded-2xl backdrop-blur-lg"
           >
             <span className={`font-black uppercase tracking-widest text-3xl drop-shadow-md ${
               resultMsg.includes("Player") ? "text-blue-400" :

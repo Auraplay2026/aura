@@ -115,7 +115,7 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
             <Activity className="w-6 h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-white font-black text-xl tracking-widest uppercase">TradeX</h2>
+            <h2 className="text-slate-900 font-black text-xl tracking-widest uppercase">TradeX</h2>
             <p className="text-slate-500 text-xs font-mono">BTC/USD Binary Options</p>
           </div>
         </div>
@@ -199,9 +199,9 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-slate-900/80 backdrop-blur-md px-8 py-3 rounded-full border border-slate-700 shadow-2xl"
+            className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-8 py-3 rounded-full border border-slate-700 shadow-2xl"
           >
-            <span className="text-white font-black tracking-widest uppercase animate-pulse">Resolving Market...</span>
+            <span className="text-slate-900 font-black tracking-widest uppercase animate-pulse">Resolving Market...</span>
           </motion.div>
         )}
       </AnimatePresence>

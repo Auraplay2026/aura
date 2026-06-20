@@ -70,7 +70,7 @@ export default function ClientAffiliateDashboard() {
         </div>
         <button 
           onClick={fetchLeaderboard}
-          className="bg-slate-100 hover:bg-slate-700 text-slate-900 p-3 rounded-xl transition-colors border border-slate-700 relative z-10"
+          className="bg-slate-100 hover:bg-slate-100 text-slate-900 p-3 rounded-xl transition-colors border border-slate-700 relative z-10"
         >
           <RefreshCw className="w-5 h-5" />
         </button>

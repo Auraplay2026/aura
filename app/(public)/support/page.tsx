@@ -379,7 +379,7 @@ export default function SupportPage() {
                 <button
                   type="submit"
                   disabled={isConnecting}
-                  className="w-full py-3 bg-gradient-to-r from-neon-purple to-purple-600 hover:from-purple-500 hover:to-purple-600 text-white font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-[0_4px_20px_rgba(168,85,247,0.2)] disabled:opacity-50"
+                  className="w-full py-3 bg-gradient-to-r from-neon-purple to-purple-600 hover:from-purple-500 hover:to-purple-600 text-slate-900 font-black uppercase text-xs tracking-widest rounded-xl transition-all shadow-[0_4px_20px_rgba(168,85,247,0.2)] disabled:opacity-50"
                 >
                   {isConnecting ? "Establishing Handshake..." : "Connect Support Channel"}
                 </button>

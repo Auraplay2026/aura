@@ -75,7 +75,7 @@ export default function BetHistoryPage() {
         <div className="w-full overflow-x-auto custom-scrollbar">
           <table className="w-full text-left border-collapse min-w-[900px]">
             <thead>
-              <tr className="text-xs uppercase tracking-widest text-slate-500 border-b border-slate-200/80 bg-slate-900/50">
+              <tr className="text-xs uppercase tracking-widest text-slate-500 border-b border-slate-200/80 bg-white/50">
                 <th className="py-4 font-bold px-6">Transaction ID</th>
                 <th className="py-4 font-bold px-4">Date</th>
                 <th className="py-4 font-bold px-4">Type</th>

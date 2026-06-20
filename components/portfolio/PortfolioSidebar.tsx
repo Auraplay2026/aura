@@ -96,7 +96,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                   <Trophy className="w-3 h-3" />
                   Top 1% VIP
                 </a>
-                <button onClick={onClose} className="w-10 h-10 rounded-full bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-lg">
+                <button onClick={onClose} className="w-10 h-10 rounded-full bg-white/5 hover:bg-white/10 border border-slate-200 flex items-center justify-center transition-all hover:scale-110 active:scale-95 shadow-lg">
                   <X className="w-5 h-5 text-slate-700" />
                 </button>
               </div>
@@ -163,7 +163,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                   </div>
                   <p className="text-2xl font-black text-slate-900 mb-3 tracking-widest drop-shadow-lg">NO ACTIVE TRADES</p>
                   <p className="text-sm text-slate-600 max-w-[280px] leading-relaxed font-medium">Explore the global markets, analyze trends, and place your first prediction to start building your empire.</p>
-                  <button onClick={onClose} className="mt-8 px-8 py-3 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 rounded-full text-xs font-black uppercase tracking-widest text-slate-900 transition-all hover:scale-105 hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
+                  <button onClick={onClose} className="mt-8 px-8 py-3 bg-white/5 hover:bg-white/10 border border-slate-200 rounded-full text-xs font-black uppercase tracking-widest text-slate-900 transition-all hover:scale-105 hover:border-white/20 hover:shadow-[0_0_20px_rgba(255,255,255,0.1)]">
                     Explore Markets
                   </button>
                 </div>
@@ -208,7 +208,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                             <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Buy Price</p>
                             <p className="text-sm font-black text-slate-700 font-mono">{pos.buyPrice}¢</p>
                           </div>
-                          <div className="w-px h-8 bg-slate-900/10" />
+                          <div className="w-px h-8 bg-white/10" />
                           <div>
                             <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1 flex items-center gap-1">
                               Current Price
@@ -217,7 +217,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                               {livePrice}¢ <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse shadow-[0_0_5px_#34d399]" />
                             </p>
                           </div>
-                          <div className="w-px h-8 bg-slate-900/10" />
+                          <div className="w-px h-8 bg-white/10" />
                           <div className="text-right">
                             <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">ROI</p>
                             <p className={`text-sm font-black font-mono flex items-center gap-1 ${isProfit ? 'text-neon-green drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]' : 'text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]'}`}>
@@ -235,7 +235,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                           </div>
                           <button 
                             onClick={() => cashOut(pos.id, livePrice)}
-                            className="px-6 py-3 bg-slate-900/5 hover:bg-slate-900/10 border border-slate-200 rounded-xl text-xs font-black text-slate-900 uppercase tracking-widest transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group/btn shadow-lg"
+                            className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-slate-200 rounded-xl text-xs font-black text-slate-900 uppercase tracking-widest transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group/btn shadow-lg"
                           >
                             <DollarSign className="w-4 h-4 text-slate-600 group-hover/btn:text-neon-green transition-colors" /> 
                             Cash Out
@@ -294,12 +294,12 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                                 <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Wager</p>
                                 <p className="text-sm font-black text-slate-900 font-mono">₹{bet.amount.toLocaleString()}</p>
                               </div>
-                              <div className="w-px h-8 bg-slate-900/10" />
+                              <div className="w-px h-8 bg-white/10" />
                               <div>
                                 <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Odds</p>
                                 <p className="text-sm font-black text-emerald-600 font-mono">{odds}</p>
                               </div>
-                              <div className="w-px h-8 bg-slate-900/10" />
+                              <div className="w-px h-8 bg-white/10" />
                               <div className="text-right">
                                 <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">To Win</p>
                                 <p className="text-sm font-black text-slate-900 font-mono">₹{payout.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>

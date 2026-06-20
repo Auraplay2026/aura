@@ -15,7 +15,7 @@ const ExchangeCell = ({ value, trend, type, onClick, isSelected, suspended }: an
   if (suspended) {
     return (
       <div className="relative flex flex-col items-center justify-center w-[50px] sm:w-[60px] h-[40px] border border-slate-200 bg-slate-100 overflow-hidden cursor-not-allowed">
-        <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-[1px] flex items-center justify-center z-10">
+        <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px] flex items-center justify-center z-10">
           <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Suspend</span>
         </div>
       </div>
@@ -713,7 +713,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
       {/* Mobile Drawer Overlay */}
       {showMobileBetslip && (
-        <div className="fixed inset-0 bg-black/50 z-[48] lg:hidden" onClick={() => setShowMobileBetslip(false)} />
+        <div className="fixed inset-0 bg-white/50 z-[48] lg:hidden" onClick={() => setShowMobileBetslip(false)} />
       )}
 
       {/* Main Exchange Grid */}
@@ -728,7 +728,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
           <button onClick={() => setShowMobileBetslip(true)} className="relative flex items-center gap-2 font-bold text-sm text-exchange-muted hover:text-exchange-text">
             <Receipt className="w-5 h-5" />
             {betslip.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-white rounded-full text-[10px] flex items-center justify-center">
+              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-slate-900 rounded-full text-[10px] flex items-center justify-center">
                 {betslip.length}
               </span>
             )}
@@ -978,7 +978,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                       )}
 
                       {/* Live Commentary Ticker */}
-                      <div className="bg-slate-900 text-white rounded p-2.5 flex items-center justify-between text-xs font-black uppercase tracking-wider">
+                      <div className="bg-white text-slate-900 rounded p-2.5 flex items-center justify-between text-xs font-black uppercase tracking-wider">
                         <div className="flex items-center gap-2">
                           <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
                           <span className="text-red-400">Live Feed:</span>
@@ -1288,8 +1288,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                               }, 300);
                             }}
                             className={cn(
-                              "w-full py-2.5 rounded text-white font-bold text-xs uppercase tracking-wide transition-all shadow-sm flex items-center justify-center gap-1.5",
-                              betSuccessFlash ? "bg-emerald-600 hover:bg-emerald-700" : "bg-slate-900 hover:bg-slate-800",
+                              "w-full py-2.5 rounded text-slate-900 font-bold text-xs uppercase tracking-wide transition-all shadow-sm flex items-center justify-center gap-1.5",
+                              betSuccessFlash ? "bg-emerald-600 hover:bg-emerald-700" : "bg-white hover:bg-slate-50",
                               betPlacing && "opacity-60 cursor-wait"
                             )}
                           >
@@ -1373,7 +1373,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                   )}>
                     <div className={cn("px-3 py-1.5 text-[10px] font-bold text-slate-900 uppercase flex items-center justify-between", isBack ? "bg-[#D1FAE5]" : "bg-[#FCE7F3]")}>
                       <span>{isBack ? "Back" : "Lay"}</span>
-                      <button onClick={() => removeBet(bet.matchId, bet.selection, bet.type)} className="hover:bg-slate-900/10 rounded-full p-0.5">
+                      <button onClick={() => removeBet(bet.matchId, bet.selection, bet.type)} className="hover:bg-white/10 rounded-full p-0.5">
                         <X className="w-3 h-3" />
                       </button>
                     </div>
@@ -1444,7 +1444,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                   await placeSportsBet("Exchange Bet", `${betslip.length} selections`, 1.0, totalLiability);
                   setBetslip([]);
                 }}
-                className="flex-[2] bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-sm transition-colors text-xs uppercase tracking-wide"
+                className="flex-[2] bg-red-600 hover:bg-red-700 text-slate-900 font-bold py-2 rounded-sm transition-colors text-xs uppercase tracking-wide"
               >
                 Confirm Bets (₹{totalLiability.toFixed(0)})
               </button>

@@ -69,7 +69,7 @@ export function Limbo() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-4 bg-slate-900/50 p-4 rounded-xl border border-slate-200/50">
+        <div className="grid grid-cols-2 gap-4 bg-white/50 p-4 rounded-xl border border-slate-200/50">
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-widest block mb-1">Win Chance</span>
             <div className="text-lg font-black text-slate-900">{winChance}%</div>

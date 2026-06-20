@@ -76,7 +76,7 @@ export function BalloonRaceEngine({ isPlaying, onComplete }: BalloonRaceEnginePr
           {multiplier.toFixed(2)}x
         </h1>
         {popped && (
-          <div className="mt-2 bg-red-600 border border-red-500 px-6 py-1.5 rounded-full text-white font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-md animate-bounce">
+          <div className="mt-2 bg-red-600 border border-red-500 px-6 py-1.5 rounded-full text-slate-900 font-black text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-md animate-bounce">
             🎈 POPPED AWAY
           </div>
         )}

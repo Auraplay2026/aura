@@ -31,7 +31,7 @@ export function ExternalEngine({ isPlaying, onComplete, game }: { isPlaying: boo
   }, [isPlaying, onComplete]);
 
   return (
-    <div className="w-full h-full relative flex items-center justify-center bg-black overflow-hidden rounded-3xl">
+    <div className="w-full h-full relative flex items-center justify-center bg-white overflow-hidden rounded-3xl">
       {/* Cinematic Background */}
       <div className="absolute inset-0 opacity-40">
         <img src={game.image} className="w-full h-full object-cover blur-sm scale-110" alt={game.title} />
@@ -44,7 +44,7 @@ export function ExternalEngine({ isPlaying, onComplete, game }: { isPlaying: boo
           <img src={game.image} className="w-full h-full object-cover" />
         </div>
 
-        <h2 className="text-2xl font-black text-white uppercase tracking-widest text-center mb-1">{game.title}</h2>
+        <h2 className="text-2xl font-black text-slate-900 uppercase tracking-widest text-center mb-1">{game.title}</h2>
         <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.3em] mb-12 flex items-center gap-2">
           <Server className="w-3 h-3 text-neon-green" />
           {game.provider} Network

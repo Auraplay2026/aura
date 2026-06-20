@@ -404,7 +404,7 @@ export function LiveRouletteEngine({
           animate={{ scale: 1, y: 0 }}
           className={`w-6 h-6 rounded-full bg-gradient-to-br ${colorGrad} border border-white/60 shadow-[0_3px_6px_rgba(0,0,0,0.6)] flex items-center justify-center`}
         >
-          <span className="text-[7.5px] font-black text-white font-mono drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">
+          <span className="text-[7.5px] font-black text-slate-900 font-mono drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">
             {betVal >= 1000 ? `${(betVal/1000).toFixed(0)}k` : betVal}
           </span>
         </motion.div>
@@ -414,9 +414,9 @@ export function LiveRouletteEngine({
 
   // Numbers Grid Helpers
   const getNumberColor = (n: number) => {
-    if (n === 0) return "bg-emerald-500 text-white";
+    if (n === 0) return "bg-emerald-500 text-slate-900";
     const redNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-    return redNumbers.has(n) ? "bg-rose-600 text-white" : "bg-slate-900 text-white";
+    return redNumbers.has(n) ? "bg-rose-600 text-slate-900" : "bg-white text-slate-900";
   };
 
   // Rendering board horizontally (12 columns x 3 rows)
@@ -432,7 +432,7 @@ export function LiveRouletteEngine({
         }`}
       >
         <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-black ${
-          isRed ? "bg-rose-500/90 shadow-[0_0_8px_rgba(244,63,94,0.4)]" : "bg-slate-950/80"
+          isRed ? "bg-rose-500/90 shadow-[0_0_8px_rgba(244,63,94,0.4)]" : "bg-white/80"
         }`}>
           {n}
         </span>
@@ -449,7 +449,7 @@ export function LiveRouletteEngine({
   const ballTimes = [0, 0.15, 0.3, 0.533, 0.62, 0.71, 0.75, 0.80, 0.83, 0.86, 0.90, 1.0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-white overflow-visible select-none font-sans relative">
+    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible select-none font-sans relative">
       
       {/* 3D Gold Coins victory shower overlay */}
       <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
@@ -514,10 +514,10 @@ export function LiveRouletteEngine({
               key={`${h.n}-${i}`}
               className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold font-mono border ${
                 h.color === "green" 
-                  ? "bg-emerald-500 border-emerald-400 text-white" 
+                  ? "bg-emerald-500 border-emerald-400 text-slate-900" 
                   : h.color === "red" 
-                    ? "bg-rose-600 border-rose-500 text-white" 
-                    : "bg-slate-900 border-slate-700 text-slate-200"
+                    ? "bg-rose-600 border-rose-500 text-slate-900" 
+                    : "bg-white border-slate-700 text-slate-200"
               }`}
             >
               {h.n}
@@ -553,15 +553,15 @@ export function LiveRouletteEngine({
                 <motion.div
                   animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
                   transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 rounded-full bg-slate-950 border-[6px] border-amber-700 overflow-hidden shadow-[inset_0_0_40px_rgba(0,0,0,0.95)]"
+                  className="absolute inset-0 rounded-full bg-white border-[6px] border-amber-700 overflow-hidden shadow-[inset_0_0_40px_rgba(0,0,0,0.95)]"
                 >
                   {NUMBERS.map((num, i) => {
                     const angle = (360 / NUMBERS.length) * i;
                     const numColor = num.color === "green" 
-                      ? "bg-emerald-600 text-white" 
+                      ? "bg-emerald-600 text-slate-900" 
                       : num.color === "red" 
-                        ? "bg-rose-600 text-white" 
-                        : "bg-slate-900 text-slate-300";
+                        ? "bg-rose-600 text-slate-900" 
+                        : "bg-white text-slate-300";
                     
                     return (
                       <div
@@ -581,7 +581,7 @@ export function LiveRouletteEngine({
                   
                   {/* Center Brass Turret */}
                   <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-700 shadow-[0_0_15px_rgba(0,0,0,1)] flex items-center justify-center z-20">
-                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-slate-950 border border-yellow-500/30 flex items-center justify-center shadow-inner">
+                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white border border-yellow-500/30 flex items-center justify-center shadow-inner">
                       <span className="text-yellow-500 text-[6.5px] md:text-[8px] font-black tracking-widest uppercase">ROYALE</span>
                     </div>
                   </div>
@@ -606,7 +606,7 @@ export function LiveRouletteEngine({
                           opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
                         }}
                         transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                        className="absolute top-2.5 md:top-3 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-black/60 blur-[1.5px]"
+                        className="absolute top-2.5 md:top-3 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-white/60 blur-[1.5px]"
                       />
                     </motion.div>
 
@@ -635,7 +635,7 @@ export function LiveRouletteEngine({
                       style={{ transform: `rotate(${rotation % 360}deg)` }}
                     >
                       {/* Landed Ball shadow */}
-                      <div className="absolute top-5 md:top-6.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-black/50 blur-[1px] z-20" />
+                      <div className="absolute top-5 md:top-6.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-white/50 blur-[1px] z-20" />
                       {/* Landed Ball */}
                       <div className="absolute top-4 md:top-5.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-[#fcfbf9] shadow-[0_0_8px_rgba(255,255,255,0.8),inset_-1.5px_-1.5px_3px_rgba(0,0,0,0.3)] z-30" />
                     </motion.div>
@@ -651,13 +651,13 @@ export function LiveRouletteEngine({
             
             <div className="min-w-[650px] relative">
               {/* Numbers Grid (horizontally aligned, Column 3 at top, Column 2 middle, Column 1 bottom) */}
-              <div className="grid grid-cols-14 border border-yellow-500/30 rounded-xl overflow-hidden bg-slate-950/80">
+              <div className="grid grid-cols-14 border border-yellow-500/30 rounded-xl overflow-hidden bg-white/80">
                 
                 {/* 0 Cell (spans 3 rows) */}
                 <button
                   disabled={isSpinning}
                   onClick={() => placeBet("num-0")}
-                  className="row-span-3 h-full border-r border-yellow-500/30 bg-emerald-700/80 hover:bg-emerald-600 transition-colors flex items-center justify-center font-black font-mono text-lg text-white select-none cursor-pointer relative"
+                  className="row-span-3 h-full border-r border-yellow-500/30 bg-emerald-700/80 hover:bg-emerald-600 transition-colors flex items-center justify-center font-black font-mono text-lg text-slate-900 select-none cursor-pointer relative"
                 >
                   <span>0</span>
                   {renderCellChip("num-0")}
@@ -721,8 +721,8 @@ export function LiveRouletteEngine({
                 {[
                   { id: "low", label: "1-18", color: "" },
                   { id: "even", label: "EVEN", color: "" },
-                  { id: "red", label: "RED", color: "bg-rose-600/90 shadow-[0_0_12px_rgba(244,63,94,0.3)] border border-rose-500/40 text-white rounded-md mx-2 py-1.5" },
-                  { id: "black", label: "BLACK", color: "bg-slate-900 border border-slate-700/60 text-slate-200 rounded-md mx-2 py-1.5" },
+                  { id: "red", label: "RED", color: "bg-rose-600/90 shadow-[0_0_12px_rgba(244,63,94,0.3)] border border-rose-500/40 text-slate-900 rounded-md mx-2 py-1.5" },
+                  { id: "black", label: "BLACK", color: "bg-white border border-slate-700/60 text-slate-200 rounded-md mx-2 py-1.5" },
                   { id: "odd", label: "ODD", color: "" },
                   { id: "high", label: "19-36", color: "" }
                 ].map(out => (
@@ -746,7 +746,7 @@ export function LiveRouletteEngine({
           <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-2xl p-4 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-md animate-fade-in">
             
             {/* Chip selector - Styled as a luxury casino chip rack */}
-            <div className="flex items-center gap-2.5 shrink-0 bg-black/35 border border-yellow-500/15 px-4 py-1.5 rounded-full shadow-inner">
+            <div className="flex items-center gap-2.5 shrink-0 bg-white/35 border border-yellow-500/15 px-4 py-1.5 rounded-full shadow-inner">
               {[
                 { amount: 100, label: "100", color: "from-blue-500 to-indigo-700 border-blue-400" },
                 { amount: 500, label: "500", color: "from-teal-400 to-emerald-600 border-teal-400" },
@@ -761,7 +761,7 @@ export function LiveRouletteEngine({
                     key={chip.amount}
                     type="button"
                     onClick={() => setActiveChip(chip.amount)}
-                    className={`relative w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-black text-white shadow-lg transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/60 select-none ${
+                    className={`relative w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-black text-slate-900 shadow-lg transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/60 select-none ${
                       isSelected ? "scale-115 ring-2 ring-yellow-500 ring-offset-2 ring-offset-emerald-950 opacity-100 z-10" : "hover:scale-105 opacity-60 hover:opacity-100"
                     } bg-gradient-to-br ${chip.color}`}
                   >
@@ -782,7 +782,7 @@ export function LiveRouletteEngine({
                 disabled={isSpinning || betHistory.length === 0}
                 className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
                   enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
+                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Undo
               </button>
@@ -791,7 +791,7 @@ export function LiveRouletteEngine({
                 disabled={isSpinning || totalBetsSum === 0}
                 className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
                   enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
+                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Double
               </button>
@@ -800,7 +800,7 @@ export function LiveRouletteEngine({
                 disabled={isSpinning || Object.keys(prevBets).length === 0}
                 className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
                   enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
+                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Repeat
               </button>
@@ -809,7 +809,7 @@ export function LiveRouletteEngine({
                 disabled={isSpinning || totalBetsSum === 0}
                 className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
                   enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-slate-900/40 disabled:border-slate-800/60 disabled:text-slate-600"
+                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
               >
                 Clear
               </button>
@@ -821,7 +821,7 @@ export function LiveRouletteEngine({
               disabled={isSpinning || totalBetsSum === 0}
               className={`py-3 px-8 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer select-none shrink-0 ${
                 isSpinning || totalBetsSum === 0
-                  ? "bg-slate-900/60 text-slate-500 border border-slate-800 cursor-not-allowed shadow-none"
+                  ? "bg-white/60 text-slate-500 border border-slate-800 cursor-not-allowed shadow-none"
                   : "bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 hover:scale-[1.03] active:scale-[0.97] border border-yellow-300 shadow-[0_0_20px_rgba(234,179,8,0.35)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] animate-pulse animate-duration-1000"
               }`}
             >
@@ -875,7 +875,7 @@ export function LiveRouletteEngine({
             {/* Lobby Live bet ticker */}
             <div className="mt-4 border-t border-yellow-950/60 pt-3">
               <span className="text-[8.5px] text-yellow-600 uppercase tracking-widest font-black block mb-2">Live Board Feed</span>
-              <div className="bg-slate-950/70 border border-yellow-950/40 rounded-xl p-2.5 h-28 overflow-hidden">
+              <div className="bg-white/70 border border-yellow-950/40 rounded-xl p-2.5 h-28 overflow-hidden">
                 <div className="space-y-1 overflow-y-auto h-full scrollbar-none">
                   {recentLiveBets.length === 0 ? (
                     <p className="text-[8px] text-slate-650 text-center py-8 uppercase font-bold tracking-widest">Feed Standby</p>
@@ -924,7 +924,7 @@ export function LiveRouletteEngine({
                   <span className="text-[8px] text-red-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingUp className="w-3 h-3 text-red-500" /> Hot</span>
                   <div className="flex gap-1.5">
                     {[32, 17, 15].map(n => (
-                      <span key={`hot-${n}`} className="w-5 h-5 rounded-full bg-slate-900 border border-red-500/40 text-[9px] font-mono font-black text-white flex items-center justify-center">{n}</span>
+                      <span key={`hot-${n}`} className="w-5 h-5 rounded-full bg-white border border-red-500/40 text-[9px] font-mono font-black text-slate-900 flex items-center justify-center">{n}</span>
                     ))}
                   </div>
                 </div>
@@ -933,7 +933,7 @@ export function LiveRouletteEngine({
                   <span className="text-[8px] text-blue-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingDown className="w-3 h-3 text-blue-500" /> Cold</span>
                   <div className="flex gap-1.5">
                     {[0, 11, 28].map(n => (
-                      <span key={`cold-${n}`} className="w-5 h-5 rounded-full bg-slate-900 border-blue-500/30 text-[9px] font-mono font-black text-white flex items-center justify-center">{n}</span>
+                      <span key={`cold-${n}`} className="w-5 h-5 rounded-full bg-white border-blue-500/30 text-[9px] font-mono font-black text-slate-900 flex items-center justify-center">{n}</span>
                     ))}
                   </div>
                 </div>
@@ -961,7 +961,7 @@ export function LiveRouletteEngine({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-md px-4"
             onClick={() => setShowWinOverlay(false)}
           >
             <motion.div
@@ -969,7 +969,7 @@ export function LiveRouletteEngine({
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.75, opacity: 0 }}
               transition={{ type: "spring", stiffness: 220, damping: 18 }}
-              className="bg-slate-950 border-2 border-yellow-500/40 p-8 rounded-[2.5rem] text-center shadow-[0_30px_100px_rgba(234,179,8,0.35)] max-w-sm w-full relative overflow-hidden"
+              className="bg-white border-2 border-yellow-500/40 p-8 rounded-[2.5rem] text-center shadow-[0_30px_100px_rgba(234,179,8,0.35)] max-w-sm w-full relative overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
               <motion.div
@@ -980,7 +980,7 @@ export function LiveRouletteEngine({
                 🎰
               </motion.div>
 
-              <h2 className="text-3xl font-black text-white mb-1 uppercase tracking-widest">
+              <h2 className="text-3xl font-black text-slate-900 mb-1 uppercase tracking-widest">
                 Winner Winner!
               </h2>
               <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest mb-4">
@@ -1002,10 +1002,10 @@ export function LiveRouletteEngine({
                   <span>Number landed:</span>
                   <span className={`font-mono font-bold px-1.5 rounded-full ${
                     winningNumber.color === "red" 
-                      ? "bg-rose-500 text-white" 
+                      ? "bg-rose-500 text-slate-900" 
                       : winningNumber.color === "black" 
-                        ? "bg-slate-900 border border-slate-800 text-white" 
-                        : "bg-emerald-500 text-white"
+                        ? "bg-white border border-slate-800 text-slate-900" 
+                        : "bg-emerald-500 text-slate-900"
                   }`}>
                     {winningNumber.n} ({winningNumber.label})
                   </span>

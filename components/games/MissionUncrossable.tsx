@@ -129,7 +129,7 @@ export function MissionUncrossable() {
                 disabled={gameState === "playing"}
                 onClick={() => setDifficulty(d)}
                 className={`py-2 rounded-lg font-bold text-sm capitalize transition-colors ${
-                  difficulty === d ? "bg-slate-700 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
+                  difficulty === d ? "bg-slate-100 text-slate-900" : "bg-white border border-slate-200 text-slate-600 hover:bg-slate-100 disabled:opacity-50"
                 }`}
               >
                 {d}
@@ -150,7 +150,7 @@ export function MissionUncrossable() {
             <button 
               onClick={startGame}
               disabled={gameState === "playing"}
-              className="w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg bg-neon-purple hover:bg-purple-500 text-white shadow-[0_0_20px_rgba(168,85,247,0.3)] disabled:opacity-50"
+              className="w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg bg-neon-purple hover:bg-purple-500 text-slate-900 shadow-[0_0_20px_rgba(168,85,247,0.3)] disabled:opacity-50"
             >
               Start Game
             </button>
@@ -200,7 +200,7 @@ export function MissionUncrossable() {
                       className={`relative w-full h-full rounded-md border ${
                         state === true ? "bg-green-500/20 border-green-500/50 flex items-center justify-center" :
                         state === false ? "bg-red-500 border-red-400 flex items-center justify-center z-10" :
-                        isRowActive ? "bg-slate-700 hover:bg-slate-600 border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]" :
+                        isRowActive ? "bg-slate-100 hover:bg-slate-100 border-slate-600 shadow-[0_0_15px_rgba(255,255,255,0.1)]" :
                         "bg-slate-100 border-slate-700"
                       }`}
                     >

@@ -484,7 +484,7 @@ export function ExternalGameWrapper({
             
             <button
               onClick={handleForceStop}
-              className="px-5 py-2.5 bg-red-500/10 hover:bg-red-650 text-red-600 hover:text-white border border-red-500/30 hover:border-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] cursor-pointer hover:scale-105 active:scale-95"
+              className="px-5 py-2.5 bg-red-500/10 hover:bg-red-650 text-red-600 hover:text-slate-900 border border-red-500/30 hover:border-red-500 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all duration-300 shadow-md hover:shadow-[0_0_15px_rgba(239,68,68,0.5)] cursor-pointer hover:scale-105 active:scale-95"
             >
               Stop / Kill Spin
             </button>

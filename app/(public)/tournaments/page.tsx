@@ -451,7 +451,7 @@ export default function TournamentsPage() {
 
               <button 
                 onClick={() => router.push("/casino")}
-                className="w-full mt-2 py-3 bg-slate-900/5 hover:bg-slate-900/10 text-slate-900 font-black uppercase tracking-wider rounded-xl border border-slate-200 transition-colors text-xs"
+                className="w-full mt-2 py-3 bg-white/5 hover:bg-white/10 text-slate-900 font-black uppercase tracking-wider rounded-xl border border-slate-200 transition-colors text-xs"
               >
                 Go to Arcade Lobby
               </button>

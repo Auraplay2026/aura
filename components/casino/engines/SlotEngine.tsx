@@ -124,16 +124,16 @@ export function SlotEngine({ isPlaying, isTurbo, theme, betAmount = 10, onComple
   }, [isPlaying, isTurbo, theme, betAmount]);
 
   return (
-    <div className={`w-full max-w-5xl mx-auto h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-b from-slate-800 to-[#09090b] rounded-[3rem] border-8 ${theme.borderClass} p-4 md:p-8 shadow-[0_40px_100px_rgba(0,0,0,0.8),inset_0_2px_10px_rgba(255,255,255,0.2)] relative overflow-hidden flex flex-col justify-center perspective-[1200px]`}>
+    <div className={`w-full max-w-5xl mx-auto h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-b from-slate-100 to-slate-200 rounded-[3rem] border-8 ${theme.borderClass} p-4 md:p-8 shadow-[0_20px_60px_rgba(0,0,0,0.12),inset_0_2px_0_rgba(255,255,255,0.9)] relative overflow-hidden flex flex-col justify-center perspective-[1200px]`}>
       
-      {/* Neon Gold Cabinet Overlay during Spin */}
+      {/* Active spin glow border */}
       {!spinStops.every(v => v) && (
-        <div className="absolute inset-0 border-[6px] border-yellow-400/30 rounded-[3rem] pointer-events-none z-30 animate-[heartbeat-glow_1s_infinite_ease-in-out]" />
+        <div className="absolute inset-0 border-[6px] border-yellow-400/50 rounded-[3rem] pointer-events-none z-30 animate-[heartbeat-glow_1s_infinite_ease-in-out]" />
       )}
 
-      {/* Premium Metallic Cabinet Illusion */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.1),_transparent_50%)] pointer-events-none z-0" />
-      <div className="absolute inset-2 border-2 border-slate-700/50 rounded-[2.5rem] pointer-events-none z-0 shadow-inner" />
+      {/* Premium Pearl Cabinet Sheen */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,_rgba(255,255,255,0.6),_transparent_55%)] pointer-events-none z-0" />
+      <div className="absolute inset-2 border-2 border-white/60 rounded-[2.5rem] pointer-events-none z-0" />
 
       {/* Ticker History */}
       <div className="flex gap-2 justify-center mb-4 z-10 shrink-0 h-6">
@@ -142,8 +142,8 @@ export function SlotEngine({ isPlaying, isTurbo, theme, betAmount = 10, onComple
             key={idx}
             className={`px-3 py-0.5 rounded-full text-[9px] font-black font-mono border shadow-sm ${
               h.won
-                ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/40"
-                : "bg-slate-800/60 text-slate-400 border-slate-700"
+                ? "bg-emerald-100 text-emerald-700 border-emerald-300"
+                : "bg-slate-100 text-slate-500 border-slate-300"
             }`}
           >
             {h.mult.toFixed(1)}x

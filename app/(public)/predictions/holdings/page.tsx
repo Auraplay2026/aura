@@ -31,7 +31,7 @@ export default function HoldingsPage() {
             <p className="text-slate-600 max-w-xl text-lg">Track your active prediction shares and manage your financial exposure.</p>
           </div>
           
-          <div className="flex items-center gap-6 bg-slate-900/50 p-6 rounded-2xl border border-slate-200">
+          <div className="flex items-center gap-6 bg-white/50 p-6 rounded-2xl border border-slate-200">
             <div>
               <p className="text-sm font-bold text-slate-500 uppercase tracking-widest mb-1">Portfolio Value</p>
               <p className="text-3xl font-black text-slate-900">{totalValue}</p>
@@ -72,7 +72,7 @@ export default function HoldingsPage() {
                 </div>
               </div>
 
-              <div className="flex flex-wrap items-center gap-8 bg-slate-900/50 p-4 rounded-xl border border-slate-200/50 lg:w-auto">
+              <div className="flex flex-wrap items-center gap-8 bg-white/50 p-4 rounded-xl border border-slate-200/50 lg:w-auto">
                 <div>
                   <p className="text-xs text-slate-500 font-bold uppercase tracking-wider mb-1">Avg Price</p>
                   <p className="text-slate-900 font-bold">{holding.avgPrice}¢</p>
@@ -88,7 +88,7 @@ export default function HoldingsPage() {
                     {holding.pnl}
                   </p>
                 </div>
-                <button className="bg-slate-100 hover:bg-slate-700 text-slate-900 text-sm font-bold py-2 px-6 rounded-lg transition-colors border border-slate-700">
+                <button className="bg-slate-100 hover:bg-slate-100 text-slate-900 text-sm font-bold py-2 px-6 rounded-lg transition-colors border border-slate-700">
                   Trade
                 </button>
               </div>

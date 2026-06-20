@@ -45,7 +45,7 @@ export function UltraHubTabs({ categories }: UltraHubTabsProps) {
             onClick={() => setActiveTab(cat.id)}
             className={`flex items-center gap-2 px-5 py-2.5 rounded-full whitespace-nowrap font-bold text-sm transition-all border snap-start ${
               activeTab === cat.id 
-                ? "bg-blue-600 text-white border-blue-600 shadow-md scale-105" 
+                ? "bg-blue-600 text-slate-900 border-blue-600 shadow-md scale-105" 
                 : "bg-white text-slate-500 border-slate-200 hover:border-slate-300 hover:text-slate-800 hover:bg-slate-50"
             }`}
           >

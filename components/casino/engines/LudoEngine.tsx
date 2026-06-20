@@ -578,7 +578,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
   if (showSetup) {
     return (
       <div className="w-full max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
-        <div className="bg-slate-900/90 border border-amber-500/25 backdrop-blur-2xl p-6 sm:p-8 rounded-[2.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]">
+        <div className="bg-white/90 border border-amber-500/25 backdrop-blur-2xl p-6 sm:p-8 rounded-[2.5rem] shadow-[0_25px_70px_rgba(0,0,0,0.8),inset_0_1px_1px_rgba(255,255,255,0.05)]">
           <div className="flex flex-col md:flex-row gap-8 items-center justify-between">
             {/* Left Decorative Banner */}
             <div className="flex-1 flex flex-col items-center justify-center text-center p-4">
@@ -589,7 +589,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
               <h2 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-b from-amber-200 via-amber-400 to-amber-600 uppercase tracking-widest leading-none mb-3">Ludo Royale</h2>
               <p className="text-slate-400 text-xs font-bold uppercase tracking-widest max-w-xs">Premium Casino Board Game • 95% RTP</p>
               
-              <div className="relative w-44 h-44 mt-8 rounded-full border border-dashed border-amber-500/30 flex items-center justify-center bg-slate-950/40 shadow-inner">
+              <div className="relative w-44 h-44 mt-8 rounded-full border border-dashed border-amber-500/30 flex items-center justify-center bg-white/40 shadow-inner">
                 <motion.div
                   animate={{ rotate: 360 }}
                   transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
@@ -607,7 +607,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
             </div>
 
             {/* Right Setup Controls */}
-            <div className="flex-1 w-full max-w-md bg-slate-950/40 border border-slate-800/80 p-5 sm:p-6 rounded-[2rem] flex flex-col gap-5">
+            <div className="flex-1 w-full max-w-md bg-white/40 border border-slate-800/80 p-5 sm:p-6 rounded-[2rem] flex flex-col gap-5">
               <div>
                 <span className="text-[10px] text-slate-500 font-black uppercase tracking-widest block mb-2.5">Select Arena Mode</span>
                 <div className="grid grid-cols-2 gap-3">
@@ -621,10 +621,10 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                       className={`flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 transition-all duration-300 relative overflow-hidden ${
                         gameMode === mode.id
                           ? "border-amber-500/60 bg-amber-500/5 shadow-[0_0_15px_rgba(245,158,11,0.15)] scale-[1.02]"
-                          : "border-slate-850 bg-slate-950/40 hover:border-slate-700 text-slate-455 hover:text-slate-200"
+                          : "border-slate-850 bg-white/40 hover:border-slate-700 text-slate-455 hover:text-slate-200"
                       }`}
                     >
-                      <div className={`p-1.5 rounded-lg transition-colors ${gameMode === mode.id ? "bg-amber-500 text-slate-950" : "bg-slate-900 text-slate-400"}`}>
+                      <div className={`p-1.5 rounded-lg transition-colors ${gameMode === mode.id ? "bg-amber-500 text-slate-950" : "bg-white text-slate-400"}`}>
                         {mode.icon}
                       </div>
                       <span className="font-black text-[10px] uppercase tracking-wider">{mode.title}</span>
@@ -634,25 +634,25 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 </div>
               </div>
 
-              <div className="bg-slate-950/60 border border-slate-900 rounded-2xl p-4">
+              <div className="bg-white/60 border border-slate-900 rounded-2xl p-4">
                 <div className="flex justify-between items-center mb-2">
                   <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest">Entry Fee Stake</span>
-                  <span className="text-xs font-black font-mono text-white">₹{betAmount.toLocaleString()}</span>
+                  <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
                 </div>
 
-                <div className="flex items-center bg-slate-900 border border-slate-850 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-amber-500/50">
-                  <div className="flex items-center pl-3 pr-2 border-r border-slate-850 bg-slate-950/40 h-10">
+                <div className="flex items-center bg-white border border-slate-850 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-amber-500/50">
+                  <div className="flex items-center pl-3 pr-2 border-r border-slate-850 bg-white/40 h-10">
                     <span className="text-slate-500 font-bold text-xs">₹</span>
                   </div>
                   <input
                     type="number"
                     value={betAmount}
                     onChange={(e) => onBetAmountChange(Math.max(10, Number(e.target.value)))}
-                    className="flex-1 bg-transparent border-none text-white font-black text-xs px-2 py-1.5 focus:outline-none focus:ring-0 font-mono"
+                    className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs px-2 py-1.5 focus:outline-none focus:ring-0 font-mono"
                   />
-                  <div className="flex items-center bg-slate-950/40 border-l border-slate-850 h-10">
-                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-800 hover:text-white border-r border-slate-800 transition-colors">1/2</button>
-                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-800 hover:text-white transition-colors">2X</button>
+                  <div className="flex items-center bg-white/40 border-l border-slate-850 h-10">
+                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-50 hover:text-slate-900 border-r border-slate-800 transition-colors">1/2</button>
+                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2 h-full text-[9px] font-black text-slate-400 hover:bg-slate-50 hover:text-slate-900 transition-colors">2X</button>
                   </div>
                 </div>
 
@@ -671,7 +671,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                         key={chip.amount}
                         type="button"
                         onClick={() => onBetAmountChange(chip.amount)}
-                        className={`relative w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-white shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/70 select-none ${
+                        className={`relative w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-slate-900 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/70 select-none ${
                           isSelected ? "scale-110 ring-2 ring-amber-500 ring-offset-2 ring-offset-slate-950 opacity-100 z-10" : "hover:scale-105 opacity-70 hover:opacity-100"
                         } bg-gradient-to-br ${chip.color}`}
                       >
@@ -720,9 +720,9 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
   const currentPlayer = players[currentIdx];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-white overflow-visible">
+    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible">
       {/* Dynamic Header / Info Bar (Wager HUD & Message) */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 bg-slate-900/60 border border-slate-800/80 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-lg">
+      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-3 mb-4 bg-white/60 border border-slate-800/80 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-lg">
         {/* Turn Message */}
         <div className="flex items-center gap-2.5">
           <span className="relative flex h-2.5 w-2.5">
@@ -735,13 +735,13 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
         </div>
 
         {/* Wager HUD */}
-        <div className="flex items-center gap-4 bg-slate-950/80 border border-slate-800/60 px-3 py-1.5 rounded-xl">
+        <div className="flex items-center gap-4 bg-white/80 border border-slate-800/60 px-3 py-1.5 rounded-xl">
           <div className="flex items-center gap-1.5">
             <Coins className="w-3.5 h-3.5 text-amber-500" />
             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Wager:</span>
             <span className="text-xs font-black font-mono text-slate-200">₹{betAmount.toLocaleString()}</span>
           </div>
-          <div className="w-px h-3 bg-slate-800" />
+          <div className="w-px h-3 bg-slate-50" />
           <div className="flex items-center gap-1.5">
             <Trophy className="w-3.5 h-3.5 text-emerald-400" />
             <span className="text-[9px] font-bold text-slate-500 uppercase tracking-widest">Win Pot:</span>
@@ -754,7 +754,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
       <div className="flex flex-col md:flex-row items-start justify-center gap-6 w-full overflow-visible">
         {/* Left Column: Ludo Board */}
         <div className="w-full md:w-[480px] lg:w-[540px] xl:w-[600px] shrink-0 flex flex-col items-center">
-          <div className="relative aspect-square w-full select-none overflow-hidden bg-slate-950/90 border-4 border-slate-800/80 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85),inset_0_0_35px_rgba(0,0,0,0.7)]">
+          <div className="relative aspect-square w-full select-none overflow-hidden bg-white/90 border-4 border-slate-800/80 rounded-3xl shadow-[0_20px_50px_rgba(0,0,0,0.85),inset_0_0_35px_rgba(0,0,0,0.7)]">
             <div className="absolute inset-0 z-0 pointer-events-none opacity-20"
               style={{
                 backgroundImage: "radial-gradient(#ffffff 1px, transparent 0), radial-gradient(#ffffff 1px, transparent 0)",
@@ -785,8 +785,8 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                     boxShadow: isTurn ? `0 0 25px ${COLORS[color].glow}` : "none",
                   }}
                 >
-                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 bg-black/75 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/5 flex items-center gap-1 max-w-[90%] truncate z-10">
-                    <span className="text-[8px] sm:text-[9px] font-black text-white/95 uppercase tracking-wide truncate">
+                  <div className="absolute top-1.5 left-1/2 -translate-x-1/2 bg-white/75 backdrop-blur-md px-2 py-0.5 rounded-full border border-white/5 flex items-center gap-1 max-w-[90%] truncate z-10">
+                    <span className="text-[8px] sm:text-[9px] font-black text-slate-900/95 uppercase tracking-wide truncate">
                       {p ? `${p.name} (${p.tokensHome}/4)` : ""}
                     </span>
                     {p && p.tokensHome > 0 && (
@@ -796,7 +796,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                     )}
                   </div>
 
-                  <div className="absolute inset-[20%] bg-slate-900/85 backdrop-blur-sm rounded-2xl border border-slate-800/40 grid grid-cols-2 grid-rows-2 gap-[15%] p-[15%]">
+                  <div className="absolute inset-[20%] bg-white/85 backdrop-blur-sm rounded-2xl border border-slate-800/40 grid grid-cols-2 grid-rows-2 gap-[15%] p-[15%]">
                     {[0, 1, 2, 3].map(i => (
                       <div key={i} className="rounded-full flex items-center justify-center" style={{
                         border: `1.5px solid ${COLORS[color].token}25`,
@@ -960,7 +960,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
               {dice > 0 && !isRolling && (
                 <div className="text-left">
                   <span className="text-[8px] text-slate-500 uppercase tracking-widest font-black block">Rolled</span>
-                  <span className="text-base font-black text-white font-mono">{dice}</span>
+                  <span className="text-base font-black text-slate-900 font-mono">{dice}</span>
                 </div>
               )}
             </div>
@@ -992,7 +992,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   setShowSetup(true);
                   startedRef.current = false;
                 }}
-                className="py-3 px-4 rounded-xl border border-slate-700 bg-slate-800/80 text-white font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
+                className="py-3 px-4 rounded-xl border border-slate-700 bg-slate-50/80 text-slate-900 font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
               >
                 Reset
               </button>
@@ -1010,13 +1010,13 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   {currentPlayer?.isHuman ? "Your Turn" : `${currentPlayer?.name}'s Turn`}
                 </span>
               </div>
-              <span className="text-[10px] font-mono font-bold text-slate-500 bg-slate-950 px-2 py-0.5 rounded-lg border border-slate-800">
+              <span className="text-[10px] font-mono font-bold text-slate-500 bg-white px-2 py-0.5 rounded-lg border border-slate-800">
                 TURN #{moveLog.length + 1}
               </span>
             </div>
 
             {/* Dice Control Box */}
-            <div className="flex items-center justify-between bg-slate-950/40 border border-slate-800/50 p-4 rounded-2xl gap-4">
+            <div className="flex items-center justify-between bg-white/40 border border-slate-800/50 p-4 rounded-2xl gap-4">
               <div className="flex items-center gap-4">
                 <DiceFace 
                   value={displayDice} 
@@ -1027,7 +1027,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 {dice > 0 && !isRolling && (
                   <div className="text-left">
                     <span className="text-[9px] text-slate-500 uppercase tracking-widest font-black block">Rolled</span>
-                    <span className="text-2xl font-black text-white font-mono">{dice}</span>
+                    <span className="text-2xl font-black text-slate-900 font-mono">{dice}</span>
                   </div>
                 )}
               </div>
@@ -1059,7 +1059,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   const isPlayerTurn = currentPlayer?.color === p.color && !winner;
                   return (
                     <div key={p.color} className={`p-2.5 rounded-xl border flex items-center justify-between transition-all ${
-                      isPlayerTurn ? "bg-slate-900 border-amber-500/50" : "bg-slate-950/30 border-slate-800/80"
+                      isPlayerTurn ? "bg-white border-amber-500/50" : "bg-white/30 border-slate-800/80"
                     }`}>
                       <div className="flex items-center gap-2">
                         <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: COLORS[p.color].token }} />
@@ -1106,7 +1106,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                   setShowSetup(true);
                   startedRef.current = false;
                 }}
-                className="w-full py-3.5 rounded-xl border border-slate-700 bg-slate-800/85 hover:bg-slate-750 text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-97"
+                className="w-full py-3.5 rounded-xl border border-slate-700 bg-slate-50/85 hover:bg-slate-750 text-slate-900 font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-97"
               >
                 <RotateCcw className="w-3.5 h-3.5" /> Play Again
               </button>
@@ -1121,7 +1121,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-md px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-white/60 backdrop-blur-md px-4"
             onClick={() => setWinner(null)}
           >
             <motion.div
@@ -1129,7 +1129,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className="bg-slate-900 border border-amber-500/30 p-8 rounded-[2rem] text-center shadow-[0_30px_90px_rgba(0,0,0,0.85)] max-w-sm w-full"
+              className="bg-white border border-amber-500/30 p-8 rounded-[2rem] text-center shadow-[0_30px_90px_rgba(0,0,0,0.85)] max-w-sm w-full"
               onClick={e => e.stopPropagation()}
             >
               <motion.div
@@ -1140,7 +1140,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                 {players[0]?.tokensHome >= 4 ? "🏆" : "💀"}
               </motion.div>
 
-              <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-wide">
+              <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-wide">
                 {players[0]?.tokensHome >= 4 ? "Victory Royale!" : "Defeat!"}
               </h2>
 
@@ -1176,7 +1176,7 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
                     setShowSetup(true);
                     startedRef.current = false;
                   }}
-                  className="flex-1 py-3 rounded-xl text-white font-bold text-sm transition-all hover:scale-[1.02]"
+                  className="flex-1 py-3 rounded-xl text-slate-900 font-bold text-sm transition-all hover:scale-[1.02]"
                   style={{ background: "linear-gradient(135deg, #DC2626, #B91C1C)" }}
                 >
                   Play Again

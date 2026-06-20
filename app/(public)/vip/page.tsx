@@ -109,12 +109,12 @@ export default function VIPClubPage() {
             {currentUser?.accountType === 'demo' ? (
               <div className="mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
                 <span>⚠️ You are currently in DEMO mode. Demo wagers do not count towards VIP rank. Switch to Real Money to earn real cashbacks!</span>
-                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit & Play Real</Link>
+                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-slate-900 rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit & Play Real</Link>
               </div>
             ) : (
               <div className="mt-6 bg-indigo-50 border border-indigo-200 rounded-2xl p-4 text-indigo-800 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
                 <span>🚀 You are earning <strong>{currentTier.rakeback} Rakeback</strong> and exclusive <strong>{currentTier.bonus} bonuses</strong> on all real wagers! Play more to level up to {nextTier?.name || 'Max rank'}!</span>
-                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit / Cashier</Link>
+                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit / Cashier</Link>
               </div>
             )}
           </motion.div>
@@ -147,7 +147,7 @@ export default function VIPClubPage() {
                   )}
                 >
                   {/* Background decoration */}
-                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-slate-900/5 rounded-full blur-2xl group-hover:bg-slate-900/10 transition-colors" />
+                  <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors" />
 
                   {isCurrent && (
                     <div className="absolute top-4 right-4 bg-white text-slate-900 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg">
@@ -163,11 +163,11 @@ export default function VIPClubPage() {
                   </p>
                   
                   <div className="space-y-6 w-full flex-1">
-                    <div className="bg-slate-900/20 rounded-xl p-4 border border-slate-200">
+                    <div className="bg-white/20 rounded-xl p-4 border border-slate-200">
                       <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Rakeback</p>
                       <p className="font-black text-slate-900 text-2xl">{tier.rakeback}</p>
                     </div>
-                    <div className="bg-slate-900/20 rounded-xl p-4 border border-slate-200">
+                    <div className="bg-white/20 rounded-xl p-4 border border-slate-200">
                       <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Bonus Frequency</p>
                       <p className="font-bold text-slate-800 text-sm leading-tight">{tier.bonus}</p>
                     </div>

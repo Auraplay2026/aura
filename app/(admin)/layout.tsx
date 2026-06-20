@@ -88,15 +88,15 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
   };
 
   return (
-    <div className="min-h-screen bg-[#090d16] flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_70%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+    <div className="min-h-screen bg-[var(--background)] flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.06),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(0,0,0,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(0,0,0,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
       
-      <div className="relative max-w-md w-full bg-slate-900/80 border border-slate-700/80 backdrop-blur-xl rounded-2xl p-6 shadow-[0_0_50px_rgba(0,0,0,0.8)] flex flex-col gap-5">
+      <div className="relative max-w-md w-full bg-white/95 border border-slate-200 backdrop-blur-sm rounded-2xl p-6 shadow-[0_8px_30px_rgba(2,6,23,0.06)] flex flex-col gap-5 text-slate-900">
         
         <div className="flex flex-col items-center text-center gap-2">
-          <div className="w-14 h-14 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_20px_rgba(99,102,241,0.2)]">
-            <ShieldAlert className="w-7 h-7 text-indigo-400 animate-pulse" />
+          <div className="w-14 h-14 rounded-full bg-indigo-50 border border-indigo-100 flex items-center justify-center shadow-[0_4px_18px_rgba(99,102,241,0.06)]">
+            <ShieldAlert className="w-7 h-7 text-indigo-600 animate-pulse" />
           </div>
           <div className="mt-2">
             <h1 className="text-sm font-black tracking-widest text-transparent bg-clip-text bg-gradient-to-r from-slate-100 to-slate-300 uppercase">
@@ -119,7 +119,7 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
               type="text"
               readOnly
               value={email}
-              className="bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-bold text-slate-400 focus:outline-none"
+              className="bg-white border border-slate-200 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none"
             />
           </div>
           
@@ -130,7 +130,7 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
               value={passcode}
               onChange={(e) => setPasscode(e.target.value)}
               placeholder="Enter cryptographic key..."
-              className="bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-bold text-slate-200 focus:outline-none transition-colors"
+              className="bg-white border border-slate-200 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-bold text-slate-700 focus:outline-none transition-colors"
             />
           </div>
         </div>
@@ -138,13 +138,13 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
         <button
           onClick={handleVerify}
           disabled={isVerifying}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-indigo-600/20"
+          className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 text-slate-900 font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-indigo-600/20"
         >
           {isVerifying ? "Verifying Credentials..." : "Initiate Verification"}
         </button>
 
         {logs.length > 0 && (
-          <div className="bg-black/60 rounded-lg p-3 border border-slate-800 font-mono text-[9px] text-emerald-400 flex flex-col gap-1 max-h-40 overflow-y-auto scrollbar-thin">
+          <div className="bg-white/60 rounded-lg p-3 border border-slate-200 font-mono text-[9px] text-emerald-700 flex flex-col gap-1 max-h-40 overflow-y-auto scrollbar-thin">
             {logs.map((log, idx) => (
               <div key={idx} className="whitespace-pre-wrap leading-relaxed">{log}</div>
             ))}
@@ -365,7 +365,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setIsMobileMenuOpen(false)}
-            className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-40 lg:hidden"
+            className="fixed inset-0 bg-white/60 backdrop-blur-sm z-40 lg:hidden"
           />
         )}
       </AnimatePresence>
@@ -400,7 +400,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                 <Bell className={`w-4 h-4 ${pendingCount > 0 && 'text-yellow-600 animate-bounce'}`} />
               </div>
               {pendingCount > 0 && (
-                <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-red-500 text-[8px] font-black text-white flex items-center justify-center shadow-[0_0_8px_#ef4444]">
+                <span className="absolute -top-1.5 -right-1.5 w-4.5 h-4.5 rounded-full bg-red-500 text-[8px] font-black text-slate-900 flex items-center justify-center shadow-[0_0_8px_#ef4444]">
                   {pendingCount}
                 </span>
               )}
@@ -441,8 +441,8 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
                   <div
                     className={`w-7 h-7 rounded-lg flex items-center justify-center transition-all duration-300 shrink-0 ${
                       isActive
-                        ? `bg-gradient-to-br ${item.color} text-white shadow-[0_0_12px_${item.glowColor}]`
-                        : "bg-slate-900/5 text-slate-600 group-hover:bg-slate-900/10 group-hover:text-slate-900"
+                        ? `bg-gradient-to-br ${item.color} text-slate-900 shadow-[0_0_12px_${item.glowColor}]`
+                        : "bg-white/5 text-slate-600 group-hover:bg-white/10 group-hover:text-slate-900"
                     }`}
                   >
                     <item.icon className="w-4 h-4" />
@@ -496,7 +496,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
               <Bell className={`w-5 h-5 ${pendingCount > 0 && 'text-yellow-600 animate-bounce'}`} />
             </div>
             {pendingCount > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-[9px] font-black text-white flex items-center justify-center shadow-[0_0_8px_#ef4444]">
+              <span className="absolute -top-1.5 -right-1.5 w-5 h-5 rounded-full bg-red-500 text-[9px] font-black text-slate-900 flex items-center justify-center shadow-[0_0_8px_#ef4444]">
                 {pendingCount}
               </span>
             )}

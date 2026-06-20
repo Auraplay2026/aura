@@ -141,7 +141,7 @@ export default function PromotionsPage() {
               <Flame className="w-4 h-4" /> Global Event Live
             </div>
             
-            <h1 className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tight mb-4 drop-shadow-2xl">
+            <h1 className="text-5xl sm:text-7xl font-black text-slate-900 leading-none tracking-tight mb-4 drop-shadow-2xl">
               Win a Custom <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">Lamborghini</span>
             </h1>
@@ -237,7 +237,7 @@ export default function PromotionsPage() {
                         tag === "Hot" ? "bg-red-500 text-slate-900" : 
                         tag === "Crypto" ? "bg-cyan-500 text-slate-900" :
                         tag === "Ending Soon" ? "bg-orange-500 text-slate-900" :
-                        "bg-slate-900/20 backdrop-blur-md text-slate-900 border border-white/20"
+                        "bg-white/20 backdrop-blur-md text-slate-900 border border-white/20"
                       )}>
                         {tag}
                       </span>
@@ -281,7 +281,7 @@ export default function PromotionsPage() {
                             e.stopPropagation();
                             router.push('/account/balance');
                           }}
-                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 transition-all"
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 transition-all"
                         >
                           Deposit
                         </button>

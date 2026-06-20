@@ -119,7 +119,7 @@ export default function ReferAndEarnPage() {
         </p>
         <button
           onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
-          className="bg-neon-purple hover:bg-purple-600 text-white font-black text-xs px-6 py-3.5 rounded-xl uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95"
+          className="bg-neon-purple hover:bg-purple-600 text-slate-900 font-black text-xs px-6 py-3.5 rounded-xl uppercase tracking-wider transition-all shadow-[0_0_20px_rgba(168,85,247,0.3)] hover:scale-105 active:scale-95"
         >
           Sign In to Unlock
         </button>
@@ -244,7 +244,7 @@ export default function ReferAndEarnPage() {
                 copiedCode
                   ? "bg-neon-green text-slate-900"
                   : affiliateCode
-                    ? "bg-neon-purple hover:bg-purple-600 text-white shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+                    ? "bg-neon-purple hover:bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
                     : "bg-slate-100 text-slate-400 cursor-not-allowed"
               )}
             >
@@ -256,7 +256,7 @@ export default function ReferAndEarnPage() {
             <button
               onClick={handleGenerateCode}
               disabled={isGenerating}
-              className="px-4 py-3 bg-slate-900 hover:bg-slate-800 text-white font-black text-xs rounded-xl uppercase tracking-wide transition-all disabled:opacity-60"
+              className="px-4 py-3 bg-white hover:bg-slate-50 text-slate-900 font-black text-xs rounded-xl uppercase tracking-wide transition-all disabled:opacity-60"
             >
               {isGenerating ? '...' : 'Generate'}
             </button>
@@ -282,7 +282,7 @@ export default function ReferAndEarnPage() {
               )}
               whileTap={{ scale: 0.95 }}
             >
-              {copiedLink ? <CheckCircle2 className="w-4 h-4 text-slate-900" /> : <Copy className="w-4 h-4 text-white" />}
+              {copiedLink ? <CheckCircle2 className="w-4 h-4 text-slate-900" /> : <Copy className="w-4 h-4 text-slate-900" />}
             </motion.div>
           </div>
         </div>
@@ -292,7 +292,7 @@ export default function ReferAndEarnPage() {
           <button
             onClick={handleWhatsAppShare}
             disabled={!referralLink}
-            className="flex items-center gap-2 px-4 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-white font-black text-xs rounded-xl uppercase tracking-wide transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2.5 bg-[#25D366] hover:bg-[#20bd5a] text-slate-900 font-black text-xs rounded-xl uppercase tracking-wide transition-all disabled:opacity-40 disabled:cursor-not-allowed"
           >
             <Share2 className="w-3.5 h-3.5" />
             Share on WhatsApp

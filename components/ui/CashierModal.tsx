@@ -500,7 +500,7 @@ interface PaymentSettingsState {
                                 ? "bg-white border-slate-200 text-slate-500" 
                                 : depositStep === 'transfer'
                                 ? "bg-white border-red-500 text-red-600 shadow-[0_0_12px_rgba(220,38,38,0.3)] ring-2 ring-red-500/10" 
-                                : "bg-red-500 border-red-500 text-white"
+                                : "bg-red-500 border-red-500 text-slate-900"
                             )}>
                               {depositStep === 'verify' ? <Check className="w-4 h-4 stroke-[3]" /> : "2"}
                             </div>
@@ -923,7 +923,7 @@ interface PaymentSettingsState {
                                   "font-bold py-2 rounded-xl transition-all font-mono text-xs cursor-pointer",
                                   isOneClickEnabled && currentUser?.accountType !== 'real' 
                                     ? 'bg-amber-500/20 text-amber-500 hover:bg-amber-500/30 border border-amber-500/50' 
-                                    : 'bg-slate-100 hover:bg-slate-700 text-slate-700'
+                                    : 'bg-slate-100 hover:bg-slate-100 text-slate-700'
                                 )}
                               >
                                 +₹{(amt/1000)}k {isOneClickEnabled && currentUser?.accountType !== 'real' && <Zap className="w-3.5 h-3.5 inline-block ml-1" />}
@@ -940,7 +940,7 @@ interface PaymentSettingsState {
                               </div>
                               <button 
                                 onClick={() => setIsOneClickEnabled(!isOneClickEnabled)}
-                                className={`w-9 h-4.5 rounded-full relative transition-colors ${isOneClickEnabled ? 'bg-amber-500' : 'bg-slate-700'}`}
+                                className={`w-9 h-4.5 rounded-full relative transition-colors ${isOneClickEnabled ? 'bg-amber-500' : 'bg-slate-100'}`}
                               >
                                 <div className={`w-2.5 h-2.5 bg-white rounded-full absolute top-1 transition-transform ${isOneClickEnabled ? 'translate-x-5.5' : 'translate-x-1'}`} />
                               </button>
@@ -1098,7 +1098,7 @@ interface PaymentSettingsState {
                               ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]'
                               : selectedMethod === 'crypto'
                               ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]'
-                              : 'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]'
+                              : 'bg-red-500 hover:bg-red-400 text-slate-900 shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]'
                           )}
                         >
                           <div className="absolute inset-0 bg-white/25 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
@@ -1121,7 +1121,7 @@ interface PaymentSettingsState {
                                 ? 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]'
                                 : selectedMethod === 'crypto'
                                 ? 'bg-amber-500 hover:bg-amber-400 text-slate-950 shadow-[0_0_15px_rgba(245,158,11,0.3)] hover:shadow-[0_0_25px_rgba(245,158,11,0.5)]'
-                                : 'bg-red-500 hover:bg-red-400 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]'
+                                : 'bg-red-500 hover:bg-red-400 text-slate-900 shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]'
                             )}
                           >
                             <div className="absolute inset-0 bg-white/25 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
@@ -1139,7 +1139,7 @@ interface PaymentSettingsState {
                           <button
                             onClick={() => handleRealRequestSubmit('deposit')}
                             disabled={isProcessing || amount <= 0 || !utr || !senderUpi || !screenshot}
-                            className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-850 text-slate-950 disabled:text-slate-500 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider cursor-pointer"
+                            className="flex-1 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-100 text-slate-950 disabled:text-slate-500 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)] transition-all disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-wider cursor-pointer"
                           >
                             {isProcessing ? (
                               <div className="w-5 h-5 border-2 border-slate-300 border-t-transparent rounded-full animate-spin" />
@@ -1163,9 +1163,9 @@ interface PaymentSettingsState {
                         }
                       }}
                       disabled={isProcessing || amount <= 0 || (activeTab === "withdraw" && amount > balance) || (currentUser?.accountType === 'real' && activeTab === 'withdraw' && !senderUpi)}
-                      className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${activeTab === 'withdraw' ? 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]' : 'bg-slate-50 hover:bg-green-500 text-slate-950'}`}
+                      className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${activeTab === 'withdraw' ? 'bg-red-600 hover:bg-red-500 text-slate-900 shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]' : 'bg-slate-50 hover:bg-green-500 text-slate-950'}`}
                     >
-                      <div className="absolute inset-0 bg-slate-900/20 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
+                      <div className="absolute inset-0 bg-white/20 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
                       {isProcessing ? (
                         <motion.div
                           animate={{ rotate: 360 }}

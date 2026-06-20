@@ -20,13 +20,13 @@ interface HypeMessage {
 }
 
 const AVATAR_COLORS = [
-  "bg-red-500/80 border-red-500/40 text-white",
-  "bg-purple-500/80 border-purple-500/40 text-white",
-  "bg-emerald-500/80 border-emerald-500/40 text-white",
-  "bg-blue-500/80 border-blue-500/40 text-white",
-  "bg-pink-500/80 border-pink-500/40 text-white",
+  "bg-red-500/80 border-red-500/40 text-slate-900",
+  "bg-purple-500/80 border-purple-500/40 text-slate-900",
+  "bg-emerald-500/80 border-emerald-500/40 text-slate-900",
+  "bg-blue-500/80 border-blue-500/40 text-slate-900",
+  "bg-pink-500/80 border-pink-500/40 text-slate-900",
   "bg-yellow-500/80 border-yellow-500/40 text-slate-950",
-  "bg-indigo-500/80 border-indigo-500/40 text-white",
+  "bg-indigo-500/80 border-indigo-500/40 text-slate-900",
 ];
 
 const generateHypeMessage = (): HypeMessage => {
@@ -47,8 +47,8 @@ const generateHypeMessage = (): HypeMessage => {
       type: "TRANSACTION",
       icon: Banknote,
       title: "Massive Withdrawal",
-      message: <span><strong className="text-emerald-400">{user}</strong> just cashed out <strong className="text-white">{amount}</strong></span>,
-      color: "text-emerald-400 border-emerald-500/30 bg-slate-900/90 shadow-emerald-500/5",
+      message: <span><strong className="text-emerald-400">{user}</strong> just cashed out <strong className="text-slate-900">{amount}</strong></span>,
+      color: "text-emerald-400 border-emerald-500/30 bg-white/90 shadow-emerald-500/5",
       avatarColor,
       userInitials,
     };
@@ -63,8 +63,8 @@ const generateHypeMessage = (): HypeMessage => {
       type: "JACKPOT",
       icon: Zap,
       title: "🔥 JACKPOT ALERT! 🔥",
-      message: <span><strong className="text-yellow-400">{user}</strong> hit a mega jackpot of <strong className="text-white">{jackpot}</strong> on <span className="italic">{game}</span>!</span>,
-      color: "text-yellow-400 border-yellow-500/30 bg-slate-900/90 shadow-yellow-500/10 animate-pulse-glow",
+      message: <span><strong className="text-yellow-400">{user}</strong> hit a mega jackpot of <strong className="text-slate-900">{jackpot}</strong> on <span className="italic">{game}</span>!</span>,
+      color: "text-yellow-400 border-yellow-500/30 bg-white/90 shadow-yellow-500/10 animate-pulse-glow",
       avatarColor: "bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 font-black",
       userInitials: "💰",
     };
@@ -77,8 +77,8 @@ const generateHypeMessage = (): HypeMessage => {
       type: "AFFILIATE",
       icon: Users,
       title: "Affiliate Earnings",
-      message: <span><strong className="text-purple-400">{user}</strong> earned <strong className="text-white">{comm}</strong> in referral commissions today!</span>,
-      color: "text-purple-400 border-purple-500/30 bg-slate-900/90 shadow-purple-500/5",
+      message: <span><strong className="text-purple-400">{user}</strong> earned <strong className="text-slate-900">{comm}</strong> in referral commissions today!</span>,
+      color: "text-purple-400 border-purple-500/30 bg-white/90 shadow-purple-500/5",
       avatarColor,
       userInitials,
     };
@@ -92,7 +92,7 @@ const generateHypeMessage = (): HypeMessage => {
         icon: Trophy,
         title: "🏆 Tournament Winner 🏆",
         message: <span><strong className="text-pink-400">{user}</strong> claimed 1st place in the Weekly Speed Racer Tournament!</span>,
-        color: "text-pink-400 border-pink-500/30 bg-slate-900/90 shadow-pink-500/5",
+        color: "text-pink-400 border-pink-500/30 bg-white/90 shadow-pink-500/5",
         avatarColor,
         userInitials,
       };
@@ -102,9 +102,9 @@ const generateHypeMessage = (): HypeMessage => {
         type: "STREAK",
         icon: Flame,
         title: "Streak Ascension",
-        message: <span><strong className="text-red-400">{user}</strong> unlocked Day 7 streak bonus of <strong className="text-white">₹5,000</strong>!</span>,
-        color: "text-red-400 border-red-500/30 bg-slate-900/90 shadow-red-500/5",
-        avatarColor: "bg-red-600 text-white font-bold",
+        message: <span><strong className="text-red-400">{user}</strong> unlocked Day 7 streak bonus of <strong className="text-slate-900">₹5,000</strong>!</span>,
+        color: "text-red-400 border-red-500/30 bg-white/90 shadow-red-500/5",
+        avatarColor: "bg-red-600 text-slate-900 font-bold",
         userInitials: "🔥",
       };
     }
@@ -122,8 +122,8 @@ const generateHypeMessage = (): HypeMessage => {
       icon: ShieldCheck,
       title: "Platform Trust",
       message: <span>{messages[Math.floor(Math.random() * messages.length)]}</span>,
-      color: "text-blue-400 border-blue-500/30 bg-slate-900/90 shadow-blue-500/5",
-      avatarColor: "bg-blue-600 text-white font-bold",
+      color: "text-blue-400 border-blue-500/30 bg-white/90 shadow-blue-500/5",
+      avatarColor: "bg-blue-600 text-slate-900 font-bold",
       userInitials: "🛡️",
     };
   }

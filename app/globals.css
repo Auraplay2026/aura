@@ -228,6 +228,36 @@ html {
   color-scheme: light;
 }
 
+/* Design tokens - Light-first system */
+:root {
+  --surface: #ffffff; /* primary card / panel surface */
+  --surface-2: #f8fafc; /* elevated surface */
+  --surface-3: #f1f5f9; /* subtle surface */
+  --muted: #64748b; /* secondary text */
+  --border: #e6eef7; /* soft border */
+  --accent: #ef4444; /* primary accent (red) */
+  --accent-600: #dc2626;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --info: #60a5fa;
+  --shadow-1: 0 4px 18px rgba(2,6,23,0.06);
+}
+
+/* Utility surface classes to standardize light visuals */
+.bg-surface { background-color: var(--surface) !important; }
+.bg-surface-2 { background-color: var(--surface-2) !important; }
+.bg-surface-3 { background-color: var(--surface-3) !important; }
+.text-foreground { color: var(--foreground) !important; }
+.text-muted { color: var(--muted) !important; }
+.border-soft { border-color: var(--border) !important; }
+.surface-overlay { background-color: rgba(255,255,255,0.6) !important; backdrop-filter: blur(6px); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; box-shadow: var(--shadow-1); }
+.btn-primary { background: linear-gradient(90deg,var(--accent),var(--accent-600)); color: #fff; }
+
+/* Helpful alias for dark->light conversions */
+.replace-bg-white { background-color: var(--surface) !important; }
+.replace-text-slate-900 { color: var(--foreground) !important; }
+
 body {
   background-color: var(--background);
   color: var(--foreground);

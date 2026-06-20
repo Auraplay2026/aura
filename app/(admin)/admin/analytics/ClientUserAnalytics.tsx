@@ -565,7 +565,7 @@ export default function ClientUserAnalytics({
                   </h3>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-slate-900/50 border border-slate-200 p-3 rounded-lg">
+                    <div className="bg-white/50 border border-slate-200 p-3 rounded-lg">
                       <div className="text-[9px] text-slate-600 font-semibold uppercase">Win Rate</div>
                       <div className="text-base font-bold font-mono text-slate-800 mt-1">
                         {winRate.toFixed(1)}%
@@ -574,7 +574,7 @@ export default function ClientUserAnalytics({
                         {winsCount} wins / {roundsCount} wagers
                       </div>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-200 p-3 rounded-lg">
+                    <div className="bg-white/50 border border-slate-200 p-3 rounded-lg">
                       <div className="text-[9px] text-slate-600 font-semibold uppercase">Total Payouts</div>
                       <div className="text-base font-bold font-mono text-emerald-600 mt-1">
                         ₹{payoutsTotal.toLocaleString('en-IN')}
@@ -583,7 +583,7 @@ export default function ClientUserAnalytics({
                         Returned to player
                       </div>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-200 p-3 rounded-lg">
+                    <div className="bg-white/50 border border-slate-200 p-3 rounded-lg">
                       <div className="text-[9px] text-slate-600 font-semibold uppercase">Avg Bet Size</div>
                       <div className="text-base font-bold font-mono text-slate-800 mt-1">
                         ₹{roundsCount > 0 ? Math.floor(wagersTotal / roundsCount).toLocaleString('en-IN') : 0}
@@ -592,7 +592,7 @@ export default function ClientUserAnalytics({
                         Per game round
                       </div>
                     </div>
-                    <div className="bg-slate-900/50 border border-slate-200 p-3 rounded-lg">
+                    <div className="bg-white/50 border border-slate-200 p-3 rounded-lg">
                       <div className="text-[9px] text-slate-600 font-semibold uppercase">Net House Profit</div>
                       <div className={`text-base font-bold font-mono mt-1 ${netHouseProfit >= 0 ? 'text-indigo-600' : 'text-rose-600'}`}>
                         ₹{netHouseProfit.toLocaleString('en-IN')}
@@ -678,7 +678,7 @@ export default function ClientUserAnalytics({
                       </button>
                       <button
                         onClick={() => { setAmountInput(activeUser.realBalance.toString()); setOverrideModalOpen(true); }}
-                        className="bg-indigo-500/15 hover:bg-indigo-500 border border-indigo-500/20 hover:border-indigo-500/50 text-indigo-600 hover:text-white font-bold py-2 rounded-lg text-[10px] uppercase tracking-wider transition cursor-pointer text-center"
+                        className="bg-indigo-500/15 hover:bg-indigo-500 border border-indigo-500/20 hover:border-indigo-500/50 text-indigo-600 hover:text-slate-900 font-bold py-2 rounded-lg text-[10px] uppercase tracking-wider transition cursor-pointer text-center"
                       >
                         Override
                       </button>
@@ -878,7 +878,7 @@ export default function ClientUserAnalytics({
         </button>
 
         {logsExpanded && (
-          <div className="border-t border-slate-200/80 p-5 bg-slate-900/20 max-h-[400px] overflow-y-auto custom-scrollbar">
+          <div className="border-t border-slate-200/80 p-5 bg-white/20 max-h-[400px] overflow-y-auto custom-scrollbar">
             <div className="overflow-x-auto">
             <div className="w-full overflow-x-auto custom-scrollbar">
               <table className="w-full text-left border-collapse text-xs">
@@ -1125,7 +1125,7 @@ export default function ClientUserAnalytics({
               <button
                 onClick={handleOverride}
                 disabled={actionLoading}
-                className="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider disabled:opacity-50 mt-2"
+                className="w-full bg-indigo-600 hover:bg-indigo-500 text-slate-900 font-bold py-3 rounded-xl transition flex items-center justify-center gap-2 cursor-pointer text-xs uppercase tracking-wider disabled:opacity-50 mt-2"
               >
                 {actionLoading ? <RefreshCw className="w-4 h-4 animate-spin" /> : "Execute Override"}
               </button>

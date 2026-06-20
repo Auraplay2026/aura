@@ -188,16 +188,16 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   };
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] relative bg-slate-950 rounded-3xl overflow-hidden shadow-2xl border border-slate-800 flex flex-col p-3 md:p-6 gap-6">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] relative bg-gradient-to-br from-slate-50 via-white to-emerald-50/40 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 flex flex-col p-3 md:p-6 gap-6">
       
-      {/* Deep Space / Casino Floor Background */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/10 via-slate-950 to-slate-950 pointer-events-none" />
+      {/* Premium Light Casino Floor Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(167,243,208,0.18)_0%,transparent_60%)] pointer-events-none" />
       
       {/* 3D Floor Grid */}
       <div 
-        className="absolute bottom-0 left-0 right-0 h-1/2 opacity-20 pointer-events-none"
+        className="absolute bottom-0 left-0 right-0 h-1/2 opacity-30 pointer-events-none"
         style={{
-          backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.3) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(rgba(16,185,129,0.15) 1px, transparent 1px), linear-gradient(90deg, rgba(16,185,129,0.15) 1px, transparent 1px)`,
           backgroundSize: '40px 40px',
           transform: 'perspective(1000px) rotateX(70deg)',
           transformOrigin: 'bottom'
@@ -211,17 +211,17 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
         className="relative z-10 flex-1 flex flex-col"
       >
         {/* Header UI */}
-        <div className="flex items-center justify-between bg-slate-900/60 p-4 rounded-2xl border border-slate-800 backdrop-blur-md mb-4 shadow-xl">
+        <div className="flex items-center justify-between bg-white/80 p-4 rounded-2xl border border-slate-200 backdrop-blur-md mb-4 shadow-md">
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-slate-950 px-4 py-2 rounded-xl border border-slate-700 shadow-inner">
-              <Bomb className="w-5 h-5 text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]" />
+            <div className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-xl border border-slate-200 shadow-inner">
+              <Bomb className="w-5 h-5 text-red-500" />
               <select 
                 disabled={gameState === "playing"}
-                className="bg-transparent text-white font-black text-sm outline-none cursor-pointer"
+                className="bg-transparent text-slate-900 font-black text-sm outline-none cursor-pointer"
                 value={minesCount}
                 onChange={(e) => setMinesCount(Number(e.target.value))}
               >
-                {[1,3,5,10,24].map(n => <option key={n} value={n} className="bg-slate-900">{n} Mines</option>)}
+                {[1,3,5,10,24].map(n => <option key={n} value={n} className="bg-white">{n} Mines</option>)}
               </select>
             </div>
           </div>
@@ -230,9 +230,9 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
             <span className="text-[10px] uppercase tracking-widest text-slate-500 font-black">Current Multiplier</span>
             <motion.span 
               key={activeMultiplier}
-              initial={{ scale: 1.5, color: "#34d399" }}
-              animate={{ scale: 1, color: "#f8fafc" }}
-              className="text-2xl font-black font-mono tracking-tight drop-shadow-md"
+              initial={{ scale: 1.5, color: "#059669" }}
+              animate={{ scale: 1, color: "#1e293b" }}
+              className="text-2xl font-black font-mono tracking-tight text-slate-900"
             >
               {activeMultiplier.toFixed(2)}x
             </motion.span>
@@ -241,10 +241,10 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
 
         {/* 3D Mines Grid Container */}
         <div className="relative flex-1 flex items-center justify-center perspective-[1200px]">
-          <div className={`grid grid-cols-5 gap-3 w-full max-w-[450px] aspect-square p-4 bg-slate-900/40 rounded-[2rem] border transition-all duration-300 shadow-[inset_0_0_50px_rgba(0,0,0,0.8)] transform-style-3d rotate-x-[15deg] ${
+          <div className={`grid grid-cols-5 gap-3 w-full max-w-[450px] aspect-square p-4 bg-white/60 rounded-[2rem] border transition-all duration-300 shadow-[inset_0_0_30px_rgba(0,0,0,0.04),0_8px_40px_rgba(0,0,0,0.06)] transform-style-3d rotate-x-[15deg] ${
             (gameState === "playing" && clickCount >= 4)
-              ? "border-rose-500/50 shadow-[0_0_30px_rgba(244,63,94,0.4)] animate-[heartbeat-glow_1.2s_infinite_ease-in-out]" 
-              : "border-slate-800/80"
+              ? "border-rose-400/60 shadow-[0_0_30px_rgba(244,63,94,0.15)] animate-[heartbeat-glow_1.2s_infinite_ease-in-out]" 
+              : "border-slate-200/80"
           }`}>
             <AnimatePresence>
               {Array(25).fill(0).map((_, i) => {
@@ -261,10 +261,10 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
                     whileTap={gameState === "playing" && !isRevealed ? { y: 2, scale: 0.95 } : {}}
                     className={`relative w-full h-full rounded-2xl flex items-center justify-center transition-all duration-300 transform-style-3d outline-none
                       ${!isRevealed 
-                        ? "bg-gradient-to-b from-slate-700 to-slate-800 shadow-[0_6px_0_rgb(30,41,59),0_15px_20px_rgba(0,0,0,0.6)] border-t-2 border-slate-600 cursor-pointer" 
-                        : "bg-slate-900 shadow-[inset_0_0_20px_rgba(0,0,0,1)] border border-slate-800"
+                        ? "bg-gradient-to-b from-slate-200 to-slate-300 shadow-[0_6px_0_rgb(148,163,184),0_10px_20px_rgba(0,0,0,0.12)] border-t-2 border-white/80 cursor-pointer hover:from-slate-100 hover:to-slate-200" 
+                        : "bg-white shadow-[inset_0_2px_8px_rgba(0,0,0,0.06)] border border-slate-200"
                       }
-                      ${isRevealed && isMine && isBustCause ? "bg-red-950/50 border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.5),inset_0_0_30px_rgba(239,68,68,0.8)] z-20" : ""}
+                      ${isRevealed && isMine && isBustCause ? "bg-red-50 border-red-400 shadow-[0_0_20px_rgba(239,68,68,0.25),inset_0_0_15px_rgba(239,68,68,0.1)] z-20" : ""}
                     `}
                   >
                     {/* The 3D flip wrapper */}
@@ -276,7 +276,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
                     >
                       {/* Front of tile (hidden when flipped) */}
                       <div className="absolute inset-0 backface-hidden rounded-2xl overflow-hidden">
-                        <div className="absolute top-0 left-0 w-full h-1/2 bg-white/5" />
+                        <div className="absolute top-0 left-0 w-full h-1/2 bg-white/40" />
                       </div>
 
                       {/* Sparkles / Burst particles on safe tiles */}
@@ -352,11 +352,11 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
             <motion.div 
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              className="absolute inset-0 bg-red-950/20 backdrop-blur-sm z-30 pointer-events-none flex items-center justify-center"
+              className="absolute inset-0 bg-red-50/80 backdrop-blur-sm z-30 pointer-events-none flex items-center justify-center"
             >
-              <div className="bg-slate-900 border border-red-500/50 p-8 rounded-3xl flex flex-col items-center shadow-[0_0_100px_rgba(239,68,68,0.4)]">
-                <Skull className="w-20 h-20 text-red-500 mb-4 drop-shadow-[0_0_20px_rgba(239,68,68,1)]" />
-                <h2 className="text-4xl font-black text-white tracking-widest uppercase">Busted</h2>
+              <div className="bg-white border border-red-300 p-8 rounded-3xl flex flex-col items-center shadow-[0_20px_60px_rgba(239,68,68,0.15)]">
+                <Skull className="w-20 h-20 text-red-500 mb-4" />
+                <h2 className="text-4xl font-black text-slate-900 tracking-widest uppercase">Busted</h2>
               </div>
             </motion.div>
           )}
@@ -370,10 +370,10 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
             >
               <button
                 onClick={cashOut}
-                className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-2xl rounded-2xl shadow-[0_10px_50px_rgba(52,211,153,0.5),inset_0_2px_0_rgba(255,255,255,0.8)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
+                className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-white font-black text-2xl rounded-2xl shadow-[0_10px_40px_rgba(16,185,129,0.35),inset_0_2px_0_rgba(255,255,255,0.25)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
               >
                 <span>Cashout</span>
-                <span className="bg-slate-900/20 px-3 py-1 rounded-lg">₹{(betAmount * activeMultiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                <span className="bg-white/20 px-3 py-1 rounded-lg">₹{(betAmount * activeMultiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
               </button>
             </motion.div>
           )}

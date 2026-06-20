@@ -201,10 +201,10 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   const currentMultiplier = activeRow > 0 ? MULTIPLIERS[activeRow - 1] : 1.0;
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 relative flex flex-col md:flex-row items-center justify-center overflow-hidden p-3 md:p-6 gap-4 md:gap-8 shadow-2xl">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-gradient-to-br from-slate-50 via-white to-blue-50/40 rounded-3xl border border-slate-200/80 relative flex flex-col md:flex-row items-center justify-center overflow-hidden p-3 md:p-6 gap-4 md:gap-8 shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
       
       {/* Background glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-500/10 rounded-full blur-[100px] pointer-events-none" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-blue-400/[0.06] rounded-full blur-[100px] pointer-events-none" />
 
       {/* Multiplier Tower Display */}
       <div className="hidden md:flex flex-col-reverse justify-between h-[450px] w-24 z-10">
@@ -215,7 +215,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
               scale: activeRow === idx ? 1.1 : 1,
               opacity: activeRow >= idx ? 1 : 0.3
             }}
-            className={`w-full text-right font-mono font-bold text-lg transition-colors duration-300 ${activeRow === idx ? 'text-blue-400 drop-shadow-[0_0_8px_rgba(96,165,250,0.8)]' : activeRow > idx ? 'text-emerald-400' : 'text-slate-500'}`}
+            className={`w-full text-right font-mono font-bold text-lg transition-colors duration-300 ${activeRow === idx ? 'text-blue-500' : activeRow > idx ? 'text-emerald-600' : 'text-slate-400'}`}
           >
             {mult.toFixed(2)}x
           </motion.div>
@@ -233,7 +233,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
               {row.map((tile, cIndex) => {
                 
                 let tileContent = null;
-                let bgClass = "bg-slate-800 hover:bg-slate-700 border-slate-700";
+                let bgClass = "bg-slate-100 hover:bg-slate-50 border-slate-300";
                 
                 if (tile === 'safe') {
                   bgClass = "bg-emerald-500/20 border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.3)]";
@@ -289,11 +289,11 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm pointer-events-none"
+            className="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-sm pointer-events-none"
           >
-            <div className="bg-slate-900 border border-red-500/30 p-8 rounded-3xl flex flex-col items-center shadow-[0_0_50px_rgba(239,68,68,0.2)]">
+            <div className="bg-white border border-red-500/30 p-8 rounded-3xl flex flex-col items-center shadow-[0_0_50px_rgba(239,68,68,0.2)]">
               <Skull className="w-16 h-16 text-red-500 mb-4 drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]" />
-              <h2 className="text-3xl font-black text-white tracking-wider">BUSTED</h2>
+              <h2 className="text-3xl font-black text-slate-900 tracking-wider">BUSTED</h2>
               <p className="text-slate-400 mt-2 font-mono">Row {activeRow + 1} Failed</p>
             </div>
           </motion.div>
@@ -303,13 +303,13 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
           <motion.div 
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="absolute inset-0 z-20 flex items-center justify-center bg-slate-950/60 backdrop-blur-sm pointer-events-none"
+            className="absolute inset-0 z-20 flex items-center justify-center bg-white/60 backdrop-blur-sm pointer-events-none"
           >
-            <div className="bg-slate-900 border border-emerald-500/30 p-8 rounded-3xl flex flex-col items-center shadow-[0_0_50px_rgba(16,185,129,0.2)]">
-              <ShieldCheck className="w-16 h-16 text-emerald-400 mb-4 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]" />
-              <h2 className="text-3xl font-black text-white tracking-wider">SECURED</h2>
-              <p className="text-emerald-400 mt-2 font-mono text-xl">{currentMultiplier.toFixed(2)}x</p>
-              <p className="text-slate-300 mt-1 font-bold">₹{(betAmount * currentMultiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
+            <div className="bg-white border border-emerald-500/30 p-8 rounded-3xl flex flex-col items-center shadow-[0_0_50px_rgba(16,185,129,0.25)]">
+              <ShieldCheck className="w-16 h-16 text-emerald-500 mb-4 drop-shadow-[0_0_15px_rgba(16,185,129,0.8)]" />
+              <h2 className="text-3xl font-black text-slate-900 tracking-wider">SECURED</h2>
+              <p className="text-emerald-600 mt-2 font-mono text-xl font-bold">{currentMultiplier.toFixed(2)}x</p>
+              <p className="text-slate-600 mt-1 font-black">₹{(betAmount * currentMultiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</p>
             </div>
           </motion.div>
         )}
@@ -329,7 +329,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
               className="w-full py-4 bg-gradient-to-r from-emerald-500 to-emerald-400 hover:from-emerald-400 hover:to-emerald-300 text-slate-900 font-black text-xl rounded-2xl shadow-[0_10px_30px_rgba(52,211,153,0.3),inset_0_2px_0_rgba(255,255,255,0.5)] transition-all uppercase tracking-widest border border-emerald-300 flex items-center justify-center gap-3 active:scale-95"
             >
               <span>Cashout</span>
-              <span className="bg-slate-900/20 px-3 py-1 rounded-lg">₹{(betAmount * currentMultiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="bg-white/20 px-3 py-1 rounded-lg">₹{(betAmount * currentMultiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </button>
           </motion.div>
         )}

@@ -538,7 +538,7 @@ export function OnboardingModal() {
                       <div className="absolute right-0 top-0 w-24 h-24 bg-[#a855f7]/5 blur-xl rounded-full" />
                       <div className="text-left">
                         <p className="text-[8px] font-black text-[#a855f7] tracking-widest uppercase">Welcome Reward</p>
-                        <h4 className="text-sm font-black text-white uppercase mt-0.5">
+                        <h4 className="text-sm font-black text-slate-900 uppercase mt-0.5">
                           {selectedType === 'real' ? "100% Deposit Match Activated" : "VIP Practice Medal Granted"}
                         </h4>
                         <p className="text-[10px] text-slate-300 mt-1 leading-relaxed">

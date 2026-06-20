@@ -105,16 +105,16 @@ export function Footer() {
       <div className="max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Animated Statistics Row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 p-8 rounded-3xl bg-slate-900 border border-slate-850 shadow-2xl relative overflow-hidden">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16 p-8 rounded-3xl bg-white border border-slate-850 shadow-2xl relative overflow-hidden">
           <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-transparent pointer-events-none" />
           <div className="text-center md:text-left">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Paid Out</span>
-            <h3 className="text-2xl sm:text-3xl font-black text-white font-mono mt-1 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">₹2.4Cr+</h3>
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1 text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 to-amber-500">₹2.4Cr+</h3>
             <p className="text-[10px] text-slate-500 mt-1">Processed instantly today</p>
           </div>
           <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Players Online</span>
-            <h3 className="text-2xl sm:text-3xl font-black text-white font-mono mt-1 flex items-center justify-center md:justify-start gap-2">
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1 flex items-center justify-center md:justify-start gap-2">
               <span className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-pulse" />
               14,208
             </h3>
@@ -122,7 +122,7 @@ export function Footer() {
           </div>
           <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
             <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Games Streamed</span>
-            <h3 className="text-2xl sm:text-3xl font-black text-white font-mono mt-1">942,800+</h3>
+            <h3 className="text-2xl sm:text-3xl font-black text-slate-900 font-mono mt-1">942,800+</h3>
             <p className="text-[10px] text-slate-500 mt-1">Via low-latency cloud nodes</p>
           </div>
           <div className="text-center md:text-left border-l border-slate-800 pl-0 md:pl-6">
@@ -265,7 +265,7 @@ export function Footer() {
                     onClick={() => setActiveCategory(cat.id)}
                     className={`px-4 py-2 rounded-xl text-xs font-bold transition-all duration-300 ${
                       activeCategory === cat.id
-                        ? "bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md shadow-red-600/10 scale-105"
+                        ? "bg-gradient-to-r from-red-600 to-rose-600 text-slate-900 shadow-md shadow-red-600/10 scale-105"
                         : "text-slate-600 hover:text-slate-900 hover:bg-slate-200/40"
                     }`}
                   >
@@ -290,8 +290,8 @@ export function Footer() {
                         {/* SiGMA Square Logo */}
                         <div className="bg-white border border-slate-200 rounded-lg p-1.5 flex flex-col justify-between w-11 h-11 shrink-0 shadow-sm">
                           <div className="text-[#0e1624] font-black text-[10px] leading-none tracking-tighter">SiG</div>
-                          <div className="bg-[#e11d48] text-white font-black text-[9px] px-0.5 py-0.5 rounded-sm leading-none text-center tracking-tighter">MA</div>
-                          <div className="bg-black text-white font-bold text-[4.5px] py-0.5 rounded-sm leading-none text-center tracking-widest uppercase">AWARDS</div>
+                          <div className="bg-[#e11d48] text-slate-900 font-black text-[9px] px-0.5 py-0.5 rounded-sm leading-none text-center tracking-tighter">MA</div>
+                          <div className="bg-white text-slate-900 font-bold text-[4.5px] py-0.5 rounded-sm leading-none text-center tracking-widest uppercase">AWARDS</div>
                         </div>
                         
                         {/* Flag Ribbon */}
@@ -397,7 +397,7 @@ export function Footer() {
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-600 to-orange-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
                       <div className="flex items-center gap-1.5 mt-1">
-                        <div className="bg-[#e11d48] text-white font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wide leading-none">EGR</div>
+                        <div className="bg-[#e11d48] text-slate-900 font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wide leading-none">EGR</div>
                         <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
                       </div>
 
@@ -422,7 +422,7 @@ export function Footer() {
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-emerald-500 to-green-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
                       <div className="flex items-center gap-1.5 mt-1">
-                        <div className="bg-[#10b981] text-white font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wider leading-none">SBC</div>
+                        <div className="bg-[#10b981] text-slate-900 font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wider leading-none">SBC</div>
                         <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
                       </div>
 
@@ -447,7 +447,7 @@ export function Footer() {
                       <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-rose-500 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                       
                       <div className="flex items-center gap-1.5 mt-1">
-                        <div className="bg-red-600 text-white font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wider leading-none">GGA</div>
+                        <div className="bg-red-600 text-slate-900 font-black px-1.5 py-0.5 rounded-sm text-[9px] tracking-wider leading-none">GGA</div>
                         <span className="text-[8px] text-slate-400 font-bold uppercase tracking-widest">{award.subOrganizer}</span>
                       </div>
 

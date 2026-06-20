@@ -657,14 +657,14 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                   <span className={`font-mono font-black text-[11px] tabular-nums ${fpsColor}`}>{fps}</span>
                   <span className="text-slate-600 text-[9px] font-bold">FPS</span>
                 </div>
-                <div className="w-px h-3 bg-slate-900/10" />
+                <div className="w-px h-3 bg-white/10" />
                 {/* Ping */}
                 <div className="flex items-center gap-1">
                   <Wifi className={`w-3 h-3 ${pingColor}`} />
                   <span className={`font-mono font-black text-[11px] tabular-nums ${pingColor}`}>{ping}</span>
                   <span className="text-slate-600 text-[9px] font-bold">MS</span>
                 </div>
-                <div className="w-px h-3 bg-slate-900/10" />
+                <div className="w-px h-3 bg-white/10" />
                 {/* Bitrate */}
                 <div className="flex items-center gap-1">
                   <Download className="w-3 h-3 text-blue-600" />
@@ -674,11 +674,11 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
               </div>
 
               {/* Session info */}
-              <div className="flex items-center gap-2 bg-slate-900/50 border border-slate-200 rounded-lg px-3 py-1">
+              <div className="flex items-center gap-2 bg-white/50 border border-slate-200 rounded-lg px-3 py-1">
                 <Radio className="w-2.5 h-2.5 text-red-500 animate-pulse" />
                 <span className="text-[9px] font-black text-slate-600 uppercase tracking-widest">LIVE</span>
                 <span className="text-[9px] font-mono text-slate-500 tabular-nums">{formatTime(sessionTime)}</span>
-                <div className="w-px h-2.5 bg-slate-900/10 mx-0.5" />
+                <div className="w-px h-2.5 bg-white/10 mx-0.5" />
                 <span className="text-[9px] text-slate-600 font-bold">{nodeCity}</span>
               </div>
             </motion.div>
@@ -780,16 +780,16 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                 {/* Action Buttons (Right) */}
                 <div className="w-32 h-32 relative pointer-events-auto opacity-60 hover:opacity-100 transition-opacity">
                   <div className="absolute top-2 left-1/2 -translate-x-1/2 w-12 h-12 bg-blue-500/40 backdrop-blur-md rounded-full border border-blue-400/50 flex items-center justify-center active:bg-blue-500/60 shadow-[0_0_20px_rgba(59,130,246,0.5)]">
-                    <span className="text-white font-black text-lg drop-shadow-md">Y</span>
+                    <span className="text-slate-900 font-black text-lg drop-shadow-md">Y</span>
                   </div>
                   <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-12 h-12 bg-green-500/40 backdrop-blur-md rounded-full border border-green-400/50 flex items-center justify-center active:bg-green-500/60 shadow-[0_0_20px_rgba(34,197,94,0.5)]">
-                    <span className="text-white font-black text-lg drop-shadow-md">A</span>
+                    <span className="text-slate-900 font-black text-lg drop-shadow-md">A</span>
                   </div>
                   <div className="absolute left-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-cyan-500/40 backdrop-blur-md rounded-full border border-cyan-400/50 flex items-center justify-center active:bg-cyan-500/60 shadow-[0_0_20px_rgba(6,182,212,0.5)]">
-                    <span className="text-white font-black text-lg drop-shadow-md">X</span>
+                    <span className="text-slate-900 font-black text-lg drop-shadow-md">X</span>
                   </div>
                   <div className="absolute right-2 top-1/2 -translate-y-1/2 w-12 h-12 bg-red-500/40 backdrop-blur-md rounded-full border border-red-400/50 flex items-center justify-center active:bg-red-500/60 shadow-[0_0_20px_rgba(239,68,68,0.5)]">
-                    <span className="text-white font-black text-lg drop-shadow-md">B</span>
+                    <span className="text-slate-900 font-black text-lg drop-shadow-md">B</span>
                   </div>
                 </div>
               </motion.div>
@@ -828,7 +828,7 @@ export function ArcadeEngine({ gameId }: ArcadeEngineProps) {
                     { label: "GPU", value: gpuTier, color: "text-purple-600" },
                     { label: "Quality", value: resolution.split("×")[1] + "p", color: "text-emerald-600" },
                   ].map(s => (
-                    <div key={s.label} className="bg-slate-900/50 rounded-xl p-3 border border-slate-200 text-center">
+                    <div key={s.label} className="bg-white/50 rounded-xl p-3 border border-slate-200 text-center">
                       <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest">{s.label}</p>
                       <p className={`text-xs font-black mt-0.5 ${s.color}`}>{s.value}</p>
                     </div>
@@ -885,13 +885,13 @@ function DockButton({
     cyan: "bg-cyan-500/20 text-cyan-600",
     purple: "bg-purple-500/20 text-purple-600",
     emerald: "bg-emerald-500/20 text-emerald-600",
-    default: "bg-slate-900/10 text-slate-900",
+    default: "bg-white/10 text-slate-900",
   };
   return (
     <button
       onClick={onClick}
       className={`flex flex-col items-center justify-center w-11 h-11 rounded-xl transition-all group/btn ${
-        active ? activeColors[color] || activeColors.default : "text-slate-600 hover:text-slate-900 hover:bg-slate-900/10"
+        active ? activeColors[color] || activeColors.default : "text-slate-600 hover:text-slate-900 hover:bg-white/10"
       }`}
     >
       <span className="group-hover/btn:scale-110 transition-transform">{icon}</span>
@@ -901,5 +901,5 @@ function DockButton({
 }
 
 function DockDivider() {
-  return <div className="w-px h-8 bg-slate-900/10 mx-0.5" />;
+  return <div className="w-px h-8 bg-white/10 mx-0.5" />;
 }

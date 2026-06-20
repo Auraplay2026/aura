@@ -68,7 +68,7 @@ export default function VerifyPage() {
           
           {/* Form section */}
           <div className="lg:col-span-6 bg-[#0d121f]/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 shadow-2xl flex flex-col gap-6">
-            <h2 className="text-xl font-bold flex items-center gap-2 text-white border-b border-slate-800/60 pb-4">
+            <h2 className="text-xl font-bold flex items-center gap-2 text-slate-900 border-b border-slate-800/60 pb-4">
               <Key className="w-5 h-5 text-indigo-400" /> Session Seed Parameters
             </h2>
 
@@ -125,7 +125,7 @@ export default function VerifyPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full mt-2 bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:from-indigo-500 hover:to-fuchsia-500 text-white font-bold py-3.5 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full mt-2 bg-gradient-to-r from-indigo-600 to-fuchsia-600 hover:from-indigo-500 hover:to-fuchsia-500 text-slate-900 font-bold py-3.5 px-6 rounded-xl transition-all duration-200 shadow-lg shadow-indigo-600/10 flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 {loading ? (
                   <span className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
@@ -155,7 +155,7 @@ export default function VerifyPage() {
                   className="bg-[#0d121f]/40 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 flex flex-col gap-6 shadow-2xl"
                 >
                   <div className="flex items-center justify-between border-b border-slate-800/60 pb-4">
-                    <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
                       <CheckCircle2 className="w-5 h-5 text-emerald-400" /> Verification Result
                     </h2>
                     <span className="text-xs bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
@@ -174,7 +174,7 @@ export default function VerifyPage() {
                     <div className="grid grid-cols-2 gap-4">
                       <div className="flex flex-col bg-[#12192c]/30 border border-slate-800/50 rounded-2xl p-4 gap-1">
                         <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Hex Bytes Sample</span>
-                        <span className="text-sm md:text-base font-bold font-mono text-white">
+                        <span className="text-sm md:text-base font-bold font-mono text-slate-900">
                           0x{result.hexSlice}
                         </span>
                       </div>
@@ -186,9 +186,9 @@ export default function VerifyPage() {
                       </div>
                     </div>
 
-                    <div className="bg-slate-800/20 border border-slate-800/40 rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-2">
+                    <div className="bg-slate-50/20 border border-slate-800/40 rounded-2xl p-6 text-center flex flex-col items-center justify-center gap-2">
                       <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Outcome Multiplier</span>
-                      <span className="text-5xl md:text-6xl font-black font-mono tracking-tighter text-white bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-indigo-400">
+                      <span className="text-5xl md:text-6xl font-black font-mono tracking-tighter text-slate-900 bg-clip-text text-transparent bg-gradient-to-r from-emerald-400 to-indigo-400">
                         {result.multiplier}x
                       </span>
                       <span className="text-xs text-indigo-300 font-bold uppercase tracking-widest mt-1">

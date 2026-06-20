@@ -432,69 +432,69 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   }, [isWin]);
 
   return (
-    <div className="w-full h-full min-h-[450px] md:min-h-[600px] flex flex-col md:flex-row gap-6 relative p-4 md:p-6 rounded-3xl overflow-hidden border border-slate-800 bg-slate-950 shadow-2xl">
+    <div className="w-full h-full min-h-[450px] md:min-h-[600px] flex flex-col md:flex-row gap-6 relative p-4 md:p-6 rounded-3xl overflow-hidden border border-slate-200/80 bg-gradient-to-br from-slate-50 via-white to-cyan-50/40 shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
       
       {/* 1. AAA HUD Sidebar Panel (Stats, Live, achievement progression) */}
       <div className="hidden md:flex w-full md:w-80 flex-col gap-4 z-20 shrink-0">
         
         {/* VIP Player Stats Card */}
-        <div className="bg-slate-900/60 backdrop-blur-md border border-slate-800 p-4 rounded-2xl flex items-center justify-between shadow-inner">
+        <div className="bg-white/80 backdrop-blur-md border border-slate-200 p-4 rounded-2xl flex items-center justify-between shadow-md">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center p-0.5 shadow-[0_0_15px_rgba(99,102,241,0.3)]">
-              <div className="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center font-bold text-xs text-cyan-400 font-mono">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 to-cyan-500 flex items-center justify-center p-0.5 shadow-[0_4px_12px_rgba(99,102,241,0.2)]">
+              <div className="w-full h-full bg-white rounded-[10px] flex items-center justify-center font-bold text-xs text-cyan-600 font-mono">
                 VIP
               </div>
             </div>
             <div className="text-left">
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">Account Profile</p>
-              <p className="text-xs text-white font-black truncate max-w-[130px]">{email.split("@")[0]}</p>
+              <p className="text-xs text-slate-900 font-black truncate max-w-[130px]">{email.split("@")[0]}</p>
             </div>
           </div>
-          <div className="bg-cyan-500/10 border border-cyan-500/20 rounded-lg px-2 py-1 text-center shrink-0">
-            <span className="text-[10px] text-cyan-400 font-black font-mono">GOLD III</span>
+          <div className="bg-cyan-50 border border-cyan-200 rounded-lg px-2 py-1 text-center shrink-0">
+            <span className="text-[10px] text-cyan-600 font-black font-mono">GOLD III</span>
           </div>
         </div>
 
         {/* Live Session stats */}
-        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-4 rounded-2xl grid grid-cols-2 gap-3 shadow-inner">
+        <div className="bg-white/60 backdrop-blur-md border border-slate-200 p-4 rounded-2xl grid grid-cols-2 gap-3 shadow-sm">
           <div className="text-left">
             <span className="text-[9px] text-slate-500 font-black uppercase tracking-wider block">Session Wins</span>
-            <span className="text-lg font-black font-mono text-emerald-400">{winsCount}</span>
+            <span className="text-lg font-black font-mono text-emerald-600">{winsCount}</span>
           </div>
-          <div className="text-left border-l border-slate-800 pl-3">
+          <div className="text-left border-l border-slate-200 pl-3">
             <span className="text-[9px] text-slate-500 font-black uppercase tracking-wider block">Current Streak</span>
             <div className="flex items-center gap-1.5 mt-0.5">
-              <Zap className={`w-3.5 h-3.5 ${streak > 0 ? 'text-amber-400 animate-pulse' : 'text-slate-600'}`} />
-              <span className="text-lg font-black font-mono text-white">{streak}</span>
+              <Zap className={`w-3.5 h-3.5 ${streak > 0 ? 'text-amber-500 animate-pulse' : 'text-slate-400'}`} />
+              <span className="text-lg font-black font-mono text-slate-900">{streak}</span>
             </div>
           </div>
         </div>
 
         {/* Gamified Achievement/Missions Progression (Psychological Retention Loop) */}
-        <div className="bg-slate-900/40 backdrop-blur-md border border-slate-800 p-4 rounded-2xl text-left relative overflow-hidden shadow-inner flex-grow flex flex-col justify-between min-h-[140px] md:min-h-0">
-          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-indigo-500/5 to-transparent rounded-full pointer-events-none" />
+        <div className="bg-white/60 backdrop-blur-md border border-slate-200 p-4 rounded-2xl text-left relative overflow-hidden shadow-sm flex-grow flex flex-col justify-between min-h-[140px] md:min-h-0">
+          <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-indigo-100/40 to-transparent rounded-full pointer-events-none" />
           
           <div>
             <div className="flex items-center justify-between mb-2">
-              <span className="text-[10px] text-slate-400 font-black uppercase tracking-wider flex items-center gap-1">
+              <span className="text-[10px] text-slate-500 font-black uppercase tracking-wider flex items-center gap-1">
                 <Trophy className="w-3.5 h-3.5 text-amber-500" /> Daily Missions
               </span>
-              <span className="text-[10px] font-mono font-black text-cyan-400">{dailyProgress}%</span>
+              <span className="text-[10px] font-mono font-black text-cyan-600">{dailyProgress}%</span>
             </div>
-            <p className="text-xs text-slate-300 font-bold mb-3 leading-normal">
-              Roll a <span className="text-amber-400">10x+ multiplier</span> or higher today to unlock premium bonus loot!
+            <p className="text-xs text-slate-600 font-bold mb-3 leading-normal">
+              Roll a <span className="text-amber-600">10x+ multiplier</span> or higher today to unlock premium bonus loot!
             </p>
           </div>
 
           <div>
             {/* Progress Bar */}
-            <div className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden border border-slate-700/60 shadow-inner mb-3">
+            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden border border-slate-200 shadow-inner mb-3">
               <div 
-                className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 shadow-[0_0_8px_#3b82f6] transition-all duration-300"
+                className="h-full bg-gradient-to-r from-indigo-500 to-cyan-400 transition-all duration-300"
                 style={{ width: `${dailyProgress}%` }}
               />
             </div>
-            <button className="w-full py-2 bg-slate-950/60 hover:bg-slate-950 border border-slate-800 text-slate-400 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 active:scale-98 transition-all">
+            <button className="w-full py-2 bg-white hover:bg-slate-50 border border-slate-200 text-slate-600 hover:text-slate-900 rounded-xl text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-1 active:scale-98 transition-all shadow-sm">
               Claim Milestone Rewards <ChevronRight className="w-3 h-3" />
             </button>
           </div>
@@ -503,7 +503,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
       </div>
 
       {/* 2. Main Game Viewport with Canvas tunnel & giant multiplier engine */}
-      <div className="flex-grow relative rounded-2xl border border-slate-800 bg-slate-950 overflow-hidden flex flex-col justify-between p-4 md:p-6 min-h-[380px] md:min-h-[500px]">
+      <div className="flex-grow relative rounded-2xl border border-slate-200 bg-white overflow-hidden flex flex-col justify-between p-4 md:p-6 min-h-[380px] md:min-h-[500px]">
         
         {/* Canvas background rendering */}
         <canvas
@@ -515,8 +515,8 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
         <div className="w-full z-10 flex items-center justify-between">
           
           {/* Target input multiplier badge */}
-          <div className="flex items-center gap-3 bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-2xl px-4 py-2.5 shadow-lg">
-            <Target className="w-4 h-4 text-cyan-400" />
+          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-md border border-slate-200 rounded-2xl px-4 py-2.5 shadow-md">
+            <Target className="w-4 h-4 text-cyan-500" />
             <div className="text-left">
               <span className="text-[9px] text-slate-500 font-black uppercase tracking-widest block">TARGET</span>
               <div className="flex items-center gap-1">
@@ -527,7 +527,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
                   value={targetMultiplier}
                   onChange={(e) => setTargetMultiplier(Math.max(1.01, parseFloat(e.target.value) || 1.01))}
                   disabled={isPlaying}
-                  className="w-16 bg-transparent border-0 font-black font-mono text-sm text-white focus:outline-none focus:ring-0 p-0 disabled:opacity-40"
+                  className="w-16 bg-transparent border-0 font-black font-mono text-sm text-slate-900 focus:outline-none focus:ring-0 p-0 disabled:opacity-40"
                 />
                 <span className="text-xs font-bold text-slate-500">x</span>
               </div>
@@ -535,15 +535,15 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
           </div>
 
           {/* Win probability odds indicator */}
-          <div className="flex items-center gap-2 bg-slate-900/40 border border-slate-800/60 rounded-2xl px-4 py-2">
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest block">CHANCE</span>
-            <span className="text-sm font-black font-mono text-emerald-400">{winChance}%</span>
+          <div className="flex items-center gap-2 bg-white/70 border border-slate-200 rounded-2xl px-4 py-2">
+            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest block">CHANCE</span>
+            <span className="text-sm font-black font-mono text-emerald-600">{winChance}%</span>
           </div>
 
           {/* Stake readout */}
-          <div className="flex items-center gap-2 bg-slate-900/40 border border-slate-800/60 rounded-2xl px-4 py-2">
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-widest block">Wager</span>
-            <span className="text-sm font-black font-mono text-yellow-400">₹{betAmount}</span>
+          <div className="flex items-center gap-2 bg-white/70 border border-slate-200 rounded-2xl px-4 py-2">
+            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-widest block">Wager</span>
+            <span className="text-sm font-black font-mono text-amber-600">₹{betAmount}</span>
           </div>
 
         </div>
@@ -576,7 +576,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
             className={`text-6xl md:text-[7.5rem] lg:text-[9.5rem] font-black font-mono tabular-nums tracking-tighter leading-none transition-colors duration-300 flex items-baseline select-none ${
               phase === "idle" ? "text-slate-800" :
               phase === "charging" ? "text-slate-400 animate-pulse" :
-              phase === "counting" ? "text-white drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]" :
+              phase === "counting" ? "text-slate-900 drop-shadow-[0_0_25px_rgba(255,255,255,0.4)]" :
               isWin ? "text-emerald-400 drop-shadow-[0_0_35px_rgba(52,211,153,0.7)]" : "text-red-500 drop-shadow-[0_0_35px_rgba(239,68,68,0.7)]"
             }`}
           >
@@ -602,8 +602,8 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
                   onClick={() => setTargetMultiplier(preset)}
                   className={`px-3 py-1.5 rounded-lg border text-xs font-black font-mono transition-all ${
                     targetMultiplier === preset
-                      ? "bg-cyan-500/10 border-cyan-400/40 text-cyan-400 shadow-[0_0_10px_rgba(6,182,212,0.2)]"
-                      : "bg-slate-900/60 border-slate-800 text-slate-500 hover:text-slate-300"
+                      ? "bg-cyan-50 border-cyan-300 text-cyan-700 shadow-sm"
+                      : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
                   }`}
                 >
                   {preset.toFixed(1)}x
@@ -622,7 +622,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
                 className="absolute -bottom-2 flex items-center justify-center gap-4 w-full"
               >
                 <div className={`h-[1px] flex-grow max-w-[80px] bg-gradient-to-r ${isWin ? 'from-transparent to-emerald-500' : 'from-transparent to-red-500'}`} />
-                <span className={`text-xs font-black uppercase tracking-widest px-5 py-2 rounded-xl border bg-slate-950 backdrop-blur-md shadow-2xl ${
+                <span className={`text-xs font-black uppercase tracking-widest px-5 py-2 rounded-xl border bg-white backdrop-blur-md shadow-2xl ${
                   isWin ? "text-emerald-400 border-emerald-500/40 shadow-[0_0_15px_rgba(52,211,153,0.25)]" : "text-red-500 border-red-500/40 shadow-[0_0_15px_rgba(239,68,68,0.25)]"
                 }`}>
                   {isWin ? `TARGET SMASHED` : `CRASHED BELOW TARGET`}
@@ -634,7 +634,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
         </div>
 
         {/* Bottom controls or sound mute wrapper */}
-        <div className="w-full z-10 flex items-center justify-between border-t border-slate-900/60 pt-4 mt-2">
+        <div className="w-full z-10 flex items-center justify-between border-t border-slate-100 pt-4 mt-2">
           
           {/* Quick status message */}
           <div className="flex items-center gap-2">
@@ -649,7 +649,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
           {/* Sound Toggle */}
           <button
             onClick={() => setIsMuted(prev => !prev)}
-            className="p-2 rounded-xl bg-slate-900/40 hover:bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white transition-all shadow-inner"
+            className="p-2 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-slate-500 hover:text-slate-900 transition-all shadow-sm"
           >
             {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
           </button>

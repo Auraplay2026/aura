@@ -14,9 +14,9 @@ const SLIDES = [
     desc: "Drop into the arena and dominate the leaderboards in this high-octane WebGL shooter.",
     cta: "PLAY NOW",
     href: "/casino/game/fps-1",
-    bgClass: "from-slate-950 via-slate-900 to-cyan-950/80",
+    bgClass: "from-sky-100 via-sky-50 to-indigo-100/60",
     bgImage: "/games/carouselBackgroundImage-M3IwP0oo1.png",
-    buttonClass: "bg-cyan-500 hover:bg-cyan-400 text-slate-950 shadow-[0_0_20px_rgba(6,182,212,0.4)]"
+    buttonClass: "bg-indigo-600 hover:bg-indigo-500 text-slate-900 shadow-[0_4px_12px_rgba(99,102,241,0.25)]"
   },
   {
     id: "driving-1",
@@ -26,9 +26,9 @@ const SLIDES = [
     desc: "Push your reflexes to the absolute limit in the fastest WebGL racing experience ever built.",
     cta: "START ENGINE",
     href: "/casino/game/driving-1",
-    bgClass: "from-slate-950 via-slate-900 to-red-950/80",
+    bgClass: "from-rose-100 via-rose-50 to-orange-100/60",
     bgImage: "/games/Carousel-backgound-240x360.png",
-    buttonClass: "bg-red-500 hover:bg-red-400 text-white shadow-[0_0_20px_rgba(239,68,68,0.4)]"
+    buttonClass: "bg-rose-600 hover:bg-rose-500 text-slate-900 shadow-[0_4px_12px_rgba(225,29,72,0.25)]"
   },
   {
     id: "action-1",
@@ -38,9 +38,9 @@ const SLIDES = [
     desc: "Experience the legendary classic natively in your browser with fully unlocked 3D rendering.",
     cta: "ENTER THE TOMB",
     href: "/casino/game/action-1",
-    bgClass: "from-slate-950 via-slate-900 to-emerald-950/80",
+    bgClass: "from-emerald-100 via-emerald-50 to-teal-100/60",
     bgImage: "/games/Carousel-backgound-240x360-v2.png",
-    buttonClass: "bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-[0_0_20px_rgba(16,185,129,0.4)]"
+    buttonClass: "bg-emerald-600 hover:bg-emerald-500 text-slate-900 shadow-[0_4px_12px_rgba(16,185,129,0.25)]"
   }
 ];
 
@@ -83,7 +83,7 @@ export function HeroCarousel() {
           <div className="relative z-10 px-6 sm:px-12 md:px-16 w-full md:w-2/3 space-y-4 py-8">
             <motion.span 
               initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}
-              className="inline-block px-4 py-1.5 bg-slate-900/10 text-slate-900 text-[10px] font-black rounded-full border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)] uppercase tracking-widest backdrop-blur-md"
+              className="inline-block px-4 py-1.5 bg-white/10 text-slate-900 text-[10px] font-black rounded-full border border-white/30 shadow-[0_0_15px_rgba(255,255,255,0.1)] uppercase tracking-widest backdrop-blur-md"
             >
               <span className="mr-2 inline-block w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
               {slide.badge}
@@ -94,7 +94,7 @@ export function HeroCarousel() {
               className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-black text-slate-900 leading-[1.1] tracking-tighter drop-shadow-2xl"
             >
               {slide.title} <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white to-slate-500 filter drop-shadow-lg">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-700 to-slate-700 filter drop-shadow-sm">
                 {slide.highlight}
               </span>
             </motion.h1>
@@ -129,7 +129,7 @@ export function HeroCarousel() {
             key={idx}
             onClick={() => setCurrentSlide(idx)}
             className={`w-2.5 h-2.5 rounded-full transition-all ${
-              idx === currentSlide ? "bg-white w-8" : "bg-slate-900/30 hover:bg-slate-900/50"
+              idx === currentSlide ? "bg-white w-8" : "bg-white/30 hover:bg-white/50"
             }`}
           />
         ))}

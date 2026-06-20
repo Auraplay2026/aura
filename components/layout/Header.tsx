@@ -142,7 +142,7 @@ export function Header() {
       <div className="flex-1 flex items-center gap-1.5 sm:gap-4">
         {/* Mobile Logo (Only visible when sidebar is hidden) */}
         <div className="lg:hidden flex items-center gap-1 shrink-0">
-          <span className="text-white bg-slate-900 font-black tracking-normal uppercase text-[9px] px-1.5 py-0.5 rounded shadow-sm border border-slate-700 select-none">AP</span>
+          <span className="text-slate-900 bg-white font-black tracking-normal uppercase text-[9px] px-1.5 py-0.5 rounded shadow-sm border border-slate-700 select-none">AP</span>
         </div>
 
         {/* Mobile Search Button (Tiny magnifying glass) */}
@@ -223,7 +223,7 @@ export function Header() {
 
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="bg-[#E11D48] hover:bg-[#C0123C] text-white font-black px-2.5 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-0.5 sm:ml-2 text-[10px] sm:text-xs transition-all shadow-sm shrink-0 cursor-pointer"
+                className="bg-[#E11D48] hover:bg-[#C0123C] text-slate-900 font-black px-2.5 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-0.5 sm:ml-2 text-[10px] sm:text-xs transition-all shadow-sm shrink-0 cursor-pointer"
                 aria-label="Open cashier deposit modal"
               >
                 DEPOSIT
@@ -238,7 +238,7 @@ export function Header() {
             >
               <Briefcase className="w-5 h-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200" />
               {isClient && positions.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 rounded-full text-[9px] font-black text-white flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 rounded-full text-[9px] font-black text-slate-900 flex items-center justify-center">
                   {positions.length}
                 </span>
               )}
@@ -255,7 +255,7 @@ export function Header() {
               >
                 <Bell className="w-4.5 h-4.5 sm:w-5 sm:h-5 group-hover:scale-110 group-hover:rotate-12 transition-transform duration-200" />
                 {isClient && currentUser?.notifications && currentUser.notifications.some((n: any) => !n.read) && (
-                  <span className="absolute top-0.5 right-0.5 min-w-[14px] h-3.5 px-0.5 bg-red-500 rounded-full text-[8px] font-black text-white flex items-center justify-center animate-bounce">
+                  <span className="absolute top-0.5 right-0.5 min-w-[14px] h-3.5 px-0.5 bg-red-500 rounded-full text-[8px] font-black text-slate-900 flex items-center justify-center animate-bounce">
                     {currentUser.notifications.filter((n: any) => !n.read).length}
                   </span>
                 )}

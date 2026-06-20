@@ -221,7 +221,7 @@ export function WinCelebration() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[110] pointer-events-none flex flex-col items-center justify-center bg-black/45 select-none">
+      <div className="fixed inset-0 z-[110] pointer-events-none flex flex-col items-center justify-center bg-white/45 select-none">
         
         {/* Render full screen canvas for coins */}
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
@@ -249,9 +249,9 @@ export function WinCelebration() {
           {/* Trophy Icon */}
           <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl border ${
             tier === 3
-              ? "bg-red-600 border-red-400 text-white shadow-red-500/50 animate-pulse-fast"
+              ? "bg-red-600 border-red-400 text-slate-900 shadow-red-500/50 animate-pulse-fast"
               : tier === 2
-              ? "bg-purple-600 border-purple-400 text-white shadow-purple-500/50"
+              ? "bg-purple-600 border-purple-400 text-slate-900 shadow-purple-500/50"
               : "bg-yellow-500 border-yellow-400 text-slate-950 shadow-yellow-500/50"
           }`}>
             <Trophy className="w-12 h-12" />
@@ -268,7 +268,7 @@ export function WinCelebration() {
             {tier === 3 ? "🔥 EPIC WIN! 🔥" : tier === 2 ? "✨ MEGA WIN! ✨" : "🏆 NICE WIN! 🏆"}
           </h1>
 
-          <p className="text-white text-lg font-black tracking-widest mt-2 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <p className="text-slate-900 text-lg font-black tracking-widest mt-2 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
             Played {latestWinCelebration.gameTitle}
           </p>
 
@@ -276,14 +276,14 @@ export function WinCelebration() {
             initial={{ scale: 0.8 }}
             animate={{ scale: [1, 1.1, 1] }}
             transition={{ repeat: Infinity, duration: 1 }}
-            className="text-5xl sm:text-7xl font-black text-white tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] mt-4 animate-float"
+            className="text-5xl sm:text-7xl font-black text-slate-900 tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] mt-4 animate-float"
           >
             ₹{latestWinCelebration.amount.toLocaleString()}
           </motion.div>
 
           <button
             onClick={clearLatestWinCelebration}
-            className="mt-8 px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-white font-extrabold text-sm tracking-wider uppercase backdrop-blur-md transition-colors cursor-pointer"
+            className="mt-8 px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-slate-900 font-extrabold text-sm tracking-wider uppercase backdrop-blur-md transition-colors cursor-pointer"
           >
             Collect
           </button>

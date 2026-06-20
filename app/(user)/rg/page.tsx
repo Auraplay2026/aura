@@ -62,7 +62,7 @@ export default function ResponsibleGamingPage() {
         <div className="p-6 md:p-8 space-y-8">
           
           {/* Custom Tabs */}
-          <div className="flex p-1 bg-slate-900/50 border border-slate-200 rounded-xl relative">
+          <div className="flex p-1 bg-white/50 border border-slate-200 rounded-xl relative">
             <button
               onClick={() => setActiveTab("Wager")}
               className={cn(

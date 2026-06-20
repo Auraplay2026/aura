@@ -48,7 +48,7 @@ export default function MaintenanceOverlay() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="fixed inset-0 z-[99999] bg-slate-950 flex flex-col items-center justify-center p-4 overflow-hidden select-none"
+        className="fixed inset-0 z-[99999] bg-white flex flex-col items-center justify-center p-4 overflow-hidden select-none"
       >
         {/* Glowing decorative background rings */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-rose-500/10 rounded-full blur-[130px] animate-pulse" />
@@ -65,7 +65,7 @@ export default function MaintenanceOverlay() {
           </div>
 
           <div className="space-y-2">
-            <h1 className="text-white font-black text-2xl uppercase tracking-wider leading-none">
+            <h1 className="text-slate-900 font-black text-2xl uppercase tracking-wider leading-none">
               Optimization in Progress
             </h1>
             <p className="text-rose-500 text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-1.5 mt-2">

@@ -133,7 +133,7 @@ export function RightSidebar() {
             />
             <button 
               onClick={handleSend}
-              className="absolute right-2 p-1.5 bg-red-600 hover:bg-red-700 rounded-full text-white transition-colors shadow-sm"
+              className="absolute right-2 p-1.5 bg-red-600 hover:bg-red-700 rounded-full text-slate-900 transition-colors shadow-sm"
             >
               <Send className="w-4 h-4" />
             </button>
@@ -214,7 +214,7 @@ export function RightSidebar() {
                 />
                 <button 
                   onClick={handleSend}
-                  className="absolute right-2 p-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full"
+                  className="absolute right-2 p-1.5 bg-red-600 hover:bg-red-700 text-slate-900 rounded-full"
                 >
                   <Send className="w-4 h-4" />
                 </button>

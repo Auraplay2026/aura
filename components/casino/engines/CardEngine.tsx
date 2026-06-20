@@ -271,7 +271,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
       <div className="relative z-10 w-full flex flex-col items-center gap-6 mt-16 px-6">
         
         {isPlaying && (
-          <div className="bg-black/50 border border-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-yellow-400 tracking-wider">
+          <div className="bg-white/50 border border-white/10 backdrop-blur-md px-4 py-1.5 rounded-full text-[10px] font-black uppercase text-yellow-400 tracking-wider">
             Bet Placed: {selectedSide}
           </div>
         )}
@@ -301,7 +301,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 ))}
               </div>
               {dealerHand.length > 0 && (
-                <span className="text-white font-mono font-bold text-xs bg-black/45 px-3 py-1 rounded-full border border-white/10">
+                <span className="text-slate-900 font-mono font-bold text-xs bg-white/45 px-3 py-1 rounded-full border border-white/10">
                   Score: {dealerScore}
                 </span>
               )}
@@ -327,7 +327,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 ))}
               </div>
               {playerHand.length > 0 && (
-                <span className="text-white font-mono font-bold text-xs bg-black/45 px-3 py-1 rounded-full border border-white/10">
+                <span className="text-slate-900 font-mono font-bold text-xs bg-white/45 px-3 py-1 rounded-full border border-white/10">
                   Score: {playerScore}
                 </span>
               )}
@@ -365,7 +365,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
               ))}
             </div>
             {playerHand.length === 5 && (
-              <span className="text-yellow-400 font-black uppercase tracking-widest text-xs mt-2 bg-black/45 px-4 py-1.5 rounded-full border border-yellow-500/20 shadow-lg">
+              <span className="text-yellow-400 font-black uppercase tracking-widest text-xs mt-2 bg-white/45 px-4 py-1.5 rounded-full border border-yellow-500/20 shadow-lg">
                 Hand Rank: {playerScore > 40 ? "Three of a Kind" : "Pair of Kings"}
               </span>
             )}
@@ -384,8 +384,8 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 onClick={() => setSelectedSide("PLAYER")}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "PLAYER"
-                    ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105"
-                    : "bg-slate-900/90 text-slate-400 border-slate-800 hover:border-blue-500/30"
+                    ? "bg-gradient-to-br from-blue-500 to-blue-600 text-slate-900 border-blue-400 shadow-[0_0_15px_rgba(59,130,246,0.4)] scale-105"
+                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-blue-500/30"
                 }`}
               >
                 Player (2x)
@@ -395,8 +395,8 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 onClick={() => setSelectedSide("BANKER")}
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "BANKER"
-                    ? "bg-gradient-to-br from-red-500 to-red-650 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
-                    : "bg-slate-900/90 text-slate-400 border-slate-800 hover:border-red-500/30"
+                    ? "bg-gradient-to-br from-red-500 to-red-650 text-slate-900 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
+                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-red-500/30"
                 }`}
               >
                 Banker (1.95x)
@@ -407,7 +407,7 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 className={`flex items-center gap-2 px-5 py-2.5 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "TIE"
                     ? "bg-gradient-to-br from-yellow-500 to-yellow-600 text-yellow-950 border-yellow-400 shadow-[0_0_15px_rgba(234,179,8,0.4)] scale-105"
-                    : "bg-slate-900/90 text-slate-400 border-slate-800 hover:border-yellow-500/30"
+                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-yellow-500/30"
                 }`}
               >
                 Tie (9x)
@@ -420,8 +420,8 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 onClick={() => setSelectedSide("PLAYER")}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "PLAYER"
-                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-105"
-                    : "bg-slate-900/90 text-slate-400 border-slate-800 hover:border-emerald-500/30"
+                    ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-slate-900 border-emerald-400 shadow-[0_0_15px_rgba(16,185,129,0.4)] scale-105"
+                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-emerald-500/30"
                 }`}
               >
                 Player (2x)
@@ -431,8 +431,8 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
                 onClick={() => setSelectedSide("DEALER")}
                 className={`flex items-center gap-2 px-6 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
                   selectedSide === "DEALER"
-                    ? "bg-gradient-to-br from-red-500 to-red-650 text-white border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
-                    : "bg-slate-900/90 text-slate-400 border-slate-800 hover:border-red-500/30"
+                    ? "bg-gradient-to-br from-red-500 to-red-650 text-slate-900 border-red-400 shadow-[0_0_15px_rgba(239,68,68,0.4)] scale-105"
+                    : "bg-white/90 text-slate-400 border-slate-800 hover:border-red-500/30"
                 }`}
               >
                 Dealer (2x)

@@ -302,7 +302,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                         <button
                           type="button"
                           onClick={() => setFormData(prev => ({ ...prev, upiQrImageUrl: "" }))}
-                          className="absolute -top-1.5 -right-1.5 bg-red-600 hover:bg-red-500 text-white rounded-full p-0.5 shadow-md cursor-pointer"
+                          className="absolute -top-1.5 -right-1.5 bg-red-600 hover:bg-red-500 text-slate-900 rounded-full p-0.5 shadow-md cursor-pointer"
                         >
                           <X className="w-3 h-3" />
                         </button>
@@ -421,7 +421,7 @@ export default function ClientPaymentSettingsDashboard({ initialSettings }: Prop
                                   btcAddresses: prev.btcAddresses.map(a => a.id === addr.id ? { ...a, qrImageUrl: undefined } : a)
                                 }));
                               }}
-                              className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-0.5 scale-75"
+                              className="absolute -top-1 -right-1 bg-red-600 text-slate-900 rounded-full p-0.5 scale-75"
                             >
                               <X className="w-2.5 h-2.5" />
                             </button>

@@ -360,8 +360,8 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
               disabled={isProcessing}
               className={`px-5 py-3 rounded-xl text-xs font-black uppercase tracking-wider transition cursor-pointer select-none shrink-0 ${
                 maintenanceMode
-                  ? "bg-rose-600 hover:bg-rose-700 text-white shadow-lg shadow-rose-500/20"
-                  : "bg-slate-200 hover:bg-slate-350 text-slate-700"
+                  ? "bg-rose-600 hover:bg-rose-700 text-slate-900 shadow-lg shadow-rose-500/20"
+                  : "bg-slate-200 hover:bg-slate-300 text-slate-700"
               }`}
             >
               {maintenanceMode ? "Disable Maintenance (Go Live)" : "Enable Maintenance Mode"}
@@ -381,7 +381,7 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
 
           <div className="space-y-3">
             {Object.entries(config.games).map(([gameId, game]) => (
-              <div key={gameId} className="flex items-center justify-between p-3 bg-white/[0.01] hover:bg-white/[0.02] border border-slate-200 rounded-xl transition">
+              <div key={gameId} className="flex items-center justify-between p-3 bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-xl transition">
                 <div className="flex items-center gap-2.5">
                   {getGameIcon(gameId)}
                   <span className="text-xs font-bold text-slate-700 uppercase tracking-wider">{game.name}</span>
@@ -419,7 +419,7 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {Object.entries(config.paymentMethods).map(([methodId, method]) => (
-              <div key={methodId} className="flex items-center justify-between p-4 bg-white/[0.01] hover:bg-white/[0.02] border border-slate-200 rounded-xl transition">
+              <div key={methodId} className="flex items-center justify-between p-4 bg-slate-50 hover:bg-slate-100/50 border border-slate-200 rounded-xl transition">
                 <div className="flex items-center gap-3">
                   <div className="w-9 h-9 bg-slate-50/50 rounded-lg flex items-center justify-center border border-slate-200">
                     {getPaymentIcon(methodId)}
@@ -449,7 +449,7 @@ export default function ClientRtpMonitorDashboard({ initialSystemConfig }: Clien
             ))}
           </div>
 
-          <p className="text-[10px] text-slate-600 font-medium leading-relaxed bg-white/[0.01] p-3 rounded-lg border border-white/[0.02] mt-6">
+          <p className="text-[10px] text-slate-600 font-medium leading-relaxed bg-slate-50 p-3 rounded-lg border border-slate-200 mt-6">
             ⚠️ <strong>Admin Notice:</strong> Disabling a payment channel immediately blocks customers from initiating deposit requests or selecting the channel for withdrawals. Transactions currently under "Processing" status are unaffected and can be processed manually.
           </p>
         </div>

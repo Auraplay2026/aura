@@ -129,7 +129,7 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
                       />
                       <button 
                         onClick={handleCopy}
-                        className={`p-2 rounded-lg font-bold text-xs flex items-center gap-1 transition-all ${copied ? "bg-neon-green text-slate-950" : "bg-slate-100 text-slate-900 hover:bg-slate-700"}`}
+                        className={`p-2 rounded-lg font-bold text-xs flex items-center gap-1 transition-all ${copied ? "bg-neon-green text-slate-950" : "bg-slate-100 text-slate-900 hover:bg-slate-100"}`}
                       >
                         <Copy className="w-4 h-4" />
                         {copied ? "Copied!" : "Copy"}
@@ -147,7 +147,7 @@ export function DepositModal({ isOpen, onClose }: DepositModalProps) {
                   <p className="text-sm text-slate-600 max-w-[250px] mx-auto mb-6">
                     Use your Credit Card, Apple Pay, or Google Pay to purchase crypto instantly via MoonPay.
                   </p>
-                  <button className="w-full bg-neon-purple hover:bg-purple-500 text-white font-bold py-3 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all">
+                  <button className="w-full bg-neon-purple hover:bg-purple-500 text-slate-900 font-bold py-3 rounded-xl shadow-[0_0_20px_rgba(168,85,247,0.4)] transition-all">
                     Purchase via MoonPay
                   </button>
                 </div>

@@ -52,7 +52,7 @@ export function SlotEngineBubble({ isPlaying, theme, onComplete }: SlotEngineBub
       {/* Moving bubble backgrounds */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-25">
         <motion.div animate={{ y: [-100, 600] }} transition={{ repeat: Infinity, duration: 8, ease: "linear" }} className="absolute left-1/4 w-3 h-3 rounded-full bg-white/40" />
-        <motion.div animate={{ y: [-50, 650] }} transition={{ repeat: Infinity, duration: 12, ease: "linear" }} className="absolute right-1/4 w-5 h-5 rounded-full bg-slate-900/30" />
+        <motion.div animate={{ y: [-50, 650] }} transition={{ repeat: Infinity, duration: 12, ease: "linear" }} className="absolute right-1/4 w-5 h-5 rounded-full bg-white/30" />
       </div>
 
       <div className="text-center mb-6 z-10">

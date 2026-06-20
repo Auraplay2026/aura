@@ -915,7 +915,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
   };
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-3 md:p-8 flex flex-col items-center justify-between relative overflow-hidden shadow-2xl">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-white rounded-3xl border border-slate-800 p-3 md:p-8 flex flex-col items-center justify-between relative overflow-hidden shadow-2xl">
       
       {/* Background Volumetric Arena Lighting */}
       <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-teal-900/15 via-slate-950 to-slate-950 pointer-events-none" />
@@ -925,15 +925,15 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
       <div className="w-full z-10 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-800/60 pb-4 mb-4">
         
         {/* VIP Player Stats Card */}
-        <div className="flex items-center gap-3 bg-slate-900/40 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800 shadow-inner">
+        <div className="flex items-center gap-3 bg-white/40 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800 shadow-inner">
           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-400 to-indigo-500 flex items-center justify-center p-0.5 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-            <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold text-xs text-cyan-400 font-mono">
+            <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-bold text-xs text-cyan-400 font-mono">
               VIP
             </div>
           </div>
           <div className="text-left">
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Player</p>
-            <p className="text-xs text-white font-black font-mono truncate max-w-[140px]">
+            <p className="text-xs text-slate-900 font-black font-mono truncate max-w-[140px]">
               {email.split("@")[0]}
             </p>
           </div>
@@ -951,7 +951,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
           </div>
 
           {/* Shot clock */}
-          <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-800 px-4 py-1.5 rounded-xl">
+          <div className="flex items-center gap-2 bg-white/60 border border-slate-800 px-4 py-1.5 rounded-xl">
             <Clock className="w-4 h-4 text-magenta-400 animate-pulse text-pink-400" />
             <span className="font-mono text-lg font-black text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.4)]">
               {shotClock}s
@@ -970,7 +970,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         {/* Audio Speaker Mute Toggle */}
         <button
           onClick={() => setIsMuted(prev => !prev)}
-          className="p-2 rounded-xl bg-slate-900/40 hover:bg-slate-900/80 border border-slate-800 text-slate-400 hover:text-white transition-all shadow-inner"
+          className="p-2 rounded-xl bg-white/40 hover:bg-white/80 border border-slate-800 text-slate-400 hover:text-slate-900 transition-all shadow-inner"
         >
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
@@ -979,7 +979,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
       {/* 3D Render Perspective Table Box Container */}
       <div className="w-full flex-grow flex items-center justify-center z-10 py-6 overflow-hidden perspective-[1400px]">
         <div 
-          className="relative w-full max-w-[800px] aspect-[2/1] rounded-[24px] bg-slate-900 border-[14px] border-slate-950 shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.1)] transition-transform duration-1000 ease-out transform-style-3d overflow-hidden"
+          className="relative w-full max-w-[800px] aspect-[2/1] rounded-[24px] bg-white border-[14px] border-slate-950 shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.1)] transition-transform duration-1000 ease-out transform-style-3d overflow-hidden"
           style={{ transform: "rotateX(23deg)" }}
         >
           {/* Inner Rail Glow strip */}
@@ -1007,7 +1007,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
           <button
             onClick={() => setCueAngle(prev => prev - 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
+            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-400 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
           >
             ↺
           </button>
@@ -1017,7 +1017,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
           <button
             onClick={() => setCueAngle(prev => prev + 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-white active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
+            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-400 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
           >
             ↻
           </button>
@@ -1028,7 +1028,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
           <Zap className="w-4 h-4 text-cyan-400 animate-pulse" />
           <div className="flex-grow relative flex items-center">
             {/* Background slider track */}
-            <div className="h-2 w-full bg-slate-800 rounded-full overflow-hidden relative border border-slate-700 shadow-inner">
+            <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden relative border border-slate-700 shadow-inner">
               <div
                 className="h-full bg-gradient-to-r from-cyan-400 via-yellow-400 to-pink-500 shadow-[0_0_10px_#00f2fe]"
                 style={{ width: `${shotPower}%` }}
@@ -1054,7 +1054,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         <button
           onClick={handleStrike}
           disabled={gameState !== "aiming"}
-          className="relative px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] border border-cyan-300/30 active:scale-[0.97] transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-2 group"
+          className="relative px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-900 font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] border border-cyan-300/30 active:scale-[0.97] transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-2 group"
         >
           <Play className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
           STRIKE BALL
@@ -1068,7 +1068,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 bg-white/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
           >
             {/* Particle splash */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(6,182,212,0.15),_transparent_70%)]" />
@@ -1087,11 +1087,11 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
               <span className="text-[10px] text-cyan-400 font-black tracking-widest uppercase block mb-1">
                 VICTORY DETECTED
               </span>
-              <h2 className="text-4xl font-black text-white uppercase tracking-tighter mb-6">
+              <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-6">
                 GREAT SHOT!
               </h2>
 
-              <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 mb-8 grid grid-cols-2 gap-4">
+              <div className="bg-white/60 border border-slate-800/80 rounded-2xl p-6 mb-8 grid grid-cols-2 gap-4">
                 <div className="text-left border-r border-slate-800/50 pr-4">
                   <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Multiplier</span>
                   <span className="text-2xl font-black font-mono text-emerald-400">
@@ -1112,7 +1112,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
                   initBalls();
                   onComplete(0, false); // tell page that we are reset
                 }}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-emerald-400/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-900 font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-emerald-400/20 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 PLAY AGAIN
@@ -1129,7 +1129,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 bg-white/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
           >
             <motion.div
               initial={{ scale: 0.7, y: 30 }}
@@ -1144,7 +1144,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
               <span className="text-[10px] text-pink-400 font-black tracking-widest uppercase block mb-1">
                 ROUND CLOSED
               </span>
-              <h2 className="text-3xl font-black text-white uppercase tracking-tighter mb-6">
+              <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-6">
                 SCRATCHED OR MISSED
               </h2>
 
@@ -1158,7 +1158,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
                   initBalls();
                   onComplete(0, false);
                 }}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-300 hover:text-white font-black uppercase text-sm tracking-widest border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-300 hover:text-slate-900 font-black uppercase text-sm tracking-widest border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 PLAY AGAIN

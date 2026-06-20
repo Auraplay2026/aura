@@ -57,16 +57,16 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
   }, [isPlaying, selectedSide]);
 
   return (
-    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-2xl">
+    <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-gradient-to-br from-sky-50 via-white to-yellow-50/60 rounded-3xl border border-slate-200/80 p-6 flex flex-col items-center justify-center relative overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
       
-      {/* Deep Space Background / Arena */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-900/20 via-slate-950 to-slate-950 pointer-events-none" />
+      {/* Soft Sky Background */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(186,230,253,0.3),transparent_60%)] pointer-events-none" />
       
       {/* Floor grid for depth */}
       <div 
         className="absolute bottom-0 left-0 right-0 h-[40%] opacity-20 pointer-events-none"
         style={{
-          backgroundImage: `linear-gradient(rgba(59, 130, 246, 0.5) 1px, transparent 1px), linear-gradient(90deg, rgba(59, 130, 246, 0.5) 1px, transparent 1px)`,
+          backgroundImage: `linear-gradient(rgba(14,165,233,0.2) 1px, transparent 1px), linear-gradient(90deg, rgba(14,165,233,0.2) 1px, transparent 1px)`,
           backgroundSize: '30px 30px',
           transform: 'perspective(500px) rotateX(60deg)',
           transformOrigin: 'bottom'
@@ -103,19 +103,19 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
 
           {/* Side B (SKULL) */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-700 via-slate-800 to-slate-950 border-[6px] border-slate-500 shadow-[inset_0_0_25px_rgba(0,0,0,0.8)]"
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-gradient-to-br from-slate-200 via-slate-300 to-slate-400 border-[6px] border-slate-200 shadow-[inset_0_0_20px_rgba(0,0,0,0.15)]"
             style={{ backfaceVisibility: "hidden", transform: "rotateX(180deg)" }}
           >
-            <div className="absolute inset-2 rounded-full border-2 border-slate-600/30 border-dashed animate-[spin_4s_linear_infinite_reverse] opacity-50" />
-            <svg className="w-16 h-16 text-rose-500 drop-shadow-[0_0_15px_rgba(244,63,94,0.95)]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z" fill="rgba(244,63,94,0.15)" />
+            <div className="absolute inset-2 rounded-full border-2 border-slate-400/30 border-dashed animate-[spin_4s_linear_infinite_reverse] opacity-50" />
+            <svg className="w-16 h-16 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M12 2a8 8 0 0 0-8 8c0 1.89.62 3.63 1.67 5.04L5 19a2 2 0 0 0 1.74 2.96h10.52A2 2 0 0 0 19 19l-.67-3.96c1.05-1.41 1.67-3.15 1.67-5.04a8 8 0 0 0-8-8z" fill="rgba(244,63,94,0.1)" />
               <circle cx="8.5" cy="11" r="2" fill="#f43f5e" className="animate-pulse" stroke="none" />
               <circle cx="15.5" cy="11" r="2" fill="#f43f5e" className="animate-pulse" stroke="none" />
               <polygon points="12,13 11,14.5 13,14.5" fill="#f43f5e" stroke="none" />
               <path d="M9 17.5h6" stroke="#f43f5e" strokeWidth="1.5" />
               <path d="M10.5 17.5v2.5M12 17.5v2.5M13.5 17.5v2.5" stroke="#f43f5e" strokeWidth="1.5" />
             </svg>
-            <span className="text-[10px] text-slate-350 font-black tracking-widest mt-2 uppercase drop-shadow-[0_1px_0_rgba(0,0,0,0.5)]">SKULL</span>
+            <span className="text-[10px] text-slate-600 font-black tracking-widest mt-2 uppercase">SKULL</span>
           </div>
 
           {/* Edge / Thickness Illusion */}
@@ -131,7 +131,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "AURA"
               ? "bg-gradient-to-br from-yellow-300 via-yellow-500 to-yellow-600 text-yellow-950 border-yellow-200 shadow-[0_0_15px_rgba(250,204,21,0.4)] scale-105"
-              : "bg-slate-900 text-slate-400 border-slate-800 hover:border-yellow-500/30"
+              : "bg-white text-slate-400 border-slate-800 hover:border-yellow-500/30"
           }`}
         >
           {/* Miniature Gold Coin Preview */}
@@ -149,7 +149,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "SKULL"
               ? "bg-gradient-to-br from-slate-300 via-slate-400 to-slate-500 text-slate-950 border-slate-200 shadow-[0_0_15px_rgba(203,213,225,0.4)] scale-105"
-              : "bg-slate-900 text-slate-400 border-slate-800 hover:border-slate-400/30"
+              : "bg-white text-slate-400 border-slate-800 hover:border-slate-400/30"
           }`}
         >
           {/* Miniature Silver Coin Preview */}

@@ -80,7 +80,7 @@ export default function LiveRTPPage() {
                 className={`h-full ${
                   game.status === 'hot' ? 'bg-gradient-to-r from-orange-600 to-orange-400' :
                   game.status === 'cold' ? 'bg-gradient-to-r from-cyan-600 to-cyan-400' :
-                  'bg-slate-600'
+                  'bg-slate-100'
                 }`}
               />
             </div>

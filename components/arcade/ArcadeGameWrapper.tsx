@@ -110,12 +110,12 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
 
   return (
     <div ref={containerRef} className={`w-full flex flex-col gap-6 select-none ${
-      isFullscreen ? "fixed inset-0 z-[9999] bg-slate-950 h-[100dvh] w-full p-0 gap-0" : ""
+      isFullscreen ? "fixed inset-0 z-[9999] bg-white h-[100dvh] w-full p-0 gap-0" : ""
     }`}>
       {/* HUD Header */}
       <div className={`flex items-center justify-between gap-4 bg-white rounded-2xl border border-slate-200 shadow-sm transition-all duration-300 ${
         isFullscreen 
-          ? "bg-slate-900 border-slate-800 rounded-none border-t-0 border-x-0 py-3 px-4 sm:px-6 text-white z-50 shrink-0" 
+          ? "bg-white border-slate-800 rounded-none border-t-0 border-x-0 py-3 px-4 sm:px-6 text-slate-900 z-50 shrink-0" 
           : "p-4 sm:p-5"
       }`}>
         <div className="flex items-center gap-3 sm:gap-4">
@@ -129,7 +129,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
             }}
             className={`p-2 rounded-xl transition-all duration-200 ${
               isFullscreen 
-                ? "text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700" 
+                ? "text-slate-400 hover:text-slate-900 bg-slate-50 hover:bg-slate-100" 
                 : "text-slate-500 hover:text-slate-900 bg-slate-50 hover:bg-slate-100"
             }`}
             aria-label="Go Back"
@@ -139,7 +139,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
           <div>
             <div className="flex items-center gap-2">
               <h1 className={`text-base sm:text-xl font-black tracking-tight leading-tight ${
-                isFullscreen ? "text-white" : "text-slate-900"
+                isFullscreen ? "text-slate-900" : "text-slate-900"
               }`}>
                 {game.title}
               </h1>
@@ -162,7 +162,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
               onClick={handleRestart}
               className={`p-2 rounded-xl transition-all duration-200 ${
                 isFullscreen 
-                  ? "text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700" 
+                  ? "text-slate-400 hover:text-slate-900 bg-slate-50 hover:bg-slate-100" 
                   : "text-slate-500 hover:text-slate-955 bg-slate-50 hover:bg-slate-100"
               }`}
               title="Restart Game"
@@ -176,7 +176,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
             onClick={toggleFullscreen}
             className={`p-2 rounded-xl transition-all duration-200 ${
               isFullscreen 
-                ? "text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700" 
+                ? "text-slate-400 hover:text-slate-900 bg-slate-50 hover:bg-slate-100" 
                 : "text-slate-500 hover:text-slate-955 bg-slate-50 hover:bg-slate-100"
             }`}
             aria-label={isFullscreen ? "Exit Fullscreen" : "Enter Immersive Mode"}
@@ -189,7 +189,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
           {isFullscreen && typeof document !== "undefined" && document.fullscreenEnabled && (
             <button
               onClick={toggleNativeFullscreen}
-              className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 transition-all duration-200"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 transition-all duration-200"
               title={isNativeFullscreen ? "Exit Native Fullscreen" : "Enter Native Fullscreen"}
             >
               <Maximize2 className="w-4 h-4" />
@@ -199,9 +199,9 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
       </div>
 
       {/* Game Play Frame / Canvas Container */}
-      <div className={`relative w-full bg-slate-955 border overflow-hidden select-none touch-none transition-all duration-500 ${
+      <div className={`relative w-full bg-white border overflow-hidden select-none touch-none transition-all duration-500 ${
         isFullscreen
-          ? "flex-1 border-none rounded-none w-full h-full bg-black flex items-center justify-center"
+          ? "flex-1 border-none rounded-none w-full h-full bg-white flex items-center justify-center"
           : game.orientation === "portrait"
             ? "w-full max-w-[400px] mx-auto h-[500px] sm:h-[650px] rounded-3xl border-slate-200 shadow-xl"
             : "w-full max-w-5xl mx-auto h-[450px] sm:h-[550px] lg:h-[650px] rounded-3xl border-slate-200 shadow-xl"
@@ -230,7 +230,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
               </div>
 
               {/* Title & Provider */}
-              <h2 className="text-xl sm:text-2xl font-black text-white uppercase tracking-tight mb-1">
+              <h2 className="text-xl sm:text-2xl font-black text-slate-900 uppercase tracking-tight mb-1">
                 {game.title}
               </h2>
               <p className="text-[10px] sm:text-xs font-black text-red-500 uppercase tracking-widest mb-4">
@@ -251,19 +251,19 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
                     setIsFullscreen(true);
                   }
                 }}
-                className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-red-600 via-orange-600 to-amber-500 text-white font-black text-xs uppercase tracking-widest rounded-xl hover:shadow-[0_0_40px_rgba(239,68,68,0.4)] transition-all duration-300 active:scale-95 flex items-center justify-center gap-3"
+                className="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-red-600 via-orange-600 to-amber-500 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl hover:shadow-[0_0_40px_rgba(239,68,68,0.4)] transition-all duration-300 active:scale-95 flex items-center justify-center gap-3"
               >
                 <Play className="w-4 h-4 fill-white" />
                 Play Now
               </button>
 
               {/* Controls guide details */}
-              <div className="mt-8 border border-slate-800/80 bg-slate-900/50 backdrop-blur rounded-xl p-3 w-full flex items-center justify-center gap-4 text-slate-500 text-xs">
+              <div className="mt-8 border border-slate-800/80 bg-white/50 backdrop-blur rounded-xl p-3 w-full flex items-center justify-center gap-4 text-slate-500 text-xs">
                 <div className="flex items-center gap-1.5">
                   <Smartphone className="w-3.5 h-3.5 text-slate-400" />
                   <span className="text-[9px] font-bold uppercase tracking-wider">Mobile Touch</span>
                 </div>
-                <div className="w-1.5 h-1.5 rounded-full bg-slate-800" />
+                <div className="w-1.5 h-1.5 rounded-full bg-slate-50" />
                 <div className="flex items-center gap-1.5">
                   <Monitor className="w-3.5 h-3.5 text-slate-400" />
                   <span className="text-[9px] font-bold uppercase tracking-wider">Desktop Web</span>
@@ -277,9 +277,9 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
             isFullscreen && game.orientation === "portrait" ? "w-full max-w-[500px] mx-auto h-full" : "w-full h-full"
           }`}>
             {isLoading && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-950 z-20">
+              <div className="absolute inset-0 flex flex-col items-center justify-center bg-white z-20">
                 <Loader2 className="w-8 h-8 text-red-500 animate-spin mb-4" />
-                <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-widest">Initializing Core Engine...</h3>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-900 uppercase tracking-widest">Initializing Core Engine...</h3>
                 <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider font-semibold">Loading assets from server</p>
               </div>
             )}
@@ -288,7 +288,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
               key={reloadKey}
               ref={iframeRef}
               src={game.url}
-              className="w-full h-full border-0 absolute inset-0 bg-black"
+              className="w-full h-full border-0 absolute inset-0 bg-white"
               onLoad={() => setIsLoading(false)}
               allow="autoplay; fullscreen; gamepad; accelerometer; gyroscope; xr-spatial-tracking; clipboard-write"
               allowFullScreen
@@ -301,7 +301,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
               <div className="absolute top-4 right-4 sm:hidden z-50 flex items-center gap-2">
                 <button
                   onClick={handleRestart}
-                  className="p-2.5 bg-black/60 backdrop-blur border border-slate-800 text-white rounded-full hover:bg-black transition-colors shadow-lg active:scale-90"
+                  className="p-2.5 bg-white/60 backdrop-blur border border-slate-800 text-slate-900 rounded-full hover:bg-white transition-colors shadow-lg active:scale-90"
                   aria-label="Reload game"
                   title="Reload game"
                 >
@@ -309,7 +309,7 @@ export function ArcadeGameWrapper({ game }: ArcadeGameWrapperProps) {
                 </button>
                 <button
                   onClick={() => setIsFullscreen(false)}
-                  className="p-2.5 bg-black/60 backdrop-blur border border-slate-800 text-white rounded-full hover:bg-black transition-colors shadow-lg active:scale-90"
+                  className="p-2.5 bg-white/60 backdrop-blur border border-slate-800 text-slate-900 rounded-full hover:bg-white transition-colors shadow-lg active:scale-90"
                   aria-label="Exit Immersive"
                   title="Exit Immersive"
                 >

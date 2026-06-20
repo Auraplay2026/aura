@@ -470,7 +470,7 @@ export default function AccountSettingsPage() {
                   setIsSaving(false);
                 }}
                 disabled={isSaving}
-                className="bg-red-600 text-white font-black py-3 px-8 rounded-xl hover:bg-red-700 hover:scale-105 active:scale-95 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+                className="bg-red-600 text-slate-900 font-black py-3 px-8 rounded-xl hover:bg-red-700 hover:scale-105 active:scale-95 transition-all shadow-md hover:shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
               >
                 {isSaving ? "Saving..." : "Save Changes"}
               </button>
@@ -585,7 +585,7 @@ export default function AccountSettingsPage() {
                 <div className="w-px h-6 bg-slate-100" />
               </div>
 
-              <div className="bg-slate-900/20 border border-slate-200 border-dashed rounded-2xl p-5">
+              <div className="bg-white/20 border border-slate-200 border-dashed rounded-2xl p-5">
                 <div className="flex items-center justify-between mb-2">
                   <span className="text-sm text-slate-700 font-bold">Level 2 (Advanced)</span>
                   {currentUser?.kycStatus === 'APPROVED' || currentUser?.kycStatus === 'VERIFIED' ? (
@@ -628,14 +628,14 @@ export default function AccountSettingsPage() {
                 ) : currentUser?.kycStatus === 'REJECTED' ? (
                   <button 
                     onClick={() => setShowKYC(true)}
-                    className="w-full py-3 rounded-xl bg-red-600 text-white text-xs font-black uppercase tracking-widest hover:bg-red-750 transition-colors border border-red-700 cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-red-600 text-slate-900 text-xs font-black uppercase tracking-widest hover:bg-red-750 transition-colors border border-red-700 cursor-pointer"
                   >
                     Restart KYC Process
                   </button>
                 ) : (
                   <button 
                     onClick={() => setShowKYC(true)}
-                    className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-900 uppercase tracking-widest hover:bg-slate-700 transition-colors border border-slate-700 cursor-pointer"
+                    className="w-full py-3 rounded-xl bg-slate-100 text-xs font-black text-slate-900 uppercase tracking-widest hover:bg-slate-100 transition-colors border border-slate-700 cursor-pointer"
                   >
                     Begin KYC Process
                   </button>
@@ -745,7 +745,7 @@ export default function AccountSettingsPage() {
                   <p className="text-xs text-slate-500">Your security settings have been updated. Please use your new password next time you sign in.</p>
                   <button 
                     onClick={() => setShowPasswordModal(false)}
-                    className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+                    className="w-full py-3 bg-white hover:bg-slate-50 text-slate-900 rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Done
                   </button>
@@ -807,7 +807,7 @@ export default function AccountSettingsPage() {
                         setPasswordError(res.error || "Failed to update password.");
                       }
                     }}
-                    className="w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
+                    className="w-full py-3 bg-red-600 text-slate-900 font-black rounded-xl text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
                   >
                     {passwordLoading ? "Saving..." : "Change Password"}
                   </button>
@@ -871,7 +871,7 @@ export default function AccountSettingsPage() {
                   </p>
                   <button 
                     onClick={() => setShow2faModal(false)}
-                    className="w-full py-3 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
+                    className="w-full py-3 bg-white hover:bg-slate-50 text-slate-900 rounded-xl text-xs font-black uppercase tracking-wider transition-colors cursor-pointer"
                   >
                     Done
                   </button>
@@ -898,7 +898,7 @@ export default function AccountSettingsPage() {
                             setTwoFactorError(res.error || "Failed to setup 2FA.");
                           }
                         }}
-                        className="w-full py-3.5 bg-indigo-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-indigo-700 transition-colors cursor-pointer"
+                        className="w-full py-3.5 bg-indigo-600 text-slate-900 font-black rounded-xl text-xs uppercase tracking-widest hover:bg-indigo-700 transition-colors cursor-pointer"
                       >
                         {twoFactorLoading ? "Generating..." : "Enable 2FA"}
                       </button>
@@ -990,7 +990,7 @@ export default function AccountSettingsPage() {
                             setTwoFactorError(res.error || "Incorrect code. Please try again.");
                           }
                         }}
-                        className="w-full py-3 bg-indigo-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-indigo-700 transition-colors disabled:opacity-50 cursor-pointer"
+                        className="w-full py-3 bg-indigo-600 text-slate-900 font-black rounded-xl text-xs uppercase tracking-widest hover:bg-indigo-700 transition-colors disabled:opacity-50 cursor-pointer"
                       >
                         {twoFactorLoading ? "Activating..." : "Activate 2FA"}
                       </button>
@@ -1028,7 +1028,7 @@ export default function AccountSettingsPage() {
                             setTwoFactorError(res.error || "Incorrect code. Failed to disable 2FA.");
                           }
                         }}
-                        className="w-full py-3 bg-red-600 text-white font-black rounded-xl text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
+                        className="w-full py-3 bg-red-600 text-slate-900 font-black rounded-xl text-xs uppercase tracking-widest hover:bg-red-700 transition-colors disabled:opacity-50 cursor-pointer"
                       >
                         {twoFactorLoading ? "Deactivating..." : "Disable 2FA"}
                       </button>

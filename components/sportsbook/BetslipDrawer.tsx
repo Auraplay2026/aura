@@ -61,16 +61,16 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
       >
         <div className="flex items-center gap-2 font-black">
           <div className="w-5 h-5 flex flex-col justify-center gap-0.5">
-            <div className="h-0.5 w-full bg-slate-950 rounded" />
-            <div className="h-0.5 w-full bg-slate-950 rounded" />
-            <div className="h-0.5 w-full bg-slate-950 rounded" />
+            <div className="h-0.5 w-full bg-white rounded" />
+            <div className="h-0.5 w-full bg-white rounded" />
+            <div className="h-0.5 w-full bg-white rounded" />
           </div>
           Betslip
           <span className="bg-white text-[#FFD700] text-[10px] px-1.5 py-0.5 rounded ml-1">1</span>
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs font-bold uppercase tracking-widest">Quick Bet</span>
-          <div className="w-8 h-4 bg-slate-900/20 rounded-full relative">
+          <div className="w-8 h-4 bg-white/20 rounded-full relative">
             <div className="absolute right-0.5 top-0.5 w-3 h-3 bg-white rounded-full" />
           </div>
           {isExpanded ? <ChevronDown className="w-4 h-4 ml-1" /> : <ChevronUp className="w-4 h-4 ml-1" />}
@@ -152,7 +152,7 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
               <button
                 onClick={handlePlaceBet}
                 disabled={isProcessing || stake <= 0 || balance < totalCost}
-                className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 disabled:text-slate-400 text-white font-black py-3 rounded-lg flex justify-center items-center gap-2 transition-all uppercase tracking-widest text-sm cursor-pointer"
+                className="w-full bg-white hover:bg-slate-50 disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-black py-3 rounded-lg flex justify-center items-center gap-2 transition-all uppercase tracking-widest text-sm cursor-pointer"
               >
                 {isProcessing ? (
                   <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />

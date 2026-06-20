@@ -178,7 +178,7 @@ export default function RewardsPage() {
               <p className="text-base font-black uppercase tracking-wide">⚠️ Demo Mode Active</p>
               <p className="font-medium text-amber-700 text-xs">Rakeback, daily drop bonuses, and VIP rewards are currently simulated. Deposit real money to claim real rewards!</p>
             </div>
-            <Link href="/account/balance" className="shrink-0 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-all text-center w-full sm:w-auto uppercase tracking-wider text-xs font-black shadow-md">Deposit & Unlock Rewards</Link>
+            <Link href="/account/balance" className="shrink-0 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-slate-900 rounded-xl transition-all text-center w-full sm:w-auto uppercase tracking-wider text-xs font-black shadow-md">Deposit & Unlock Rewards</Link>
           </div>
         ) : (
           <div className="bg-indigo-50 border border-indigo-200 rounded-3xl p-6 text-indigo-800 text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm">
@@ -186,7 +186,7 @@ export default function RewardsPage() {
               <p className="text-base font-black uppercase tracking-wide">💎 Real Rewards Active</p>
               <p className="font-medium text-indigo-700 text-xs">You are earning 5% rakeback and weekly VIP loyalty rewards on all wagers! Claim your cash drops below.</p>
             </div>
-            <Link href="/account/balance" className="shrink-0 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-all text-center w-full sm:w-auto uppercase tracking-wider text-xs font-black shadow-md">Deposit Cashier</Link>
+            <Link href="/account/balance" className="shrink-0 px-6 py-3 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl transition-all text-center w-full sm:w-auto uppercase tracking-wider text-xs font-black shadow-md">Deposit Cashier</Link>
           </div>
         )}
 

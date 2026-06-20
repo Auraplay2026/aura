@@ -55,7 +55,7 @@ export default function ArcadeHubPage() {
                     alt={game.title} 
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-slate-900/0 group-hover:bg-slate-900/10 transition-colors duration-300" />
+                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
                   
                   {game.isNew && (
                     <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur border border-slate-200 text-slate-900 text-[9px] font-black uppercase tracking-widest rounded shadow-sm">

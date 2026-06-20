@@ -33,7 +33,7 @@ DIRS.forEach(dir => {
 
     // Convert colored dark backgrounds (e.g. bg-emerald-950/50 -> bg-emerald-100)
     // Avoid replacing slate/gray/zinc etc if we want them to just be slate-50
-    // Actually, bg-slate-950 -> bg-slate-100 is fine, bg-emerald-950 -> bg-emerald-100 is fine
+    // Actually, bg-white -> bg-slate-100 is fine, bg-emerald-950 -> bg-emerald-100 is fine
     content = content.replace(/bg-([a-z]+)-(900|950)(?:\/\d+)?/g, (match, color) => {
       // If it's a neutral color, maybe we want it whiter, but 50/100 is fine
       return `bg-${color}-100`;
@@ -68,9 +68,9 @@ DIRS.forEach(dir => {
     // Shadow colors might still be dark mode optimized like shadow-emerald-500/5
     // That's usually fine in light mode, actually.
 
-    // bg-white/5 or bg-white/10 -> bg-slate-900/5
+    // bg-white/5 or bg-white/10 -> bg-white/5
     content = content.replace(/bg-white\/(5|10|20|30)/g, (match, opacity) => {
-        return `bg-slate-900/${opacity}`;
+        return `bg-white/${opacity}`;
     });
 
     if (content !== original) {

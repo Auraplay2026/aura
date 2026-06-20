@@ -161,15 +161,15 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
   const hitsCount = drawnNumbers.filter(n => selectedNumbers.includes(n)).length;
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] flex flex-col p-3 md:p-6 relative bg-[#09090b] rounded-3xl overflow-hidden shadow-2xl border border-[#27272a] perspective-[1200px]">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] flex flex-col p-3 md:p-6 relative bg-gradient-to-br from-slate-50 via-white to-violet-50/60 rounded-3xl overflow-hidden shadow-[0_4px_40px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)] border border-slate-200/80 perspective-[1200px]">
       
-      {/* Dynamic 3D Neon Background */}
+      {/* Soft ambient grid */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(124,58,237,0.15),transparent_70%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(167,139,250,0.12),transparent_65%)]" />
         <div 
-          className="absolute inset-0 opacity-20"
+          className="absolute inset-0 opacity-30"
           style={{
-            backgroundImage: `linear-gradient(rgba(139, 92, 246, 0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.4) 1px, transparent 1px)`,
+            backgroundImage: `linear-gradient(rgba(139, 92, 246, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.12) 1px, transparent 1px)`,
             backgroundSize: '30px 30px',
             transform: 'rotateX(60deg) translateY(-50%)',
             transformOrigin: 'top'
@@ -178,19 +178,19 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
       </div>
 
       {/* Header UI */}
-      <div className="relative z-20 flex items-center justify-between bg-[#18181b]/80 p-4 rounded-2xl border border-[#27272a] backdrop-blur-md mb-6 shadow-lg">
+      <div className="relative z-20 flex items-center justify-between bg-white/80 p-4 rounded-2xl border border-slate-200 backdrop-blur-md mb-6 shadow-md">
         <div className="flex gap-2">
           <button 
             onClick={clearSelection}
             disabled={gameState !== "idle"}
-            className="px-4 py-2 bg-[#27272a] hover:bg-[#3f3f46] text-[#a1a1aa] text-xs font-black uppercase tracking-wider rounded-xl transition-colors disabled:opacity-50"
+            className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 text-xs font-black uppercase tracking-wider rounded-xl transition-colors disabled:opacity-50"
           >
             Clear
           </button>
           <button 
             onClick={autoPick}
             disabled={gameState !== "idle"}
-            className="px-4 py-2 bg-purple-600/20 hover:bg-purple-600/40 text-purple-400 text-xs font-black uppercase tracking-wider rounded-xl border border-purple-500/30 transition-colors flex items-center gap-2 disabled:opacity-50"
+            className="px-4 py-2 bg-violet-100 hover:bg-violet-200 text-violet-700 text-xs font-black uppercase tracking-wider rounded-xl border border-violet-300/50 transition-colors flex items-center gap-2 disabled:opacity-50"
           >
             <Zap className="w-4 h-4" /> Auto Pick
           </button>
@@ -198,7 +198,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
 
         <div className="flex flex-col items-end">
           <span className="text-[10px] uppercase tracking-widest text-[#71717a] font-black">Selected</span>
-          <span className="text-2xl font-black font-mono text-white drop-shadow-md">
+          <span className="text-2xl font-black font-mono text-slate-900 drop-shadow-md">
             {selectedNumbers.length} <span className="text-[#52525b] text-base">/ 10</span>
           </span>
         </div>
@@ -206,7 +206,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
 
       {/* 3D Grid container */}
       <div className="relative z-10 flex-1 flex flex-col items-center justify-center transform-style-3d rotate-x-[15deg]">
-        <div className="grid grid-cols-8 gap-2 md:gap-3 w-full max-w-[600px] bg-[#18181b]/50 p-4 rounded-3xl border border-[#27272a] shadow-[0_30px_60px_rgba(0,0,0,0.8),inset_0_0_50px_rgba(0,0,0,0.8)]">
+        <div className="grid grid-cols-8 gap-2 md:gap-3 w-full max-w-[600px] bg-white/70 p-4 rounded-3xl border border-slate-200/80 shadow-[0_8px_30px_rgba(0,0,0,0.06),inset_0_1px_0_rgba(255,255,255,1)]">
           {Array.from({ length: 40 }, (_, i) => i + 1).map(num => {
             const isSelected = selectedNumbers.includes(num);
             const isDrawn = drawnNumbers.includes(num);
@@ -228,10 +228,10 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
                 className={`
                   relative aspect-square rounded-xl font-black text-sm md:text-lg flex items-center justify-center transform-style-3d outline-none
-                  ${isSelected && !isDrawn ? "bg-gradient-to-b from-purple-500 to-purple-700 text-white shadow-[0_8px_0_rgba(88,28,135,1),0_15px_20px_rgba(147,51,234,0.5)] border-t border-purple-400 z-10" : ""}
-                  ${isHit ? "bg-gradient-to-b from-emerald-400 to-emerald-600 text-slate-900 shadow-[0_10px_0_rgba(6,95,70,1),0_20px_30px_rgba(16,185,129,0.8)] border-t border-emerald-300 z-20" : ""}
-                  ${isMiss ? "bg-[#27272a] text-white border border-[#3f3f46] shadow-inner opacity-80" : ""}
-                  ${!isSelected && !isDrawn ? "bg-[#18181b] text-[#71717a] border border-[#27272a] shadow-[0_4px_0_rgba(9,9,11,1)] hover:text-[#a1a1aa]" : ""}
+                  ${isSelected && !isDrawn ? "bg-gradient-to-b from-violet-400 to-violet-600 text-white shadow-[0_8px_0_rgba(109,40,217,0.4),0_12px_20px_rgba(139,92,246,0.3)] border-t border-violet-300 z-10" : ""}
+                  ${isHit ? "bg-gradient-to-b from-emerald-400 to-emerald-600 text-white shadow-[0_10px_0_rgba(6,95,70,0.4),0_15px_25px_rgba(16,185,129,0.4)] border-t border-emerald-300 z-20" : ""}
+                  ${isMiss ? "bg-slate-200 text-slate-500 border border-slate-300 shadow-inner opacity-80" : ""}
+                  ${!isSelected && !isDrawn ? "bg-gradient-to-b from-slate-100 to-slate-200 text-slate-600 border border-slate-200 shadow-[0_4px_0_rgba(148,163,184,0.5)] hover:text-slate-900 hover:from-white hover:to-slate-100" : ""}
                 `}
               >
                 <span className="relative z-10">{num}</span>
@@ -267,11 +267,11 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
       </div>
 
       {/* Footer Info / Results */}
-      <div className="relative z-20 flex items-center justify-between h-16 bg-[#18181b]/90 rounded-2xl border border-[#27272a] px-6 mt-6 shadow-[0_-10px_30px_rgba(0,0,0,0.5)] backdrop-blur-md">
+      <div className="relative z-20 flex items-center justify-between h-16 bg-white/80 rounded-2xl border border-slate-200 px-6 mt-6 shadow-md backdrop-blur-md">
         <div className="flex items-center gap-4">
-          <Target className="w-6 h-6 text-purple-500 drop-shadow-[0_0_5px_rgba(168,85,247,0.8)]" />
-          <span className="text-sm font-black uppercase tracking-widest text-[#a1a1aa]">
-            Hits: <span className="text-white text-xl ml-1">{hitsCount}</span>
+          <Target className="w-6 h-6 text-violet-500" />
+          <span className="text-sm font-black uppercase tracking-widest text-slate-600">
+            Hits: <span className="text-slate-900 text-xl ml-1">{hitsCount}</span>
           </span>
         </div>
         
@@ -281,7 +281,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
               initial={{ opacity: 0, x: 20, scale: 0.8 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               className={`font-black uppercase tracking-widest text-lg md:text-xl px-6 py-2 rounded-lg border
-                ${hitsCount >= 4 ? "bg-emerald-500/20 text-emerald-400 border-emerald-500/50 shadow-[0_0_20px_rgba(52,211,153,0.3)]" : "bg-red-500/10 text-red-500 border-red-500/30"}
+                ${hitsCount >= 4 ? "bg-emerald-50 text-emerald-700 border-emerald-300 shadow-sm" : "bg-red-50 text-red-600 border-red-300"}
               `}
             >
               {hitsCount >= 4 ? `Winner! ${outcomeMultiplier.toFixed(2)}x` : "No Win"}

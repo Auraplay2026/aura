@@ -842,7 +842,7 @@ export default function GamePlayerPage() {
       <div className="flex flex-col items-center justify-center h-[80vh]">
         <Gamepad2 className="w-16 h-16 text-slate-700 mb-4" />
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Game Not Found</h1>
-        <button onClick={() => router.push('/')} className="bg-neon-purple hover:bg-purple-600 text-white px-6 py-2 rounded-lg font-bold">Back to Lobby</button>
+        <button onClick={() => router.push('/')} className="bg-neon-purple hover:bg-purple-600 text-slate-900 px-6 py-2 rounded-lg font-bold">Back to Lobby</button>
       </div>
     );
   }
@@ -1037,7 +1037,7 @@ export default function GamePlayerPage() {
           </button>
           <button 
             onClick={() => window.dispatchEvent(new CustomEvent("open-live-chat"))} 
-            className="w-9 h-9 bg-red-600 hover:bg-red-500 rounded-xl flex items-center justify-center text-white transition-colors shrink-0 shadow-sm border border-red-500/25 cursor-pointer"
+            className="w-9 h-9 bg-red-600 hover:bg-red-500 rounded-xl flex items-center justify-center text-slate-900 transition-colors shrink-0 shadow-sm border border-red-500/25 cursor-pointer"
             title="Open Live Chat"
           >
             <MessageSquare className="w-4.5 h-4.5" />
@@ -1061,13 +1061,13 @@ export default function GamePlayerPage() {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-900/95 backdrop-blur-md"
+                  className="absolute inset-0 z-50 flex items-center justify-center bg-white/95 backdrop-blur-md"
                 >
-                  <div className="bg-slate-950 border border-slate-800 shadow-2xl w-full max-w-md rounded-3xl overflow-hidden p-8 text-center relative">
+                  <div className="bg-white border border-slate-800 shadow-2xl w-full max-w-md rounded-3xl overflow-hidden p-8 text-center relative">
                     <div className="absolute top-0 left-1/4 w-1/2 h-32 bg-gradient-to-b from-rose-500/10 to-transparent rounded-full blur-2xl pointer-events-none" />
                     
                     <Lock className="w-16 h-16 text-rose-500 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(239,68,68,0.4)]" />
-                    <h2 className="text-2xl font-black text-white uppercase tracking-wider mb-2">Authentication Required</h2>
+                    <h2 className="text-2xl font-black text-slate-900 uppercase tracking-wider mb-2">Authentication Required</h2>
                     <p className="text-slate-400 text-sm font-medium mb-8">
                       To ensure fair play and secure transaction recording, you must login or register a Demo / Real account to start playing.
                     </p>
@@ -1081,7 +1081,7 @@ export default function GamePlayerPage() {
                       </button>
                       <button 
                         onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-                        className="w-full py-4 font-black text-white bg-red-600 hover:bg-red-700 border border-red-500/30 rounded-xl transition-all uppercase tracking-wider text-sm"
+                        className="w-full py-4 font-black text-slate-900 bg-red-600 hover:bg-red-700 border border-red-500/30 rounded-xl transition-all uppercase tracking-wider text-sm"
                       >
                         Create Demo/Real Account
                       </button>
@@ -1157,7 +1157,7 @@ export default function GamePlayerPage() {
                           }
                           setHasTransferred(true);
                         }}
-                        className="flex-1 py-3 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-sm"
+                        className="flex-1 py-3 font-black text-slate-900 bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-sm"
                       >
                         Transfer & Enter
                       </button>
@@ -1175,7 +1175,7 @@ export default function GamePlayerPage() {
                       <div className="absolute inset-2 border border-slate-700/50 rounded-full border-dashed animate-[spin_10s_linear_infinite]" />
                       <motion.div animate={{ rotate: 360 }} transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }} className="absolute inset-0 border-2 border-neon-purple border-t-transparent rounded-full shadow-[0_0_30px_rgba(168,85,247,0.4)]" />
                       <motion.div animate={{ rotate: -360 }} transition={{ duration: 2, repeat: Infinity, ease: "linear" }} className="absolute inset-4 border border-neon-green border-b-transparent rounded-full" />
-                      <div className="absolute inset-0 flex items-center justify-center bg-slate-900/50 rounded-full backdrop-blur-sm">
+                      <div className="absolute inset-0 flex items-center justify-center bg-white/50 rounded-full backdrop-blur-sm">
                         <Gamepad2 className="w-10 h-10 text-slate-900 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
                       </div>
                     </div>
@@ -1320,7 +1320,7 @@ export default function GamePlayerPage() {
                                               onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }}
                                               onDoubleClick={() => { setBetAmount(chip.amount * 2); playGameSound('click'); }}
                                               className={cn(
-                                                "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-white shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none",
+                                                "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-900 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none",
                                                 isSelected ? "scale-110 ring-2 ring-slate-900 ring-offset-1 ring-offset-white z-10 opacity-100" : "hover:scale-105 opacity-80 hover:opacity-100",
                                                 `bg-gradient-to-br ${chip.color}`
                                               )}
@@ -1445,7 +1445,7 @@ export default function GamePlayerPage() {
                                                   className={cn(
                                                     "py-2 sm:py-3.5 px-2 rounded-xl font-black text-xs uppercase tracking-wider transition-all border-2 text-center",
                                                     isActive 
-                                                      ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-red-500 shadow-md scale-[1.02]`
+                                                      ? `bg-gradient-to-br ${theme.buttonGradient} text-slate-900 border-red-500 shadow-md scale-[1.02]`
                                                       : "bg-white text-slate-700 border-slate-200 hover:border-slate-350 hover:bg-slate-50"
                                                   )}
                                                 >
@@ -1474,7 +1474,7 @@ export default function GamePlayerPage() {
                                           onClick={() => { setPlayMode("manual"); setAutoplayWarning(false); }}
                                           className={`relative overflow-hidden group flex flex-col items-center justify-center gap-1.5 py-2 sm:py-3 rounded-xl font-black text-[10px] uppercase tracking-wider transition-all border-2 ${
                                             playMode === "manual"
-                                              ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-white border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
+                                              ? "bg-gradient-to-br from-emerald-500 to-emerald-600 text-slate-900 border-emerald-400 shadow-[0_0_20px_rgba(16,185,129,0.3)] scale-[1.02]"
                                               : "bg-white text-slate-600 border-slate-200 hover:border-emerald-300"
                                           }`}
                                         >
@@ -1499,7 +1499,7 @@ export default function GamePlayerPage() {
                                         >
                                           <Lock className="w-5 h-5" />
                                           <span>Auto</span>
-                                          <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md">OFF</span>
+                                          <span className="absolute -top-1 -right-1 bg-red-500 text-slate-900 text-[7px] font-black px-1.5 py-0.5 rounded-full leading-none shadow-md">OFF</span>
                                         </button>
                                       </div>
 
@@ -1510,7 +1510,7 @@ export default function GamePlayerPage() {
                                             initial={{ opacity: 0, y: 8, scale: 0.95 }}
                                             animate={{ opacity: 1, y: 0, scale: 1 }}
                                             exit={{ opacity: 0, y: 4, scale: 0.95 }}
-                                            className="absolute -bottom-14 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-rose-600 text-white text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-xl shadow-lg flex items-center gap-2"
+                                            className="absolute -bottom-14 left-0 right-0 z-50 bg-gradient-to-r from-red-500 to-rose-600 text-slate-900 text-[9px] font-black uppercase tracking-wider px-3 py-2 rounded-xl shadow-lg flex items-center gap-2"
                                           >
                                             <AlertCircle className="w-3.5 h-3.5 shrink-0" />
                                             <span>Autoplay is disabled. Manual play only.</span>
@@ -1529,7 +1529,7 @@ export default function GamePlayerPage() {
                                         const recommendedBet = Math.max(10, Math.round((balance * strat.recommendedBetPercent) / 100));
                                         return (
                                           <div key={idx} className="bg-white border border-slate-200 rounded-2xl p-4 shadow-sm space-y-3 relative overflow-hidden">
-                                            <div className={`absolute top-0 right-0 ${riskBg} text-white text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg`}>
+                                            <div className={`absolute top-0 right-0 ${riskBg} text-slate-900 text-[7px] font-black uppercase px-2 py-0.5 rounded-bl-lg`}>
                                               {strat.risk} Risk
                                             </div>
                                             <h4 className="text-xs font-black text-slate-800 uppercase tracking-widest flex items-center gap-1.5">
@@ -1552,7 +1552,7 @@ export default function GamePlayerPage() {
                                                 setBetAmount(recommendedBet);
                                                 playGameSound('click');
                                               }}
-                                              className="w-full py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
+                                              className="w-full py-2 bg-white hover:bg-slate-50 text-slate-900 rounded-xl text-[9px] font-black uppercase tracking-widest transition-colors cursor-pointer"
                                             >
                                               Apply Recommended Bet (₹{recommendedBet})
                                             </button>
@@ -1657,7 +1657,7 @@ export default function GamePlayerPage() {
                           <div className="flex items-center gap-3">
                             <img src={game.image} className="w-8 h-8 md:w-10 md:h-10 rounded-lg object-cover shadow-md shrink-0 border border-white/10" />
                             <div className="flex-1">
-                              <p className="text-white font-black text-xs md:text-sm uppercase tracking-wider leading-none truncate max-w-[150px] sm:max-w-none">{game.title}</p>
+                              <p className="text-slate-900 font-black text-xs md:text-sm uppercase tracking-wider leading-none truncate max-w-[150px] sm:max-w-none">{game.title}</p>
                               <p className="text-cyan-400 text-[9px] md:text-[10px] font-black uppercase tracking-widest mt-1 flex items-center gap-1.5">
                                 <span className="relative flex h-2 w-2 shrink-0">
                                   <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
@@ -1690,7 +1690,7 @@ export default function GamePlayerPage() {
                                 onClick={() => setIsMultiplayer(!isMultiplayer)}
                                 className={cn(
                                   "relative w-10 h-5 md:w-12 md:h-6 rounded-full p-1 transition-colors duration-300 shrink-0",
-                                  isMultiplayer ? "bg-neon-green" : "bg-slate-700"
+                                  isMultiplayer ? "bg-neon-green" : "bg-slate-100"
                                 )}
                               >
                                 <motion.div 
@@ -1727,12 +1727,12 @@ export default function GamePlayerPage() {
                                     animate={{ scale: 1, opacity: 1 }} 
                                     exit={{ scale: 1.5, opacity: 0 }} 
                                     onClick={() => setWinAmount(null)}
-                                    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-black/60 backdrop-blur-md rounded-3xl cursor-pointer select-none"
+                                    className="absolute inset-0 z-50 flex flex-col items-center justify-center bg-white/60 backdrop-blur-md rounded-3xl cursor-pointer select-none"
                                   >
                                     <motion.h2 
                                       animate={isMegaWin ? { scale: [1, 1.2, 1] } : {}}
                                       transition={{ repeat: Infinity, duration: 1 }}
-                                      className={`text-4xl sm:text-7xl font-black uppercase tracking-tighter transform -skew-x-6 drop-shadow-[0_0_40px_rgba(255,255,255,0.4)] ${isMegaWin ? `text-${theme.primaryColor} bg-clip-text text-transparent bg-gradient-to-b ${theme.buttonGradient}` : 'text-white'}`}
+                                      className={`text-4xl sm:text-7xl font-black uppercase tracking-tighter transform -skew-x-6 drop-shadow-[0_0_40px_rgba(255,255,255,0.4)] ${isMegaWin ? `text-${theme.primaryColor} bg-clip-text text-transparent bg-gradient-to-b ${theme.buttonGradient}` : 'text-slate-900'}`}
                                     >
                                       {isMegaWin ? "MEGA WIN!" : "EPIC WIN!"}
                                     </motion.h2>
@@ -1741,7 +1741,7 @@ export default function GamePlayerPage() {
                                     >
                                       ₹<RollingCounter target={winAmount} />
                                     </motion.div>
-                                    <span className="text-[10px] uppercase font-black tracking-widest text-white/50 mt-6 animate-pulse">Tap anywhere to close</span>
+                                    <span className="text-[10px] uppercase font-black tracking-widest text-slate-900/50 mt-6 animate-pulse">Tap anywhere to close</span>
                                   </motion.div>
                                 )}
                               </AnimatePresence>
@@ -1749,14 +1749,14 @@ export default function GamePlayerPage() {
                               {/* Low Balance Overlay */}
                               <AnimatePresence>
                                 {balance < betAmount && !isSpinning && (
-                                  <motion.div initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(12px)" }} className="absolute inset-0 z-50 flex items-center justify-center bg-black/80 rounded-3xl border border-red-500/30">
+                                  <motion.div initial={{ opacity: 0, backdropFilter: "blur(0px)" }} animate={{ opacity: 1, backdropFilter: "blur(12px)" }} className="absolute inset-0 z-50 flex items-center justify-center bg-white/80 rounded-3xl border border-red-500/30">
                                     <div className="text-center p-8 max-w-md">
                                       <AlertCircle className="w-20 h-20 text-red-500 mx-auto mb-6" />
-                                      <h2 className="text-3xl md:text-4xl font-black text-white mb-4 uppercase tracking-wider">Low Balance</h2>
+                                      <h2 className="text-3xl md:text-4xl font-black text-slate-900 mb-4 uppercase tracking-wider">Low Balance</h2>
                                       <p className="text-slate-300 mb-8 font-medium text-lg">Your balance (₹{balance.toLocaleString()}) is insufficient for a ₹{betAmount.toLocaleString()} bet.</p>
                                       <button 
                                         onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                        className={`w-full py-5 mb-3 bg-gradient-to-r ${theme.buttonGradient} text-white font-black text-xl uppercase tracking-widest rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95`}
+                                        className={`w-full py-5 mb-3 bg-gradient-to-r ${theme.buttonGradient} text-slate-900 font-black text-xl uppercase tracking-widest rounded-xl shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all transform hover:scale-105 active:scale-95`}
                                       >
                                         Deposit to Continue
                                       </button>
@@ -1770,7 +1770,7 @@ export default function GamePlayerPage() {
                               <div className="relative w-full min-h-full flex flex-col items-center my-auto py-4">
                                 {renderEngine()}
                                 {/* Rental countdown HUD */}
-                                <div className="absolute top-4 right-4 bg-black/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-right z-30 shadow-lg pointer-events-none">
+                                <div className="absolute top-4 right-4 bg-white/60 backdrop-blur-md border border-white/10 px-4 py-2 rounded-xl text-right z-30 shadow-lg pointer-events-none">
                                   <p className="text-[10px] text-slate-400 uppercase tracking-widest font-black">Session Time Left</p>
                                   <p className="text-neon-yellow font-mono font-black text-base flex items-center justify-end gap-1.5 mt-0.5">
                                     <Clock className="w-4 h-4 text-neon-yellow animate-pulse" />
@@ -1785,12 +1785,12 @@ export default function GamePlayerPage() {
                                 className="w-full max-w-md bg-white/10 backdrop-blur-xl border border-white/20 rounded-3xl p-8 text-center shadow-[0_30px_60px_rgba(0,0,0,0.8)]"
                               >
                                 <Gamepad2 className="w-16 h-16 text-cyan-400 mx-auto mb-6 drop-shadow-[0_0_15px_rgba(6,182,212,0.4)]" />
-                                <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-wide">Premium Cloud Streaming</h2>
+                                <h2 className="text-2xl font-black text-slate-900 mb-2 uppercase tracking-wide">Premium Cloud Streaming</h2>
                                 <p className="text-slate-300 text-sm font-medium mb-6">
-                                  Rent <span className="text-white font-bold">{game.title}</span> for cloud-native gaming at 60 FPS, with saves synced instantly to your profile.
+                                  Rent <span className="text-slate-900 font-bold">{game.title}</span> for cloud-native gaming at 60 FPS, with saves synced instantly to your profile.
                                 </p>
 
-                                <div className="bg-black/40 border border-white/10 rounded-2xl p-4 mb-6">
+                                <div className="bg-white/40 border border-white/10 rounded-2xl p-4 mb-6">
                                   <div className="flex justify-between items-center mb-3">
                                     <span className="text-xs text-slate-400 font-bold uppercase tracking-wider">Hourly Rental Rate</span>
                                     <span className="text-base font-black text-neon-green">₹{game.hourlyRate}/hr</span>
@@ -1804,7 +1804,7 @@ export default function GamePlayerPage() {
                                         className={`px-3 py-1.5 rounded-xl font-black text-xs transition-all border
                                           ${selectedHours === hrs && !customHoursVal
                                             ? "bg-white text-black border-white shadow-[0_0_15px_rgba(255,255,255,0.2)]"
-                                            : "bg-black/50 text-slate-300 border-white/20 hover:border-white/50"
+                                            : "bg-white/50 text-slate-300 border-white/20 hover:border-white/50"
                                           }`}
                                       >
                                         {hrs}h
@@ -1824,14 +1824,14 @@ export default function GamePlayerPage() {
                                           setSelectedHours(val);
                                         }
                                       }}
-                                      className="w-24 px-2 py-1.5 rounded-xl bg-black/50 border border-white/20 focus:border-cyan-400 focus:outline-none text-white text-center text-xs font-black placeholder:text-slate-500 font-mono"
+                                      className="w-24 px-2 py-1.5 rounded-xl bg-white/50 border border-white/20 focus:border-cyan-400 focus:outline-none text-slate-900 text-center text-xs font-black placeholder:text-slate-500 font-mono"
                                     />
                                   </div>
                                 </div>
 
                                 <div className="flex items-center justify-between mb-6 px-1">
                                   <span className="text-sm text-slate-400 font-bold">Total Cost ({selectedHours} hrs)</span>
-                                  <span className="text-2xl font-black text-white font-mono">₹{rentCost.toLocaleString()}</span>
+                                  <span className="text-2xl font-black text-slate-900 font-mono">₹{rentCost.toLocaleString()}</span>
                                 </div>
 
                                 {isDemoLimitReached ? (
@@ -1844,14 +1844,14 @@ export default function GamePlayerPage() {
                                 ) : balance < rentCost ? (
                                   <button
                                     onClick={() => window.dispatchEvent(new CustomEvent("open-cashier"))}
-                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-red-700 text-white font-black uppercase text-sm tracking-wider shadow-lg transition-all"
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-red-700 text-slate-900 font-black uppercase text-sm tracking-wider shadow-lg transition-all"
                                   >
                                     Insufficient Funds
                                   </button>
                                 ) : (
                                   <button
                                     onClick={handleRent}
-                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-white font-black uppercase text-sm tracking-widest shadow-lg shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
+                                    className="w-full py-4 rounded-2xl bg-gradient-to-r from-red-500 to-rose-600 text-slate-900 font-black uppercase text-sm tracking-widest shadow-lg shadow-red-500/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
                                   >
                                     Rent & Stream Game
                                   </button>
@@ -1872,7 +1872,7 @@ export default function GamePlayerPage() {
                             className="w-full md:w-[280px] shrink-0 bg-white/10 backdrop-blur-md border border-white/10 rounded-2xl p-4 flex flex-col gap-4 shadow-2xl overflow-y-auto max-h-[500px]"
                           >
                             <div className="flex items-center justify-between border-b border-white/10 pb-2">
-                              <span className="text-white font-black text-xs uppercase tracking-wider flex items-center gap-2">
+                              <span className="text-slate-900 font-black text-xs uppercase tracking-wider flex items-center gap-2">
                                 <span className="w-2.5 h-2.5 bg-neon-green rounded-full animate-pulse" />
                                 Lobby #91A-STAKE
                               </span>
@@ -1881,24 +1881,24 @@ export default function GamePlayerPage() {
                             
                             {/* List of mock players */}
                             <div className="space-y-3 flex-1 overflow-y-auto">
-                              <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                              <div className="flex justify-between items-center bg-white/20 p-2.5 rounded-xl border border-white/5">
                                 <div className="flex items-center gap-2">
                                   <div className="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 flex items-center justify-center text-[10px] font-bold">U1</div>
                                   <span className="text-slate-300 font-bold text-xs">CryptoWhale</span>
                                 </div>
                                 <span className="text-neon-green text-[10px] font-black font-mono">₹1,500</span>
                               </div>
-                              <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                              <div className="flex justify-between items-center bg-white/20 p-2.5 rounded-xl border border-white/5">
                                 <div className="flex items-center gap-2">
                                   <div className="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-[10px] font-bold">U2</div>
                                   <span className="text-slate-300 font-bold text-xs">WagerGod</span>
                                 </div>
                                 <span className="text-neon-green text-[10px] font-black font-mono">₹4,200</span>
                               </div>
-                              <div className="flex justify-between items-center bg-black/20 p-2.5 rounded-xl border border-white/5">
+                              <div className="flex justify-between items-center bg-white/20 p-2.5 rounded-xl border border-white/5">
                                 <div className="flex items-center gap-2">
                                   <div className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-[10px] font-bold">ME</div>
-                                  <span className="text-white font-black text-xs">You</span>
+                                  <span className="text-slate-900 font-black text-xs">You</span>
                                 </div>
                                 <span className="text-neon-yellow text-[10px] font-black font-mono font-bold">₹{balance.toLocaleString()}</span>
                               </div>
@@ -1906,7 +1906,7 @@ export default function GamePlayerPage() {
 
                             <div className="border-t border-white/10 pt-3 flex flex-col gap-2">
                               <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest">Table Chat</span>
-                              <div className="bg-black/30 rounded-xl p-2 h-32 overflow-y-auto text-[10px] space-y-2 font-medium custom-scrollbar">
+                              <div className="bg-white/30 rounded-xl p-2 h-32 overflow-y-auto text-[10px] space-y-2 font-medium custom-scrollbar">
                                 <p className="text-slate-300"><span className="text-cyan-400 font-bold">CryptoWhale</span>: lets win this round guys</p>
                                 <p className="text-slate-300"><span className="text-purple-400 font-bold">WagerGod</span>: going high stake next spin</p>
                                 <p className="text-slate-500 italic">User joined the channel</p>
@@ -1932,13 +1932,13 @@ export default function GamePlayerPage() {
                               value={betAmount}
                               onChange={(e) => setBetAmount(Math.max(1, Number(e.target.value)))}
                               disabled={isSpinning}
-                              className="w-20 sm:w-24 bg-transparent text-white font-black text-lg px-2.5 h-full focus:outline-none disabled:opacity-50 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                              className="w-20 sm:w-24 bg-transparent text-slate-900 font-black text-lg px-2.5 h-full focus:outline-none disabled:opacity-50 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <div className="flex flex-col h-full border-l border-white/10">
                               <button onClick={() => { setBetAmount(prev => Math.max(1, Math.floor(prev / 2))); playGameSound('click'); }} disabled={isSpinning}
-                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-white hover:bg-white/10 border-b border-white/10 transition-colors disabled:opacity-30">½</button>
+                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-slate-900 hover:bg-white/10 border-b border-white/10 transition-colors disabled:opacity-30">½</button>
                               <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} disabled={isSpinning}
-                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-white hover:bg-white/10 transition-colors disabled:opacity-30">2×</button>
+                                className="flex-1 px-2.5 text-[11px] font-black text-slate-500 hover:text-slate-900 hover:bg-white/10 transition-colors disabled:opacity-30">2×</button>
                             </div>
                           </div>
 
@@ -1952,7 +1952,7 @@ export default function GamePlayerPage() {
                               <input type="number" step="0.01" min="1.01" placeholder="2.00" value={autoCashoutVal}
                                 onChange={(e) => setAutoCashoutVal(e.target.value === "" ? "" : parseFloat(e.target.value))}
                                 disabled={isSpinning}
-                                className="w-14 bg-transparent text-white font-black text-sm px-2 h-full focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                                className="w-14 bg-transparent text-slate-900 font-black text-sm px-2 h-full focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
                               <span className="pr-2 text-slate-600 font-black">×</span>
                             </div>
                           )}
@@ -1973,7 +1973,7 @@ export default function GamePlayerPage() {
                               <div className="hidden sm:flex items-center gap-1 shrink-0">
                                 {opts.map(o => (
                                   <button key={o.id} type="button" onClick={() => { setSelectedTarget(o.id); playGameSound('click'); }} disabled={isSpinning}
-                                    className={`h-12 px-3 rounded-xl font-black text-xs uppercase tracking-wider border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent shadow-lg` : 'bg-[#0f1520] text-slate-300 border-white/10 hover:border-white/25'}`}>
+                                    className={`h-12 px-3 rounded-xl font-black text-xs uppercase tracking-wider border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-slate-900 border-transparent shadow-lg` : 'bg-[#0f1520] text-slate-300 border-white/10 hover:border-white/25'}`}>
                                     {o.name}
                                   </button>
                                 ))}
@@ -1992,7 +1992,7 @@ export default function GamePlayerPage() {
                                 ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse cursor-pointer'
                                 : isSpinning
                                   ? 'bg-white/5 text-slate-600 cursor-not-allowed border border-white/10'
-                                  : `bg-gradient-to-br ${theme.buttonGradient} text-white shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/10`
+                                  : `bg-gradient-to-br ${theme.buttonGradient} text-slate-900 shadow-[0_4px_20px_rgba(0,0,0,0.4)] hover:scale-[1.02] active:scale-[0.97] cursor-pointer border border-white/10`
                             }`}>
                             {isSpinning && isCashoutActive
                               ? `💰 ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
@@ -2012,7 +2012,7 @@ export default function GamePlayerPage() {
                             {amount:50000, label:"50k", color:"from-violet-700 to-violet-900"},
                           ].map(chip => (
                             <button key={chip.amount} type="button" onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }} disabled={isSpinning}
-                              className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 font-black text-white text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${
+                              className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 font-black text-slate-900 text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${
                                 betAmount === chip.amount ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-[#080c14] scale-105 opacity-100 border-white/30' : 'opacity-55 hover:opacity-85 border-white/15'
                               } disabled:opacity-20`}>
                               {chip.label}
@@ -2035,7 +2035,7 @@ export default function GamePlayerPage() {
                               <div className="flex sm:hidden items-center gap-1 ml-1 shrink-0">
                                 {opts.map(o => (
                                   <button key={o.id} type="button" onClick={() => { setSelectedTarget(o.id); playGameSound('click'); }} disabled={isSpinning}
-                                    className={`h-8 px-2.5 rounded-lg font-black text-[9px] uppercase border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-white border-transparent` : 'bg-white/5 text-slate-400 border-white/10'}`}>
+                                    className={`h-8 px-2.5 rounded-lg font-black text-[9px] uppercase border transition-all disabled:opacity-40 ${selectedTarget===o.id ? `bg-gradient-to-br ${theme.buttonGradient} text-slate-900 border-transparent` : 'bg-white/5 text-slate-400 border-white/10'}`}>
                                     {o.name}
                                   </button>
                                 ))}
@@ -2050,7 +2050,7 @@ export default function GamePlayerPage() {
                               <input type="number" step="0.01" min="1.01" placeholder="2.0" value={autoCashoutVal}
                                 onChange={(e) => setAutoCashoutVal(e.target.value === "" ? "" : parseFloat(e.target.value))}
                                 disabled={isSpinning}
-                                className="w-12 bg-transparent text-white font-black text-[10px] px-1.5 focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
+                                className="w-12 bg-transparent text-slate-900 font-black text-[10px] px-1.5 focus:outline-none text-center disabled:opacity-50 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"/>
                             </div>
                           )}
 
@@ -2083,7 +2083,7 @@ export default function GamePlayerPage() {
                 <button
                   type="button"
                   onClick={() => setIsLeaderboardExpanded(!isLeaderboardExpanded)}
-                  className="flex sm:hidden items-center justify-between w-full bg-[#060a14] border border-slate-800/60 rounded-2xl p-4 text-white font-black text-xs uppercase tracking-widest shadow-lg cursor-pointer"
+                  className="flex sm:hidden items-center justify-between w-full bg-[#060a14] border border-slate-800/60 rounded-2xl p-4 text-slate-900 font-black text-xs uppercase tracking-widest shadow-lg cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
                     <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
@@ -2208,7 +2208,7 @@ export default function GamePlayerPage() {
                       </div>
                     )}
                     <div className="min-w-0">
-                      <h2 className="text-sm sm:text-base font-black text-white truncate flex items-center gap-2">
+                      <h2 className="text-sm sm:text-base font-black text-slate-900 truncate flex items-center gap-2">
                         {isCrash ? (scoreboardTab === "top-one-percent" ? "Crash High Reaches" : "Live Crash Activities") : "Game Leaderboard & Session Log"}
                         {scoreboardTab === "recent-runs" && (
                           <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-wider text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-full">
@@ -2230,8 +2230,8 @@ export default function GamePlayerPage() {
                       className={cn(
                         "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
                         scoreboardTab === "top-one-percent" 
-                          ? "text-white" 
-                          : "text-slate-400 hover:text-slate-200 active:text-white"
+                          ? "text-slate-900" 
+                          : "text-slate-400 hover:text-slate-200 active:text-slate-900"
                       )}
                     >
                       {scoreboardTab === "top-one-percent" && (
@@ -2249,8 +2249,8 @@ export default function GamePlayerPage() {
                       className={cn(
                         "flex-1 sm:flex-none px-3 sm:px-4 py-2.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black transition-all cursor-pointer relative min-h-[40px] sm:min-h-0",
                         scoreboardTab === "recent-runs" 
-                          ? "text-white" 
-                          : "text-slate-400 hover:text-slate-200 active:text-white"
+                          ? "text-slate-900" 
+                          : "text-slate-400 hover:text-slate-200 active:text-slate-900"
                       )}
                     >
                       {scoreboardTab === "recent-runs" && (
@@ -2453,7 +2453,7 @@ export default function GamePlayerPage() {
                               <tr>
                                 <td colSpan={6} className="py-12 text-center">
                                   <div className="flex flex-col items-center gap-3">
-                                    <div className="w-12 h-12 rounded-2xl bg-slate-800/50 flex items-center justify-center">
+                                    <div className="w-12 h-12 rounded-2xl bg-slate-50/50 flex items-center justify-center">
                                       <Activity className="w-5 h-5 text-slate-600" />
                                     </div>
                                     <span className="text-slate-500 text-xs font-bold">No session wagers yet. Place a bet to begin!</span>
@@ -2519,7 +2519,7 @@ export default function GamePlayerPage() {
                       <div className="sm:hidden space-y-2">
                         {recentActivities.length === 0 ? (
                           <div className="flex flex-col items-center justify-center py-10 gap-3">
-                            <div className="w-12 h-12 rounded-2xl bg-slate-800/50 flex items-center justify-center">
+                            <div className="w-12 h-12 rounded-2xl bg-slate-50/50 flex items-center justify-center">
                               <Activity className="w-5 h-5 text-slate-600" />
                             </div>
                             <span className="text-slate-500 text-xs font-bold text-center">No session wagers yet.<br />Place a bet to begin!</span>
@@ -2568,7 +2568,7 @@ export default function GamePlayerPage() {
                                     <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Wager</span>
                                     <span className="text-[11px] font-bold font-mono text-slate-300">₹{act.bet.toLocaleString()}</span>
                                   </div>
-                                  <div className="w-px h-6 bg-slate-800/50" />
+                                  <div className="w-px h-6 bg-slate-50/50" />
                                   <div>
                                     <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Cashout</span>
                                     <span className={cn("text-[11px] font-black font-mono", act.multiplier ? "text-emerald-400" : "text-rose-400")}>
@@ -2577,7 +2577,7 @@ export default function GamePlayerPage() {
                                   </div>
                                   {act.crashPoint > 0 && (
                                     <>
-                                      <div className="w-px h-6 bg-slate-800/50" />
+                                      <div className="w-px h-6 bg-slate-50/50" />
                                       <div>
                                         <span className="text-[8px] text-slate-500 font-black uppercase tracking-widest block">Crash</span>
                                         <span className="text-[11px] font-bold font-mono text-slate-400">{act.crashPoint.toFixed(2)}×</span>
@@ -2610,7 +2610,7 @@ export default function GamePlayerPage() {
                     <span className="text-[9px] text-slate-500 font-mono font-bold">
                       {scoreboardTab === "top-one-percent" ? `${highReaches.length} Records` : `${recentActivities.length} Wagers`}
                     </span>
-                    <div className="w-1 h-1 bg-slate-700 rounded-full" />
+                    <div className="w-1 h-1 bg-slate-100 rounded-full" />
                     <span className="text-[9px] text-slate-500 font-mono font-bold">24h Window</span>
                   </div>
                 </div>

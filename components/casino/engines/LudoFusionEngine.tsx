@@ -768,7 +768,7 @@ export function LudoFusionEngine({
   if (showSetup) {
     return (
       <div className="w-full max-w-4xl mx-auto px-3 sm:px-4 py-4 sm:py-8">
-        <div className="bg-slate-950/70 border border-purple-500/20 backdrop-blur-2xl p-6 sm:p-10 rounded-[3rem] shadow-[0_30px_80px_rgba(168,85,247,0.15),inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden">
+        <div className="bg-white/70 border border-purple-500/20 backdrop-blur-2xl p-6 sm:p-10 rounded-[3rem] shadow-[0_30px_80px_rgba(168,85,247,0.15),inset_0_1px_1px_rgba(255,255,255,0.05)] relative overflow-hidden">
           
           {/* Animated Background neon glows */}
           <div className="absolute -top-24 -left-24 w-80 h-80 bg-purple-600/10 rounded-full blur-[80px] pointer-events-none" />
@@ -804,7 +804,7 @@ export function LudoFusionEngine({
                 
                 <div className="flex flex-col items-center justify-center text-center z-10">
                   <span className="text-[10px] font-black text-purple-400 uppercase tracking-widest mb-0.5">EST. RETURN</span>
-                  <span className="text-xl font-black font-mono text-white drop-shadow-[0_0_8px_#d8b4fe]">3.80x POT</span>
+                  <span className="text-xl font-black font-mono text-slate-900 drop-shadow-[0_0_8px_#d8b4fe]">3.80x POT</span>
                 </div>
               </div>
             </div>
@@ -824,10 +824,10 @@ export function LudoFusionEngine({
                       className={`flex flex-col items-center gap-2 p-4 rounded-2xl border transition-all duration-300 relative overflow-hidden ${
                         gameMode === mode.id
                           ? "border-purple-500 bg-purple-500/10 shadow-[0_0_20px_rgba(168,85,247,0.2)] scale-[1.03]"
-                          : "border-purple-950/50 bg-[#090514]/40 hover:border-purple-500/40 text-purple-300/60 hover:text-white"
+                          : "border-purple-950/50 bg-[#090514]/40 hover:border-purple-500/40 text-purple-300/60 hover:text-slate-900"
                       }`}
                     >
-                      <div className={`p-2 rounded-xl transition-colors ${gameMode === mode.id ? "bg-purple-500 text-white" : "bg-purple-950 text-purple-400"}`}>
+                      <div className={`p-2 rounded-xl transition-colors ${gameMode === mode.id ? "bg-purple-500 text-slate-900" : "bg-purple-950 text-purple-400"}`}>
                         {mode.icon}
                       </div>
                       <span className="font-black text-[9px] uppercase tracking-wider">{mode.title}</span>
@@ -841,7 +841,7 @@ export function LudoFusionEngine({
               <div className="bg-[#090514]/60 border border-purple-950 rounded-2xl p-4">
                 <div className="flex justify-between items-center mb-2.5">
                   <span className="text-[9px] text-purple-400 font-black uppercase tracking-widest">Entry stake amount</span>
-                  <span className="text-xs font-black font-mono text-white">₹{betAmount.toLocaleString()}</span>
+                  <span className="text-xs font-black font-mono text-slate-900">₹{betAmount.toLocaleString()}</span>
                 </div>
 
                 <div className="flex items-center bg-[#0d091a] border border-purple-950 rounded-xl overflow-hidden shadow-sm transition-all focus-within:border-purple-500/50">
@@ -852,11 +852,11 @@ export function LudoFusionEngine({
                     type="number"
                     value={betAmount}
                     onChange={(e) => onBetAmountChange(Math.max(10, Number(e.target.value)))}
-                    className="flex-1 bg-transparent border-none text-white font-black text-xs px-3 py-2 focus:outline-none focus:ring-0 font-mono"
+                    className="flex-1 bg-transparent border-none text-slate-900 font-black text-xs px-3 py-2 focus:outline-none focus:ring-0 font-mono"
                   />
                   <div className="flex items-center bg-[#090514]/45 border-l border-purple-950 h-10">
-                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2.5 h-full text-[9px] font-black text-purple-300 hover:bg-purple-500 hover:text-white border-r border-purple-950 transition-colors">1/2</button>
-                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2.5 h-full text-[9px] font-black text-purple-300 hover:bg-purple-500 hover:text-white transition-colors">2X</button>
+                    <button onClick={() => onBetAmountChange(Math.max(100, Math.floor(betAmount / 2)))} className="px-2.5 h-full text-[9px] font-black text-purple-300 hover:bg-purple-500 hover:text-slate-900 border-r border-purple-950 transition-colors">1/2</button>
+                    <button onClick={() => onBetAmountChange(Math.min(1000000, betAmount * 2))} className="px-2.5 h-full text-[9px] font-black text-purple-300 hover:bg-purple-500 hover:text-slate-900 transition-colors">2X</button>
                   </div>
                 </div>
 
@@ -876,7 +876,7 @@ export function LudoFusionEngine({
                         key={chip.amount}
                         type="button"
                         onClick={() => onBetAmountChange(chip.amount)}
-                        className={`relative w-8.5 h-8.5 rounded-full shrink-0 flex items-center justify-center font-black text-white shadow-lg transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/60 select-none ${
+                        className={`relative w-8.5 h-8.5 rounded-full shrink-0 flex items-center justify-center font-black text-slate-900 shadow-lg transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/60 select-none ${
                           isSelected ? "scale-110 ring-2 ring-purple-500 ring-offset-2 ring-offset-slate-950 opacity-100 z-10" : "hover:scale-105 opacity-60 hover:opacity-100"
                         } bg-gradient-to-br ${chip.color}`}
                       >
@@ -937,10 +937,10 @@ export function LudoFusionEngine({
   const currentPlayer = players[currentIdx];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-white overflow-visible select-none font-sans">
+    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible select-none font-sans">
       
       {/* 1. Header HUD Area */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-slate-950/60 border border-purple-500/15 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl">
+      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 mb-6 bg-white/60 border border-purple-500/15 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl">
         
         {/* Match Details */}
         <div className="flex items-center gap-3">
@@ -1106,8 +1106,8 @@ export function LudoFusionEngine({
                     }}
                   >
                     {/* Faction Header HUD */}
-                    <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-slate-950/80 backdrop-blur-md px-2 py-0.5 rounded-full border border-purple-500/20 flex items-center gap-1.5 max-w-[90%] truncate z-10">
-                      <span className="text-[7.5px] sm:text-[8px] font-black text-white uppercase tracking-wider truncate">
+                    <div className="absolute top-2 left-1/2 -translate-x-1/2 bg-white/80 backdrop-blur-md px-2 py-0.5 rounded-full border border-purple-500/20 flex items-center gap-1.5 max-w-[90%] truncate z-10">
+                      <span className="text-[7.5px] sm:text-[8px] font-black text-slate-900 uppercase tracking-wider truncate">
                         {p ? `${p.name} (${p.tokensHome}/4)` : ""}
                       </span>
                     </div>
@@ -1306,7 +1306,7 @@ export function LudoFusionEngine({
           </div>
 
           {/* Mobile Dice Action Bar (Visible only on mobile devices) */}
-          <div className="w-full md:hidden mt-4 bg-slate-950/80 border border-purple-500/15 backdrop-blur-md rounded-2xl p-3 flex items-center justify-between gap-4 shadow-xl">
+          <div className="w-full md:hidden mt-4 bg-white/80 border border-purple-500/15 backdrop-blur-md rounded-2xl p-3 flex items-center justify-between gap-4 shadow-xl">
             <div className="flex items-center gap-3">
               <ThreeDDice 
                 value={displayDice} 
@@ -1317,7 +1317,7 @@ export function LudoFusionEngine({
               {dice > 0 && !isRolling && (
                 <div className="text-left leading-none">
                   <span className="text-[7px] text-purple-400 uppercase tracking-widest font-black block">Outcome</span>
-                  <span className="text-sm font-black text-white font-mono">{dice}</span>
+                  <span className="text-sm font-black text-slate-900 font-mono">{dice}</span>
                 </div>
               )}
             </div>
@@ -1349,7 +1349,7 @@ export function LudoFusionEngine({
                   setShowSetup(true);
                   startedRef.current = false;
                 }}
-                className="py-3 px-4 rounded-xl border border-purple-500/20 bg-purple-950/20 text-white font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
+                className="py-3 px-4 rounded-xl border border-purple-500/20 bg-purple-950/20 text-slate-900 font-black text-xs uppercase tracking-widest transition-all cursor-pointer"
               >
                 Reset
               </button>
@@ -1359,7 +1359,7 @@ export function LudoFusionEngine({
 
         {/* Right Column: Desktop Esports Command Dashboard */}
         <div className="hidden md:flex flex-col flex-1 w-full gap-4">
-          <div className="bg-slate-950/70 border border-purple-500/15 backdrop-blur-md rounded-3xl p-5 flex flex-col gap-4 shadow-xl">
+          <div className="bg-white/70 border border-purple-500/15 backdrop-blur-md rounded-3xl p-5 flex flex-col gap-4 shadow-xl">
             
             <div className="flex items-center justify-between border-b border-purple-950 pb-3 font-sans">
               <div className="flex items-center gap-2">
@@ -1390,7 +1390,7 @@ export function LudoFusionEngine({
                 {dice > 0 && !isRolling && (
                   <div className="text-left">
                     <span className="text-[8px] text-purple-450 uppercase tracking-widest font-black block">Outcome</span>
-                    <span className="text-2xl font-black text-white font-mono">{dice}</span>
+                    <span className="text-2xl font-black text-slate-900 font-mono">{dice}</span>
                   </div>
                 )}
               </div>
@@ -1417,7 +1417,7 @@ export function LudoFusionEngine({
             {/* Spectator Feed ticker */}
             <div className="flex justify-between items-center bg-[#090514]/20 px-3 py-1.5 rounded-lg border border-purple-950/40">
               <span className="text-[8px] font-black text-purple-400 uppercase tracking-widest">Spectators</span>
-              <span className="text-[9px] font-black text-white flex items-center gap-1.5">
+              <span className="text-[9px] font-black text-slate-900 flex items-center gap-1.5">
                 <span className="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-ping" />
                 👁️ {spectators.toLocaleString()} watching
               </span>
@@ -1496,7 +1496,7 @@ export function LudoFusionEngine({
                   setShowSetup(true);
                   startedRef.current = false;
                 }}
-                className="w-full py-3.5 rounded-xl border border-purple-500/20 bg-purple-950/40 hover:bg-purple-900/60 text-white font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-97"
+                className="w-full py-3.5 rounded-xl border border-purple-500/20 bg-purple-950/40 hover:bg-purple-900/60 text-slate-900 font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 cursor-pointer active:scale-97"
               >
                 <RotateCcw className="w-3.5 h-3.5" /> Re-enter Match
               </button>
@@ -1513,7 +1513,7 @@ export function LudoFusionEngine({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-md px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-white/75 backdrop-blur-md px-4"
             onClick={() => setShowLevelUp(false)}
           >
             <motion.div
@@ -1523,7 +1523,7 @@ export function LudoFusionEngine({
               className="bg-[#090514] border-2 border-amber-400 p-8 rounded-[2.5rem] text-center shadow-[0_30px_90px_rgba(168,85,247,0.3)] max-w-sm w-full"
             >
               <Award className="w-16 h-16 text-amber-400 mx-auto mb-3 drop-shadow-[0_0_15px_#fbbf24]" />
-              <h2 className="text-3xl font-black text-white uppercase tracking-widest mb-1.5">Level Promoted</h2>
+              <h2 className="text-3xl font-black text-slate-900 uppercase tracking-widest mb-1.5">Level Promoted</h2>
               <p className="text-xs text-purple-300 font-bold uppercase tracking-wider mb-4">REACHED LEVEL {level} CHAMPION</p>
               <div className="bg-purple-950 p-3.5 rounded-xl border border-purple-500/10 mb-6">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest block mb-1">UNLOCKED COSMETIC SKIN</span>
@@ -1547,7 +1547,7 @@ export function LudoFusionEngine({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-md px-4 font-sans"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-md px-4 font-sans"
             onClick={() => {
               setWinner(null);
               setGamePhase("idle");
@@ -1561,7 +1561,7 @@ export function LudoFusionEngine({
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.7, opacity: 0 }}
               transition={{ type: "spring", stiffness: 250, damping: 18 }}
-              className="bg-slate-950 border-2 border-purple-500/40 p-8 rounded-[3rem] text-center shadow-[0_30px_100px_rgba(168,85,247,0.45)] max-w-md w-full relative overflow-hidden"
+              className="bg-white border-2 border-purple-500/40 p-8 rounded-[3rem] text-center shadow-[0_30px_100px_rgba(168,85,247,0.45)] max-w-md w-full relative overflow-hidden"
               onClick={e => e.stopPropagation()}
             >
               {/* Confetti system simulated by absolute elements */}
@@ -1598,7 +1598,7 @@ export function LudoFusionEngine({
                 🏆
               </motion.div>
 
-              <h2 className="text-3xl font-black text-white mb-1 uppercase tracking-widest">
+              <h2 className="text-3xl font-black text-slate-900 mb-1 uppercase tracking-widest">
                 {players[0]?.tokensHome >= 4 ? "Victory Royale!" : "Battle Terminated"}
               </h2>
               <p className="text-[10px] text-purple-400 font-bold uppercase tracking-wider mb-4">
@@ -1624,7 +1624,7 @@ export function LudoFusionEngine({
                 <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">SESSION STAKING SUMMARY</span>
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-[10px] text-slate-350">Wager Stake:</span>
-                  <span className="text-[10px] font-mono text-white font-bold">₹{betAmount.toLocaleString()}</span>
+                  <span className="text-[10px] font-mono text-slate-900 font-bold">₹{betAmount.toLocaleString()}</span>
                 </div>
                 <div className="flex justify-between items-center mt-1">
                   <span className="text-[10px] text-slate-350">Win Multiplier:</span>
@@ -1645,7 +1645,7 @@ export function LudoFusionEngine({
                     setShowSetup(true);
                     startedRef.current = false;
                   }}
-                  className="flex-1 py-3 rounded-xl bg-slate-900 text-slate-300 border border-slate-800 font-bold text-xs uppercase tracking-wider hover:bg-slate-800 transition-colors cursor-pointer"
+                  className="flex-1 py-3 rounded-xl bg-white text-slate-300 border border-slate-800 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Close Lobby
                 </button>
