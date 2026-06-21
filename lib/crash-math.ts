@@ -20,8 +20,8 @@ function stringToArrayBuffer(str: string): Uint8Array {
 
 // Compute HMAC-SHA256 (Web Crypto API)
 async function computeHMAC(keyStr: string, messageStr: string): Promise<string> {
-  const keyData = stringToArrayBuffer(keyStr);
-  const messageData = stringToArrayBuffer(messageStr);
+  const keyData = stringToArrayBuffer(keyStr) as unknown as BufferSource;
+  const messageData = stringToArrayBuffer(messageStr) as unknown as BufferSource;
 
   const cryptoKey = await crypto.subtle.importKey(
     'raw',
