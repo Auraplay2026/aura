@@ -15,7 +15,7 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/?error=admin-auth-required");
+    redirect("/admin/login");
   }
 
   const resolvedSearchParams = await searchParams;

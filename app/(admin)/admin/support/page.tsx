@@ -9,7 +9,7 @@ export default async function SupportDashboardPage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/?error=admin-auth-required");
+    redirect("/admin/login");
   }
 
   const sessions = await getChatSessions();

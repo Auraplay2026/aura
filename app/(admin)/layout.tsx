@@ -405,7 +405,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     return (
       <AdminSecurityGate 
         email={currentUser.email} 
-        onVerified={(token, signature) => setAdminSession(currentUser.email, token, signature)} 
+        onVerified={(token, signature) => {
+          setAdminSession(currentUser.email, token, signature);
+          router.refresh();
+        }} 
       />
     );
   }

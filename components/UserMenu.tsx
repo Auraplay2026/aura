@@ -82,6 +82,10 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
     { label: "Safe Play", icon: Shield, href: "/rg" },
   ];
 
+  if (currentUser?.role === 'admin') {
+    MENU_ITEMS.unshift({ label: "Admin Operations Core", icon: Shield, href: "/admin/login" });
+  }
+
   return (
     <div className="relative">
       <button 

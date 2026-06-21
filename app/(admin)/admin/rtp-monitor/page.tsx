@@ -9,7 +9,7 @@ export default async function RtpMonitorPage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/?error=admin-auth-required");
+    redirect("/admin/login");
   }
 
   const config = getSystemConfig();
