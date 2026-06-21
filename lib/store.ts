@@ -421,13 +421,18 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      logout: () => set({
-        isLoggedIn: false,
-        currentUser: null,
-        balance: 100000,
-        positions: [],
-        transactions: []
-      }),
+      logout: () => {
+        set({
+          isLoggedIn: false,
+          currentUser: null,
+          balance: 100000,
+          positions: [],
+          transactions: []
+        });
+        if (typeof window !== 'undefined') {
+          (window as any).__AURA_AUTH_DEBUG__ = { event: 'logout', ts: Date.now() };
+        }
+      },
 
       signUp: async (username, email, password, accountType = 'demo', referralCode = '') => {
         try {
@@ -460,12 +465,17 @@ export const useTradingStore = create<TradingState>()(
 
       loginWithCredentials: async (emailOrUsername, password, otp) => {
         try {
+          console.log('[store] loginWithCredentials request', { emailOrUsername, passwordLength: password.length, otp });
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ emailOrUsername, password, otp })
           });
           const data = await res.json();
+          console.log('[store] loginWithCredentials response', { ok: res.ok, status: res.status, data });
+          if (typeof window !== 'undefined') {
+            (window as any).__AURA_AUTH_DEBUG__ = { event: 'store-login-response', payload: { ok: res.ok, status: res.status, data }, ts: Date.now() };
+          }
           if (data && data.twoFactorRequired) {
             return { success: false, twoFactorRequired: true };
           }
@@ -474,7 +484,7 @@ export const useTradingStore = create<TradingState>()(
           }
           
           const sanitizedUser = sanitizeClientUserProfile(data.user);
-          set({
+          const nextState = {
             currentUser: sanitizedUser,
             isLoggedIn: true,
             balance: sanitizedUser ? sanitizedUser.balance : 0,
@@ -483,9 +493,16 @@ export const useTradingStore = create<TradingState>()(
             kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
             geoRestricted: sanitizedUser?.geoRestricted || false,
             verifiedAge: sanitizedUser?.verifiedAge || 0,
-          });
+          };
+          set(nextState);
+          if (typeof window !== 'undefined') {
+            (window as any).__AURA_AUTH_DEBUG__ = { event: 'store-login-success', payload: nextState, ts: Date.now() };
+          }
           return { success: true };
         } catch (err) {
+          if (typeof window !== 'undefined') {
+            (window as any).__AURA_AUTH_DEBUG__ = { event: 'store-login-error', payload: err, ts: Date.now() };
+          }
           return { success: false, error: "Network error. Please try again." };
         }
       },

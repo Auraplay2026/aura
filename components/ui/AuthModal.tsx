@@ -104,7 +104,12 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
     
     try {
       if (view === 'login') {
+        console.log('[AuthModal] submitting login', { email, passwordLength: password.length, twoFactorRequired, otpCode });
         const res = await loginWithCredentials(email, password, twoFactorRequired ? otpCode : undefined);
+        console.log('[AuthModal] login result', res);
+        if (typeof window !== 'undefined') {
+          (window as any).__AURA_AUTH_DEBUG__ = { event: 'auth-modal-login-result', payload: res, ts: Date.now() };
+        }
         setIsLoading(false);
         if (res.success) {
           setTwoFactorRequired(false);
