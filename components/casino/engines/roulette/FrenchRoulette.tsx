@@ -28,45 +28,7 @@ interface NumberConfig {
   label?: string;
 }
 
-const NUMBERS: NumberConfig[] = [
-  { n: 0, color: "green", label: "Green" },
-  { n: 32, color: "red", label: "Red" },
-  { n: 15, color: "black", label: "Black" },
-  { n: 19, color: "red", label: "Red" },
-  { n: 4, color: "black", label: "Black" },
-  { n: 21, color: "red", label: "Red" },
-  { n: 2, color: "black", label: "Black" },
-  { n: 25, color: "red", label: "Red" },
-  { n: 17, color: "black", label: "Black" },
-  { n: 34, color: "red", label: "Red" },
-  { n: 6, color: "black", label: "Black" },
-  { n: 27, color: "red", label: "Red" },
-  { n: 13, color: "black", label: "Black" },
-  { n: 36, color: "red", label: "Red" },
-  { n: 11, color: "black", label: "Black" },
-  { n: 30, color: "red", label: "Red" },
-  { n: 8, color: "black", label: "Black" },
-  { n: 23, color: "red", label: "Red" },
-  { n: 10, color: "black", label: "Black" },
-  { n: 5, color: "red", label: "Red" },
-  { n: 24, color: "black", label: "Black" },
-  { n: 16, color: "red", label: "Red" },
-  { n: 33, color: "black", label: "Black" },
-  { n: 1, color: "red", label: "Red" },
-  { n: 20, color: "black", label: "Black" },
-  { n: 14, color: "red", label: "Red" },
-  { n: 31, color: "black", label: "Black" },
-  { n: 9, color: "red", label: "Red" },
-  { n: 22, color: "black", label: "Black" },
-  { n: 18, color: "red", label: "Red" },
-  { n: 29, color: "black", label: "Black" },
-  { n: 7, color: "red", label: "Red" },
-  { n: 28, color: "black", label: "Black" },
-  { n: 12, color: "red", label: "Red" },
-  { n: 35, color: "black", label: "Black" },
-  { n: 3, color: "red", label: "Red" },
-  { n: 26, color: "black", label: "Black" }
-];
+const NUMBERS = EUROPEAN_NUMBERS;
 
 interface VIPPlayer {
   id: string;
@@ -85,7 +47,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function FrenchRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -301,7 +263,7 @@ export function LiveRouletteEngine({
       setPrevBets(bets);
 
       // Evaluate true payout using our math engine
-      const { totalWon } = evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG);
+      const { totalWon } = evaluateRoulettePayouts(bets, result, { ...EUROPEAN_CONFIG, laPartage: true });
 
       // Simulate VIP winnings correctly based on true RNG outcome
       processVIPWinnings(result);
@@ -550,8 +512,8 @@ export function LiveRouletteEngine({
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+          <span className="text-xs font-black tracking-wider uppercase text-amber-500 truncate max-w-[120px] sm:max-w-none" style={{ fontFamily: "serif" }}>
+            French Roulette
           </span>
         </div>
 
@@ -592,7 +554,7 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-red-900 rounded-b-2xl border-x border-b border-amber-500/40 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -636,7 +598,7 @@ export function LiveRouletteEngine({
                         <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
                           {winningNumber.n}
                         </span>
-                        <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
+                        <span className="text-[10px] font-bold uppercase text-amber-400">{winningNumber.label || winningNumber.color}</span>
                       </motion.div>
                     )}
                   </AnimatePresence>

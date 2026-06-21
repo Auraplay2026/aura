@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/casino-math";
-import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
+import { evaluateRoulettePayouts, AMERICAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -28,45 +28,7 @@ interface NumberConfig {
   label?: string;
 }
 
-const NUMBERS: NumberConfig[] = [
-  { n: 0, color: "green", label: "Green" },
-  { n: 32, color: "red", label: "Red" },
-  { n: 15, color: "black", label: "Black" },
-  { n: 19, color: "red", label: "Red" },
-  { n: 4, color: "black", label: "Black" },
-  { n: 21, color: "red", label: "Red" },
-  { n: 2, color: "black", label: "Black" },
-  { n: 25, color: "red", label: "Red" },
-  { n: 17, color: "black", label: "Black" },
-  { n: 34, color: "red", label: "Red" },
-  { n: 6, color: "black", label: "Black" },
-  { n: 27, color: "red", label: "Red" },
-  { n: 13, color: "black", label: "Black" },
-  { n: 36, color: "red", label: "Red" },
-  { n: 11, color: "black", label: "Black" },
-  { n: 30, color: "red", label: "Red" },
-  { n: 8, color: "black", label: "Black" },
-  { n: 23, color: "red", label: "Red" },
-  { n: 10, color: "black", label: "Black" },
-  { n: 5, color: "red", label: "Red" },
-  { n: 24, color: "black", label: "Black" },
-  { n: 16, color: "red", label: "Red" },
-  { n: 33, color: "black", label: "Black" },
-  { n: 1, color: "red", label: "Red" },
-  { n: 20, color: "black", label: "Black" },
-  { n: 14, color: "red", label: "Red" },
-  { n: 31, color: "black", label: "Black" },
-  { n: 9, color: "red", label: "Red" },
-  { n: 22, color: "black", label: "Black" },
-  { n: 18, color: "red", label: "Red" },
-  { n: 29, color: "black", label: "Black" },
-  { n: 7, color: "red", label: "Red" },
-  { n: 28, color: "black", label: "Black" },
-  { n: 12, color: "red", label: "Red" },
-  { n: 35, color: "black", label: "Black" },
-  { n: 3, color: "red", label: "Red" },
-  { n: 26, color: "black", label: "Black" }
-];
+const NUMBERS = AMERICAN_NUMBERS;
 
 interface VIPPlayer {
   id: string;
@@ -85,7 +47,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function AmericanRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -280,11 +242,11 @@ export function LiveRouletteEngine({
     const offsetVal = width >= 1024 ? 50 : width >= 768 ? 42 : width >= 640 ? 36 : 28;
     setBallRadiusOffset(offsetVal);
 
-    // Pick target wheel index truly randomly from the 37 pockets
-    const targetIdx = Math.floor(Math.random() * EUROPEAN_NUMBERS.length);
+    // Pick target wheel index truly randomly from the 38 pockets
+    const targetIdx = Math.floor(Math.random() * AMERICAN_NUMBERS.length);
 
-    const result = EUROPEAN_NUMBERS[targetIdx];
-    const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
+    const result = AMERICAN_NUMBERS[targetIdx];
+    const segmentAngle = 360 / AMERICAN_NUMBERS.length;
     const finalWheelRotation = 1800 + (360 - (targetIdx * segmentAngle));
     
     setRotation(finalWheelRotation);
@@ -400,15 +362,25 @@ export function LiveRouletteEngine({
     return (
       <div className="grid grid-cols-5 border-2 border-yellow-500/30 rounded-2xl overflow-hidden bg-[#020e08]/90 text-xs w-full max-w-[340px] xs:max-w-[360px] sm:max-w-xs mx-auto shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
         
-        {/* Row 1: Zero Cell (Spans Columns 3, 4, 5) */}
-        <button
-          disabled={isSpinning}
-          onClick={() => placeBet("num-0")}
-          className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
-        >
-          <span>0</span>
-          {renderCellChip("num-0")}
-        </button>
+        {/* Row 1: Zero Cells (Spans Columns 3, 4, 5) */}
+        <div className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 flex border-b border-yellow-500/20">
+          <button
+            disabled={isSpinning}
+            onClick={() => placeBet("num-0")}
+            className="flex-1 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative transition-colors border-r border-yellow-500/20"
+          >
+            <span>0</span>
+            {renderCellChip("num-0")}
+          </button>
+          <button
+            disabled={isSpinning}
+            onClick={() => placeBet("num--1")}
+            className="flex-1 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative transition-colors"
+          >
+            <span>00</span>
+            {renderCellChip("num--1")}
+          </button>
+        </div>
 
         {/* Column 1: Outside Bets (Each spans 2 rows) */}
         {[
@@ -551,7 +523,7 @@ export function LiveRouletteEngine({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+            Vegas Roulette
           </span>
         </div>
 
@@ -584,7 +556,7 @@ export function LiveRouletteEngine({
                       : "bg-slate-900 border-slate-700 text-slate-200"
                 }`}
               >
-                {h.n}
+                {h.n === -1 ? '00' : h.n}
               </div>
             ))}
           </div>
@@ -592,7 +564,7 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-blue-900 rounded-b-2xl border-x border-b border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.3)] p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -634,9 +606,9 @@ export function LiveRouletteEngine({
                       >
                         <span className="text-[10px] font-black tracking-widest uppercase">RESULT</span>
                         <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
-                          {winningNumber.n}
+                          {winningNumber.n === -1 ? '00' : winningNumber.n}
                         </span>
-                        <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
+                        <span className="text-[10px] font-bold uppercase">{winningNumber.label || winningNumber.color}</span>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -650,8 +622,8 @@ export function LiveRouletteEngine({
                       className="relative w-[95%] h-[95%] rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] transform-style-3d"
                       style={{ transform: "rotateX(55deg)" }}
                     >
-                      {/* Wood Wheel Rim outer ring */}
-                      <div className="absolute -inset-4 rounded-full border-[8px] border-amber-950 bg-gradient-to-br from-amber-800 to-amber-950 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] flex items-center justify-center">
+                      {/* Neon Wheel Rim outer ring */}
+                      <div className="absolute -inset-4 rounded-full border-[8px] border-blue-500 bg-gradient-to-br from-slate-800 to-slate-950 shadow-[0_0_20px_#3b82f6,inset_0_0_20px_#3b82f6] flex items-center justify-center">
                         <div className="absolute inset-1 rounded-full border border-yellow-500/20" />
                       </div>
                       
@@ -677,7 +649,7 @@ export function LiveRouletteEngine({
                             >
                               <div className={`w-4 h-6 flex items-start justify-center pt-0.5 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]`}>
                                 <span className="text-[7px] sm:text-[8px] font-black font-mono leading-none">
-                                  {num.n}
+                                  {num.n === -1 ? '00' : num.n}
                                 </span>
                               </div>
                               <div className="w-[0.5px] h-full bg-yellow-750/10 origin-top" />
@@ -766,15 +738,25 @@ export function LiveRouletteEngine({
                 {/* Numbers Grid (horizontally aligned) */}
                 <div className="grid grid-cols-14 border border-yellow-500/20 rounded-xl overflow-hidden bg-slate-950/40">
                   
-                  {/* 0 Cell */}
-                  <button
-                    disabled={isSpinning}
-                    onClick={() => placeBet("num-0")}
-                    className="row-span-3 h-full border-r border-yellow-500/20 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
-                  >
-                    <span>0</span>
-                    {renderCellChip("num-0")}
-                  </button>
+                  {/* 0 and 00 Cells */}
+                  <div className="row-span-3 flex flex-col border-r border-yellow-500/20 h-full w-[40px]">
+                    <button
+                      disabled={isSpinning}
+                      onClick={() => placeBet("num--1")}
+                      className="flex-1 w-full bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-lg select-none cursor-pointer relative transition-colors border-b border-yellow-500/20"
+                    >
+                      <span>00</span>
+                      {renderCellChip("num--1")}
+                    </button>
+                    <button
+                      disabled={isSpinning}
+                      onClick={() => placeBet("num-0")}
+                      className="flex-1 w-full bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-lg select-none cursor-pointer relative transition-colors"
+                    >
+                      <span>0</span>
+                      {renderCellChip("num-0")}
+                    </button>
+                  </div>
 
                   {/* 12 columns of 3 rows */}
                   {Array.from({ length: 12 }).map((_, colIdx) => {

@@ -23,6 +23,15 @@ import { CardEngine } from "@/components/casino/engines/CardEngine";
 import { ArcadeEngine } from "@/components/casino/engines/ArcadeEngine";
 import { TowerEngine } from "@/components/casino/engines/TowerEngine";
 import { LiveRouletteEngine } from "@/components/casino/engines/LiveRouletteEngine";
+import { EuropeanRoulette } from "@/components/casino/engines/roulette/EuropeanRoulette";
+import { AmericanRoulette } from "@/components/casino/engines/roulette/AmericanRoulette";
+import { FrenchRoulette } from "@/components/casino/engines/roulette/FrenchRoulette";
+import { MiniRoulette } from "@/components/casino/engines/roulette/MiniRoulette";
+import { MultiWheelRoulette } from "@/components/casino/engines/roulette/MultiWheelRoulette";
+import { LightningRoulette } from "@/components/casino/engines/roulette/LightningRoulette";
+import { DoubleBallRoulette } from "@/components/casino/engines/roulette/DoubleBallRoulette";
+import { SpeedRoulette } from "@/components/casino/engines/roulette/SpeedRoulette";
+import { ZeroFreeRoulette } from "@/components/casino/engines/roulette/ZeroFreeRoulette";
 import { RouletteEngine } from "@/components/casino/engines/RouletteEngine";
 import { DiceEngine } from "@/components/casino/engines/DiceEngine";
 import { BilliardsEngine } from "@/components/casino/engines/BilliardsEngine";
@@ -842,7 +851,7 @@ export default function GamePlayerPage() {
     if (game.id === "orig-18" || game.title.toLowerCase().includes("space miner")) {
       return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
-    if (game.id === "orig-19" || game.title.toLowerCase().includes("roulette")) {
+    if (game.id === "orig-19" || game.id === "orig-11") {
       return (
         <LiveRouletteEngine 
           isPlaying={isSpinning} 
@@ -855,6 +864,32 @@ export default function GamePlayerPage() {
           balance={balance}
         />
       );
+    }
+    
+    // NEW 9 DISTINCT VARIANTS ROUTER
+    if (game.id.startsWith("orig-r")) {
+      const variantProps = {
+          isPlaying: isSpinning,
+          betAmount: betAmount,
+          onBetAmountChange: setBetAmount,
+          onStartGame: handlePlay,
+          onComplete: handleEngineComplete,
+          activeChip: activeRouletteChip,
+          onActiveChipChange: setActiveRouletteChip,
+          balance: balance
+      };
+      
+      switch(game.id) {
+        case "orig-r1": return <EuropeanRoulette {...variantProps} />;
+        case "orig-r2": return <AmericanRoulette {...variantProps} />;
+        case "orig-r3": return <FrenchRoulette {...variantProps} />;
+        case "orig-r4": return <MiniRoulette {...variantProps} />;
+        case "orig-r5": return <MultiWheelRoulette {...variantProps} />;
+        case "orig-r6": return <LightningRoulette {...variantProps} />;
+        case "orig-r7": return <DoubleBallRoulette {...variantProps} />;
+        case "orig-r8": return <SpeedRoulette {...variantProps} />;
+        case "orig-r9": return <ZeroFreeRoulette {...variantProps} />;
+      }
     }
     if (game.id === "orig-20" || game.title.toLowerCase().includes("blackjack pro")) {
       return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;

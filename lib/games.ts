@@ -30,7 +30,19 @@ export const FEATURED_GAMES: Game[] = [
   { id: "orig-8", title: "Blackjack", provider: "Originals", image: "/games/housegames_blackjack-H4SSRgE2t.jpeg", categories: ["originals", "table", "blackjack"], rtp: 99.5, players: 18500 },
   { id: "orig-9", title: "Coinflip", provider: "Originals", image: "/games/housegames_coinflip.jpg", categories: ["originals"], rtp: 99.0, players: 8400 },
   { id: "orig-10", title: "Wheel", provider: "Originals", image: "/games/housegames_slide-lDqMEzMQA.png", categories: ["originals"], rtp: 99.0, players: 6300 },
-  { id: "orig-11", title: "Roulette", provider: "Originals", image: "/games/housegames_roulette-M5fn8z7Db.png", categories: ["originals", "table", "roulette"], rtp: 97.3, players: 12500 },
+  { id: "orig-11", title: "Classic Roulette", provider: "Originals", image: "/games/housegames_roulette-M5fn8z7Db.png", categories: ["originals", "table", "roulette"], rtp: 97.3, players: 12500 },
+  
+  // --- AURA TOP 1% ROULETTE VARIANTS ---
+  { id: "orig-r1", title: "European Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 97.3, players: 38000, isNew: true },
+  { id: "orig-r2", title: "American Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 94.7, players: 15400, isNew: true },
+  { id: "orig-r3", title: "French Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 98.6, players: 22000, isNew: true },
+  { id: "orig-r4", title: "Mini Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 92.3, players: 8400, isNew: true },
+  { id: "orig-r5", title: "Multi-Wheel Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 97.3, players: 19500, isNew: true },
+  { id: "orig-r6", title: "Lightning Roulette", provider: "AURA Exclusives", image: "/games/live_cover_roulette.png", categories: ["originals", "3d", "table", "roulette"], rtp: 97.3, players: 54000, isNew: true },
+  { id: "orig-r7", title: "Double Ball Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 97.3, players: 12300, isNew: true },
+  { id: "orig-r8", title: "Speed Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 97.3, players: 28000, isNew: true },
+  { id: "orig-r9", title: "Zero-Free Roulette", provider: "AURA Exclusives", image: "/games/emerald_roulette_cover.png", categories: ["originals", "3d", "table", "roulette"], rtp: 97.2, players: 31000, isNew: true },
+
   { id: "orig-12", title: "TradeX", provider: "Originals", image: "/games/trade_thumbnail.png", categories: ["originals", "casual"], rtp: 99.0, players: 18500, isNew: true },
   { id: "orig-13", title: "HiLo", provider: "Originals", image: "/games/hilo_thumbnail.png", categories: ["originals", "table"], rtp: 99.0, players: 22100, isNew: true },
   { id: "orig-14", title: "Penalty Shootout", provider: "Originals", image: "/games/penalty_thumbnail.png", categories: ["originals", "sports"], rtp: 99.0, players: 15400, isNew: true },

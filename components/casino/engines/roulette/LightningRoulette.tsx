@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/casino-math";
-import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
+import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, LIGHTNING_CONFIG } from "@/lib/roulette-math";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -85,7 +85,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function LightningRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -112,6 +112,7 @@ export function LiveRouletteEngine({
   const [isSpinning, setIsSpinning] = useState(false);
   const [showWheelOverlay, setShowWheelOverlay] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
+  const [lightningNumbers, setLightningNumbers] = useState<Record<number, number>>({});
 
   useEffect(() => {
     const handleResize = () => setWindowWidth(window.innerWidth);
@@ -287,6 +288,18 @@ export function LiveRouletteEngine({
     const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
     const finalWheelRotation = 1800 + (360 - (targetIdx * segmentAngle));
     
+    const numLightning = Math.floor(Math.random() * 5) + 1;
+    const newLightning: Record<number, number> = {};
+    const multipliers = [50, 100, 200, 300, 400, 500];
+    const availableNumbers = EUROPEAN_NUMBERS.map(n => n.n);
+    for (let i = 0; i < numLightning; i++) {
+      const rndIdx = Math.floor(Math.random() * availableNumbers.length);
+      const num = availableNumbers.splice(rndIdx, 1)[0];
+      const mult = multipliers[Math.floor(Math.random() * multipliers.length)];
+      newLightning[num] = mult;
+    }
+    setLightningNumbers(newLightning);
+
     setRotation(finalWheelRotation);
     setBallRotation(-(2160 + 720)); // Orbit counter-rotation of ball
 
@@ -301,7 +314,7 @@ export function LiveRouletteEngine({
       setPrevBets(bets);
 
       // Evaluate true payout using our math engine
-      const { totalWon } = evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG);
+      const { totalWon } = evaluateRoulettePayouts(bets, result, LIGHTNING_CONFIG, newLightning);
 
       // Simulate VIP winnings correctly based on true RNG outcome
       processVIPWinnings(result);
@@ -384,10 +397,17 @@ export function LiveRouletteEngine({
         className={`relative h-12 flex flex-col items-center justify-center border border-yellow-500/10 cursor-pointer font-black text-sm transition-all active:scale-95 ${
           isRed 
             ? "bg-rose-700 hover:bg-rose-600 text-white" 
-            : "bg-slate-950 hover:bg-slate-900 text-slate-100"
+            : "bg-zinc-900 hover:bg-zinc-800 text-slate-100"
         }`}
       >
-        <span className="font-mono font-black">{n}</span>
+        <span className="font-mono font-black z-10">{n}</span>
+        {lightningNumbers[n] && (
+          <div className="absolute inset-0 bg-yellow-400/20 animate-pulse flex items-center justify-center pointer-events-none">
+            <span className="text-yellow-400 font-black text-[10px] drop-shadow-[0_0_2px_rgba(0,0,0,1)] z-10 absolute bottom-0.5">
+              {lightningNumbers[n]}x
+            </span>
+          </div>
+        )}
         {renderCellChip(`num-${n}`)}
       </button>
     );
@@ -404,9 +424,16 @@ export function LiveRouletteEngine({
         <button
           disabled={isSpinning}
           onClick={() => placeBet("num-0")}
-          className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
+          className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 bg-zinc-800 hover:bg-zinc-700 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
         >
-          <span>0</span>
+          <span className="z-10">0</span>
+          {lightningNumbers[0] && (
+            <div className="absolute inset-0 bg-yellow-400/20 animate-pulse flex items-center justify-center pointer-events-none">
+              <span className="text-yellow-400 font-black text-[10px] drop-shadow-[0_0_2px_rgba(0,0,0,1)] z-10 absolute bottom-0.5">
+                {lightningNumbers[0]}x
+              </span>
+            </div>
+          )}
           {renderCellChip("num-0")}
         </button>
 
@@ -415,7 +442,7 @@ export function LiveRouletteEngine({
           { id: "low", label: "1-18", row: 2, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
           { id: "even", label: "EVEN", row: 4, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
           { id: "red", label: "RED", row: 6, btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)] border-r border-b border-yellow-500/20" },
-          { id: "black", label: "BLACK", row: 8, btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)] border-r border-b border-yellow-500/20" },
+          { id: "black", label: "BLACK", row: 8, btnClass: "bg-zinc-900 hover:bg-zinc-800 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)] border-r border-b border-yellow-500/20" },
           { id: "odd", label: "ODD", row: 10, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
           { id: "high", label: "19-36", row: 12, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" }
         ].map(out => (
@@ -476,10 +503,17 @@ export function LiveRouletteEngine({
                 } ${
                   isRed 
                     ? "bg-rose-700/90 hover:bg-rose-600/90 text-white" 
-                    : "bg-slate-950 hover:bg-slate-900 text-slate-100"
+                    : "bg-zinc-900 hover:bg-zinc-800 text-slate-100"
                 }`}
               >
-                <span className="font-mono">{n}</span>
+                <span className="font-mono z-10">{n}</span>
+                {lightningNumbers[n] && (
+                  <div className="absolute inset-0 bg-yellow-400/20 animate-pulse flex items-center justify-center pointer-events-none">
+                    <span className="text-yellow-400 font-black text-[8px] drop-shadow-[0_0_2px_rgba(0,0,0,1)] z-10 absolute bottom-0.5">
+                      {lightningNumbers[n]}x
+                    </span>
+                  </div>
+                )}
                 {renderCellChip(`num-${n}`)}
               </button>
             );
@@ -544,14 +578,14 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 1. Sleek Super-Minimalist HUD Header */}
-      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#02130a]/80 border-b border-emerald-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
+      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-zinc-950/80 border-b border-yellow-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+            ⚡ Lightning Roulette
           </span>
         </div>
 
@@ -592,7 +626,7 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-gradient-to-b from-zinc-800 via-zinc-900 to-black rounded-b-2xl border-x border-b border-yellow-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -770,9 +804,16 @@ export function LiveRouletteEngine({
                   <button
                     disabled={isSpinning}
                     onClick={() => placeBet("num-0")}
-                    className="row-span-3 h-full border-r border-yellow-500/20 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
+                    className="row-span-3 h-full border-r border-yellow-500/20 bg-zinc-800 hover:bg-zinc-700 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
                   >
-                    <span>0</span>
+                    <span className="z-10">0</span>
+                    {lightningNumbers[0] && (
+                      <div className="absolute inset-0 bg-yellow-400/20 animate-pulse flex items-center justify-center pointer-events-none">
+                        <span className="text-yellow-400 font-black text-[10px] drop-shadow-[0_0_2px_rgba(0,0,0,1)] z-10 absolute bottom-0.5">
+                          {lightningNumbers[0]}x
+                        </span>
+                      </div>
+                    )}
                     {renderCellChip("num-0")}
                   </button>
 
@@ -834,7 +875,7 @@ export function LiveRouletteEngine({
                     { id: "low", label: "1-18", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
                     { id: "even", label: "EVEN", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
                     { id: "red", label: "RED", btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)]" },
-                    { id: "black", label: "BLACK", btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)]" },
+                    { id: "black", label: "BLACK", btnClass: "bg-zinc-900 hover:bg-zinc-800 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)]" },
                     { id: "odd", label: "ODD", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
                     { id: "high", label: "19-36", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" }
                   ].map(out => (
@@ -867,28 +908,28 @@ export function LiveRouletteEngine({
                   <button 
                     onClick={undoLastBet} 
                     disabled={isSpinning || betHistory.length === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-yellow-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Undo
                   </button>
                   <button 
                     onClick={doubleAllBets} 
                     disabled={isSpinning || totalBetsSum === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-yellow-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Double
                   </button>
                   <button 
                     onClick={repeatLastBets} 
                     disabled={isSpinning || Object.keys(prevBets).length === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-yellow-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Repeat
                   </button>
                   <button 
                     onClick={clearAllBets} 
                     disabled={isSpinning || totalBetsSum === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-yellow-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Clear
                   </button>

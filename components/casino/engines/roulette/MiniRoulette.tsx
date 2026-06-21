@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/casino-math";
-import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
+import { evaluateRoulettePayouts, MINI_CONFIG, RouletteNumberConfig } from "@/lib/roulette-math";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -29,43 +29,19 @@ interface NumberConfig {
 }
 
 const NUMBERS: NumberConfig[] = [
-  { n: 0, color: "green", label: "Green" },
-  { n: 32, color: "red", label: "Red" },
-  { n: 15, color: "black", label: "Black" },
-  { n: 19, color: "red", label: "Red" },
-  { n: 4, color: "black", label: "Black" },
-  { n: 21, color: "red", label: "Red" },
-  { n: 2, color: "black", label: "Black" },
-  { n: 25, color: "red", label: "Red" },
-  { n: 17, color: "black", label: "Black" },
-  { n: 34, color: "red", label: "Red" },
-  { n: 6, color: "black", label: "Black" },
-  { n: 27, color: "red", label: "Red" },
-  { n: 13, color: "black", label: "Black" },
-  { n: 36, color: "red", label: "Red" },
-  { n: 11, color: "black", label: "Black" },
-  { n: 30, color: "red", label: "Red" },
-  { n: 8, color: "black", label: "Black" },
-  { n: 23, color: "red", label: "Red" },
-  { n: 10, color: "black", label: "Black" },
-  { n: 5, color: "red", label: "Red" },
-  { n: 24, color: "black", label: "Black" },
-  { n: 16, color: "red", label: "Red" },
-  { n: 33, color: "black", label: "Black" },
-  { n: 1, color: "red", label: "Red" },
-  { n: 20, color: "black", label: "Black" },
-  { n: 14, color: "red", label: "Red" },
-  { n: 31, color: "black", label: "Black" },
-  { n: 9, color: "red", label: "Red" },
-  { n: 22, color: "black", label: "Black" },
-  { n: 18, color: "red", label: "Red" },
-  { n: 29, color: "black", label: "Black" },
-  { n: 7, color: "red", label: "Red" },
-  { n: 28, color: "black", label: "Black" },
-  { n: 12, color: "red", label: "Red" },
-  { n: 35, color: "black", label: "Black" },
-  { n: 3, color: "red", label: "Red" },
-  { n: 26, color: "black", label: "Black" }
+  { n: 0, color: "green" },
+  { n: 5, color: "red" },
+  { n: 12, color: "red" },
+  { n: 3, color: "red" },
+  { n: 10, color: "black" },
+  { n: 1, color: "red" },
+  { n: 8, color: "black" },
+  { n: 9, color: "red" },
+  { n: 2, color: "black" },
+  { n: 7, color: "red" },
+  { n: 6, color: "black" },
+  { n: 11, color: "black" },
+  { n: 4, color: "black" }
 ];
 
 interface VIPPlayer {
@@ -85,7 +61,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function MiniRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -280,11 +256,11 @@ export function LiveRouletteEngine({
     const offsetVal = width >= 1024 ? 50 : width >= 768 ? 42 : width >= 640 ? 36 : 28;
     setBallRadiusOffset(offsetVal);
 
-    // Pick target wheel index truly randomly from the 37 pockets
-    const targetIdx = Math.floor(Math.random() * EUROPEAN_NUMBERS.length);
+    // Pick target wheel index truly randomly from the 13 pockets
+    const targetIdx = Math.floor(Math.random() * NUMBERS.length);
 
-    const result = EUROPEAN_NUMBERS[targetIdx];
-    const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
+    const result = NUMBERS[targetIdx];
+    const segmentAngle = 360 / NUMBERS.length;
     const finalWheelRotation = 1800 + (360 - (targetIdx * segmentAngle));
     
     setRotation(finalWheelRotation);
@@ -301,7 +277,7 @@ export function LiveRouletteEngine({
       setPrevBets(bets);
 
       // Evaluate true payout using our math engine
-      const { totalWon } = evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG);
+      const { totalWon } = evaluateRoulettePayouts(bets, result as any, MINI_CONFIG);
 
       // Simulate VIP winnings correctly based on true RNG outcome
       processVIPWinnings(result);
@@ -410,53 +386,8 @@ export function LiveRouletteEngine({
           {renderCellChip("num-0")}
         </button>
 
-        {/* Column 1: Outside Bets (Each spans 2 rows) */}
-        {[
-          { id: "low", label: "1-18", row: 2, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
-          { id: "even", label: "EVEN", row: 4, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
-          { id: "red", label: "RED", row: 6, btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)] border-r border-b border-yellow-500/20" },
-          { id: "black", label: "BLACK", row: 8, btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)] border-r border-b border-yellow-500/20" },
-          { id: "odd", label: "ODD", row: 10, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
-          { id: "high", label: "19-36", row: 12, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" }
-        ].map(out => (
-          <button
-            key={out.id}
-            disabled={isSpinning}
-            onClick={() => placeBet(out.id)}
-            style={{ gridColumnStart: 1, gridRowStart: out.row, gridRowEnd: out.row + 2 }}
-            className={`flex items-center justify-center font-black text-[9px] uppercase tracking-wider cursor-pointer select-none transition-all relative active:scale-95 ${out.btnClass}`}
-          >
-            {out.id === "red" ? (
-              <span className="w-4 h-4 rotate-45 bg-rose-600 border border-white/60 shadow-sm block" />
-            ) : out.id === "black" ? (
-              <span className="w-4 h-4 rotate-45 bg-slate-900 border border-white/45 shadow-sm block" />
-            ) : (
-              <span className="-rotate-90 sm:rotate-0 tracking-widest">{out.label}</span>
-            )}
-            {renderCellChip(out.id)}
-          </button>
-        ))}
-
-        {/* Column 2: Dozens (Each spans 4 rows) */}
-        {[
-          { id: "doz-1", label: "1st 12", row: 2 },
-          { id: "doz-2", label: "2nd 12", row: 6 },
-          { id: "doz-3", label: "3rd 12", row: 10 }
-        ].map(doz => (
-          <button
-            key={doz.id}
-            disabled={isSpinning}
-            onClick={() => placeBet(doz.id)}
-            style={{ gridColumnStart: 2, gridRowStart: doz.row, gridRowEnd: doz.row + 4 }}
-            className="bg-emerald-950/60 hover:bg-emerald-900/80 text-slate-200 flex items-center justify-center font-black text-[9px] uppercase tracking-wider cursor-pointer select-none transition-all relative active:scale-95 border-r border-b border-yellow-500/20"
-          >
-            <span className="-rotate-90 sm:rotate-0 tracking-widest">{doz.label}</span>
-            {doz.label && renderCellChip(doz.id)}
-          </button>
-        ))}
-
-        {/* Columns 3, 4, 5: Numbers Grid (Rows 2 to 13) */}
-        {Array.from({ length: 12 }).map((_, rowIdx) => {
+        {/* Columns 3, 4, 5: Numbers Grid (Rows 2 to 5) */}
+        {Array.from({ length: 4 }).map((_, rowIdx) => {
           const baseNum = rowIdx * 3 + 1;
           const nums = [baseNum, baseNum + 1, baseNum + 2];
           
@@ -485,27 +416,6 @@ export function LiveRouletteEngine({
             );
           });
         })}
-
-        {/* Row 14: Column Bets (Col 3, 4, 5 at Row 14) */}
-        {[
-          { id: "col-1", col: 3 },
-          { id: "col-2", col: 4 },
-          { id: "col-3", col: 5 }
-        ].map(colBet => (
-          <button
-            key={colBet.id}
-            disabled={isSpinning}
-            onClick={() => placeBet(colBet.id)}
-            style={{ gridColumnStart: colBet.col, gridRowStart: 14 }}
-            className={`h-8 xs:h-9 flex items-center justify-center font-black text-[9px] text-yellow-400 uppercase cursor-pointer select-none transition-all relative active:scale-95 bg-emerald-950/80 hover:bg-emerald-900 ${
-              colBet.col < 5 ? "border-r border-yellow-500/20" : ""
-            }`}
-          >
-            <span>2:1</span>
-            {renderCellChip(colBet.id)}
-          </button>
-        ))}
-
       </div>
     );
   };
@@ -551,7 +461,7 @@ export function LiveRouletteEngine({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+            Mini Roulette
           </span>
         </div>
 
@@ -592,7 +502,7 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-cyan-800 rounded-b-2xl border-x border-b border-cyan-400 shadow-[inset_0_0_20px_#0891b2] p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -636,7 +546,7 @@ export function LiveRouletteEngine({
                         <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
                           {winningNumber.n}
                         </span>
-                        <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
+                        <span className="text-[10px] font-bold uppercase">{winningNumber.label || winningNumber.color}</span>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -776,15 +686,15 @@ export function LiveRouletteEngine({
                     {renderCellChip("num-0")}
                   </button>
 
-                  {/* 12 columns of 3 rows */}
-                  {Array.from({ length: 12 }).map((_, colIdx) => {
+                  {/* 4 columns of 3 rows */}
+                  {Array.from({ length: 4 }).map((_, colIdx) => {
                     const nums = [
                       (colIdx * 3) + 3,
                       (colIdx * 3) + 2,
                       (colIdx * 3) + 1
                     ];
                     return (
-                      <div key={`col-${colIdx}`} className="flex flex-col border-r border-yellow-500/20">
+                      <div key={`col-${colIdx}`} className="flex flex-col border-r border-yellow-500/20 w-16">
                         {nums.map(n => renderNumberCell(n))}
                       </div>
                     );

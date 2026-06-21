@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/casino-math";
-import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
+import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, ZERO_FREE_CONFIG } from "@/lib/roulette-math";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -27,6 +27,8 @@ interface NumberConfig {
   color: "red" | "black" | "green";
   label?: string;
 }
+
+const ZERO_FREE_NUMBERS: NumberConfig[] = EUROPEAN_NUMBERS.filter(n => n.n !== 0);
 
 const NUMBERS: NumberConfig[] = [
   { n: 0, color: "green", label: "Green" },
@@ -85,7 +87,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function ZeroFreeRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -281,10 +283,9 @@ export function LiveRouletteEngine({
     setBallRadiusOffset(offsetVal);
 
     // Pick target wheel index truly randomly from the 37 pockets
-    const targetIdx = Math.floor(Math.random() * EUROPEAN_NUMBERS.length);
-
-    const result = EUROPEAN_NUMBERS[targetIdx];
-    const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
+    const targetIdx = Math.floor(Math.random() * ZERO_FREE_NUMBERS.length);
+    const result = ZERO_FREE_NUMBERS[targetIdx];
+    const segmentAngle = 360 / ZERO_FREE_NUMBERS.length;
     const finalWheelRotation = 1800 + (360 - (targetIdx * segmentAngle));
     
     setRotation(finalWheelRotation);
@@ -301,7 +302,7 @@ export function LiveRouletteEngine({
       setPrevBets(bets);
 
       // Evaluate true payout using our math engine
-      const { totalWon } = evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG);
+      const { totalWon } = evaluateRoulettePayouts(bets, result, ZERO_FREE_CONFIG);
 
       // Simulate VIP winnings correctly based on true RNG outcome
       processVIPWinnings(result);
@@ -400,15 +401,7 @@ export function LiveRouletteEngine({
     return (
       <div className="grid grid-cols-5 border-2 border-yellow-500/30 rounded-2xl overflow-hidden bg-[#020e08]/90 text-xs w-full max-w-[340px] xs:max-w-[360px] sm:max-w-xs mx-auto shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
         
-        {/* Row 1: Zero Cell (Spans Columns 3, 4, 5) */}
-        <button
-          disabled={isSpinning}
-          onClick={() => placeBet("num-0")}
-          className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
-        >
-          <span>0</span>
-          {renderCellChip("num-0")}
-        </button>
+        {/* Zero Cell Removed */}
 
         {/* Column 1: Outside Bets (Each spans 2 rows) */}
         {[
@@ -551,7 +544,7 @@ export function LiveRouletteEngine({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+            Zero-Free Roulette
           </span>
         </div>
 
@@ -592,7 +585,7 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-gradient-to-b from-slate-50 via-slate-100 to-slate-200 rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -766,15 +759,7 @@ export function LiveRouletteEngine({
                 {/* Numbers Grid (horizontally aligned) */}
                 <div className="grid grid-cols-14 border border-yellow-500/20 rounded-xl overflow-hidden bg-slate-950/40">
                   
-                  {/* 0 Cell */}
-                  <button
-                    disabled={isSpinning}
-                    onClick={() => placeBet("num-0")}
-                    className="row-span-3 h-full border-r border-yellow-500/20 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
-                  >
-                    <span>0</span>
-                    {renderCellChip("num-0")}
-                  </button>
+                  {/* Zero Cell Removed */}
 
                   {/* 12 columns of 3 rows */}
                   {Array.from({ length: 12 }).map((_, colIdx) => {

@@ -28,45 +28,7 @@ interface NumberConfig {
   label?: string;
 }
 
-const NUMBERS: NumberConfig[] = [
-  { n: 0, color: "green", label: "Green" },
-  { n: 32, color: "red", label: "Red" },
-  { n: 15, color: "black", label: "Black" },
-  { n: 19, color: "red", label: "Red" },
-  { n: 4, color: "black", label: "Black" },
-  { n: 21, color: "red", label: "Red" },
-  { n: 2, color: "black", label: "Black" },
-  { n: 25, color: "red", label: "Red" },
-  { n: 17, color: "black", label: "Black" },
-  { n: 34, color: "red", label: "Red" },
-  { n: 6, color: "black", label: "Black" },
-  { n: 27, color: "red", label: "Red" },
-  { n: 13, color: "black", label: "Black" },
-  { n: 36, color: "red", label: "Red" },
-  { n: 11, color: "black", label: "Black" },
-  { n: 30, color: "red", label: "Red" },
-  { n: 8, color: "black", label: "Black" },
-  { n: 23, color: "red", label: "Red" },
-  { n: 10, color: "black", label: "Black" },
-  { n: 5, color: "red", label: "Red" },
-  { n: 24, color: "black", label: "Black" },
-  { n: 16, color: "red", label: "Red" },
-  { n: 33, color: "black", label: "Black" },
-  { n: 1, color: "red", label: "Red" },
-  { n: 20, color: "black", label: "Black" },
-  { n: 14, color: "red", label: "Red" },
-  { n: 31, color: "black", label: "Black" },
-  { n: 9, color: "red", label: "Red" },
-  { n: 22, color: "black", label: "Black" },
-  { n: 18, color: "red", label: "Red" },
-  { n: 29, color: "black", label: "Black" },
-  { n: 7, color: "red", label: "Red" },
-  { n: 28, color: "black", label: "Black" },
-  { n: 12, color: "red", label: "Red" },
-  { n: 35, color: "black", label: "Black" },
-  { n: 3, color: "red", label: "Red" },
-  { n: 26, color: "black", label: "Black" }
-];
+const NUMBERS = EUROPEAN_NUMBERS;
 
 interface VIPPlayer {
   id: string;
@@ -85,7 +47,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function SpeedRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -293,7 +255,7 @@ export function LiveRouletteEngine({
     // Ball falls into pocket
     setTimeout(() => {
       setBallRadiusOffset(0);
-    }, 2400);
+    }, 1200);
 
     // Spin completes
     const completeTimer = setTimeout(() => {
@@ -334,8 +296,8 @@ export function LiveRouletteEngine({
       // Auto dismiss wheel overlay after 4 seconds
       setTimeout(() => {
         setShowWheelOverlay(false);
-      }, 4000);
-    }, 4500);
+      }, 1000);
+    }, 2000);
 
     return () => clearTimeout(completeTimer);
   }, [isPlaying]);
@@ -551,7 +513,7 @@ export function LiveRouletteEngine({
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+            Speed Roulette
           </span>
         </div>
 
@@ -592,7 +554,8 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-slate-900 rounded-b-2xl border-x border-b border-slate-700 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[linear-gradient(45deg,transparent_25%,rgba(255,255,255,0.02)_25%,rgba(255,255,255,0.02)_50%,transparent_50%,transparent_75%,rgba(255,255,255,0.02)_75%,rgba(255,255,255,0.02)_100%)] [background-size:20px_20px] opacity-20 pointer-events-none" />
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -636,7 +599,7 @@ export function LiveRouletteEngine({
                         <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
                           {winningNumber.n}
                         </span>
-                        <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
+                        <span className="text-[10px] font-bold uppercase">{winningNumber.label || winningNumber.color}</span>
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -658,7 +621,7 @@ export function LiveRouletteEngine({
                       {/* Wheel segment track */}
                       <motion.div
                         animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
-                        transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
+                        transition={{ duration: 2, ease: [0.25, 1, 0.5, 1] }}
                         className="absolute inset-0 rounded-full bg-slate-950 border-[4px] border-amber-800 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.95)]"
                       >
                         {NUMBERS.map((num, i) => {
@@ -701,7 +664,7 @@ export function LiveRouletteEngine({
                         <>
                           <motion.div
                             animate={{ rotate: ballRotateKeyframes }}
-                            transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                            transition={{ duration: 2, times: ballTimes, ease: "easeOut" }}
                             className="absolute inset-0 rounded-full pointer-events-none z-20"
                           >
                             <motion.div 
@@ -710,19 +673,19 @@ export function LiveRouletteEngine({
                                 scale: ballScaleKeyframes.map(s => s * 0.95),
                                 opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
                               }}
-                              transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                              transition={{ duration: 2, times: ballTimes, ease: "easeOut" }}
                               className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/60 blur-[1px]"
                             />
                           </motion.div>
 
                           <motion.div
                             animate={{ rotate: ballRotateKeyframes }}
-                            transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                            transition={{ duration: 2, times: ballTimes, ease: "easeOut" }}
                             className="absolute inset-0 rounded-full pointer-events-none z-30"
                           >
                             <motion.div 
                               animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
-                              transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                              transition={{ duration: 2, times: ballTimes, ease: "easeOut" }}
                               className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
                             />
                           </motion.div>

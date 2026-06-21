@@ -85,7 +85,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function MultiWheelRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -105,10 +105,10 @@ export function LiveRouletteEngine({
   const [prevBets, setPrevBets] = useState<Record<string, number>>({});
   
   // Wheel State
-  const [rotation, setRotation] = useState(0);
+  const [rotations, setRotations] = useState<number[]>([0, 0, 0, 0]);
   const [ballRotation, setBallRotation] = useState(0);
   const [ballRadiusOffset, setBallRadiusOffset] = useState(0);
-  const [winningNumber, setWinningNumber] = useState<NumberConfig | null>(null);
+  const [winningNumbers, setWinningNumbers] = useState<NumberConfig[]>([]);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showWheelOverlay, setShowWheelOverlay] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
@@ -274,20 +274,19 @@ export function LiveRouletteEngine({
 
     setIsSpinning(true);
     setShowWheelOverlay(true);
-    setWinningNumber(null);
+    setWinningNumbers([]);
     setShowWinOverlay(false);
     const width = typeof window !== "undefined" ? window.innerWidth : 1024;
     const offsetVal = width >= 1024 ? 50 : width >= 768 ? 42 : width >= 640 ? 36 : 28;
     setBallRadiusOffset(offsetVal);
 
     // Pick target wheel index truly randomly from the 37 pockets
-    const targetIdx = Math.floor(Math.random() * EUROPEAN_NUMBERS.length);
-
-    const result = EUROPEAN_NUMBERS[targetIdx];
+    const targetIdxList = Array(4).fill(0).map(() => Math.floor(Math.random() * EUROPEAN_NUMBERS.length));
+    const results = targetIdxList.map(idx => EUROPEAN_NUMBERS[idx]);
     const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
-    const finalWheelRotation = 1800 + (360 - (targetIdx * segmentAngle));
-    
-    setRotation(finalWheelRotation);
+    const finalRotations = targetIdxList.map(idx => 1800 + (360 - (idx * segmentAngle)));
+
+    setRotations(finalRotations);
     setBallRotation(-(2160 + 720)); // Orbit counter-rotation of ball
 
     // Ball falls into pocket
@@ -297,14 +296,15 @@ export function LiveRouletteEngine({
 
     // Spin completes
     const completeTimer = setTimeout(() => {
-      setWinningNumber(result);
+      setWinningNumbers(results);
       setPrevBets(bets);
 
-      // Evaluate true payout using our math engine
-      const { totalWon } = evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG);
+      let totalWon = 0;
+      for (const result of results) {
+        totalWon += evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG).totalWon;
+      }
 
-      // Simulate VIP winnings correctly based on true RNG outcome
-      processVIPWinnings(result);
+      processVIPWinnings(results[0]);
 
       if (totalWon > 0) {
         setWonAmount(totalWon);
@@ -544,14 +544,14 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 1. Sleek Super-Minimalist HUD Header */}
-      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#02130a]/80 border-b border-emerald-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
+      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-zinc-950/80 border-b border-zinc-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+            Multi-Wheel Roulette
           </span>
         </div>
 
@@ -592,7 +592,7 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-gradient-to-b from-zinc-800 via-zinc-900 to-black rounded-b-2xl border-x border-b border-zinc-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -615,140 +615,95 @@ export function LiveRouletteEngine({
                 className="fixed inset-0 z-[60] bg-[#020e08]/95 backdrop-blur-md flex flex-col items-center justify-center py-4 cursor-pointer"
               >
                 {/* Wheel Frame - Hero element, centered, borderless, no container box */}
-                <div className="relative flex flex-col items-center justify-center shrink-0 py-2">
-                  
-                  {/* Landing/Result Display Overlay right above the wheel */}
-                  <AnimatePresence>
-                    {!isSpinning && winningNumber && (
-                      <motion.div
-                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                        className={`absolute -top-4 z-40 px-4 py-1.5 rounded-full border shadow-2xl flex items-center gap-2 ${
-                          winningNumber.color === "red" 
-                            ? "bg-rose-700/90 border-rose-500 text-white" 
-                            : winningNumber.color === "black" 
-                              ? "bg-slate-900/90 border-slate-700 text-slate-100" 
-                              : "bg-emerald-600/90 border-emerald-400 text-white"
-                        }`}
-                      >
-                        <span className="text-[10px] font-black tracking-widest uppercase">RESULT</span>
-                        <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
-                          {winningNumber.n}
-                        </span>
-                        <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-
-                  {/* Rotated 3D Wheel Assembly */}
-                  <div 
-                    onClick={(e) => e.stopPropagation()}
-                    className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 lg:w-[480px] lg:h-[480px] aspect-square flex items-center justify-center select-none perspective-[1000px]"
-                  >
-                    <div 
-                      className="relative w-[95%] h-[95%] rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] transform-style-3d"
-                      style={{ transform: "rotateX(55deg)" }}
-                    >
-                      {/* Wood Wheel Rim outer ring */}
-                      <div className="absolute -inset-4 rounded-full border-[8px] border-amber-950 bg-gradient-to-br from-amber-800 to-amber-950 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] flex items-center justify-center">
-                        <div className="absolute inset-1 rounded-full border border-yellow-500/20" />
-                      </div>
-                      
-                      {/* Wheel segment track */}
-                      <motion.div
-                        animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
-                        transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
-                        className="absolute inset-0 rounded-full bg-slate-950 border-[4px] border-amber-800 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.95)]"
-                      >
-                        {NUMBERS.map((num, i) => {
-                          const angle = (360 / NUMBERS.length) * i;
-                          const numColor = num.color === "green" 
-                            ? "bg-emerald-600 text-white" 
-                            : num.color === "red" 
-                              ? "bg-rose-700 text-white" 
-                              : "bg-slate-900 text-slate-100";
-                          
-                          return (
-                            <div
-                              key={`seg-${i}`}
-                              className="absolute top-0 left-1/2 w-5 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-0.5"
-                              style={{ transform: `rotate(${angle}deg)` }}
-                            >
-                              <div className={`w-4 h-6 flex items-start justify-center pt-0.5 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]`}>
-                                <span className="text-[7px] sm:text-[8px] font-black font-mono leading-none">
-                                  {num.n}
-                                </span>
-                              </div>
-                              <div className="w-[0.5px] h-full bg-yellow-750/10 origin-top" />
-                            </div>
-                          );
-                        })}
-                        
-                        {/* Center Gold Turret */}
-                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-755 shadow-[0_0_12px_rgba(0,0,0,0.95)] flex items-center justify-center z-20">
-                          <div className="w-8 h-8 rounded-full bg-[#051c10] border border-yellow-500/20 flex items-center justify-center shadow-inner">
-                            <span className="text-yellow-500 text-[6px] font-black tracking-widest uppercase">AURA</span>
-                          </div>
-                        </div>
-                      </motion.div>
-
-                      {/* Glass reflections */}
-                      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none z-10 mix-blend-overlay" />
-
-                      {/* Ball animation */}
-                      {isSpinning && (
-                        <>
-                          <motion.div
-                            animate={{ rotate: ballRotateKeyframes }}
-                            transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                            className="absolute inset-0 rounded-full pointer-events-none z-20"
-                          >
-                            <motion.div 
-                              animate={{ 
-                                y: ballYKeyframes.map(y => y + 3.5),
-                                scale: ballScaleKeyframes.map(s => s * 0.95),
-                                opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
-                              }}
-                              transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                              className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/60 blur-[1px]"
-                            />
-                          </motion.div>
-
-                          <motion.div
-                            animate={{ rotate: ballRotateKeyframes }}
-                            transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                            className="absolute inset-0 rounded-full pointer-events-none z-30"
-                          >
-                            <motion.div 
-                              animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
-                              transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                              className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
-                            />
-                          </motion.div>
-                        </>
-                      )}
-
-                      {/* Landed ball */}
+                <div className="relative grid grid-cols-2 gap-4 shrink-0 p-4 max-w-4xl w-full mx-auto">
+                  {/* We map 4 wheels */}
+                  {[0, 1, 2, 3].map(wIdx => (
+                    <div key={wIdx} className="relative flex flex-col items-center justify-center">
                       <AnimatePresence>
-                        {!isSpinning && winningNumber && (
+                        {!isSpinning && winningNumbers[wIdx] && (
                           <motion.div
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="absolute inset-0 rounded-full pointer-events-none z-30"
-                            style={{ transform: `rotate(${rotation % 360}deg)` }}
+                            initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                            className={`absolute -top-4 z-40 px-3 py-1 rounded-full border shadow-2xl flex items-center gap-2 ${
+                              winningNumbers[wIdx].color === "red" 
+                                ? "bg-rose-700/90 border-rose-500 text-white" 
+                                : winningNumbers[wIdx].color === "black" 
+                                  ? "bg-slate-900/90 border-slate-700 text-slate-100" 
+                                  : "bg-emerald-600/90 border-emerald-400 text-white"
+                            }`}
                           >
-                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/50 blur-[0.5px] z-20" />
-                            <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#fcfbf9] shadow-[0_0_6px_rgba(255,255,255,0.8),inset_-1px_-1px_2px_rgba(0,0,0,0.3)] z-30" />
+                            <span className="text-[8px] font-black tracking-widest uppercase">W${wIdx + 1}</span>
+                            <span className="text-xs font-black font-mono px-1 py-0.5 rounded bg-black/30">
+                              {winningNumbers[wIdx].n}
+                            </span>
                           </motion.div>
                         )}
                       </AnimatePresence>
-
+                      <div className="relative w-32 h-32 sm:w-48 sm:h-48 lg:w-64 lg:h-64 aspect-square flex items-center justify-center select-none perspective-[1000px]">
+                        <div 
+                          className="relative w-[95%] h-[95%] rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] transform-style-3d"
+                          style={{ transform: "rotateX(55deg)" }}
+                        >
+                          <div className="absolute -inset-2 rounded-full border-[4px] border-amber-950 bg-gradient-to-br from-amber-800 to-amber-950 flex items-center justify-center" />
+                          <motion.div
+                            animate={isSpinning ? { rotate: rotations[wIdx] } : { rotate: rotations[wIdx] % 360 }}
+                            transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
+                            className="absolute inset-0 rounded-full bg-slate-950 overflow-hidden shadow-[inset_0_0_15px_rgba(0,0,0,0.95)]"
+                          >
+                            {NUMBERS.map((num, i) => {
+                              const angle = (360 / NUMBERS.length) * i;
+                              const numColor = num.color === "green" 
+                                ? "bg-emerald-600 text-white" 
+                                : num.color === "red" 
+                                  ? "bg-rose-700 text-white" 
+                                  : "bg-slate-900 text-slate-100";
+                              
+                              return (
+                                <div
+                                  key={`seg-${i}`}
+                                  className="absolute top-0 left-1/2 w-3 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-0.5"
+                                  style={{ transform: `rotate(${angle}deg)` }}
+                                >
+                                  <div className={`w-2 h-4 flex items-start justify-center pt-[1px] rounded-sm ${numColor}`}>
+                                    <span className="text-[5px] font-black font-mono leading-none">{num.n}</span>
+                                  </div>
+                                </div>
+                              );
+                            })}
+                            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-gradient-to-br from-yellow-300 to-yellow-700 shadow-lg" />
+                          </motion.div>
+                          {isSpinning && (
+                            <motion.div
+                              animate={{ rotate: ballRotateKeyframes }}
+                              transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                              className="absolute inset-0 rounded-full pointer-events-none z-30"
+                            >
+                              <motion.div 
+                                animate={{ y: ballYKeyframes.map(y => y * 0.6), scale: ballScaleKeyframes.map(s => s * 0.8) }}
+                                transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                                className="absolute top-1 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-white shadow-md"
+                              />
+                            </motion.div>
+                          )}
+                          <AnimatePresence>
+                            {!isSpinning && winningNumbers[wIdx] && (
+                              <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                className="absolute inset-0 rounded-full pointer-events-none z-30"
+                                style={{ transform: "rotate(0deg)" }}
+                              >
+                                <div className="absolute top-1.5 left-1/2 -translate-x-1/2 w-2 h-2 rounded-full bg-[#fcfbf9] shadow-md z-30" />
+                              </motion.div>
+                            )}
+                          </AnimatePresence>
+                        </div>
+                      </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
 
-                {/* Tap helper text */}
                 <span className="text-[10px] font-black text-yellow-500/80 uppercase tracking-widest mt-6 animate-pulse text-center">
                   Tap anywhere to return to board
                 </span>
@@ -764,13 +719,13 @@ export function LiveRouletteEngine({
               <div className="min-w-[620px] relative">
                 
                 {/* Numbers Grid (horizontally aligned) */}
-                <div className="grid grid-cols-14 border border-yellow-500/20 rounded-xl overflow-hidden bg-slate-950/40">
+                <div className="grid grid-cols-14 border border-zinc-500/20 rounded-xl overflow-hidden bg-slate-950/40">
                   
                   {/* 0 Cell */}
                   <button
                     disabled={isSpinning}
                     onClick={() => placeBet("num-0")}
-                    className="row-span-3 h-full border-r border-yellow-500/20 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
+                    className="row-span-3 h-full border-r border-zinc-500/20 bg-zinc-700/90 hover:bg-zinc-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
                   >
                     <span>0</span>
                     {renderCellChip("num-0")}
@@ -784,7 +739,7 @@ export function LiveRouletteEngine({
                       (colIdx * 3) + 1
                     ];
                     return (
-                      <div key={`col-${colIdx}`} className="flex flex-col border-r border-yellow-500/20">
+                      <div key={`col-${colIdx}`} className="flex flex-col border-r border-zinc-500/20">
                         {nums.map(n => renderNumberCell(n))}
                       </div>
                     );
@@ -797,7 +752,7 @@ export function LiveRouletteEngine({
                         key={col}
                         disabled={isSpinning}
                         onClick={() => placeBet(col)}
-                        className="h-12 border-b border-yellow-500/20 last:border-b-0 bg-emerald-950/80 hover:bg-emerald-900 text-yellow-400 flex items-center justify-center font-black text-xs uppercase cursor-pointer select-none transition-all relative active:scale-95"
+                        className="h-12 border-b border-zinc-500/20 last:border-b-0 bg-zinc-950/80 hover:bg-zinc-900 text-slate-400 flex items-center justify-center font-black text-xs uppercase cursor-pointer select-none transition-all relative active:scale-95"
                       >
                         <span>2:1</span>
                         {renderCellChip(col)}
@@ -807,7 +762,7 @@ export function LiveRouletteEngine({
                 </div>
 
                 {/* Dozens Row */}
-                <div className="grid grid-cols-14 border-x border-b border-yellow-500/20 rounded-b-xl overflow-hidden bg-emerald-950/40 mt-1">
+                <div className="grid grid-cols-14 border-x border-b border-zinc-500/20 rounded-b-xl overflow-hidden bg-zinc-950/40 mt-1">
                   <div className="col-span-1" />
                   {[
                     { id: "doz-1", label: "1st 12" },
@@ -818,7 +773,7 @@ export function LiveRouletteEngine({
                       key={doz.id}
                       disabled={isSpinning}
                       onClick={() => placeBet(doz.id)}
-                      className="col-span-4 h-10 border-r border-yellow-500/20 bg-emerald-950/60 hover:bg-emerald-900/80 flex items-center justify-center font-black text-xs text-slate-200 uppercase cursor-pointer select-none transition-all relative active:scale-95"
+                      className="col-span-4 h-10 border-r border-zinc-500/20 bg-zinc-950/60 hover:bg-zinc-900/80 flex items-center justify-center font-black text-xs text-slate-200 uppercase cursor-pointer select-none transition-all relative active:scale-95"
                     >
                       <span>{doz.label}</span>
                       {renderCellChip(doz.id)}
@@ -828,21 +783,21 @@ export function LiveRouletteEngine({
                 </div>
 
                 {/* Even/Odd Red/Black outside bets */}
-                <div className="grid grid-cols-14 border-x border-b border-yellow-500/20 rounded-b-xl overflow-hidden bg-emerald-950/50 mt-1">
+                <div className="grid grid-cols-14 border-x border-b border-zinc-500/20 rounded-b-xl overflow-hidden bg-zinc-950/50 mt-1">
                   <div className="col-span-1" />
                   {[
-                    { id: "low", label: "1-18", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
-                    { id: "even", label: "EVEN", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
+                    { id: "low", label: "1-18", btnClass: "bg-zinc-950/70 hover:bg-zinc-900 text-slate-200" },
+                    { id: "even", label: "EVEN", btnClass: "bg-zinc-950/70 hover:bg-zinc-900 text-slate-200" },
                     { id: "red", label: "RED", btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)]" },
                     { id: "black", label: "BLACK", btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)]" },
-                    { id: "odd", label: "ODD", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
-                    { id: "high", label: "19-36", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" }
+                    { id: "odd", label: "ODD", btnClass: "bg-zinc-950/70 hover:bg-zinc-900 text-slate-200" },
+                    { id: "high", label: "19-36", btnClass: "bg-zinc-950/70 hover:bg-zinc-900 text-slate-200" }
                   ].map(out => (
                     <button
                       key={out.id}
                       disabled={isSpinning}
                       onClick={() => placeBet(out.id)}
-                      className={`col-span-2 h-10 border-r border-yellow-500/20 last:border-r-0 flex items-center justify-center font-black text-xs cursor-pointer select-none transition-all relative active:scale-95 ${out.btnClass}`}
+                      className={`col-span-2 h-10 border-r border-zinc-500/20 last:border-r-0 flex items-center justify-center font-black text-xs cursor-pointer select-none transition-all relative active:scale-95 ${out.btnClass}`}
                     >
                       <span>{out.label}</span>
                       {renderCellChip(out.id)}
@@ -863,32 +818,32 @@ export function LiveRouletteEngine({
             <div className="w-full flex flex-col gap-3 mt-2 pb-2">
               {/* Action Buttons Row */}
               <div className="flex items-center justify-between gap-2 px-1">
-                <div className="flex items-center gap-1.5 bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-1.5 shadow-md flex-1">
+                <div className="flex items-center gap-1.5 bg-[#020e08]/60 border border-zinc-500/15 rounded-xl p-1.5 shadow-md flex-1">
                   <button 
                     onClick={undoLastBet} 
                     disabled={isSpinning || betHistory.length === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-zinc-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-zinc-950/40 text-slate-400 hover:bg-zinc-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Undo
                   </button>
                   <button 
                     onClick={doubleAllBets} 
                     disabled={isSpinning || totalBetsSum === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-zinc-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-zinc-950/40 text-slate-400 hover:bg-zinc-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Double
                   </button>
                   <button 
                     onClick={repeatLastBets} 
                     disabled={isSpinning || Object.keys(prevBets).length === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-zinc-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-zinc-950/40 text-slate-400 hover:bg-zinc-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Repeat
                   </button>
                   <button 
                     onClick={clearAllBets} 
                     disabled={isSpinning || totalBetsSum === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-zinc-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-zinc-950/40 text-slate-400 hover:bg-zinc-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Clear
                   </button>
@@ -906,7 +861,7 @@ export function LiveRouletteEngine({
 
       {/* 3. Victory Grand Overlay */}
       <AnimatePresence>
-        {showWinOverlay && winningNumber && !isSpinning && (
+        {showWinOverlay && winningNumbers.length === 4 && !isSpinning && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -952,16 +907,20 @@ export function LiveRouletteEngine({
               <div className="bg-[#020e08]/60 border border-emerald-500/10 rounded-xl p-3.5 mb-5 text-left text-xs">
                 <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-1.5">Payout Details</span>
                 <div className="flex justify-between items-center text-[10px] text-slate-355 text-slate-300">
-                  <span>Number landed:</span>
-                  <span className={`font-mono font-black px-2 py-0.5 rounded-full text-[9px] ${
-                    winningNumber.color === "red" 
-                      ? "bg-rose-700 text-white" 
-                      : winningNumber.color === "black" 
-                        ? "bg-slate-900 text-slate-200" 
-                        : "bg-emerald-600 text-white"
-                  }`}>
-                    {winningNumber.n} ({winningNumber.label})
-                  </span>
+                  <span>Numbers landed:</span>
+                  <div className="flex gap-1">
+                    {winningNumbers.map((wn, idx) => (
+                      <span key={idx} className={`font-mono font-black px-2 py-0.5 rounded-full text-[9px] ${
+                        wn.color === "red" 
+                          ? "bg-rose-700 text-white" 
+                          : wn.color === "black" 
+                            ? "bg-slate-900 text-slate-200" 
+                            : "bg-emerald-600 text-white"
+                      }`}>
+                        {wn.n}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-355 text-slate-300">
                   <span>Total winnings:</span>

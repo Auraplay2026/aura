@@ -85,7 +85,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function EuropeanRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 

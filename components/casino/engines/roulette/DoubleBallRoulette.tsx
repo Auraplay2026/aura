@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/casino-math";
-import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
+import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG, isWinningBet } from "@/lib/roulette-math";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -85,7 +85,7 @@ const INITIAL_VIP_PLAYERS: VIPPlayer[] = [
   { id: "vip3", name: "Aegis_Alpha", avatar: "🛡️", balance: 521000, streak: 0, activeBet: 0 }
 ];
 
-export function LiveRouletteEngine({ 
+export function DoubleBallRoulette({ 
   isPlaying, 
   betAmount, 
   onBetAmountChange, 
@@ -108,7 +108,8 @@ export function LiveRouletteEngine({
   const [rotation, setRotation] = useState(0);
   const [ballRotation, setBallRotation] = useState(0);
   const [ballRadiusOffset, setBallRadiusOffset] = useState(0);
-  const [winningNumber, setWinningNumber] = useState<NumberConfig | null>(null);
+  const [winningNumbers, setWinningNumbers] = useState<NumberConfig[]>([]);
+  const [targetIndices, setTargetIndices] = useState<number[]>([]);
   const [isSpinning, setIsSpinning] = useState(false);
   const [showWheelOverlay, setShowWheelOverlay] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
@@ -274,19 +275,21 @@ export function LiveRouletteEngine({
 
     setIsSpinning(true);
     setShowWheelOverlay(true);
-    setWinningNumber(null);
+    setWinningNumbers([]);
     setShowWinOverlay(false);
     const width = typeof window !== "undefined" ? window.innerWidth : 1024;
     const offsetVal = width >= 1024 ? 50 : width >= 768 ? 42 : width >= 640 ? 36 : 28;
     setBallRadiusOffset(offsetVal);
 
     // Pick target wheel index truly randomly from the 37 pockets
-    const targetIdx = Math.floor(Math.random() * EUROPEAN_NUMBERS.length);
-
-    const result = EUROPEAN_NUMBERS[targetIdx];
+    const targetIdx1 = Math.floor(Math.random() * EUROPEAN_NUMBERS.length);
+    const targetIdx2 = Math.floor(Math.random() * EUROPEAN_NUMBERS.length);
+    const result1 = EUROPEAN_NUMBERS[targetIdx1];
+    const result2 = EUROPEAN_NUMBERS[targetIdx2];
     const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
-    const finalWheelRotation = 1800 + (360 - (targetIdx * segmentAngle));
+    const finalWheelRotation = 1800 + (360 - (targetIdx1 * segmentAngle));
     
+    setTargetIndices([targetIdx1, targetIdx2]);
     setRotation(finalWheelRotation);
     setBallRotation(-(2160 + 720)); // Orbit counter-rotation of ball
 
@@ -297,14 +300,25 @@ export function LiveRouletteEngine({
 
     // Spin completes
     const completeTimer = setTimeout(() => {
-      setWinningNumber(result);
+      setWinningNumbers([result1, result2]);
       setPrevBets(bets);
 
-      // Evaluate true payout using our math engine
-      const { totalWon } = evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG);
+      let totalWon = 0;
+      for (const [cellId, amount] of Object.entries(bets)) {
+        const win1 = isWinningBet(cellId, result1);
+        const win2 = isWinningBet(cellId, result2);
+        if (cellId.startsWith("num-")) {
+          if (win1 && win2) totalWon += amount * 35;
+          else if (win1 || win2) totalWon += amount * 18;
+        } else {
+          if (win1 && win2) {
+            if (cellId.startsWith("doz-") || cellId.startsWith("col-")) totalWon += amount * 8;
+            else totalWon += amount * 3;
+          }
+        }
+      }
 
-      // Simulate VIP winnings correctly based on true RNG outcome
-      processVIPWinnings(result);
+      processVIPWinnings(result1);
 
       if (totalWon > 0) {
         setWonAmount(totalWon);
@@ -544,14 +558,14 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 1. Sleek Super-Minimalist HUD Header */}
-      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#02130a]/80 border-b border-emerald-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
+      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-sky-950/80 border-b border-sky-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
           <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
+            Double Ball Roulette
           </span>
         </div>
 
@@ -592,7 +606,7 @@ export function LiveRouletteEngine({
       </div>
 
       {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+      <div className="w-full bg-gradient-to-b from-sky-800 via-sky-900 to-[#020a14] rounded-b-2xl border-x border-b border-sky-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
         {/* Subtle felt texture overlay */}
         <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
@@ -619,24 +633,27 @@ export function LiveRouletteEngine({
                   
                   {/* Landing/Result Display Overlay right above the wheel */}
                   <AnimatePresence>
-                    {!isSpinning && winningNumber && (
+                    {!isSpinning && winningNumbers.length === 2 && (
                       <motion.div
                         initial={{ opacity: 0, scale: 0.8, y: 10 }}
                         animate={{ opacity: 1, scale: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                        className={`absolute -top-4 z-40 px-4 py-1.5 rounded-full border shadow-2xl flex items-center gap-2 ${
-                          winningNumber.color === "red" 
-                            ? "bg-rose-700/90 border-rose-500 text-white" 
-                            : winningNumber.color === "black" 
-                              ? "bg-slate-900/90 border-slate-700 text-slate-100" 
-                              : "bg-emerald-600/90 border-emerald-400 text-white"
-                        }`}
+                        className="absolute -top-4 z-40 flex items-center gap-4"
                       >
-                        <span className="text-[10px] font-black tracking-widest uppercase">RESULT</span>
-                        <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
-                          {winningNumber.n}
-                        </span>
-                        <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
+                        {winningNumbers.map((wn, idx) => (
+                          <div key={idx} className={`px-4 py-1.5 rounded-full border shadow-2xl flex items-center gap-2 ${
+                            wn.color === "red" 
+                              ? "bg-rose-700/90 border-rose-500 text-white" 
+                              : wn.color === "black" 
+                                ? "bg-slate-900/90 border-slate-700 text-slate-100" 
+                                : "bg-emerald-600/90 border-emerald-400 text-white"
+                          }`}>
+                            <span className="text-[10px] font-black tracking-widest uppercase">BALL {idx + 1}</span>
+                            <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
+                              {wn.n}
+                            </span>
+                          </div>
+                        ))}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -705,42 +722,46 @@ export function LiveRouletteEngine({
                             className="absolute inset-0 rounded-full pointer-events-none z-20"
                           >
                             <motion.div 
-                              animate={{ 
-                                y: ballYKeyframes.map(y => y + 3.5),
-                                scale: ballScaleKeyframes.map(s => s * 0.95),
-                                opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
-                              }}
+                              animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
                               transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                              className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/60 blur-[1px]"
+                              className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
                             />
                           </motion.div>
-
                           <motion.div
-                            animate={{ rotate: ballRotateKeyframes }}
+                            animate={{ rotate: ballRotateKeyframes.map(r => r - 120) }}
                             transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
                             className="absolute inset-0 rounded-full pointer-events-none z-30"
                           >
                             <motion.div 
                               animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
                               transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                              className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
+                              className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-sky-100 shadow-[0_0_8px_rgba(56,189,248,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
                             />
                           </motion.div>
                         </>
                       )}
 
-                      {/* Landed ball */}
+                      {/* Landed balls */}
                       <AnimatePresence>
-                        {!isSpinning && winningNumber && (
-                          <motion.div
-                            initial={{ opacity: 0, scale: 0 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            className="absolute inset-0 rounded-full pointer-events-none z-30"
-                            style={{ transform: `rotate(${rotation % 360}deg)` }}
-                          >
-                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/50 blur-[0.5px] z-20" />
-                            <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#fcfbf9] shadow-[0_0_6px_rgba(255,255,255,0.8),inset_-1px_-1px_2px_rgba(0,0,0,0.3)] z-30" />
-                          </motion.div>
+                        {!isSpinning && winningNumbers.length === 2 && targetIndices.length === 2 && (
+                          <>
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="absolute inset-0 rounded-full pointer-events-none z-30"
+                              style={{ transform: "rotate(0deg)" }}
+                            >
+                              <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#fcfbf9] shadow-[0_0_6px_rgba(255,255,255,0.8),inset_-1px_-1px_2px_rgba(0,0,0,0.3)] z-30" />
+                            </motion.div>
+                            <motion.div
+                              initial={{ opacity: 0, scale: 0 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              className="absolute inset-0 rounded-full pointer-events-none z-30"
+                              style={{ transform: `rotate(${(targetIndices[1] - targetIndices[0]) * (360 / EUROPEAN_NUMBERS.length)}deg)` }}
+                            >
+                              <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#fcfbf9] shadow-[0_0_6px_rgba(255,255,255,0.8),inset_-1px_-1px_2px_rgba(0,0,0,0.3)] z-30" />
+                            </motion.div>
+                          </>
                         )}
                       </AnimatePresence>
 
@@ -867,28 +888,28 @@ export function LiveRouletteEngine({
                   <button 
                     onClick={undoLastBet} 
                     disabled={isSpinning || betHistory.length === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-sky-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Undo
                   </button>
                   <button 
                     onClick={doubleAllBets} 
                     disabled={isSpinning || totalBetsSum === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-sky-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Double
                   </button>
                   <button 
                     onClick={repeatLastBets} 
                     disabled={isSpinning || Object.keys(prevBets).length === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-sky-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Repeat
                   </button>
                   <button 
                     onClick={clearAllBets} 
                     disabled={isSpinning || totalBetsSum === 0}
-                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-sky-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
                   >
                     Clear
                   </button>
@@ -906,7 +927,7 @@ export function LiveRouletteEngine({
 
       {/* 3. Victory Grand Overlay */}
       <AnimatePresence>
-        {showWinOverlay && winningNumber && !isSpinning && (
+        {showWinOverlay && winningNumbers.length === 2 && !isSpinning && (
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -952,16 +973,20 @@ export function LiveRouletteEngine({
               <div className="bg-[#020e08]/60 border border-emerald-500/10 rounded-xl p-3.5 mb-5 text-left text-xs">
                 <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-1.5">Payout Details</span>
                 <div className="flex justify-between items-center text-[10px] text-slate-355 text-slate-300">
-                  <span>Number landed:</span>
-                  <span className={`font-mono font-black px-2 py-0.5 rounded-full text-[9px] ${
-                    winningNumber.color === "red" 
-                      ? "bg-rose-700 text-white" 
-                      : winningNumber.color === "black" 
-                        ? "bg-slate-900 text-slate-200" 
-                        : "bg-emerald-600 text-white"
-                  }`}>
-                    {winningNumber.n} ({winningNumber.label})
-                  </span>
+                  <span>Numbers landed:</span>
+                  <div className="flex gap-1">
+                    {winningNumbers.map((wn, idx) => (
+                      <span key={idx} className={`font-mono font-black px-2 py-0.5 rounded-full text-[9px] ${
+                        wn.color === "red" 
+                          ? "bg-rose-700 text-white" 
+                          : wn.color === "black" 
+                            ? "bg-slate-900 text-slate-200" 
+                            : "bg-emerald-600 text-white"
+                      }`}>
+                        {wn.n}
+                      </span>
+                    ))}
+                  </div>
                 </div>
                 <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-355 text-slate-300">
                   <span>Total winnings:</span>
