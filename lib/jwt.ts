@@ -1,5 +1,12 @@
 const encoder = new TextEncoder();
-const JWT_SECRET = process.env.ADMIN_JWT_SECRET || "AURA-L5-ADMIN-JWT-PERSISTENT-SECRET-KEY-2026-RANDOM-FALLBACK";
+
+function getJWTSecret(): string {
+  const secret = process.env.ADMIN_JWT_SECRET;
+  if (!secret) {
+    throw new Error("Missing ADMIN_JWT_SECRET configuration.");
+  }
+  return secret;
+}
 
 function base64urlEncode(bytes: Uint8Array): string {
   let binary = "";
@@ -25,6 +32,7 @@ function base64urlDecode(s: string): Uint8Array {
 }
 
 export async function signJWT(payload: any): Promise<string> {
+  const JWT_SECRET = getJWTSecret();
   const header = { alg: "HS256", typ: "JWT" };
   const encodedHeader = base64urlEncode(encoder.encode(JSON.stringify(header)));
   const encodedPayload = base64urlEncode(encoder.encode(JSON.stringify(payload)));
@@ -48,6 +56,7 @@ export async function signJWT(payload: any): Promise<string> {
 }
 
 export async function verifyJWT(token: string): Promise<any> {
+  const JWT_SECRET = getJWTSecret();
   const parts = token.split('.');
   if (parts.length !== 3) {
     throw new Error("Invalid JWT format");

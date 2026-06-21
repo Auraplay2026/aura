@@ -86,7 +86,10 @@ async function testMiddlewareCSRF() {
 
 async function testMiddlewareBOLA() {
   console.log("\n--- Testing Middleware BOLA Gating ---");
-  
+
+  process.env.ADMIN_SECRET_KEY = "AuraAdmin2026!";
+  process.env.ADMIN_JWT_SECRET = "test-admin-jwt-secret";
+
   // 1. Test missing cookies
   const reqNoCookies = new NextRequest("http://localhost:3000/admin/dashboard", {
     headers: {
@@ -134,7 +137,21 @@ async function testMiddlewareBOLA() {
     throw new Error("❌ Failed: Unauthorized admin email was not rejected!");
   }
 
-  // 4. Test authorized access with sliding window renewal check
+  // 4. Test basic auth bypass attempt: username equal to secret must not be accepted
+  const reqBasicBypass = new NextRequest("http://localhost:3000/admin/dashboard", {
+    headers: {
+      authorization: "Basic YWRtaW46QXVyYUFkbWluMjAyNiE=",
+      host: "localhost:3000"
+    }
+  });
+  const resBasicBypass = await middleware(reqBasicBypass);
+  if (resBasicBypass && (resBasicBypass.status === 401 || resBasicBypass.status === 307)) {
+    console.log("✅ Basic auth bypass attempt was rejected correctly.");
+  } else {
+    throw new Error(`❌ Failed: Basic auth bypass attempt was accepted with status: ${resBasicBypass?.status}`);
+  }
+
+  // 5. Test authorized access with sliding window renewal check
   const reqAuth = new NextRequest("http://localhost:3000/admin/dashboard", {
     headers: {
       "cookie": `user_email=twintubrovquattro@gmail.com; admin_auth_token=${validToken}`,
@@ -157,6 +174,8 @@ async function testMiddlewareBOLA() {
 
 async function runAll() {
   try {
+    process.env.ADMIN_SECRET_KEY = "AuraAdmin2026!";
+    process.env.ADMIN_JWT_SECRET = "test-admin-jwt-secret";
     await testJWT();
     await testTOTP();
     await testMiddlewareCSRF();

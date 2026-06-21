@@ -91,29 +91,34 @@ export async function proxy(request: NextRequest) {
   }
 
   // 6. Protect Admin UI and Admin APIs with Basic Auth (if configured)
-  const secretKey = process.env.ADMIN_SECRET_KEY || "AuraAdmin2026!";
-  if (secretKey) {
-    const basicAuth = request.headers.get('authorization');
-    let hasValidBasicAuth = false;
-    
-    if (basicAuth) {
-      const authValue = basicAuth.split(' ')[1];
-      const decoded = atob(authValue);
-      const [user, pwd] = decoded.split(':');
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  if (!secretKey) {
+    return new NextResponse('Administrative basic auth is not configured', {
+      status: 503,
+      headers: {
+        'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
+      },
+    });
+  }
 
-      if (pwd === secretKey || user === secretKey) {
-        hasValidBasicAuth = true;
-      }
-    }
+  const basicAuth = request.headers.get('authorization');
+  let hasValidBasicAuth = false;
 
-    if (!hasValidBasicAuth) {
-      return new NextResponse('Unauthorized Admin Access', {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
-        },
-      });
-    }
+  if (basicAuth) {
+    const authValue = basicAuth.split(' ')[1];
+    const decoded = atob(authValue);
+    const [user, pwd] = decoded.split(':');
+
+    hasValidBasicAuth = user === 'admin' && pwd === secretKey;
+  }
+
+  if (!hasValidBasicAuth) {
+    return new NextResponse('Unauthorized Admin Access', {
+      status: 401,
+      headers: {
+        'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
+      },
+    });
   }
 
   // 7. Exclude public admin auth endpoints from JWT session requirement

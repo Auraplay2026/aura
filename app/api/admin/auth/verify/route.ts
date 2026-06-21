@@ -76,11 +76,14 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Server configuration error: ADMIN_HMAC_SECRET not set" }, { status: 500 });
     }
     const expectedSignature = crypto.createHmac('sha256', adminSecret).update(challenge).digest('hex');
+    const expectedSignatureBuffer = Buffer.from(expectedSignature, 'hex');
+    const providedSignatureBuffer = Buffer.from(signature, 'hex');
 
-    const isSignatureValid = crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
-    );
+    if (providedSignatureBuffer.length !== expectedSignatureBuffer.length) {
+      return NextResponse.json({ success: false, error: "Cryptographic hardware signature validation failed" }, { status: 403 });
+    }
+
+    const isSignatureValid = crypto.timingSafeEqual(providedSignatureBuffer, expectedSignatureBuffer);
 
     if (!isSignatureValid) {
       return NextResponse.json({ success: false, error: "Cryptographic hardware signature validation failed" }, { status: 403 });

@@ -34,7 +34,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }
 
-    if (type === 'withdraw' && user.realBalance < amount) {
+    if (type === 'withdraw' && user.realBalance < parsedAmount) {
       return NextResponse.json({ error: 'Insufficient real balance for withdrawal.' }, { status: 400 });
     }
 
@@ -55,12 +55,13 @@ export async function POST(request: Request) {
     }
 
     const txnId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+    const pendingBalance = type === 'withdraw' ? Math.max(0, user.realBalance - parsedAmount) : user.realBalance;
 
     const newTxn: any = {
       id: txnId,
       type: type,
-      amount: Number(amount),
-      balanceAfter: user.realBalance, 
+      amount: parsedAmount,
+      balanceAfter: pendingBalance, 
       timestamp: Date.now(),
       details: type === 'deposit' 
         ? `${method.toUpperCase()} Deposit (Pending Review · Ref: ${utr})` 
@@ -83,13 +84,13 @@ export async function POST(request: Request) {
       
       // If it's a withdrawal, instantly deduct the pending amount to prevent double spending
       if (type === 'withdraw') {
-        updates.realBalance = user.realBalance - Number(amount);
+        updates.realBalance = user.realBalance - parsedAmount;
         updates.balance = updates.realBalance;
       }
     } else {
       // If user is currently in demo mode, they still can declare real transactions.
       if (type === 'withdraw') {
-        updates.realBalance = user.realBalance - Number(amount);
+        updates.realBalance = user.realBalance - parsedAmount;
       }
       updates.transactions = user.transactions;
     }
@@ -97,7 +98,7 @@ export async function POST(request: Request) {
     await updateUser(email, updates);
 
     if (type === 'deposit') {
-      sendDepositNotification(email, Number(amount), utr).catch(err => {
+      sendDepositNotification(email, parsedAmount, utr).catch(err => {
         console.error("Non-blocking notification dispatch error:", err);
       });
     }
