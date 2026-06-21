@@ -434,6 +434,123 @@ export function LiveRouletteEngine({
     );
   };
 
+  // Render vertical board for mobile touch targeting
+  const renderVerticalBoard = () => {
+    const redNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+    
+    return (
+      <div className="grid grid-cols-5 border-2 border-yellow-500/30 rounded-2xl overflow-hidden bg-[#020e08]/90 text-xs w-full max-w-[340px] xs:max-w-[360px] sm:max-w-xs mx-auto shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+        
+        {/* Row 1: Zero Cell (Spans Columns 3, 4, 5) */}
+        <button
+          disabled={isSpinning}
+          onClick={() => placeBet("num-0")}
+          className="col-start-3 col-span-3 row-start-1 h-[38px] xs:h-[42px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
+        >
+          <span>0</span>
+          {renderCellChip("num-0")}
+        </button>
+
+        {/* Column 1: Outside Bets (Each spans 2 rows) */}
+        {[
+          { id: "low", label: "1-18", row: 2, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
+          { id: "even", label: "EVEN", row: 4, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
+          { id: "red", label: "RED", row: 6, btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)] border-r border-b border-yellow-500/20" },
+          { id: "black", label: "BLACK", row: 8, btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)] border-r border-b border-yellow-500/20" },
+          { id: "odd", label: "ODD", row: 10, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
+          { id: "high", label: "19-36", row: 12, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" }
+        ].map(out => (
+          <button
+            key={out.id}
+            disabled={isSpinning}
+            onClick={() => placeBet(out.id)}
+            style={{ gridColumnStart: 1, gridRowStart: out.row, gridRowEnd: out.row + 2 }}
+            className={`flex items-center justify-center font-black text-[9px] uppercase tracking-wider cursor-pointer select-none transition-all relative active:scale-95 ${out.btnClass}`}
+          >
+            {out.id === "red" ? (
+              <span className="w-4 h-4 rotate-45 bg-rose-600 border border-white/60 shadow-sm block" />
+            ) : out.id === "black" ? (
+              <span className="w-4 h-4 rotate-45 bg-slate-900 border border-white/45 shadow-sm block" />
+            ) : (
+              <span className="-rotate-90 sm:rotate-0 tracking-widest">{out.label}</span>
+            )}
+            {renderCellChip(out.id)}
+          </button>
+        ))}
+
+        {/* Column 2: Dozens (Each spans 4 rows) */}
+        {[
+          { id: "doz-1", label: "1st 12", row: 2 },
+          { id: "doz-2", label: "2nd 12", row: 6 },
+          { id: "doz-3", label: "3rd 12", row: 10 }
+        ].map(doz => (
+          <button
+            key={doz.id}
+            disabled={isSpinning}
+            onClick={() => placeBet(doz.id)}
+            style={{ gridColumnStart: 2, gridRowStart: doz.row, gridRowEnd: doz.row + 4 }}
+            className="bg-emerald-950/60 hover:bg-emerald-900/80 text-slate-200 flex items-center justify-center font-black text-[9px] uppercase tracking-wider cursor-pointer select-none transition-all relative active:scale-95 border-r border-b border-yellow-500/20"
+          >
+            <span className="-rotate-90 sm:rotate-0 tracking-widest">{doz.label}</span>
+            {doz.label && renderCellChip(doz.id)}
+          </button>
+        ))}
+
+        {/* Columns 3, 4, 5: Numbers Grid (Rows 2 to 13) */}
+        {Array.from({ length: 12 }).map((_, rowIdx) => {
+          const baseNum = rowIdx * 3 + 1;
+          const nums = [baseNum, baseNum + 1, baseNum + 2];
+          
+          return nums.map((n, colOffset) => {
+            const isRed = redNumbers.has(n);
+            const gridCol = colOffset + 3;
+            const gridRow = rowIdx + 2;
+            
+            return (
+              <button
+                key={`num-${n}`}
+                disabled={isSpinning}
+                onClick={() => placeBet(`num-${n}`)}
+                style={{ gridColumnStart: gridCol, gridRowStart: gridRow }}
+                className={`h-[38px] xs:h-[42px] sm:h-11 flex items-center justify-center border-b border-yellow-500/10 cursor-pointer font-black text-xs transition-all active:scale-95 ${
+                  colOffset < 2 ? "border-r border-yellow-500/10" : ""
+                } ${
+                  isRed 
+                    ? "bg-rose-700/90 hover:bg-rose-600/90 text-white" 
+                    : "bg-slate-950 hover:bg-slate-900 text-slate-100"
+                }`}
+              >
+                <span className="font-mono">{n}</span>
+                {renderCellChip(`num-${n}`)}
+              </button>
+            );
+          });
+        })}
+
+        {/* Row 14: Column Bets (Col 3, 4, 5 at Row 14) */}
+        {[
+          { id: "col-1", col: 3 },
+          { id: "col-2", col: 4 },
+          { id: "col-3", col: 5 }
+        ].map(colBet => (
+          <button
+            key={colBet.id}
+            disabled={isSpinning}
+            onClick={() => placeBet(colBet.id)}
+            style={{ gridColumnStart: colBet.col, gridRowStart: 14 }}
+            className={`h-9 xs:h-10 flex items-center justify-center font-black text-[9px] text-yellow-400 uppercase cursor-pointer select-none transition-all relative active:scale-95 bg-emerald-950/80 hover:bg-emerald-900 ${
+              colBet.col < 5 ? "border-r border-yellow-500/20" : ""
+            }`}
+          >
+            <span>2:1</span>
+            {renderCellChip(colBet.id)}
+          </button>
+        ))}
+
+      </div>
+    );
+  };
+
   const R = windowWidth >= 1024 ? 50 : windowWidth >= 768 ? 42 : windowWidth >= 640 ? 36 : 28;
 
   const ballRotateKeyframes = [0, -720, -1380, -2000, -2400, -2700, -2780, -2895, -2865, -2887, -2873, -2880];
@@ -655,8 +772,8 @@ export function LiveRouletteEngine({
           {/* Betting Board & Controls */}
           <div className="flex-1 w-full flex flex-col gap-4 overflow-visible">
             
-            {/* The Felt Betting Board */}
-            <div className="w-full bg-[#03140a]/40 border border-emerald-500/10 rounded-2xl p-2.5 relative shadow-inner overflow-x-auto scrollbar-thin">
+            {/* Horizontal Felt Board for Desktop / Tablet */}
+            <div className="hidden md:block w-full bg-[#03140a]/40 border border-emerald-500/10 rounded-2xl p-2.5 relative shadow-inner overflow-x-auto scrollbar-thin">
               <div className="min-w-[620px] relative">
                 
                 {/* Numbers Grid (horizontally aligned) */}
@@ -748,6 +865,11 @@ export function LiveRouletteEngine({
                 </div>
 
               </div>
+            </div>
+
+            {/* Vertical Felt Board for Mobile */}
+            <div className="block md:hidden w-full relative">
+              {renderVerticalBoard()}
             </div>
 
             {/* Chip Selector Rack & Wagers Bar */}
