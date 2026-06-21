@@ -840,7 +840,7 @@ export default function GamePlayerPage() {
       return <PenaltyEngine isPlaying={isSpinning} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-15" || game.title.toLowerCase().includes("neon horizon")) {
-      return <NeonHorizon3DEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
+      return <NeonHorizon3DEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-16" || game.title.toLowerCase().includes("bowling")) {
       return <PenaltyEngine isPlaying={isSpinning} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
