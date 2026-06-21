@@ -2,10 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { 
-  Trophy, Star, RotateCcw, Shield, Coins, Sparkles, 
-  Users, Activity, Wifi, Lock, ArrowUpRight, TrendingUp, TrendingDown 
-} from "lucide-react";
+import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/casino-math";
 
@@ -21,6 +18,7 @@ interface RouletteEngineProps {
   onComplete: (multiplier: number, won: boolean) => void;
   activeChip?: number;
   onActiveChipChange?: (chip: number) => void;
+  balance?: number;
 }
 
 interface NumberConfig {
@@ -93,7 +91,8 @@ export function LiveRouletteEngine({
   onStartGame, 
   onComplete,
   activeChip: propActiveChip,
-  onActiveChipChange
+  onActiveChipChange,
+  balance = 0
 }: RouletteEngineProps) {
   
   // Game & Bets States
@@ -128,16 +127,9 @@ export function LiveRouletteEngine({
     { n: 25, color: "red", label: "Red" },
     { n: 4, color: "black", label: "Black" }
   ]);
-  const [recentLiveBets, setRecentLiveBets] = useState<string[]>([]);
-  const [totalWagered, setTotalWagered] = useState(128000);
-  const [netProfit, setNetProfit] = useState(14600);
-  
-  // Victory FX states
   const [showWinOverlay, setShowWinOverlay] = useState(false);
   const [wonAmount, setWonAmount] = useState(0);
-  const [coinsShower, setCoinsShower] = useState<number[]>([]);
-  const [roundSeed, setRoundSeed] = useState("sha256-b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9");
-  const [activeTab, setActiveTab] = useState<"stats" | "feed" | "vips">("stats");
+  const [coinsShower, setCoinsShower] = useState<{id:number, x:number, rotate:number, duration:number, left:number}[]>([]);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -160,11 +152,6 @@ export function LiveRouletteEngine({
       const places = ["red", "black", "even", "odd", "doz-1", "doz-2", "doz-3", "num-17", "num-32", "num-0"];
       const chosenPlace = places[Math.floor(Math.random() * places.length)];
       const betVal = Math.random() > 0.6 ? 5000 : 1000;
-      
-      setRecentLiveBets(prevLogs => [
-        `🎲 ${vip.name} placed ₹${betVal.toLocaleString()} on ${chosenPlace.toUpperCase()}`,
-        ...prevLogs.slice(0, 15)
-      ]);
       
       return {
         ...vip,
@@ -325,7 +312,7 @@ export function LiveRouletteEngine({
         // Straight up numbers
         if (cell.startsWith("num-")) {
           const numValue = parseInt(cell.split("-")[1]);
-          if (winningNumMatch(numValue, result.n)) {
+          if (numValue === result.n) {
             totalWinnings += amount * 35;
           }
         }
@@ -354,15 +341,8 @@ export function LiveRouletteEngine({
       
       setWonAmount(totalWinnings + (winSuccess ? totalBetsSum : 0));
       
-      // Update session statistics
-      setTotalWagered(w => w + totalBetsSum);
-      setNetProfit(p => p + (winSuccess ? totalWinnings : -totalBetsSum));
-      
       // Dynamic outcome roadmap timeline
       setOutcomeHistory(h => [result, ...h.slice(0, 11)]);
-      
-      // Generate randomized round seed hash
-      setRoundSeed(`sha256-${Math.random().toString(36).substring(2)}${Math.random().toString(36).substring(2)}`);
 
       // process VIP player changes
       processVIPWinnings(result);
@@ -371,7 +351,13 @@ export function LiveRouletteEngine({
         try { playGameSound("win"); } catch {}
         setShowWinOverlay(true);
         // Coins shower burst
-        setCoinsShower(Array.from({ length: 25 }).map((_, i) => i));
+        setCoinsShower(Array.from({ length: 25 }).map((_, i) => ({
+          id: i,
+          x: (Math.random() - 0.5) * 200,
+          rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
+          duration: Math.random() * 1.5 + 1.2,
+          left: Math.random() * 90
+        })));
         setTimeout(() => setCoinsShower([]), 2800);
       } else {
         try { playGameSound("lose"); } catch {}
@@ -391,9 +377,6 @@ export function LiveRouletteEngine({
     return () => clearTimeout(completeTimer);
   }, [isPlaying]);
 
-  const winningNumMatch = (betNum: number, winNum: number) => {
-    return betNum === winNum;
-  };
 
   // Render chip stack on board cell
   const renderCellChip = (cell: string) => {
@@ -458,7 +441,7 @@ export function LiveRouletteEngine({
         <button
           disabled={isSpinning}
           onClick={() => placeBet("num-0")}
-          className="col-start-3 col-span-3 row-start-1 h-[38px] xs:h-[42px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
+          className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
         >
           <span>0</span>
           {renderCellChip("num-0")}
@@ -525,7 +508,7 @@ export function LiveRouletteEngine({
                 disabled={isSpinning}
                 onClick={() => placeBet(`num-${n}`)}
                 style={{ gridColumnStart: gridCol, gridRowStart: gridRow }}
-                className={`h-[38px] xs:h-[42px] sm:h-11 flex items-center justify-center border-b border-yellow-500/10 cursor-pointer font-black text-xs transition-all active:scale-95 ${
+                className={`h-[35px] xs:h-[38px] sm:h-11 flex items-center justify-center border-b border-yellow-500/10 cursor-pointer font-black text-xs transition-all active:scale-95 ${
                   colOffset < 2 ? "border-r border-yellow-500/10" : ""
                 } ${
                   isRed 
@@ -551,7 +534,7 @@ export function LiveRouletteEngine({
             disabled={isSpinning}
             onClick={() => placeBet(colBet.id)}
             style={{ gridColumnStart: colBet.col, gridRowStart: 14 }}
-            className={`h-9 xs:h-10 flex items-center justify-center font-black text-[9px] text-yellow-400 uppercase cursor-pointer select-none transition-all relative active:scale-95 bg-emerald-950/80 hover:bg-emerald-900 ${
+            className={`h-8 xs:h-9 flex items-center justify-center font-black text-[9px] text-yellow-400 uppercase cursor-pointer select-none transition-all relative active:scale-95 bg-emerald-950/80 hover:bg-emerald-900 ${
               colBet.col < 5 ? "border-r border-yellow-500/20" : ""
             }`}
           >
@@ -578,19 +561,19 @@ export function LiveRouletteEngine({
       <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
         {coinsShower.map((c) => (
           <motion.div
-            key={c}
+            key={c.id}
             animate={{
               y: [0, 600],
-              x: [0, (Math.random() - 0.5) * 200],
-              rotate: [0, 360 * (Math.random() > 0.5 ? 1 : -1)],
+              x: [0, c.x],
+              rotate: [0, c.rotate],
             }}
             transition={{
-              duration: Math.random() * 1.5 + 1.2,
+              duration: c.duration,
               ease: "linear",
             }}
             className="absolute w-5 h-5 rounded-full bg-gradient-to-r from-yellow-300 via-amber-400 to-yellow-600 border border-yellow-200/50 shadow-[0_2px_5px_rgba(0,0,0,0.5)]"
             style={{
-              left: `${Math.random() * 90}%`,
+              left: `${c.left}%`,
               top: `-30px`,
             }}
           />
@@ -611,8 +594,14 @@ export function LiveRouletteEngine({
 
         {/* Active Bets & Roadmap merged into one compact container */}
         <div className="flex items-center gap-4">
+          {/* Balance Display */}
+          <div className="flex items-center gap-1.5 px-2 bg-slate-900/40 rounded border border-slate-700/50 py-0.5">
+            <span className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Bal:</span>
+            <span className="text-[10px] font-black font-mono text-slate-200">₹{balance.toLocaleString()}</span>
+          </div>
+
           {/* Active Bets Counter */}
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-1.5 ml-2">
             <Coins className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
             <span className="text-[10px] font-black font-mono text-yellow-400">₹{totalBetsSum.toLocaleString()}</span>
           </div>
@@ -907,36 +896,84 @@ export function LiveRouletteEngine({
               {renderVerticalBoard()}
             </div>
 
-            {/* Action wagers bar (Only Undo, Double, Repeat, Clear buttons are needed since chips and Spin are on page level) */}
-            <div className="w-full bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-3 flex items-center justify-center gap-3 shadow-md">
-              <div className="flex items-center gap-2 max-w-full overflow-x-auto pb-1 md:pb-0 scrollbar-none">
-                <button 
-                  onClick={undoLastBet} 
-                  disabled={isSpinning || betHistory.length === 0}
-                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
-                >
-                  Undo
-                </button>
-                <button 
-                  onClick={doubleAllBets} 
+            {/* Betting Controls: Chips, Action buttons, and Spin */}
+            <div className="w-full flex flex-col gap-3 mt-2 pb-2">
+              {/* Chips Row */}
+              <div className="flex items-center justify-center gap-1.5 sm:gap-2 px-1">
+                {[
+                  {amount:10, label:"10", color:"from-blue-600 to-blue-700"},
+                  {amount:50, label:"50", color:"from-purple-600 to-purple-700"},
+                  {amount:100, label:"100", color:"from-red-600 to-red-700"},
+                  {amount:500, label:"500", color:"from-teal-600 to-teal-700"},
+                  {amount:1000, label:"1k", color:"from-amber-500 to-amber-600"},
+                  {amount:5000, label:"5k", color:"from-pink-500 to-pink-600"}
+                ].map(chip => (
+                  <button
+                    key={chip.amount}
+                    disabled={isSpinning}
+                    onClick={() => {
+                      setActiveChip(chip.amount);
+                      try { playGameSound('click'); } catch {}
+                    }}
+                    className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 shrink-0 transition-all shadow-[0_4px_10px_rgba(0,0,0,0.5)] ${
+                      activeChip === chip.amount
+                        ? 'border-white scale-110 z-10'
+                        : 'border-white/20 opacity-80 hover:opacity-100 hover:scale-105'
+                    }`}
+                  >
+                    <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${chip.color}`} />
+                    {/* Chip rim dashes */}
+                    <div className="absolute inset-1 rounded-full border border-white/30 border-dashed" />
+                    <span className={`relative z-10 font-black font-mono tracking-tighter drop-shadow-md ${chip.amount >= 1000 ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'} text-white`}>
+                      {chip.label}
+                    </span>
+                  </button>
+                ))}
+              </div>
+
+              {/* Action Buttons & Spin Row */}
+              <div className="flex items-center justify-between gap-2 px-1">
+                <div className="flex items-center gap-1.5 bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-1.5 shadow-md overflow-x-auto scrollbar-none flex-1">
+                  <button 
+                    onClick={undoLastBet} 
+                    disabled={isSpinning || betHistory.length === 0}
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                  >
+                    Undo
+                  </button>
+                  <button 
+                    onClick={doubleAllBets} 
+                    disabled={isSpinning || totalBetsSum === 0}
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                  >
+                    Double
+                  </button>
+                  <button 
+                    onClick={repeatLastBets} 
+                    disabled={isSpinning || Object.keys(prevBets).length === 0}
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                  >
+                    Repeat
+                  </button>
+                  <button 
+                    onClick={clearAllBets} 
+                    disabled={isSpinning || totalBetsSum === 0}
+                    className="flex-1 px-1 py-2 sm:py-2.5 rounded-lg border border-emerald-500/20 font-black text-[9px] sm:text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all text-center"
+                  >
+                    Clear
+                  </button>
+                </div>
+
+                <button
+                  onClick={handleSpinInit}
                   disabled={isSpinning || totalBetsSum === 0}
-                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
+                  className={`relative shrink-0 h-12 w-20 sm:w-28 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${
+                    isSpinning || totalBetsSum === 0
+                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
+                      : 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 border border-emerald-300'
+                  }`}
                 >
-                  Double
-                </button>
-                <button 
-                  onClick={repeatLastBets} 
-                  disabled={isSpinning || Object.keys(prevBets).length === 0}
-                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
-                >
-                  Repeat
-                </button>
-                <button 
-                  onClick={clearAllBets} 
-                  disabled={isSpinning || totalBetsSum === 0}
-                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
-                >
-                  Clear
+                  {isSpinning ? '...' : 'SPIN'}
                 </button>
               </div>
             </div>
@@ -945,120 +982,7 @@ export function LiveRouletteEngine({
 
         </div>
 
-        {/* 3. Compact Tabbed Dashboard for secondary elements (h-28) */}
-        <div className="w-full bg-[#020e08]/80 border border-emerald-500/10 rounded-xl mt-2 overflow-hidden flex flex-col z-10 shrink-0">
-          {/* Tab Selector Header */}
-          <div className="flex border-b border-emerald-500/10 bg-slate-950/40">
-            {[
-              { id: "stats", label: "📊 Analytics" },
-              { id: "feed", label: "📝 Live Feed" },
-              { id: "vips", label: "👥 VIP Players" }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveTab(tab.id as any)}
-                className={`flex-1 py-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest border-b-2 transition-all cursor-pointer ${
-                  activeTab === tab.id 
-                    ? "border-yellow-500 bg-[#052112]/50 text-slate-100" 
-                    : "border-transparent text-slate-400 hover:text-slate-200"
-                }`}
-              >
-                {tab.label}
-              </button>
-            ))}
-          </div>
 
-          {/* Tab Content (Height Fixed to 96px/h-24 to guarantee fit) */}
-          <div className="h-24 p-2.5 overflow-y-auto scrollbar-thin text-left bg-slate-950/10">
-            
-            {activeTab === "vips" && (
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                {vips.map(vip => (
-                  <div key={vip.id} className="bg-slate-950/50 border border-emerald-500/5 p-1.5 rounded-lg flex items-center justify-between relative text-xs">
-                    <div className="flex items-center gap-1.5 min-w-0">
-                      <span className="text-base shrink-0">{vip.avatar}</span>
-                      <div className="min-w-0">
-                        <span className="font-black text-slate-200 block truncate leading-tight text-[10px]">{vip.name}</span>
-                        <span className="text-[7.5px] text-slate-500 font-bold block uppercase leading-none">
-                          {vip.streak > 0 ? `🔥 Streak ${vip.streak}` : "Gold VIP"}
-                        </span>
-                      </div>
-                    </div>
-                    <span className="text-[9px] font-mono font-black text-yellow-500/80 shrink-0">
-                      ₹{(vip.balance / 1000).toFixed(0)}k
-                    </span>
-
-                    {/* Mini inline result overlay */}
-                    <AnimatePresence>
-                      {vip.payoutDiff !== undefined && !isSpinning && winningNumber && (
-                        <motion.span
-                          initial={{ opacity: 0, scale: 0.8 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          className="text-[8px] font-mono font-black absolute -top-1 -right-1 px-1 rounded bg-slate-900 border border-slate-800 text-emerald-400"
-                        >
-                          {vip.payoutDiff >= 0 ? `+` : ``}{vip.payoutDiff.toLocaleString()}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </div>
-                ))}
-              </div>
-            )}
-
-            {activeTab === "feed" && (
-              <div className="space-y-1 font-mono text-[8px] leading-relaxed text-slate-400">
-                {recentLiveBets.length === 0 ? (
-                  <p className="text-center py-4 uppercase font-bold tracking-widest text-[8px] text-slate-650">Feed Standby</p>
-                ) : (
-                  recentLiveBets.slice(0, 10).map((log, i) => (
-                    <div key={i} className="truncate">
-                      &gt; {log}
-                    </div>
-                  ))
-                )}
-              </div>
-            )}
-
-            {activeTab === "stats" && (
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[10px] uppercase font-bold text-slate-400 h-full items-center">
-                <div className="flex flex-col">
-                  <span className="text-[8px] text-slate-500 text-left font-bold">Total Wagered</span>
-                  <span className="font-mono text-slate-200 font-black">₹{totalWagered.toLocaleString()}</span>
-                </div>
-                <div className="flex flex-col">
-                  <span className="text-[8px] text-slate-500 text-left font-bold">Net Profit</span>
-                  <span className={`font-mono font-black ${netProfit >= 0 ? "text-emerald-400" : "text-rose-500"}`}>
-                    ₹{netProfit >= 0 ? "+" : ""}{netProfit.toLocaleString()}
-                  </span>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[8px] text-red-500 shrink-0 uppercase flex items-center gap-0.5 tracking-wider"><TrendingUp className="w-2.5 h-2.5" /> Hot:</span>
-                  <div className="flex gap-1">
-                    {[32, 17].map(n => (
-                      <span key={`hot-${n}`} className="w-4 h-4 rounded-full bg-rose-700 text-[8px] font-mono font-black text-white flex items-center justify-center border border-rose-500/30">{n}</span>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex items-center gap-1.5">
-                  <span className="text-[8px] text-blue-400 shrink-0 uppercase flex items-center gap-0.5 tracking-wider"><TrendingDown className="w-2.5 h-2.5" /> Cold:</span>
-                  <div className="flex gap-1">
-                    {[0, 28].map(n => (
-                      <span key={`cold-${n}`} className="w-4 h-4 rounded-full bg-slate-900 text-[8px] font-mono font-black text-slate-350 flex items-center justify-center border border-slate-700">{n}</span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
-
-          </div>
-
-          {/* Secure Details footer banner */}
-          <div className="bg-slate-950/60 px-3 py-1 flex items-center justify-between text-[8px] font-mono border-t border-emerald-500/10 text-slate-500">
-            <span className="flex items-center gap-1"><Shield className="w-2.5 h-2.5 text-emerald-500" /> Provably Fair Seed</span>
-            <span className="truncate max-w-[200px] sm:max-w-xs">{roundSeed}</span>
-          </div>
-
-        </div>
 
       </div>
 

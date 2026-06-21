@@ -852,6 +852,7 @@ export default function GamePlayerPage() {
           onComplete={handleEngineComplete} 
           activeChip={activeRouletteChip}
           onActiveChipChange={setActiveRouletteChip}
+          balance={balance}
         />
       );
     }
@@ -1477,72 +1478,7 @@ export default function GamePlayerPage() {
                                 })()}
                               </div>
 
-                              {/* Session Analytics */}
-                              {!isCloudRenting && !isRoyalEngine && (
-                                <div className="border-t border-slate-200 pt-3 flex flex-col gap-2 shrink-0">
-                                  <button
-                                    type="button"
-                                    onClick={() => setIsStatsExpanded(!isStatsExpanded)}
-                                    className="flex items-center justify-between w-full text-slate-850 font-black text-xs uppercase tracking-widest py-1 hover:text-slate-900 cursor-pointer"
-                                  >
-                                    <span className="flex items-center gap-2">
-                                      <Activity className="w-4 h-4 text-emerald-600 animate-pulse" />
-                                      Session Analytics
-                                    </span>
-                                    <span className="text-[9px] text-slate-650 font-bold font-mono flex items-center gap-1.5">
-                                      {stats.totalRounds} ROUNDS
-                                      <span className="text-[8px] transition-transform duration-200" style={{ transform: isStatsExpanded ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-                                    </span>
-                                  </button>
-                                  
-                                  <div className={cn(
-                                    "space-y-4 transition-all duration-300 overflow-hidden",
-                                    isStatsExpanded ? "max-h-[500px] opacity-100 mt-2" : "max-h-0 md:max-h-[500px] opacity-0 md:opacity-100 pointer-events-none md:pointer-events-auto"
-                                  )}>
-                                    {/* Line Chart */}
-                                    <div className="space-y-2">
-                                      <span className="text-[10px] text-slate-600 font-extrabold uppercase tracking-wider block">Profit/Loss Curve</span>
-                                      <SVGProfitChart history={stats.profitHistory} />
-                                    </div>
-
-                                    {/* Ratio Bar */}
-                                    <div className="space-y-2">
-                                      <div className="flex justify-between items-center text-[10px] font-bold text-slate-650 uppercase tracking-wider">
-                                        <span>Win vs Loss Ratio</span>
-                                        <span className="text-emerald-600">{stats.winRatio.toFixed(0)}% Win</span>
-                                      </div>
-                                      <div className="w-full h-3 bg-rose-200 rounded-full overflow-hidden flex">
-                                        <div 
-                                          className="h-full bg-emerald-500 transition-all duration-500" 
-                                          style={{ width: `${stats.winRatio}%` }}
-                                        />
-                                      </div>
-                                      <div className="flex justify-between items-center text-[9px] font-bold text-slate-450 font-mono">
-                                        <span>{stats.winsCount} WINS</span>
-                                        <span>{stats.lossesCount} LOSSES</span>
-                                      </div>
-                                    </div>
-
-                                    {/* Stats Grid */}
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
-                                        <span className="text-[8px] text-slate-650 font-black uppercase tracking-wider block">Wagered</span>
-                                        <span className="text-xs font-black text-slate-800 font-mono block mt-1">₹{stats.totalWagered.toLocaleString()}</span>
-                                      </div>
-                                      <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center">
-                                        <span className="text-[8px] text-slate-650 font-black uppercase tracking-wider block">Net Profit</span>
-                                        <span className={cn("text-xs font-black font-mono block mt-1", stats.netProfit >= 0 ? "text-emerald-600" : "text-rose-600")}>
-                                          ₹{stats.netProfit >= 0 ? "+" : ""}{stats.netProfit.toLocaleString()}
-                                        </span>
-                                      </div>
-                                      <div className="bg-slate-100 border border-slate-200 rounded-2xl p-3 text-center col-span-2">
-                                        <span className="text-[8px] text-slate-650 font-black uppercase tracking-wider block">Highest Multiplier</span>
-                                        <span className="text-sm font-black text-emerald-650 font-mono block mt-1">{stats.maxMultiplier.toFixed(2)}x</span>
-                                      </div>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
+                              {/* Session Analytics removed as per Top 1% mobile layout */}
                             </div>
 
                           </div>
@@ -1799,6 +1735,7 @@ export default function GamePlayerPage() {
                         ) : (
                           <>
                         {/* Row 1: Bet input + BET button */}
+                        {!isLiveRoulette && (
                         <div className="flex items-stretch gap-2 px-3 pt-3 pb-2 md:px-5">
                           {/* Bet Amount */}
                           <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-12 focus-within:border-slate-300 transition-all">
@@ -1904,8 +1841,10 @@ export default function GamePlayerPage() {
                             </button>
                           )}
                         </div>
+                        )}
 
                         {/* Row 2: Chips + mobile extras + balance */}
+                        {!isLiveRoulette && (
                         <div className="flex flex-wrap items-center gap-1.5 px-3 pb-6 md:px-5 md:pb-6">
                           {[
                             {amount:100, label:"₹100", color:"from-red-600 to-red-700"},
@@ -1981,6 +1920,7 @@ export default function GamePlayerPage() {
                             {stats.totalRounds > 0 && <span className={`ml-2 font-black ${stats.netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{stats.netProfit >= 0 ? '+' : ''}₹{stats.netProfit.toFixed(0)}</span>}
                           </span>
                         </div>
+                        )}
                           </>
                         )}
                       </div>
@@ -2002,11 +1942,11 @@ export default function GamePlayerPage() {
             };
             return (
               <div className="w-full mt-6 flex flex-col gap-3">
-                {/* Collapsible Header Button for Mobile */}
+                {/* Collapsible Header Button for Mobile (Hidden by default to save space) */}
                 <button
                   type="button"
                   onClick={() => setIsLeaderboardExpanded(!isLeaderboardExpanded)}
-                  className="flex sm:hidden items-center justify-between w-full bg-white border border-slate-200 rounded-2xl p-4 text-slate-700 font-black text-xs uppercase tracking-widest shadow-lg cursor-pointer"
+                  className="hidden items-center justify-between w-full bg-white border border-slate-200 rounded-2xl p-4 text-slate-700 font-black text-xs uppercase tracking-widest shadow-lg cursor-pointer"
                 >
                   <span className="flex items-center gap-2">
                     <Flame className="w-4 h-4 text-orange-500 animate-pulse" />
