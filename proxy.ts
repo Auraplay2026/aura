@@ -93,25 +93,27 @@ export async function proxy(request: NextRequest) {
   // 6. Protect Admin UI and Admin APIs with Basic Auth (if configured), but allow the public auth handshake endpoints through locally
   const publicAdminAuthPaths = ['/api/admin/auth/challenge', '/api/admin/auth/verify', '/api/admin/auth/logout'];
   if (!publicAdminAuthPaths.includes(pathname)) {
-    const secretKey = process.env.ADMIN_SECRET_KEY || 'aura-dev-admin-secret';
-    const basicAuth = request.headers.get('authorization');
-    let hasValidBasicAuth = false;
+    const secretKey = process.env.ADMIN_SECRET_KEY;
+    if (secretKey) {
+      const basicAuth = request.headers.get('authorization');
+      let hasValidBasicAuth = false;
 
-    if (basicAuth) {
-      const authValue = basicAuth.split(' ')[1];
-      const decoded = atob(authValue);
-      const [user, pwd] = decoded.split(':');
+      if (basicAuth) {
+        const authValue = basicAuth.split(' ')[1];
+        const decoded = atob(authValue);
+        const [user, pwd] = decoded.split(':');
 
-      hasValidBasicAuth = user === 'admin' && pwd === secretKey;
-    }
+        hasValidBasicAuth = user === 'admin' && pwd === secretKey;
+      }
 
-    if (!hasValidBasicAuth && process.env.NODE_ENV === 'production') {
-      return new NextResponse('Unauthorized Admin Access', {
-        status: 401,
-        headers: {
-          'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
-        },
-      });
+      if (!hasValidBasicAuth) {
+        return new NextResponse('Unauthorized Admin Access', {
+          status: 401,
+          headers: {
+            'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
+          },
+        });
+      }
     }
   }
 

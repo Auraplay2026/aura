@@ -86,7 +86,8 @@ export async function POST(request: Request) {
 
     const { passwordHash, ...safeUser } = user;
     return NextResponse.json({ success: true, user: safeUser }, { status: 200 });
-  } catch (err) {
-    return NextResponse.json({ error: 'Failed to process login request.' }, { status: 500 });
+  } catch (err: any) {
+    console.error("[Login API Error]:", err);
+    return NextResponse.json({ error: 'Failed to process login request.', details: err.message }, { status: 500 });
   }
 }
