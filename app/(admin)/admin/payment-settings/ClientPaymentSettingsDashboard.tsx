@@ -23,7 +23,7 @@ interface ToastMessage {
 
 export default function ClientPaymentSettingsDashboard({ initialSettings }: Props) {
   const currentUser = useTradingStore(state => state.currentUser);
-  const adminEmail = currentUser?.email || "admin@aurabet.io";
+  const adminEmail = currentUser?.email || "twintubrovquattro@gmail.com";
 
   const [settings, setSettings] = useState<PaymentSettings>(initialSettings);
   const [formData, setFormData] = useState<PaymentSettings>(initialSettings);

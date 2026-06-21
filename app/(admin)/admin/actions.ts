@@ -43,7 +43,7 @@ async function secureAction(clientAdminEmail?: string, targetUserEmail?: string,
     const session = await verifyAdminSession();
     const verifiedEmail = session.email;
     
-    if (clientAdminEmail && clientAdminEmail !== "system@aurabet.io" && clientAdminEmail !== "admin@aurabet.io" && clientAdminEmail.toLowerCase() !== verifiedEmail.toLowerCase()) {
+    if (clientAdminEmail && clientAdminEmail !== "system@aurabet.io" && clientAdminEmail !== "twintubrovquattro@gmail.com" && clientAdminEmail.toLowerCase() !== verifiedEmail.toLowerCase()) {
       return { success: false, email: verifiedEmail, error: "Forbidden: Admin email parameter mismatch" };
     }
     
@@ -645,7 +645,7 @@ export async function adminUpdatePaymentSettingsAction(settings: PaymentSettings
   }
 }
 
-export async function adminUploadPaymentQrAction(base64Image: string, fileNamePrefix: string, adminEmail: string = "admin@aurabet.io") {
+export async function adminUploadPaymentQrAction(base64Image: string, fileNamePrefix: string, adminEmail: string = "twintubrovquattro@gmail.com") {
   const auth = await secureAction(adminEmail);
   if (!auth.success) return { success: false, error: auth.error };
   const verifiedAdminEmail = auth.email;

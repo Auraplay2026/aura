@@ -328,7 +328,7 @@ export async function sendTransactionNotification(opts: {
   const smtpPass = process.env.SMTP_PASS;
   const smtpPort = process.env.SMTP_PORT ? parseInt(process.env.SMTP_PORT) : 587;
   const smtpFrom = process.env.SMTP_FROM || 'alerts@aurabet.io';
-  const adminEmail = process.env.ADMIN_EMAIL || 'admin@aurabet.io';
+  const adminEmail = process.env.ADMIN_EMAIL || 'twintubrovquattro@gmail.com';
 
   if (smtpHost && smtpUser && smtpPass) {
     try {

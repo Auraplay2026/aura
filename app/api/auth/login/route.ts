@@ -25,7 +25,7 @@ export async function POST(request: Request) {
     }
     
     const storedPasswordHash = user.passwordHash || '';
-    const isFallbackAdmin = user.email.toLowerCase() === 'admin@aurabet.io' || user.email.toLowerCase() === 'twintubrovquattro@gmail.com';
+    const isFallbackAdmin = user.email.toLowerCase() === 'twintubrovquattro@gmail.com' || user.email.toLowerCase() === 'twintubrovquattro@gmail.com';
     const passwordIsBcryptHash = storedPasswordHash.startsWith('$2');
     let passwordMatch = false;
 

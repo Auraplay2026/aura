@@ -18,7 +18,7 @@ export function SlotEngine({ isPlaying, isTurbo, theme, betAmount = 10, onComple
   const [history, setHistory] = useState<{ mult: number; won: boolean }[]>([]);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "admin@aurabet.io";
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
 
   const hasStartedSpin = useRef(false);
 

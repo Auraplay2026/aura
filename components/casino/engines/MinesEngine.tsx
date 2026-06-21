@@ -33,7 +33,7 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   const [showCoinShower, setShowCoinShower] = useState(false);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "admin@aurabet.io";
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);

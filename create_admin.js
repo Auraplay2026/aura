@@ -12,13 +12,13 @@ async function main() {
   });
   console.log('Elevated twintubrovquattro@gmail.com to admin');
 
-  // Create admin@aurabet.io
-  const existing = await prisma.user.findUnique({ where: { email: 'admin@aurabet.io' } });
+  // Create twintubrovquattro@gmail.com
+  const existing = await prisma.user.findUnique({ where: { email: 'twintubrovquattro@gmail.com' } });
   if (!existing) {
     await prisma.user.create({
       data: {
         username: 'admin',
-        email: 'admin@aurabet.io',
+        email: 'twintubrovquattro@gmail.com',
         passwordHash: hashedPassword,
         accountType: 'real',
         balance: 100000,
@@ -28,13 +28,13 @@ async function main() {
         role: 'admin',
       }
     });
-    console.log('Created admin@aurabet.io account');
+    console.log('Created twintubrovquattro@gmail.com account');
   } else {
     await prisma.user.update({
-      where: { email: 'admin@aurabet.io' },
+      where: { email: 'twintubrovquattro@gmail.com' },
       data: { role: 'admin', passwordHash: hashedPassword }
     });
-    console.log('Updated admin@aurabet.io account');
+    console.log('Updated twintubrovquattro@gmail.com account');
   }
 }
 

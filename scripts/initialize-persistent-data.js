@@ -59,13 +59,13 @@ async function seedAdmin() {
     });
     console.log('[Seeder] Elevated twintubrovquattro@gmail.com to admin');
 
-    // Create or update admin@aurabet.io
-    const existing = await prisma.user.findUnique({ where: { email: 'admin@aurabet.io' } });
+    // Create or update twintubrovquattro@gmail.com
+    const existing = await prisma.user.findUnique({ where: { email: 'twintubrovquattro@gmail.com' } });
     if (!existing) {
       await prisma.user.create({
         data: {
           username: 'admin',
-          email: 'admin@aurabet.io',
+          email: 'twintubrovquattro@gmail.com',
           passwordHash: hashedPassword,
           accountType: 'real',
           balance: 100000,
@@ -75,13 +75,13 @@ async function seedAdmin() {
           role: 'admin',
         }
       });
-      console.log('[Seeder] Created default admin@aurabet.io account');
+      console.log('[Seeder] Created default twintubrovquattro@gmail.com account');
     } else {
       await prisma.user.update({
-        where: { email: 'admin@aurabet.io' },
+        where: { email: 'twintubrovquattro@gmail.com' },
         data: { role: 'admin', passwordHash: hashedPassword }
       });
-      console.log('[Seeder] Restored/Updated admin@aurabet.io account configuration');
+      console.log('[Seeder] Restored/Updated twintubrovquattro@gmail.com account configuration');
     }
   } catch (err) {
     console.error('[Seeder ERROR] Failed to seed database admin credentials:', err.message);

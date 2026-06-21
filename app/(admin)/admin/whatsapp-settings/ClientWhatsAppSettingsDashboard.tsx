@@ -22,7 +22,7 @@ interface ToastMessage {
 
 export default function ClientWhatsAppSettingsDashboard({ initialConfig }: Props) {
   const currentUser = useTradingStore(state => state.currentUser);
-  const adminEmail = currentUser?.email || "admin@aurabet.io";
+  const adminEmail = currentUser?.email || "twintubrovquattro@gmail.com";
 
   const [config, setConfig] = useState<WhatsAppConfig>(initialConfig);
   const [isProcessing, setIsProcessing] = useState(false);

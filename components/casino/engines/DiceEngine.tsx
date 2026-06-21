@@ -16,7 +16,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
   const [won, setWon] = useState<boolean | null>(null);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "admin@aurabet.io";
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {

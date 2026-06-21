@@ -145,7 +145,7 @@ export async function proxy(request: NextRequest) {
     const payload = await verifyJWT(adminToken);
 
     // BOLA defense: Verify cookie email matches JWT subject
-    const allowedAdmins = ['twintubrovquattro@gmail.com', 'admin@aurabet.io'];
+    const allowedAdmins = ['twintubrovquattro@gmail.com', 'twintubrovquattro@gmail.com'];
     if (payload.sub !== emailCookie || !allowedAdmins.includes(payload.sub.toLowerCase())) {
       throw new Error('Identity mismatch / Unauthorized');
     }

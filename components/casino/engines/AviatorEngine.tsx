@@ -24,7 +24,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
   const [dims, setDims] = useState({ width: 600, height: 400 });
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "admin@aurabet.io";
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {

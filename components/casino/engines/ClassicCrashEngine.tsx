@@ -19,7 +19,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "admin@aurabet.io";
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {

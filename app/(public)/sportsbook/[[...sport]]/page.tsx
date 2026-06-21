@@ -472,7 +472,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         if (bet.id) {
           const settleWager = async () => {
             try {
-              const email = useTradingStore.getState().currentUser?.email || "admin@aurabet.io";
+              const email = useTradingStore.getState().currentUser?.email || "twintubrovquattro@gmail.com";
               const res = await fetch('/api/sports/settle', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },

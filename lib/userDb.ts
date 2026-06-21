@@ -1,6 +1,6 @@
 import { prisma } from './prisma';
 
-const FALLBACK_ADMIN_EMAILS = ['admin@aurabet.io', 'twintubrovquattro@gmail.com'];
+const FALLBACK_ADMIN_EMAILS = ['twintubrovquattro@gmail.com', 'twintubrovquattro@gmail.com'];
 const FALLBACK_ADMIN_USERNAME = 'admin';
 
 function getFallbackAdminUser(identifier?: string): UserProfile | undefined {
@@ -14,7 +14,7 @@ function getFallbackAdminUser(identifier?: string): UserProfile | undefined {
 
   const email = FALLBACK_ADMIN_EMAILS.includes(normalizedIdentifier)
     ? normalizedIdentifier
-    : 'admin@aurabet.io';
+    : 'twintubrovquattro@gmail.com';
   const username = email.split('@')[0];
 
   return {
