@@ -94,7 +94,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
     }
   }, [initialView, view]);
 
-  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "61951094794-ice7e5fabt7indlo6clki10f7093hjiu.apps.googleusercontent.com";
+  const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "61951094794-rj86fgkpigssgt7j1j5psuptgloul2e9.apps.googleusercontent.com";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
