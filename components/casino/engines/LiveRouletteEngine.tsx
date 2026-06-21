@@ -130,6 +130,7 @@ export function LiveRouletteEngine({
   const [wonAmount, setWonAmount] = useState(0);
   const [coinsShower, setCoinsShower] = useState<number[]>([]);
   const [roundSeed, setRoundSeed] = useState("sha256-b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9");
+  const [activeTab, setActiveTab] = useState<"stats" | "feed" | "vips">("stats");
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -412,30 +413,22 @@ export function LiveRouletteEngine({
     );
   };
 
-  // Numbers Grid Helpers
-  const getNumberColor = (n: number) => {
-    if (n === 0) return "bg-emerald-500 text-slate-900";
-    const redNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
-    return redNumbers.has(n) ? "bg-rose-600 text-slate-900" : "bg-white text-slate-900";
-  };
-
   // Rendering board horizontally (12 columns x 3 rows)
   const renderNumberCell = (n: number) => {
-    const isRed = getNumberColor(n).includes("rose-600");
+    const redNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
+    const isRed = redNumbers.has(n);
     return (
       <button
         key={`num-${n}`}
         disabled={isSpinning}
         onClick={() => placeBet(`num-${n}`)}
-        className={`relative h-12 flex flex-col items-center justify-center border border-yellow-500/15 cursor-pointer font-black text-sm transition-all hover:bg-white/10 active:scale-95 ${
-          isRed ? "hover:border-rose-400 shadow-[inset_0_0_8px_rgba(244,63,94,0.1)]" : "hover:border-slate-400 shadow-[inset_0_0_8px_rgba(255,255,255,0.05)]"
+        className={`relative h-12 flex flex-col items-center justify-center border border-yellow-500/10 cursor-pointer font-black text-sm transition-all active:scale-95 ${
+          isRed 
+            ? "bg-rose-700 hover:bg-rose-600 text-white" 
+            : "bg-slate-950 hover:bg-slate-900 text-slate-100"
         }`}
       >
-        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-mono font-black ${
-          isRed ? "bg-rose-500/90 shadow-[0_0_8px_rgba(244,63,94,0.4)]" : "bg-white/80"
-        }`}>
-          {n}
-        </span>
+        <span className="font-mono font-black">{n}</span>
         {renderCellChip(`num-${n}`)}
       </button>
     );
@@ -449,7 +442,7 @@ export function LiveRouletteEngine({
   const ballTimes = [0, 0.15, 0.3, 0.533, 0.62, 0.71, 0.75, 0.80, 0.83, 0.86, 0.90, 1.0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible select-none font-sans relative">
+    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-4 text-slate-100 overflow-visible select-none font-sans relative">
       
       {/* 3D Gold Coins victory shower overlay */}
       <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
@@ -474,126 +467,142 @@ export function LiveRouletteEngine({
         ))}
       </div>
 
-      {/* 1. Header VIP HUD info */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-4 mb-5 bg-[#051c10]/80 border border-yellow-500/15 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-xl">
-        <div className="flex items-center gap-3">
-          <span className="relative flex h-2.5 w-2.5">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-yellow-400" />
-            <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-yellow-500" />
+      {/* 1. Sleek Super-Minimalist HUD Header */}
+      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#02130a]/80 border-b border-emerald-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <div>
-            <h3 className="text-xs sm:text-sm font-black text-slate-100 uppercase tracking-widest leading-none">
-              Live Emerald Roulette
-            </h3>
-            <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-wider mt-1 flex items-center gap-1.5">
-              <Lock className="w-2.5 h-2.5 text-yellow-500" /> Provably Fair Live
-            </p>
-          </div>
+          <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
+            Emerald Roulette
+          </span>
         </div>
 
-        {/* Bets & Multiplier summary */}
-        <div className="flex items-center gap-5 bg-[#020a05]/80 border border-yellow-950/70 px-4 py-2 rounded-xl">
-          <div className="flex items-center gap-2">
-            <Coins className="w-3.5 h-3.5 text-yellow-500" />
-            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Active Bets:</span>
-            <span className="text-xs font-black font-mono text-yellow-400">₹{totalBetsSum.toLocaleString()}</span>
+        {/* Active Bets & Roadmap merged into one compact container */}
+        <div className="flex items-center gap-4">
+          {/* Active Bets Counter */}
+          <div className="flex items-center gap-1.5">
+            <Coins className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
+            <span className="text-[10px] font-black font-mono text-yellow-400">₹{totalBetsSum.toLocaleString()}</span>
           </div>
-          <div className="w-px h-4 bg-yellow-950" />
-          <div className="flex items-center gap-2">
-            <Trophy className="w-3.5 h-3.5 text-emerald-400" />
-            <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">RTP Rate:</span>
-            <span className="text-xs font-black font-mono text-emerald-400">97.3%</span>
-          </div>
-        </div>
 
-        {/* History timeline feed */}
-        <div className="flex items-center gap-1.5 overflow-hidden">
-          <span className="text-[7.5px] font-black text-slate-500 uppercase tracking-widest mr-2 shrink-0">Roadmap:</span>
-          {outcomeHistory.map((h, i) => (
-            <div 
-              key={`${h.n}-${i}`}
-              className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold font-mono border ${
-                h.color === "green" 
-                  ? "bg-emerald-500 border-emerald-400 text-slate-900" 
-                  : h.color === "red" 
-                    ? "bg-rose-600 border-rose-500 text-slate-900" 
-                    : "bg-white border-slate-700 text-slate-200"
-              }`}
-            >
-              {h.n}
-            </div>
-          ))}
+          <div className="hidden sm:block w-px h-3 bg-emerald-800/60" />
+
+          {/* Compact Roadmap timeline (only 5 items on mobile, 8 on desktop to save space) */}
+          <div className="flex items-center gap-1 overflow-hidden">
+            {outcomeHistory.slice(0, windowWidth < 640 ? 5 : 8).map((h, i) => (
+              <div 
+                key={`${h.n}-${i}`}
+                className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black font-mono border ${
+                  h.color === "green" 
+                    ? "bg-emerald-600 border-emerald-400 text-white" 
+                    : h.color === "red" 
+                      ? "bg-rose-700 border-rose-500 text-white" 
+                      : "bg-slate-900 border-slate-700 text-slate-200"
+                }`}
+              >
+                {h.n}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
 
-      {/* 2. Main Gameplay Dashboard */}
-      <div className="w-full flex flex-col gap-6 items-center justify-center overflow-visible">
+      {/* 2. Unified Casino Felt Play Area */}
+      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
         
-        {/* Top Section: Gameplay Arena (Wheel, Felt, Action buttons) */}
-        <div className="w-full flex flex-col items-center gap-5 overflow-visible">
-          
-          {/* Top part: The 3D Wood/Gold Roulette Wheel */}
-          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-5 sm:p-8 flex items-center justify-center overflow-hidden relative shadow-lg">
-            
-            {/* Emerald Radial Background light */}
-            <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[70%] h-[70%] bg-emerald-500/5 rounded-full blur-[40px] pointer-events-none" />
+        {/* Subtle felt texture overlay */}
+        <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
+        
+        {/* Radial spotlight on the wheel */}
+        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
 
-            {/* Rotated 3D Wheel Assembly (Increased Size & Responsiveness) */}
-            <div className="relative w-60 h-60 xs:w-72 xs:h-72 sm:w-80 sm:h-80 md:w-[350px] md:h-[350px] lg:w-[420px] lg:h-[420px] aspect-square flex items-center justify-center select-none perspective-[1000px]">
+        {/* Playfield Layout: Wheel first, then board */}
+        <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 z-10">
+          
+          {/* Wheel Frame - Hero element, centered, borderless, no container box */}
+          <div className="relative flex flex-col items-center justify-center shrink-0 py-2">
+            
+            {/* Landing/Result Display Overlay right above the wheel */}
+            <AnimatePresence>
+              {!isSpinning && winningNumber && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                  animate={{ opacity: 1, scale: 1, y: 0 }}
+                  exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                  className={`absolute -top-4 z-40 px-4 py-1.5 rounded-full border shadow-2xl flex items-center gap-2 ${
+                    winningNumber.color === "red" 
+                      ? "bg-rose-700/90 border-rose-500 text-white" 
+                      : winningNumber.color === "black" 
+                        ? "bg-slate-900/90 border-slate-700 text-slate-100" 
+                        : "bg-emerald-600/90 border-emerald-400 text-white"
+                  }`}
+                >
+                  <span className="text-[10px] font-black tracking-widest uppercase">RESULT</span>
+                  <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
+                    {winningNumber.n}
+                  </span>
+                  <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Rotated 3D Wheel Assembly */}
+            <div className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 lg:w-[360px] lg:h-[360px] aspect-square flex items-center justify-center select-none perspective-[1000px]">
               <div 
-                className="relative w-[90%] h-[90%] rounded-full shadow-[0_20px_45px_rgba(0,0,0,0.85)] transform-style-3d"
-                style={{ transform: "rotateX(56deg)" }}
+                className="relative w-[95%] h-[95%] rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] transform-style-3d"
+                style={{ transform: "rotateX(55deg)" }}
               >
-                {/* Volumetric wood chassis */}
-                <div className="absolute -inset-5 md:-inset-6 rounded-full border-[10px] md:border-[12px] border-amber-950 shadow-[inset_0_4px_15px_rgba(0,0,0,0.9)] bg-amber-900 flex items-center justify-center">
-                  <div className="absolute inset-1.5 rounded-full border-2 border-yellow-500/40 shadow-[0_0_12px_rgba(234,179,8,0.15)]" />
+                {/* Wood Wheel Rim outer ring */}
+                <div className="absolute -inset-4 rounded-full border-[8px] border-amber-950 bg-gradient-to-br from-amber-800 to-amber-950 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] flex items-center justify-center">
+                  <div className="absolute inset-1 rounded-full border border-yellow-500/20" />
                 </div>
                 
-                {/* Base Segment Track */}
+                {/* Wheel segment track */}
                 <motion.div
                   animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
                   transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 rounded-full bg-white border-[6px] border-amber-700 overflow-hidden shadow-[inset_0_0_40px_rgba(0,0,0,0.95)]"
+                  className="absolute inset-0 rounded-full bg-slate-950 border-[4px] border-amber-800 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.95)]"
                 >
                   {NUMBERS.map((num, i) => {
                     const angle = (360 / NUMBERS.length) * i;
                     const numColor = num.color === "green" 
-                      ? "bg-emerald-600 text-slate-900" 
+                      ? "bg-emerald-600 text-white" 
                       : num.color === "red" 
-                        ? "bg-rose-600 text-slate-900" 
-                        : "bg-white text-slate-300";
+                        ? "bg-rose-700 text-white" 
+                        : "bg-slate-900 text-slate-100";
                     
                     return (
                       <div
                         key={`seg-${i}`}
-                        className="absolute top-0 left-1/2 w-6 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-0.5"
+                        className="absolute top-0 left-1/2 w-5 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-0.5"
                         style={{ transform: `rotate(${angle}deg)` }}
                       >
-                        <div className={`w-5 h-7 md:w-6 md:h-8.5 md:pt-1.5 flex items-start justify-center pt-1 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1.5px_3px_rgba(0,0,0,0.7)]`}>
-                          <span className="text-[7.5px] md:text-[9.5px] font-black font-mono leading-none">
+                        <div className={`w-4 h-6 flex items-start justify-center pt-0.5 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]`}>
+                          <span className="text-[7px] sm:text-[8px] font-black font-mono leading-none">
                             {num.n}
                           </span>
                         </div>
-                        <div className="w-[0.5px] h-full bg-yellow-750/20 origin-top" />
+                        <div className="w-[0.5px] h-full bg-yellow-750/10 origin-top" />
                       </div>
                     );
                   })}
                   
-                  {/* Center Brass Turret */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-16 h-16 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-700 shadow-[0_0_15px_rgba(0,0,0,1)] flex items-center justify-center z-20">
-                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white border border-yellow-500/30 flex items-center justify-center shadow-inner">
-                      <span className="text-yellow-500 text-[6.5px] md:text-[8px] font-black tracking-widest uppercase">ROYALE</span>
+                  {/* Center Gold Turret */}
+                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-755 shadow-[0_0_12px_rgba(0,0,0,0.95)] flex items-center justify-center z-20">
+                    <div className="w-8 h-8 rounded-full bg-[#051c10] border border-yellow-500/20 flex items-center justify-center shadow-inner">
+                      <span className="text-yellow-500 text-[6px] font-black tracking-widest uppercase">AURA</span>
                     </div>
                   </div>
                 </motion.div>
 
-                {/* Glassmorphic Glossy Highlight reflection ring */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-white/5 to-white/15 pointer-events-none z-10 mix-blend-overlay" />
+                {/* Glass reflections */}
+                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none z-10 mix-blend-overlay" />
 
-                {/* Spinning Ball orbit with drop shadow */}
+                {/* Ball animation */}
                 {isSpinning && (
                   <>
-                    {/* Shadow layer */}
                     <motion.div
                       animate={{ rotate: ballRotateKeyframes }}
                       transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
@@ -606,11 +615,10 @@ export function LiveRouletteEngine({
                           opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
                         }}
                         transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                        className="absolute top-2.5 md:top-3 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-white/60 blur-[1.5px]"
+                        className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/60 blur-[1px]"
                       />
                     </motion.div>
 
-                    {/* Ball layer */}
                     <motion.div
                       animate={{ rotate: ballRotateKeyframes }}
                       transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
@@ -619,13 +627,13 @@ export function LiveRouletteEngine({
                       <motion.div 
                         animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
                         transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                        className="absolute top-1.5 md:top-2 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-white shadow-[0_0_12px_rgba(255,255,255,1),inset_-1.5px_-1.5px_3px_rgba(0,0,0,0.3)]"
+                        className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
                       />
                     </motion.div>
                   </>
                 )}
 
-                {/* Landed winning ball */}
+                {/* Landed ball */}
                 <AnimatePresence>
                   {!isSpinning && winningNumber && (
                     <motion.div
@@ -634,10 +642,8 @@ export function LiveRouletteEngine({
                       className="absolute inset-0 rounded-full pointer-events-none z-30"
                       style={{ transform: `rotate(${rotation % 360}deg)` }}
                     >
-                      {/* Landed Ball shadow */}
-                      <div className="absolute top-5 md:top-6.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-white/50 blur-[1px] z-20" />
-                      {/* Landed Ball */}
-                      <div className="absolute top-4 md:top-5.5 left-1/2 -translate-x-1/2 w-3.5 h-3.5 md:w-4.5 md:h-4.5 rounded-full bg-[#fcfbf9] shadow-[0_0_8px_rgba(255,255,255,0.8),inset_-1.5px_-1.5px_3px_rgba(0,0,0,0.3)] z-30" />
+                      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/50 blur-[0.5px] z-20" />
+                      <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#fcfbf9] shadow-[0_0_6px_rgba(255,255,255,0.8),inset_-1px_-1px_2px_rgba(0,0,0,0.3)] z-30" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -646,308 +652,300 @@ export function LiveRouletteEngine({
             </div>
           </div>
 
-          {/* Center part: Premium Emerald Betting Board */}
-          <div className="w-full bg-[#051c10]/65 border border-yellow-500/15 backdrop-blur-md rounded-3xl p-4 sm:p-5 relative shadow-xl overflow-x-auto">
+          {/* Betting Board & Controls */}
+          <div className="flex-1 w-full flex flex-col gap-4 overflow-visible">
             
-            <div className="min-w-[650px] relative">
-              {/* Numbers Grid (horizontally aligned, Column 3 at top, Column 2 middle, Column 1 bottom) */}
-              <div className="grid grid-cols-14 border border-yellow-500/30 rounded-xl overflow-hidden bg-white/80">
+            {/* The Felt Betting Board */}
+            <div className="w-full bg-[#03140a]/40 border border-emerald-500/10 rounded-2xl p-2.5 relative shadow-inner overflow-x-auto scrollbar-thin">
+              <div className="min-w-[620px] relative">
                 
-                {/* 0 Cell (spans 3 rows) */}
-                <button
-                  disabled={isSpinning}
-                  onClick={() => placeBet("num-0")}
-                  className="row-span-3 h-full border-r border-yellow-500/30 bg-emerald-700/80 hover:bg-emerald-600 transition-colors flex items-center justify-center font-black font-mono text-lg text-slate-900 select-none cursor-pointer relative"
-                >
-                  <span>0</span>
-                  {renderCellChip("num-0")}
-                </button>
+                {/* Numbers Grid (horizontally aligned) */}
+                <div className="grid grid-cols-14 border border-yellow-500/20 rounded-xl overflow-hidden bg-slate-950/40">
+                  
+                  {/* 0 Cell */}
+                  <button
+                    disabled={isSpinning}
+                    onClick={() => placeBet("num-0")}
+                    className="row-span-3 h-full border-r border-yellow-500/20 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
+                  >
+                    <span>0</span>
+                    {renderCellChip("num-0")}
+                  </button>
 
-                {/* 12 columns of 3 rows */}
-                {Array.from({ length: 12 }).map((_, colIdx) => {
-                  // columns 3, 2, 1 descending
-                  const nums = [
-                    (colIdx * 3) + 3,
-                    (colIdx * 3) + 2,
-                    (colIdx * 3) + 1
-                  ];
-                  return (
-                    <div key={`col-${colIdx}`} className="flex flex-col border-r border-yellow-500/30">
-                      {nums.map(n => renderNumberCell(n))}
-                    </div>
-                  );
-                })}
+                  {/* 12 columns of 3 rows */}
+                  {Array.from({ length: 12 }).map((_, colIdx) => {
+                    const nums = [
+                      (colIdx * 3) + 3,
+                      (colIdx * 3) + 2,
+                      (colIdx * 3) + 1
+                    ];
+                    return (
+                      <div key={`col-${colIdx}`} className="flex flex-col border-r border-yellow-500/20">
+                        {nums.map(n => renderNumberCell(n))}
+                      </div>
+                    );
+                  })}
 
-                {/* 2 to 1 column bets */}
-                <div className="flex flex-col">
-                  {["col-3", "col-2", "col-1"].map((col, idx) => (
+                  {/* 2 to 1 columns */}
+                  <div className="flex flex-col">
+                    {["col-3", "col-2", "col-1"].map((col, idx) => (
+                      <button
+                        key={col}
+                        disabled={isSpinning}
+                        onClick={() => placeBet(col)}
+                        className="h-12 border-b border-yellow-500/20 last:border-b-0 bg-emerald-950/80 hover:bg-emerald-900 text-yellow-400 flex items-center justify-center font-black text-xs uppercase cursor-pointer select-none transition-all relative active:scale-95"
+                      >
+                        <span>2:1</span>
+                        {renderCellChip(col)}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Dozens Row */}
+                <div className="grid grid-cols-14 border-x border-b border-yellow-500/20 rounded-b-xl overflow-hidden bg-emerald-950/40 mt-1">
+                  <div className="col-span-1" />
+                  {[
+                    { id: "doz-1", label: "1st 12" },
+                    { id: "doz-2", label: "2nd 12" },
+                    { id: "doz-3", label: "3rd 12" }
+                  ].map(doz => (
                     <button
-                      key={col}
+                      key={doz.id}
                       disabled={isSpinning}
-                      onClick={() => placeBet(col)}
-                      className="h-12 border-b border-yellow-500/20 bg-emerald-950/40 hover:bg-white/10 flex items-center justify-center font-black text-[9px] text-yellow-500 uppercase cursor-pointer select-none transition-all relative active:scale-95"
+                      onClick={() => placeBet(doz.id)}
+                      className="col-span-4 h-10 border-r border-yellow-500/20 bg-emerald-950/60 hover:bg-emerald-900/80 flex items-center justify-center font-black text-xs text-slate-200 uppercase cursor-pointer select-none transition-all relative active:scale-95"
                     >
-                      <span>2:1</span>
-                      {renderCellChip(col)}
+                      <span>{doz.label}</span>
+                      {renderCellChip(doz.id)}
                     </button>
                   ))}
+                  <div className="col-span-1" />
                 </div>
-              </div>
 
-              {/* Dozens Row */}
-              <div className="grid grid-cols-14 border-x border-b border-yellow-500/30 rounded-b-xl overflow-hidden bg-emerald-950/20 mt-1">
-                <div className="col-span-1" /> {/* empty space offset for 0 cell */}
+                {/* Even/Odd Red/Black outside bets */}
+                <div className="grid grid-cols-14 border-x border-b border-yellow-500/20 rounded-b-xl overflow-hidden bg-emerald-950/50 mt-1">
+                  <div className="col-span-1" />
+                  {[
+                    { id: "low", label: "1-18", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
+                    { id: "even", label: "EVEN", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
+                    { id: "red", label: "RED", btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)]" },
+                    { id: "black", label: "BLACK", btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)]" },
+                    { id: "odd", label: "ODD", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
+                    { id: "high", label: "19-36", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" }
+                  ].map(out => (
+                    <button
+                      key={out.id}
+                      disabled={isSpinning}
+                      onClick={() => placeBet(out.id)}
+                      className={`col-span-2 h-10 border-r border-yellow-500/20 last:border-r-0 flex items-center justify-center font-black text-xs cursor-pointer select-none transition-all relative active:scale-95 ${out.btnClass}`}
+                    >
+                      <span>{out.label}</span>
+                      {renderCellChip(out.id)}
+                    </button>
+                  ))}
+                  <div className="col-span-1" />
+                </div>
+
+              </div>
+            </div>
+
+            {/* Chip Selector Rack & Wagers Bar */}
+            <div className="w-full bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-3 flex flex-col md:flex-row items-center justify-between gap-3 shadow-md">
+              
+              {/* Luxury Casino Chip Selector */}
+              <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 scrollbar-none bg-slate-950/50 px-3 py-1.5 rounded-full border border-emerald-500/10">
                 {[
-                  { id: "doz-1", label: "1st 12" },
-                  { id: "doz-2", label: "2nd 12" },
-                  { id: "doz-3", label: "3rd 12" }
-                ].map(doz => (
-                  <button
-                    key={doz.id}
-                    disabled={isSpinning}
-                    onClick={() => placeBet(doz.id)}
-                    className="col-span-4 h-11 border-r border-yellow-500/30 bg-emerald-900/10 hover:bg-white/10 flex items-center justify-center font-black text-[10px] text-slate-300 uppercase cursor-pointer select-none transition-all relative active:scale-95"
-                  >
-                    <span>{doz.label}</span>
-                    {renderCellChip(doz.id)}
-                  </button>
-                ))}
-                <div className="col-span-1" />
+                  { amount: 100, label: "100", color: "from-blue-500 to-indigo-700 border-blue-400" },
+                  { amount: 500, label: "500", color: "from-teal-400 to-emerald-600 border-teal-400" },
+                  { amount: 1000, label: "1k", color: "from-yellow-400 to-amber-600 border-amber-300" },
+                  { amount: 5000, label: "5k", color: "from-rose-500 to-pink-650 border-rose-450" },
+                  { amount: 10000, label: "10k", color: "from-purple-600 to-fuchsia-800 border-purple-450" },
+                  { amount: 50000, label: "50k", color: "from-slate-800 to-slate-900 border-slate-700" }
+                ].map((chip) => {
+                  const isSelected = activeChip === chip.amount;
+                  return (
+                    <button
+                      key={chip.amount}
+                      type="button"
+                      onClick={() => setActiveChip(chip.amount)}
+                      className={`relative w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-slate-955 shadow-md transition-all duration-200 transform cursor-pointer border border-white/40 select-none ${
+                        isSelected ? "scale-110 ring-2 ring-yellow-500 opacity-100 z-10" : "opacity-60 hover:opacity-100"
+                      } bg-gradient-to-br ${chip.color}`}
+                    >
+                      <div className="absolute inset-[2px] rounded-full border border-dashed border-white/30 flex items-center justify-center">
+                        <span className="text-[7.5px] font-black tracking-tighter drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
+                          {chip.label}
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
 
-              {/* Red/Black Even/Odd Outside Bets Row */}
-              <div className="grid grid-cols-14 border-x border-b border-yellow-500/30 rounded-b-xl overflow-hidden bg-emerald-950/30 mt-1">
-                <div className="col-span-1" />
-                {[
-                  { id: "low", label: "1-18", color: "" },
-                  { id: "even", label: "EVEN", color: "" },
-                  { id: "red", label: "RED", color: "bg-rose-600/90 shadow-[0_0_12px_rgba(244,63,94,0.3)] border border-rose-500/40 text-slate-900 rounded-md mx-2 py-1.5" },
-                  { id: "black", label: "BLACK", color: "bg-white border border-slate-700/60 text-slate-200 rounded-md mx-2 py-1.5" },
-                  { id: "odd", label: "ODD", color: "" },
-                  { id: "high", label: "19-36", color: "" }
-                ].map(out => (
-                  <button
-                    key={out.id}
-                    disabled={isSpinning}
-                    onClick={() => placeBet(out.id)}
-                    className="col-span-2 h-11 border-r border-yellow-500/30 hover:bg-white/10 flex items-center justify-center font-black text-[10px] text-slate-350 cursor-pointer select-none transition-all relative active:scale-95"
-                  >
-                    <span className={out.color || ""}>{out.label}</span>
-                    {renderCellChip(out.id)}
-                  </button>
-                ))}
-                <div className="col-span-1" />
+              {/* Action Buttons & Spin Trigger */}
+              <div className="flex items-center gap-2 max-w-full overflow-x-auto pb-1 md:pb-0 scrollbar-none">
+                <button 
+                  onClick={undoLastBet} 
+                  disabled={isSpinning || betHistory.length === 0}
+                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
+                >
+                  Undo
+                </button>
+                <button 
+                  onClick={doubleAllBets} 
+                  disabled={isSpinning || totalBetsSum === 0}
+                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
+                >
+                  Double
+                </button>
+                <button 
+                  onClick={repeatLastBets} 
+                  disabled={isSpinning || Object.keys(prevBets).length === 0}
+                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
+                >
+                  Repeat
+                </button>
+                <button 
+                  onClick={clearAllBets} 
+                  disabled={isSpinning || totalBetsSum === 0}
+                  className="px-3 py-2 rounded-lg border border-emerald-500/20 font-black text-[10px] uppercase tracking-wider bg-emerald-950/40 text-yellow-400 hover:bg-emerald-900/60 disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer active:scale-95 transition-all"
+                >
+                  Clear
+                </button>
+
+                <div className="w-px h-6 bg-emerald-800/40" />
+
+                <button
+                  onClick={handleSpinInit}
+                  disabled={isSpinning || totalBetsSum === 0}
+                  className={`py-2 px-5 rounded-lg font-black text-[10px] uppercase tracking-widest border transition-all cursor-pointer ${
+                    isSpinning || totalBetsSum === 0
+                      ? "bg-slate-900/60 border-slate-800 text-slate-500 cursor-not-allowed"
+                      : "bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 border-yellow-300 text-slate-950 shadow-[0_0_15px_rgba(234,179,8,0.25)] hover:shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:scale-102 active:scale-98"
+                  }`}
+                >
+                  Spin
+                </button>
               </div>
+
             </div>
 
-          </div>
-
-          {/* Bottom part: Chip Presets & Action Buttons */}
-          <div className="w-full bg-[#051c10]/40 border border-yellow-500/10 rounded-2xl p-4 flex flex-col lg:flex-row items-center justify-between gap-4 shadow-md animate-fade-in">
-            
-            {/* Chip selector - Styled as a luxury casino chip rack */}
-            <div className="flex items-center gap-2.5 shrink-0 bg-white/35 border border-yellow-500/15 px-4 py-1.5 rounded-full shadow-inner">
-              {[
-                { amount: 100, label: "100", color: "from-blue-500 to-indigo-700 border-blue-400" },
-                { amount: 500, label: "500", color: "from-teal-400 to-emerald-600 border-teal-400" },
-                { amount: 1000, label: "1k", color: "from-yellow-400 to-amber-600 border-amber-300" },
-                { amount: 5000, label: "5k", color: "from-rose-500 to-pink-650 border-rose-450" },
-                { amount: 10000, label: "10k", color: "from-purple-600 to-fuchsia-800 border-purple-450" },
-                { amount: 50000, label: "50k", color: "from-slate-800 to-slate-900 border-slate-700" }
-              ].map((chip) => {
-                const isSelected = activeChip === chip.amount;
-                return (
-                  <button
-                    key={chip.amount}
-                    type="button"
-                    onClick={() => setActiveChip(chip.amount)}
-                    className={`relative w-9 h-9 rounded-full shrink-0 flex items-center justify-center font-black text-slate-900 shadow-lg transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/60 select-none ${
-                      isSelected ? "scale-115 ring-2 ring-yellow-500 ring-offset-2 ring-offset-emerald-950 opacity-100 z-10" : "hover:scale-105 opacity-60 hover:opacity-100"
-                    } bg-gradient-to-br ${chip.color}`}
-                  >
-                    <div className="absolute inset-[2.5px] rounded-full border border-dashed border-white/40 flex items-center justify-center">
-                      <span className="text-[7.5px] font-black tracking-tight drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">
-                        {chip.label}
-                      </span>
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
-
-            {/* Quick Actions buttons - High contrast gold/emerald style */}
-            <div className="flex items-center gap-2 shrink-0">
-              <button 
-                onClick={undoLastBet} 
-                disabled={isSpinning || betHistory.length === 0}
-                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
-                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
-              >
-                Undo
-              </button>
-              <button 
-                onClick={doubleAllBets} 
-                disabled={isSpinning || totalBetsSum === 0}
-                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
-                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
-              >
-                Double
-              </button>
-              <button 
-                onClick={repeatLastBets} 
-                disabled={isSpinning || Object.keys(prevBets).length === 0}
-                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
-                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
-              >
-                Repeat
-              </button>
-              <button 
-                onClick={clearAllBets} 
-                disabled={isSpinning || totalBetsSum === 0}
-                className="px-3.5 py-2.5 rounded-xl border font-black text-[10px] uppercase tracking-wider cursor-pointer active:scale-95 transition-all disabled:cursor-not-allowed
-                  enabled:bg-emerald-950/60 enabled:border-yellow-500/25 enabled:text-yellow-400 enabled:hover:bg-emerald-900/80 enabled:hover:border-yellow-400/50 enabled:hover:text-yellow-300
-                  disabled:bg-white/40 disabled:border-slate-800/60 disabled:text-slate-600"
-              >
-                Clear
-              </button>
-            </div>
-
-            {/* Spin Button - Highly readable high-contrast layout */}
-            <button
-              onClick={handleSpinInit}
-              disabled={isSpinning || totalBetsSum === 0}
-              className={`py-3 px-8 rounded-xl font-black text-xs uppercase tracking-widest transition-all cursor-pointer select-none shrink-0 ${
-                isSpinning || totalBetsSum === 0
-                  ? "bg-white/60 text-slate-500 border border-slate-800 cursor-not-allowed shadow-none"
-                  : "bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 text-slate-950 hover:scale-[1.03] active:scale-[0.97] border border-yellow-300 shadow-[0_0_20px_rgba(234,179,8,0.35)] hover:shadow-[0_0_30px_rgba(234,179,8,0.5)] animate-pulse animate-duration-1000"
-              }`}
-            >
-              🎰 Spin Wheel
-            </button>
           </div>
 
         </div>
 
-        {/* Bottom part: VIP Players and Analytics (side-by-side on lg/xl, stacked on mobile) */}
-        <div className="w-full flex flex-col lg:flex-row gap-5 items-stretch justify-center overflow-visible mt-2">
-          
-          {/* Left panel: Active VIP Players */}
-          <div className="flex-1 min-w-[280px] bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-4 flex flex-col justify-between gap-4 shadow-xl">
-            <div>
-              <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2 mb-3">Active VIP Players</span>
-              <div className="space-y-3">
+        {/* 3. Compact Tabbed Dashboard for secondary elements (h-28) */}
+        <div className="w-full bg-[#020e08]/80 border border-emerald-500/10 rounded-xl mt-2 overflow-hidden flex flex-col z-10 shrink-0">
+          {/* Tab Selector Header */}
+          <div className="flex border-b border-emerald-500/10 bg-slate-950/40">
+            {[
+              { id: "stats", label: "📊 Analytics" },
+              { id: "feed", label: "📝 Live Feed" },
+              { id: "vips", label: "👥 VIP Players" }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id as any)}
+                className={`flex-1 py-1.5 text-[9px] sm:text-[10px] font-black uppercase tracking-widest border-b-2 transition-all cursor-pointer ${
+                  activeTab === tab.id 
+                    ? "border-yellow-500 bg-[#052112]/50 text-slate-100" 
+                    : "border-transparent text-slate-400 hover:text-slate-200"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Tab Content (Height Fixed to 96px/h-24 to guarantee fit) */}
+          <div className="h-24 p-2.5 overflow-y-auto scrollbar-thin text-left bg-slate-950/10">
+            
+            {activeTab === "vips" && (
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                 {vips.map(vip => (
-                  <div key={vip.id} className="bg-[#020a05]/60 border border-yellow-950/40 p-2.5 rounded-xl flex items-center justify-between relative">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{vip.avatar}</span>
-                      <div className="text-left">
-                        <span className="text-xs font-black text-slate-200 block truncate max-w-[120px]">{vip.name}</span>
-                        <span className="text-[8px] text-slate-500 font-bold block uppercase">XP Level {vip.streak > 0 ? `🔥 ${vip.streak}` : "Gold"}</span>
+                  <div key={vip.id} className="bg-slate-950/50 border border-emerald-500/5 p-1.5 rounded-lg flex items-center justify-between relative text-xs">
+                    <div className="flex items-center gap-1.5 min-w-0">
+                      <span className="text-base shrink-0">{vip.avatar}</span>
+                      <div className="min-w-0">
+                        <span className="font-black text-slate-200 block truncate leading-tight text-[10px]">{vip.name}</span>
+                        <span className="text-[7.5px] text-slate-500 font-bold block uppercase leading-none">
+                          {vip.streak > 0 ? `🔥 Streak ${vip.streak}` : "Gold VIP"}
+                        </span>
                       </div>
                     </div>
-                    <span className="text-[9.5px] font-mono font-black text-yellow-500/80">
+                    <span className="text-[9px] font-mono font-black text-yellow-500/80 shrink-0">
                       ₹{(vip.balance / 1000).toFixed(0)}k
                     </span>
 
-                    {/* Floating winnings bubble animation */}
+                    {/* Mini inline result overlay */}
                     <AnimatePresence>
                       {vip.payoutDiff !== undefined && !isSpinning && winningNumber && (
-                        <motion.div
-                          initial={{ opacity: 0, y: 5 }}
-                          animate={{ opacity: 1, y: -4 }}
-                          exit={{ opacity: 0 }}
-                          className={`text-[8.5px] font-mono font-black absolute top-1 right-2 ${
-                            vip.payoutDiff >= 0 ? "text-emerald-400" : "text-rose-500"
-                          }`}
+                        <motion.span
+                          initial={{ opacity: 0, scale: 0.8 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          className="text-[8px] font-mono font-black absolute -top-1 -right-1 px-1 rounded bg-slate-900 border border-slate-800 text-emerald-400"
                         >
-                          {vip.payoutDiff >= 0 ? `+₹${vip.payoutDiff}` : `-₹${Math.abs(vip.payoutDiff)}`}
-                        </motion.div>
+                          {vip.payoutDiff >= 0 ? `+` : ``}{vip.payoutDiff.toLocaleString()}
+                        </motion.span>
                       )}
                     </AnimatePresence>
                   </div>
                 ))}
               </div>
-            </div>
+            )}
 
-            {/* Lobby Live bet ticker */}
-            <div className="mt-4 border-t border-yellow-950/60 pt-3">
-              <span className="text-[8.5px] text-yellow-600 uppercase tracking-widest font-black block mb-2">Live Board Feed</span>
-              <div className="bg-white/70 border border-yellow-950/40 rounded-xl p-2.5 h-28 overflow-hidden">
-                <div className="space-y-1 overflow-y-auto h-full scrollbar-none">
-                  {recentLiveBets.length === 0 ? (
-                    <p className="text-[8px] text-slate-650 text-center py-8 uppercase font-bold tracking-widest">Feed Standby</p>
-                  ) : recentLiveBets.map((log, i) => (
-                    <div key={i} className="text-[8px] font-mono leading-tight text-slate-400 truncate">
+            {activeTab === "feed" && (
+              <div className="space-y-1 font-mono text-[8px] leading-relaxed text-slate-400">
+                {recentLiveBets.length === 0 ? (
+                  <p className="text-center py-4 uppercase font-bold tracking-widest text-[8px] text-slate-650">Feed Standby</p>
+                ) : (
+                  recentLiveBets.slice(0, 10).map((log, i) => (
+                    <div key={i} className="truncate">
                       &gt; {log}
                     </div>
-                  ))}
-                </div>
+                  ))
+                )}
               </div>
-            </div>
-          </div>
+            )}
 
-          {/* Right panel: Session Analytics & Limits */}
-          <div className="flex-1 min-w-[280px] bg-[#051c10]/40 border border-yellow-500/10 rounded-3xl p-4 flex flex-col justify-between gap-4 shadow-xl">
-            
-            {/* Stats chart summary */}
-            <div>
-              <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block border-b border-yellow-950/60 pb-2 mb-3">Session Analytics</span>
-              <div className="space-y-2">
-                <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase">
-                  <span>RTP return</span>
-                  <span className="text-emerald-400 font-mono flex items-center gap-1">
-                    <ArrowUpRight className="w-3.5 h-3.5" /> +97.3%
-                  </span>
+            {activeTab === "stats" && (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-[10px] uppercase font-bold text-slate-400 h-full items-center">
+                <div className="flex flex-col">
+                  <span className="text-[8px] text-slate-500 text-left font-bold">Total Wagered</span>
+                  <span className="font-mono text-slate-200 font-black">₹{totalWagered.toLocaleString()}</span>
                 </div>
-                <div className="flex justify-between items-center text-[10px] text-slate-450 font-bold uppercase">
-                  <span>Total Staked</span>
-                  <span className="font-mono text-slate-200">₹{totalWagered.toLocaleString()}</span>
-                </div>
-                <div className="flex justify-between items-center text-[10px] text-slate-400 font-bold uppercase">
-                  <span>Net Profit</span>
+                <div className="flex flex-col">
+                  <span className="text-[8px] text-slate-500 text-left font-bold">Net Profit</span>
                   <span className={`font-mono font-black ${netProfit >= 0 ? "text-emerald-400" : "text-rose-500"}`}>
                     ₹{netProfit >= 0 ? "+" : ""}{netProfit.toLocaleString()}
                   </span>
                 </div>
-              </div>
-            </div>
-
-            {/* Hot/Cold numbers indicator */}
-            <div className="border-t border-yellow-950/60 pt-3">
-              <span className="text-[9px] text-yellow-600 uppercase tracking-widest font-black block mb-2">Hot & Cold Sectors</span>
-              <div className="space-y-2">
-                {/* Hot numbers */}
-                <div className="flex items-center gap-2 justify-between">
-                  <span className="text-[8px] text-red-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingUp className="w-3 h-3 text-red-500" /> Hot</span>
-                  <div className="flex gap-1.5">
-                    {[32, 17, 15].map(n => (
-                      <span key={`hot-${n}`} className="w-5 h-5 rounded-full bg-white border border-red-500/40 text-[9px] font-mono font-black text-slate-900 flex items-center justify-center">{n}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[8px] text-red-500 shrink-0 uppercase flex items-center gap-0.5 tracking-wider"><TrendingUp className="w-2.5 h-2.5" /> Hot:</span>
+                  <div className="flex gap-1">
+                    {[32, 17].map(n => (
+                      <span key={`hot-${n}`} className="w-4 h-4 rounded-full bg-rose-700 text-[8px] font-mono font-black text-white flex items-center justify-center border border-rose-500/30">{n}</span>
                     ))}
                   </div>
                 </div>
-                {/* Cold numbers */}
-                <div className="flex items-center gap-2 justify-between">
-                  <span className="text-[8px] text-blue-400 font-black uppercase flex items-center gap-1 tracking-wider"><TrendingDown className="w-3 h-3 text-blue-500" /> Cold</span>
-                  <div className="flex gap-1.5">
-                    {[0, 11, 28].map(n => (
-                      <span key={`cold-${n}`} className="w-5 h-5 rounded-full bg-white border-blue-500/30 text-[9px] font-mono font-black text-slate-900 flex items-center justify-center">{n}</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[8px] text-blue-400 shrink-0 uppercase flex items-center gap-0.5 tracking-wider"><TrendingDown className="w-2.5 h-2.5" /> Cold:</span>
+                  <div className="flex gap-1">
+                    {[0, 28].map(n => (
+                      <span key={`cold-${n}`} className="w-4 h-4 rounded-full bg-slate-900 text-[8px] font-mono font-black text-slate-350 flex items-center justify-center border border-slate-700">{n}</span>
                     ))}
                   </div>
                 </div>
               </div>
-            </div>
+            )}
 
-            {/* Secure details lock */}
-            <div className="border border-yellow-500/10 bg-[#020a05]/50 p-2.5 rounded-xl mt-2">
-              <span className="text-[8px] font-black uppercase text-yellow-500/80 tracking-widest block mb-1">🛡️ SEED VERIFICATION</span>
-              <div className="text-[7.5px] font-mono text-slate-500 truncate">
-                {roundSeed}
-              </div>
-            </div>
+          </div>
 
+          {/* Secure Details footer banner */}
+          <div className="bg-slate-950/60 px-3 py-1 flex items-center justify-between text-[8px] font-mono border-t border-emerald-500/10 text-slate-500">
+            <span className="flex items-center gap-1"><Shield className="w-2.5 h-2.5 text-emerald-500" /> Provably Fair Seed</span>
+            <span className="truncate max-w-[200px] sm:max-w-xs">{roundSeed}</span>
           </div>
 
         </div>
@@ -961,7 +959,7 @@ export function LiveRouletteEngine({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center bg-white/80 backdrop-blur-md px-4"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-sm px-4"
             onClick={() => setShowWinOverlay(false)}
           >
             <motion.div
@@ -969,56 +967,59 @@ export function LiveRouletteEngine({
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.75, opacity: 0 }}
               transition={{ type: "spring", stiffness: 220, damping: 18 }}
-              className="bg-white border-2 border-yellow-500/40 p-8 rounded-[2.5rem] text-center shadow-[0_30px_100px_rgba(234,179,8,0.35)] max-w-sm w-full relative overflow-hidden"
+              className="bg-[#052112] border border-yellow-500/30 p-6 sm:p-8 rounded-[2rem] text-center shadow-[0_20px_50px_rgba(234,179,8,0.25)] max-w-sm w-full relative overflow-hidden text-slate-100"
               onClick={e => e.stopPropagation()}
             >
+              {/* Confetti & Golden Sparkles decorative background */}
+              <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(234,179,8,0.1)_0,transparent_60%)] pointer-events-none" />
+
               <motion.div
                 animate={{ rotate: [0, -12, 12, -6, 6, 0], scale: [1, 1.25, 1] }}
                 transition={{ duration: 1.2, repeat: 3 }}
-                className="text-7xl mb-4"
+                className="text-6xl mb-3"
               >
-                🎰
+                🏆
               </motion.div>
 
-              <h2 className="text-3xl font-black text-slate-900 mb-1 uppercase tracking-widest">
+              <h2 className="text-2xl font-black text-slate-100 mb-0.5 uppercase tracking-widest">
                 Winner Winner!
               </h2>
-              <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest mb-4">
+              <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest mb-3">
                 Live Emerald Payout
               </p>
 
               <motion.div
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ delay: 0.35, type: "spring" }}
-                className="text-4xl font-black font-mono mb-4 text-emerald-450 drop-shadow-[0_0_15px_rgba(52,211,153,0.5)]"
+                transition={{ delay: 0.25, type: "spring" }}
+                className="text-3xl font-black font-mono mb-4 text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.4)]"
               >
                 +₹{wonAmount.toLocaleString()}
               </motion.div>
 
-              <div className="bg-emerald-950/20 border border-yellow-500/10 rounded-2xl p-4 mb-6 text-left">
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">Payout Statement</span>
-                <div className="flex justify-between items-center mt-2 text-[10px] text-slate-350">
+              <div className="bg-[#020e08]/60 border border-emerald-500/10 rounded-xl p-3.5 mb-5 text-left text-xs">
+                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-1.5">Payout Details</span>
+                <div className="flex justify-between items-center text-[10px] text-slate-355 text-slate-300">
                   <span>Number landed:</span>
-                  <span className={`font-mono font-bold px-1.5 rounded-full ${
+                  <span className={`font-mono font-black px-2 py-0.5 rounded-full text-[9px] ${
                     winningNumber.color === "red" 
-                      ? "bg-rose-500 text-slate-900" 
+                      ? "bg-rose-700 text-white" 
                       : winningNumber.color === "black" 
-                        ? "bg-white border border-slate-800 text-slate-900" 
-                        : "bg-emerald-500 text-slate-900"
+                        ? "bg-slate-900 text-slate-200" 
+                        : "bg-emerald-600 text-white"
                   }`}>
                     {winningNumber.n} ({winningNumber.label})
                   </span>
                 </div>
-                <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-355">
-                  <span>Winnings sum:</span>
-                  <span className="font-mono text-emerald-400 font-bold">₹{wonAmount.toLocaleString()}</span>
+                <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-355 text-slate-300">
+                  <span>Total winnings:</span>
+                  <span className="font-mono text-emerald-400 font-black">₹{wonAmount.toLocaleString()}</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setShowWinOverlay(false)}
-                className="w-full py-3.5 rounded-xl font-black text-slate-950 text-xs uppercase tracking-widest border border-yellow-300 bg-gradient-to-r from-yellow-400 to-amber-500 hover:scale-[1.02] cursor-pointer"
+                className="w-full py-3 rounded-lg font-black text-slate-950 text-xs uppercase tracking-widest border border-yellow-300 bg-gradient-to-r from-yellow-400 to-amber-500 hover:scale-[1.02] active:scale-[0.98] cursor-pointer shadow-lg transition-transform"
               >
                 Collect Winnings
               </button>
