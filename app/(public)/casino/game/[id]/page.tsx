@@ -274,6 +274,7 @@ export default function GamePlayerPage() {
   const { balance: rawBalance, playCasino, currentUser, sessionStats, recordSessionRound, setAmbientPreset } = useTradingStore();
   const balance = typeof rawBalance === 'number' ? rawBalance : (parseFloat(String(rawBalance)) || 0);
   const [betAmount, setBetAmount] = useState(100);
+  const [activeRouletteChip, setActiveRouletteChip] = useState<number>(100);
   const [customBetVal, setCustomBetVal] = useState("");
   const [playMode, setPlayMode] = useState<"manual" | "auto">("manual");
   const [autoplayWarning, setAutoplayWarning] = useState(false);
@@ -849,6 +850,8 @@ export default function GamePlayerPage() {
           onBetAmountChange={setBetAmount}
           onStartGame={handlePlay}
           onComplete={handleEngineComplete} 
+          activeChip={activeRouletteChip}
+          onActiveChipChange={setActiveRouletteChip}
         />
       );
     }
@@ -1767,7 +1770,7 @@ export default function GamePlayerPage() {
                     </div>
 
                     {/* ═══════ INLINE BETTING PANEL ═══════ */}
-                    {!isCloudRenting && !isRoyalEngine && !isLiveRoulette && (
+                    {!isCloudRenting && !isRoyalEngine && (
                       <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] pb-safe md:relative md:bottom-auto md:left-auto md:right-auto md:z-30 md:shadow-inner flex flex-col">
                         {!currentUser ? (
                           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 md:p-6 bg-slate-900 text-white">
@@ -1897,7 +1900,7 @@ export default function GamePlayerPage() {
                               {isSpinning && isCashoutActive
                                 ? `💰 ₹${(betAmount * (liveMultiplier || 1.0)).toFixed(2)}`
                                 : isSpinning ? '⏳ Playing...'
-                                : game.title.toLowerCase().includes('slot') ? '🎰 SPIN' : '🚀 BET'}
+                                : game.title.toLowerCase().includes('slot') || isLiveRoulette ? '🎰 SPIN' : '🚀 BET'}
                             </button>
                           )}
                         </div>
@@ -1911,17 +1914,34 @@ export default function GamePlayerPage() {
                             {amount:5000, label:"5k", color:"from-pink-500 to-pink-600"},
                             {amount:10000, label:"10k", color:"from-rose-600 to-rose-700"},
                             {amount:50000, label:"50k", color:"from-violet-700 to-violet-100"},
-                          ].map(chip => (
-                            <button key={chip.amount} type="button" onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }} disabled={isSpinning}
-                              className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${chip.amount === 1000 ? 'text-slate-950 font-black' : 'text-white font-black'} ${
-                                betAmount === chip.amount ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-white scale-105 opacity-100 border-white/30' : 'opacity-55 hover:opacity-85 border-white/15'
-                              } disabled:opacity-20`}>
-                              {chip.label}
-                            </button>
-                          ))}
+                          ].map(chip => {
+                            const isSelected = isLiveRoulette 
+                              ? activeRouletteChip === chip.amount 
+                              : betAmount === chip.amount;
+                            return (
+                              <button 
+                                key={chip.amount} 
+                                type="button" 
+                                onClick={() => { 
+                                  if (isLiveRoulette) {
+                                    setActiveRouletteChip(chip.amount);
+                                  } else {
+                                    setBetAmount(chip.amount);
+                                  }
+                                  playGameSound('click'); 
+                                }} 
+                                disabled={isSpinning}
+                                className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${chip.amount === 1000 ? 'text-slate-950 font-black' : 'text-white font-black'} ${
+                                  isSelected ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-white scale-105 opacity-100 border-white/30' : 'opacity-55 hover:opacity-85 border-white/15'
+                                } disabled:opacity-20`}
+                              >
+                                {chip.label}
+                              </button>
+                            );
+                          })}
 
                           {/* Mobile: target selector */}
-                          {(() => {
+                          {!isLiveRoulette && (() => {
                             const tl = game.title.toLowerCase(), il = game.id.toLowerCase();
                             let opts: {id:string;name:string}[] = [];
                             if (tl.includes("coin")||il.includes("coin")) opts=[{id:"AURA",name:"Aura"},{id:"SKULL",name:"Skull"}];

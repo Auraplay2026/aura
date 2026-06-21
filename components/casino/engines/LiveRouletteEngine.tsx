@@ -19,6 +19,8 @@ interface RouletteEngineProps {
   onBetAmountChange: (amount: number) => void;
   onStartGame: () => void;
   onComplete: (multiplier: number, won: boolean) => void;
+  activeChip?: number;
+  onActiveChipChange?: (chip: number) => void;
 }
 
 interface NumberConfig {
@@ -89,11 +91,15 @@ export function LiveRouletteEngine({
   betAmount, 
   onBetAmountChange, 
   onStartGame, 
-  onComplete 
+  onComplete,
+  activeChip: propActiveChip,
+  onActiveChipChange
 }: RouletteEngineProps) {
   
   // Game & Bets States
-  const [activeChip, setActiveChip] = useState<number>(100);
+  const [localActiveChip, setLocalActiveChip] = useState<number>(100);
+  const activeChip = propActiveChip !== undefined ? propActiveChip : localActiveChip;
+  const setActiveChip = onActiveChipChange !== undefined ? onActiveChipChange : setLocalActiveChip;
   const [bets, setBets] = useState<Record<string, number>>({});
   const [betHistory, setBetHistory] = useState<{ cell: string; amount: number }[]>([]);
   const [prevBets, setPrevBets] = useState<Record<string, number>>({});
@@ -104,6 +110,7 @@ export function LiveRouletteEngine({
   const [ballRadiusOffset, setBallRadiusOffset] = useState(0);
   const [winningNumber, setWinningNumber] = useState<NumberConfig | null>(null);
   const [isSpinning, setIsSpinning] = useState(false);
+  const [showWheelOverlay, setShowWheelOverlay] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== "undefined" ? window.innerWidth : 1024);
 
   useEffect(() => {
@@ -278,6 +285,7 @@ export function LiveRouletteEngine({
     }
 
     setIsSpinning(true);
+    setShowWheelOverlay(true);
     setWinningNumber(null);
     setShowWinOverlay(false);
     const width = typeof window !== "undefined" ? window.innerWidth : 1024;
@@ -373,6 +381,11 @@ export function LiveRouletteEngine({
       onCompleteRef.current(computedMultiplier, winSuccess);
       setBets({});
       setBetHistory([]);
+
+      // Auto dismiss wheel overlay after 4 seconds
+      setTimeout(() => {
+        setShowWheelOverlay(false);
+      }, 4000);
     }, 4500);
 
     return () => clearTimeout(completeTimer);
@@ -635,142 +648,164 @@ export function LiveRouletteEngine({
         {/* Radial spotlight on the wheel */}
         <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
 
-        {/* Playfield Layout: Wheel first, then board */}
-        <div className="w-full flex flex-col lg:flex-row items-center justify-center gap-6 z-10">
-          
-          {/* Wheel Frame - Hero element, centered, borderless, no container box */}
-          <div className="relative flex flex-col items-center justify-center shrink-0 py-2">
-            
-            {/* Landing/Result Display Overlay right above the wheel */}
-            <AnimatePresence>
-              {!isSpinning && winningNumber && (
-                <motion.div
-                  initial={{ opacity: 0, scale: 0.8, y: 10 }}
-                  animate={{ opacity: 1, scale: 1, y: 0 }}
-                  exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                  className={`absolute -top-4 z-40 px-4 py-1.5 rounded-full border shadow-2xl flex items-center gap-2 ${
-                    winningNumber.color === "red" 
-                      ? "bg-rose-700/90 border-rose-500 text-white" 
-                      : winningNumber.color === "black" 
-                        ? "bg-slate-900/90 border-slate-700 text-slate-100" 
-                        : "bg-emerald-600/90 border-emerald-400 text-white"
-                  }`}
-                >
-                  <span className="text-[10px] font-black tracking-widest uppercase">RESULT</span>
-                  <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
-                    {winningNumber.n}
-                  </span>
-                  <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
-                </motion.div>
-              )}
-            </AnimatePresence>
+        {/* Playfield Layout: board takes full width when wheel is overlay */}
+        <div className="w-full flex flex-col items-center justify-center gap-6 z-10">
 
-            {/* Rotated 3D Wheel Assembly */}
-            <div className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 lg:w-[360px] lg:h-[360px] aspect-square flex items-center justify-center select-none perspective-[1000px]">
-              <div 
-                className="relative w-[95%] h-[95%] rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] transform-style-3d"
-                style={{ transform: "rotateX(55deg)" }}
+          {/* Cinematic Wheel Transition Overlay */}
+          <AnimatePresence>
+            {showWheelOverlay && (
+              <motion.div
+                initial={{ y: "100vh", scale: 0.2, opacity: 0 }}
+                animate={{ y: 0, scale: 1, opacity: 1 }}
+                exit={{ y: "100vh", scale: 0.2, opacity: 0 }}
+                transition={{ type: "spring", damping: 25, stiffness: 120 }}
+                onClick={() => setShowWheelOverlay(false)}
+                className="fixed inset-0 z-[60] bg-[#020e08]/95 backdrop-blur-md flex flex-col items-center justify-center py-4 cursor-pointer"
               >
-                {/* Wood Wheel Rim outer ring */}
-                <div className="absolute -inset-4 rounded-full border-[8px] border-amber-950 bg-gradient-to-br from-amber-800 to-amber-950 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] flex items-center justify-center">
-                  <div className="absolute inset-1 rounded-full border border-yellow-500/20" />
-                </div>
-                
-                {/* Wheel segment track */}
-                <motion.div
-                  animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
-                  transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
-                  className="absolute inset-0 rounded-full bg-slate-950 border-[4px] border-amber-800 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.95)]"
-                >
-                  {NUMBERS.map((num, i) => {
-                    const angle = (360 / NUMBERS.length) * i;
-                    const numColor = num.color === "green" 
-                      ? "bg-emerald-600 text-white" 
-                      : num.color === "red" 
-                        ? "bg-rose-700 text-white" 
-                        : "bg-slate-900 text-slate-100";
-                    
-                    return (
-                      <div
-                        key={`seg-${i}`}
-                        className="absolute top-0 left-1/2 w-5 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-0.5"
-                        style={{ transform: `rotate(${angle}deg)` }}
-                      >
-                        <div className={`w-4 h-6 flex items-start justify-center pt-0.5 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]`}>
-                          <span className="text-[7px] sm:text-[8px] font-black font-mono leading-none">
-                            {num.n}
-                          </span>
-                        </div>
-                        <div className="w-[0.5px] h-full bg-yellow-750/10 origin-top" />
-                      </div>
-                    );
-                  })}
+                {/* Wheel Frame - Hero element, centered, borderless, no container box */}
+                <div className="relative flex flex-col items-center justify-center shrink-0 py-2">
                   
-                  {/* Center Gold Turret */}
-                  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-755 shadow-[0_0_12px_rgba(0,0,0,0.95)] flex items-center justify-center z-20">
-                    <div className="w-8 h-8 rounded-full bg-[#051c10] border border-yellow-500/20 flex items-center justify-center shadow-inner">
-                      <span className="text-yellow-500 text-[6px] font-black tracking-widest uppercase">AURA</span>
+                  {/* Landing/Result Display Overlay right above the wheel */}
+                  <AnimatePresence>
+                    {!isSpinning && winningNumber && (
+                      <motion.div
+                        initial={{ opacity: 0, scale: 0.8, y: 10 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                        className={`absolute -top-4 z-40 px-4 py-1.5 rounded-full border shadow-2xl flex items-center gap-2 ${
+                          winningNumber.color === "red" 
+                            ? "bg-rose-700/90 border-rose-500 text-white" 
+                            : winningNumber.color === "black" 
+                              ? "bg-slate-900/90 border-slate-700 text-slate-100" 
+                              : "bg-emerald-600/90 border-emerald-400 text-white"
+                        }`}
+                      >
+                        <span className="text-[10px] font-black tracking-widest uppercase">RESULT</span>
+                        <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
+                          {winningNumber.n}
+                        </span>
+                        <span className="text-[10px] font-bold uppercase">{winningNumber.label}</span>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  {/* Rotated 3D Wheel Assembly */}
+                  <div 
+                    onClick={(e) => e.stopPropagation()}
+                    className="relative w-64 h-64 xs:w-72 xs:h-72 sm:w-80 sm:h-80 lg:w-[480px] lg:h-[480px] aspect-square flex items-center justify-center select-none perspective-[1000px]"
+                  >
+                    <div 
+                      className="relative w-[95%] h-[95%] rounded-full shadow-[0_15px_35px_rgba(0,0,0,0.9)] transform-style-3d"
+                      style={{ transform: "rotateX(55deg)" }}
+                    >
+                      {/* Wood Wheel Rim outer ring */}
+                      <div className="absolute -inset-4 rounded-full border-[8px] border-amber-950 bg-gradient-to-br from-amber-800 to-amber-950 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] flex items-center justify-center">
+                        <div className="absolute inset-1 rounded-full border border-yellow-500/20" />
+                      </div>
+                      
+                      {/* Wheel segment track */}
+                      <motion.div
+                        animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
+                        transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
+                        className="absolute inset-0 rounded-full bg-slate-950 border-[4px] border-amber-800 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.95)]"
+                      >
+                        {NUMBERS.map((num, i) => {
+                          const angle = (360 / NUMBERS.length) * i;
+                          const numColor = num.color === "green" 
+                            ? "bg-emerald-600 text-white" 
+                            : num.color === "red" 
+                              ? "bg-rose-700 text-white" 
+                              : "bg-slate-900 text-slate-100";
+                          
+                          return (
+                            <div
+                              key={`seg-${i}`}
+                              className="absolute top-0 left-1/2 w-5 h-1/2 origin-bottom -translate-x-1/2 flex flex-col items-center pt-0.5"
+                              style={{ transform: `rotate(${angle}deg)` }}
+                            >
+                              <div className={`w-4 h-6 flex items-start justify-center pt-0.5 rounded-sm border border-yellow-500/5 ${numColor} shadow-[inset_0_1px_2px_rgba(0,0,0,0.6)]`}>
+                                <span className="text-[7px] sm:text-[8px] font-black font-mono leading-none">
+                                  {num.n}
+                                </span>
+                              </div>
+                              <div className="w-[0.5px] h-full bg-yellow-750/10 origin-top" />
+                            </div>
+                          );
+                        })}
+                        
+                        {/* Center Gold Turret */}
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-755 shadow-[0_0_12px_rgba(0,0,0,0.95)] flex items-center justify-center z-20">
+                          <div className="w-8 h-8 rounded-full bg-[#051c10] border border-yellow-500/20 flex items-center justify-center shadow-inner">
+                            <span className="text-yellow-500 text-[6px] font-black tracking-widest uppercase">AURA</span>
+                          </div>
+                        </div>
+                      </motion.div>
+
+                      {/* Glass reflections */}
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none z-10 mix-blend-overlay" />
+
+                      {/* Ball animation */}
+                      {isSpinning && (
+                        <>
+                          <motion.div
+                            animate={{ rotate: ballRotateKeyframes }}
+                            transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                            className="absolute inset-0 rounded-full pointer-events-none z-20"
+                          >
+                            <motion.div 
+                              animate={{ 
+                                y: ballYKeyframes.map(y => y + 3.5),
+                                scale: ballScaleKeyframes.map(s => s * 0.95),
+                                opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
+                              }}
+                              transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                              className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/60 blur-[1px]"
+                            />
+                          </motion.div>
+
+                          <motion.div
+                            animate={{ rotate: ballRotateKeyframes }}
+                            transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                            className="absolute inset-0 rounded-full pointer-events-none z-30"
+                          >
+                            <motion.div 
+                              animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
+                              transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
+                              className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
+                            />
+                          </motion.div>
+                        </>
+                      )}
+
+                      {/* Landed ball */}
+                      <AnimatePresence>
+                        {!isSpinning && winningNumber && (
+                          <motion.div
+                            initial={{ opacity: 0, scale: 0 }}
+                            animate={{ opacity: 1, scale: 1 }}
+                            className="absolute inset-0 rounded-full pointer-events-none z-30"
+                            style={{ transform: `rotate(${rotation % 360}deg)` }}
+                          >
+                            <div className="absolute top-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/50 blur-[0.5px] z-20" />
+                            <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#fcfbf9] shadow-[0_0_6px_rgba(255,255,255,0.8),inset_-1px_-1px_2px_rgba(0,0,0,0.3)] z-30" />
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
+
                     </div>
                   </div>
-                </motion.div>
+                </div>
 
-                {/* Glass reflections */}
-                <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-white/0 via-white/5 to-white/10 pointer-events-none z-10 mix-blend-overlay" />
-
-                {/* Ball animation */}
-                {isSpinning && (
-                  <>
-                    <motion.div
-                      animate={{ rotate: ballRotateKeyframes }}
-                      transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                      className="absolute inset-0 rounded-full pointer-events-none z-20"
-                    >
-                      <motion.div 
-                        animate={{ 
-                          y: ballYKeyframes.map(y => y + 3.5),
-                          scale: ballScaleKeyframes.map(s => s * 0.95),
-                          opacity: ballScaleKeyframes.map(s => s > 1.15 ? 0.35 : 0.65)
-                        }}
-                        transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                        className="absolute top-2 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/60 blur-[1px]"
-                      />
-                    </motion.div>
-
-                    <motion.div
-                      animate={{ rotate: ballRotateKeyframes }}
-                      transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                      className="absolute inset-0 rounded-full pointer-events-none z-30"
-                    >
-                      <motion.div 
-                        animate={{ y: ballYKeyframes, scale: ballScaleKeyframes }}
-                        transition={{ duration: 4.5, times: ballTimes, ease: "easeOut" }}
-                        className="absolute top-1.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white shadow-[0_0_8px_rgba(255,255,255,1),inset_-1px_-1px_2px_rgba(0,0,0,0.3)]"
-                      />
-                    </motion.div>
-                  </>
-                )}
-
-                {/* Landed ball */}
-                <AnimatePresence>
-                  {!isSpinning && winningNumber && (
-                    <motion.div
-                      initial={{ opacity: 0, scale: 0 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      className="absolute inset-0 rounded-full pointer-events-none z-30"
-                      style={{ transform: `rotate(${rotation % 360}deg)` }}
-                    >
-                      <div className="absolute top-4 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-white/50 blur-[0.5px] z-20" />
-                      <div className="absolute top-3.5 left-1/2 -translate-x-1/2 w-3 h-3 rounded-full bg-[#fcfbf9] shadow-[0_0_6px_rgba(255,255,255,0.8),inset_-1px_-1px_2px_rgba(0,0,0,0.3)] z-30" />
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-
-              </div>
-            </div>
-          </div>
+                {/* Tap helper text */}
+                <span className="text-[10px] font-black text-yellow-500/80 uppercase tracking-widest mt-6 animate-pulse text-center">
+                  Tap anywhere to return to board
+                </span>
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {/* Betting Board & Controls */}
-          <div className="flex-1 w-full flex flex-col gap-4 overflow-visible">
+          <div className="w-full flex flex-col gap-4 overflow-visible">
             
             {/* Horizontal Felt Board for Desktop / Tablet */}
             <div className="hidden md:block w-full bg-[#03140a]/40 border border-emerald-500/10 rounded-2xl p-2.5 relative shadow-inner overflow-x-auto scrollbar-thin">
@@ -872,40 +907,8 @@ export function LiveRouletteEngine({
               {renderVerticalBoard()}
             </div>
 
-            {/* Chip Selector Rack & Wagers Bar */}
-            <div className="w-full bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-3 flex flex-col md:flex-row items-center justify-between gap-3 shadow-md">
-              
-              {/* Luxury Casino Chip Selector */}
-              <div className="flex items-center gap-2 overflow-x-auto max-w-full pb-1 scrollbar-none bg-slate-950/50 px-3 py-1.5 rounded-full border border-emerald-500/10">
-                {[
-                  { amount: 100, label: "100", color: "from-blue-500 to-indigo-700 border-blue-400" },
-                  { amount: 500, label: "500", color: "from-teal-400 to-emerald-600 border-teal-400" },
-                  { amount: 1000, label: "1k", color: "from-yellow-400 to-amber-600 border-amber-300" },
-                  { amount: 5000, label: "5k", color: "from-rose-500 to-pink-650 border-rose-450" },
-                  { amount: 10000, label: "10k", color: "from-purple-600 to-fuchsia-800 border-purple-450" },
-                  { amount: 50000, label: "50k", color: "from-slate-800 to-slate-900 border-slate-700" }
-                ].map((chip) => {
-                  const isSelected = activeChip === chip.amount;
-                  return (
-                    <button
-                      key={chip.amount}
-                      type="button"
-                      onClick={() => setActiveChip(chip.amount)}
-                      className={`relative w-8 h-8 rounded-full shrink-0 flex items-center justify-center font-black text-slate-955 shadow-md transition-all duration-200 transform cursor-pointer border border-white/40 select-none ${
-                        isSelected ? "scale-110 ring-2 ring-yellow-500 opacity-100 z-10" : "opacity-60 hover:opacity-100"
-                      } bg-gradient-to-br ${chip.color}`}
-                    >
-                      <div className="absolute inset-[2px] rounded-full border border-dashed border-white/30 flex items-center justify-center">
-                        <span className="text-[7.5px] font-black tracking-tighter drop-shadow-[0_1px_1px_rgba(0,0,0,0.5)]">
-                          {chip.label}
-                        </span>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Action Buttons & Spin Trigger */}
+            {/* Action wagers bar (Only Undo, Double, Repeat, Clear buttons are needed since chips and Spin are on page level) */}
+            <div className="w-full bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-3 flex items-center justify-center gap-3 shadow-md">
               <div className="flex items-center gap-2 max-w-full overflow-x-auto pb-1 md:pb-0 scrollbar-none">
                 <button 
                   onClick={undoLastBet} 
@@ -935,22 +938,7 @@ export function LiveRouletteEngine({
                 >
                   Clear
                 </button>
-
-                <div className="w-px h-6 bg-emerald-800/40" />
-
-                <button
-                  onClick={handleSpinInit}
-                  disabled={isSpinning || totalBetsSum === 0}
-                  className={`py-2 px-5 rounded-lg font-black text-[10px] uppercase tracking-widest border transition-all cursor-pointer ${
-                    isSpinning || totalBetsSum === 0
-                      ? "bg-slate-900/60 border-slate-800 text-slate-500 cursor-not-allowed"
-                      : "bg-gradient-to-r from-yellow-400 via-amber-400 to-yellow-500 border-yellow-300 text-slate-950 shadow-[0_0_15px_rgba(234,179,8,0.25)] hover:shadow-[0_0_20px_rgba(234,179,8,0.4)] hover:scale-102 active:scale-98"
-                  }`}
-                >
-                  Spin
-                </button>
               </div>
-
             </div>
 
           </div>
