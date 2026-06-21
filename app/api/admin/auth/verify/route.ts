@@ -88,11 +88,11 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Cryptographic hardware signature validation failed" }, { status: 403 });
     }
 
-    // 4. Enforce MFA (TOTP) for production, but allow local/dev access without a configured authenticator
-    const isLocalDev = process.env.NODE_ENV !== 'production';
+    // 4. Enforce MFA (TOTP) only if strictly required by environment variable
+    const requireMFA = process.env.ENFORCE_ADMIN_MFA === 'true';
     const has2fa = Boolean(user.twoFactorEnabled && user.twoFactorSecret);
     if (!has2fa) {
-      if (!isLocalDev) {
+      if (requireMFA) {
         let activeSecret = user.twoFactorSecret;
         if (!activeSecret) {
           activeSecret = generateSecret();
