@@ -134,10 +134,10 @@ export async function proxy(request: NextRequest) {
     if (pathname.startsWith('/api/admin')) {
       return NextResponse.json({ error: 'Unauthorized: Session missing' }, { status: 401 });
     }
-    if (pathname === '/admin') {
+    if (pathname === '/admin' || pathname === '/admin/login') {
       return NextResponse.next();
     }
-    return NextResponse.redirect(new URL('/?error=admin-auth-required', request.url));
+    return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
   try {
@@ -184,7 +184,7 @@ export async function proxy(request: NextRequest) {
     // Clear cookies on failure
     const response = pathname.startsWith('/api/admin')
       ? NextResponse.json({ error: 'Unauthorized: ' + err.message }, { status: 401 })
-      : NextResponse.redirect(new URL('/?error=admin-auth-required', request.url));
+      : NextResponse.redirect(new URL('/admin/login', request.url));
 
     response.cookies.set('user_email', '', { maxAge: 0, path: '/' });
     response.cookies.set('admin_auth_token', '', { maxAge: 0, path: '/' });
