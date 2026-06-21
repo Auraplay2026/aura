@@ -12,9 +12,14 @@ function getFallbackAdminUser(identifier?: string): UserProfile | undefined {
 
   if (!isFallbackAdminIdentifier) return undefined;
 
+  const email = FALLBACK_ADMIN_EMAILS.includes(normalizedIdentifier)
+    ? normalizedIdentifier
+    : 'admin@aurabet.io';
+  const username = email.split('@')[0];
+
   return {
-    username: FALLBACK_ADMIN_USERNAME,
-    email: 'admin@aurabet.io',
+    username: username,
+    email: email,
     passwordHash: '',
     accountType: 'real',
     balance: 100000,
@@ -164,31 +169,26 @@ export async function saveUsers(users: UserProfile[]) {
 }
 
 export async function findUserByEmail(email: string): Promise<UserProfile | undefined> {
-  const fallbackUser = getFallbackAdminUser(email);
-  if (fallbackUser) return fallbackUser;
-
   const user = await prisma.user.findUnique({
     where: { email },
     include: { transactions: true, positions: true, notifications: true }
   });
-  return user ? sanitizeUserProfile(user) : undefined;
+  if (user) return sanitizeUserProfile(user);
+
+  return getFallbackAdminUser(email);
 }
 
 export async function findUserByUsername(username: string): Promise<UserProfile | undefined> {
-  const fallbackUser = getFallbackAdminUser(username);
-  if (fallbackUser) return fallbackUser;
-
   const user = await prisma.user.findUnique({
     where: { username },
     include: { transactions: true, positions: true, notifications: true }
   });
-  return user ? sanitizeUserProfile(user) : undefined;
+  if (user) return sanitizeUserProfile(user);
+
+  return getFallbackAdminUser(username);
 }
 
 export async function findUserByEmailOrUsername(identifier: string): Promise<UserProfile | undefined> {
-  const fallbackUser = getFallbackAdminUser(identifier);
-  if (fallbackUser) return fallbackUser;
-
   const user = await prisma.user.findFirst({
     where: {
       OR: [
@@ -198,7 +198,9 @@ export async function findUserByEmailOrUsername(identifier: string): Promise<Use
     },
     include: { transactions: true, positions: true, notifications: true }
   });
-  return user ? sanitizeUserProfile(user) : undefined;
+  if (user) return sanitizeUserProfile(user);
+
+  return getFallbackAdminUser(identifier);
 }
 
 export async function addUser(user: UserProfile): Promise<void> {
