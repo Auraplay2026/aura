@@ -851,7 +851,7 @@ export default function GamePlayerPage() {
     if (game.id === "orig-18" || game.title.toLowerCase().includes("space miner")) {
       return <MinesEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} onComplete={handleEngineComplete} />;
     }
-    if (game.id === "orig-19" || game.id === "orig-11") {
+    if (game.id === "orig-19" || game.id === "orig-11" || (!game.id.startsWith("orig-r") && game.title.toLowerCase().includes("roulette"))) {
       return (
         <LiveRouletteEngine 
           isPlaying={isSpinning} 
