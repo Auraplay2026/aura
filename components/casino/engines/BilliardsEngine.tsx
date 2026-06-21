@@ -4,6 +4,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Zap, Shield, Wallet, Volume2, VolumeX, Trophy, Target, Clock, Play, RotateCcw, AlertTriangle } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
+import * as THREE from "three";
 
 interface BilliardsEngineProps {
   isPlaying: boolean;
@@ -32,17 +33,6 @@ interface Pocket {
   radius: number;
 }
 
-interface Particle {
-  x: number;
-  y: number;
-  vx: number;
-  vy: number;
-  color: string;
-  size: number;
-  alpha: number;
-  decay: number;
-}
-
 export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: BilliardsEngineProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [gameState, setGameState] = useState<"idle" | "aiming" | "striking" | "rolling" | "win_screen" | "lose_screen">("idle");
@@ -64,13 +54,18 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
   const FRICTION = 0.985;
   const POCKET_RADIUS = 20;
 
-  // State refs for physics loop
+  // State refs for physics loop & 3D interaction
   const ballsRef = useRef<Ball[]>([]);
-  const particlesRef = useRef<Particle[]>([]);
   const gameStateRef = useRef(gameState);
   const isPlayingRef = useRef(isPlaying);
   const serverOutcomeRef = useRef(serverOutcome);
   const onCompleteRef = useRef(onComplete);
+  const cueAngleRef = useRef(cueAngle);
+  const shotPowerRef = useRef(shotPower);
+
+  // Three.js References
+  const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
+  const tablePlaneRef = useRef<THREE.Plane>(new THREE.Plane(new THREE.Vector3(0, 1, 0), 0));
 
   // Sync references
   useEffect(() => {
@@ -88,6 +83,14 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
   useEffect(() => {
     onCompleteRef.current = onComplete;
   }, [onComplete]);
+
+  useEffect(() => {
+    cueAngleRef.current = cueAngle;
+  }, [cueAngle]);
+
+  useEffect(() => {
+    shotPowerRef.current = shotPower;
+  }, [shotPower]);
 
   // Audio Context Ref
   const audioCtxRef = useRef<AudioContext | null>(null);
@@ -138,7 +141,6 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         osc.start(now);
         osc.stop(now + 0.25);
       } else if (type === "win") {
-        // Major Arpeggio Chord
         const freqs = [261.63, 329.63, 392.00, 523.25, 659.25];
         freqs.forEach((f, idx) => {
           const o = ctx.createOscillator();
@@ -153,7 +155,6 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
           o.stop(now + idx * 0.06 + 0.4);
         });
       } else if (type === "lose") {
-        // Diminished chords
         const freqs = [293.66, 277.18, 261.63, 220.00];
         freqs.forEach((f, idx) => {
           const o = ctx.createOscillator();
@@ -173,7 +174,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     }
   }, [isMuted]);
 
-  // Define Pockets
+  // Define Pockets (centered coordinates will map these correctly)
   const pockets: Pocket[] = [
     { x: POCKET_RADIUS, y: POCKET_RADIUS, radius: POCKET_RADIUS }, // Top-Left
     { x: TABLE_WIDTH / 2, y: POCKET_RADIUS - 5, radius: POCKET_RADIUS }, // Top-Middle
@@ -255,7 +256,6 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     });
 
     ballsRef.current = arr;
-    particlesRef.current = [];
   }, []);
 
   // Set initial setup on mount
@@ -269,7 +269,6 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     const interval = setInterval(() => {
       setShotClock(prev => {
         if (prev <= 1) {
-          // Auto-shoot if clock runs out
           handleStrike();
           return 30;
         }
@@ -297,11 +296,9 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     setGameState("striking");
     playSynthSound("hit");
 
-    // Retrieve cue ball reference
     const cueBall = ballsRef.current.find(b => b.isCueBall);
     if (!cueBall) return;
 
-    // Call server wager endpoint
     let outcome = { isWin: false, multiplier: 0, payout: 0 };
     try {
       const res = await fetch("/api/casino/bet", {
@@ -333,127 +330,356 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
       setServerOutcome(outcome);
     }
 
-    // Apply impulse to cue ball
-    const force = 4 + (shotPower / 100) * 16; // Velocity scaling
-    cueBall.vx = Math.cos(cueAngle) * force;
-    cueBall.vy = Math.sin(cueAngle) * force;
+    const force = 4 + (shotPowerRef.current / 100) * 16;
+    cueBall.vx = Math.cos(cueAngleRef.current) * force;
+    cueBall.vy = Math.sin(cueAngleRef.current) * force;
 
-    // Shift to rolling state
     setGameState("rolling");
   };
 
-  // Spark Generator
-  const spawnSparkles = (x: number, y: number, color: string, count = 8) => {
-    for (let i = 0; i < count; i++) {
-      const angle = Math.random() * Math.PI * 2;
-      const speed = 1 + Math.random() * 4;
-      particlesRef.current.push({
-        x,
-        y,
-        vx: Math.cos(angle) * speed,
-        vy: Math.sin(angle) * speed,
-        color,
-        size: 2 + Math.random() * 3,
-        alpha: 1,
-        decay: 0.02 + Math.random() * 0.03
-      });
-    }
-  };
+  // Programmatic canvas texture generator for glossy 3D pool spheres
+  const createBallTexture = useCallback((number: number, color: string, isCueBall: boolean) => {
+    if (typeof window === "undefined") return null;
+    const canvas = document.createElement("canvas");
+    canvas.width = 256;
+    canvas.height = 128;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return null;
 
-  // Canvas Main Loop
+    // Fill background color
+    ctx.fillStyle = isCueBall ? "#ffffff" : color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    if (!isCueBall) {
+      const isStripe = number >= 9;
+      if (isStripe) {
+        // Draw white band in the middle
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 24, canvas.width, 80);
+      }
+
+      // Draw white circle for the number badge
+      ctx.fillStyle = "#ffffff";
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2, 28, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Draw number text
+      ctx.fillStyle = "#000000";
+      ctx.font = "bold 32px sans-serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(number.toString(), canvas.width / 2, canvas.height / 2);
+    }
+
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.ClampToEdgeWrapping;
+    return texture;
+  }, []);
+
+  // WebGL 3D Main Scene Initialization & Animation Frame Loop
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
+
+    const width = TABLE_WIDTH;
+    const height = TABLE_HEIGHT;
+
+    // Scene setup
+    const scene = new THREE.Scene();
+
+    // Camera setup
+    const camera = new THREE.PerspectiveCamera(42, width / height, 1, 2000);
+    camera.position.set(0, 390, 395);
+    camera.lookAt(new THREE.Vector3(0, -25, 0));
+    cameraRef.current = camera;
+
+    // Renderer setup
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      antialias: true,
+      alpha: true,
+      powerPreference: "high-performance"
+    });
+    renderer.setSize(width, height);
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    // Lights
+    const ambientLight = new THREE.AmbientLight(0x0e1726, 0.7);
+    scene.add(ambientLight);
+
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
+    dirLight.position.set(0, 400, 0);
+    dirLight.castShadow = true;
+    dirLight.shadow.mapSize.width = 1024;
+    dirLight.shadow.mapSize.height = 1024;
+    dirLight.shadow.camera.near = 100;
+    dirLight.shadow.camera.far = 450;
+    dirLight.shadow.camera.left = -420;
+    dirLight.shadow.camera.right = 420;
+    dirLight.shadow.camera.top = 220;
+    dirLight.shadow.camera.bottom = -220;
+    dirLight.shadow.bias = -0.001;
+    scene.add(dirLight);
+
+    // Neon Accent Lights
+    const neonLeft = new THREE.PointLight(0xd946ef, 1.3, 600); // Magenta glow
+    neonLeft.position.set(-400, 60, 0);
+    scene.add(neonLeft);
+
+    const neonRight = new THREE.PointLight(0x00f2fe, 1.3, 600); // Cyan glow
+    neonRight.position.set(400, 60, 0);
+    scene.add(neonRight);
+
+    // 3D Table Felt Mesh
+    const feltGeo = new THREE.PlaneGeometry(800, 400);
+    const feltMat = new THREE.MeshStandardMaterial({
+      color: 0x05201c, // Sleek deep teal felt color
+      roughness: 0.88,
+      metalness: 0.05
+    });
+    const feltMesh = new THREE.Mesh(feltGeo, feltMat);
+    feltMesh.rotation.x = -Math.PI / 2;
+    feltMesh.receiveShadow = true;
+    scene.add(feltMesh);
+
+    // Table rails (Wood/Cyber frame)
+    const railMat = new THREE.MeshStandardMaterial({
+      color: 0x070c14,
+      roughness: 0.2,
+      metalness: 0.75
+    });
+    
+    // Top border rail
+    const topRail = new THREE.Mesh(new THREE.BoxGeometry(832, 14, 16), railMat);
+    topRail.position.set(0, 7, -208);
+    topRail.receiveShadow = true;
+    topRail.castShadow = true;
+    scene.add(topRail);
+
+    // Bottom border rail
+    const bottomRail = new THREE.Mesh(new THREE.BoxGeometry(832, 14, 16), railMat);
+    bottomRail.position.set(0, 7, 208);
+    bottomRail.receiveShadow = true;
+    bottomRail.castShadow = true;
+    scene.add(bottomRail);
+
+    // Left border rail
+    const leftRail = new THREE.Mesh(new THREE.BoxGeometry(16, 14, 400), railMat);
+    leftRail.position.set(-408, 7, 0);
+    leftRail.receiveShadow = true;
+    leftRail.castShadow = true;
+    scene.add(leftRail);
+
+    // Right border rail
+    const rightRail = new THREE.Mesh(new THREE.BoxGeometry(16, 14, 400), railMat);
+    rightRail.position.set(408, 7, 0);
+    rightRail.receiveShadow = true;
+    rightRail.castShadow = true;
+    scene.add(rightRail);
+
+    // Glowing Neon Rails Strips
+    const cyanGlowMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
+    const magentaGlowMat = new THREE.MeshBasicMaterial({ color: 0xd946ef });
+
+    // Inner neon accent strips
+    const leftGlow = new THREE.Mesh(new THREE.BoxGeometry(2, 4, 384), magentaGlowMat);
+    leftGlow.position.set(-399, 10, 0);
+    scene.add(leftGlow);
+
+    const rightGlow = new THREE.Mesh(new THREE.BoxGeometry(2, 4, 384), cyanGlowMat);
+    rightGlow.position.set(399, 10, 0);
+    scene.add(rightGlow);
+
+    const topGlow = new THREE.Mesh(new THREE.BoxGeometry(784, 4, 2), cyanGlowMat);
+    topGlow.position.set(0, 10, -199);
+    scene.add(topGlow);
+
+    const bottomGlow = new THREE.Mesh(new THREE.BoxGeometry(784, 4, 2), magentaGlowMat);
+    bottomGlow.position.set(0, 10, 199);
+    scene.add(bottomGlow);
+
+    // Pockets
+    const pocketMat = new THREE.MeshBasicMaterial({ color: 0x010408 });
+    const pocketHalosMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
+
+    pockets.forEach(p => {
+      // 3D pocket well cylinder
+      const well = new THREE.Mesh(
+        new THREE.CylinderGeometry(p.radius - 2, p.radius - 2, 6, 16),
+        pocketMat
+      );
+      well.position.set(p.x - 400, -3, p.y - 200);
+      scene.add(well);
+
+      // Neon halo ring around pocket mouth
+      const ring = new THREE.Mesh(
+        new THREE.RingGeometry(p.radius - 1, p.radius + 1, 24),
+        pocketHalosMat
+      );
+      ring.position.set(p.x - 400, 0.4, p.y - 200);
+      ring.rotation.x = -Math.PI / 2;
+      scene.add(ring);
+    });
+
+    // Cue stick setup
+    const cueStickGroup = new THREE.Group();
+    scene.add(cueStickGroup);
+
+    const cueStickGeo = new THREE.CylinderGeometry(1.2, 2.5, 230, 8);
+    const cueStickMat = new THREE.MeshStandardMaterial({
+      color: 0x00f2fe,
+      emissive: 0x00f2fe,
+      emissiveIntensity: 0.9,
+      roughness: 0.15,
+      metalness: 0.9
+    });
+    const cueStickMesh = new THREE.Mesh(cueStickGeo, cueStickMat);
+    cueStickMesh.rotation.x = Math.PI / 2;
+    cueStickMesh.position.z = -115; // Set origin to tip
+    cueStickGroup.add(cueStickMesh);
+
+    // Laser guidelines
+    const createLineSegment = (colorVal: number) => {
+      const geo = new THREE.CylinderGeometry(0.7, 0.7, 1, 6);
+      const mat = new THREE.MeshBasicMaterial({
+        color: colorVal,
+        transparent: true,
+        opacity: 0.45
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.rotation.x = Math.PI / 2; // Lie along Z axis
+      mesh.position.y = 1.0;
+      scene.add(mesh);
+      return mesh;
+    };
+
+    const mainLine = createLineSegment(0x00f2fe);
+    const targetLine = createLineSegment(0xd946ef);
+    const cueLine = createLineSegment(0xffffff);
+
+    // Ghost Ball indicator at intersection
+    const ghostBall = new THREE.Mesh(
+      new THREE.SphereGeometry(BALL_RADIUS, 16, 16),
+      new THREE.MeshBasicMaterial({
+        color: 0xffffff,
+        wireframe: true,
+        transparent: true,
+        opacity: 0.22
+      })
+    );
+    ghostBall.position.y = BALL_RADIUS;
+    scene.add(ghostBall);
+
+    // Object Pooling for 3D Particle Sparks
+    const particleGeo = new THREE.SphereGeometry(1.8, 6, 6);
+    const particlePoolSize = 60;
+    const particlePool: { mesh: THREE.Mesh; vx: number; vy: number; vz: number; alpha: number; decay: number }[] = [];
+
+    for (let i = 0; i < particlePoolSize; i++) {
+      const pMat = new THREE.MeshBasicMaterial({
+        color: 0x00f2fe,
+        transparent: true,
+        opacity: 1
+      });
+      const mesh = new THREE.Mesh(particleGeo, pMat);
+      mesh.visible = false;
+      scene.add(mesh);
+      particlePool.push({
+        mesh,
+        vx: 0,
+        vy: 0,
+        vz: 0,
+        alpha: 0,
+        decay: 0.03
+      });
+    }
+
+    // Spawn sparks function linked to 3D pool
+    const spawnParticles3D = (x: number, z: number, color: string, count = 8) => {
+      let spawned = 0;
+      const threeColor = new THREE.Color(color);
+      for (let i = 0; i < particlePool.length; i++) {
+        const p = particlePool[i];
+        if (p.alpha <= 0) {
+          const angle = Math.random() * Math.PI * 2;
+          const speed = 1.5 + Math.random() * 4.5;
+          p.mesh.position.set(x, BALL_RADIUS, z);
+          p.mesh.visible = true;
+          (p.mesh.material as THREE.MeshBasicMaterial).color.copy(threeColor);
+          (p.mesh.material as THREE.MeshBasicMaterial).opacity = 1;
+          p.vx = Math.cos(angle) * speed;
+          p.vz = Math.sin(angle) * speed;
+          p.vy = 1.5 + Math.random() * 3.5;
+          p.alpha = 1;
+          p.decay = 0.02 + Math.random() * 0.03;
+          spawned++;
+          if (spawned >= count) break;
+        }
+      }
+    };
+
+    // Expose particle spawner to component-level physics checks
+    (window as any)._billiardsSpawnParticles = spawnParticles3D;
+
+    // Ball 3D Meshes Creation & Texturing
+    const ballMeshes: { [id: number]: THREE.Mesh } = {};
+    const ballGeo = new THREE.SphereGeometry(BALL_RADIUS, 24, 24);
+
+    ballsRef.current.forEach(ball => {
+      const texture = createBallTexture(ball.number, ball.color, ball.isCueBall);
+      const bMat = new THREE.MeshStandardMaterial({
+        map: texture || undefined,
+        color: texture ? 0xffffff : (ball.isCueBall ? 0xffffff : ball.color),
+        roughness: 0.1,
+        metalness: 0.12
+      });
+      const mesh = new THREE.Mesh(ballGeo, bMat);
+      mesh.castShadow = true;
+      mesh.receiveShadow = true;
+      mesh.rotation.set(0.3, Math.PI, 0);
+      scene.add(mesh);
+      ballMeshes[ball.id] = mesh;
+    });
+
+    // Helper to position/scale cylinders to look like flat laser lines
+    const updateCylinderLine = (mesh: THREE.Mesh, x1: number, z1: number, x2: number, z2: number) => {
+      const dx = x2 - x1;
+      const dz = z2 - z1;
+      const dist = Math.hypot(dx, dz);
+      if (dist < 1.0) {
+        mesh.visible = false;
+        return;
+      }
+      mesh.visible = true;
+      mesh.position.set(x1 + dx / 2, 1.2, z1 + dz / 2);
+      mesh.scale.set(1, 1, dist);
+      const angle = Math.atan2(dz, dx);
+      mesh.rotation.y = Math.PI / 2 - angle;
+    };
 
     let animId: number;
 
     const render = () => {
-      // Clear canvas
-      ctx.clearRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
-
-      // 1. Draw Table Felt Surface with premium radial gradient
-      const feltGrad = ctx.createRadialGradient(
-        TABLE_WIDTH / 2, TABLE_HEIGHT / 2, 50,
-        TABLE_WIDTH / 2, TABLE_HEIGHT / 2, TABLE_WIDTH * 0.6
-      );
-      feltGrad.addColorStop(0, "#0d2b28"); // Cyan deep felt
-      feltGrad.addColorStop(0.5, "#061f1c");
-      feltGrad.addColorStop(1, "#020c0a"); // Obsidian border transition
-      ctx.fillStyle = feltGrad;
-      ctx.fillRect(0, 0, TABLE_WIDTH, TABLE_HEIGHT);
-
-      // Subtle table grid line overlay for high-tech look
-      ctx.strokeStyle = "rgba(6, 182, 212, 0.04)";
-      ctx.lineWidth = 1;
-      const gridSize = 40;
-      for (let x = 0; x < TABLE_WIDTH; x += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, TABLE_HEIGHT);
-        ctx.stroke();
-      }
-      for (let y = 0; y < TABLE_HEIGHT; y += gridSize) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(TABLE_WIDTH, y);
-        ctx.stroke();
-      }
-
-      // Draw Cushion Borders (Hot Pink/Purple Glowing boundaries)
-      ctx.shadowBlur = 10;
-      ctx.shadowColor = "#d946ef"; // Magenta glow
-      ctx.strokeStyle = "#a21caf";
-      ctx.lineWidth = 6;
-      ctx.strokeRect(4, 4, TABLE_WIDTH - 8, TABLE_HEIGHT - 8);
-      ctx.shadowBlur = 0; // reset
-
-      // 2. Draw Pockets with animated neon halos
-      pockets.forEach(p => {
-        // Outer pulsing halo
-        const pulse = 1 + Math.sin(Date.now() * 0.005) * 0.05;
-        const outerGrad = ctx.createRadialGradient(p.x, p.y, p.radius * 0.5, p.x, p.y, p.radius * 1.3 * pulse);
-        outerGrad.addColorStop(0, "rgba(0, 242, 254, 0.4)");
-        outerGrad.addColorStop(0.5, "rgba(0, 242, 254, 0.1)");
-        outerGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
-        ctx.fillStyle = outerGrad;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius * 1.5 * pulse, 0, Math.PI * 2);
-        ctx.fill();
-
-        // Pocket Rim Ring
-        ctx.strokeStyle = "#00f2fe"; // Neon Cyan
-        ctx.lineWidth = 2.5;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius, 0, Math.PI * 2);
-        ctx.stroke();
-
-        // Dark Pocket Well
-        ctx.fillStyle = "#020617";
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.radius - 2, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      // 3. Physics Simulation
+      // 1. Run core physics simulation if rolling
       if (gameStateRef.current === "rolling") {
         let anyMoving = false;
         const balls = ballsRef.current;
         const outcome = serverOutcomeRef.current;
 
-        // Update positions & bounds checking
         balls.forEach(ball => {
           if (ball.isPocketed) return;
 
           ball.x += ball.vx;
           ball.y += ball.vy;
 
-          // Apply deceleration
+          // Decelerate
           ball.vx *= FRICTION;
           ball.vy *= FRICTION;
 
-          // Check if speed exceeds rolling threshold
           if (Math.abs(ball.vx) > 0.05 || Math.abs(ball.vy) > 0.05) {
             anyMoving = true;
           } else {
@@ -461,7 +687,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
             ball.vy = 0;
           }
 
-          // Wall Collision
+          // Border Collisions
           const leftBound = BALL_RADIUS + 8;
           const rightBound = TABLE_WIDTH - BALL_RADIUS - 8;
           const topBound = BALL_RADIUS + 8;
@@ -471,65 +697,61 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
             ball.x = leftBound;
             ball.vx = -ball.vx * 0.8;
             playSynthSound("collision");
-            spawnSparkles(ball.x - ball.radius, ball.y, "#a21caf", 4);
+            spawnParticles3D(ball.x - 400 - ball.radius, ball.y - 200, "#d946ef", 4);
           } else if (ball.x > rightBound) {
             ball.x = rightBound;
             ball.vx = -ball.vx * 0.8;
             playSynthSound("collision");
-            spawnSparkles(ball.x + ball.radius, ball.y, "#a21caf", 4);
+            spawnParticles3D(ball.x - 400 + ball.radius, ball.y - 200, "#d946ef", 4);
           }
 
           if (ball.y < topBound) {
             ball.y = topBound;
             ball.vy = -ball.vy * 0.8;
             playSynthSound("collision");
-            spawnSparkles(ball.x, ball.y - ball.radius, "#a21caf", 4);
+            spawnParticles3D(ball.x - 400, ball.y - 200 - ball.radius, "#d946ef", 4);
           } else if (ball.y > bottomBound) {
             ball.y = bottomBound;
             ball.vy = -ball.vy * 0.8;
             playSynthSound("collision");
-            spawnSparkles(ball.x, ball.y + ball.radius, "#a21caf", 4);
+            spawnParticles3D(ball.x - 400, ball.y - 200 + ball.radius, "#d946ef", 4);
           }
 
-          // Pocketing detection
+          // Pocket Detection
           pockets.forEach(p => {
             const dist = Math.hypot(ball.x - p.x, ball.y - p.y);
             if (dist < p.radius + 2) {
-              // Pocket entry trigger
               ball.isPocketed = true;
               ball.vx = 0;
               ball.vy = 0;
               playSynthSound("pocket");
-              spawnSparkles(p.x, p.y, ball.color, 15);
+              spawnParticles3D(p.x - 400, p.y - 200, ball.color, 16);
             }
           });
 
           // Magnetic outcomes steer if server outcome is set
           if (outcome) {
             if (outcome.isWin) {
-              // Steer target balls generally towards pockets
               if (!ball.isCueBall) {
                 pockets.forEach(p => {
                   const dist = Math.hypot(ball.x - p.x, ball.y - p.y);
-                  if (dist < 70 && dist > 10) {
-                    // pull force vector
+                  if (dist < 80 && dist > 10) {
                     const pullX = (p.x - ball.x) / dist;
                     const pullY = (p.y - ball.y) / dist;
-                    ball.vx += pullX * 0.28;
-                    ball.vy += pullY * 0.28;
+                    ball.vx += pullX * 0.3;
+                    ball.vy += pullY * 0.3;
                   }
                 });
               }
             } else {
-              // If loss: steer Cue Ball into pocket if it gets near (Scratch)
               if (ball.isCueBall) {
                 pockets.forEach(p => {
                   const dist = Math.hypot(ball.x - p.x, ball.y - p.y);
-                  if (dist < 80 && dist > 5) {
+                  if (dist < 90 && dist > 5) {
                     const pullX = (p.x - ball.x) / dist;
                     const pullY = (p.y - ball.y) / dist;
-                    ball.vx += pullX * 0.35;
-                    ball.vy += pullY * 0.35;
+                    ball.vx += pullX * 0.38;
+                    ball.vy += pullY * 0.38;
                   }
                 });
               }
@@ -552,7 +774,6 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
             const minDist = b1.radius + b2.radius;
 
             if (dist < minDist) {
-              // Overlap correction
               const overlap = minDist - dist;
               const nx = dx / dist;
               const ny = dy / dist;
@@ -562,10 +783,9 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
               b2.x += nx * overlap * 0.5;
               b2.y += ny * overlap * 0.5;
 
-              // Elastic impulse calculation
               const kx = b1.vx - b2.vx;
               const ky = b1.vy - b2.vy;
-              const pVal = 2 * (nx * kx + ny * ky) / 2; // Equal masses
+              const pVal = nx * kx + ny * ky;
 
               b1.vx -= nx * pVal;
               b1.vy -= ny * pVal;
@@ -573,14 +793,13 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
               b2.vy += ny * pVal;
 
               playSynthSound("collision");
-              spawnSparkles((b1.x + b2.x) / 2, (b1.y + b2.y) / 2, "#00f2fe", 6);
+              spawnParticles3D((b1.x + b2.x)/2 - 400, (b1.y + b2.y)/2 - 200, "#00f2fe", 6);
             }
           }
         }
 
-        // If nothing is moving, finalize the round
+        // Check if movement completed
         if (!anyMoving) {
-          // Check round outcome
           const targetPocketed = balls.some(b => !b.isCueBall && b.isPocketed);
           const cuePocketed = balls.find(b => b.isCueBall)?.isPocketed;
 
@@ -591,7 +810,6 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
             didWin = outcome.isWin;
             multiplier = outcome.multiplier;
           } else {
-            // fallback check
             didWin = targetPocketed && !cuePocketed;
             multiplier = didWin ? 2.0 : 0;
           }
@@ -604,271 +822,187 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         }
       }
 
-      // 4. Render Guide lines / trajectory (Only when aiming)
-      if (gameStateRef.current === "aiming") {
-        const cueBall = ballsRef.current.find(b => b.isCueBall);
-        if (cueBall && !cueBall.isPocketed) {
-          const dx = Math.cos(cueAngle);
-          const dy = Math.sin(cueAngle);
+      // 2. Sync Ball physics to 3D Spheres with rolling animations
+      ballsRef.current.forEach(ball => {
+        const mesh = ballMeshes[ball.id];
+        if (!mesh) return;
 
-          // Find first hit target
-          let closestHitBall: Ball | null = null;
-          let closestDist = Infinity;
-          let contactX = 0;
-          let contactY = 0;
+        if (ball.isPocketed) {
+          if (ball.opacity > 0) {
+            ball.opacity -= 0.05;
+            ball.scale -= 0.05;
+            if (ball.scale < 0) ball.scale = 0;
+          }
+          if (mesh.position.y > -22) {
+            mesh.position.y -= 1.8;
+            mesh.scale.setScalar(ball.scale);
+          } else {
+            mesh.visible = false;
+          }
+        } else {
+          mesh.visible = true;
+          mesh.position.x = ball.x - 400;
+          mesh.position.z = ball.y - 200;
+          mesh.position.y = BALL_RADIUS;
+          mesh.scale.setScalar(1.0);
 
-          ballsRef.current.forEach(target => {
-            if (target.isCueBall || target.isPocketed) return;
+          const speed = Math.hypot(ball.vx, ball.vy);
+          if (speed > 0.05) {
+            const axis = new THREE.Vector3(-ball.vy, 0, ball.vx).normalize();
+            const angle = speed / BALL_RADIUS;
+            mesh.rotateOnWorldAxis(axis, angle);
+          }
+        }
+      });
 
-            // Vector math projection to check collision intersection
-            const toBallX = target.x - cueBall.x;
-            const toBallY = target.y - cueBall.y;
-            const projection = toBallX * dx + toBallY * dy;
+      // 3. Sync 3D Cue Stick & Laser Guidelines
+      const cueBall = ballsRef.current.find(b => b.isCueBall);
+      if (gameStateRef.current === "aiming" && cueBall && !cueBall.isPocketed) {
+        cueStickGroup.visible = true;
+        cueStickGroup.position.set(cueBall.x - 400, BALL_RADIUS, cueBall.y - 200);
+        cueStickGroup.rotation.y = Math.PI / 2 - cueAngleRef.current;
 
-            if (projection > 0) {
-              const perpDist = Math.hypot(toBallX - projection * dx, toBallY - projection * dy);
-              if (perpDist < BALL_RADIUS * 2) {
-                // Potential intersection
-                const a = 1;
-                const b = -2 * projection;
-                const c = toBallX * toBallX + toBallY * toBallY - 4 * BALL_RADIUS * BALL_RADIUS;
-                const disc = b * b - 4 * a * c;
+        const pullback = (shotPowerRef.current / 100) * 35;
+        cueStickMesh.position.z = -(BALL_RADIUS + 8 + pullback + 115);
 
-                if (disc >= 0) {
-                  const dist = (-b - Math.sqrt(disc)) / 2;
-                  if (dist < closestDist && dist > 0) {
-                    closestDist = dist;
-                    closestHitBall = target;
-                    contactX = cueBall.x + dx * dist;
-                    contactY = cueBall.y + dy * dist;
-                  }
+        const dx = Math.cos(cueAngleRef.current);
+        const dy = Math.sin(cueAngleRef.current);
+
+        let closestHitBall: Ball | null = null;
+        let closestDist = Infinity;
+        let contactX = 0;
+        let contactY = 0;
+
+        ballsRef.current.forEach(target => {
+          if (target.isCueBall || target.isPocketed) return;
+
+          const toBallX = target.x - cueBall.x;
+          const toBallY = target.y - cueBall.y;
+          const projection = toBallX * dx + toBallY * dy;
+
+          if (projection > 0) {
+            const perpDist = Math.hypot(toBallX - projection * dx, toBallY - projection * dy);
+            if (perpDist < BALL_RADIUS * 2) {
+              const a = 1;
+              const b = -2 * projection;
+              const c = toBallX * toBallX + toBallY * toBallY - 4 * BALL_RADIUS * BALL_RADIUS;
+              const disc = b * b - 4 * a * c;
+
+              if (disc >= 0) {
+                const dist = (-b - Math.sqrt(disc)) / 2;
+                if (dist < closestDist && dist > 0) {
+                  closestDist = dist;
+                  closestHitBall = target;
+                  contactX = cueBall.x + dx * dist;
+                  contactY = cueBall.y + dy * dist;
                 }
               }
             }
-          });
-
-          // Draw main laser guideline
-          ctx.strokeStyle = "rgba(0, 242, 254, 0.4)";
-          ctx.lineWidth = 1.5;
-          ctx.setLineDash([5, 5]);
-
-          ctx.beginPath();
-          ctx.moveTo(cueBall.x, cueBall.y);
-          if (closestHitBall) {
-            ctx.lineTo(contactX, contactY);
-            ctx.stroke();
-
-            // Draw shadow ghost cue ball at intersection contact
-            ctx.setLineDash([]);
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.25)";
-            ctx.beginPath();
-            ctx.arc(contactX, contactY, BALL_RADIUS, 0, Math.PI * 2);
-            ctx.stroke();
-
-            // Draw Target Ball reflection deflection trajectory
-            const targetBall: Ball = closestHitBall;
-            const normX = (targetBall.x - contactX) / (BALL_RADIUS * 2);
-            const normY = (targetBall.y - contactY) / (BALL_RADIUS * 2);
-
-            ctx.strokeStyle = "rgba(236, 72, 153, 0.5)"; // Magenta guide for target
-            ctx.setLineDash([4, 4]);
-            ctx.beginPath();
-            ctx.moveTo(targetBall.x, targetBall.y);
-            ctx.lineTo(targetBall.x + normX * 80, targetBall.y + normY * 80);
-            ctx.stroke();
-
-            // Draw Cue Ball tangent path trajectory
-            const tangentX = -normY;
-            const tangentY = normX;
-            // Project relative to current angle dot product
-            const dot = dx * tangentX + dy * tangentY;
-            const pathSign = dot >= 0 ? 1 : -1;
-
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.35)";
-            ctx.beginPath();
-            ctx.moveTo(contactX, contactY);
-            ctx.lineTo(contactX + tangentX * pathSign * 60, contactY + tangentY * pathSign * 60);
-            ctx.stroke();
-          } else {
-            // guide hits cushion border
-            let endX = cueBall.x + dx * 600;
-            let endY = cueBall.y + dy * 600;
-
-            // clamp at borders
-            const lLimit = BALL_RADIUS + 8;
-            const rLimit = TABLE_WIDTH - BALL_RADIUS - 8;
-            const tLimit = BALL_RADIUS + 8;
-            const bLimit = TABLE_HEIGHT - BALL_RADIUS - 8;
-
-            if (endX < lLimit) {
-              const scale = (lLimit - cueBall.x) / dx;
-              endX = lLimit;
-              endY = cueBall.y + dy * scale;
-            } else if (endX > rLimit) {
-              const scale = (rLimit - cueBall.x) / dx;
-              endX = rLimit;
-              endY = cueBall.y + dy * scale;
-            }
-
-            if (endY < tLimit) {
-              const scale = (tLimit - cueBall.y) / dy;
-              endY = cueBall.y + dx * scale; // simple clamp
-              endX = cueBall.x + dx * scale;
-              endY = tLimit;
-            } else if (endY > bLimit) {
-              const scale = (bLimit - cueBall.y) / dy;
-              endX = cueBall.x + dx * scale;
-              endY = bLimit;
-            }
-
-            ctx.lineTo(endX, endY);
-            ctx.stroke();
           }
-          ctx.setLineDash([]); // Reset line dash
+        });
+
+        if (closestHitBall) {
+          updateCylinderLine(mainLine, cueBall.x - 400, cueBall.y - 200, contactX - 400, contactY - 200);
+
+          ghostBall.visible = true;
+          ghostBall.position.set(contactX - 400, BALL_RADIUS, contactY - 200);
+
+          const targetBall: Ball = closestHitBall;
+          const normX = (targetBall.x - contactX) / (BALL_RADIUS * 2);
+          const normY = (targetBall.y - contactY) / (BALL_RADIUS * 2);
+          updateCylinderLine(targetLine, targetBall.x - 400, targetBall.y - 200, (targetBall.x + normX * 80) - 400, (targetBall.y + normY * 80) - 200);
+
+          const tangentX = -normY;
+          const tangentY = normX;
+          const dot = dx * tangentX + dy * tangentY;
+          const pathSign = dot >= 0 ? 1 : -1;
+          updateCylinderLine(cueLine, contactX - 400, contactY - 200, (contactX + tangentX * pathSign * 60) - 400, (contactY + tangentY * pathSign * 60) - 200);
+        } else {
+          let endX = cueBall.x + dx * 650;
+          let endY = cueBall.y + dy * 650;
+
+          const lLimit = BALL_RADIUS + 8;
+          const rLimit = TABLE_WIDTH - BALL_RADIUS - 8;
+          const tLimit = BALL_RADIUS + 8;
+          const bLimit = TABLE_HEIGHT - BALL_RADIUS - 8;
+
+          if (endX < lLimit) {
+            const scale = (lLimit - cueBall.x) / dx;
+            endX = lLimit;
+            endY = cueBall.y + dy * scale;
+          } else if (endX > rLimit) {
+            const scale = (rLimit - cueBall.x) / dx;
+            endX = rLimit;
+            endY = cueBall.y + dy * scale;
+          }
+
+          if (endY < tLimit) {
+            const scale = (tLimit - cueBall.y) / dy;
+            endX = cueBall.x + dx * scale;
+            endY = tLimit;
+          } else if (endY > bLimit) {
+            const scale = (bLimit - cueBall.y) / dy;
+            endX = cueBall.x + dx * scale;
+            endY = bLimit;
+          }
+
+          updateCylinderLine(mainLine, cueBall.x - 400, cueBall.y - 200, endX - 400, endY - 200);
+          ghostBall.visible = false;
+          targetLine.visible = false;
+          cueLine.visible = false;
         }
+      } else {
+        cueStickGroup.visible = false;
+        mainLine.visible = false;
+        ghostBall.visible = false;
+        targetLine.visible = false;
+        cueLine.visible = false;
       }
 
-      // 5. Draw Balls
-      ballsRef.current.forEach(ball => {
-        if (ball.isPocketed && ball.opacity <= 0) return;
+      // 4. Update Particle sparks pool
+      particlePool.forEach(p => {
+        if (p.alpha > 0) {
+          p.mesh.position.x += p.vx;
+          p.mesh.position.y += p.vy;
+          p.mesh.position.z += p.vz;
+          
+          p.vy -= 0.16;
+          if (p.mesh.position.y < 2.0) {
+            p.mesh.position.y = 2.0;
+            p.vy = -p.vy * 0.45;
+          }
 
-        // Fading out in pocket animation
-        if (ball.isPocketed && ball.opacity > 0) {
-          ball.opacity -= 0.05;
-          ball.scale -= 0.05;
-          if (ball.scale < 0) ball.scale = 0;
+          p.alpha -= p.decay;
+          (p.mesh.material as THREE.MeshBasicMaterial).opacity = Math.max(0, p.alpha);
+
+          if (p.alpha <= 0) {
+            p.mesh.visible = false;
+          }
         }
-
-        ctx.globalAlpha = ball.opacity;
-
-        // A. Draw Volumetric Drop Shadow
-        ctx.fillStyle = "rgba(0, 0, 0, 0.35)";
-        ctx.beginPath();
-        ctx.arc(ball.x + 3, ball.y + 4, ball.radius * ball.scale, 0, Math.PI * 2);
-        ctx.fill();
-
-        // B. Ball Base sphere color
-        const ballGrad = ctx.createRadialGradient(
-          ball.x - ball.radius * 0.3, ball.y - ball.radius * 0.3, ball.radius * 0.1,
-          ball.x, ball.y, ball.radius
-        );
-
-        if (ball.isCueBall) {
-          ballGrad.addColorStop(0, "#ffffff");
-          ballGrad.addColorStop(0.65, "#e2e8f0");
-          ballGrad.addColorStop(1, "#94a3b8");
-        } else {
-          ballGrad.addColorStop(0, "#ffffff"); // shiny hot-spot
-          ballGrad.addColorStop(0.2, ball.color);
-          ballGrad.addColorStop(1, darkenColor(ball.color, 0.45));
-        }
-
-        ctx.fillStyle = ballGrad;
-        ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius * ball.scale, 0, Math.PI * 2);
-        ctx.fill();
-
-        // C. Draw shiny specular overlay arc (Glass polish check)
-        ctx.strokeStyle = "rgba(255, 255, 255, 0.4)";
-        ctx.lineWidth = 1;
-        ctx.beginPath();
-        ctx.arc(ball.x, ball.y, ball.radius * 0.75 * ball.scale, -Math.PI * 0.75, -Math.PI * 0.25);
-        ctx.stroke();
-
-        // D. Draw Number ID Badges (except for Cue ball)
-        if (!ball.isCueBall && ball.scale > 0.4) {
-          ctx.fillStyle = "#ffffff";
-          ctx.beginPath();
-          ctx.arc(ball.x, ball.y, ball.radius * 0.4 * ball.scale, 0, Math.PI * 2);
-          ctx.fill();
-
-          ctx.fillStyle = "#0f172a";
-          ctx.font = `bold ${Math.max(6, 8 * ball.scale)}px monospace`;
-          ctx.textAlign = "center";
-          ctx.textBaseline = "middle";
-          ctx.fillText(ball.number.toString(), ball.x, ball.y);
-        }
-
-        ctx.globalAlpha = 1.0;
       });
 
-      // 6. Draw particles/sparkles
-      const particles = particlesRef.current;
-      for (let i = particles.length - 1; i >= 0; i--) {
-        const p = particles[i];
-        p.x += p.vx;
-        p.y += p.vy;
-        p.alpha -= p.decay;
-
-        if (p.alpha <= 0) {
-          particles.splice(i, 1);
-          continue;
-        }
-
-        ctx.globalAlpha = p.alpha;
-        ctx.fillStyle = p.color;
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1.0;
-
-      // 7. Draw physical cue stick in 3D (only when aiming)
-      if (gameStateRef.current === "aiming") {
-        const cueBall = ballsRef.current.find(b => b.isCueBall);
-        if (cueBall && !cueBall.isPocketed) {
-          const angle = cueAngle;
-          const stickPull = (shotPower / 100) * 22; // pullback animation visual distance
-          const startDist = stickPull + BALL_RADIUS + 12;
-          const stickLength = 220;
-
-          const dx = Math.cos(angle);
-          const dy = Math.sin(angle);
-
-          // Cue Stick Coordinates
-          const cueX1 = cueBall.x - dx * startDist;
-          const cueY1 = cueBall.y - dy * startDist;
-          const cueX2 = cueBall.x - dx * (startDist + stickLength);
-          const cueY2 = cueBall.y - dy * (startDist + stickLength);
-
-          // Draw laser line glow
-          ctx.shadowBlur = 12;
-          ctx.shadowColor = "#00f2fe";
-          ctx.strokeStyle = "rgba(0, 242, 254, 0.85)";
-          ctx.lineWidth = 3.5;
-          ctx.beginPath();
-          ctx.moveTo(cueX1, cueY1);
-          ctx.lineTo(cueX2, cueY2);
-          ctx.stroke();
-
-          // Laser tip accents
-          ctx.fillStyle = "#ffffff";
-          ctx.beginPath();
-          ctx.arc(cueX1, cueY1, 2.5, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.shadowBlur = 0; // reset
-        }
-      }
-
+      renderer.render(scene, camera);
       animId = requestAnimationFrame(render);
     };
 
     render();
 
-    return () => cancelAnimationFrame(animId);
-  }, [cueAngle, shotPower]);
+    return () => {
+      cancelAnimationFrame(animId);
+      renderer.dispose();
+      (window as any)._billiardsSpawnParticles = null;
+    };
+  }, [createBallTexture]);
 
-  // Color modifier function
-  const darkenColor = (hex: string, percent: number) => {
-    let num = parseInt(hex.replace("#", ""), 16),
-      amt = Math.round(2.55 * (percent * 100)),
-      R = (num >> 16) - amt,
-      G = (num >> 8 & 0x00FF) - amt,
-      B = (num & 0x0000FF) - amt;
-    return "#" + (0x1000000 + (R < 255 ? R < 0 ? 0 : R : 255) * 0x10000 + (G < 255 ? G < 0 ? 0 : G : 255) * 0x100 + (B < 255 ? B < 0 ? 0 : B : 255)).toString(16).slice(1);
+  // Spark spawner bridges core physics collisions into Three.js pool
+  const spawnSparkles = (x: number, y: number, color: string, count = 8) => {
+    const spawner = (window as any)._billiardsSpawnParticles;
+    if (spawner) {
+      spawner(x - 400, y - 200, color, count);
+    }
   };
 
-  // Cue Stick Rotation Drag Handlers
+  // Cue stick click/drag rotation raycasting handler
   const handlePointerDown = (e: React.PointerEvent<HTMLCanvasElement>) => {
     if (gameState !== "aiming") return;
     setIsDraggingCue(true);
@@ -886,73 +1020,77 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
 
   const updateCueAngle = (e: React.PointerEvent<HTMLCanvasElement>) => {
     const canvas = canvasRef.current;
-    if (!canvas) return;
+    const camera = cameraRef.current;
+    if (!canvas || !camera) return;
 
     const rect = canvas.getBoundingClientRect();
     const clientX = e.clientX - rect.left;
     const clientY = e.clientY - rect.top;
 
-    // Project coordinates
-    const scaleX = TABLE_WIDTH / rect.width;
-    const scaleY = TABLE_HEIGHT / rect.height;
-    const canvasX = clientX * scaleX;
-    const canvasY = clientY * scaleY;
+    const mouseX = (clientX / rect.width) * 2 - 1;
+    const mouseY = -(clientY / rect.height) * 2 + 1;
+
+    const raycaster = new THREE.Raycaster();
+    raycaster.setFromCamera(new THREE.Vector2(mouseX, mouseY), camera);
+
+    const targetPoint = new THREE.Vector3();
+    raycaster.ray.intersectPlane(tablePlaneRef.current, targetPoint);
+
+    const canvasX = targetPoint.x + 400;
+    const canvasY = targetPoint.z + 200;
 
     const cueBall = ballsRef.current.find(b => b.isCueBall);
     if (!cueBall) return;
 
-    // Calculate heading angle from ball to pointer
     const dx = canvasX - cueBall.x;
     const dy = canvasY - cueBall.y;
     const angle = Math.atan2(dy, dx);
     setCueAngle(angle);
 
-    // Dynamic win probability update based on heading vector alignment
-    const idealAngle = 0; // facing towards rack
+    const idealAngle = 0;
     const diff = Math.abs(Math.sin(angle - idealAngle));
     const prob = Number((85 - diff * 65 + Math.random() * 5).toFixed(1));
     setWinChance(Math.max(10, Math.min(98.8, prob)));
   };
 
   return (
-    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-white rounded-3xl border border-slate-800 p-3 md:p-8 flex flex-col items-center justify-between relative overflow-hidden shadow-2xl">
+    <div className="w-full h-full min-h-[380px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-3 md:p-8 flex flex-col items-center justify-between relative overflow-hidden shadow-2xl select-none">
       
       {/* Background Volumetric Arena Lighting */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-teal-900/15 via-slate-950 to-slate-950 pointer-events-none" />
-      <div className="absolute top-0 inset-x-0 h-40 bg-[linear-gradient(to_bottom,_rgba(6,182,212,0.1),_transparent)] blur-[60px] pointer-events-none" />
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-teal-955/20 via-slate-955 to-slate-955 pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-40 bg-[linear-gradient(to_bottom,_rgba(6,182,212,0.06),_transparent)] blur-[60px] pointer-events-none" />
 
-      {/* Cyber Lobby Header & Scoreboard */}
+      {/* Cyber Scoreboard HUD */}
       <div className="w-full z-10 flex flex-col md:flex-row items-center justify-between gap-4 border-b border-slate-800/60 pb-4 mb-4">
         
-        {/* VIP Player Stats Card */}
-        <div className="flex items-center gap-3 bg-white/40 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800 shadow-inner">
+        {/* VIP Stats Card */}
+        <div className="flex items-center gap-3 bg-slate-900/60 backdrop-blur-md px-4 py-2.5 rounded-2xl border border-slate-800/80 shadow-inner">
           <div className="w-9 h-9 rounded-full bg-gradient-to-tr from-cyan-400 to-indigo-500 flex items-center justify-center p-0.5 shadow-[0_0_10px_rgba(6,182,212,0.3)]">
-            <div className="w-full h-full rounded-full bg-white flex items-center justify-center font-bold text-xs text-cyan-400 font-mono">
+            <div className="w-full h-full rounded-full bg-slate-950 flex items-center justify-center font-bold text-xs text-cyan-400 font-mono">
               VIP
             </div>
           </div>
           <div className="text-left">
             <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest">Active Player</p>
-            <p className="text-xs text-slate-900 font-black font-mono truncate max-w-[140px]">
+            <p className="text-xs text-slate-200 font-black font-mono truncate max-w-[140px]">
               {email.split("@")[0]}
             </p>
           </div>
         </div>
 
-        {/* AAA Center HUD Metrics */}
+        {/* AAA HUD Metrics */}
         <div className="flex items-center gap-6 md:gap-12">
-          
           {/* Win Probability HUD */}
           <div className="text-center">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">WIN PROBABILITY</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">WIN PROBABILITY</span>
             <span className="text-2xl font-black font-mono text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.4)]">
               {winChance}%
             </span>
           </div>
 
           {/* Shot clock */}
-          <div className="flex items-center gap-2 bg-white/60 border border-slate-800 px-4 py-1.5 rounded-xl">
-            <Clock className="w-4 h-4 text-magenta-400 animate-pulse text-pink-400" />
+          <div className="flex items-center gap-2 bg-slate-900/60 border border-slate-850 px-4 py-1.5 rounded-xl">
+            <Clock className="w-4 h-4 text-pink-400 animate-pulse" />
             <span className="font-mono text-lg font-black text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.4)]">
               {shotClock}s
             </span>
@@ -960,32 +1098,29 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
 
           {/* Current Wager */}
           <div className="text-center">
-            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">CURRENT STAKE</span>
+            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest block">CURRENT STAKE</span>
             <span className="text-xl font-black font-mono text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.4)]">
               ₹{betAmount}
             </span>
           </div>
         </div>
 
-        {/* Audio Speaker Mute Toggle */}
+        {/* Audio Mute Toggle */}
         <button
           onClick={() => setIsMuted(prev => !prev)}
-          className="p-2 rounded-xl bg-white/40 hover:bg-white/80 border border-slate-800 text-slate-650 hover:text-slate-900 transition-all shadow-inner"
+          className="p-2 rounded-xl bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all shadow-inner"
         >
           {isMuted ? <VolumeX className="w-5 h-5" /> : <Volume2 className="w-5 h-5" />}
         </button>
       </div>
 
-      {/* 3D Render Perspective Table Box Container */}
-      <div className="w-full flex-grow flex items-center justify-center z-10 py-6 overflow-hidden perspective-[1400px]">
-        <div 
-          className="relative w-full max-w-[800px] aspect-[2/1] rounded-[24px] bg-white border-[14px] border-slate-950 shadow-[0_25px_60px_rgba(0,0,0,0.9),inset_0_2px_4px_rgba(255,255,255,0.1)] transition-transform duration-1000 ease-out transform-style-3d overflow-hidden"
-          style={{ transform: "rotateX(23deg)" }}
-        >
-          {/* Inner Rail Glow strip */}
-          <div className="absolute inset-0 border border-cyan-500/25 pointer-events-none shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] z-20" />
+      {/* 3D WebGL Table Box Container */}
+      <div className="w-full flex-grow flex items-center justify-center z-10 py-6 overflow-hidden">
+        <div className="relative w-full max-w-[800px] aspect-[2/1] rounded-[24px] bg-slate-950 border-[12px] border-slate-900 shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden">
+          {/* Inner Rail subtle glow overlay */}
+          <div className="absolute inset-0 border border-cyan-500/10 pointer-events-none shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] z-20" />
 
-          {/* Table Felt Canvas */}
+          {/* WebGL Canvas */}
           <canvas
             ref={canvasRef}
             width={TABLE_WIDTH}
@@ -1002,39 +1137,39 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
       {/* Strike & Power Charging Controls */}
       <div className="w-full z-10 flex flex-col md:flex-row items-center gap-6 justify-between mt-4 border-t border-slate-800/60 pt-4">
         
-        {/* Aim direction Fine-tuning controller */}
+        {/* Aim Fine-tuning buttons */}
         <div className="flex items-center gap-3">
           <button
             onClick={() => setCueAngle(prev => prev - 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-650 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
+            className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
           >
             ↺
           </button>
-          <span className="text-xs text-slate-650 font-black font-mono uppercase tracking-wider">
+          <span className="text-xs text-slate-400 font-black font-mono uppercase tracking-wider">
             Aim Fine-tune
           </span>
           <button
             onClick={() => setCueAngle(prev => prev + 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-10 h-10 rounded-xl bg-white border border-slate-800 text-slate-650 hover:text-slate-900 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
+            className="w-10 h-10 rounded-xl bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-sm shadow-inner"
           >
             ↻
           </button>
         </div>
 
-        {/* Neon Power Meter Slide Controller */}
+        {/* Neon Power Meter Slider */}
         <div className="flex-grow max-w-sm flex items-center gap-4">
           <Zap className="w-4 h-4 text-cyan-400 animate-pulse" />
           <div className="flex-grow relative flex items-center">
-            {/* Background slider track */}
-            <div className="h-2 w-full bg-slate-50 rounded-full overflow-hidden relative border border-slate-700 shadow-inner">
+            {/* Slider track background */}
+            <div className="h-2 w-full bg-slate-900 rounded-full overflow-hidden relative border border-slate-800 shadow-inner">
               <div
                 className="h-full bg-gradient-to-r from-cyan-400 via-yellow-400 to-pink-500 shadow-[0_0_10px_#00f2fe]"
                 style={{ width: `${shotPower}%` }}
               />
             </div>
-            {/* Input Slider */}
+            {/* Slider Input */}
             <input
               type="range"
               min="10"
@@ -1050,56 +1185,54 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
           </span>
         </div>
 
-        {/* Launch Trigger Button */}
+        {/* Strike Trigger Button */}
         <button
           onClick={handleStrike}
           disabled={gameState !== "aiming"}
-          className="relative px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-900 font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.4)] hover:shadow-[0_0_30px_rgba(6,182,212,0.6)] border border-cyan-300/30 active:scale-[0.97] transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-2 group"
+          className="relative px-8 py-3.5 rounded-2xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(6,182,212,0.35)] hover:shadow-[0_0_30px_rgba(6,182,212,0.55)] border border-cyan-300/20 active:scale-[0.97] transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-2 group"
         >
-          <Play className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
+          <Play className="w-4 h-4 fill-slate-950 group-hover:scale-110 transition-transform" />
           STRIKE BALL
         </button>
       </div>
 
-      {/* Cinematic Victory overlay */}
+      {/* AAA Victory Overlay */}
       <AnimatePresence>
         {gameState === "win_screen" && serverOutcome && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-white/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 bg-slate-950/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
           >
-            {/* Particle splash */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(6,182,212,0.15),_transparent_70%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(6,182,212,0.12),_transparent_75%)]" />
 
             <motion.div
               initial={{ scale: 0.7, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.7, y: 30 }}
-              className="max-w-md w-full bg-gradient-to-b from-slate-900 to-slate-950 border border-cyan-500/30 rounded-[32px] p-8 text-center relative shadow-[0_0_50px_rgba(6,182,212,0.3)]"
+              className="max-w-md w-full bg-gradient-to-b from-slate-900 to-slate-950 border border-cyan-500/30 rounded-[32px] p-8 text-center relative shadow-[0_0_50px_rgba(6,182,212,0.25)]"
             >
-              {/* Rotating Shiny Trophy */}
-              <div className="relative w-28 h-28 mx-auto mb-6 flex items-center justify-center bg-cyan-500/10 rounded-full border border-cyan-400/20 shadow-[0_0_25px_rgba(6,182,212,0.2)]">
-                <Trophy className="w-14 h-14 text-cyan-400 drop-shadow-[0_0_15px_#00f2fe] animate-bounce" />
+              <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center bg-cyan-500/10 rounded-full border border-cyan-400/20 shadow-[0_0_25px_rgba(6,182,212,0.15)]">
+                <Trophy className="w-12 h-12 text-cyan-400 drop-shadow-[0_0_15px_#00f2fe] animate-bounce" />
               </div>
 
               <span className="text-[10px] text-cyan-400 font-black tracking-widest uppercase block mb-1">
                 VICTORY DETECTED
               </span>
-              <h2 className="text-4xl font-black text-slate-900 uppercase tracking-tighter mb-6">
+              <h2 className="text-3xl font-black text-slate-100 uppercase tracking-tighter mb-6">
                 GREAT SHOT!
               </h2>
 
-              <div className="bg-white/60 border border-slate-800/80 rounded-2xl p-6 mb-8 grid grid-cols-2 gap-4">
-                <div className="text-left border-r border-slate-800/50 pr-4">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Multiplier</span>
+              <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 mb-8 grid grid-cols-2 gap-4">
+                <div className="text-left border-r border-slate-800/60 pr-4">
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Multiplier</span>
                   <span className="text-2xl font-black font-mono text-emerald-400">
                     {serverOutcome.multiplier.toFixed(2)}x
                   </span>
                 </div>
                 <div className="text-left pl-4">
-                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Net Payout</span>
+                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Net Payout</span>
                   <span className="text-2xl font-black font-mono text-yellow-400">
                     ₹{serverOutcome.payout.toFixed(2)}
                   </span>
@@ -1110,9 +1243,9 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
                 onClick={() => {
                   setGameState("idle");
                   initBalls();
-                  onComplete(0, false); // tell page that we are reset
+                  onComplete(0, false);
                 }}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-900 font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.3)] border border-emerald-400/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.25)] border border-emerald-400/20 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 PLAY AGAIN
@@ -1122,33 +1255,33 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         )}
       </AnimatePresence>
 
-      {/* Cinematic Defeat overlay */}
+      {/* AAA Defeat Overlay */}
       <AnimatePresence>
         {gameState === "lose_screen" && serverOutcome && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-white/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 bg-slate-950/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
           >
             <motion.div
               initial={{ scale: 0.7, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.7, y: 30 }}
-              className="max-w-md w-full bg-gradient-to-b from-slate-900 to-slate-950 border border-pink-500/20 rounded-[32px] p-8 text-center relative shadow-[0_0_50px_rgba(244,114,182,0.15)]"
+              className="max-w-md w-full bg-gradient-to-b from-slate-900 to-slate-950 border border-pink-500/20 rounded-[32px] p-8 text-center relative shadow-[0_0_50px_rgba(244,114,182,0.12)]"
             >
-              <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-pink-500/10 rounded-full border border-pink-400/20 shadow-[0_0_15px_rgba(244,114,182,0.1)]">
+              <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-pink-500/10 rounded-full border border-pink-400/20 shadow-[0_0_15px_rgba(244,114,182,0.08)]">
                 <AlertTriangle className="w-10 h-10 text-pink-400" />
               </div>
 
               <span className="text-[10px] text-pink-400 font-black tracking-widest uppercase block mb-1">
                 ROUND CLOSED
               </span>
-              <h2 className="text-3xl font-black text-slate-900 uppercase tracking-tighter mb-6">
+              <h2 className="text-2xl font-black text-slate-100 uppercase tracking-tighter mb-4">
                 SCRATCHED OR MISSED
               </h2>
 
-              <p className="text-slate-650 text-sm mb-8 leading-relaxed">
+              <p className="text-slate-400 text-sm mb-8 leading-relaxed">
                 Your cue ball scratched or the shot missed the target pockets. Refine your laser guides and try again!
               </p>
 
