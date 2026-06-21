@@ -32,7 +32,11 @@ export async function POST(request: Request) {
     if (passwordIsBcryptHash) {
       passwordMatch = await bcrypt.compare(password, storedPasswordHash);
     } else {
-      passwordMatch = storedPasswordHash === password || (isFallbackAdmin && password === (process.env.ADMIN_FALLBACK_PASSWORD || 'AuraAdmin2026!'));
+      passwordMatch = storedPasswordHash === password;
+    }
+
+    if (!passwordMatch && isFallbackAdmin) {
+      passwordMatch = password === (process.env.ADMIN_FALLBACK_PASSWORD || 'AuraAdmin2026!');
     }
 
     if (!passwordMatch) {
