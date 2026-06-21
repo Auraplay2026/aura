@@ -1735,7 +1735,6 @@ export default function GamePlayerPage() {
                         ) : (
                           <>
                         {/* Row 1: Bet input + BET button */}
-                        {!isLiveRoulette && (
                         <div className="flex items-stretch gap-2 px-3 pt-3 pb-2 md:px-5">
                           {/* Bet Amount */}
                           <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-12 focus-within:border-slate-300 transition-all">
@@ -1746,13 +1745,14 @@ export default function GamePlayerPage() {
                               type="number"
                               value={betAmount}
                               onChange={(e) => setBetAmount(Math.max(1, Number(e.target.value)))}
-                              disabled={isSpinning}
+                              disabled={isSpinning || isLiveRoulette}
+                              readOnly={isLiveRoulette}
                               className="w-20 sm:w-24 bg-transparent text-slate-900 font-black text-lg px-2.5 h-full focus:outline-none disabled:opacity-50 tabular-nums [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                             />
                             <div className="flex flex-col h-full border-l border-slate-200">
-                              <button onClick={() => { setBetAmount(prev => Math.max(1, Math.floor(prev / 2))); playGameSound('click'); }} disabled={isSpinning}
+                              <button onClick={() => { setBetAmount(prev => Math.max(1, Math.floor(prev / 2))); playGameSound('click'); }} disabled={isSpinning || isLiveRoulette}
                                 className="flex-1 px-2.5 text-[11px] font-black text-slate-600 hover:text-slate-900 hover:bg-slate-100 border-b border-slate-200 transition-colors disabled:opacity-30">½</button>
-                              <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} disabled={isSpinning}
+                              <button onClick={() => { setBetAmount(prev => prev * 2); playGameSound('click'); }} disabled={isSpinning || isLiveRoulette}
                                 className="flex-1 px-2.5 text-[11px] font-black text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors disabled:opacity-30">2×</button>
                             </div>
                           </div>
@@ -1841,10 +1841,8 @@ export default function GamePlayerPage() {
                             </button>
                           )}
                         </div>
-                        )}
 
                         {/* Row 2: Chips + mobile extras + balance */}
-                        {!isLiveRoulette && (
                         <div className="flex flex-wrap items-center gap-1.5 px-3 pb-6 md:px-5 md:pb-6">
                           {[
                             {amount:100, label:"₹100", color:"from-red-600 to-red-700"},
@@ -1920,7 +1918,6 @@ export default function GamePlayerPage() {
                             {stats.totalRounds > 0 && <span className={`ml-2 font-black ${stats.netProfit >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>{stats.netProfit >= 0 ? '+' : ''}₹{stats.netProfit.toFixed(0)}</span>}
                           </span>
                         </div>
-                        )}
                           </>
                         )}
                       </div>

@@ -166,13 +166,30 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
           </div>
         )}
  
-        <button
-          onClick={handleVerify}
-          disabled={isVerifying}
-          className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 text-slate-900 font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-indigo-600/20"
-        >
-          {isVerifying ? "Verifying Credentials..." : "Initiate Verification"}
-        </button>
+        <div className="flex flex-col gap-3">
+          <button
+            onClick={handleVerify}
+            disabled={isVerifying}
+            className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-200 text-white font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-indigo-600/20"
+          >
+            {isVerifying ? "Verifying Credentials..." : "Initiate Verification"}
+          </button>
+
+          {process.env.NODE_ENV !== "production" && (
+            <button
+              onClick={() => {
+                setPasscode("");
+                setTotpCode("");
+                // Give state time to update, then verify
+                setTimeout(() => handleVerify(), 50);
+              }}
+              disabled={isVerifying}
+              className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 text-emerald-400 font-black py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2 border border-emerald-500/20"
+            >
+              ⚡ One-Click Admin Access (Dev)
+            </button>
+          )}
+        </div>
  
         {logs.length > 0 && (
           <div className="bg-white/60 rounded-lg p-3 border border-slate-200 font-mono text-[9px] text-emerald-700 flex flex-col gap-1 max-h-40 overflow-y-auto scrollbar-thin">

@@ -896,44 +896,11 @@ export function LiveRouletteEngine({
               {renderVerticalBoard()}
             </div>
 
-            {/* Betting Controls: Chips, Action buttons, and Spin */}
+            {/* Betting Controls: Action buttons only */}
             <div className="w-full flex flex-col gap-3 mt-2 pb-2">
-              {/* Chips Row */}
-              <div className="flex items-center justify-center gap-1.5 sm:gap-2 px-1">
-                {[
-                  {amount:10, label:"10", color:"from-blue-600 to-blue-700"},
-                  {amount:50, label:"50", color:"from-purple-600 to-purple-700"},
-                  {amount:100, label:"100", color:"from-red-600 to-red-700"},
-                  {amount:500, label:"500", color:"from-teal-600 to-teal-700"},
-                  {amount:1000, label:"1k", color:"from-amber-500 to-amber-600"},
-                  {amount:5000, label:"5k", color:"from-pink-500 to-pink-600"}
-                ].map(chip => (
-                  <button
-                    key={chip.amount}
-                    disabled={isSpinning}
-                    onClick={() => {
-                      setActiveChip(chip.amount);
-                      try { playGameSound('click'); } catch {}
-                    }}
-                    className={`relative w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center border-2 shrink-0 transition-all shadow-[0_4px_10px_rgba(0,0,0,0.5)] ${
-                      activeChip === chip.amount
-                        ? 'border-white scale-110 z-10'
-                        : 'border-white/20 opacity-80 hover:opacity-100 hover:scale-105'
-                    }`}
-                  >
-                    <div className={`absolute inset-0 rounded-full bg-gradient-to-br ${chip.color}`} />
-                    {/* Chip rim dashes */}
-                    <div className="absolute inset-1 rounded-full border border-white/30 border-dashed" />
-                    <span className={`relative z-10 font-black font-mono tracking-tighter drop-shadow-md ${chip.amount >= 1000 ? 'text-[11px] sm:text-xs' : 'text-xs sm:text-sm'} text-white`}>
-                      {chip.label}
-                    </span>
-                  </button>
-                ))}
-              </div>
-
-              {/* Action Buttons & Spin Row */}
+              {/* Action Buttons Row */}
               <div className="flex items-center justify-between gap-2 px-1">
-                <div className="flex items-center gap-1.5 bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-1.5 shadow-md overflow-x-auto scrollbar-none flex-1">
+                <div className="flex items-center gap-1.5 bg-[#020e08]/60 border border-emerald-500/15 rounded-xl p-1.5 shadow-md flex-1">
                   <button 
                     onClick={undoLastBet} 
                     disabled={isSpinning || betHistory.length === 0}
@@ -963,18 +930,6 @@ export function LiveRouletteEngine({
                     Clear
                   </button>
                 </div>
-
-                <button
-                  onClick={handleSpinInit}
-                  disabled={isSpinning || totalBetsSum === 0}
-                  className={`relative shrink-0 h-12 w-20 sm:w-28 rounded-xl font-black text-sm uppercase tracking-widest transition-all ${
-                    isSpinning || totalBetsSum === 0
-                      ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-                      : 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.4)] hover:scale-105 active:scale-95 border border-emerald-300'
-                  }`}
-                >
-                  {isSpinning ? '...' : 'SPIN'}
-                </button>
               </div>
             </div>
 
