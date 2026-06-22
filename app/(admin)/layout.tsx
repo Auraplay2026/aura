@@ -223,13 +223,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const [pendingCount, setPendingCount] = useState(0);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // 1. Role-Based Access Control (RBAC) redirect
   useEffect(() => {
+    if (!mounted) return;
     if (!isLoggedIn || !currentUser || currentUser.role !== 'admin') {
       router.push("/");
     }
-  }, [isLoggedIn, currentUser, router]);
+  }, [mounted, isLoggedIn, currentUser, router]);
 
   // 2. Sandboxed activity listeners to track idle duration (300 seconds lockdown)
   useEffect(() => {
