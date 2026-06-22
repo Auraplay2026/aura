@@ -402,7 +402,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
       alpha: true,
       powerPreference: "high-performance"
     });
-    renderer.setSize(width, height);
+    renderer.setSize(width, height, false);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
