@@ -389,10 +389,10 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     // Scene setup
     const scene = new THREE.Scene();
 
-    // Camera setup - Adjusted back and higher to fully fit table elements
+    // Camera setup - Adjusted to fit the full table without clipping
     const camera = new THREE.PerspectiveCamera(40, width / height, 1, 2000);
-    camera.position.set(0, 480, 460);
-    camera.lookAt(new THREE.Vector3(0, -35, -20));
+    camera.position.set(0, 540, 440);
+    camera.lookAt(new THREE.Vector3(0, 0, 30));
     cameraRef.current = camera;
 
     // Renderer setup
@@ -407,37 +407,37 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-    // Lights
-    const ambientLight = new THREE.AmbientLight(0x0e1726, 0.75);
+    // Light Theme Lights setup
+    const ambientLight = new THREE.AmbientLight(0xffffff, 1.25);
     scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 1.8);
-    dirLight.position.set(0, 400, 0);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 1.6);
+    dirLight.position.set(0, 420, 0);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
     dirLight.shadow.mapSize.height = 1024;
     dirLight.shadow.camera.near = 100;
-    dirLight.shadow.camera.far = 500;
-    dirLight.shadow.camera.left = -430;
-    dirLight.shadow.camera.right = 430;
-    dirLight.shadow.camera.top = 230;
-    dirLight.shadow.camera.bottom = -230;
-    dirLight.shadow.bias = -0.001;
+    dirLight.shadow.camera.far = 520;
+    dirLight.shadow.camera.left = -440;
+    dirLight.shadow.camera.right = 440;
+    dirLight.shadow.camera.top = 240;
+    dirLight.shadow.camera.bottom = -240;
+    dirLight.shadow.bias = -0.0015;
     scene.add(dirLight);
 
     // Neon Accent Lights
-    const neonLeft = new THREE.PointLight(0xd946ef, 1.3, 600); // Magenta glow
+    const neonLeft = new THREE.PointLight(0xd946ef, 1.2, 600); // Magenta glow
     neonLeft.position.set(-400, 60, 0);
     scene.add(neonLeft);
 
-    const neonRight = new THREE.PointLight(0x00f2fe, 1.3, 600); // Cyan glow
+    const neonRight = new THREE.PointLight(0x00f2fe, 1.2, 600); // Cyan glow
     neonRight.position.set(400, 60, 0);
     scene.add(neonRight);
 
-    // 3D Table Felt Mesh
+    // 3D Table Felt Mesh - Clean Premium Light Mint color
     const feltGeo = new THREE.PlaneGeometry(800, 400);
     const feltMat = new THREE.MeshStandardMaterial({
-      color: 0x05201c, // Sleek deep teal felt color
+      color: 0xaddad0, // Light mint felt
       roughness: 0.88,
       metalness: 0.05
     });
@@ -446,11 +446,11 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     feltMesh.receiveShadow = true;
     scene.add(feltMesh);
 
-    // Table rails (Wood/Cyber frame)
+    // Table rails (Modern Brushed Slate/Silver frame)
     const railMat = new THREE.MeshStandardMaterial({
-      color: 0x070c14,
-      roughness: 0.2,
-      metalness: 0.75
+      color: 0xe2e8f0, // Brushed slate frame
+      roughness: 0.22,
+      metalness: 0.85
     });
     
     // Top border rail
@@ -482,7 +482,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     scene.add(rightRail);
 
     // Glowing Neon Rails Strips
-    const cyanGlowMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
+    const cyanGlowMat = new THREE.MeshBasicMaterial({ color: 0x00c2ee });
     const magentaGlowMat = new THREE.MeshBasicMaterial({ color: 0xd946ef });
 
     // Inner neon accent strips
@@ -502,9 +502,9 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
     bottomGlow.position.set(0, 10, 199);
     scene.add(bottomGlow);
 
-    // Pockets
-    const pocketMat = new THREE.MeshBasicMaterial({ color: 0x010408 });
-    const pocketHalosMat = new THREE.MeshBasicMaterial({ color: 0x00f2fe });
+    // Pockets - soft slate well color
+    const pocketMat = new THREE.MeshBasicMaterial({ color: 0x0f172a });
+    const pocketHalosMat = new THREE.MeshBasicMaterial({ color: 0x00c2ee });
 
     pockets.forEach(p => {
       // 3D pocket well cylinder
@@ -531,8 +531,8 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
 
     const cueStickGeo = new THREE.CylinderGeometry(1.2, 2.5, 230, 8);
     const cueStickMat = new THREE.MeshStandardMaterial({
-      color: 0x00f2fe,
-      emissive: 0x00f2fe,
+      color: 0x00c2ee,
+      emissive: 0x00c2ee,
       emissiveIntensity: 0.9,
       roughness: 0.15,
       metalness: 0.9
@@ -557,18 +557,18 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
       return mesh;
     };
 
-    const mainLine = createLineSegment(0x00f2fe);
+    const mainLine = createLineSegment(0x00c2ee);
     const targetLine = createLineSegment(0xd946ef);
-    const cueLine = createLineSegment(0xffffff);
+    const cueLine = createLineSegment(0x334155);
 
-    // Ghost Ball indicator at intersection
+    // Ghost Ball indicator at intersection - Dark slate wireframe for contrast
     const ghostBall = new THREE.Mesh(
       new THREE.SphereGeometry(BALL_RADIUS, 16, 16),
       new THREE.MeshBasicMaterial({
-        color: 0xffffff,
+        color: 0x334155,
         wireframe: true,
         transparent: true,
-        opacity: 0.22
+        opacity: 0.3
       })
     );
     ghostBall.position.y = BALL_RADIUS;
@@ -581,7 +581,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
 
     for (let i = 0; i < particlePoolSize; i++) {
       const pMat = new THREE.MeshBasicMaterial({
-        color: 0x00f2fe,
+        color: 0x00c2ee,
         transparent: true,
         opacity: 1
       });
@@ -1054,39 +1054,39 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
   };
 
   return (
-    <div className="w-full h-full min-h-[290px] sm:min-h-[380px] md:min-h-[600px] bg-slate-950 rounded-3xl border border-slate-800 p-2 sm:p-4 md:p-8 flex flex-col items-center justify-between relative overflow-hidden shadow-2xl select-none">
+    <div className="w-full h-full min-h-[290px] sm:min-h-[380px] md:min-h-[600px] bg-white rounded-3xl border border-slate-200/80 p-2 sm:p-4 md:p-8 flex flex-col items-center justify-between relative overflow-hidden shadow-lg select-none">
       
-      {/* Background Volumetric Arena Lighting */}
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-teal-955/20 via-slate-955 to-slate-955 pointer-events-none" />
-      <div className="absolute top-0 inset-x-0 h-40 bg-[linear-gradient(to_bottom,_rgba(6,182,212,0.06),_transparent)] blur-[60px] pointer-events-none" />
+      {/* Background Volumetric Arena Lighting - Clean Light gradient */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_top,_var(--tw-gradient-stops))] from-teal-50/10 via-white to-white pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-40 bg-[linear-gradient(to_bottom,_rgba(6,182,212,0.03),_transparent)] blur-[60px] pointer-events-none" />
 
-      {/* Cyber Scoreboard HUD - Completely horizontal & ultra-compact for mobile, no user details duplicated */}
-      <div className="w-full z-10 flex items-center justify-between gap-2 border-b border-slate-800/60 pb-3 mb-2">
+      {/* Cyber Scoreboard HUD - Clean light theme styling */}
+      <div className="w-full z-10 flex items-center justify-between gap-2 border-b border-slate-200/80 pb-3 mb-2">
         
         {/* AAA HUD Metrics in single horizontal row */}
         <div className="flex items-center gap-3 sm:gap-6 md:gap-12 flex-grow">
           {/* Win Probability HUD */}
           <div className="text-left sm:text-center">
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block sm:hidden">Win Prob</span>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">WIN PROBABILITY</span>
-            <span className="text-base sm:text-2xl font-black font-mono text-cyan-400 drop-shadow-[0_0_10px_rgba(6,182,212,0.4)]">
+            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block sm:hidden">Win Prob</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest hidden sm:block">WIN PROBABILITY</span>
+            <span className="text-base sm:text-2xl font-black font-mono text-cyan-600 drop-shadow-[0_0_10px_rgba(6,182,212,0.15)]">
               {winChance}%
             </span>
           </div>
 
           {/* Shot clock */}
-          <div className="flex items-center gap-1.5 bg-slate-900/60 border border-slate-850 px-2 py-1 rounded-xl">
-            <Clock className="w-3.5 h-3.5 text-pink-400 animate-pulse" />
-            <span className="font-mono text-sm sm:text-lg font-black text-pink-400 drop-shadow-[0_0_8px_rgba(244,114,182,0.4)]">
+          <div className="flex items-center gap-1.5 bg-slate-50 border border-slate-200/80 px-2 py-1 rounded-xl">
+            <Clock className="w-3.5 h-3.5 text-pink-500 animate-pulse" />
+            <span className="font-mono text-sm sm:text-lg font-black text-pink-500 drop-shadow-[0_0_8px_rgba(244,114,182,0.15)]">
               {shotClock}s
             </span>
           </div>
 
           {/* Current Wager */}
           <div className="text-left sm:text-center">
-            <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider block sm:hidden">Stake</span>
-            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest hidden sm:block">CURRENT STAKE</span>
-            <span className="text-base sm:text-xl font-black font-mono text-yellow-400 drop-shadow-[0_0_10px_rgba(234,179,8,0.4)]">
+            <span className="text-[9px] text-slate-500 font-bold uppercase tracking-wider block sm:hidden">Stake</span>
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest hidden sm:block">CURRENT STAKE</span>
+            <span className="text-base sm:text-xl font-black font-mono text-amber-600 drop-shadow-[0_0_10px_rgba(234,179,8,0.15)]">
               ₹{betAmount}
             </span>
           </div>
@@ -1095,17 +1095,17 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         {/* Audio Mute Toggle */}
         <button
           onClick={() => setIsMuted(prev => !prev)}
-          className="p-1.5 rounded-lg bg-slate-900/60 hover:bg-slate-800/80 border border-slate-800 text-slate-400 hover:text-slate-200 transition-all shadow-inner"
+          className="p-1.5 rounded-lg bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-650 hover:text-slate-900 transition-all shadow-inner"
         >
           {isMuted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
         </button>
       </div>
 
-      {/* 3D WebGL Table Box Container - Reduced padding on mobile */}
+      {/* 3D WebGL Table Box Container - Light silver borders */}
       <div className="w-full flex-grow flex items-center justify-center z-10 py-2 sm:py-6 overflow-hidden">
-        <div className="relative w-full max-w-[800px] aspect-[2/1] rounded-[24px] bg-slate-950 border-[12px] border-slate-900 shadow-[0_25px_60px_rgba(0,0,0,0.95)] overflow-hidden">
+        <div className="relative w-full max-w-[800px] aspect-[2/1] rounded-[24px] bg-white border-[12px] border-slate-200 shadow-[0_15px_40px_rgba(15,23,42,0.08)] overflow-hidden">
           {/* Inner Rail subtle glow overlay */}
-          <div className="absolute inset-0 border border-cyan-500/10 pointer-events-none shadow-[inset_0_0_20px_rgba(6,182,212,0.15)] z-20" />
+          <div className="absolute inset-0 border border-cyan-500/10 pointer-events-none shadow-[inset_0_0_20px_rgba(6,182,212,0.05)] z-20" />
 
           {/* WebGL Canvas */}
           <canvas
@@ -1121,22 +1121,22 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         </div>
       </div>
 
-      {/* Strike & Power Charging Controls - Completely horizontal single-row on mobile */}
-      <div className="w-full z-10 flex items-center justify-between gap-3 mt-2 border-t border-slate-800/60 pt-3">
+      {/* Strike & Power Charging Controls - Clean light styling */}
+      <div className="w-full z-10 flex items-center justify-between gap-3 mt-2 border-t border-slate-200 pb-1 pt-3">
         
         {/* Aim Fine-tuning buttons */}
         <div className="flex items-center gap-1">
           <button
             onClick={() => setCueAngle(prev => prev - 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-xs"
+            className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-xs shadow-sm"
           >
             ↺
           </button>
           <button
             onClick={() => setCueAngle(prev => prev + 0.05)}
             disabled={gameState !== "aiming"}
-            className="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-xs"
+            className="w-8 h-8 rounded-lg bg-white border border-slate-200 text-slate-700 hover:text-slate-900 hover:bg-slate-50 active:scale-95 disabled:opacity-40 disabled:pointer-events-none transition-all flex items-center justify-center font-bold text-xs shadow-sm"
           >
             ↻
           </button>
@@ -1144,10 +1144,10 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
 
         {/* Neon Power Meter Slider */}
         <div className="flex-grow flex items-center gap-2 max-w-[180px] sm:max-w-xs">
-          <Zap className="w-3.5 h-3.5 text-cyan-400 animate-pulse hidden sm:block" />
+          <Zap className="w-3.5 h-3.5 text-cyan-500 animate-pulse hidden sm:block" />
           <div className="flex-grow relative flex items-center">
             {/* Slider track background */}
-            <div className="h-1.5 w-full bg-slate-900 rounded-full overflow-hidden relative border border-slate-850 shadow-inner">
+            <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden relative border border-slate-200 shadow-inner">
               <div
                 className="h-full bg-gradient-to-r from-cyan-400 via-yellow-400 to-pink-500 shadow-[0_0_10px_#00f2fe]"
                 style={{ width: `${shotPower}%` }}
@@ -1164,7 +1164,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
               className="absolute inset-x-0 w-full h-6 opacity-0 cursor-pointer disabled:pointer-events-none z-10"
             />
           </div>
-          <span className="text-[10px] sm:text-xs font-black font-mono text-cyan-400 w-8 text-right">
+          <span className="text-[10px] sm:text-xs font-black font-mono text-cyan-600 w-8 text-right">
             {shotPower}%
           </span>
         </div>
@@ -1173,51 +1173,51 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         <button
           onClick={handleStrike}
           disabled={gameState !== "aiming"}
-          className="relative px-3 sm:px-6 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-slate-950 font-black uppercase text-[10px] sm:text-xs tracking-widest shadow-[0_0_15px_rgba(6,182,212,0.3)] border border-cyan-300/20 active:scale-[0.97] transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5"
+          className="relative px-3 sm:px-6 py-2 rounded-xl bg-gradient-to-r from-cyan-500 to-indigo-600 hover:from-cyan-400 hover:to-indigo-500 text-white font-black uppercase text-[10px] sm:text-xs tracking-widest shadow-[0_4px_15px_rgba(6,182,212,0.25)] border border-cyan-400/20 active:scale-[0.97] transition-all disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5"
         >
-          <Play className="w-3 h-3 fill-slate-950" />
+          <Play className="w-3 h-3 fill-white" />
           <span>STRIKE</span>
         </button>
       </div>
 
-      {/* AAA Victory Overlay */}
+      {/* AAA Victory Overlay - Light Theme */}
       <AnimatePresence>
         {gameState === "win_screen" && serverOutcome && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 bg-white/95 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
           >
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(6,182,212,0.12),_transparent_75%)]" />
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_rgba(6,182,212,0.08),_transparent_75%)]" />
 
             <motion.div
               initial={{ scale: 0.7, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.7, y: 30 }}
-              className="max-w-md w-full bg-gradient-to-b from-slate-900 to-slate-950 border border-cyan-500/30 rounded-[32px] p-8 text-center relative shadow-[0_0_50px_rgba(6,182,212,0.25)]"
+              className="max-w-md w-full bg-white border border-slate-200 rounded-[32px] p-8 text-center relative shadow-[0_20px_50px_rgba(15,23,42,0.12)]"
             >
-              <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center bg-cyan-500/10 rounded-full border border-cyan-400/20 shadow-[0_0_25px_rgba(6,182,212,0.15)]">
-                <Trophy className="w-12 h-12 text-cyan-400 drop-shadow-[0_0_15px_#00f2fe] animate-bounce" />
+              <div className="relative w-24 h-24 mx-auto mb-6 flex items-center justify-center bg-cyan-50 rounded-full border border-cyan-200/50 shadow-[0_0_20px_rgba(6,182,212,0.1)]">
+                <Trophy className="w-12 h-12 text-cyan-500 drop-shadow-[0_0_10px_#00c2ee] animate-bounce" />
               </div>
 
-              <span className="text-[10px] text-cyan-400 font-black tracking-widest uppercase block mb-1">
+              <span className="text-[10px] text-cyan-600 font-black tracking-widest uppercase block mb-1">
                 VICTORY DETECTED
               </span>
-              <h2 className="text-3xl font-black text-slate-100 uppercase tracking-tighter mb-6">
+              <h2 className="text-3xl font-black text-slate-800 uppercase tracking-tighter mb-6">
                 GREAT SHOT!
               </h2>
 
-              <div className="bg-slate-950/60 border border-slate-800/80 rounded-2xl p-6 mb-8 grid grid-cols-2 gap-4">
-                <div className="text-left border-r border-slate-800/60 pr-4">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Multiplier</span>
-                  <span className="text-2xl font-black font-mono text-emerald-400">
+              <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-6 mb-8 grid grid-cols-2 gap-4">
+                <div className="text-left border-r border-slate-200/80 pr-4">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Multiplier</span>
+                  <span className="text-2xl font-black font-mono text-emerald-600">
                     {serverOutcome.multiplier.toFixed(2)}x
                   </span>
                 </div>
                 <div className="text-left pl-4">
-                  <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">Net Payout</span>
-                  <span className="text-2xl font-black font-mono text-yellow-400">
+                  <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider block">Net Payout</span>
+                  <span className="text-2xl font-black font-mono text-amber-600">
                     ₹{serverOutcome.payout.toFixed(2)}
                   </span>
                 </div>
@@ -1229,7 +1229,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
                   initBalls();
                   onComplete(0, false);
                 }}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black uppercase text-sm tracking-widest shadow-[0_0_20px_rgba(16,185,129,0.25)] border border-emerald-400/20 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black uppercase text-sm tracking-widest shadow-[0_4px_15px_rgba(16,185,129,0.25)] border border-emerald-400/20 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 PLAY AGAIN
@@ -1239,33 +1239,33 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         )}
       </AnimatePresence>
 
-      {/* AAA Defeat Overlay */}
+      {/* AAA Defeat Overlay - Light Theme */}
       <AnimatePresence>
         {gameState === "lose_screen" && serverOutcome && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="absolute inset-0 bg-slate-950/90 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
+            className="absolute inset-0 bg-white/95 backdrop-blur-lg z-50 flex flex-col items-center justify-center p-6"
           >
             <motion.div
               initial={{ scale: 0.7, y: 30 }}
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.7, y: 30 }}
-              className="max-w-md w-full bg-gradient-to-b from-slate-900 to-slate-950 border border-pink-500/20 rounded-[32px] p-8 text-center relative shadow-[0_0_50px_rgba(244,114,182,0.12)]"
+              className="max-w-md w-full bg-white border border-slate-200 rounded-[32px] p-8 text-center relative shadow-[0_20px_50px_rgba(15,23,42,0.12)]"
             >
-              <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-pink-500/10 rounded-full border border-pink-400/20 shadow-[0_0_15px_rgba(244,114,182,0.08)]">
-                <AlertTriangle className="w-10 h-10 text-pink-400" />
+              <div className="w-20 h-20 mx-auto mb-6 flex items-center justify-center bg-pink-50 rounded-full border border-pink-200/50 shadow-[0_0_15px_rgba(244,114,182,0.06)]">
+                <AlertTriangle className="w-10 h-10 text-pink-500" />
               </div>
 
-              <span className="text-[10px] text-pink-400 font-black tracking-widest uppercase block mb-1">
+              <span className="text-[10px] text-pink-600 font-black tracking-widest uppercase block mb-1">
                 ROUND CLOSED
               </span>
-              <h2 className="text-2xl font-black text-slate-100 uppercase tracking-tighter mb-4">
+              <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tighter mb-4">
                 SCRATCHED OR MISSED
               </h2>
 
-              <p className="text-slate-400 text-sm mb-8 leading-relaxed">
+              <p className="text-slate-500 text-sm mb-8 leading-relaxed">
                 Your cue ball scratched or the shot missed the target pockets. Refine your laser guides and try again!
               </p>
 
@@ -1275,7 +1275,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
                   initBalls();
                   onComplete(0, false);
                 }}
-                className="w-full py-4 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-slate-300 hover:text-white font-black uppercase text-sm tracking-widest border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2"
+                className="w-full py-4 rounded-2xl bg-gradient-to-r from-slate-800 to-slate-900 hover:from-slate-700 hover:to-slate-800 text-white font-black uppercase text-sm tracking-widest border border-slate-700 active:scale-95 transition-all flex items-center justify-center gap-2"
               >
                 <RotateCcw className="w-4 h-4" />
                 PLAY AGAIN
