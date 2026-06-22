@@ -391,8 +391,8 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
 
     // Camera setup - Adjusted to fit the full table without clipping
     const camera = new THREE.PerspectiveCamera(40, width / height, 1, 2000);
-    camera.position.set(0, 540, 440);
-    camera.lookAt(new THREE.Vector3(0, 0, 30));
+    camera.position.set(0, 650, 400);
+    camera.lookAt(new THREE.Vector3(0, -40, 0));
     cameraRef.current = camera;
 
     // Renderer setup
