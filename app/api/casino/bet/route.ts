@@ -1,8 +1,19 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { updateUser, Transaction } from '@/lib/userDb';
+import { verifyUserSession } from '@/lib/userAuth';
 import { getSystemConfig } from '@/lib/systemConfig';
-import { calculateGameOutcome } from '@/lib/casino-math';
+import { calculateGameOutcome as oldCalculateGameOutcome } from '@/lib/casino-math';
+import { 
+  calculateDiceOutcome, 
+  calculateLimboOutcome, 
+  calculateCoinflipOutcome, 
+  calculateKenoOutcome, 
+  calculateRouletteOutcome, 
+  calculateBlackjackOutcome, 
+  calculateWheelOutcome 
+} from '@/lib/fair-casino-math';
+import { generateFairRNGSeed, FairRNG } from '@/lib/fair-rng';
 import fs from 'fs';
 import path from 'path';
 
@@ -40,8 +51,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters: email, gameId, betAmount.' }, { status: 400 });
     }
 
-    if (betAmount < 0) {
-      return NextResponse.json({ error: 'Bet amount must be a positive number.' }, { status: 400 });
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
+    }
+
+    const parsedBetAmount = Number(betAmount);
+    if (typeof betAmount !== 'number' || isNaN(parsedBetAmount) || !isFinite(parsedBetAmount) || parsedBetAmount < 0) {
+      return NextResponse.json({ error: 'Bet amount must be a valid finite number >= 0.' }, { status: 400 });
+    }
+
+    if (targetMultiplier !== undefined) {
+      const parsedMult = Number(targetMultiplier);
+      if (isNaN(parsedMult) || !isFinite(parsedMult) || parsedMult <= 0) {
+        return NextResponse.json({ error: 'Target multiplier must be a valid positive finite number.' }, { status: 400 });
+      }
     }
 
     const user = await prisma.user.findUnique({
@@ -96,7 +121,10 @@ export async function POST(request: Request) {
     const realWinRate = systemConfig.realWinRate ?? 30;
     const isDemo = accountType === 'demo';
 
-    const outcome = calculateGameOutcome(gameType, targetMultiplier, isDemo, demoWinRate, realWinRate);
+    let outcome = null;
+    if (gameId.startsWith("slot-")) {
+      outcome = oldCalculateGameOutcome(gameType, targetMultiplier, isDemo, demoWinRate, realWinRate);
+    }
 
     // Progressive/interactive games: Mines, Tower, Crash/Aviator
     const isInteractive = gameId === "orig-4" || gameId === "orig-7" || gameId === "orig-1" || gameId === "aviator" || gameId.startsWith("crash-");
@@ -133,18 +161,20 @@ export async function POST(request: Request) {
       const sessions = getSessions();
       
       let mineLocations: number[] = [];
-      let riggedBustClick = 0;
+      let crashPoint = 0;
+      let reachedRow = 0;
+      let fairSeed = null;
 
       if (gameId === "orig-4") { // Mines
         const minesCount = selectedTarget ? Number(selectedTarget) : 3;
-        if (outcome.isWin) {
-          while (mineLocations.length < minesCount) {
-            const r = Math.floor(Math.random() * 25);
-            if (!mineLocations.includes(r)) mineLocations.push(r);
-          }
-        } else {
-          riggedBustClick = outcome.isNearMiss ? Math.floor(Math.random() * 3) + 3 : Math.floor(Math.random() * 2) + 1;
-        }
+        fairSeed = generateFairRNGSeed(`mines-${Date.now()}`);
+        const rng = new FairRNG(fairSeed);
+        const grid = Array(25 - minesCount).fill(false).concat(Array(minesCount).fill(true));
+        const shuffled = rng.shuffle(grid);
+        mineLocations = shuffled.reduce((acc: number[], isMine: boolean, idx: number) => {
+          if (isMine) acc.push(idx);
+          return acc;
+        }, []);
         
         sessions[sessionId] = {
           sessionId,
@@ -155,16 +185,25 @@ export async function POST(request: Request) {
           commission,
           minesCount,
           mineLocations,
-          riggedBustClick,
           revealedTiles: [],
           activeMultiplier: 1.0,
-          scheduledOutcome: outcome,
           gameState: "playing",
           accountType,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          seed: fairSeed
         };
       } else if (gameId === "orig-7") { // Tower
-        // Tower configuration (rows, safe slots)
+        fairSeed = generateFairRNGSeed(`tower-${Date.now()}`);
+        const rng = new FairRNG(fairSeed);
+        reachedRow = 0;
+        for (let r = 0; r < 9; r++) {
+          const isSafe = rng.nextInt(0, 3) >= 1; // 1 bomb, 3 cols
+          if (!isSafe) {
+            break;
+          }
+          reachedRow = r + 1;
+        }
+
         sessions[sessionId] = {
           sessionId,
           email,
@@ -174,12 +213,18 @@ export async function POST(request: Request) {
           commission,
           revealedRows: 0,
           activeMultiplier: 1.0,
-          scheduledOutcome: outcome,
+          reachedRow,
           gameState: "playing",
           accountType,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          seed: fairSeed
         };
       } else { // Crash or Aviator
+        fairSeed = generateFairRNGSeed(`crash-${Date.now()}`);
+        const rng = new FairRNG(fairSeed);
+        const uniformRandom = rng.next();
+        crashPoint = Math.round(((0.97 * 1.0042) / uniformRandom) * 100) / 100;
+
         sessions[sessionId] = {
           sessionId,
           email,
@@ -187,10 +232,11 @@ export async function POST(request: Request) {
           gameTitle: gameTitle || "Crash",
           betAmount,
           commission,
-          crashPoint: outcome.multiplier,
+          crashPoint,
           gameState: "playing",
           accountType,
-          timestamp: Date.now()
+          timestamp: Date.now(),
+          seed: fairSeed
         };
       }
 
@@ -201,18 +247,26 @@ export async function POST(request: Request) {
         isInteractive: true,
         sessionId,
         activeMultiplier: 1.0,
-        crashPoint: outcome.multiplier, // returned for crash animation
-        newBalance
+        crashPoint: crashPoint || (outcome ? outcome.multiplier : 0),
+        newBalance,
+        seed: fairSeed
       }, { status: 200 });
     }
 
     // Custom game-specific outcome adjustments
-    let finalMultiplier = outcome.multiplier;
-    let responseMultiplier = outcome.multiplier;
+    let finalMultiplier = 0;
+    let responseMultiplier = 0;
     let targetBinIndex: number | undefined = undefined;
+    let fairSeed = null;
 
     if (gameId === "orig-3" || gameId.includes("plinko")) { // Plinko
       const risk = (selectedTarget || "medium") as "low" | "medium" | "high" | "extreme";
+      fairSeed = generateFairRNGSeed(`plinko-${Date.now()}`);
+      const rng = new FairRNG(fairSeed);
+      targetBinIndex = 0;
+      for (let r = 0; r < 10; r++) {
+        if (rng.nextBool()) targetBinIndex += 1;
+      }
       const MULTIPLIERS: Record<string, number[]> = {
         low:     [5.6, 2.1, 1.1, 1.0, 0.5, 0.5, 0.5, 1.0, 1.1, 2.1, 5.6],
         medium:  [13.0, 3.0, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3.0, 13.0],
@@ -220,34 +274,66 @@ export async function POST(request: Request) {
         extreme: [350.0, 25.0, 4.0, 0.2, 0.1, 0.1, 0.1, 0.2, 4.0, 25.0, 350.0]
       };
       const riskMults = MULTIPLIERS[risk] || MULTIPLIERS.medium;
-      if (outcome.isWin) {
-        const winBins = [0, 1, 2, 8, 9, 10];
-        targetBinIndex = winBins[Math.floor(Math.random() * winBins.length)];
-      } else {
-        const loseBins = [3, 4, 5, 6, 7];
-        targetBinIndex = loseBins[Math.floor(Math.random() * loseBins.length)];
-      }
       finalMultiplier = riskMults[targetBinIndex];
       responseMultiplier = finalMultiplier;
     } else if (gameId === "orig-5" || gameId.includes("dice")) { // Dice
-      const targetVal = targetMultiplier ? Number(targetMultiplier) : 2.0;
-      finalMultiplier = outcome.isWin ? targetVal : 0;
+      const targetVal = targetMultiplier ? Number(targetMultiplier) : 50.0;
+      const direction = selectedTarget === 'under' ? 'under' : 'over';
+      fairSeed = generateFairRNGSeed(`dice-${Date.now()}`);
+      const fairOutcome = calculateDiceOutcome(targetVal, direction, fairSeed);
+      finalMultiplier = fairOutcome.multiplier;
       responseMultiplier = finalMultiplier;
     } else if (gameId === "orig-9" || gameId.includes("coin")) { // Coinflip
-      finalMultiplier = outcome.isWin ? 2.0 : 0;
+      const choice = (selectedTarget || 'heads') as 'heads' | 'tails';
+      fairSeed = generateFairRNGSeed(`coinflip-${Date.now()}`);
+      const fairOutcome = calculateCoinflipOutcome(choice, fairSeed);
+      finalMultiplier = fairOutcome.multiplier;
       responseMultiplier = finalMultiplier;
     } else if (gameId === "orig-2" || gameId.includes("limbo")) { // Limbo
       const targetVal = targetMultiplier ? Number(targetMultiplier) : 2.0;
-      finalMultiplier = outcome.isWin ? targetVal : 0;
-      responseMultiplier = outcome.multiplier;
+      fairSeed = generateFairRNGSeed(`limbo-${Date.now()}`);
+      const fairOutcome = calculateLimboOutcome(targetVal, fairSeed);
+      finalMultiplier = fairOutcome.isWin ? targetVal : 0;
+      const rng = new FairRNG(fairSeed);
+      const uniformRandom = rng.next();
+      const rolledMultiplier = Math.round(((0.97 * 1.0041) / uniformRandom) * 100) / 100;
+      responseMultiplier = rolledMultiplier;
     } else if (gameId === "orig-6" || gameId.includes("keno")) { // Keno
-      if (outcome.isWin) {
-        const winMults = [1.5, 5.0, 50.0, 500.0];
-        finalMultiplier = winMults[Math.floor(Math.random() * winMults.length)];
-      } else {
-        finalMultiplier = 0;
-      }
+      const selected = Array.isArray(selectedTarget) ? selectedTarget.map(Number) : [1, 2, 3, 4, 5];
+      fairSeed = generateFairRNGSeed(`keno-${Date.now()}`);
+      const fairOutcome = calculateKenoOutcome(selected, 20, fairSeed);
+      finalMultiplier = fairOutcome.multiplier;
       responseMultiplier = finalMultiplier;
+    } else if (gameId === "orig-10" || gameId.includes("wheel")) { // Wheel
+      fairSeed = generateFairRNGSeed(`wheel-${Date.now()}`);
+      const fairOutcome = calculateWheelOutcome(fairSeed);
+      finalMultiplier = fairOutcome.multiplier;
+      responseMultiplier = finalMultiplier;
+    } else if (gameId === "orig-11" || gameId.startsWith("roulette-") || gameId.startsWith("orig-r")) { // Roulette
+      const type = selectedTarget === 'straight' ? 'straight' : 'even_money';
+      const val = targetMultiplier !== undefined ? Number(targetMultiplier) : 17;
+      fairSeed = generateFairRNGSeed(`roulette-${Date.now()}`);
+      const fairOutcome = calculateRouletteOutcome(type, val, fairSeed);
+      finalMultiplier = fairOutcome.multiplier;
+      responseMultiplier = finalMultiplier;
+    } else if (gameId === "orig-8" || gameId.startsWith("blackjack-") || gameId.startsWith("orig-20")) { // Blackjack
+      const playerVal = targetMultiplier !== undefined ? Number(targetMultiplier) : 18;
+      const dealerVal = selectedTarget !== undefined ? Number(selectedTarget) : 6;
+      fairSeed = generateFairRNGSeed(`blackjack-${Date.now()}`);
+      const fairOutcome = calculateBlackjackOutcome(playerVal, dealerVal, fairSeed);
+      finalMultiplier = fairOutcome.multiplier;
+      responseMultiplier = finalMultiplier;
+    } else if (!gameId.startsWith("slot-")) {
+      // General custom games
+      fairSeed = generateFairRNGSeed(`custom-${Date.now()}`);
+      const rng = new FairRNG(fairSeed);
+      const isWin = rng.next() < 0.48;
+      finalMultiplier = isWin ? (targetMultiplier ? Number(targetMultiplier) : 2.0) : 0;
+      responseMultiplier = finalMultiplier;
+    } else {
+      // Slot machine fallback
+      finalMultiplier = outcome ? outcome.multiplier : 0;
+      responseMultiplier = outcome ? outcome.multiplier : 0;
     }
 
     const payout = Math.round(betAmount * finalMultiplier * 100) / 100;
@@ -304,7 +390,8 @@ export async function POST(request: Request) {
       payout,
       newBalance,
       targetBinIndex,
-      transactionId: txId
+      transactionId: txId,
+      seed: fairSeed
     }, { status: 200 });
 
   } catch (err: any) {

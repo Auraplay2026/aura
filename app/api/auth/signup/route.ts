@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { findUserByEmail, findUserByUsername, addUser, getUsers, updateUser, UserProfile, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
+import { setUserAuthCookie } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -77,7 +78,9 @@ export async function POST(request: Request) {
     }
     
     const { passwordHash, ...safeUser } = newUser;
-    return NextResponse.json({ success: true, user: safeUser }, { status: 201 });
+    const response = NextResponse.json({ success: true, user: safeUser }, { status: 201 });
+    await setUserAuthCookie(response, newUser.email);
+    return response;
   } catch (err) {
     return NextResponse.json({ error: 'Failed to process signup request.' }, { status: 500 });
   }

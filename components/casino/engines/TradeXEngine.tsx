@@ -97,7 +97,7 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
   const isUpTrend = dataPoints[dataPoints.length - 1] > dataPoints[dataPoints.length - 2];
 
   return (
-    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full bg-[#020617] rounded-3xl border border-slate-800 shadow-2xl relative flex flex-col p-3 md:p-8 overflow-hidden">
+    <div className="w-full h-full min-h-[300px] h-[340px] md:min-h-[600px] md:h-full bg-slate-50 rounded-3xl border border-slate-200 shadow-2xl relative flex flex-col p-3 md:p-8 overflow-hidden">
       
       {/* Background Grid */}
       <div 
@@ -115,13 +115,13 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
             <Activity className="w-5 h-5 md:w-6 md:h-6 animate-pulse" />
           </div>
           <div>
-            <h2 className="text-slate-100 font-black text-lg md:text-xl tracking-widest uppercase">TradeX</h2>
+            <h2 className="text-slate-900 font-black text-lg md:text-xl tracking-widest uppercase">TradeX</h2>
             <p className="text-slate-550 text-[10px] md:text-xs font-mono">BTC/USD Binary Options</p>
           </div>
         </div>
         
         <div className="text-right">
-          <p className="text-slate-500 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-0.5 md:mb-1">Live Price</p>
+          <p className="text-slate-700 text-[10px] md:text-xs font-bold uppercase tracking-widest mb-0.5 md:mb-1">Live Price</p>
           <p className={`font-mono font-black text-lg md:text-2xl drop-shadow-md ${isUpTrend ? "text-emerald-400" : "text-rose-400"}`}>
             ${(50000 + dataPoints[dataPoints.length - 1] * 100).toLocaleString(undefined, { maximumFractionDigits: 2 })}
           </p>
@@ -129,7 +129,7 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
       </div>
 
       {/* Chart Area */}
-      <div className="relative flex-1 w-full bg-[#0f172a]/50 rounded-2xl border border-slate-800 shadow-inner overflow-hidden flex items-end">
+      <div className="relative flex-1 w-full bg-[#0f172a]/50 rounded-2xl border border-slate-200 shadow-inner overflow-hidden flex items-end">
         {/* Fill Gradient */}
         <svg className="absolute inset-0 w-full h-full preserve-3d" viewBox={`0 0 ${svgWidth} ${svgHeight}`} preserveAspectRatio="none">
           <defs>
@@ -199,7 +199,7 @@ export function TradeXEngine({ isPlaying, onComplete }: TradeXEngineProps) {
           <motion.div 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-8 py-3 rounded-full border border-slate-700 shadow-2xl"
+            className="absolute top-20 left-1/2 -translate-x-1/2 z-30 bg-white/80 backdrop-blur-md px-8 py-3 rounded-full border border-slate-200 shadow-2xl"
           >
             <span className="text-slate-900 font-black tracking-widest uppercase animate-pulse">Resolving Market...</span>
           </motion.div>

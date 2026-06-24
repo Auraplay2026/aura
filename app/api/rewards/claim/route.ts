@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -9,7 +10,18 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
     }
 
-    if (amount < 0 && rewardType !== 'cashier_withdraw') {
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
+    }
+
+    const parsedAmount = Number(amount);
+    if (typeof amount !== 'number' || isNaN(parsedAmount) || !isFinite(parsedAmount)) {
+      return NextResponse.json({ error: 'Amount must be a valid finite number.' }, { status: 400 });
+    }
+
+    if (parsedAmount < 0 && rewardType !== 'cashier_withdraw') {
       return NextResponse.json({ error: 'Amount cannot be negative.' }, { status: 400 });
     }
 

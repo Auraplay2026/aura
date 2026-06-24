@@ -441,18 +441,18 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, autoCashout, onLiveT
   };
 
   return (
-    <div className="w-full h-full min-h-[100dvh] md:min-h-[600px] bg-[#02050a] md:rounded-[2.5rem] md:border-4 border-slate-800 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden font-sans select-none">
+    <div className="w-full h-full min-h-[100dvh] md:min-h-[600px] bg-[#02050a] md:rounded-[2.5rem] md:border-4 border-slate-200 shadow-[0_20px_60px_rgba(0,0,0,0.8)] relative flex flex-col items-center overflow-hidden font-sans select-none">
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 block" />
       <div className="absolute inset-0 z-10 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_20%,rgba(0,0,0,0.45)_95%)]" />
 
       {/* Round History Strip */}
-      <div className="absolute top-0 inset-x-0 z-30 h-8 sm:h-10 bg-black/60 backdrop-blur-md border-b border-slate-800 flex items-center px-4 overflow-x-auto overflow-y-hidden whitespace-nowrap gap-2 scrollbar-hide">
-        <div className="flex items-center gap-1.5 text-slate-400 mr-2">
+      <div className="absolute top-0 inset-x-0 z-30 h-8 sm:h-10 bg-black/60 backdrop-blur-md border-b border-slate-200 flex items-center px-4 overflow-x-auto overflow-y-hidden whitespace-nowrap gap-2 scrollbar-hide">
+        <div className="flex items-center gap-1.5 text-slate-600 mr-2">
           <History className="w-3.5 h-3.5" />
           <span className="text-[10px] font-black uppercase tracking-widest">History</span>
         </div>
         {history.map((h, i) => (
-          <div key={i} className={`text-[11px] font-mono font-bold px-2.5 py-1 rounded-md ${h.multiplier < 1.2 ? 'bg-slate-800 text-slate-300' : h.multiplier >= 10 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'}`}>
+          <div key={i} className={`text-[11px] font-mono font-bold px-2.5 py-1 rounded-md ${h.multiplier < 1.2 ? 'bg-slate-800 text-slate-700' : h.multiplier >= 10 ? 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/40' : 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20'}`}>
             {h.multiplier.toFixed(2)}x
           </div>
         ))}
@@ -461,7 +461,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, autoCashout, onLiveT
       {/* Top HUD */}
       <div className="relative z-20 w-full flex justify-between items-center p-3 sm:p-6 mt-8 sm:mt-10 bg-gradient-to-b from-black/85 to-transparent">
         <div className="flex flex-col gap-1">
-          <div className="flex items-center gap-2 bg-white/80 border border-slate-700/60 rounded-lg sm:rounded-xl px-2.5 sm:px-4 py-1 sm:py-1.5 shadow-md cursor-pointer hover:bg-white transition-colors" onClick={() => setShowFairness(true)}>
+          <div className="flex items-center gap-2 bg-white/80 border border-slate-200/60 rounded-lg sm:rounded-xl px-2.5 sm:px-4 py-1 sm:py-1.5 shadow-md cursor-pointer hover:bg-white transition-colors" onClick={() => setShowFairness(true)}>
             <Shield className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-emerald-600" />
             <h2 className="text-slate-900 font-black text-xs sm:text-sm uppercase tracking-widest leading-none">Provably Fair</h2>
           </div>
@@ -473,12 +473,12 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, autoCashout, onLiveT
         </div>
 
         <div className="flex items-center gap-2 sm:gap-4">
-          <button onClick={toggleMute} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/60 border border-slate-700/60 flex items-center justify-center text-slate-650 hover:text-slate-900 transition-colors backdrop-blur-md">
+          <button onClick={toggleMute} className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg sm:rounded-xl bg-white/60 border border-slate-200/60 flex items-center justify-center text-slate-650 hover:text-slate-900 transition-colors backdrop-blur-md">
             {isMuted ? <VolumeX className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : <Volume2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" />}
           </button>
 
-          <div className="bg-white/80 backdrop-blur-md border border-slate-700/50 px-3 sm:px-5 py-1 sm:py-2.5 rounded-xl sm:rounded-2xl flex flex-col items-end shadow-lg shadow-black/40 min-w-[90px] sm:min-w-[120px]">
-            <span className="text-[7px] sm:text-[9px] text-slate-500 font-black uppercase tracking-widest mb-0.5">Multiplier</span>
+          <div className="bg-white/80 backdrop-blur-md border border-slate-200/50 px-3 sm:px-5 py-1 sm:py-2.5 rounded-xl sm:rounded-2xl flex flex-col items-end shadow-lg shadow-black/40 min-w-[90px] sm:min-w-[120px]">
+            <span className="text-[7px] sm:text-[9px] text-slate-700 font-black uppercase tracking-widest mb-0.5">Multiplier</span>
             <span className={`text-lg sm:text-2xl font-mono font-black tabular-nums transition-all ${
               gameState === "crashed" ? "text-red-500 drop-shadow-[0_0_8px_rgba(239,68,68,0.5)]" :
               gameState === "cashed_out" ? "text-emerald-400 drop-shadow-[0_0_12px_rgba(52,211,153,0.7)]" :
@@ -494,7 +494,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, autoCashout, onLiveT
       <div className="flex-1 w-full flex flex-col items-center justify-center relative z-20">
         <AnimatePresence>
           {gameState === "idle" && (
-            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="flex flex-col items-center gap-2 sm:gap-4 bg-white/80 backdrop-blur-md border border-slate-700/50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl text-center max-w-[280px] sm:max-w-sm mx-4 shadow-2xl">
+            <motion.div initial={{ scale: 0.95, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} exit={{ scale: 0.95, opacity: 0 }} className="flex flex-col items-center gap-2 sm:gap-4 bg-white/80 backdrop-blur-md border border-slate-200/50 p-4 sm:p-8 rounded-2xl sm:rounded-3xl text-center max-w-[280px] sm:max-w-sm mx-4 shadow-2xl">
               <div className="w-12 h-12 sm:w-16 sm:h-16 rounded-xl sm:rounded-2xl bg-gradient-to-tr from-cyan-500 to-purple-600 flex items-center justify-center shadow-lg shadow-cyan-500/20">
                 <Zap className="w-6 h-6 sm:w-8 sm:h-8 text-slate-900 stroke-[2.5]" />
               </div>
@@ -504,7 +504,7 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, autoCashout, onLiveT
               </p>
               
               {!isPlaying ? (
-                <div className="mt-2 text-yellow-400 font-mono text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 border border-yellow-500/20 px-4 py-2 rounded-full">
+                <div className="mt-2 text-yellow-400 font-mono text-[10px] font-black uppercase tracking-widest bg-yellow-500/10 border border-yellow-500/40 px-4 py-2 rounded-full">
                   ⚠️ Place Bet to Enable Ignition
                 </div>
               ) : (
@@ -574,28 +574,28 @@ export function NeonHorizon3DEngine({ isPlaying, betAmount, autoCashout, onLiveT
       <AnimatePresence>
         {showFairness && (
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-700 rounded-3xl w-full max-w-md p-6 shadow-2xl relative overflow-hidden">
+            <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-md p-6 shadow-2xl relative overflow-hidden">
               <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-r from-emerald-500 to-cyan-500" />
               <h3 className="text-xl font-black text-white uppercase tracking-widest flex items-center gap-2 mb-4">
                 <CheckCircle2 className="w-6 h-6 text-emerald-400" /> Provably Fair
               </h3>
-              <p className="text-slate-400 text-xs mb-6 leading-relaxed">
+              <p className="text-slate-600 text-xs mb-6 leading-relaxed">
                 Neon Horizon 3D operates on a strict 99% RTP mathematical model. The crash point is predetermined using an HMAC-SHA256 hash of the server seed and your client seed. It is completely impossible for the game to alter the result mid-flight based on your bet or cashout target.
               </p>
               
               <div className="space-y-4">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Active Server Seed (Hashed)</label>
-                  <input type="text" readOnly value="****************************************" className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-300" />
-                  <p className="text-[9px] text-slate-500 mt-1">The unhashed server seed will be revealed when you rotate your seed.</p>
+                  <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Active Server Seed (Hashed)</label>
+                  <input type="text" readOnly value="****************************************" className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-700" />
+                  <p className="text-[9px] text-slate-700 mt-1">The unhashed server seed will be revealed when you rotate your seed.</p>
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Client Seed</label>
-                  <input type="text" value={clientSeed} onChange={(e) => setClientSeed(e.target.value)} className="w-full mt-1 bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-500" />
+                  <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Client Seed</label>
+                  <input type="text" value={clientSeed} onChange={(e) => setClientSeed(e.target.value)} className="w-full mt-1 bg-slate-800 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-white focus:outline-none focus:border-cyan-500" />
                 </div>
                 <div>
-                  <label className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Nonce (Round #)</label>
-                  <input type="text" readOnly value={nonce} className="w-full mt-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-300" />
+                  <label className="text-[10px] font-bold text-slate-700 uppercase tracking-wider">Nonce (Round #)</label>
+                  <input type="text" readOnly value={nonce} className="w-full mt-1 bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-mono text-slate-700" />
                 </div>
               </div>
 

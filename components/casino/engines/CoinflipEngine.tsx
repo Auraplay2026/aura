@@ -296,7 +296,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
 
           {/* Side B (SKULL) - Midnight Obsidian Coin Face */}
           <div 
-            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-800 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.25)]"
+            className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-200 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.25)]"
             style={{ 
               backfaceVisibility: "hidden", 
               WebkitBackfaceVisibility: "hidden", 
@@ -356,7 +356,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
           onClick={() => setSelectedSide("SKULL")}
           className={`flex items-center gap-2.5 px-6 py-3 rounded-xl font-black text-sm uppercase tracking-wider transition-all duration-200 border-2 cursor-pointer ${
             selectedSide === "SKULL"
-              ? "bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 text-white border-slate-700 shadow-[0_4px_12px_rgba(0,240,255,0.25)] scale-105"
+              ? "bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 text-slate-900 border-slate-200 shadow-[0_4px_12px_rgba(0,240,255,0.25)] scale-105"
               : "bg-white text-slate-600 border-slate-200/80 hover:border-teal-400/40 hover:text-slate-800"
           }`}
         >
@@ -417,7 +417,7 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
             </div>
             
             <div className="text-left select-none">
-              <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">WINNING SIDE</span>
+              <span className="text-[10px] text-slate-700 font-bold uppercase tracking-widest block">WINNING SIDE</span>
               <div className="flex items-baseline gap-2">
                 <span className={cn(
                   "text-xl font-black tracking-widest uppercase font-mono",

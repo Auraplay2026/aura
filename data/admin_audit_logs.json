@@ -30,5 +30,12 @@
     "targetUser": "SYSTEM",
     "details": "Forced live sports scraper crawl sync.",
     "timestamp": 1781114800094
+  },
+  {
+    "timestamp": 1782171498036,
+    "adminEmail": "twintubrovquattro@gmail.com",
+    "action": "DEPOSIT_APPROVE",
+    "targetEmail": "test_user_depositor@gmail.com",
+    "details": "Approved deposit of ₹5,000 (UTR: 123456789012)"
   }
 ]

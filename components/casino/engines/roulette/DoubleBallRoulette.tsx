@@ -397,8 +397,8 @@ export function DoubleBallRoulette({
         onClick={() => placeBet(`num-${n}`)}
         className={`relative h-12 flex flex-col items-center justify-center border border-yellow-500/10 cursor-pointer font-black text-sm transition-all active:scale-95 ${
           isRed 
-            ? "bg-rose-700 hover:bg-rose-600 text-white" 
-            : "bg-slate-950 hover:bg-slate-900 text-slate-100"
+            ? "bg-rose-700 hover:bg-rose-600 text-slate-900" 
+            : "bg-slate-50 hover:bg-white text-slate-900"
         }`}
       >
         <span className="font-mono font-black">{n}</span>
@@ -412,13 +412,13 @@ export function DoubleBallRoulette({
     const redNumbers = new Set([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36]);
     
     return (
-      <div className="grid grid-cols-5 border-2 border-yellow-500/30 rounded-2xl overflow-hidden bg-[#020e08]/90 text-xs w-full max-w-[340px] xs:max-w-[360px] sm:max-w-xs mx-auto shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
+      <div className="grid grid-cols-5 border-2 border-yellow-500/40 rounded-2xl overflow-hidden bg-[#020e08]/90 text-xs w-full max-w-[340px] xs:max-w-[360px] sm:max-w-xs mx-auto shadow-[0_10px_30px_rgba(0,0,0,0.8)]">
         
         {/* Row 1: Zero Cell (Spans Columns 3, 4, 5) */}
         <button
           disabled={isSpinning}
           onClick={() => placeBet("num-0")}
-          className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/20 transition-colors"
+          className="col-start-3 col-span-3 row-start-1 h-[35px] xs:h-[38px] sm:h-11 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-base select-none cursor-pointer relative border-b border-yellow-500/40 transition-colors"
         >
           <span>0</span>
           {renderCellChip("num-0")}
@@ -426,12 +426,12 @@ export function DoubleBallRoulette({
 
         {/* Column 1: Outside Bets (Each spans 2 rows) */}
         {[
-          { id: "low", label: "1-18", row: 2, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
-          { id: "even", label: "EVEN", row: 4, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
-          { id: "red", label: "RED", row: 6, btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)] border-r border-b border-yellow-500/20" },
-          { id: "black", label: "BLACK", row: 8, btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)] border-r border-b border-yellow-500/20" },
-          { id: "odd", label: "ODD", row: 10, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" },
-          { id: "high", label: "19-36", row: 12, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200 border-r border-b border-yellow-500/20" }
+          { id: "low", label: "1-18", row: 2, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800 border-r border-b border-yellow-500/40" },
+          { id: "even", label: "EVEN", row: 4, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800 border-r border-b border-yellow-500/40" },
+          { id: "red", label: "RED", row: 6, btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)] border-r border-b border-yellow-500/40" },
+          { id: "black", label: "BLACK", row: 8, btnClass: "bg-slate-50 hover:bg-white text-slate-900 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)] border-r border-b border-yellow-500/40" },
+          { id: "odd", label: "ODD", row: 10, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800 border-r border-b border-yellow-500/40" },
+          { id: "high", label: "19-36", row: 12, btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800 border-r border-b border-yellow-500/40" }
         ].map(out => (
           <button
             key={out.id}
@@ -443,7 +443,7 @@ export function DoubleBallRoulette({
             {out.id === "red" ? (
               <span className="w-4 h-4 rotate-45 bg-rose-600 border border-white/60 shadow-sm block" />
             ) : out.id === "black" ? (
-              <span className="w-4 h-4 rotate-45 bg-slate-900 border border-white/45 shadow-sm block" />
+              <span className="w-4 h-4 rotate-45 bg-white border border-slate-300 shadow-sm block" />
             ) : (
               <span className="-rotate-90 sm:rotate-0 tracking-widest">{out.label}</span>
             )}
@@ -462,7 +462,7 @@ export function DoubleBallRoulette({
             disabled={isSpinning}
             onClick={() => placeBet(doz.id)}
             style={{ gridColumnStart: 2, gridRowStart: doz.row, gridRowEnd: doz.row + 4 }}
-            className="bg-emerald-950/60 hover:bg-emerald-900/80 text-slate-200 flex items-center justify-center font-black text-[9px] uppercase tracking-wider cursor-pointer select-none transition-all relative active:scale-95 border-r border-b border-yellow-500/20"
+            className="bg-emerald-950/60 hover:bg-emerald-900/80 text-slate-800 flex items-center justify-center font-black text-[9px] uppercase tracking-wider cursor-pointer select-none transition-all relative active:scale-95 border-r border-b border-yellow-500/40"
           >
             <span className="-rotate-90 sm:rotate-0 tracking-widest">{doz.label}</span>
             {doz.label && renderCellChip(doz.id)}
@@ -489,8 +489,8 @@ export function DoubleBallRoulette({
                   colOffset < 2 ? "border-r border-yellow-500/10" : ""
                 } ${
                   isRed 
-                    ? "bg-rose-700/90 hover:bg-rose-600/90 text-white" 
-                    : "bg-slate-950 hover:bg-slate-900 text-slate-100"
+                    ? "bg-rose-700/90 hover:bg-rose-600/90 text-slate-900" 
+                    : "bg-slate-50 hover:bg-white text-slate-900"
                 }`}
               >
                 <span className="font-mono">{n}</span>
@@ -512,7 +512,7 @@ export function DoubleBallRoulette({
             onClick={() => placeBet(colBet.id)}
             style={{ gridColumnStart: colBet.col, gridRowStart: 14 }}
             className={`h-8 xs:h-9 flex items-center justify-center font-black text-[9px] text-yellow-400 uppercase cursor-pointer select-none transition-all relative active:scale-95 bg-emerald-950/80 hover:bg-emerald-900 ${
-              colBet.col < 5 ? "border-r border-yellow-500/20" : ""
+              colBet.col < 5 ? "border-r border-yellow-500/40" : ""
             }`}
           >
             <span>2:1</span>
@@ -532,7 +532,7 @@ export function DoubleBallRoulette({
   const ballTimes = [0, 0.15, 0.3, 0.533, 0.62, 0.71, 0.75, 0.80, 0.83, 0.86, 0.90, 1.0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-4 text-slate-100 overflow-visible select-none font-sans relative">
+    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-4 text-slate-900 overflow-visible select-none font-sans relative">
       
       {/* 3D Gold Coins victory shower overlay */}
       <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
@@ -558,13 +558,13 @@ export function DoubleBallRoulette({
       </div>
 
       {/* 1. Sleek Super-Minimalist HUD Header */}
-      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-sky-950/80 border-b border-sky-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-200 h-12 select-none z-10 shrink-0">
+      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-sky-950/80 border-b border-sky-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-800 h-12 select-none z-10 shrink-0">
         <div className="flex items-center gap-2">
           <span className="relative flex h-2 w-2">
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
             <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
           </span>
-          <span className="text-xs font-black tracking-wider uppercase text-slate-100 truncate max-w-[120px] sm:max-w-none">
+          <span className="text-xs font-black tracking-wider uppercase text-slate-900 truncate max-w-[120px] sm:max-w-none">
             Double Ball Roulette
           </span>
         </div>
@@ -572,9 +572,9 @@ export function DoubleBallRoulette({
         {/* Active Bets & Roadmap merged into one compact container */}
         <div className="flex items-center gap-4">
           {/* Balance Display */}
-          <div className="flex items-center gap-1.5 px-2 bg-slate-900/40 rounded border border-slate-700/50 py-0.5">
-            <span className="text-[8px] text-slate-400 uppercase tracking-widest font-bold">Bal:</span>
-            <span className="text-[10px] font-black font-mono text-slate-200">₹{balance.toLocaleString()}</span>
+          <div className="flex items-center gap-1.5 px-2 bg-white/40 rounded border border-slate-200/50 py-0.5">
+            <span className="text-[8px] text-slate-600 uppercase tracking-widest font-bold">Bal:</span>
+            <span className="text-[10px] font-black font-mono text-slate-800">₹{balance.toLocaleString()}</span>
           </div>
 
           {/* Active Bets Counter */}
@@ -592,10 +592,10 @@ export function DoubleBallRoulette({
                 key={`${h.n}-${i}`}
                 className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black font-mono border ${
                   h.color === "green" 
-                    ? "bg-emerald-600 border-emerald-400 text-white" 
+                    ? "bg-emerald-600 border-emerald-400 text-slate-900" 
                     : h.color === "red" 
-                      ? "bg-rose-700 border-rose-500 text-white" 
-                      : "bg-slate-900 border-slate-700 text-slate-200"
+                      ? "bg-rose-700 border-rose-500 text-slate-900" 
+                      : "bg-white border-slate-200 text-slate-800"
                 }`}
               >
                 {h.n}
@@ -643,10 +643,10 @@ export function DoubleBallRoulette({
                         {winningNumbers.map((wn, idx) => (
                           <div key={idx} className={`px-4 py-1.5 rounded-full border shadow-2xl flex items-center gap-2 ${
                             wn.color === "red" 
-                              ? "bg-rose-700/90 border-rose-500 text-white" 
+                              ? "bg-rose-700/90 border-rose-500 text-slate-900" 
                               : wn.color === "black" 
-                                ? "bg-slate-900/90 border-slate-700 text-slate-100" 
-                                : "bg-emerald-600/90 border-emerald-400 text-white"
+                                ? "bg-white/90 border-slate-200 text-slate-900" 
+                                : "bg-emerald-600/90 border-emerald-400 text-slate-900"
                           }`}>
                             <span className="text-[10px] font-black tracking-widest uppercase">BALL {idx + 1}</span>
                             <span className="text-sm font-black font-mono px-2 py-0.5 rounded bg-black/30">
@@ -669,14 +669,14 @@ export function DoubleBallRoulette({
                     >
                       {/* Wood Wheel Rim outer ring */}
                       <div className="absolute -inset-4 rounded-full border-[8px] border-amber-950 bg-gradient-to-br from-amber-800 to-amber-950 shadow-[inset_0_2px_10px_rgba(0,0,0,0.8)] flex items-center justify-center">
-                        <div className="absolute inset-1 rounded-full border border-yellow-500/20" />
+                        <div className="absolute inset-1 rounded-full border border-yellow-500/40" />
                       </div>
                       
                       {/* Wheel segment track */}
                       <motion.div
                         animate={isSpinning ? { rotate: rotation } : { rotate: rotation % 360 }}
                         transition={{ duration: 4.5, ease: [0.25, 1, 0.5, 1] }}
-                        className="absolute inset-0 rounded-full bg-slate-950 border-[4px] border-amber-800 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.95)]"
+                        className="absolute inset-0 rounded-full bg-slate-50 border-[4px] border-amber-800 overflow-hidden shadow-[inset_0_0_30px_rgba(0,0,0,0.95)]"
                       >
                         {NUMBERS.map((num, i) => {
                           const angle = (360 / NUMBERS.length) * i;
@@ -684,7 +684,7 @@ export function DoubleBallRoulette({
                             ? "bg-emerald-600 text-white" 
                             : num.color === "red" 
                               ? "bg-rose-700 text-white" 
-                              : "bg-slate-900 text-slate-100";
+                              : "bg-white text-slate-900";
                           
                           return (
                             <div
@@ -704,7 +704,7 @@ export function DoubleBallRoulette({
                         
                         {/* Center Gold Turret */}
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-14 h-14 rounded-full bg-gradient-to-br from-yellow-300 via-amber-600 to-yellow-755 shadow-[0_0_12px_rgba(0,0,0,0.95)] flex items-center justify-center z-20">
-                          <div className="w-8 h-8 rounded-full bg-[#051c10] border border-yellow-500/20 flex items-center justify-center shadow-inner">
+                          <div className="w-8 h-8 rounded-full bg-emerald-50 border border-yellow-500/40 flex items-center justify-center shadow-inner">
                             <span className="text-yellow-500 text-[6px] font-black tracking-widest uppercase">AURA</span>
                           </div>
                         </div>
@@ -785,13 +785,13 @@ export function DoubleBallRoulette({
               <div className="min-w-[620px] relative">
                 
                 {/* Numbers Grid (horizontally aligned) */}
-                <div className="grid grid-cols-14 border border-yellow-500/20 rounded-xl overflow-hidden bg-slate-950/40">
+                <div className="grid grid-cols-14 border border-yellow-500/40 rounded-xl overflow-hidden bg-slate-50/40">
                   
                   {/* 0 Cell */}
                   <button
                     disabled={isSpinning}
                     onClick={() => placeBet("num-0")}
-                    className="row-span-3 h-full border-r border-yellow-500/20 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
+                    className="row-span-3 h-full border-r border-yellow-500/40 bg-emerald-700/90 hover:bg-emerald-600 text-white flex items-center justify-center font-black font-mono text-xl select-none cursor-pointer relative transition-colors"
                   >
                     <span>0</span>
                     {renderCellChip("num-0")}
@@ -805,7 +805,7 @@ export function DoubleBallRoulette({
                       (colIdx * 3) + 1
                     ];
                     return (
-                      <div key={`col-${colIdx}`} className="flex flex-col border-r border-yellow-500/20">
+                      <div key={`col-${colIdx}`} className="flex flex-col border-r border-yellow-500/40">
                         {nums.map(n => renderNumberCell(n))}
                       </div>
                     );
@@ -818,7 +818,7 @@ export function DoubleBallRoulette({
                         key={col}
                         disabled={isSpinning}
                         onClick={() => placeBet(col)}
-                        className="h-12 border-b border-yellow-500/20 last:border-b-0 bg-emerald-950/80 hover:bg-emerald-900 text-yellow-400 flex items-center justify-center font-black text-xs uppercase cursor-pointer select-none transition-all relative active:scale-95"
+                        className="h-12 border-b border-yellow-500/40 last:border-b-0 bg-emerald-950/80 hover:bg-emerald-900 text-yellow-400 flex items-center justify-center font-black text-xs uppercase cursor-pointer select-none transition-all relative active:scale-95"
                       >
                         <span>2:1</span>
                         {renderCellChip(col)}
@@ -828,7 +828,7 @@ export function DoubleBallRoulette({
                 </div>
 
                 {/* Dozens Row */}
-                <div className="grid grid-cols-14 border-x border-b border-yellow-500/20 rounded-b-xl overflow-hidden bg-emerald-950/40 mt-1">
+                <div className="grid grid-cols-14 border-x border-b border-yellow-500/40 rounded-b-xl overflow-hidden bg-emerald-950/40 mt-1">
                   <div className="col-span-1" />
                   {[
                     { id: "doz-1", label: "1st 12" },
@@ -839,7 +839,7 @@ export function DoubleBallRoulette({
                       key={doz.id}
                       disabled={isSpinning}
                       onClick={() => placeBet(doz.id)}
-                      className="col-span-4 h-10 border-r border-yellow-500/20 bg-emerald-950/60 hover:bg-emerald-900/80 flex items-center justify-center font-black text-xs text-slate-200 uppercase cursor-pointer select-none transition-all relative active:scale-95"
+                      className="col-span-4 h-10 border-r border-yellow-500/40 bg-emerald-950/60 hover:bg-emerald-900/80 flex items-center justify-center font-black text-xs text-slate-800 uppercase cursor-pointer select-none transition-all relative active:scale-95"
                     >
                       <span>{doz.label}</span>
                       {renderCellChip(doz.id)}
@@ -849,21 +849,21 @@ export function DoubleBallRoulette({
                 </div>
 
                 {/* Even/Odd Red/Black outside bets */}
-                <div className="grid grid-cols-14 border-x border-b border-yellow-500/20 rounded-b-xl overflow-hidden bg-emerald-950/50 mt-1">
+                <div className="grid grid-cols-14 border-x border-b border-yellow-500/40 rounded-b-xl overflow-hidden bg-emerald-950/50 mt-1">
                   <div className="col-span-1" />
                   {[
-                    { id: "low", label: "1-18", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
-                    { id: "even", label: "EVEN", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
+                    { id: "low", label: "1-18", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800" },
+                    { id: "even", label: "EVEN", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800" },
                     { id: "red", label: "RED", btnClass: "bg-rose-700/90 hover:bg-rose-600 text-white shadow-[0_0_8px_rgba(244,63,94,0.2)]" },
-                    { id: "black", label: "BLACK", btnClass: "bg-slate-950 hover:bg-slate-900 text-slate-100 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)]" },
-                    { id: "odd", label: "ODD", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" },
-                    { id: "high", label: "19-36", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-200" }
+                    { id: "black", label: "BLACK", btnClass: "bg-slate-50 hover:bg-white text-slate-900 shadow-[inset_0_0_6px_rgba(255,255,255,0.05)]" },
+                    { id: "odd", label: "ODD", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800" },
+                    { id: "high", label: "19-36", btnClass: "bg-emerald-950/70 hover:bg-emerald-900 text-slate-800" }
                   ].map(out => (
                     <button
                       key={out.id}
                       disabled={isSpinning}
                       onClick={() => placeBet(out.id)}
-                      className={`col-span-2 h-10 border-r border-yellow-500/20 last:border-r-0 flex items-center justify-center font-black text-xs cursor-pointer select-none transition-all relative active:scale-95 ${out.btnClass}`}
+                      className={`col-span-2 h-10 border-r border-yellow-500/40 last:border-r-0 flex items-center justify-center font-black text-xs cursor-pointer select-none transition-all relative active:scale-95 ${out.btnClass}`}
                     >
                       <span>{out.label}</span>
                       {renderCellChip(out.id)}
@@ -940,7 +940,7 @@ export function DoubleBallRoulette({
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.75, opacity: 0 }}
               transition={{ type: "spring", stiffness: 220, damping: 18 }}
-              className="bg-[#052112] border border-yellow-500/30 p-6 sm:p-8 rounded-[2rem] text-center shadow-[0_20px_50px_rgba(234,179,8,0.25)] max-w-sm w-full relative overflow-hidden text-slate-100"
+              className="bg-emerald-50 border border-yellow-500/40 p-6 sm:p-8 rounded-[2rem] text-center shadow-[0_20px_50px_rgba(234,179,8,0.25)] max-w-sm w-full relative overflow-hidden text-slate-900"
               onClick={e => e.stopPropagation()}
             >
               {/* Confetti & Golden Sparkles decorative background */}
@@ -954,7 +954,7 @@ export function DoubleBallRoulette({
                 🏆
               </motion.div>
 
-              <h2 className="text-2xl font-black text-slate-100 mb-0.5 uppercase tracking-widest">
+              <h2 className="text-2xl font-black text-slate-900 mb-0.5 uppercase tracking-widest">
                 Winner Winner!
               </h2>
               <p className="text-[9px] text-yellow-500 font-bold uppercase tracking-widest mb-3">
@@ -971,24 +971,24 @@ export function DoubleBallRoulette({
               </motion.div>
 
               <div className="bg-[#020e08]/60 border border-emerald-500/10 rounded-xl p-3.5 mb-5 text-left text-xs">
-                <span className="text-[8px] font-black text-slate-500 uppercase tracking-widest block mb-1.5">Payout Details</span>
-                <div className="flex justify-between items-center text-[10px] text-slate-355 text-slate-300">
+                <span className="text-[8px] font-black text-slate-700 uppercase tracking-widest block mb-1.5">Payout Details</span>
+                <div className="flex justify-between items-center text-[10px] text-slate-355 text-slate-700">
                   <span>Numbers landed:</span>
                   <div className="flex gap-1">
                     {winningNumbers.map((wn, idx) => (
                       <span key={idx} className={`font-mono font-black px-2 py-0.5 rounded-full text-[9px] ${
                         wn.color === "red" 
-                          ? "bg-rose-700 text-white" 
+                          ? "bg-rose-700 text-slate-900" 
                           : wn.color === "black" 
-                            ? "bg-slate-900 text-slate-200" 
-                            : "bg-emerald-600 text-white"
+                            ? "bg-white text-slate-800" 
+                            : "bg-emerald-600 text-slate-900"
                       }`}>
                         {wn.n}
                       </span>
                     ))}
                   </div>
                 </div>
-                <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-355 text-slate-300">
+                <div className="flex justify-between items-center mt-1.5 text-[10px] text-slate-355 text-slate-700">
                   <span>Total winnings:</span>
                   <span className="font-mono text-emerald-400 font-black">₹{wonAmount.toLocaleString()}</span>
                 </div>

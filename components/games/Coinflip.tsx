@@ -59,7 +59,7 @@ export function Coinflip() {
         <div>
           <label className="text-sm font-bold text-slate-600 mb-2 flex justify-between">
             <span>Bet Amount</span>
-            <span className="text-slate-500">₹</span>
+            <span className="text-slate-700">₹</span>
           </label>
           <div className="flex bg-white rounded-xl border border-slate-200 p-1">
             <input 
@@ -84,7 +84,7 @@ export function Coinflip() {
               className={`flex-grow py-4 rounded-xl font-black text-lg transition-all border-2 flex items-center justify-center gap-2 cursor-pointer ${
                 selectedSide === "heads" 
                   ? "bg-gradient-to-br from-yellow-100 via-yellow-200 to-amber-300 border-amber-400 text-amber-900 shadow-[0_4px_12px_rgba(234,179,8,0.25)] scale-105" 
-                  : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
               {/* Mini Gold Coin Preview */}
@@ -101,8 +101,8 @@ export function Coinflip() {
               onClick={() => setSelectedSide("tails")}
               className={`flex-grow py-4 rounded-xl font-black text-lg transition-all border-2 flex items-center justify-center gap-2 cursor-pointer ${
                 selectedSide === "tails" 
-                  ? "bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 border-slate-700 text-white shadow-[0_4px_12px_rgba(8,145,178,0.25)] scale-105" 
-                  : "bg-white border-slate-200 text-slate-500 hover:bg-slate-50"
+                  ? "bg-gradient-to-br from-slate-800 via-slate-900 to-zinc-950 border-slate-200 text-slate-900 shadow-[0_4px_12px_rgba(8,145,178,0.25)] scale-105" 
+                  : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
               }`}
             >
               {/* Mini Skull Coin Preview */}
@@ -135,8 +135,8 @@ export function Coinflip() {
             onClick={handleFlip}
             disabled={gameState === "flipping" || !selectedSide}
             className={`w-full py-4 rounded-xl font-black text-lg transition-all transform active:scale-95 shadow-lg cursor-pointer ${
-              gameState === "flipping" ? "bg-slate-100 text-slate-400 cursor-not-allowed" :
-              !selectedSide ? "bg-slate-100 text-slate-400 cursor-not-allowed" :
+              gameState === "flipping" ? "bg-slate-100 text-slate-600 cursor-not-allowed" :
+              !selectedSide ? "bg-slate-100 text-slate-600 cursor-not-allowed" :
               "bg-gradient-to-r from-emerald-400 to-teal-500 hover:from-emerald-500 hover:to-teal-600 text-slate-950 shadow-[0_4px_16px_rgba(16,185,129,0.3)]"
             }`}
           >
@@ -346,7 +346,7 @@ export function Coinflip() {
 
             {/* Side B (SKULL) - Midnight Obsidian Coin Face */}
             <div 
-              className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-800 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.25)]"
+              className="absolute inset-0 rounded-full flex flex-col items-center justify-center bg-[radial-gradient(circle_at_center,#1e293b_0%,#0f172a_50%,#020617_90%,#000000_100%)] border-[8px] border-slate-200 shadow-[inset_0_4px_12px_rgba(0,0,0,0.8),0_8px_20px_rgba(0,0,0,0.25)]"
               style={{ 
                 backfaceVisibility: "hidden", 
                 WebkitBackfaceVisibility: "hidden", 
@@ -413,7 +413,7 @@ export function Coinflip() {
               </div>
               
               <div className="text-left select-none">
-                <span className="text-[10px] text-slate-500 font-bold uppercase tracking-widest block">
+                <span className="text-[10px] text-slate-700 font-bold uppercase tracking-widest block">
                   {isWin ? "YOU WON" : "YOU LOST"}
                 </span>
                 <div className="flex items-baseline gap-2">

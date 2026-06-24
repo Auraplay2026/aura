@@ -71,7 +71,9 @@ export default function ClientWithdrawalsDashboard({ initialUsers, globalTransac
     if (!currentUser || currentUser.role !== 'admin') return;
     try {
       setLoading(true);
-      const res = await fetch(`/api/admin/deposits?email=${encodeURIComponent(currentUser.email)}`);
+      const res = await fetch(`/api/admin/deposits?email=${encodeURIComponent(currentUser.email)}&_t=${Date.now()}`, {
+        cache: 'no-store'
+      });
       const data = await res.json();
       if (res.ok && data.success) {
         const withs = data.pending.concat(data.completed).concat(data.rejected) || [];

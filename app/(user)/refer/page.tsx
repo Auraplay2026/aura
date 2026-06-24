@@ -9,7 +9,7 @@ import { useTradingStore } from "@/lib/store";
 // Commission tier structure
 const TIERS = [
   { name: 'Bronze', min: 0,  max: 5,  rate: 10, color: 'text-amber-700',   bg: 'bg-amber-50',  border: 'border-amber-200',  bar: 'bg-amber-500' },
-  { name: 'Silver', min: 6,  max: 20, rate: 15, color: 'text-slate-500',   bg: 'bg-slate-50',  border: 'border-slate-300',  bar: 'bg-slate-400' },
+  { name: 'Silver', min: 6,  max: 20, rate: 15, color: 'text-slate-700',   bg: 'bg-slate-50',  border: 'border-slate-300',  bar: 'bg-slate-400' },
   { name: 'Gold',   min: 21, max: 50, rate: 20, color: 'text-yellow-600',  bg: 'bg-yellow-50', border: 'border-yellow-200', bar: 'bg-yellow-500' },
   { name: 'Plat.',  min: 51, max: Infinity, rate: 25, color: 'text-sky-600', bg: 'bg-sky-50', border: 'border-sky-200', bar: 'bg-sky-500' },
 ];
@@ -150,7 +150,7 @@ export default function ReferAndEarnPage() {
         <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-5 shadow-xl relative group overflow-hidden">
           <div className="absolute inset-0 bg-neon-green/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center justify-between mb-3 relative z-10">
-            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Earned</h3>
+            <h3 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Earned</h3>
             <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center">
               <Coins className="w-4 h-4 text-neon-green" />
             </div>
@@ -167,7 +167,7 @@ export default function ReferAndEarnPage() {
         <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-5 shadow-xl relative group overflow-hidden">
           <div className="absolute inset-0 bg-neon-yellow/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center justify-between mb-3 relative z-10">
-            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Pending</h3>
+            <h3 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Pending</h3>
             <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center">
               <Zap className="w-4 h-4 text-neon-yellow" />
             </div>
@@ -175,14 +175,14 @@ export default function ReferAndEarnPage() {
           <p className="text-2xl font-black text-slate-900 relative z-10 drop-shadow-[0_0_10px_rgba(234,179,8,0.3)]">
             ₹{pendingRewards.toLocaleString('en-IN')}
           </p>
-          <p className="text-[10px] text-slate-400 font-bold mt-1 relative z-10">Settles weekly</p>
+          <p className="text-[10px] text-slate-600 font-bold mt-1 relative z-10">Settles weekly</p>
         </div>
 
         {/* Total Referrals */}
         <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-5 shadow-xl relative group overflow-hidden">
           <div className="absolute inset-0 bg-neon-purple/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center justify-between mb-3 relative z-10">
-            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Referred</h3>
+            <h3 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Referred</h3>
             <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center">
               <Users className="w-4 h-4 text-neon-purple" />
             </div>
@@ -190,7 +190,7 @@ export default function ReferAndEarnPage() {
           <p className="text-2xl font-black text-slate-900 relative z-10 drop-shadow-[0_0_10px_rgba(168,85,247,0.3)]">
             {referralCount}
           </p>
-          <p className="text-[10px] text-slate-400 font-bold mt-1 relative z-10">
+          <p className="text-[10px] text-slate-600 font-bold mt-1 relative z-10">
             {activeReferrals} active ({conversionRate}%)
           </p>
         </div>
@@ -199,7 +199,7 @@ export default function ReferAndEarnPage() {
         <div className="bg-slate-50/40 backdrop-blur-xl border border-slate-200/80 rounded-3xl p-5 shadow-xl relative group overflow-hidden">
           <div className="absolute inset-0 bg-neon-yellow/5 opacity-0 group-hover:opacity-100 transition-opacity" />
           <div className="flex items-center justify-between mb-3 relative z-10">
-            <h3 className="text-[11px] font-bold text-slate-500 uppercase tracking-widest">Rate</h3>
+            <h3 className="text-[11px] font-bold text-slate-700 uppercase tracking-widest">Rate</h3>
             <div className="w-8 h-8 rounded-full bg-slate-50 border border-slate-200 flex items-center justify-center">
               <Percent className="w-4 h-4 text-neon-yellow" />
             </div>
@@ -220,7 +220,7 @@ export default function ReferAndEarnPage() {
           </div>
           <div>
             <h2 className="text-lg font-black text-slate-900">Your Referral Code &amp; Link</h2>
-            <p className="text-xs text-slate-500">Friends get a 200% Deposit Bonus · You earn {tier.rate}% lifetime commission</p>
+            <p className="text-xs text-slate-700">Friends get a 200% Deposit Bonus · You earn {tier.rate}% lifetime commission</p>
           </div>
         </div>
 
@@ -232,7 +232,7 @@ export default function ReferAndEarnPage() {
               {affiliateCode ? (
                 <span className="text-2xl font-black text-slate-900 tracking-[0.2em] uppercase">{affiliateCode}</span>
               ) : (
-                <span className="text-sm font-bold text-slate-400 italic">No code yet</span>
+                <span className="text-sm font-bold text-slate-600 italic">No code yet</span>
               )}
             </div>
             <motion.button
@@ -245,7 +245,7 @@ export default function ReferAndEarnPage() {
                   ? "bg-neon-green text-slate-900"
                   : affiliateCode
                     ? "bg-neon-purple hover:bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                    : "bg-slate-100 text-slate-400 cursor-not-allowed"
+                    : "bg-slate-100 text-slate-600 cursor-not-allowed"
               )}
             >
               {copiedCode ? <CheckCircle2 className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
@@ -265,7 +265,7 @@ export default function ReferAndEarnPage() {
 
         {/* Full Referral Link */}
         <div>
-          <label className="text-[11px] font-bold text-slate-500 uppercase tracking-widest pl-1 block mb-2">Full Referral Link</label>
+          <label className="text-[11px] font-bold text-slate-700 uppercase tracking-widest pl-1 block mb-2">Full Referral Link</label>
           <div className="w-full relative group cursor-pointer" onClick={handleCopyLink}>
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
               <LinkIcon className="w-4 h-4 text-neon-purple" />
@@ -324,7 +324,7 @@ export default function ReferAndEarnPage() {
             )}>
               <div className={cn("text-xs font-black uppercase tracking-wider mb-1", t.color)}>{t.name}</div>
               <div className="text-lg font-black text-slate-900">{t.rate}%</div>
-              <div className="text-[10px] text-slate-500 font-medium mt-0.5">
+              <div className="text-[10px] text-slate-700 font-medium mt-0.5">
                 {t.max === Infinity ? `${t.min}+ referrals` : `${t.min}–${t.max} referrals`}
               </div>
               {t.name === tier.name && (
@@ -349,7 +349,7 @@ export default function ReferAndEarnPage() {
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <div className="flex justify-between text-[10px] font-medium text-slate-400">
+            <div className="flex justify-between text-[10px] font-medium text-slate-600">
               <span>{tier.min} refs</span>
               <span className={cn("font-bold", nextTier.color)}>{nextTier.name}: {nextTier.rate}% rate</span>
               <span>{nextTier.min} refs</span>
@@ -378,7 +378,7 @@ export default function ReferAndEarnPage() {
               </div>
               <div>
                 <div className="text-xs font-black text-slate-800 mb-1">{item.title}</div>
-                <div className="text-xs text-slate-500 leading-relaxed">{item.desc}</div>
+                <div className="text-xs text-slate-700 leading-relaxed">{item.desc}</div>
               </div>
             </div>
           ))}

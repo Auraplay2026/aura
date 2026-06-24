@@ -397,7 +397,7 @@ const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolea
         base,
         isSelected
           ? "bg-gradient-to-b from-amber-900/85 to-amber-955/95 border-amber-500 ring-4 ring-amber-500/30 shadow-[0_0_25px_rgba(245,158,11,0.45)]"
-          : "bg-gradient-to-b from-slate-950/55 to-slate-900/55 border-slate-800/60 hover:border-amber-500/50 hover:bg-white/50"
+          : "bg-gradient-to-b from-slate-950/55 to-slate-900/55 border-slate-200/60 hover:border-amber-500/50 hover:bg-white/50"
       );
     }
     if (targetId === "bonus" || targetId === "pair_plus" || targetId === "gold_bar") {
@@ -405,7 +405,7 @@ const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolea
         base,
         isSelected
           ? "bg-gradient-to-b from-rose-900/85 to-rose-950/95 border-rose-500 ring-4 ring-rose-500/30 shadow-[0_0_25px_rgba(244,63,94,0.45)]"
-          : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-800/60 hover:border-rose-500/50 hover:bg-white/50"
+          : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-200/60 hover:border-rose-500/50 hover:bg-white/50"
       );
     }
     // side bets (flop_bet, six_card, royal_flush)
@@ -413,7 +413,7 @@ const getBetButtonStyles = (targetId: string, gameId: string, isSelected: boolea
       base,
       isSelected
         ? "bg-gradient-to-b from-purple-900/85 to-purple-955/95 border-purple-500 ring-4 ring-purple-500/30 shadow-[0_0_25px_rgba(168,85,247,0.45)]"
-        : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-800/60 hover:border-purple-500/50 hover:bg-white/50"
+        : "bg-gradient-to-b from-slate-955/50 to-slate-900/50 border-slate-200/60 hover:border-purple-500/50 hover:bg-white/50"
     );
   }
 
@@ -1836,10 +1836,10 @@ setPlacedChips([]);
   const totalActiveBet = Object.values(bets).reduce((a, b) => a + b, 0);
 
   return (
-    <div className="w-full flex flex-col font-sans text-slate-100 bg-[#070b13] p-3 sm:p-5 rounded-3xl border border-white/5 shadow-[0_0_50px_rgba(0,0,0,0.85)]">
+    <div className="w-full flex flex-col font-sans text-slate-900 bg-white p-3 sm:p-5 rounded-3xl border border-slate-200 shadow-[0_0_50px_rgba(0,0,0,0.85)]">
       
       {/* Game Title & Header Row */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-3 shrink-0 mb-4">
+      <div className="flex items-center justify-between border-b border-slate-200 pb-3 shrink-0 mb-4">
         <div className="flex items-center gap-3">
           <span className="text-sm font-black tracking-wider text-slate-900 uppercase">{currentConfig.label}</span>
           <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/20 px-2 py-0.5 rounded-sm">
@@ -1848,8 +1848,8 @@ setPlacedChips([]);
           </div>
         </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-slate-50/40 border border-slate-700/50 px-2.5 py-1 rounded-sm">
-            <span className="text-[10px] font-bold uppercase text-slate-300">Lobby</span>
+          <div className="flex items-center gap-2 bg-slate-50/40 border border-slate-200/50 px-2.5 py-1 rounded-sm">
+            <span className="text-[10px] font-bold uppercase text-slate-700">Lobby</span>
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent("open-lobby"))}
               className="w-8 h-4 bg-slate-650 rounded-full p-0.5 relative transition-colors"
@@ -1861,7 +1861,7 @@ setPlacedChips([]);
       </div>
 
       {/* DESKTOP ONLY CHIP SELECTOR TRAY — Placed directly above video so chips fly down across the felt */}
-      <div className="hidden md:flex bg-white/70 backdrop-blur-xl border border-white/5 rounded-2xl p-2 sm:p-2.5 mb-3.5 items-center justify-center gap-2 sm:gap-3 w-full shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+      <div className="hidden md:flex bg-white/70 backdrop-blur-xl border border-slate-200 rounded-2xl p-2 sm:p-2.5 mb-3.5 items-center justify-center gap-2 sm:gap-3 w-full shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         {/* Bet amount label + 1/2 button */}
         <div className="flex items-center gap-1.5 shrink-0">
           <button 
@@ -1869,7 +1869,7 @@ setPlacedChips([]);
               const halved = Math.max(50, Math.floor(selectedCoin / 2));
               setSelectedCoin(halved);
             }}
-            className="w-7 h-7 flex items-center justify-center bg-slate-50/85 hover:bg-slate-100/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-slate-900 rounded-full transition-colors cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center bg-slate-50/85 hover:bg-slate-100/85 border border-slate-200 text-[9px] font-black text-slate-350 hover:text-slate-900 rounded-full transition-colors cursor-pointer"
           >
             ½
           </button>
@@ -1906,7 +1906,7 @@ setPlacedChips([]);
                   config.border,
                   config.text,
                   isSelected 
-                    ? `scale-110 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#070b13] ${config.shadow} shadow-lg opacity-100` 
+                    ? `scale-110 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#fdfbf7] ${config.shadow} shadow-lg opacity-100` 
                     : "opacity-75 hover:opacity-100 hover:scale-110"
                 )}
               >
@@ -1929,7 +1929,7 @@ setPlacedChips([]);
                 setShowLowBalance(true);
               }
             }}
-            className="w-7 h-7 flex items-center justify-center bg-slate-50/85 hover:bg-slate-100/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-slate-900 rounded-full transition-colors cursor-pointer"
+            className="w-7 h-7 flex items-center justify-center bg-slate-50/85 hover:bg-slate-100/85 border border-slate-200 text-[9px] font-black text-slate-350 hover:text-slate-900 rounded-full transition-colors cursor-pointer"
           >
             2x
           </button>
@@ -1937,7 +1937,7 @@ setPlacedChips([]);
 
         {/* Current bet value badge */}
         <div className="flex items-center bg-white/80 border border-amber-500/20 rounded-full px-3 py-1 gap-1.5 shadow-inner">
-          <span className="text-[8px] text-slate-400 font-extrabold uppercase">Bet</span>
+          <span className="text-[8px] text-slate-600 font-extrabold uppercase">Bet</span>
           <span className="text-amber-400 font-black text-[11px] font-mono">₹{selectedCoin.toLocaleString('en-IN')}</span>
         </div>
       </div>
@@ -2009,7 +2009,7 @@ setPlacedChips([]);
 
                     {/* Desktop Content Layout */}
                     <div className="hidden sm:flex justify-between items-center w-full leading-none z-10">
-                      <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-100">{target.name}</span>
+                      <span className="text-[9px] xs:text-[10px] sm:text-[11px] font-serif font-black uppercase tracking-wider text-slate-900">{target.name}</span>
                       <span className="text-[8px] xs:text-[9px] sm:text-[10px] font-black text-amber-300 font-mono">x{target.odds.toFixed(2)}</span>
                     </div>
                     
@@ -2024,7 +2024,7 @@ setPlacedChips([]);
 
                     {/* Mobile Circular Content Layout */}
                     <div className="flex sm:hidden flex-col items-center justify-center gap-0.5 leading-none z-10 select-none">
-                      <span className="text-[7.5px] xs:text-[8px] font-serif font-black uppercase tracking-wider text-slate-100 truncate max-w-[46px] xs:max-w-[54px] text-center">
+                      <span className="text-[7.5px] xs:text-[8px] font-serif font-black uppercase tracking-wider text-slate-900 truncate max-w-[46px] xs:max-w-[54px] text-center">
                         {getShortName(target.name)}
                       </span>
                       <span className="text-[6.5px] xs:text-[7px] font-black text-amber-350 font-mono">
@@ -2048,7 +2048,7 @@ setPlacedChips([]);
         {/* Live HUD Header: Dealer info, Latency indicator, and circular timer */}
         <div className="absolute top-2 sm:top-3 inset-x-2 sm:inset-x-3 flex justify-between items-start z-20 pointer-events-none">
           {/* Left: Real-time Trust Dealer Status */}
-          <div className="flex flex-col gap-0.5 sm:gap-1 bg-white/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5">
+          <div className="flex flex-col gap-0.5 sm:gap-1 bg-white/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-slate-200">
             <span className="text-[8px] sm:text-[9px] font-black text-slate-900 uppercase tracking-widest leading-none">
               DEALER: KYLIE #702
             </span>
@@ -2058,27 +2058,27 @@ setPlacedChips([]);
           </div>
 
           {/* Middle: Sound & HUD Controls */}
-          <div className="flex items-center gap-1 sm:gap-1.5 bg-white/60 backdrop-blur-md px-2 py-1 rounded-lg sm:rounded-xl border border-white/5 pointer-events-auto">
+          <div className="flex items-center gap-1 sm:gap-1.5 bg-white/60 backdrop-blur-md px-2 py-1 rounded-lg sm:rounded-xl border border-slate-200 pointer-events-auto">
             <button 
               onClick={toggleMute}
               className="p-0.5 rounded text-slate-900/70 hover:text-slate-900 hover:bg-white/10 transition-colors cursor-pointer"
               title={isMuted ? "Unmute sounds" : "Mute sounds"}
             >
-              {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-slate-300" />}
+              {isMuted ? <VolumeX className="w-3.5 h-3.5 text-rose-400" /> : <Volume2 className="w-3.5 h-3.5 text-slate-700" />}
             </button>
             <button 
               onClick={toggleOverlay}
               className="p-0.5 rounded text-slate-900/70 hover:text-slate-900 hover:bg-white/10 transition-colors cursor-pointer"
               title={showOverlay ? "Hide Overlay Grid" : "Show Overlay Grid"}
             >
-              {showOverlay ? <Eye className="w-3.5 h-3.5 text-emerald-450" /> : <EyeOff className="w-3.5 h-3.5 text-slate-400" />}
+              {showOverlay ? <Eye className="w-3.5 h-3.5 text-emerald-450" /> : <EyeOff className="w-3.5 h-3.5 text-slate-600" />}
             </button>
           </div>
 
           {/* Right: Latency Safety Meter & Circular Countdown Timer HUD */}
           <div className="flex items-center gap-2 sm:gap-3">
             {/* Ping Meter */}
-            <div className="flex flex-col items-end gap-0.5 sm:gap-1 bg-white/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-white/5 font-mono text-right font-bold">
+            <div className="flex flex-col items-end gap-0.5 sm:gap-1 bg-white/60 backdrop-blur-md px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl border border-slate-200 font-mono text-right font-bold">
               <span className={cn("text-[8px] sm:text-[9px] font-black uppercase tracking-widest leading-none", ping > 500 ? "text-rose-400 animate-pulse" : "text-emerald-400")}>
                 {ping > 500 ? "HIGH JITTER" : "SUB-300MS WHIP"}
               </span>
@@ -2091,7 +2091,7 @@ setPlacedChips([]);
             </div>
 
             {/* Circular Timer HUD */}
-            <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white/65 backdrop-blur-md rounded-full border border-white/10">
+            <div className="relative w-9 h-9 sm:w-11 sm:h-11 flex items-center justify-center bg-white/65 backdrop-blur-md rounded-full border border-slate-200">
               <svg className="absolute w-full h-full transform -rotate-90">
                 <circle
                   cx="18"
@@ -2147,7 +2147,7 @@ setPlacedChips([]);
             <RefreshCw className="w-8 h-8 text-indigo-500 animate-spin" />
             <div>
               <h4 className="text-sm font-black text-slate-900 uppercase tracking-wider">Syncing Live Feed...</h4>
-              <p className="text-[10px] text-slate-400 mt-1 uppercase font-bold">Latency: {ping}ms (Limit: 500ms). Betting targets locked.</p>
+              <p className="text-[10px] text-slate-600 mt-1 uppercase font-bold">Latency: {ping}ms (Limit: 500ms). Betting targets locked.</p>
             </div>
           </div>
         )}
@@ -2198,7 +2198,7 @@ setPlacedChips([]);
                   <div className={cn(
                     "px-4 py-1.5 rounded-sm font-black text-xs uppercase shadow-lg border leading-none mt-1.5",
                     payoutOverlay.profit === 0
-                      ? "bg-slate-50/80 border-slate-700/30 text-slate-350"
+                      ? "bg-slate-50/80 border-slate-200/30 text-slate-350"
                       : payoutOverlay.won 
                         ? "bg-emerald-950/80 border-emerald-500/30 text-emerald-300" 
                         : "bg-rose-955/80 border-rose-500/30 text-rose-300"
@@ -2216,7 +2216,7 @@ setPlacedChips([]);
         </div>
 
         {/* Stream Bottom Box: Live Players Strip & Total Bet (Desktop/Tablet Only) */}
-        <div className="hidden sm:flex border-t border-white/10 pt-2 shrink-0 items-center justify-between z-20 w-full relative bg-white/80 p-2 sm:p-2.5 rounded-sm border border-white/5">
+        <div className="hidden sm:flex border-t border-slate-200 pt-2 shrink-0 items-center justify-between z-20 w-full relative bg-white/80 p-2 sm:p-2.5 rounded-sm border border-slate-200">
           {/* Left: Live Player Avatars */}
           <div className="flex items-center gap-1.5">
             <div className="flex items-center -space-x-1.5">
@@ -2233,7 +2233,7 @@ setPlacedChips([]);
                   {p.initials}
                 </div>
               ))}
-              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-black text-slate-300 border-[1.5px] border-slate-950 bg-slate-50 shadow-sm select-none" style={{ zIndex: 0 }}>
+              <div className="w-5 h-5 sm:w-6 sm:h-6 rounded-full flex items-center justify-center text-[6px] sm:text-[7px] font-black text-slate-700 border-[1.5px] border-slate-950 bg-slate-50 shadow-sm select-none" style={{ zIndex: 0 }}>
                 +42
               </div>
             </div>
@@ -2242,20 +2242,20 @@ setPlacedChips([]);
                 <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
                 Live Now
               </span>
-              <span className="text-[7px] text-slate-500 font-bold leading-none mt-0.5">WHIP WHEP Stream</span>
+              <span className="text-[7px] text-slate-700 font-bold leading-none mt-0.5">WHIP WHEP Stream</span>
             </div>
           </div>
           
           {/* Right: Total bet info */}
           <div className="text-right">
-            <span className="text-[8px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
+            <span className="text-[8px] text-slate-600 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
             <span className="text-xs font-black text-slate-900 leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
           </div>
         </div>
       </div>
 
       {/* MOBILE ONLY PLAYER STRIP — Placed below the board so it doesn't overlap any betting targets on cellphone */}
-      <div className="flex sm:hidden items-center justify-between z-20 w-full bg-white/60 backdrop-blur-md border border-white/5 p-2 rounded-xl mt-2 select-none">
+      <div className="flex sm:hidden items-center justify-between z-20 w-full bg-white/60 backdrop-blur-md border border-slate-200 p-2 rounded-xl mt-2 select-none">
         {/* Left: Live Player Avatars */}
         <div className="flex items-center gap-1.5">
           <div className="flex items-center -space-x-1.5">
@@ -2272,7 +2272,7 @@ setPlacedChips([]);
                 {p.initials}
               </div>
             ))}
-            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[6.5px] font-black text-slate-300 border-[1.5px] border-slate-950 bg-slate-50 shadow-sm select-none" style={{ zIndex: 0 }}>
+            <div className="w-5 h-5 rounded-full flex items-center justify-center text-[6.5px] font-black text-slate-700 border-[1.5px] border-slate-950 bg-slate-50 shadow-sm select-none" style={{ zIndex: 0 }}>
               +42
             </div>
           </div>
@@ -2281,39 +2281,39 @@ setPlacedChips([]);
               <span className="w-1 h-1 rounded-full bg-emerald-400 animate-pulse" />
               Live Now
             </span>
-            <span className="text-[7.5px] text-slate-500 font-bold leading-none mt-0.5">WHIP WHEP Stream</span>
+            <span className="text-[7.5px] text-slate-700 font-bold leading-none mt-0.5">WHIP WHEP Stream</span>
           </div>
         </div>
         
         {/* Right: Total bet info */}
         <div className="text-right">
-          <span className="text-[8.5px] text-slate-400 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
+          <span className="text-[8.5px] text-slate-600 font-extrabold block uppercase leading-none mb-0.5">Total Bet</span>
           <span className="text-xs font-black text-slate-900 leading-none font-mono">₹{totalActiveBet.toLocaleString('en-IN')}</span>
         </div>
       </div>
 
       {/* MOBILE ONLY CONTROL CENTER — Consolidated rows for perfect cellphone usability */}
-      <div className="flex md:hidden flex-col gap-3 bg-white/70 backdrop-blur-xl border border-white/5 rounded-2xl p-3 mt-3 w-full shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
+      <div className="flex md:hidden flex-col gap-3 bg-white/70 backdrop-blur-xl border border-slate-200 rounded-2xl p-3 mt-3 w-full shadow-[0_4px_30px_rgba(0,0,0,0.5)]">
         {/* Row 1: Quick Actions (Grid aligned) */}
         <div className="grid grid-cols-4 gap-2 w-full">
           <button
             onClick={handleUndo}
             disabled={phase !== 'open' || betHistory.length === 0}
-            className="py-2 bg-slate-50/60 hover:bg-slate-100/60 disabled:opacity-25 text-slate-300 hover:text-slate-900 rounded-lg border border-white/5 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
+            className="py-2 bg-slate-50/60 hover:bg-slate-100/60 disabled:opacity-25 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-200 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
           >
             Undo
           </button>
           <button
             onClick={handleRepeatBet}
             disabled={phase !== 'open' || Object.keys(previousBets).length === 0}
-            className="py-2 bg-slate-50/60 hover:bg-slate-100/60 disabled:opacity-25 text-slate-300 hover:text-slate-900 rounded-lg border border-white/5 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
+            className="py-2 bg-slate-50/60 hover:bg-slate-100/60 disabled:opacity-25 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-200 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
           >
             Repeat
           </button>
           <button
             onClick={handleDouble}
             disabled={phase !== 'open' || totalActiveBet === 0}
-            className="py-2 bg-slate-50/60 hover:bg-slate-100/60 disabled:opacity-25 text-slate-300 hover:text-slate-900 rounded-lg border border-white/5 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
+            className="py-2 bg-slate-50/60 hover:bg-slate-100/60 disabled:opacity-25 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-200 transition-all text-[9.5px] font-black uppercase tracking-wider text-center cursor-pointer select-none"
           >
             Double
           </button>
@@ -2327,7 +2327,7 @@ setPlacedChips([]);
         </div>
 
         {/* Row 2: Chip selector bar inside a capsule container */}
-        <div className="flex items-center justify-between gap-1 bg-white/40 p-2 border border-white/5 rounded-xl overflow-x-auto select-none">
+        <div className="flex items-center justify-between gap-1 bg-white/40 p-2 border border-slate-200 rounded-xl overflow-x-auto select-none">
           {COIN_VALUES.map(val => {
             const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
               100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-slate-900", shadow: "shadow-sky-500/40" },
@@ -2357,7 +2357,7 @@ setPlacedChips([]);
                   config.border,
                   config.text,
                   isSelected 
-                    ? `scale-105 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#070b13] ${config.shadow} shadow-lg opacity-100` 
+                    ? `scale-105 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#fdfbf7] ${config.shadow} shadow-lg opacity-100` 
                     : "opacity-80 hover:opacity-100"
                 )}
               >
@@ -2370,9 +2370,9 @@ setPlacedChips([]);
         </div>
 
         {/* Row 3: Current Wager + Multipliers (1/2, 2x) */}
-        <div className="flex items-center justify-between bg-white/60 border border-white/5 p-2 rounded-xl">
+        <div className="flex items-center justify-between bg-white/60 border border-slate-200 p-2 rounded-xl">
           <div className="flex items-center gap-1.5 pl-1.5">
-            <span className="text-[9px] text-slate-400 font-extrabold uppercase">Bet:</span>
+            <span className="text-[9px] text-slate-600 font-extrabold uppercase">Bet:</span>
             <span className="text-amber-400 font-black text-[12px] font-mono">₹{selectedCoin.toLocaleString('en-IN')}</span>
           </div>
 
@@ -2382,7 +2382,7 @@ setPlacedChips([]);
                 const halved = Math.max(50, Math.floor(selectedCoin / 2));
                 setSelectedCoin(halved);
               }}
-              className="px-3 py-1 bg-slate-50/85 hover:bg-slate-100/85 border border-white/5 text-[9px] font-black text-slate-350 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1 bg-slate-50/85 hover:bg-slate-100/85 border border-slate-200 text-[9px] font-black text-slate-350 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
             >
               1/2
             </button>
@@ -2395,7 +2395,7 @@ setPlacedChips([]);
                   setShowLowBalance(true);
                 }
               }}
-              className="px-3 py-1 bg-slate-50/85 hover:bg-slate-100/85 border border-white/5 text-[9px] font-black text-slate-355 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
+              className="px-3 py-1 bg-slate-50/85 hover:bg-slate-100/85 border border-slate-200 text-[9px] font-black text-slate-355 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
             >
               2x
             </button>
@@ -2408,21 +2408,21 @@ setPlacedChips([]);
         <button
           onClick={handleUndo}
           disabled={phase !== 'open' || betHistory.length === 0}
-          className="px-4 py-1.5 bg-slate-50/50 hover:bg-slate-100/60 disabled:opacity-25 text-slate-300 hover:text-slate-900 rounded-lg border border-white/5 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
+          className="px-4 py-1.5 bg-slate-50/50 hover:bg-slate-100/60 disabled:opacity-25 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-200 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
         >
           Undo
         </button>
         <button
           onClick={handleRepeatBet}
           disabled={phase !== 'open' || Object.keys(previousBets).length === 0}
-          className="px-4 py-1.5 bg-slate-50/50 hover:bg-slate-100/60 disabled:opacity-25 text-slate-300 hover:text-slate-900 rounded-lg border border-white/5 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
+          className="px-4 py-1.5 bg-slate-50/50 hover:bg-slate-100/60 disabled:opacity-25 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-200 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
         >
           Repeat
         </button>
         <button
           onClick={handleDouble}
           disabled={phase !== 'open' || totalActiveBet === 0}
-          className="px-4 py-1.5 bg-slate-50/50 hover:bg-slate-100/60 disabled:opacity-25 text-slate-300 hover:text-slate-900 rounded-lg border border-white/5 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
+          className="px-4 py-1.5 bg-slate-50/50 hover:bg-slate-100/60 disabled:opacity-25 text-slate-700 hover:text-slate-900 rounded-lg border border-slate-200 transition-all cursor-pointer select-none font-mono text-[10px] font-black uppercase tracking-wider"
         >
           Double
         </button>
@@ -2439,13 +2439,13 @@ setPlacedChips([]);
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_1fr_280px] gap-3 mt-4 w-full items-stretch">
         
         {/* 1. Scorecard Roadmap (Analytics) */}
-        <div className="bg-white/40 border border-white/5 rounded-xl p-3 sm:p-4 select-none w-full shadow-lg flex flex-col">
-          <div className="flex items-center justify-between mb-2.5 border-b border-white/5 pb-2">
+        <div className="bg-white/40 border border-slate-200 rounded-xl p-3 sm:p-4 select-none w-full shadow-lg flex flex-col">
+          <div className="flex items-center justify-between mb-2.5 border-b border-slate-200 pb-2">
             <span className="text-[10px] font-black text-slate-350 uppercase tracking-widest flex items-center gap-1.5">
               <Activity className="w-3.5 h-3.5 text-emerald-450" />
               Roadmap
             </span>
-            <span className="text-[8px] text-slate-500 font-extrabold uppercase">Last 15</span>
+            <span className="text-[8px] text-slate-700 font-extrabold uppercase">Last 15</span>
           </div>
           <div 
             style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
@@ -2455,12 +2455,12 @@ setPlacedChips([]);
               <span 
                 key={idx}
                 className={cn(
-                  "w-6 h-6 sm:w-7 sm:h-7 rounded-full text-[10px] sm:text-[11px] font-black flex items-center justify-center shrink-0 border border-white/5 shadow-md transition-transform active:scale-95",
+                  "w-6 h-6 sm:w-7 sm:h-7 rounded-full text-[10px] sm:text-[11px] font-black flex items-center justify-center shrink-0 border border-slate-200 shadow-md transition-transform active:scale-95",
                   val === 'A' || val === '8' || val === 'D' || val === 'U' || val === '7'
                     ? "bg-blue-600 text-slate-900 shadow-blue-500/20" 
                     : val === 'B' || val === '9' || val === 'T' || val === 'W'
                     ? "bg-red-600 text-slate-900 shadow-red-500/20"
-                    : "bg-slate-100 text-slate-200"
+                    : "bg-slate-100 text-slate-800"
                 )}
               >
                 {val}
@@ -2470,8 +2470,8 @@ setPlacedChips([]);
         </div>
 
         {/* 2. Live Activity Feed (Social Proof) */}
-        <div className="bg-white/40 border border-white/5 rounded-xl p-3 sm:p-4 select-none w-full shadow-lg flex flex-col">
-          <div className="flex items-center justify-between mb-2.5 border-b border-white/5 pb-2">
+        <div className="bg-white/40 border border-slate-200 rounded-xl p-3 sm:p-4 select-none w-full shadow-lg flex flex-col">
+          <div className="flex items-center justify-between mb-2.5 border-b border-slate-200 pb-2">
             <span className="text-[10px] font-black text-slate-350 uppercase tracking-widest flex items-center gap-1.5">
               <Flame className="w-3.5 h-3.5 text-amber-400" />
               Live Bets
@@ -2492,8 +2492,8 @@ setPlacedChips([]);
                     {bet.player.substring(0, 2).toUpperCase()}
                   </div>
                   <div className="flex flex-col">
-                    <span className="text-[9px] font-bold text-slate-200 leading-none">{bet.player}</span>
-                    <span className="text-[7px] text-slate-500 font-bold leading-none mt-0.5">{bet.target} \u2022 {bet.time}</span>
+                    <span className="text-[9px] font-bold text-slate-800 leading-none">{bet.player}</span>
+                    <span className="text-[7px] text-slate-700 font-bold leading-none mt-0.5">{bet.target} \u2022 {bet.time}</span>
                   </div>
                 </div>
                 <div className="flex items-center gap-1">
@@ -2513,33 +2513,33 @@ setPlacedChips([]);
         {/* 3. Live Stats & Trust */}
         <div className="flex flex-col gap-3 w-full">
           {/* Live Table Stats */}
-          <div className="bg-white/40 border border-white/5 rounded-xl p-3 sm:p-4 select-none shadow-lg flex-1">
-            <div className="flex items-center gap-1.5 mb-2.5 border-b border-white/5 pb-2">
+          <div className="bg-white/40 border border-slate-200 rounded-xl p-3 sm:p-4 select-none shadow-lg flex-1">
+            <div className="flex items-center gap-1.5 mb-2.5 border-b border-slate-200 pb-2">
               <TrendingUp className="w-3.5 h-3.5 text-sky-400" />
               <span className="text-[10px] font-black text-slate-350 uppercase tracking-widest">Table Stats</span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <div className="bg-white/50 rounded-lg p-2 text-center border border-white/[0.03]">
-                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Players</span>
+                <span className="text-[8px] text-slate-700 font-extrabold uppercase block leading-none mb-1">Players</span>
                 <span className="text-sm font-black text-slate-900 leading-none font-mono">48</span>
               </div>
               <div className="bg-white/50 rounded-lg p-2 text-center border border-white/[0.03]">
-                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Volume</span>
+                <span className="text-[8px] text-slate-700 font-extrabold uppercase block leading-none mb-1">Volume</span>
                 <span className="text-sm font-black text-emerald-400 leading-none font-mono">\u20b9320K</span>
               </div>
               <div className="bg-white/50 rounded-lg p-2 text-center border border-white/[0.03]">
-                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Win Rate</span>
+                <span className="text-[8px] text-slate-700 font-extrabold uppercase block leading-none mb-1">Win Rate</span>
                 <span className="text-sm font-black text-amber-400 leading-none font-mono">48.6%</span>
               </div>
               <div className="bg-white/50 rounded-lg p-2 text-center border border-white/[0.03]">
-                <span className="text-[8px] text-slate-500 font-extrabold uppercase block leading-none mb-1">Max Win</span>
+                <span className="text-[8px] text-slate-700 font-extrabold uppercase block leading-none mb-1">Max Win</span>
                 <span className="text-sm font-black text-[#C084FC] leading-none font-mono">\u20b9150K</span>
               </div>
             </div>
           </div>
 
           {/* Trust / Affiliate Badge */}
-          <div className="bg-gradient-to-br from-slate-900/60 to-slate-950/60 border border-white/5 rounded-xl p-3 select-none shadow-lg">
+          <div className="bg-gradient-to-br from-slate-900/60 to-slate-950/60 border border-slate-200 rounded-xl p-3 select-none shadow-lg">
             {gameId.startsWith("royal-1") ? (
               <div className="flex items-center gap-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-purple-500 to-fuchsia-600 flex items-center justify-center shrink-0 shadow-lg shadow-purple-500/20">
@@ -2547,7 +2547,7 @@ setPlacedChips([]);
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-[8px] font-extrabold text-[#C084FC] uppercase tracking-widest block">Referral Program</span>
-                  <p className="text-[9px] text-slate-400 leading-snug font-medium truncate">
+                  <p className="text-[9px] text-slate-600 leading-snug font-medium truncate">
                     <span className="text-slate-900 font-bold">GoldenAce</span> earned <span className="text-emerald-400 font-extrabold">\u20b985K</span> today
                   </p>
                 </div>
@@ -2559,7 +2559,7 @@ setPlacedChips([]);
                 </div>
                 <div className="flex-1 min-w-0">
                   <span className="text-[8px] font-extrabold text-emerald-400 uppercase tracking-widest block">Provably Fair</span>
-                  <p className="text-[9px] text-slate-400 leading-snug font-medium">Instant UPI \u2022 &lt;2 min</p>
+                  <p className="text-[9px] text-slate-600 leading-snug font-medium">Instant UPI \u2022 &lt;2 min</p>
                 </div>
               </div>
             )}
@@ -2572,7 +2572,7 @@ setPlacedChips([]);
       <AnimatePresence>
         {/* 1. Low Balance Alert Modal */}
         {showLowBalance && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-white/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-900">
               <AlertTriangle className="w-12 h-12 text-[#BE185D] mx-auto animate-bounce" />
               <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">Low Balance</h4>
@@ -2580,7 +2580,7 @@ setPlacedChips([]);
                 Low Balance: Your balance is low, please visit the cashier.
               </p>
               <div className="flex gap-2">
-                <button onClick={() => setShowLowBalance(false)} className="flex-1 py-2 bg-slate-50 hover:bg-slate-100 border border-white/5 rounded-lg text-[10px] font-black uppercase text-slate-700">Cancel</button>
+                <button onClick={() => setShowLowBalance(false)} className="flex-1 py-2 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-lg text-[10px] font-black uppercase text-slate-700">Cancel</button>
                 <button 
                   onClick={() => {
                     setShowLowBalance(false);
@@ -2597,7 +2597,7 @@ setPlacedChips([]);
 
         {/* 2. Connection Lost Alert Modal */}
         {showConnectionLost && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-white/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-900">
               <RefreshCw className="w-12 h-12 text-indigo-500 mx-auto animate-spin" />
               <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">Connection Lost</h4>
@@ -2610,7 +2610,7 @@ setPlacedChips([]);
 
         {/* 3. Server Maintenance Alert Modal */}
         {showMaintenance && (
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-[#070b13]/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-white/60 backdrop-blur-sm z-[50] flex items-center justify-center p-4">
             <div className="bg-white border border-slate-200 max-w-sm w-full p-6 rounded-2xl shadow-2xl text-center space-y-4 text-slate-900">
               <AlertTriangle className="w-12 h-12 text-[#D97706] mx-auto animate-pulse" />
               <h4 className="text-sm font-black uppercase tracking-wider text-slate-900">Notice</h4>

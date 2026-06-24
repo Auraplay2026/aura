@@ -3,6 +3,7 @@ import { findUserByEmail, updateUser, Transaction } from '@/lib/userDb';
 import fs from 'fs';
 import path from 'path';
 import { sendDepositNotification } from '@/lib/notificationService';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -10,8 +11,14 @@ export async function POST(request: Request) {
 
     const parsedAmount = Number(amount);
 
-    if (!email || isNaN(parsedAmount) || parsedAmount <= 0 || !upiId) {
-      return NextResponse.json({ error: 'Email, valid positive amount, and UPI ID/Sender Account are required.' }, { status: 400 });
+    if (!email || isNaN(parsedAmount) || !isFinite(parsedAmount) || parsedAmount <= 0 || !upiId) {
+      return NextResponse.json({ error: 'Email, valid positive finite amount, and UPI ID/Sender Account are required.' }, { status: 400 });
+    }
+
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
     if (type === 'deposit') {

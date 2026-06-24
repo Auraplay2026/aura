@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -9,8 +10,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
     }
 
-    if (currentMarketPrice < 0) {
-      return NextResponse.json({ error: 'Current market price cannot be negative.' }, { status: 400 });
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
+    }
+
+    const parsedPrice = Number(currentMarketPrice);
+    if (typeof currentMarketPrice !== 'number' || isNaN(parsedPrice) || !isFinite(parsedPrice) || parsedPrice < 0) {
+      return NextResponse.json({ error: 'Current market price must be a valid finite number >= 0.' }, { status: 400 });
     }
 
     const result = await prisma.$transaction(async (tx) => {

@@ -3,6 +3,7 @@ import { findUserByEmailOrUsername, addActivityLog, updateUser } from '@/lib/use
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { verifyTOTP } from '@/lib/totp';
 import bcrypt from 'bcryptjs';
+import { setUserAuthCookie } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -85,7 +86,9 @@ export async function POST(request: Request) {
     });
 
     const { passwordHash, ...safeUser } = user;
-    return NextResponse.json({ success: true, user: safeUser }, { status: 200 });
+    const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
+    await setUserAuthCookie(response, user.email);
+    return response;
   } catch (err: any) {
     console.error("[Login API Error]:", err);
     return NextResponse.json({ error: 'Failed to process login request.', details: err.message }, { status: 500 });

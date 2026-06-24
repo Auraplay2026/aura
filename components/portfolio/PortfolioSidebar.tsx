@@ -91,7 +91,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
               <div className="flex items-center gap-3">
                 <a 
                   href="/vip/top-portfolios" 
-                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-600/20 hover:from-amber-500/30 hover:to-yellow-600/30 border border-yellow-500/30 rounded-xl text-[10px] font-black text-yellow-500 uppercase tracking-widest transition-all hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
+                  className="flex items-center gap-1.5 px-3 py-1.5 bg-gradient-to-r from-amber-500/20 to-yellow-600/20 hover:from-amber-500/30 hover:to-yellow-600/30 border border-yellow-500/40 rounded-xl text-[10px] font-black text-yellow-500 uppercase tracking-widest transition-all hover:scale-105 shadow-[0_0_15px_rgba(245,158,11,0.2)]"
                 >
                   <Trophy className="w-3 h-3" />
                   Top 1% VIP
@@ -158,7 +158,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                   <div className="relative mb-8 group">
                     <div className="absolute inset-0 bg-neon-purple/20 blur-2xl rounded-full animate-pulse-glow" />
                     <div className="w-28 h-28 rounded-full bg-gradient-to-br from-slate-900 to-[#0a0f1d] border border-slate-200 flex items-center justify-center shadow-[inset_0_0_30px_rgba(0,0,0,0.8)] relative z-10 transform transition-transform duration-500 hover:scale-105">
-                      <BarChart2 className="w-12 h-12 text-slate-500 group-hover:text-neon-purple transition-colors drop-shadow-md" />
+                      <BarChart2 className="w-12 h-12 text-slate-700 group-hover:text-neon-purple transition-colors drop-shadow-md" />
                     </div>
                   </div>
                   <p className="text-2xl font-black text-slate-900 mb-3 tracking-widest drop-shadow-lg">NO ACTIVE TRADES</p>
@@ -190,14 +190,14 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                         
                         <div className="flex justify-between items-start mb-4 relative z-10">
                           <div className="flex-1 pr-4">
-                            <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Prediction</p>
+                            <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest mb-1">Prediction</p>
                             <p className="text-sm font-black text-slate-900 leading-tight line-clamp-2">{pos.marketTitle}</p>
                           </div>
                           <div className={`flex flex-col items-end shrink-0`}>
                             <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest ${pos.side === 'yes' ? 'bg-green-500/20 text-green-600 border border-green-500/30' : 'bg-red-500/20 text-red-600 border border-red-500/30'}`}>
                               {pos.side}
                             </span>
-                            <span className="text-[10px] font-bold text-slate-500 mt-2">
+                            <span className="text-[10px] font-bold text-slate-700 mt-2">
                               {pos.shares.toFixed(1)} Shares
                             </span>
                           </div>
@@ -205,12 +205,12 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                         
                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/60 border border-slate-200 mb-4 relative z-10 shadow-inner">
                           <div>
-                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Buy Price</p>
+                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">Buy Price</p>
                             <p className="text-sm font-black text-slate-700 font-mono">{pos.buyPrice}¢</p>
                           </div>
                           <div className="w-px h-8 bg-white/10" />
                           <div>
-                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1 flex items-center gap-1">
+                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1 flex items-center gap-1">
                               Current Price
                             </p>
                             <p className="text-sm font-black text-slate-900 font-mono flex items-center gap-1.5">
@@ -219,7 +219,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                           </div>
                           <div className="w-px h-8 bg-white/10" />
                           <div className="text-right">
-                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">ROI</p>
+                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">ROI</p>
                             <p className={`text-sm font-black font-mono flex items-center gap-1 ${isProfit ? 'text-neon-green drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]' : 'text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]'}`}>
                               {isProfit ? '+' : ''}{pnlPercent.toFixed(1)}%
                             </p>
@@ -228,7 +228,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                         
                         <div className="flex items-center gap-4 relative z-10">
                           <div className="flex-1">
-                            <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Current Value</p>
+                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">Current Value</p>
                             <p className={`text-xl font-black font-mono tracking-tight ${isProfit ? 'text-slate-900' : 'text-slate-700'}`}>
                               ₹{currentValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                             </p>
@@ -279,7 +279,7 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                             
                             <div className="flex justify-between items-start mb-4 relative z-10">
                               <div className="flex-1 pr-4">
-                                <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest mb-1">Match</p>
+                                <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest mb-1">Match</p>
                                 <p className="text-sm font-black text-slate-900 leading-tight line-clamp-2">{matchTitle}</p>
                               </div>
                               <div className="flex flex-col items-end shrink-0">
@@ -291,25 +291,25 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                             
                             <div className="flex items-center justify-between p-3 rounded-xl bg-white/60 border border-slate-200 mb-4 relative z-10 shadow-inner">
                               <div>
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Wager</p>
+                                <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">Wager</p>
                                 <p className="text-sm font-black text-slate-900 font-mono">₹{bet.amount.toLocaleString()}</p>
                               </div>
                               <div className="w-px h-8 bg-white/10" />
                               <div>
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">Odds</p>
+                                <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">Odds</p>
                                 <p className="text-sm font-black text-emerald-600 font-mono">{odds}</p>
                               </div>
                               <div className="w-px h-8 bg-white/10" />
                               <div className="text-right">
-                                <p className="text-[10px] text-slate-500 uppercase font-bold tracking-widest mb-1">To Win</p>
+                                <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">To Win</p>
                                 <p className="text-sm font-black text-slate-900 font-mono">₹{payout.toLocaleString(undefined, { maximumFractionDigits: 2 })}</p>
                               </div>
                             </div>
                             
                             <div className="flex items-center justify-between relative z-10">
                                <div className="flex items-center gap-2">
-                                 <p className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Status</p>
-                                 <span className="text-xs font-bold text-yellow-600 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/20 flex items-center gap-1.5">
+                                 <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest">Status</p>
+                                 <span className="text-xs font-bold text-yellow-600 bg-yellow-500/10 px-3 py-1 rounded-full border border-yellow-500/40 flex items-center gap-1.5">
                                     <span className="w-1.5 h-1.5 bg-yellow-400 rounded-full animate-pulse" />
                                     Awaiting Settlement
                                  </span>

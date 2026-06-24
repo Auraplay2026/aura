@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { updateUser, addActivityLog } from '@/lib/userDb';
 import { verifyTOTP } from '@/lib/totp';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -10,6 +11,12 @@ export async function POST(request: Request) {
 
     if (!email || !token) {
       return NextResponse.json({ error: 'Email and verification code (token) are required.' }, { status: 400 });
+    }
+
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({ where: { email } });

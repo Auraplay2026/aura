@@ -116,13 +116,13 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
           </div>
         </div>
  
-        <p className="text-xs text-slate-400 text-center font-medium leading-relaxed">
+        <p className="text-xs text-slate-600 text-center font-medium leading-relaxed">
           Administrative dashboard access is encrypted and requires dual-key validation: your JWT session plus a dynamic server-side hardware signature.
         </p>
  
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase">Admin Identity</label>
+            <label className="text-[10px] font-bold text-slate-700 uppercase">Admin Identity</label>
             <input
               type="text"
               readOnly
@@ -132,7 +132,7 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
           </div>
           
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase">L5 Master Security Key</label>
+            <label className="text-[10px] font-bold text-slate-700 uppercase">L5 Master Security Key</label>
             <input
               type="password"
               value={passcode}
@@ -143,7 +143,7 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
           </div>
 
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold text-slate-500 uppercase">Authenticator 6-Digit Code (MFA)</label>
+            <label className="text-[10px] font-bold text-slate-700 uppercase">Authenticator 6-Digit Code (MFA)</label>
             <input
               type="text"
               maxLength={6}
@@ -184,7 +184,7 @@ function AdminSecurityGate({ email, onVerified }: { email: string, onVerified: (
                 setTimeout(() => handleVerify(), 50);
               }}
               disabled={isVerifying}
-              className="w-full bg-slate-900 hover:bg-slate-800 disabled:bg-slate-200 text-emerald-400 font-black py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2 border border-emerald-500/20"
+              className="w-full bg-white hover:bg-slate-800 disabled:bg-slate-200 text-emerald-400 font-black py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-slate-900/20 flex items-center justify-center gap-2 border border-emerald-500/20"
             >
               ⚡ One-Click Admin Access (Dev)
             </button>

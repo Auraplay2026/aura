@@ -201,7 +201,7 @@ export function DailyRewardModal() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.9, y: 30 }}
           transition={{ type: "spring", damping: 20 }}
-          className="w-full max-w-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-800 rounded-[32px] overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.15)] relative flex flex-col max-h-[95vh]"
+          className="w-full max-w-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-200 rounded-[32px] overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.15)] relative flex flex-col max-h-[95vh]"
         >
           {/* Close button */}
           <button
@@ -209,19 +209,19 @@ export function DailyRewardModal() {
               setIsOpen(false);
               dismissDailyModal();
             }}
-            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50/50 hover:bg-slate-50 text-slate-400 hover:text-slate-900 flex items-center justify-center transition-colors z-10"
+            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50/50 hover:bg-slate-50 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors z-10"
           >
             <X className="w-5 h-5" />
           </button>
 
           {/* Header tabs */}
-          <div className="flex border-b border-slate-800 shrink-0 bg-white/40 p-4 gap-2">
+          <div className="flex border-b border-slate-200 shrink-0 bg-white/40 p-4 gap-2">
             <button
               onClick={() => setActiveTab("streak")}
               className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                 activeTab === "streak"
                   ? "bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                  : "text-slate-400 hover:text-slate-900 hover:bg-slate-50/40"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/40"
               }`}
             >
               <Calendar className="w-4 h-4" />
@@ -232,7 +232,7 @@ export function DailyRewardModal() {
               className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
                 activeTab === "wheel"
                   ? "bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                  : "text-slate-400 hover:text-slate-900 hover:bg-slate-50/40"
+                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/40"
               }`}
             >
               <RotateCw className="w-4 h-4" />
@@ -248,7 +248,7 @@ export function DailyRewardModal() {
                     <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
                     Daily Login Streak
                   </h2>
-                  <p className="text-slate-400 text-sm mt-1">
+                  <p className="text-slate-600 text-sm mt-1">
                     Claim rewards daily to increase your streak power!
                   </p>
                 </div>
@@ -266,10 +266,10 @@ export function DailyRewardModal() {
                         key={idx}
                         className={`relative rounded-2xl p-3 border flex flex-col items-center justify-between min-h-[100px] transition-all duration-300 ${
                           isClaimed
-                            ? "bg-white/40 border-emerald-500/30 text-slate-500"
+                            ? "bg-white/40 border-emerald-500/30 text-slate-700"
                             : isCurrent
                             ? "bg-purple-950/30 border-purple-500 text-slate-900 shadow-[0_0_20px_rgba(168,85,247,0.2)] animate-pulse"
-                            : "bg-white/50 border-slate-800/60 text-slate-400"
+                            : "bg-white/50 border-slate-200/60 text-slate-600"
                         }`}
                       >
                         <span className="text-[10px] font-black uppercase tracking-wider">
@@ -278,7 +278,7 @@ export function DailyRewardModal() {
                         <div className="my-2">
                           <Gift
                             className={`w-6 h-6 mx-auto ${
-                              isClaimed ? "text-emerald-500" : isCurrent ? "text-purple-400" : "text-slate-500"
+                              isClaimed ? "text-emerald-500" : isCurrent ? "text-purple-400" : "text-slate-700"
                             }`}
                           />
                         </div>
@@ -301,7 +301,7 @@ export function DailyRewardModal() {
                     onClick={handleClaimDaily}
                     className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
                       claimedToday
-                        ? "bg-slate-50 text-slate-500 cursor-not-allowed"
+                        ? "bg-slate-50 text-slate-700 cursor-not-allowed"
                         : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-slate-900 shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)] disabled:opacity-75 disabled:cursor-not-allowed"
                     }`}
                   >
@@ -320,7 +320,7 @@ export function DailyRewardModal() {
                     <RotateCw className="w-8 h-8 text-purple-500 animate-spin-slow" />
                     Lucky Spin Wheel
                   </h2>
-                  <p className="text-slate-400 text-sm mt-1">
+                  <p className="text-slate-600 text-sm mt-1">
                     Spin once per day to win cash prizes or XP boosters!
                   </p>
                 </div>
@@ -383,7 +383,7 @@ export function DailyRewardModal() {
                     onClick={spinWheel}
                     className={`absolute w-14 h-14 rounded-full flex items-center justify-center font-black text-[10px] uppercase tracking-wider z-10 transition-all ${
                       spinWheelClaimedToday
-                        ? "bg-slate-50 text-slate-500 cursor-not-allowed"
+                        ? "bg-slate-50 text-slate-700 cursor-not-allowed"
                         : "bg-purple-600 text-slate-900 hover:bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] cursor-pointer"
                     }`}
                   >
@@ -403,7 +403,7 @@ export function DailyRewardModal() {
                 )}
 
                 {spinWheelClaimedToday && !prizeWon && (
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-700">
                     You have already spun the wheel today. Come back tomorrow!
                   </p>
                 )}

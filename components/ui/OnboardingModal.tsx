@@ -274,12 +274,12 @@ export function OnboardingModal() {
                       <div className="p-3.5 bg-slate-50/40 border border-slate-200/60 rounded-2xl">
                         <TrendingUp className="w-4 h-4 text-purple-600 mb-1" />
                         <h3 className="text-xs font-bold text-slate-900 uppercase">Predictions</h3>
-                        <p className="text-[10px] text-slate-500 mt-0.5">Trade on Yes/No options in news & events.</p>
+                        <p className="text-[10px] text-slate-700 mt-0.5">Trade on Yes/No options in news & events.</p>
                       </div>
                       <div className="p-3.5 bg-slate-50/40 border border-slate-200/60 rounded-2xl">
                         <Trophy className="w-4 h-4 text-yellow-500 mb-1" />
                         <h3 className="text-xs font-bold text-slate-900 uppercase">Live iGaming</h3>
-                        <p className="text-[10px] text-slate-500 mt-0.5">Originals, Sportsbook, and casino slots.</p>
+                        <p className="text-[10px] text-slate-700 mt-0.5">Originals, Sportsbook, and casino slots.</p>
                       </div>
                     </div>
                   </motion.div>
@@ -309,7 +309,7 @@ export function OnboardingModal() {
                           "p-5 rounded-2xl border text-left flex flex-col gap-2 transition-all cursor-pointer relative overflow-hidden group",
                           selectedType === 'demo'
                             ? "bg-purple-100 border-purple-500 shadow-[0_0_20px_rgba(168,85,247,0.15)]"
-                            : "bg-slate-50/20 border-slate-200 hover:border-slate-700"
+                            : "bg-slate-50/20 border-slate-200 hover:border-slate-200"
                         )}
                       >
                         <span className={cn(
@@ -334,7 +334,7 @@ export function OnboardingModal() {
                           "p-5 rounded-2xl border text-left flex flex-col gap-2 transition-all cursor-pointer relative overflow-hidden group",
                           selectedType === 'real'
                             ? "bg-emerald-100 border-emerald-500 shadow-[0_0_20px_rgba(34,197,94,0.15)]"
-                            : "bg-slate-50/20 border-slate-200 hover:border-slate-700"
+                            : "bg-slate-50/20 border-slate-200 hover:border-slate-200"
                         )}
                       >
                         <span className={cn(
@@ -396,7 +396,7 @@ export function OnboardingModal() {
                             type="checkbox"
                             checked={agreedDemo}
                             onChange={(e) => setAgreedDemo(e.target.checked)}
-                            className="mt-0.5 rounded border-slate-700 bg-white text-[#a855f7] focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                            className="mt-0.5 rounded border-slate-200 bg-white text-[#a855f7] focus:ring-0 focus:ring-offset-0 cursor-pointer"
                           />
                           <span className="text-[11px] text-slate-700 leading-tight">
                             I understand that all funds inside my Demo Wallet are mock virtual credits and cannot be withdrawn as real money.
@@ -414,9 +414,9 @@ export function OnboardingModal() {
                         <div className="space-y-3">
                           {/* Phone Number */}
                           <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">Phone Number</label>
+                            <label className="block text-[10px] font-bold text-slate-700 uppercase mb-1.5 ml-1">Phone Number</label>
                             <div className="relative">
-                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-700">
                                 <Smartphone className="w-4 h-4" />
                               </div>
                               <input 
@@ -431,9 +431,9 @@ export function OnboardingModal() {
 
                           {/* Indian State Dropdown */}
                           <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">Gaming Jurisdiction State</label>
+                            <label className="block text-[10px] font-bold text-slate-700 uppercase mb-1.5 ml-1">Gaming Jurisdiction State</label>
                             <div className="relative">
-                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-700">
                                 <MapPin className="w-4 h-4" />
                               </div>
                               <select
@@ -461,9 +461,9 @@ export function OnboardingModal() {
 
                           {/* UPI ID */}
                           <div>
-                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">Mock UPI ID (For Cashouts)</label>
+                            <label className="block text-[10px] font-bold text-slate-700 uppercase mb-1.5 ml-1">Mock UPI ID (For Cashouts)</label>
                             <div className="relative">
-                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-700">
                                 <CreditCard className="w-4 h-4" />
                               </div>
                               <input 
@@ -482,7 +482,7 @@ export function OnboardingModal() {
                             type="checkbox"
                             checked={agreedToTerms}
                             onChange={(e) => setAgreedToTerms(e.target.checked)}
-                            className="mt-0.5 rounded border-slate-700 bg-white text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
+                            className="mt-0.5 rounded border-slate-200 bg-white text-emerald-500 focus:ring-0 focus:ring-offset-0 cursor-pointer"
                           />
                           <span className="text-[10px] text-slate-700 leading-tight">
                             I certify that I am 18+ years of age, residing in an eligible state, and accept the compliance terms.
@@ -554,18 +554,18 @@ export function OnboardingModal() {
                     </div>
 
                     {/* Reward Claim Card */}
-                    <div className="w-full bg-gradient-to-r from-[#17112c] to-[#0d091e] border border-[#3c1d6b]/40 rounded-2xl p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
+                    <div className="w-full bg-gradient-to-r from-[#17112c] to-[#0d091e] border border-purple-200 rounded-2xl p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
                       <div className="absolute right-0 top-0 w-24 h-24 bg-[#a855f7]/5 blur-xl rounded-full" />
                       <div className="text-left">
                         <p className="text-[8px] font-black text-[#a855f7] tracking-widest uppercase">Welcome Reward</p>
                         <h4 className="text-sm font-black text-slate-900 uppercase mt-0.5">
                           {selectedType === 'real' ? "100% Deposit Match Activated" : "VIP Practice Medal Granted"}
                         </h4>
-                        <p className="text-[10px] text-slate-300 mt-1 leading-relaxed">
+                        <p className="text-[10px] text-slate-700 mt-1 leading-relaxed">
                           {selectedType === 'real' ? "Make your first deposit to get up to ₹10,000 extra balance match." : "Enjoy risk-free trading simulator mode with zero limits."}
                         </p>
                       </div>
-                      <span className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/30 flex items-center justify-center shrink-0">
+                      <span className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/40 flex items-center justify-center shrink-0">
                         <Trophy className="w-5 h-5 text-yellow-500" />
                       </span>
                     </div>

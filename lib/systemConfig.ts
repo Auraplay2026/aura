@@ -60,7 +60,13 @@ export function getSystemConfig(): SystemConfig {
   initConfig();
   try {
     const data = fs.readFileSync(CONFIG_FILE, 'utf-8');
-    return JSON.parse(data);
+    const parsed = JSON.parse(data);
+    return {
+      ...DEFAULT_CONFIG,
+      ...parsed,
+      games: { ...DEFAULT_CONFIG.games, ...parsed.games },
+      paymentMethods: { ...DEFAULT_CONFIG.paymentMethods, ...parsed.paymentMethods }
+    };
   } catch (err) {
     console.error("Failed to read system config", err);
     return DEFAULT_CONFIG;

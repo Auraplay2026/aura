@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateSecret } from '@/lib/totp';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -8,6 +9,12 @@ export async function POST(request: Request) {
 
     if (!email) {
       return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
+    }
+
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
     const user = await prisma.user.findUnique({ where: { email } });

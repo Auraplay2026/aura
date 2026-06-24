@@ -55,7 +55,9 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
     
     const fetchTelemetry = async () => {
       try {
-        const res = await fetch(`/api/admin/telemetry?email=${encodeURIComponent(currentUser.email)}`);
+        const res = await fetch(`/api/admin/telemetry?email=${encodeURIComponent(currentUser.email)}&_t=${Date.now()}`, {
+          cache: 'no-store'
+        });
         const data = await res.json();
         if (res.ok && data.success) {
           setTelemetryHistory(data.telemetry || []);
@@ -193,7 +195,9 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
     if (!currentUser || currentUser.role !== 'admin') return;
     try {
       setLoading(true);
-      const res = await fetch(`/api/admin/deposits?email=${encodeURIComponent(currentUser.email)}`);
+      const res = await fetch(`/api/admin/deposits?email=${encodeURIComponent(currentUser.email)}&_t=${Date.now()}`, {
+        cache: 'no-store'
+      });
       const data = await res.json();
       if (res.ok && data.success) {
         // Filter Deposits & Withdrawals count

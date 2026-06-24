@@ -79,27 +79,7 @@ export async function POST(request: Request) {
           return NextResponse.json({ success: true, isBust: false, isCompleted: false, activeMultiplier: session.activeMultiplier });
         }
 
-        let isBust = false;
-
-        // Check if scheduled to lose
-        if (session.scheduledOutcome && !session.scheduledOutcome.isWin) {
-          const currentClickCount = session.revealedTiles.length + 1;
-          if (currentClickCount >= session.riggedBustClick) {
-            isBust = true;
-            // Place mine at current index and populate the rest
-            const fakeMines = [idx];
-            while (fakeMines.length < session.minesCount) {
-              const r = Math.floor(Math.random() * 25);
-              if (!fakeMines.includes(r)) fakeMines.push(r);
-            }
-            session.mineLocations = fakeMines;
-          }
-        } else {
-          if (session.mineLocations.includes(idx)) {
-            isBust = true;
-          }
-        }
-
+        const isBust = session.mineLocations.includes(idx);
         session.revealedTiles.push(idx);
 
         if (isBust) {
@@ -111,20 +91,24 @@ export async function POST(request: Request) {
             isBust: true,
             isCompleted: true,
             activeMultiplier: 0,
-            mineLocations: session.mineLocations
+            mineLocations: session.mineLocations,
+            seed: session.seed
           }, { status: 200 });
         } else {
-          // Calculate new multiplier
+          // Calculate new multiplier fairly
           const safeRevealed = session.revealedTiles.length;
-          const nextMultiplier = session.activeMultiplier * (1 + (session.minesCount / Math.max(1, 25 - safeRevealed)) * 0.95);
-          session.activeMultiplier = parseFloat(nextMultiplier.toFixed(2));
+          let probability = 1;
+          for (let i = 0; i < safeRevealed; i++) {
+            probability *= (25 - session.minesCount - i) / (25 - i);
+          }
+          const fairMultiplier = probability > 0 ? (1 / probability) * 0.97 : 0;
+          session.activeMultiplier = parseFloat(fairMultiplier.toFixed(2));
 
           const maxSafeTiles = 25 - session.minesCount;
           if (session.revealedTiles.length === maxSafeTiles) {
             // All safe tiles uncovered: Automatic Win!
             const payout = Math.round(session.betAmount * session.activeMultiplier * 100) / 100;
-            const netChange = payout - (session.betAmount + (session.commission || 0)); // already deducted, so net is payout
-            const newBalance = activeBalance + payout; // wager was already deducted
+            const newBalance = activeBalance + payout;
 
             const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
             const tx: Transaction = {
@@ -162,7 +146,8 @@ export async function POST(request: Request) {
               mineLocations: session.mineLocations,
               payout,
               newBalance,
-              transactionId: txId
+              transactionId: txId,
+              seed: session.seed
             }, { status: 200 });
           }
 
@@ -179,14 +164,7 @@ export async function POST(request: Request) {
       // Fallback for Tower/other progressive interactive games
       if (session.gameId === 'orig-7') {
         const rowIdx = Number(tileIndex);
-        let isBust = false;
-
-        if (session.scheduledOutcome && !session.scheduledOutcome.isWin) {
-          const targetRow = Math.floor(Math.random() * 3) + 2; // bust on row 2, 3 or 4
-          if (rowIdx >= targetRow) {
-            isBust = true;
-          }
-        }
+        const isBust = rowIdx >= session.reachedRow;
 
         if (isBust) {
           session.gameState = 'busted';
@@ -195,7 +173,8 @@ export async function POST(request: Request) {
             success: true,
             isBust: true,
             isCompleted: true,
-            activeMultiplier: 0
+            activeMultiplier: 0,
+            seed: session.seed
           }, { status: 200 });
         } else {
           session.revealedRows = rowIdx + 1;
@@ -237,7 +216,8 @@ export async function POST(request: Request) {
               activeMultiplier: session.activeMultiplier,
               payout,
               newBalance,
-              transactionId: txId
+              transactionId: txId,
+              seed: session.seed
             }, { status: 200 });
           }
 
@@ -329,7 +309,8 @@ export async function POST(request: Request) {
         newBalance,
         activeMultiplier: multiplier,
         mineLocations: session.mineLocations,
-        transactionId: txId
+        transactionId: txId,
+        seed: session.seed
       }, { status: 200 });
     }
 

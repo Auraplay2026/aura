@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { updateUser, addActivityLog } from '@/lib/userDb';
+import { verifyUserSession } from '@/lib/userAuth';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { prisma } from '@/lib/prisma';
 import { 
@@ -38,6 +39,12 @@ export async function POST(request: Request) {
     
     if (!email) {
       return NextResponse.json({ error: 'Email is required for sync.' }, { status: 400 });
+    }
+
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
     // Sniff IP and User-Agent

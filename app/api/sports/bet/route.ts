@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { updateUser, Transaction } from '@/lib/userDb';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -10,8 +11,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required sportsbook bet parameters.' }, { status: 400 });
     }
 
-    if (stake <= 0 || odds <= 1) {
-      return NextResponse.json({ error: 'Stake and odds must be positive values greater than 1.' }, { status: 400 });
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
+    }
+
+    const parsedStake = Number(stake);
+    const parsedOdds = Number(odds);
+
+    if (
+      typeof stake !== 'number' || isNaN(parsedStake) || !isFinite(parsedStake) || parsedStake <= 0 ||
+      typeof odds !== 'number' || isNaN(parsedOdds) || !isFinite(parsedOdds) || parsedOdds <= 1
+    ) {
+      return NextResponse.json({ error: 'Stake must be positive and odds must be greater than 1.' }, { status: 400 });
     }
 
     const user = await prisma.user.findUnique({

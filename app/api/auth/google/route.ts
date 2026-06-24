@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { findUserByEmail, addUser, UserProfile, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
+import { setUserAuthCookie } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -66,7 +67,9 @@ export async function POST(request: Request) {
     });
     
     const { passwordHash, ...safeUser } = user;
-    return NextResponse.json({ success: true, user: safeUser }, { status: 200 });
+    const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
+    await setUserAuthCookie(response, user.email);
+    return response;
   } catch (err) {
     return NextResponse.json({ error: 'Failed to process Google authentication.' }, { status: 500 });
   }

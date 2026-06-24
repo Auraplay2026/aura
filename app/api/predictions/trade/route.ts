@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
@@ -9,8 +10,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing required parameters.' }, { status: 400 });
     }
 
-    if (investment <= 0 || currentPrice <= 0) {
-      return NextResponse.json({ error: 'Investment and currentPrice must be positive.' }, { status: 400 });
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
+    }
+
+    const parsedInvestment = Number(investment);
+    const parsedPrice = Number(currentPrice);
+
+    if (
+      typeof investment !== 'number' || isNaN(parsedInvestment) || !isFinite(parsedInvestment) || parsedInvestment <= 0 ||
+      typeof currentPrice !== 'number' || isNaN(parsedPrice) || !isFinite(parsedPrice) || parsedPrice <= 0
+    ) {
+      return NextResponse.json({ error: 'Investment and currentPrice must be valid positive finite numbers.' }, { status: 400 });
     }
 
     if (side !== 'yes' && side !== 'no') {

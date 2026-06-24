@@ -1,1 +1,53 @@
-[]
+[
+  {
+    "id": "notif_1782337792241_6da6b9",
+    "timestamp": 1782337792241,
+    "userEmail": "test_user_session@aura.com",
+    "amount": 500,
+    "utr": "123456789012",
+    "type": "deposit_pending",
+    "emailDispatch": {
+      "status": "UNCONFIGURED"
+    },
+    "smsDispatch": {
+      "status": "UNCONFIGURED"
+    },
+    "whatsappDispatch": {
+      "status": "UNCONFIGURED"
+    }
+  },
+  {
+    "id": "notif_1782337454414_3j8vjd",
+    "timestamp": 1782337454414,
+    "userEmail": "test_user_session@aura.com",
+    "amount": 500,
+    "utr": "123456789012",
+    "type": "deposit_pending",
+    "emailDispatch": {
+      "status": "UNCONFIGURED"
+    },
+    "smsDispatch": {
+      "status": "UNCONFIGURED"
+    },
+    "whatsappDispatch": {
+      "status": "UNCONFIGURED"
+    }
+  },
+  {
+    "id": "notif_1782337418562_rn5thx",
+    "timestamp": 1782337418562,
+    "userEmail": "test_user_session@aura.com",
+    "amount": 500,
+    "utr": "123456789012",
+    "type": "deposit_pending",
+    "emailDispatch": {
+      "status": "UNCONFIGURED"
+    },
+    "smsDispatch": {
+      "status": "UNCONFIGURED"
+    },
+    "whatsappDispatch": {
+      "status": "UNCONFIGURED"
+    }
+  }
+]

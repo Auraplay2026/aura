@@ -1080,7 +1080,7 @@ export function LudoFusionEngine({
                           isSelected ? "scale-110 ring-2 ring-purple-500 ring-offset-2 ring-offset-purple-100 opacity-100 z-10" : "hover:scale-105 opacity-60 hover:opacity-100"
                         } bg-gradient-to-br ${chip.color}`}
                       >
-                        <div className="absolute inset-[2.5px] rounded-full border border-dashed border-white/50 flex items-center justify-center">
+                        <div className="absolute inset-[2.5px] rounded-full border border-dashed border-slate-2000 flex items-center justify-center">
                           <span className="text-[7.5px] font-black tracking-tight drop-shadow-[0_1px_1px_rgba(0,0,0,0.6)]">
                             {chip.label}
                           </span>
@@ -1142,7 +1142,7 @@ export function LudoFusionEngine({
     <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-6 text-slate-900 overflow-visible select-none font-sans">
       
       {/* Consolidated Premium Header Bar */}
-      <div className="w-full h-12 flex items-center justify-between px-3 mb-3 bg-slate-950/85 border border-purple-500/20 backdrop-blur-md rounded-2xl shadow-[0_0_15px_rgba(168,85,247,0.08)] select-none">
+      <div className="w-full h-12 flex items-center justify-between px-3 mb-3 bg-slate-50/85 border border-purple-500/20 backdrop-blur-md rounded-2xl shadow-[0_0_15px_rgba(168,85,247,0.08)] select-none">
         {/* Left: Turn / Action Indicator */}
         <div className="flex items-center gap-2 max-w-[45%] truncate">
           <span className="relative flex h-2 w-2 shrink-0">
@@ -1190,7 +1190,7 @@ export function LudoFusionEngine({
           {/* Stake */}
           <div className="hidden xs:flex items-center gap-1 font-mono">
             <Coins className="w-3 h-3 text-purple-400" />
-            <span className="text-[10px] font-black text-slate-100">
+            <span className="text-[10px] font-black text-slate-900">
               ₹{betAmount.toLocaleString()}
             </span>
           </div>
@@ -1634,10 +1634,10 @@ export function LudoFusionEngine({
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1 text-[8px] text-slate-500 font-bold uppercase">
+                <div className="flex items-center gap-1 text-[8px] text-slate-700 font-bold uppercase">
                   <Wifi className="w-2.5 h-2.5 text-emerald-500" /> 18ms
                 </div>
-                <div className="flex items-center gap-1 text-[8px] text-slate-500 font-bold uppercase">
+                <div className="flex items-center gap-1 text-[8px] text-slate-700 font-bold uppercase">
                   <Clock className="w-2.5 h-2.5 text-purple-400" /> Live
                 </div>
               </div>
@@ -1672,7 +1672,7 @@ export function LudoFusionEngine({
                   <span className="text-[10px] font-black text-fuchsia-400 uppercase tracking-widest block">
                     {message}
                   </span>
-                  <span className="text-[9px] text-slate-500 italic block mt-0.5">
+                  <span className="text-[9px] text-slate-700 italic block mt-0.5">
                     {currentPlayer?.isHuman ? "Select highlighted token on board" : "Computing next action"}
                   </span>
                 </div>
@@ -1886,7 +1886,7 @@ export function LudoFusionEngine({
               )}
 
               <div className="bg-purple-950/20 border border-purple-500/10 rounded-2xl p-4 mb-6 text-left">
-                <span className="text-[9px] font-black text-slate-500 uppercase tracking-widest block mb-1">SESSION STAKING SUMMARY</span>
+                <span className="text-[9px] font-black text-slate-700 uppercase tracking-widest block mb-1">SESSION STAKING SUMMARY</span>
                 <div className="flex justify-between items-center mt-2">
                   <span className="text-[10px] text-slate-350">Wager Stake:</span>
                   <span className="text-[10px] font-mono text-slate-900 font-bold">₹{betAmount.toLocaleString()}</span>
@@ -1910,7 +1910,7 @@ export function LudoFusionEngine({
                     setShowSetup(true);
                     startedRef.current = false;
                   }}
-                  className="flex-1 py-3 rounded-xl bg-white text-slate-700 border border-slate-800 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer"
+                  className="flex-1 py-3 rounded-xl bg-white text-slate-700 border border-slate-200 font-bold text-xs uppercase tracking-wider hover:bg-slate-50 transition-colors cursor-pointer"
                 >
                   Close Lobby
                 </button>
