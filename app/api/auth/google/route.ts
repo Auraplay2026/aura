@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmail, addUser, UserProfile, addActivityLog } from '@/lib/userDb';
+import { findUserByEmail, findUserByUsername, addUser, UserProfile, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { setUserAuthCookie } from '@/lib/userAuth';
 
@@ -48,7 +48,18 @@ export async function POST(request: Request) {
     let user = await findUserByEmail(email);
     if (!user) {
       // Auto-provision Google users on the server
-      const username = name ? name.replace(/\s+/g, '') : email.split('@')[0];
+      let baseUsername = name ? name.replace(/\s+/g, '') : email.split('@')[0];
+      baseUsername = baseUsername.replace(/[^a-zA-Z0-9_.-]/g, '');
+      if (!baseUsername) {
+        baseUsername = "user";
+      }
+      let username = baseUsername;
+      let suffix = 1;
+      while (await findUserByUsername(username)) {
+        username = `${baseUsername}${suffix}`;
+        suffix++;
+      }
+
       user = {
         username,
         email,
@@ -62,7 +73,10 @@ export async function POST(request: Request) {
         demoTransactions: [],
         realBalance: 0,
         realPositions: [],
-        realTransactions: []
+        realTransactions: [],
+        affiliateCode: username.substring(0, 4).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase(),
+        referralCount: 0,
+        affiliateEarnings: 0
       };
       await addUser(user);
 
@@ -98,6 +112,7 @@ export async function POST(request: Request) {
     await setUserAuthCookie(response, user.email);
     return response;
   } catch (err) {
+    console.error("Google authentication route error:", err);
     return NextResponse.json({ error: 'Failed to process Google authentication.' }, { status: 500 });
   }
 }

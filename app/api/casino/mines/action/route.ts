@@ -271,6 +271,18 @@ export async function POST(request: Request) {
               message: `Crashed at ${session.crashPoint}x (Requested: ${cashoutMult}x)`
             }, { status: 200 });
           }
+
+          // Anti-cheat verification: Verify elapsed time matches the multiplier
+          const elapsedMs = Date.now() - session.timestamp;
+          // expected minimum time in milliseconds based on standard exponential growth
+          const expectedMinTimeMs = 4030 * Math.log((cashoutMult + 0.6667) / 1.6667);
+          const toleranceMultiplier = 0.8; // Allow 20% network/processing latency tolerance
+          
+          if (cashoutMult > 1.2 && elapsedMs < expectedMinTimeMs * toleranceMultiplier) {
+            console.warn(`[Anti-Cheat Blocked] User ${email} attempted instant cashout at ${cashoutMult}x after only ${elapsedMs}ms.`);
+            return NextResponse.json({ error: 'Invalid cashout timing. Anti-cheat triggered.' }, { status: 400 });
+          }
+
           multiplier = cashoutMult;
         }
 

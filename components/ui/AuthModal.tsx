@@ -231,8 +231,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
   useEffect(() => {
     if (!isOpen) return;
 
-    // Load script if client ID exists
-    if (googleClientId) {
+    // Load script if client ID exists and mock login is not active
+    if (googleClientId && process.env.NEXT_PUBLIC_ALLOW_MOCK_GOOGLE_LOGIN !== 'true') {
       let script = document.getElementById("google-gsi-script") as HTMLScriptElement;
       if (!script) {
         script = document.createElement("script");
@@ -632,7 +632,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                     </div>
 
                     <div className="mt-4 flex flex-col items-center gap-3">
-                      {googleClientId ? (
+                      {googleClientId && process.env.NEXT_PUBLIC_ALLOW_MOCK_GOOGLE_LOGIN !== 'true' ? (
                         /* Real production Google Sign-In SDK button container */
                         <div className="flex flex-col items-center gap-2 w-full">
                           <div id="google-real-btn-container" className="flex justify-center w-full min-h-[44px]"></div>
