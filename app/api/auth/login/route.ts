@@ -21,8 +21,13 @@ export async function POST(request: Request) {
     const locationString = `${state}, ${countryCode}`;
 
     const user = await findUserByEmailOrUsername(emailOrUsername);
+    const invalidCredentialsError = 'Invalid username/email or password.';
+
     if (!user) {
-      return NextResponse.json({ error: 'Invalid username or email address.' }, { status: 400 });
+      // Perform dummy bcrypt check to prevent timing attacks/username enumeration
+      const dummyHash = '$2a$12$L7R2QhA1rRzK8gZcO5fH7uE2yD3xZ9wB6qA7sC8dE9fG0hI1jK2lM';
+      await bcrypt.compare(password, dummyHash);
+      return NextResponse.json({ error: invalidCredentialsError }, { status: 400 });
     }
     
     const storedPasswordHash = user.passwordHash || '';
@@ -46,7 +51,7 @@ export async function POST(request: Request) {
         ip,
         type: 'danger'
       });
-      return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 400 });
+      return NextResponse.json({ error: invalidCredentialsError }, { status: 400 });
     }
 
 

@@ -12,7 +12,11 @@ export async function POST(request: Request) {
 
     const user = await findUserByEmailOrUsername(email);
     if (!user) {
-      return NextResponse.json({ error: 'User with this email or username not found.' }, { status: 404 });
+      // Return success response anyway to prevent user enumeration
+      return NextResponse.json({
+        success: true,
+        message: 'If the email or username is registered, a reset code has been generated.'
+      }, { status: 200 });
     }
 
     // Generate 6-digit verification code

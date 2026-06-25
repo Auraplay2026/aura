@@ -77,22 +77,29 @@ export async function POST(req: Request) {
       try { await verifyUserSession(email); } catch { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }
     }
 
+    const sanitizedUsername = typeof username === "string" 
+      ? username.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;") 
+      : "Player";
+    const sanitizedText = typeof text === "string"
+      ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;")
+      : "";
+
     // 1. If action is specified, handle status updates directly
     if (action === "transfer") {
       const updated = await updateChatStatus(email, "waiting");
-      await addMessageToChat(email, username || "Player", "bot", "System Alert: Connecting you to a live support representative. Please stand by...");
-      await notifyAdminsOfTransfer(email, username || "Player");
+      await addMessageToChat(email, sanitizedUsername, "bot", "System Alert: Connecting you to a live support representative. Please stand by...");
+      await notifyAdminsOfTransfer(email, sanitizedUsername);
       return NextResponse.json({ success: true, session: updated });
     }
 
     if (action === "close") {
       const updated = await updateChatStatus(email, "closed");
-      await addMessageToChat(email, username || "Player", "bot", "System Alert: Support chat session has been closed.");
+      await addMessageToChat(email, sanitizedUsername, "bot", "System Alert: Support chat session has been closed.");
       return NextResponse.json({ success: true, session: updated });
     }
 
     // 2. Add the incoming message to database
-    let session = await addMessageToChat(email, username || "Player", sender, text);
+    let session = await addMessageToChat(email, sanitizedUsername, sender, sanitizedText);
 
     // If sender is admin, force status to 'active' (human chat)
     if (sender === "admin") {

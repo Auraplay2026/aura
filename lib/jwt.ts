@@ -63,6 +63,18 @@ export async function verifyJWT(token: string): Promise<any> {
   }
   
   const [encodedHeader, encodedPayload, encodedSignature] = parts;
+  
+  // Verify JWT header algorithm to prevent algorithm switching attacks
+  try {
+    const headerJson = new TextDecoder().decode(base64urlDecode(encodedHeader));
+    const header = JSON.parse(headerJson);
+    if (header.alg !== "HS256") {
+      throw new Error("Unsupported JWT algorithm: " + header.alg);
+    }
+  } catch (err: any) {
+    throw new Error("Invalid JWT header: " + err.message);
+  }
+
   const data = `${encodedHeader}.${encodedPayload}`;
   const signatureBytes = base64urlDecode(encodedSignature);
   
