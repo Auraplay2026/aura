@@ -111,7 +111,7 @@ export async function POST(request: Request) {
         
         if (txn.type === 'deposit') {
           txn.details = `UPI Deposit (Approved · UTR: ${txn.utr})`;
-          user.realBalance = user.realBalance + amount;
+          user.realBalance = Math.round((user.realBalance + amount) * 100) / 100;
         } else {
           txn.details = `UPI Withdrawal (Approved · To: ${txn.upiId})`;
         }
@@ -164,7 +164,7 @@ export async function POST(request: Request) {
         } else {
           txn.details = `UPI Withdrawal (Rejected · To: ${txn.upiId} · Reason: ${declineReason})`;
           // Refund the pending withdrawal back to their balance
-          user.realBalance = user.realBalance + amount;
+          user.realBalance = Math.round((user.realBalance + amount) * 100) / 100;
         }
         
         txn.balanceAfter = user.realBalance;

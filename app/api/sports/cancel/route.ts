@@ -45,7 +45,7 @@ export async function POST(request: Request) {
 
       // Refund the staked + liability amount back to user's balance
       const refundAmount = dbTx.amount;
-      const newBalance = activeBalance + refundAmount;
+      const newBalance = Math.round((activeBalance + refundAmount) * 100) / 100;
 
       // Update original transaction status to Failed / Cancelled
       const updatedDetails = dbTx.details.replace('Placed', 'Cancelled');

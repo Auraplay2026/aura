@@ -51,7 +51,7 @@ export async function POST(request: Request) {
         return { error: 'INSUFFICIENT_FUNDS', required: totalRequired, available: activeBalance, status: 400 };
       }
 
-      const newBalance = activeBalance - totalRequired;
+      const newBalance = Math.round((activeBalance - totalRequired) * 100) / 100;
 
       // Format transaction details string
       const detailsStr = side === 'no'

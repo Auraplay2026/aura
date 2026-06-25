@@ -73,7 +73,7 @@ export async function POST(request: Request) {
 
       const accountType = user.accountType === 'real' ? 'real' : 'demo';
       const activeBalance = accountType === 'real' ? user.realBalance : user.demoBalance;
-      const newBalance = activeBalance + payout;
+      const newBalance = Math.round((activeBalance + payout) * 100) / 100;
 
       // Update transaction status and details in DB
       const updatedDetails = `${details} · Settle: ${status}`;

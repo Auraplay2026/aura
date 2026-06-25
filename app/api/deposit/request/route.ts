@@ -97,7 +97,7 @@ export async function POST(request: Request) {
       }
 
       const txnId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-      const pendingBalance = type === 'withdraw' ? Math.max(0, user.realBalance - parsedAmount) : user.realBalance;
+      const pendingBalance = type === 'withdraw' ? Math.max(0, Math.round((user.realBalance - parsedAmount) * 100) / 100) : user.realBalance;
 
       const newTxn: any = {
         id: txnId,
@@ -126,13 +126,13 @@ export async function POST(request: Request) {
         
         // If it's a withdrawal, instantly deduct the pending amount to prevent double spending
         if (type === 'withdraw') {
-          updates.realBalance = user.realBalance - parsedAmount;
+          updates.realBalance = Math.round((user.realBalance - parsedAmount) * 100) / 100;
           updates.balance = updates.realBalance;
         }
       } else {
         // If user is currently in demo mode, they still can declare real transactions.
         if (type === 'withdraw') {
-          updates.realBalance = user.realBalance - parsedAmount;
+          updates.realBalance = Math.round((user.realBalance - parsedAmount) * 100) / 100;
         }
         updates.transactions = user.transactions;
       }

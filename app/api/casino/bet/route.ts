@@ -136,7 +136,7 @@ export async function POST(request: Request) {
 
       if (isInteractive) {
         const sessionId = `sess_${Date.now()}_${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-        const newBalance = activeBalance - totalDeduction;
+        const newBalance = Math.round((activeBalance - totalDeduction) * 100) / 100;
 
         // Update balance immediately in DB
         const updates: any = { balance: newBalance };
@@ -333,7 +333,7 @@ export async function POST(request: Request) {
 
       const payout = Math.round(betAmount * finalMultiplier * 100) / 100;
       const netChange = payout - totalDeduction;
-      const newBalance = activeBalance + netChange;
+      const newBalance = Math.round((activeBalance + netChange) * 100) / 100;
 
       const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       const tx: Transaction = {
