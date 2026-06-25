@@ -8,7 +8,29 @@
  * verify game fairness after the fact.
  */
 
-import crypto from 'crypto';
+// Browser-safe FNV-1a hash function fallback
+function simpleHash(str: string): string {
+  let hash = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    hash ^= str.charCodeAt(i);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  return (hash >>> 0).toString(16);
+}
+
+// Browser-safe seedable PRNG (Mulberry32)
+function simplePRNG(seedStr: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < seedStr.length; i++) {
+    hash ^= seedStr.charCodeAt(i);
+    hash += (hash << 1) + (hash << 4) + (hash << 7) + (hash << 8) + (hash << 24);
+  }
+  let t = (hash >>> 0) + 0x6D2B79F5;
+  t = Math.imul(t ^ (t >>> 15), t | 1);
+  t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+  const val = ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  return Math.max(1e-12, val);
+}
 
 export interface FairRNGSeed {
   serverId: string;           // e.g., "aura-prod-01"
@@ -24,7 +46,7 @@ export interface FairRNGSeed {
  */
 export function generateFairRNGSeed(roundId: string, clientSeed?: string): FairRNGSeed {
   return {
-    serverId: process.env.AURA_SERVER_ID || 'aura-srv-001',
+    serverId: (typeof process !== 'undefined' && process.env?.AURA_SERVER_ID) || 'aura-srv-001',
     roundId,
     nonce: Math.floor(Date.now() / 1000),
     timestamp: Date.now(),
@@ -37,10 +59,18 @@ export function generateFairRNGSeed(roundId: string, clientSeed?: string): FairR
  */
 export function seedToHash(seed: FairRNGSeed): string {
   const data = JSON.stringify(seed);
+  
+  if (typeof window !== 'undefined') {
+    // Browser environment: return a deterministic local fallback hash
+    return simpleHash(data + "|client-mock-key");
+  }
+
   const hmacKey = process.env.FAIR_RNG_KEY;
   if (!hmacKey) {
     throw new Error('FATAL: FAIR_RNG_KEY environment variable is not set. Game outcomes would be predictable.');
   }
+
+  const crypto = require('crypto');
   return crypto
     .createHmac('sha256', hmacKey)
     .update(data)
@@ -65,6 +95,15 @@ export class FairRNG {
    */
   next(): number {
     const data = `${this.seed}|${this.index}`;
+    
+    if (typeof window !== 'undefined') {
+      // Browser environment: use deterministic Mulberry32 PRNG
+      const val = simplePRNG(data);
+      this.index += 1;
+      return val;
+    }
+
+    const crypto = require('crypto');
     const hash = crypto
       .createHash('sha256')
       .update(data)
