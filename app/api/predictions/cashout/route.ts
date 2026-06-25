@@ -22,6 +22,8 @@ export async function POST(request: Request) {
     }
 
     const result = await prisma.$transaction(async (tx) => {
+      // Lock user row first to prevent race conditions
+      await tx.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
       const user = await tx.user.findUnique({
         where: { email },
       });

@@ -5,9 +5,12 @@
 
 import { NextResponse } from 'next/server';
 import { gameHistory } from '@/lib/gameHistory';
+import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
+    try { await verifyUserSession(); } catch { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }
+
     const body = await request.json();
     const { gameId, userId, wager, payout, multiplier, won } = body;
 

@@ -21,8 +21,8 @@ async function testJWT() {
   try {
     await verifyJWT(tamperedToken);
     throw new Error("❌ Failed: Tampered token was verified!");
-  } catch (err: any) {
-    console.log("✅ Tampered token correctly rejected:", err.message);
+  } catch (err: unknown) {
+    console.log("✅ Tampered token correctly rejected:", (err as Error).message);
   }
 
   // Test expired token
@@ -31,8 +31,8 @@ async function testJWT() {
   try {
     await verifyJWT(expiredToken);
     throw new Error("❌ Failed: Expired token was verified!");
-  } catch (err: any) {
-    console.log("✅ Expired token correctly rejected:", err.message);
+  } catch (err: unknown) {
+    console.log("✅ Expired token correctly rejected:", (err as Error).message);
   }
 }
 
@@ -161,7 +161,7 @@ async function testMiddlewareBOLA() {
   const resAuth = await middleware(reqAuth);
   if (resAuth && resAuth.status === 200) {
     const cookies = resAuth.cookies.getAll();
-    const tokenCookie = cookies.find(c => c.name === 'admin_auth_token');
+    const tokenCookie = cookies.find((c: { name: string; value: string }) => c.name === 'admin_auth_token');
     if (tokenCookie && tokenCookie.value !== validToken) {
       console.log("✅ Authorized request allowed, and sliding window cookie issued successfully.");
     } else {
@@ -181,8 +181,8 @@ async function runAll() {
     await testMiddlewareCSRF();
     await testMiddlewareBOLA();
     console.log("\n⭐⭐⭐ ALL SECURITY VERIFICATION TESTS PASSED ⭐⭐⭐");
-  } catch (err: any) {
-    console.error("\n❌ TEST SUITE FAILED:", err.message);
+  } catch (err: unknown) {
+    console.log("\n❌ TEST SUITE FAILED:", (err as Error).message);
     process.exit(1);
   }
 }

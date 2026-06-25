@@ -26,7 +26,13 @@ let isCircuitBreakerTripped = false;
 const CIRCUIT_BREAKER_LIMIT = 500000; // Limit: ₹500,000 on a single selection within 1 minute
 
 // Local daily key encryption details
-const SYSTEM_SECRET = process.env.ADMIN_SECRET_KEY || "AuraPlaySecretKey2026!";
+function getSystemSecret(): string {
+  const secret = process.env.ADMIN_SECRET_KEY;
+  if (!secret) {
+    throw new Error("FATAL: ADMIN_SECRET_KEY environment variable is not set. Settlement engine cannot process operations.");
+  }
+  return secret;
+}
 
 export function getAuditDirectory(): string {
   const auditDir = path.join(process.cwd(), "audit", "vault");
@@ -58,7 +64,7 @@ export function calculatePayoutPaise(stakeRupees: number, odds: number, isWin: b
  * 2. Cryptographic transaction idempotency hash creator (round_id + transaction_id)
  */
 export function computeIdempotencyHash(transactionId: string, roundId: string): string {
-  return crypto.createHmac("sha256", SYSTEM_SECRET).update(`${transactionId}:${roundId}`).digest("hex");
+  return crypto.createHmac("sha256", getSystemSecret()).update(`${transactionId}:${roundId}`).digest("hex");
 }
 
 /**
@@ -102,22 +108,22 @@ export function writeAuditLogEntry(event: SettlementEvent, hash: string) {
       payoutPaise,
       netProfitPaise,
       idempotencyHash: hash,
-      signature: crypto.createHmac("sha256", SYSTEM_SECRET).update(hash).digest("hex")
+      signature: crypto.createHmac("sha256", getSystemSecret()).update(hash).digest("hex")
     };
     
     const logLine = JSON.stringify(logData);
     
-    // Encrypt the log line with AES-256-CBC (simulates GPG audit protection)
-    const cipher = crypto.createCipheriv(
-      "aes-256-cbc", 
-      crypto.scryptSync(SYSTEM_SECRET, "salt", 32), 
-      Buffer.alloc(16, 0)
-    );
+    // Encrypt the log line with AES-256-CBC with random IV and derived key
+    const systemSecret = getSystemSecret();
+    const iv = crypto.randomBytes(16);
+    const key = crypto.scryptSync(systemSecret, "settlement-salt-2026", 32);
+    const cipher = crypto.createCipheriv("aes-256-cbc", key, iv);
     let encrypted = cipher.update(logLine, "utf8", "hex");
     encrypted += cipher.final("hex");
     
-    // Append to daily log file
-    fs.appendFileSync(filePath, `${hash}:${encrypted}\n`, "utf-8");
+    // Append to daily log file: hash:ivHex:encrypted
+    const ivHex = iv.toString("hex");
+    fs.appendFileSync(filePath, `${hash}:${ivHex}:${encrypted}\n`, "utf-8");
     
     // Broadcast to admin telemetry feed
     broadcastTelemetry(event, win ? "SUCCESS" : "FAILURE", netProfitPaise);
@@ -216,12 +222,27 @@ function loadStateFromLogs() {
     for (const line of lines) {
       const parts = line.split(":");
       if (parts.length < 2) continue;
-      const encrypted = parts.slice(1).join(":");
+      
+      let iv: Buffer;
+      let encrypted: string;
+      const systemSecret = getSystemSecret();
+      const key = crypto.scryptSync(systemSecret, "settlement-salt-2026", 32);
+      
+      if (parts.length >= 3) {
+        // New format: hash:ivHex:encrypted
+        const ivHex = parts[1];
+        iv = Buffer.from(ivHex, "hex");
+        encrypted = parts.slice(2).join(":");
+      } else {
+        // Old format fallback: hash:encrypted (using zero IV and old salt for backwards compatibility)
+        iv = Buffer.alloc(16, 0);
+        encrypted = parts[1];
+      }
       
       const decipher = crypto.createDecipheriv(
         "aes-256-cbc",
-        crypto.scryptSync(SYSTEM_SECRET, "salt", 32),
-        Buffer.alloc(16, 0)
+        parts.length >= 3 ? key : crypto.scryptSync(systemSecret, "salt", 32),
+        iv
       );
       let decrypted = decipher.update(encrypted, "hex", "utf8");
       decrypted += decipher.final("utf8");

@@ -47,12 +47,23 @@ export function generateTOTP(secret: string, timeOffset = 0): string {
   return code.toString().padStart(6, '0');
 }
 
+// Constant-time string comparison to mitigate side-channel timing attacks
+function constantTimeCompare(a: string, b: string): boolean {
+  if (typeof a !== 'string' || typeof b !== 'string') return false;
+  if (a.length !== b.length) return false;
+  let result = 0;
+  for (let i = 0; i < a.length; i++) {
+    result |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return result === 0;
+}
+
 // Verify TOTP token (supports window of +/- 1 step)
 export function verifyTOTP(token: string, secret: string): boolean {
   if (!token || token.length !== 6) return false;
   
   for (let i = -1; i <= 1; i++) {
-    if (generateTOTP(secret, i) === token) {
+    if (constantTimeCompare(generateTOTP(secret, i), token)) {
       return true;
     }
   }

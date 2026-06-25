@@ -3,7 +3,7 @@ import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { calculateGameOutcome } from "@/lib/casino-math";
+import { calculateGameOutcome } from "@/lib/fair-casino-math";
 import { playGameSound } from "@/lib/audio";
 
 interface CoinflipEngineProps {

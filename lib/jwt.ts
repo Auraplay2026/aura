@@ -1,7 +1,11 @@
 const encoder = new TextEncoder();
 
 function getJWTSecret(): string {
-  return process.env.ADMIN_JWT_SECRET || 'aura-dev-jwt-secret';
+  const secret = process.env.ADMIN_JWT_SECRET;
+  if (!secret) {
+    throw new Error('FATAL: ADMIN_JWT_SECRET environment variable is not set. Refusing to start with insecure defaults.');
+  }
+  return secret;
 }
 
 function base64urlEncode(bytes: Uint8Array): string {
@@ -84,7 +88,10 @@ export async function verifyJWT(token: string): Promise<any> {
   const payloadJson = new TextDecoder().decode(base64urlDecode(encodedPayload));
   const payload = JSON.parse(payloadJson);
   
-  if (payload.exp && Date.now() / 1000 > payload.exp) {
+  if (!payload.exp) {
+    throw new Error("Invalid JWT: missing expiration claim.");
+  }
+  if (Date.now() / 1000 > payload.exp) {
     throw new Error("Session expired. Please log in again.");
   }
   

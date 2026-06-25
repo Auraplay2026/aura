@@ -50,7 +50,10 @@ async function seedAdmin() {
   const prisma = new PrismaClient({ adapter });
 
   try {
-    const hashedPassword = await bcrypt.hash('AuraAdmin2026!', 12);
+    const crypto = require('crypto');
+    const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || process.env.ADMIN_SECRET_KEY || crypto.randomBytes(16).toString('hex');
+    const hashedPassword = await bcrypt.hash(adminPassword, 12);
+    console.log(`[Seeder] Using admin password: ${adminPassword === process.env.ADMIN_SECRET_KEY ? '[ADMIN_SECRET_KEY]' : adminPassword}`);
 
     // Elevate twintubrovquattro@gmail.com
     await prisma.user.updateMany({

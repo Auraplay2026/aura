@@ -3,7 +3,10 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  const hashedPassword = await bcrypt.hash('AuraAdmin2026!', 12);
+  const crypto = require('crypto');
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || process.env.ADMIN_SECRET_KEY || crypto.randomBytes(16).toString('hex');
+  const hashedPassword = await bcrypt.hash(adminPassword, 12);
+  console.log(`Using admin password: ${adminPassword === process.env.ADMIN_SECRET_KEY ? '[ADMIN_SECRET_KEY]' : adminPassword}`);
 
   // Elevate existing Google Auth account
   await prisma.user.updateMany({

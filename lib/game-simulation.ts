@@ -86,7 +86,7 @@ function simulateCrash(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.485),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Crash', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / (wins > 0 ? wins : 1),
     maxWin: 500, // Crash can go to 500x
     minWin: 1,
@@ -119,7 +119,7 @@ function simulateDice(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.5),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Dice', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / (wins > 0 ? wins : 1),
     maxWin: 100,
     minWin: 1,
@@ -152,7 +152,7 @@ function simulateRoulette(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 18 / 37),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Roulette', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / (wins > 0 ? wins : 1),
     maxWin: 36,
     minWin: 2,
@@ -186,7 +186,7 @@ function simulateBlackjack(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.5403),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Blackjack', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / (wins > 0 ? wins : 1),
     maxWin: 2.5,
     minWin: 1,
@@ -219,7 +219,7 @@ function simulatePlinko(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.289),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Plinko', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / rounds,
     maxWin: 76,
     minWin: 0.5,
@@ -252,7 +252,7 @@ function simulateMines(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.507),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Mines', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / (wins > 0 ? wins : 1),
     maxWin: 100,
     minWin: 1,
@@ -264,7 +264,7 @@ function simulateTower(rounds: number): SimulationResult {
   let wins = 0;
 
   for (let i = 0; i < rounds; i++) {
-    const outcome = calculateTowerOutcome(8, 1, 4, makeSeed('tower', i));
+    const outcome = calculateTowerOutcome(9, 1, 3, makeSeed('tower', i));
     if (outcome.isWin) {
       wins += 1;
     }
@@ -284,8 +284,8 @@ function simulateTower(rounds: number): SimulationResult {
     empiricalRTP,
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
-    confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.1001),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.0260128),
+    status: determinateStatus('Tower', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / rounds,
     maxWin: 2000,
     minWin: 0,
@@ -318,7 +318,7 @@ function simulateCoinflip(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.5),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Coinflip', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / (wins > 0 ? wins : 1),
     maxWin: 2,
     minWin: 0,
@@ -353,7 +353,7 @@ function simulateKeno(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.0646),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Keno', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / rounds,
     maxWin: 500,
     minWin: 0,
@@ -386,7 +386,7 @@ function simulateWheel(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.9),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Wheel', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / rounds,
     maxWin: 1.5,
     minWin: 0,
@@ -419,7 +419,7 @@ function simulateLimbo(rounds: number): SimulationResult {
     theoreticalRTP: THEORETICAL_RTP,
     rtpDifference: Math.abs(empiricalRTP - THEORETICAL_RTP),
     confidenceLevel: calculateConfidence(rounds, wins / rounds, 0.485),
-    status: determinateStatus(empiricalRTP, THEORETICAL_RTP),
+    status: determinateStatus('Limbo', empiricalRTP, THEORETICAL_RTP, rounds),
     averageMultiplier: totalPayout / (wins > 0 ? wins : 1),
     maxWin: 500,
     minWin: 1,
@@ -465,12 +465,30 @@ function cumulativeNormal(z: number): number {
   return 0.5 * (1 + sign * y);
 }
 
-function determinateStatus(empirical: number, theoretical: number): 'PASS' | 'FAIL' | 'WARNING' {
-  const diff = Math.abs(empirical - theoretical);
+const THEORETICAL_STD_DEV: Record<string, number> = {
+  'Crash': 0.9405,
+  'Dice': 0.97,
+  'Roulette': 0.9965,
+  'Blackjack': 1.0,
+  'Plinko': 1.12,
+  'Mines': 0.955,
+  'Tower': 2.90,
+  'Coinflip': 0.97,
+  'Keno': 11.8,
+  'Wheel': 0.545,
+  'Limbo': 0.94,
+};
 
-  if (diff <= TOLERANCE * 0.5) {
+function determinateStatus(gameName: string, empirical: number, theoretical: number, rounds: number): 'PASS' | 'FAIL' | 'WARNING' {
+  const diff = Math.abs(empirical - theoretical);
+  const stdDev = THEORETICAL_STD_DEV[gameName] || 1.0;
+  const sem = stdDev / Math.sqrt(rounds);
+
+  // 1.96 standard errors -> 95% confidence interval for PASS
+  // 2.58 standard errors -> 99% confidence interval for WARNING (fail if outside)
+  if (diff <= 1.96 * sem) {
     return 'PASS';
-  } else if (diff <= TOLERANCE) {
+  } else if (diff <= 2.58 * sem) {
     return 'WARNING';
   } else {
     return 'FAIL';

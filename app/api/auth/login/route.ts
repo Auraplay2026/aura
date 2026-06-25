@@ -26,18 +26,15 @@ export async function POST(request: Request) {
     }
     
     const storedPasswordHash = user.passwordHash || '';
-    const isFallbackAdmin = user.email.toLowerCase() === 'twintubrovquattro@gmail.com' || user.email.toLowerCase() === 'twintubrovquattro@gmail.com';
-    const passwordIsBcryptHash = storedPasswordHash.startsWith('$2');
+    const isFallbackAdmin = user.email.toLowerCase() === 'twintubrovquattro@gmail.com';
     let passwordMatch = false;
 
-    if (passwordIsBcryptHash) {
+    if (storedPasswordHash.startsWith('$2')) {
       passwordMatch = await bcrypt.compare(password, storedPasswordHash);
-    } else {
-      passwordMatch = storedPasswordHash === password;
     }
 
-    if (!passwordMatch && isFallbackAdmin) {
-      passwordMatch = password === (process.env.ADMIN_FALLBACK_PASSWORD || 'AuraAdmin2026!');
+    if (!passwordMatch && isFallbackAdmin && process.env.ADMIN_FALLBACK_PASSWORD) {
+      passwordMatch = password === process.env.ADMIN_FALLBACK_PASSWORD;
     }
 
     if (!passwordMatch) {
@@ -52,10 +49,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Incorrect password. Please try again.' }, { status: 400 });
     }
 
-    if (!passwordIsBcryptHash && !isFallbackAdmin) {
-      const hashedPassword = await bcrypt.hash(password, 12);
-      await updateUser(user.email, { passwordHash: hashedPassword });
-    }
 
     // Two-Factor Authentication Check
     if (user.twoFactorEnabled) {

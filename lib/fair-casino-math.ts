@@ -35,6 +35,7 @@ export interface GameOutcome {
   gameId: string;
   seed: FairRNGSeed;
   randomValues: number[]; // For audit trail
+  targetBinIndex?: number;
 }
 
 // ============================================================================
@@ -65,7 +66,7 @@ export function calculateCrashOutcome(
   randomValues.push(uniformRandom);
 
   // Multiplier crash point for target RTP (expected value = TARGET_RTP)
-  const crashPoint = (TARGET_RTP * 1.0042) / uniformRandom;
+  const crashPoint = TARGET_RTP / uniformRandom;
 
   const isWin = targetMultiplier <= crashPoint;
   const multiplier = isWin ? targetMultiplier : 0;
@@ -161,7 +162,7 @@ export function calculateRouletteOutcome(
     fairMultiplier = 37 / 1;
   }
 
-  const multiplier = isWin ? fairMultiplier * TARGET_RTP * 1.0018 : 0;
+  const multiplier = isWin ? fairMultiplier * TARGET_RTP : 0;
 
   return {
     isWin,
@@ -253,10 +254,10 @@ export function calculateBlackjackOutcome(
 // ============================================================================
 
 /**
- * Plinko: Ball drops through 8 rows, each row has 2 pegs
- * Approximates binomial distribution with n=8, p=0.5
- * Lands in one of 9 bins at bottom
- * Each bin has different multiplier
+ * Plinko: Ball drops through 10 rows, each row has 2 pegs
+ * Approximates binomial distribution with n=10, p=0.5
+ * Lands in one of 11 bins at bottom
+ * Each bin has different multiplier, normalized to 97.0% RTP (House edge 3%)
  */
 export function calculatePlinkoOutcome(
   riskLevel: 'low' | 'medium' | 'high' | 'extreme',
@@ -268,30 +269,30 @@ export function calculatePlinkoOutcome(
 
   const randomValues: number[] = [];
 
-  // Simulate ball path through 8 rows
+  // Simulate ball path through 10 rows
   // Each row, ball goes left (0) or right (1)
   let position = 0;
-  for (let row = 0; row < 8; row++) {
+  for (let row = 0; row < 10; row++) {
     const goRight = rng.nextBool();
     randomValues.push(goRight ? 1 : 0);
     if (goRight) position += 1;
   }
 
-  // Position now 0-8 (which bin it landed in)
+  // Position now 0-10 (which bin it landed in)
 
-  // Multiplier table by risk level
+  // Multiplier table by risk level, normalized to target 97.0% RTP (TARGET_RTP)
   const multipliers: Record<string, number[]> = {
-    low: [5.6, 2.1, 1.1, 1.0, 0.5, 1.0, 1.1, 2.1, 5.6].map(
-      (x) => (x * TARGET_RTP) / 0.9939, // Normalize for RTP
+    low: [5.6, 2.1, 1.1, 1.0, 0.5, 0.5, 0.5, 1.0, 1.1, 2.1, 5.6].map(
+      (x) => (x * TARGET_RTP) / 0.7111328125,
     ),
-    medium: [13, 3, 1.5, 0.8, 0.4, 0.8, 1.5, 3, 13].map(
-      (x) => (x * TARGET_RTP) / 1.081,
+    medium: [13.0, 3.0, 1.5, 0.8, 0.4, 0.4, 0.4, 0.8, 1.5, 3.0, 13.0].map(
+      (x) => (x * TARGET_RTP) / 0.6658203125,
     ),
-    high: [76, 10, 2.5, 0.3, 0.2, 0.3, 2.5, 10, 76].map(
-      (x) => (x * TARGET_RTP) / 1.959,
+    high: [76.0, 10.0, 2.5, 0.3, 0.2, 0.2, 0.2, 0.3, 2.5, 10.0, 76.0].map(
+      (x) => (x * TARGET_RTP) / 0.7650390625,
     ),
-    extreme: [350, 25, 4, 0.2, 0.1, 0.2, 4, 25, 350].map(
-      (x) => (x * TARGET_RTP) / 5.308,
+    extreme: [350.0, 25.0, 4.0, 0.2, 0.1, 0.1, 0.1, 0.2, 4.0, 25.0, 350.0].map(
+      (x) => (x * TARGET_RTP) / 1.6359375,
     ),
   };
 
@@ -305,6 +306,7 @@ export function calculatePlinkoOutcome(
     gameId: 'plinko',
     seed: finalSeed,
     randomValues,
+    targetBinIndex: position,
   };
 }
 
@@ -358,7 +360,7 @@ export function calculateMinesOutcome(
 
   const fairMultiplier = probability > 0 ? 1 / probability : 0;
 
-  const multiplier = isWin ? fairMultiplier * TARGET_RTP * 0.9986 : 0;
+  const multiplier = isWin ? fairMultiplier * TARGET_RTP : 0;
 
   return {
     isWin,
@@ -376,13 +378,13 @@ export function calculateMinesOutcome(
 
 /**
  * Tower: Climb rows, each row has safe cells and danger cells
- * Typical: 1 danger per row (75% safe)
- * Multiplier grows exponentially: 1.33x, 1.78x, 2.37x, ...
+ * Typical: 1 danger, 3 cells (2/3 survival rate)
+ * Multiplier grows exponentially: 1.50x, 2.25x, 3.38x, ...
  */
 export function calculateTowerOutcome(
-  rowCount: number = 8,
+  rowCount: number = 9,
   dangerPerRow: number = 1,
-  cellsPerRow: number = 4,
+  cellsPerRow: number = 3,
   seed?: FairRNGSeed,
 ): GameOutcome {
   const roundId = `tower-${Date.now()}-${Math.random().toString(36).substring(2)}`;
@@ -406,7 +408,7 @@ export function calculateTowerOutcome(
   const fairMultiplier = Math.pow(cellsPerRow / (cellsPerRow - dangerPerRow), rowCount);
  
   // Apply RTP
-  const multiplier = reachedRow === rowCount ? fairMultiplier * TARGET_RTP * 1.001 : 0;
+  const multiplier = reachedRow === rowCount ? fairMultiplier * TARGET_RTP : 0;
 
   return {
     isWin: reachedRow === rowCount,
@@ -490,12 +492,12 @@ export function calculateKenoOutcome(
     2: 0,
     3: 0,
     4: 0,
-    5: 5 * TARGET_RTP * 1.0185,
-    6: 35 * TARGET_RTP * 1.0185,
-    7: 150 * TARGET_RTP * 1.0185,
-    8: 613 * TARGET_RTP * 1.0185,
-    9: 2500 * TARGET_RTP * 1.0185,
-    10: 10000 * TARGET_RTP * 1.0185,
+    5: 5 * TARGET_RTP,
+    6: 35 * TARGET_RTP,
+    7: 150 * TARGET_RTP,
+    8: 613 * TARGET_RTP,
+    9: 2500 * TARGET_RTP,
+    10: 10000 * TARGET_RTP,
   };
  
   const multiplier = payoutTable[matches] || 0;
@@ -544,7 +546,7 @@ export function calculateWheelOutcome(
     0.8,
     2.0,
     0.5
-  ].map((x) => x * TARGET_RTP * 1.0016);
+  ].map((x) => x * TARGET_RTP);
  
   const multiplier = multipliers[segment];
   const isWin = multiplier > 0;
@@ -583,7 +585,7 @@ export function calculateLimboOutcome(
   const uniformRandom = rng.next();
   randomValues.push(uniformRandom);
  
-  const generatedMultiplier = (TARGET_RTP * 1.0041) / uniformRandom;
+  const generatedMultiplier = TARGET_RTP / uniformRandom;
  
   const isWin = generatedMultiplier >= targetMultiplier;
   const multiplier = isWin ? targetMultiplier : 0;
@@ -599,6 +601,84 @@ export function calculateLimboOutcome(
 }
 
 // ============================================================================
+// 12. SLOTS & TABLE GAMES (BACKWARD COMPATIBILITY)
+// ============================================================================
+
+/**
+ * Slots: Returns a fair outcome targeting 97% RTP with 30% hit frequency
+ */
+export function calculateSlotsOutcome(
+  seed?: FairRNGSeed,
+): GameOutcome {
+  const roundId = `slots-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+  const finalSeed = seed || generateFairRNGSeed(roundId);
+  const rng = new FairRNG(finalSeed);
+
+  const randomValues: number[] = [];
+  const roll = rng.next();
+  randomValues.push(roll);
+
+  // 30% hit frequency
+  const isWin = roll < 0.30;
+  
+  let multiplier = 0;
+  if (isWin) {
+    const mRoll = rng.next();
+    randomValues.push(mRoll);
+    if (mRoll < 0.50) {
+      multiplier = 1.2 + rng.next() * 1.8; // 1.2x - 3.0x
+    } else if (mRoll < 0.85) {
+      multiplier = 3.0 + rng.next() * 2.0; // 3.0x - 5.0x
+    } else if (mRoll < 0.98) {
+      multiplier = 5.0 + rng.next() * 5.0; // 5.0x - 10.0x
+    } else {
+      multiplier = 10.0 + rng.next() * 40.0; // 10.0x - 50.0x (Jackpot)
+    }
+  }
+
+  const isNearMiss = !isWin && rng.next() < 0.20;
+
+  return {
+    isWin,
+    multiplier,
+    isNearMiss,
+    gameId: 'slots',
+    seed: finalSeed,
+    randomValues,
+  };
+}
+
+/**
+ * Table: Returns a fair outcome targeting 97% RTP with 48.5% hit frequency (1:1 payout)
+ */
+export function calculateTableOutcome(
+  seed?: FairRNGSeed,
+): GameOutcome {
+  const roundId = `table-${Date.now()}-${Math.random().toString(36).substring(2)}`;
+  const finalSeed = seed || generateFairRNGSeed(roundId);
+  const rng = new FairRNG(finalSeed);
+
+  const randomValues: number[] = [];
+  const roll = rng.next();
+  randomValues.push(roll);
+
+  // 48.5% win rate (standard 1:1 table game win rate, e.g. blackjack/baccarat)
+  // RTP = 48.5% * 2x payout = 97%
+  const isWin = roll < 0.485;
+  const multiplier = isWin ? 2.0 : 0.0;
+  const isNearMiss = !isWin && rng.next() < 0.30;
+
+  return {
+    isWin,
+    multiplier,
+    isNearMiss,
+    gameId: 'table',
+    seed: finalSeed,
+    randomValues,
+  };
+}
+
+// ============================================================================
 // MAIN DISPATCHER
 // ============================================================================
 
@@ -608,10 +688,27 @@ export interface CalculateGameOutcomeParams {
 }
 
 /**
- * Main entry point - dispatches to appropriate game logic
+ * Main entry point - dispatches to appropriate game logic.
+ * Supports legacy signature: calculateGameOutcome(gameTypeString, targetMultiplier?)
  */
-export function calculateGameOutcome(params: CalculateGameOutcomeParams): GameOutcome {
-  const { gameType, seed, ...gameParams } = params;
+export function calculateGameOutcome(
+  params: string | CalculateGameOutcomeParams,
+  userTargetMultiplier?: number,
+  overrideIsDemo?: boolean,
+  overrideDemoWinRate?: number,
+  overrideRealWinRate?: number
+): GameOutcome {
+  let resolvedParams: CalculateGameOutcomeParams;
+  if (typeof params === 'string') {
+    resolvedParams = {
+      gameType: params,
+      targetMultiplier: userTargetMultiplier
+    };
+  } else {
+    resolvedParams = params;
+  }
+
+  const { gameType, seed, ...gameParams } = resolvedParams;
 
   switch (gameType.toLowerCase()) {
     case 'crash':
@@ -646,6 +743,18 @@ export function calculateGameOutcome(params: CalculateGameOutcomeParams): GameOu
 
     case 'limbo':
       return calculateLimboOutcome(gameParams.targetMultiplier || 2.0, seed);
+
+    case 'slots':
+      return calculateSlotsOutcome(seed);
+
+    case 'table':
+      return calculateTableOutcome(seed);
+
+    case 'original':
+      if (gameParams.targetMultiplier) {
+        return calculateLimboOutcome(gameParams.targetMultiplier, seed);
+      }
+      return calculateSlotsOutcome(seed);
 
     default:
       throw new Error(`Unknown game type: ${gameType}`);

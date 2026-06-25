@@ -67,6 +67,9 @@ model Position {
   
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([marketId])
 }
 
 model Transaction {
@@ -85,6 +88,10 @@ model Transaction {
   
   userId        String
   user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([walletType])
 }
 
 model Notification {
@@ -95,6 +102,8 @@ model Notification {
   
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model ActivityLog {
@@ -108,6 +117,8 @@ model ActivityLog {
   
   userId    String
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 model SupportConfig {
@@ -133,4 +144,6 @@ model SupportMessage {
   timestamp Float
   chatId    String
   chat      SupportChat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+
+  @@index([chatId])
 }

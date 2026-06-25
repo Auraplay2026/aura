@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
-import { calculateGameOutcome } from "@/lib/casino-math";
+import { calculateGameOutcome } from "@/lib/fair-casino-math";
 import { motion } from "framer-motion";
 
 interface SlotEngineClassicProps {

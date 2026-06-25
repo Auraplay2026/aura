@@ -27,79 +27,95 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Stake must be positive and odds must be greater than 1.' }, { status: 400 });
     }
 
-    const user = await prisma.user.findUnique({
-      where: { email },
-      include: { transactions: true }
+    const result = await prisma.$transaction(async (txClient) => {
+      // Lock user row first to prevent race conditions
+      await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
+
+      const user = await txClient.user.findUnique({
+        where: { email },
+        include: { transactions: true }
+      });
+
+      if (!user) {
+        return { error: 'User profile not found.', status: 404 };
+      }
+
+      const accountType = user.accountType === 'real' ? 'real' : 'demo';
+      const activeBalance = accountType === 'real' ? user.realBalance : user.demoBalance;
+
+      // Calculate total required amount (Lay bet liability: Stake * (Odds - 1))
+      const potentialLiability = side === 'no' ? stake * (odds - 1) : 0;
+      const totalRequired = stake + potentialLiability;
+
+      if (activeBalance < totalRequired) {
+        return { error: 'INSUFFICIENT_FUNDS', required: totalRequired, available: activeBalance, status: 400 };
+      }
+
+      const newBalance = activeBalance - totalRequired;
+
+      // Format transaction details string
+      const detailsStr = side === 'no'
+        ? `Placed ₹${stake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
+        : `Placed ₹${stake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`;
+
+      const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
+      const tx: Transaction = {
+        id: txId,
+        type: 'trade',
+        amount: totalRequired,
+        balanceAfter: newBalance,
+        timestamp: Date.now(),
+        details: detailsStr,
+        status: 'Pending'
+      };
+
+      const updates: any = {
+        balance: newBalance,
+        transactions: [tx]
+      };
+
+      if (accountType === 'real') {
+        updates.realBalance = newBalance;
+        updates.realTransactions = [tx];
+        const newTotalWagered = (user.totalWagered || 0) + totalRequired;
+        updates.totalWagered = newTotalWagered;
+        
+        // VIP Level Calculations
+        let resolvedVipLevel = user.vipLevel || 'Bronze';
+        if (!user.manualVipLevel || user.manualVipLevel === 'Auto') {
+          if (newTotalWagered >= 5000000) resolvedVipLevel = 'Diamond';
+          else if (newTotalWagered >= 1000000) resolvedVipLevel = 'Platinum';
+          else if (newTotalWagered >= 250000) resolvedVipLevel = 'Gold';
+          else if (newTotalWagered >= 50000) resolvedVipLevel = 'Silver';
+          else resolvedVipLevel = 'Bronze';
+        } else {
+          resolvedVipLevel = user.manualVipLevel;
+        }
+        updates.vipLevel = resolvedVipLevel;
+      } else {
+        updates.demoBalance = newBalance;
+        updates.demoTransactions = [tx];
+      }
+
+      await updateUser(email, updates, txClient);
+
+      return {
+        success: true,
+        transactionId: txId,
+        newBalance,
+        tx
+      };
     });
 
-    if (!user) {
-      return NextResponse.json({ error: 'User profile not found.' }, { status: 404 });
+    if ('error' in result) {
+      return NextResponse.json({ error: result.error, required: (result as any).required, available: (result as any).available }, { status: result.status });
     }
-
-    const accountType = user.accountType === 'real' ? 'real' : 'demo';
-    const activeBalance = accountType === 'real' ? user.realBalance : user.demoBalance;
-
-    // Calculate total required amount (Lay bet liability: Stake * (Odds - 1))
-    const potentialLiability = side === 'no' ? stake * (odds - 1) : 0;
-    const totalRequired = stake + potentialLiability;
-
-    if (activeBalance < totalRequired) {
-      return NextResponse.json({ error: 'INSUFFICIENT_FUNDS', required: totalRequired, available: activeBalance }, { status: 400 });
-    }
-
-    const newBalance = activeBalance - totalRequired;
-
-    // Format transaction details string
-    const detailsStr = side === 'no'
-      ? `Placed ₹${stake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
-      : `Placed ₹${stake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`;
-
-    const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
-    const tx: Transaction = {
-      id: txId,
-      type: 'trade',
-      amount: totalRequired,
-      balanceAfter: newBalance,
-      timestamp: Date.now(),
-      details: detailsStr,
-      status: 'Pending'
-    };
-
-    const updates: any = {
-      balance: newBalance,
-      transactions: [tx]
-    };
-
-    if (accountType === 'real') {
-      updates.realBalance = newBalance;
-      updates.realTransactions = [tx];
-      const newTotalWagered = (user.totalWagered || 0) + totalRequired;
-      updates.totalWagered = newTotalWagered;
-      
-      // VIP Level Calculations
-      let resolvedVipLevel = user.vipLevel || 'Bronze';
-      if (!user.manualVipLevel || user.manualVipLevel === 'Auto') {
-        if (newTotalWagered >= 5000000) resolvedVipLevel = 'Diamond';
-        else if (newTotalWagered >= 1000000) resolvedVipLevel = 'Platinum';
-        else if (newTotalWagered >= 250000) resolvedVipLevel = 'Gold';
-        else if (newTotalWagered >= 50000) resolvedVipLevel = 'Silver';
-        else resolvedVipLevel = 'Bronze';
-      } else {
-        resolvedVipLevel = user.manualVipLevel;
-      }
-      updates.vipLevel = resolvedVipLevel;
-    } else {
-      updates.demoBalance = newBalance;
-      updates.demoTransactions = [tx];
-    }
-
-    await updateUser(email, updates);
 
     return NextResponse.json({
       success: true,
-      transactionId: txId,
-      newBalance,
-      tx
+      transactionId: result.transactionId,
+      newBalance: result.newBalance,
+      tx: result.tx
     }, { status: 200 });
 
   } catch (err: any) {

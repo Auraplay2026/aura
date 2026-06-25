@@ -37,7 +37,10 @@ export function generateFairRNGSeed(roundId: string, clientSeed?: string): FairR
  */
 export function seedToHash(seed: FairRNGSeed): string {
   const data = JSON.stringify(seed);
-  const hmacKey = process.env.FAIR_RNG_KEY || 'aura-fair-rng-master-key-2026';
+  const hmacKey = process.env.FAIR_RNG_KEY;
+  if (!hmacKey) {
+    throw new Error('FATAL: FAIR_RNG_KEY environment variable is not set. Game outcomes would be predictable.');
+  }
   return crypto
     .createHmac('sha256', hmacKey)
     .update(data)
@@ -67,7 +70,10 @@ export class FairRNG {
       .update(data)
       .digest();
 
-    const value = (hash.readUInt32BE(0) % 10000) / 10000; // 0 to 0.9999
+    // Use full 32-bit resolution to generate a double in [0, 1) with 4 billion+ outcomes.
+    // Avoid returning exactly 0 to prevent division by zero in game engines.
+    const rawVal = hash.readUInt32BE(0);
+    const value = Math.max(1e-12, rawVal / 0x100000000);
     this.index += 1;
 
     return value;

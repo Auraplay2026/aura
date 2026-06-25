@@ -21,8 +21,10 @@ import {
 const AUDIT_LOG_FILE = path.join(process.cwd(), 'data', 'admin_audit_logs.json');
 
 async function checkAdminAuth() {
-  const secretKey = process.env.ADMIN_SECRET_KEY || "AuraAdmin2026!";
-  if (!secretKey) return; // Allow if not configured
+  const secretKey = process.env.ADMIN_SECRET_KEY;
+  if (!secretKey) {
+    throw new Error("Misconfiguration: ADMIN_SECRET_KEY environment variable is not configured.");
+  }
 
   const headersList = await headers();
   const authHeader = headersList.get('authorization');

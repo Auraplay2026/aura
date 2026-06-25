@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getChatByEmail, addMessageToChat, updateChatStatus, getSupportConfig } from "@/lib/supportDb";
 import { prisma } from "@/lib/prisma";
+import { verifyUserSession } from '@/lib/userAuth';
+import { verifyAdminSession } from '@/lib/adminAuth';
 
 async function notifyAdminsOfTransfer(email: string, username: string) {
   try {
@@ -48,6 +50,8 @@ export async function GET(req: Request) {
       return NextResponse.json({ success: false, error: "Email parameter is required" }, { status: 400 });
     }
 
+    try { await verifyUserSession(email); } catch { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }
+
     const session = await getChatByEmail(email);
     return NextResponse.json({
       success: true,
@@ -65,6 +69,12 @@ export async function POST(req: Request) {
 
     if (!email || !text) {
       return NextResponse.json({ success: false, error: "Email and text are required fields" }, { status: 400 });
+    }
+
+    if (sender === "admin") {
+      try { await verifyAdminSession(); } catch { return NextResponse.json({ error: 'Admin auth required' }, { status: 401 }); }
+    } else {
+      try { await verifyUserSession(email); } catch { return NextResponse.json({ error: 'Unauthorized' }, { status: 401 }); }
     }
 
     // 1. If action is specified, handle status updates directly
@@ -116,7 +126,7 @@ export async function POST(req: Request) {
       // Call OpenRouter or use mock fallback
       let botResponse = "";
       
-      const apiKey = config.openRouterApiKey || process.env.OPENROUTER_API_KEY || Buffer.from("c2stb3ItdjEtNmZjOGY2YmFkMGY2YTgwY2FmZDUxYTA5NTQyNDk3ZDI0NjA0ZDdiYzMyNzRmOTk2ZDg3YjQ5NzI5NjU2NmYwYw==", "base64").toString("utf-8");
+      const apiKey = config.openRouterApiKey || process.env.OPENROUTER_API_KEY;
       
       if (apiKey && apiKey.trim() !== "") {
         try {

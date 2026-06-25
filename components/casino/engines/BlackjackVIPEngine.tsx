@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/casino-math";
+import { calculateGameOutcome } from "@/lib/fair-casino-math";
 import { Volume2, VolumeX, Sparkles, RefreshCw, Hand, Plus, Zap, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PremiumCard } from "./PremiumCard";

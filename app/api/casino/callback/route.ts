@@ -1,8 +1,22 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmailOrUsername, updateUser, Transaction } from '@/lib/userDb';
+import { findUserByEmailOrUsername, updateUser, Transaction, sanitizeUserProfile } from '@/lib/userDb';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
+    // 1. Authorization Gating Check
+    const expectedToken = process.env.CASINO_CALLBACK_SECRET;
+    if (!expectedToken && process.env.NODE_ENV === 'production') {
+      throw new Error("FATAL: CASINO_CALLBACK_SECRET environment variable is not set.");
+    }
+    
+    if (expectedToken) {
+      const authHeader = request.headers.get('authorization');
+      if (authHeader !== `Bearer ${expectedToken}`) {
+        return NextResponse.json({ status: "ERROR_UNAUTHORIZED", message: "Unauthorized callback request." }, { status: 401 });
+      }
+    }
+
     const body = await request.json();
     console.log("📥 Seamless Wallet Callback Received:", body);
 
@@ -25,139 +39,126 @@ export async function POST(request: Request) {
       return NextResponse.json({ status: "ERROR_INVALID_USER", message: "User identification is required." }, { status: 200 });
     }
 
-    const user = await findUserByEmailOrUsername(userId);
-    if (!user) {
+    const initialUser = await findUserByEmailOrUsername(userId);
+    if (!initialUser) {
       return NextResponse.json({ status: "ERROR_USER_NOT_FOUND", message: "Player profile not found." }, { status: 200 });
     }
 
     const normalizedAction = String(action).toLowerCase();
-    const isReal = user.accountType === 'real';
-    const activeBalance = isReal ? user.realBalance : user.demoBalance;
+    
+    // Wrap database updates in a transaction with pessimistic locking
+    const result = await prisma.$transaction(async (txClient) => {
+      // Lock user row first to prevent race conditions
+      await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${initialUser.email} FOR UPDATE`;
 
-    // 1. BALANCE CHECK
-    if (normalizedAction === 'balance' || normalizedAction === 'get_balance' || normalizedAction === 'getbalance') {
-      return NextResponse.json({
-        status: "OK",
-        balance: activeBalance,
-        currency: "INR",
-        username: user.username
-      }, { status: 200 });
-    }
+      const dbUser = await txClient.user.findUnique({
+        where: { email: initialUser.email },
+        include: { transactions: true }
+      });
 
-    // 2. BET (DEBIT)
-    if (normalizedAction === 'bet' || normalizedAction === 'debit' || normalizedAction === 'place_bet') {
-      if (activeBalance < amount) {
-        return NextResponse.json({
-          status: "ERROR_INSUFFICIENT_FUNDS",
+      if (!dbUser) {
+        return { error: 'Player profile not found.', status: 'ERROR_USER_NOT_FOUND' };
+      }
+
+      const user = sanitizeUserProfile(dbUser);
+      const isReal = user.accountType === 'real';
+      const activeBalance = isReal ? user.realBalance : user.demoBalance;
+
+      // 2. Idempotency Check
+      if (transactionId) {
+        const existingTx = await txClient.transaction.findUnique({
+          where: { id: transactionId }
+        });
+        if (existingTx) {
+          return {
+            success: true,
+            balance: isReal ? dbUser.realBalance : dbUser.demoBalance,
+            transactionId
+          };
+        }
+      }
+
+      // Balance check only (no state mutation)
+      if (normalizedAction === 'balance' || normalizedAction === 'get_balance' || normalizedAction === 'getbalance') {
+        return {
+          success: true,
           balance: activeBalance,
-          message: "Insufficient wallet balance."
+          transactionId: null
+        };
+      }
+
+      let newBalance = activeBalance;
+      let details = '';
+
+      if (normalizedAction === 'bet' || normalizedAction === 'debit' || normalizedAction === 'place_bet') {
+        if (activeBalance < amount) {
+          return { error: 'Insufficient wallet balance.', status: 'ERROR_INSUFFICIENT_FUNDS', balance: activeBalance };
+        }
+        newBalance = activeBalance - amount;
+        details = `Casino Bet - ${gameId} (Round: ${roundId || 'N/A'})`;
+      } else if (normalizedAction === 'win' || normalizedAction === 'credit' || normalizedAction === 'settle_win') {
+        newBalance = activeBalance + amount;
+        details = `Casino Win - ${gameId} (Round: ${roundId || 'N/A'})`;
+      } else if (normalizedAction === 'refund' || normalizedAction === 'rollback' || normalizedAction === 'refund_bet') {
+        newBalance = activeBalance + amount;
+        details = `Casino Rollback/Refund - ${gameId} (Round: ${roundId || 'N/A'})`;
+      } else {
+        return { error: `Action '${action}' is not recognized.`, status: 'ERROR_UNKNOWN_ACTION' };
+      }
+
+      const txId = transactionId || `TX-CAS-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
+      const newTxn: Transaction = {
+        id: txId,
+        type: 'casino',
+        amount: amount,
+        balanceAfter: newBalance,
+        timestamp: Date.now(),
+        details,
+        status: 'Completed'
+      };
+
+      const updates: any = {
+        balance: newBalance,
+        transactions: [newTxn, ...user.transactions]
+      };
+
+      if (isReal) {
+        updates.realBalance = newBalance;
+        updates.realTransactions = [newTxn, ...user.realTransactions];
+      } else {
+        updates.demoBalance = newBalance;
+        updates.demoTransactions = [newTxn, ...user.demoTransactions];
+      }
+
+      await updateUser(user.email, updates, txClient);
+
+      return {
+        success: true,
+        balance: newBalance,
+        transactionId: txId
+      };
+    });
+
+    if ('error' in result) {
+      if (result.status === 'ERROR_INSUFFICIENT_FUNDS') {
+        return NextResponse.json({
+          status: result.status,
+          balance: result.balance,
+          message: result.error
         }, { status: 200 });
       }
-
-      const newBalance = activeBalance - amount;
-      const newTxn: Transaction = {
-        id: transactionId || `TX-BET-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-        type: 'casino',
-        amount: amount,
-        balanceAfter: newBalance,
-        timestamp: Date.now(),
-        details: `Casino Bet - ${gameId} (Round: ${roundId || 'N/A'})`,
-        status: 'Completed'
-      };
-
-      const updates: any = {
-        balance: newBalance,
-        transactions: [newTxn, ...user.transactions]
-      };
-
-      if (isReal) {
-        updates.realBalance = newBalance;
-        updates.realTransactions = [newTxn, ...user.realTransactions];
-      } else {
-        updates.demoBalance = newBalance;
-        updates.demoTransactions = [newTxn, ...user.demoTransactions];
-      }
-
-      await updateUser(user.email, updates);
-
       return NextResponse.json({
-        status: "OK",
-        balance: newBalance,
-        transactionId: newTxn.id
+        status: result.status,
+        message: result.error
       }, { status: 200 });
     }
 
-    // 3. WIN (CREDIT)
-    if (normalizedAction === 'win' || normalizedAction === 'credit' || normalizedAction === 'settle_win') {
-      const newBalance = activeBalance + amount;
-      const newTxn: Transaction = {
-        id: transactionId || `TX-WIN-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-        type: 'casino',
-        amount: amount,
-        balanceAfter: newBalance,
-        timestamp: Date.now(),
-        details: `Casino Win - ${gameId} (Round: ${roundId || 'N/A'})`,
-        status: 'Completed'
-      };
+    return NextResponse.json({
+      status: "OK",
+      balance: result.balance,
+      transactionId: result.transactionId || undefined
+    }, { status: 200 });
 
-      const updates: any = {
-        balance: newBalance,
-        transactions: [newTxn, ...user.transactions]
-      };
-
-      if (isReal) {
-        updates.realBalance = newBalance;
-        updates.realTransactions = [newTxn, ...user.realTransactions];
-      } else {
-        updates.demoBalance = newBalance;
-        updates.demoTransactions = [newTxn, ...user.demoTransactions];
-      }
-
-      await updateUser(user.email, updates);
-
-      return NextResponse.json({
-        status: "OK",
-        balance: newBalance,
-        transactionId: newTxn.id
-      }, { status: 200 });
-    }
-
-    // 4. REFUND / ROLLBACK
-    if (normalizedAction === 'refund' || normalizedAction === 'rollback' || normalizedAction === 'refund_bet') {
-      const newBalance = activeBalance + amount;
-      const newTxn: Transaction = {
-        id: transactionId || `TX-RFD-${Date.now()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`,
-        type: 'casino',
-        amount: amount,
-        balanceAfter: newBalance,
-        timestamp: Date.now(),
-        details: `Casino Rollback/Refund - ${gameId} (Round: ${roundId || 'N/A'})`,
-        status: 'Completed'
-      };
-
-      const updates: any = {
-        balance: newBalance,
-        transactions: [newTxn, ...user.transactions]
-      };
-
-      if (isReal) {
-        updates.realBalance = newBalance;
-        updates.realTransactions = [newTxn, ...user.realTransactions];
-      } else {
-        updates.demoBalance = newBalance;
-        updates.demoTransactions = [newTxn, ...user.demoTransactions];
-      }
-
-      await updateUser(user.email, updates);
-
-      return NextResponse.json({
-        status: "OK",
-        balance: newBalance,
-        transactionId: newTxn.id
-      }, { status: 200 });
-    }
-
-    return NextResponse.json({ status: "ERROR_UNKNOWN_ACTION", message: `Action '${action}' is not recognized.` }, { status: 200 });
   } catch (err) {
     console.error("❌ Seamless Wallet Callback Error:", err);
     return NextResponse.json({ status: "ERROR_INTERNAL", message: "Internal server error occurred." }, { status: 200 });

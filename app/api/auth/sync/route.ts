@@ -63,39 +63,6 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User profile not found.' }, { status: 404 });
     }
 
-    if (kycStatus !== undefined) {
-      // Security Check: Block unauthorized client-side KYC verified jumps
-      if ((kycStatus === 'VERIFIED' || kycStatus === 'APPROVED') && 
-          existingUser.kycStatus !== 'PROCESSING' && 
-          existingUser.kycStatus !== 'PENDING' && 
-          existingUser.kycStatus !== 'VERIFIED' && 
-          existingUser.kycStatus !== 'APPROVED') {
-        return NextResponse.json({ error: 'Unauthorized KYC state transition detected.' }, { status: 400 });
-      }
-
-      if (existingUser.kycStatus !== kycStatus) {
-        let action = "KYC Status Updated";
-        let type = 'info';
-        if (kycStatus === 'VERIFIED' || kycStatus === 'APPROVED') {
-          action = "Identity Verification Approved";
-          type = 'success';
-        } else if (kycStatus === 'PROCESSING' || kycStatus === 'PENDING') {
-          action = "KYC Review Initiated";
-          type = 'info';
-        } else if (kycStatus === 'REJECTED') {
-          action = "Identity Verification Rejected";
-          type = 'danger';
-        }
-        await addActivityLog(email, {
-          action,
-          device,
-          location: locationString,
-          ip,
-          type
-        });
-      }
-    }
-
     if (accountType !== undefined && existingUser.accountType !== accountType) {
       await addActivityLog(email, {
         action: "Account Context Switched",
@@ -122,7 +89,6 @@ export async function POST(request: Request) {
     };
     
     if (username !== undefined) updates.username = username;
-    if (kycStatus !== undefined) updates.kycStatus = kycStatus;
     if (hasCompletedOnboarding !== undefined) updates.hasCompletedOnboarding = !!hasCompletedOnboarding;
     if (phoneNumber !== undefined) updates.phoneNumber = phoneNumber;
     if (gamingState !== undefined) updates.gamingState = gamingState;
@@ -130,7 +96,6 @@ export async function POST(request: Request) {
     if (fullName !== undefined) updates.fullName = fullName;
     if (dob !== undefined) updates.dob = dob;
     if (address !== undefined) updates.address = address;
-    if (twoFactorEnabled !== undefined) updates.twoFactorEnabled = twoFactorEnabled;
     if (notifications !== undefined) updates.notifications = notifications;
     
     const updated = await updateUser(email, updates);

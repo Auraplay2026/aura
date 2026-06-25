@@ -70,11 +70,17 @@ export async function POST(req: Request) {
       return NextResponse.json({ success: false, error: "Cryptographic challenge handshake expired" }, { status: 403 });
     }
 
-    // 3. Server-side validation of the cryptographic signature using the submitted passcode or a configured fallback secret
-    const verificationKey = typeof passcode === 'string' && passcode.trim().length > 0
-      ? passcode.trim()
-      : (process.env.ADMIN_HMAC_SECRET || process.env.ADMIN_PASSCODE || 'aura-dev-admin-secret');
-    const expectedSignature = crypto.createHmac('sha256', verificationKey).update(challenge).digest('hex');
+    // 3. Server-side validation of the cryptographic signature using the server's configured secret passcode
+    const serverSecret = process.env.ADMIN_HMAC_SECRET || process.env.ADMIN_PASSCODE;
+    if (!serverSecret) {
+      throw new Error("FATAL: ADMIN_HMAC_SECRET or ADMIN_PASSCODE environment variable is not set.");
+    }
+
+    if (typeof passcode !== 'string' || passcode.trim() !== serverSecret) {
+      return NextResponse.json({ success: false, error: "Access Denied: Invalid Master Security Key" }, { status: 403 });
+    }
+
+    const expectedSignature = crypto.createHmac('sha256', serverSecret).update(challenge).digest('hex');
     const expectedSignatureBuffer = Buffer.from(expectedSignature, 'hex');
     const providedSignatureBuffer = Buffer.from(signature, 'hex');
 

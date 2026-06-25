@@ -207,7 +207,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
       if (payload && payload.email) {
         const res = await loginWithGoogle(
           payload.email, 
-          payload.name || payload.given_name || payload.email.split('@')[0]
+          payload.name || payload.given_name || payload.email.split('@')[0],
+          token
         );
         setIsLoading(false);
         if (res.success) {

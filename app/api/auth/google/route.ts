@@ -5,10 +5,37 @@ import { setUserAuthCookie } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
-    const { email, name } = await request.json();
+    const { email, name, idToken } = await request.json();
     
     if (!email) {
       return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
+    }
+
+    if (idToken) {
+      try {
+        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+        if (!verifyRes.ok) {
+          return NextResponse.json({ error: 'Invalid Google ID Token.' }, { status: 401 });
+        }
+        const verifyPayload = await verifyRes.json();
+        
+        // Verify audience matches the Google Client ID
+        const expectedClientId = process.env.GOOGLE_CLIENT_ID || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "61951094794-rj86fgkpigssgt7j1j5psuptgloul2e9.apps.googleusercontent.com";
+        if (verifyPayload.aud !== expectedClientId) {
+          return NextResponse.json({ error: 'Audience mismatch. Invalid Client ID.' }, { status: 401 });
+        }
+
+        // Verify email matches
+        if (verifyPayload.email?.toLowerCase() !== email.toLowerCase()) {
+          return NextResponse.json({ error: 'Email claim mismatch.' }, { status: 401 });
+        }
+      } catch (err: any) {
+        return NextResponse.json({ error: 'Failed to verify Google ID Token.', details: err.message }, { status: 401 });
+      }
+    } else {
+      if (process.env.NODE_ENV === 'production') {
+        return NextResponse.json({ error: 'Google ID Token is required in production.' }, { status: 400 });
+      }
     }
 
     // Sniff IP and User-Agent for Google session auditing

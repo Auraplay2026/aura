@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { TrendingUp, TrendingDown, Activity } from "lucide-react";
-import { calculateGameOutcome } from "@/lib/casino-math";
+import { calculateGameOutcome } from "@/lib/fair-casino-math";
 
 interface TradeXEngineProps {
   isPlaying: boolean;

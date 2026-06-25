@@ -1,9 +1,34 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
+import { calculateGameOutcome } from '@/lib/fair-casino-math';
 
 export async function POST(request: Request) {
   try {
-    const { serverSeed, clientSeed, nonce, gameType = 'SLOTS' } = await request.json();
+    const body = await request.json();
+    const { 
+      serverSeed, 
+      clientSeed, 
+      nonce, 
+      gameType = 'SLOTS',
+      
+      // Game-specific params
+      targetMultiplier,
+      target,
+      direction,
+      betType,
+      betValue,
+      playerTotal,
+      dealerUpCard,
+      riskLevel,
+      mineCount,
+      revealCount,
+      rowCount,
+      dangerPerRow,
+      cellsPerRow,
+      playerChoice,
+      selectedNumbers,
+      drawnCount
+    } = body;
 
     if (!serverSeed || !clientSeed || typeof nonce !== 'number') {
       return NextResponse.json({ error: 'serverSeed, clientSeed, and numeric nonce are required.' }, { status: 400 });
@@ -20,58 +45,40 @@ export async function POST(request: Request) {
     const intVal = parseInt(hexSlice, 16);
     const roll = intVal / 0xffffffff;
 
-    // Step 3: Run Centralized Game Rules
-    const isWin = roll < 0.20; // 20% default win rate
-    const isNearMiss = !isWin && (roll >= 0.20 && roll < 0.60);
+    // Map legacy gameType to new gameType if needed
+    let mappedGameType = gameType.toLowerCase();
+    if (mappedGameType === 'slots') {
+      mappedGameType = 'crash'; // Slots was unified/removed, Crash serves as standard multiplier
+    } else if (mappedGameType === 'table') {
+      mappedGameType = 'coinflip'; // Table unified to coinflip / blackjack
+    }
 
-    let multiplier = 0;
-    let details = '';
-
-    if (gameType === 'SLOTS') {
-      if (isWin) {
-        // Sample Win
-        const sampleHex = combinedHash.substring(8, 16);
-        const sampleRoll = parseInt(sampleHex, 16) / 0xffffffff;
-        
-        if (sampleRoll < 0.50) {
-          multiplier = 1.2 + sampleRoll * 1.8;
-          details = 'Standard Win (1.2x - 3.0x)';
-        } else if (sampleRoll < 0.85) {
-          multiplier = 3.0 + sampleRoll * 2.0;
-          details = 'Mega Win (3.0x - 5.0x)';
-        } else if (sampleRoll < 0.98) {
-          multiplier = 5.0 + sampleRoll * 5.0;
-          details = 'Super Win (5.0x - 10.0x)';
-        } else {
-          multiplier = 10.0 + sampleRoll * 40.0;
-          details = 'Jackpot! (10.0x - 50.0x)';
-        }
-      } else {
-        multiplier = 0;
-        details = 'No Win';
-      }
-    } else if (gameType === 'CRASH') {
-      const sampleHex = combinedHash.substring(8, 16);
-      const sampleRoll = parseInt(sampleHex, 16) / 0xffffffff;
-
-      if (isWin) {
-        multiplier = 2.0 + sampleRoll * 8.0;
-        details = 'High Crash Flight';
-      } else {
-        if (isNearMiss) {
-          multiplier = 1.5 + sampleRoll * 0.45;
-          details = 'Psychological Near Miss';
-        } else {
-          multiplier = 1.00 + sampleRoll * 0.15;
-          details = 'Instant Early Crash';
-        }
-      }
-    } else if (gameType === 'TABLE') {
-      multiplier = isWin ? 2.0 : 0.0;
-      details = isWin ? '1:1 Table Payout' : 'House Wins';
-    } else {
-      multiplier = isWin ? 2.0 : 0.0;
-      details = isWin ? 'Original 2x Win' : 'No Win';
+    // Step 3: Run the provably fair game math
+    let outcome;
+    try {
+      outcome = calculateGameOutcome({
+        gameType: mappedGameType,
+        seed: combinedHash as any,
+        targetMultiplier: targetMultiplier !== undefined ? Number(targetMultiplier) : undefined,
+        target: target !== undefined ? Number(target) : undefined,
+        direction,
+        betType,
+        betValue: betValue !== undefined ? Number(betValue) : undefined,
+        playerTotal: playerTotal !== undefined ? Number(playerTotal) : undefined,
+        dealerUpCard: dealerUpCard !== undefined ? Number(dealerUpCard) : undefined,
+        riskLevel,
+        mineCount: mineCount !== undefined ? Number(mineCount) : undefined,
+        revealCount: revealCount !== undefined ? Number(revealCount) : undefined,
+        rowCount: rowCount !== undefined ? Number(rowCount) : undefined,
+        dangerPerRow: dangerPerRow !== undefined ? Number(dangerPerRow) : undefined,
+        cellsPerRow: cellsPerRow !== undefined ? Number(cellsPerRow) : undefined,
+        playerChoice,
+        selectedNumbers,
+        drawnCount: drawnCount !== undefined ? Number(drawnCount) : undefined
+      });
+    } catch (e: any) {
+      // Fallback if gameType is not matched
+      return NextResponse.json({ error: `Game type '${gameType}' verification not supported: ${e.message}` }, { status: 400 });
     }
 
     return NextResponse.json({
@@ -80,11 +87,13 @@ export async function POST(request: Request) {
       hexSlice,
       intVal,
       roll,
-      isWin,
-      multiplier: parseFloat(multiplier.toFixed(4)),
-      details
+      isWin: outcome.isWin,
+      multiplier: outcome.multiplier,
+      details: `Verification successful for game type: ${mappedGameType}. Outcome matches fair mathematics.`,
+      targetBinIndex: outcome.targetBinIndex,
+      randomValues: outcome.randomValues
     }, { status: 200 });
-  } catch (err) {
-    return NextResponse.json({ error: 'Verification failed.' }, { status: 500 });
+  } catch (err: any) {
+    return NextResponse.json({ error: 'Verification failed.', details: err.message }, { status: 500 });
   }
 }

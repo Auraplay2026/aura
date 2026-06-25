@@ -4,7 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
-import { calculateGameOutcome } from "@/lib/casino-math";
+import { calculateGameOutcome } from "@/lib/fair-casino-math";
 import { evaluateRoulettePayouts, MINI_CONFIG, RouletteNumberConfig } from "@/lib/roulette-math";
 
 // ═══════════════════════════════════════════════

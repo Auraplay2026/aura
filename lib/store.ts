@@ -135,7 +135,7 @@ interface TradingState {
   setup2fa: () => Promise<{ success: boolean; secret?: string; keyUri?: string; error?: string }>;
   verifyAndEnable2fa: (token: string, secret: string) => Promise<{ success: boolean; error?: string }>;
   disable2fa: (token: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithGoogle: (email: string, username: string) => Promise<{ success: boolean; error?: string }>;
+  loginWithGoogle: (email: string, username: string, idToken?: string) => Promise<{ success: boolean; error?: string }>;
   switchAccountType: (type: 'demo' | 'real') => Promise<void>;
   completeOnboarding: (phoneNumber?: string, gamingState?: string, upiId?: string) => Promise<void>;
   updateProfile: (updates: { username?: string; phoneNumber?: string; upiId?: string; gamingState?: string; fullName?: string; dob?: string; address?: string; twoFactorEnabled?: boolean; notifications?: { id: string; message: string; timestamp: number; read: boolean; title?: string }[] }) => Promise<boolean>;
@@ -605,12 +605,12 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      loginWithGoogle: async (email, username) => {
+      loginWithGoogle: async (email, username, idToken) => {
         try {
           const res = await fetch('/api/auth/google', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email, name: username })
+            body: JSON.stringify({ email, name: username, idToken })
           });
           const data = await res.json();
           if (!res.ok) {

@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
-import { getUsers, updateUser, findUserByEmail } from '@/lib/userDb';
+import { getUsers, updateUser, findUserByEmail, sanitizeUserProfile } from '@/lib/userDb';
 import { logAdminAction } from '@/app/(admin)/admin/actions';
 import { sendTransactionNotification } from '@/lib/notificationService';
 import { verifyAdminSession } from '@/lib/adminAuth';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -77,134 +78,147 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Conflict of Interest: Admins cannot approve or reject transactions for their own accounts.' }, { status: 403 });
     }
 
-    const users = await getUsers();
-    const userIndex = users.findIndex(u => u.email.toLowerCase() === email.toLowerCase());
-    
-    if (userIndex === -1) {
-      return NextResponse.json({ error: 'User not found.' }, { status: 404 });
-    }
+    const result = await prisma.$transaction(async (txClient) => {
+      // Acquire exclusive row lock in PostgreSQL to prevent race conditions with gameplay or other admins
+      await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
 
-    const user = users[userIndex];
-
-    // 1. Update in realTransactions list
-    const realTxnIndex = user.realTransactions.findIndex(t => t.id === transactionId);
-    if (realTxnIndex === -1) {
-      return NextResponse.json({ error: 'Transaction not found in real wallet history.' }, { status: 404 });
-    }
-
-    const txn = user.realTransactions[realTxnIndex] as any;
-    if (txn.status !== 'Pending') {
-      return NextResponse.json({ error: 'Transaction has already been reviewed.' }, { status: 400 });
-    }
-
-    const amount = txn.amount;
-
-    if (action === 'approve') {
-      txn.status = 'Completed';
-      
-      if (txn.type === 'deposit') {
-        txn.details = `UPI Deposit (Approved · UTR: ${txn.utr})`;
-        user.realBalance = user.realBalance + amount;
-      } else {
-        txn.details = `UPI Withdrawal (Approved · To: ${txn.upiId})`;
-      }
-      
-      txn.balanceAfter = user.realBalance;
-
-      // Add actual completed transaction item to log
-      const completedTx: any = {
-        id: `TXN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
-        type: txn.type,
-        amount: amount,
-        balanceAfter: user.realBalance,
-        timestamp: Date.now(),
-        details: txn.type === 'deposit' 
-          ? `Deposited ₹${amount.toLocaleString()} (Verified UTR: ${txn.utr})`
-          : `Withdrew ₹${amount.toLocaleString()} (To: ${txn.upiId})`,
-        status: 'Completed'
-      };
-
-      // Put it at the top of history
-      user.realTransactions = [completedTx, ...user.realTransactions.filter(t => t.id !== transactionId)];
-      
-      // If currently active in real wallet, sync immediate pointers
-      if (user.accountType === 'real') {
-        user.balance = user.realBalance;
-        user.positions = user.realPositions;
-        user.transactions = user.realTransactions;
-      }
-
-      await logAdminAction(verifiedAdminEmail, "DEPOSIT_APPROVE", email, `Approved deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"})`);
-
-      // WhatsApp / Email / SMS Notification
-      sendTransactionNotification({
-        userEmail: email,
-        amount: Number(amount),
-        utr: txn.utr || undefined,
-        type: txn.type === 'deposit' ? 'deposit_approved' : 'withdrawal_approved',
-        newBalance: user.realBalance
-      }).catch(err => {
-        console.error("Non-blocking approval notification dispatch error:", err);
+      const dbUser = await txClient.user.findUnique({
+        where: { email },
+        include: { transactions: true, positions: true, notifications: true }
       });
-    } else {
-      // Reject
-      txn.status = 'Failed';
-      
-      const declineReason = reason || "Declined during reference checks.";
-      
-      if (txn.type === 'deposit') {
-        txn.details = `UPI Deposit (Rejected · UTR: ${txn.utr} · Reason: ${declineReason})`;
+
+      if (!dbUser) {
+        return { error: 'User not found.', status: 404 };
+      }
+
+      const user = sanitizeUserProfile(dbUser);
+
+      // 1. Update in realTransactions list
+      const realTxnIndex = user.realTransactions.findIndex(t => t.id === transactionId);
+      if (realTxnIndex === -1) {
+        return { error: 'Transaction not found in real wallet history.', status: 404 };
+      }
+
+      const txn = user.realTransactions[realTxnIndex] as any;
+      if (txn.status !== 'Pending') {
+        return { error: 'Transaction has already been reviewed.', status: 400 };
+      }
+
+      const amount = txn.amount;
+
+      if (action === 'approve') {
+        txn.status = 'Completed';
+        
+        if (txn.type === 'deposit') {
+          txn.details = `UPI Deposit (Approved · UTR: ${txn.utr})`;
+          user.realBalance = user.realBalance + amount;
+        } else {
+          txn.details = `UPI Withdrawal (Approved · To: ${txn.upiId})`;
+        }
+        
+        txn.balanceAfter = user.realBalance;
+
+        // Add actual completed transaction item to log
+        const completedTx: any = {
+          id: `TXN-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          type: txn.type,
+          amount: amount,
+          balanceAfter: user.realBalance,
+          timestamp: Date.now(),
+          details: txn.type === 'deposit' 
+            ? `Deposited ₹${amount.toLocaleString()} (Verified UTR: ${txn.utr})`
+            : `Withdrew ₹${amount.toLocaleString()} (To: ${txn.upiId})`,
+          status: 'Completed'
+        };
+
+        // Put it at the top of history
+        user.realTransactions = [completedTx, ...user.realTransactions.filter(t => t.id !== transactionId)];
+        
+        // If currently active in real wallet, sync immediate pointers
+        if (user.accountType === 'real') {
+          user.balance = user.realBalance;
+          user.positions = user.realPositions;
+          user.transactions = user.realTransactions;
+        }
+
+        await logAdminAction(verifiedAdminEmail, "DEPOSIT_APPROVE", email, `Approved deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"})`);
+
+        // WhatsApp / Email / SMS Notification
+        sendTransactionNotification({
+          userEmail: email,
+          amount: Number(amount),
+          utr: txn.utr || undefined,
+          type: txn.type === 'deposit' ? 'deposit_approved' : 'withdrawal_approved',
+          newBalance: user.realBalance
+        }).catch(err => {
+          console.error("Non-blocking approval notification dispatch error:", err);
+        });
       } else {
-        txn.details = `UPI Withdrawal (Rejected · To: ${txn.upiId} · Reason: ${declineReason})`;
-        // Refund the pending withdrawal back to their balance
-        user.realBalance = user.realBalance + amount;
+        // Reject
+        txn.status = 'Failed';
+        
+        const declineReason = reason || "Declined during reference checks.";
+        
+        if (txn.type === 'deposit') {
+          txn.details = `UPI Deposit (Rejected · UTR: ${txn.utr} · Reason: ${declineReason})`;
+        } else {
+          txn.details = `UPI Withdrawal (Rejected · To: ${txn.upiId} · Reason: ${declineReason})`;
+          // Refund the pending withdrawal back to their balance
+          user.realBalance = user.realBalance + amount;
+        }
+        
+        txn.balanceAfter = user.realBalance;
+        
+        // Filter or replace the transaction status in list
+        user.realTransactions[realTxnIndex] = txn;
+
+        // If active in real wallet, sync pointers
+        if (user.accountType === 'real') {
+          user.balance = user.realBalance;
+          user.transactions = user.realTransactions;
+        }
+
+        // Add user notification
+        if (!user.notifications) user.notifications = [];
+        user.notifications.unshift({
+          id: `notif_${Date.now()}`,
+          message: `Your deposit request of ₹${amount.toLocaleString()} was declined. Reason: ${declineReason}`,
+          timestamp: Date.now(),
+          read: false
+        } as any);
+
+        await logAdminAction(verifiedAdminEmail, "DEPOSIT_REJECT", email, `Declined deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"}). Reason: ${declineReason}`);
+
+        // WhatsApp / Email / SMS Notification
+        sendTransactionNotification({
+          userEmail: email,
+          amount: Number(amount),
+          utr: txn.utr || undefined,
+          type: txn.type === 'deposit' ? 'deposit_rejected' : 'withdrawal_rejected',
+          reason: declineReason,
+          newBalance: user.realBalance
+        }).catch(err => {
+          console.error("Non-blocking rejection notification dispatch error:", err);
+        });
       }
-      
-      txn.balanceAfter = user.realBalance;
-      
-      // Filter or replace the transaction status in list
-      user.realTransactions[realTxnIndex] = txn;
 
-      // If active in real wallet, sync pointers
-      if (user.accountType === 'real') {
-        user.balance = user.realBalance;
-        user.transactions = user.realTransactions;
-      }
+      // Save updated user database via Prisma inside transaction
+      await updateUser(email, {
+        realBalance: user.realBalance,
+        realTransactions: user.realTransactions,
+        balance: user.balance,
+        transactions: user.transactions,
+        notifications: user.notifications
+      }, txClient);
 
-      // Add user notification
-      if (!user.notifications) user.notifications = [];
-      user.notifications.unshift({
-        id: `notif_${Date.now()}`,
-        message: `Your deposit request of ₹${amount.toLocaleString()} was declined. Reason: ${declineReason}`,
-        timestamp: Date.now(),
-        read: false
-      } as any);
-
-      await logAdminAction(verifiedAdminEmail, "DEPOSIT_REJECT", email, `Declined deposit of ₹${amount.toLocaleString()} (UTR: ${txn.utr || "N/A"}). Reason: ${declineReason}`);
-
-      // WhatsApp / Email / SMS Notification
-      sendTransactionNotification({
-        userEmail: email,
-        amount: Number(amount),
-        utr: txn.utr || undefined,
-        type: txn.type === 'deposit' ? 'deposit_rejected' : 'withdrawal_rejected',
-        reason: declineReason,
-        newBalance: user.realBalance
-      }).catch(err => {
-        console.error("Non-blocking rejection notification dispatch error:", err);
-      });
-    }
-
-    // Save updated user database via Prisma
-    await updateUser(email, {
-      realBalance: user.realBalance,
-      realTransactions: user.realTransactions,
-      balance: user.balance,
-      transactions: user.transactions,
-      notifications: user.notifications
+      return { success: true, updatedBalance: user.realBalance };
     });
 
-    return NextResponse.json({ success: true, updatedBalance: user.realBalance }, { status: 200 });
+    if ('error' in result) {
+      return NextResponse.json({ error: result.error }, { status: result.status });
+    }
+
+    return NextResponse.json({ success: true, updatedBalance: result.updatedBalance }, { status: 200 });
   } catch (err: any) {
     console.error("Admin review transaction error:", err);
     return NextResponse.json({ error: err.message || 'Failed to process admin review request.' }, { status: 500 });

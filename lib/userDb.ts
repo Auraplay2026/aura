@@ -1,55 +1,6 @@
 import { prisma } from './prisma';
 
-const FALLBACK_ADMIN_EMAILS = ['twintubrovquattro@gmail.com', 'twintubrovquattro@gmail.com'];
-const FALLBACK_ADMIN_USERNAME = 'admin';
 
-function getFallbackAdminUser(identifier?: string): UserProfile | undefined {
-  const normalizedIdentifier = (identifier || '').trim().toLowerCase();
-  if (!normalizedIdentifier) return undefined;
-
-  const isFallbackAdminIdentifier = normalizedIdentifier === FALLBACK_ADMIN_USERNAME ||
-    FALLBACK_ADMIN_EMAILS.includes(normalizedIdentifier);
-
-  if (!isFallbackAdminIdentifier) return undefined;
-
-  const email = FALLBACK_ADMIN_EMAILS.includes(normalizedIdentifier)
-    ? normalizedIdentifier
-    : 'twintubrovquattro@gmail.com';
-  const username = email.split('@')[0];
-
-  return {
-    username: username,
-    email: email,
-    passwordHash: '',
-    accountType: 'real',
-    balance: 100000,
-    positions: [],
-    transactions: [],
-    demoBalance: 100000,
-    demoPositions: [],
-    demoTransactions: [],
-    realBalance: 100000,
-    realPositions: [],
-    realTransactions: [],
-    hasCompletedOnboarding: true,
-    role: 'admin',
-    kycStatus: 'VERIFIED',
-    notifications: [],
-    activityLogs: [],
-    twoFactorEnabled: false,
-    twoFactorSecret: undefined,
-    affiliateCode: undefined,
-    referredBy: undefined,
-    referralCount: 0,
-    affiliateEarnings: 0,
-    totalWagered: 0,
-    vipLevel: 'VIP1',
-    manualVipLevel: null,
-    vipRewardsClaimed: {},
-    resetCode: undefined,
-    resetCodeExpires: undefined,
-  } as UserProfile;
-}
 
 export interface Position {
   id: string;
@@ -141,9 +92,7 @@ export function sanitizeUserProfile(user: any): UserProfile {
     notifications: user.notifications || [],
     activityLogs: user.activityLogs || [],
     hasCompletedOnboarding: !!user.hasCompletedOnboarding,
-    role: user.role === 'admin' || (user.email && user.email.toLowerCase() === 'twintubrovquattro@gmail.com')
-      ? 'admin'
-      : (user.role === 'BANNED' ? 'BANNED' : 'user'),
+    role: user.role === 'admin' ? 'admin' : (user.role === 'BANNED' ? 'BANNED' : 'user'),
     kycStatus: user.kycStatus || 'NONE',
     affiliateEarnings: user.affiliateEarnings || 0,
     referralCount: user.referralCount || 0,
@@ -175,7 +124,7 @@ export async function findUserByEmail(email: string): Promise<UserProfile | unde
   });
   if (user) return sanitizeUserProfile(user);
 
-  return getFallbackAdminUser(email);
+  return undefined;
 }
 
 export async function findUserByUsername(username: string): Promise<UserProfile | undefined> {
@@ -185,7 +134,7 @@ export async function findUserByUsername(username: string): Promise<UserProfile 
   });
   if (user) return sanitizeUserProfile(user);
 
-  return getFallbackAdminUser(username);
+  return undefined;
 }
 
 export async function findUserByEmailOrUsername(identifier: string): Promise<UserProfile | undefined> {
@@ -200,7 +149,7 @@ export async function findUserByEmailOrUsername(identifier: string): Promise<Use
   });
   if (user) return sanitizeUserProfile(user);
 
-  return getFallbackAdminUser(identifier);
+  return undefined;
 }
 
 export async function addUser(user: UserProfile): Promise<void> {
@@ -220,8 +169,10 @@ export async function addUser(user: UserProfile): Promise<void> {
   });
 }
 
-export async function updateUser(email: string, updates: Partial<UserProfile>): Promise<UserProfile | null> {
-  return await prisma.$transaction(async (tx) => {
+export async function updateUser(email: string, updates: Partial<UserProfile>, parentTx?: any): Promise<UserProfile | null> {
+  const runWithTx = async (tx: any) => {
+    // Acquire exclusive row lock in PostgreSQL to prevent race conditions
+    await tx.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
     const existing = await tx.user.findUnique({ where: { email } });
     if (!existing) return null;
 
@@ -263,11 +214,11 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
 
     if (txToProcess.length > 0) {
       const existingTx = await tx.transaction.findMany({ where: { userId: existing.id } });
-      const existingIds = new Set(existingTx.map(t => t.id));
+      const existingIds = new Set(existingTx.map((t: any) => t.id));
       for (const newTx of txToProcess) {
         if (!existingIds.has(newTx.id)) {
           let wallet = 'real';
-          if (updates.demoTransactions?.find(t => t.id === newTx.id)) wallet = 'demo';
+          if (updates.demoTransactions?.find((t: any) => t.id === newTx.id)) wallet = 'demo';
           
           await tx.transaction.create({
             data: {
@@ -288,7 +239,7 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
           existingIds.add(newTx.id);
         } else {
           // Sync changes in transaction details, status, or balanceAfter (e.g. from Pending to Completed/Failed)
-          const currentTxInDb = existingTx.find(t => t.id === newTx.id);
+          const currentTxInDb = existingTx.find((t: any) => t.id === newTx.id);
           if (currentTxInDb && (currentTxInDb.status !== newTx.status || currentTxInDb.details !== newTx.details || currentTxInDb.balanceAfter !== newTx.balanceAfter)) {
             await tx.transaction.update({
               where: { id: newTx.id },
@@ -305,7 +256,7 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
 
     if (updates.notifications) {
       const existingNotifs = await tx.notification.findMany({ where: { userId: existing.id } });
-      const existingIds = new Set(existingNotifs.map(n => n.id));
+      const existingIds = new Set(existingNotifs.map((n: any) => n.id));
       for (const n of updates.notifications) {
         if (!existingIds.has(n.id)) {
           await tx.notification.create({
@@ -327,7 +278,7 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
       const existingRealPos = await tx.position.findMany({ 
         where: { userId: existing.id, walletType: 'real' } 
       });
-      const existingRealIds = new Set(existingRealPos.map(p => p.id));
+      const existingRealIds = new Set(existingRealPos.map((p: any) => p.id));
       const incomingRealIds = new Set(updates.realPositions.map(p => p.id));
 
       // 1. Delete removed real positions
@@ -372,7 +323,7 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
       const existingDemoPos = await tx.position.findMany({ 
         where: { userId: existing.id, walletType: 'demo' } 
       });
-      const existingDemoIds = new Set(existingDemoPos.map(p => p.id));
+      const existingDemoIds = new Set(existingDemoPos.map((p: any) => p.id));
       const incomingDemoIds = new Set(updates.demoPositions.map(p => p.id));
 
       // 1. Delete removed demo positions
@@ -419,7 +370,15 @@ export async function updateUser(email: string, updates: Partial<UserProfile>): 
     });
 
     return sanitizeUserProfile(updatedUser);
-  });
+  };
+
+  if (parentTx) {
+    return await runWithTx(parentTx);
+  } else {
+    return await prisma.$transaction(async (tx) => {
+      return await runWithTx(tx);
+    });
+  }
 }
 
 export async function addActivityLog(
