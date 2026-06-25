@@ -147,3 +147,18 @@ model SupportMessage {
 
   @@index([chatId])
 }
+
+model GameSession {
+  id          String   @id
+  email       String
+  gameId      String
+  gameTitle   String
+  betAmount   Float
+  commission  Float
+  gameState   String
+  timestamp   Float
+  data        Json
+
+  @@index([email])
+}
+

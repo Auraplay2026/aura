@@ -4,30 +4,44 @@ import { updateUser, Transaction } from '@/lib/userDb';
 import fs from 'fs';
 import path from 'path';
 
-const SESSIONS_FILE = path.join(process.cwd(), 'data', 'active_game_sessions.json');
-
-function getSessions(): Record<string, any> {
-  try {
-    if (fs.existsSync(SESSIONS_FILE)) {
-      const data = fs.readFileSync(SESSIONS_FILE, 'utf-8');
-      return JSON.parse(data);
-    }
-  } catch (err) {
-    console.error("Failed to read sessions file:", err);
-  }
-  return {};
+async function getGameSession(tx: any, sessionId: string): Promise<any> {
+  const sess = await tx.gameSession.findUnique({
+    where: { id: sessionId }
+  });
+  if (!sess) return null;
+  return {
+    sessionId: sess.id,
+    email: sess.email,
+    gameId: sess.gameId,
+    gameTitle: sess.gameTitle,
+    betAmount: sess.betAmount,
+    commission: sess.commission,
+    gameState: sess.gameState,
+    timestamp: sess.timestamp,
+    ...(sess.data as any)
+  };
 }
 
-function saveSessions(sessions: Record<string, any>) {
-  try {
-    const dir = path.dirname(SESSIONS_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
+async function saveGameSession(tx: any, session: any) {
+  const { sessionId, email, gameId, gameTitle, betAmount, commission, gameState, timestamp, ...rest } = session;
+  await tx.gameSession.upsert({
+    where: { id: sessionId },
+    update: {
+      gameState,
+      data: rest
+    },
+    create: {
+      id: sessionId,
+      email,
+      gameId,
+      gameTitle,
+      betAmount,
+      commission,
+      gameState,
+      timestamp,
+      data: rest
     }
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessions, null, 2), 'utf-8');
-  } catch (err) {
-    console.error("Failed to write sessions file:", err);
-  }
+  });
 }
 
 export async function POST(request: Request) {
@@ -43,8 +57,7 @@ export async function POST(request: Request) {
       // Acquire exclusive row lock in PostgreSQL to serialize user sessions & wagers
       await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
 
-      const sessions = getSessions();
-      const session = sessions[sessionId];
+      const session = await getGameSession(txClient, sessionId);
 
       if (!session) {
         return NextResponse.json({ error: 'Active session not found.' }, { status: 404 });
@@ -89,7 +102,7 @@ export async function POST(request: Request) {
 
           if (isBust) {
             session.gameState = 'busted';
-            saveSessions(sessions);
+            await saveGameSession(txClient, session);
             
             return NextResponse.json({
               success: true,
@@ -141,7 +154,7 @@ export async function POST(request: Request) {
 
               await updateUser(email, updates, txClient);
               session.gameState = 'completed';
-              saveSessions(sessions);
+              await saveGameSession(txClient, session);
 
               return NextResponse.json({
                 success: true,
@@ -156,7 +169,7 @@ export async function POST(request: Request) {
               }, { status: 200 });
             }
 
-            saveSessions(sessions);
+            await saveGameSession(txClient, session);
             return NextResponse.json({
               success: true,
               isBust: false,
@@ -173,7 +186,7 @@ export async function POST(request: Request) {
 
           if (isBust) {
             session.gameState = 'busted';
-            saveSessions(sessions);
+            await saveGameSession(txClient, session);
             return NextResponse.json({
               success: true,
               isBust: true,
@@ -212,7 +225,7 @@ export async function POST(request: Request) {
 
               await updateUser(email, updates, txClient);
               session.gameState = 'completed';
-              saveSessions(sessions);
+              await saveGameSession(txClient, session);
 
               return NextResponse.json({
                 success: true,
@@ -226,7 +239,7 @@ export async function POST(request: Request) {
               }, { status: 200 });
             }
 
-            saveSessions(sessions);
+            await saveGameSession(txClient, session);
             return NextResponse.json({
               success: true,
               isBust: false,
@@ -261,7 +274,7 @@ export async function POST(request: Request) {
           // Security check: Verify that user cashed out BEFORE the crash point
           if (cashoutMult > session.crashPoint) {
             session.gameState = 'busted';
-            saveSessions(sessions);
+            await saveGameSession(txClient, session);
             return NextResponse.json({
               success: true,
               isBust: true,
@@ -315,7 +328,7 @@ export async function POST(request: Request) {
 
         await updateUser(email, updates, txClient);
         session.gameState = 'completed';
-        saveSessions(sessions);
+        await saveGameSession(txClient, session);
 
         return NextResponse.json({
           success: true,

@@ -18,30 +18,26 @@ import { generateFairRNGSeed, FairRNG } from '@/lib/fair-rng';
 import fs from 'fs';
 import path from 'path';
 
-const SESSIONS_FILE = path.join(process.cwd(), 'data', 'active_game_sessions.json');
-
-function getSessions(): Record<string, any> {
-  try {
-    if (fs.existsSync(SESSIONS_FILE)) {
-      const data = fs.readFileSync(SESSIONS_FILE, 'utf-8');
-      return JSON.parse(data);
+async function saveGameSession(tx: any, session: any) {
+  const { sessionId, email, gameId, gameTitle, betAmount, commission, gameState, timestamp, ...rest } = session;
+  await tx.gameSession.upsert({
+    where: { id: sessionId },
+    update: {
+      gameState,
+      data: rest
+    },
+    create: {
+      id: sessionId,
+      email,
+      gameId,
+      gameTitle,
+      betAmount,
+      commission,
+      gameState,
+      timestamp,
+      data: rest
     }
-  } catch (err) {
-    console.error("Failed to read sessions file:", err);
-  }
-  return {};
-}
-
-function saveSessions(sessions: Record<string, any>) {
-  try {
-    const dir = path.dirname(SESSIONS_FILE);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(SESSIONS_FILE, JSON.stringify(sessions, null, 2), 'utf-8');
-  } catch (err) {
-    console.error("Failed to write sessions file:", err);
-  }
+  });
 }
 
 export async function POST(request: Request) {
@@ -162,13 +158,11 @@ export async function POST(request: Request) {
 
         await updateUser(email, updates, txClient);
 
-        // Cache session data server-side
-        const sessions = getSessions();
-        
         let mineLocations: number[] = [];
         let crashPoint = 0;
         let reachedRow = 0;
         let fairSeed = null;
+        let sessionData: any = {};
 
         if (gameId === "orig-4") { // Mines
           const minesCount = selectedTarget ? Number(selectedTarget) : 3;
@@ -181,7 +175,7 @@ export async function POST(request: Request) {
             return acc;
           }, []);
           
-          sessions[sessionId] = {
+          sessionData = {
             sessionId,
             email,
             gameId,
@@ -209,7 +203,7 @@ export async function POST(request: Request) {
             reachedRow = r + 1;
           }
 
-          sessions[sessionId] = {
+          sessionData = {
             sessionId,
             email,
             gameId,
@@ -230,7 +224,7 @@ export async function POST(request: Request) {
           const uniformRandom = rng.next();
           crashPoint = Math.round((0.97 / uniformRandom) * 100) / 100;
 
-          sessions[sessionId] = {
+          sessionData = {
             sessionId,
             email,
             gameId,
@@ -245,7 +239,7 @@ export async function POST(request: Request) {
           };
         }
 
-        saveSessions(sessions);
+        await saveGameSession(txClient, sessionData);
 
         return NextResponse.json({
           success: true,
