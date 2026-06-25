@@ -11,9 +11,13 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
     }
 
-    if (idToken) {
+    if (!idToken) {
+      if (process.env.ALLOW_MOCK_GOOGLE_LOGIN !== 'true') {
+        return NextResponse.json({ error: 'Google ID Token is required.' }, { status: 400 });
+      }
+    } else {
       try {
-        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${idToken}`);
+        const verifyRes = await fetch(`https://oauth2.googleapis.com/tokeninfo?id_token=${encodeURIComponent(idToken)}`);
         if (!verifyRes.ok) {
           return NextResponse.json({ error: 'Invalid Google ID Token.' }, { status: 401 });
         }
@@ -31,10 +35,6 @@ export async function POST(request: Request) {
         }
       } catch (err: any) {
         return NextResponse.json({ error: 'Failed to verify Google ID Token.', details: err.message }, { status: 401 });
-      }
-    } else {
-      if (process.env.NODE_ENV === 'production') {
-        return NextResponse.json({ error: 'Google ID Token is required in production.' }, { status: 400 });
       }
     }
 
