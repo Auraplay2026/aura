@@ -15,6 +15,16 @@ import {
   calculatePlinkoOutcome
 } from '@/lib/fair-casino-math';
 import { generateFairRNGSeed, FairRNG } from '@/lib/fair-rng';
+import { 
+  evaluateRoulettePayouts, 
+  EUROPEAN_NUMBERS, 
+  AMERICAN_NUMBERS, 
+  EUROPEAN_CONFIG, 
+  MINI_CONFIG, 
+  LIGHTNING_CONFIG, 
+  ZERO_FREE_CONFIG,
+  isWinningBet
+} from '@/lib/roulette-math';
 import fs from 'fs';
 import path from 'path';
 
@@ -42,7 +52,7 @@ async function saveGameSession(tx: any, session: any) {
 
 export async function POST(request: Request) {
   try {
-    const { email, gameId, gameTitle, betAmount, targetMultiplier, selectedTarget } = await request.json();
+    const { email, gameId, gameTitle, betAmount, targetMultiplier, selectedTarget, bets, sideBets } = await request.json();
 
     if (!email || !gameId || betAmount === undefined) {
       return NextResponse.json({ error: 'Missing required parameters: email, gameId, betAmount.' }, { status: 400 });
@@ -257,6 +267,10 @@ export async function POST(request: Request) {
       let responseMultiplier = 0;
       let targetBinIndex: number | undefined = undefined;
       let fairSeed = null;
+      let extraData: any = {};
+      let landedNumber: any = undefined;
+      let payout: number = 0;
+      let wonCells: string[] = [];
 
       if (gameId === "orig-3" || gameId.includes("plinko")) { // Plinko
         const risk = (selectedTarget || "medium") as "low" | "medium" | "high" | "extreme";
@@ -273,11 +287,18 @@ export async function POST(request: Request) {
         finalMultiplier = fairOutcome.multiplier;
         responseMultiplier = finalMultiplier;
       } else if (gameId === "orig-9" || gameId.includes("coin")) { // Coinflip
-        const choice = (selectedTarget || 'heads') as 'heads' | 'tails';
+        const choice = (selectedTarget || 'heads').toLowerCase();
+        // CoinflipEngine uses "AURA" and "SKULL"
+        const mappedChoice = (choice === "aura" || choice === "heads") ? "heads" : "tails";
         fairSeed = generateFairRNGSeed(`coinflip-${Date.now()}`);
-        const fairOutcome = calculateCoinflipOutcome(choice, fairSeed);
+        const fairOutcome = calculateCoinflipOutcome(mappedChoice as 'heads' | 'tails', fairSeed);
         finalMultiplier = fairOutcome.multiplier;
         responseMultiplier = finalMultiplier;
+        extraData = { 
+          winningSide: fairOutcome.multiplier > 0 
+            ? (selectedTarget || "AURA") 
+            : ((selectedTarget || "AURA") === "AURA" ? "SKULL" : "AURA")
+        };
       } else if (gameId === "orig-2" || gameId.includes("limbo")) { // Limbo
         const targetVal = targetMultiplier ? Number(targetMultiplier) : 2.0;
         fairSeed = generateFairRNGSeed(`limbo-${Date.now()}`);
@@ -298,20 +319,235 @@ export async function POST(request: Request) {
         const fairOutcome = calculateWheelOutcome(fairSeed);
         finalMultiplier = fairOutcome.multiplier;
         responseMultiplier = finalMultiplier;
-      } else if (gameId === "orig-11" || gameId.startsWith("roulette-") || gameId.startsWith("orig-r")) { // Roulette
-        const type = selectedTarget === 'straight' ? 'straight' : 'even_money';
-        const val = targetMultiplier !== undefined ? Number(targetMultiplier) : 17;
+      } else if (gameId.startsWith("roulette-") || gameId === "orig-11" || gameId.startsWith("orig-r")) { // Roulette variants
+        let numbersList = EUROPEAN_NUMBERS;
+        let config = EUROPEAN_CONFIG;
+
+        if (gameId.includes("american") || gameId === "orig-r2") {
+          numbersList = AMERICAN_NUMBERS;
+        } else if (gameId.includes("french") || gameId === "orig-r3") {
+          config = { ...EUROPEAN_CONFIG, laPartage: true };
+        } else if (gameId.includes("mini") || gameId === "orig-r4") {
+          const MINI_NUMBERS = [
+            { n: 0, color: "green" as const },
+            { n: 5, color: "red" as const },
+            { n: 12, color: "red" as const },
+            { n: 3, color: "red" as const },
+            { n: 10, color: "black" as const },
+            { n: 1, color: "red" as const },
+            { n: 8, color: "black" as const },
+            { n: 9, color: "red" as const },
+            { n: 2, color: "black" as const },
+            { n: 7, color: "red" as const },
+            { n: 6, color: "black" as const },
+            { n: 11, color: "black" as const },
+            { n: 4, color: "black" as const }
+          ];
+          numbersList = MINI_NUMBERS;
+          config = MINI_CONFIG;
+        } else if (gameId.includes("zero-free") || gameId === "orig-r9") {
+          numbersList = EUROPEAN_NUMBERS.filter(n => n.n !== 0);
+          config = ZERO_FREE_CONFIG;
+        } else if (gameId.includes("lightning") || gameId === "orig-r6") {
+          config = LIGHTNING_CONFIG;
+        }
+
         fairSeed = generateFairRNGSeed(`roulette-${Date.now()}`);
-        const fairOutcome = calculateRouletteOutcome(type, val, fairSeed);
-        finalMultiplier = fairOutcome.multiplier;
+        const rng = new FairRNG(fairSeed);
+
+        if (gameId.includes("multiwheel") || gameId === "orig-r5") {
+          // Multi-wheel: 4 independent spins
+          const spins: any[] = [];
+          let totalWinnings = 0;
+          for (let w = 0; w < 4; w++) {
+            const spinIdx = rng.nextInt(0, numbersList.length);
+            const landed = numbersList[spinIdx];
+            spins.push(landed);
+            const { totalWon } = evaluateRoulettePayouts(bets || {}, landed, config);
+            totalWinnings += totalWon;
+          }
+          landedNumber = spins[0];
+          payout = totalWinnings;
+          extraData = { multiWheelSpins: spins, winningNumber: landedNumber };
+        } else if (gameId.includes("doubleball") || gameId === "orig-r7") {
+          // Double ball: 2 independent balls
+          const spinIdx1 = rng.nextInt(0, numbersList.length);
+          const spinIdx2 = rng.nextInt(0, numbersList.length);
+          const landed1 = numbersList[spinIdx1];
+          const landed2 = numbersList[spinIdx2];
+
+          let totalWinnings = 0;
+          for (const [cellId, amountVal] of Object.entries(bets || {})) {
+            const amount = Number(amountVal);
+            const win1 = isWinningBet(cellId, landed1);
+            const win2 = isWinningBet(cellId, landed2);
+            if (cellId.startsWith("num-")) {
+              if (win1 && win2) totalWinnings += amount * 35;
+              else if (win1 || win2) totalWinnings += amount * 18;
+            } else {
+              if (win1 && win2) {
+                if (["red", "black", "even", "odd", "1-18", "19-36"].includes(cellId)) totalWinnings += amount * 3;
+                else if (cellId.startsWith("doz-") || cellId.startsWith("col-")) totalWinnings += amount * 8;
+              }
+            }
+          }
+          landedNumber = landed1;
+          payout = totalWinnings;
+          extraData = { ball2: landed2, winningNumber: landedNumber };
+        } else if (gameId.includes("lightning") || gameId === "orig-r6") {
+          // Lightning: random lightning numbers struck with multipliers
+          const numStrikes = rng.nextInt(1, 6);
+          const strikes: Record<number, number> = {};
+          const availableNumbers = Array.from({ length: 36 }, (_, i) => i + 1);
+          const shuffledAvailable = rng.shuffle(availableNumbers);
+          const multOptions = [50, 100, 150, 200, 250, 300, 350, 400, 500];
+          for (let i = 0; i < numStrikes; i++) {
+            const strikeNum = shuffledAvailable[i];
+            const strikeMult = multOptions[rng.nextInt(0, multOptions.length)];
+            strikes[strikeNum] = strikeMult;
+          }
+          const spinIdx = rng.nextInt(0, numbersList.length);
+          landedNumber = numbersList[spinIdx];
+          const { totalWon, wonCells: wc } = evaluateRoulettePayouts(bets || {}, landedNumber, config, strikes);
+          payout = totalWon;
+          wonCells = wc;
+          extraData = { lightningStrikes: strikes, winningNumber: landedNumber, wonCells };
+        } else {
+          // Standard Roulette
+          const spinIdx = rng.nextInt(0, numbersList.length);
+          landedNumber = numbersList[spinIdx];
+          const { totalWon, wonCells: wc } = evaluateRoulettePayouts(bets || {}, landedNumber, config);
+          payout = totalWon;
+          wonCells = wc;
+          extraData = { winningNumber: landedNumber, wonCells };
+        }
+
+        finalMultiplier = betAmount > 0 ? payout / betAmount : 0;
         responseMultiplier = finalMultiplier;
+      } else if (gameId === "baccarat" || gameId.includes("baccarat") || gameId === "table-3") {
+        const choice = (selectedTarget || 'PLAYER').toUpperCase();
+        fairSeed = generateFairRNGSeed(`baccarat-${Date.now()}`);
+        const rng = new FairRNG(fairSeed);
+        const roll = rng.next();
+        let winningHand: 'PLAYER' | 'BANKER' | 'TIE' = 'PLAYER';
+        if (roll < 0.4462) {
+          winningHand = 'PLAYER';
+        } else if (roll < 0.4462 + 0.4586) {
+          winningHand = 'BANKER';
+        } else {
+          winningHand = 'TIE';
+        }
+
+        let isWin = choice === winningHand;
+        let odds = 0;
+        if (isWin) {
+          if (choice === 'PLAYER') odds = 2.0;
+          else if (choice === 'BANKER') odds = 1.95;
+          else if (choice === 'TIE') odds = 9.0;
+        }
+        finalMultiplier = odds;
+        responseMultiplier = odds;
+        extraData = { winningHand };
       } else if (gameId === "orig-8" || gameId.startsWith("blackjack-") || gameId.startsWith("orig-20")) { // Blackjack
-        const playerVal = targetMultiplier !== undefined ? Number(targetMultiplier) : 18;
-        const dealerVal = selectedTarget !== undefined ? Number(selectedTarget) : 6;
         fairSeed = generateFairRNGSeed(`blackjack-${Date.now()}`);
-        const fairOutcome = calculateBlackjackOutcome(playerVal, dealerVal, fairSeed);
-        finalMultiplier = fairOutcome.multiplier;
-        responseMultiplier = finalMultiplier;
+        const rng = new FairRNG(fairSeed);
+        
+        let mainResult: "win" | "lose" | "push" | "blackjack" = "lose";
+        let mainMultiplier = 0;
+        
+        const mainRoll = rng.next();
+        if (mainRoll < 0.047) {
+          mainResult = "blackjack";
+          mainMultiplier = 2.5;
+        } else if (mainRoll < 0.4222) {
+          mainResult = "win";
+          mainMultiplier = 2.0;
+        } else if (mainRoll < 0.4222 + 0.0848) {
+          mainResult = "push";
+          mainMultiplier = 1.0;
+        } else {
+          mainResult = "lose";
+          mainMultiplier = 0;
+        }
+        
+        let sideBetsPayout = 0;
+        let isPairsWin = false;
+        let pairsType: string | null = null;
+        let isThreeWin = false;
+        let threeType: string | null = null;
+        
+        if (sideBets?.pairs) {
+          const pairsRoll = rng.next();
+          if (pairsRoll < 0.015) {
+            isPairsWin = true;
+            pairsType = "perfect";
+            sideBetsPayout += 25;
+          } else if (pairsRoll < 0.030) {
+            isPairsWin = true;
+            pairsType = "colored";
+            sideBetsPayout += 12;
+          } else if (pairsRoll < 0.045) {
+            isPairsWin = true;
+            pairsType = "mixed";
+            sideBetsPayout += 6;
+          }
+        }
+        
+        if (sideBets?.three) {
+          const threeRoll = rng.next();
+          if (threeRoll < 0.0005) {
+            isThreeWin = true;
+            threeType = "suited_trips";
+            sideBetsPayout += 100;
+          } else if (threeRoll < 0.0025) {
+            isThreeWin = true;
+            threeType = "straight_flush";
+            sideBetsPayout += 40;
+          } else if (threeRoll < 0.0075) {
+            isThreeWin = true;
+            threeType = "three_of_a_kind";
+            sideBetsPayout += 30;
+          } else if (threeRoll < 0.0385) {
+            isThreeWin = true;
+            threeType = "straight";
+            sideBetsPayout += 10;
+          } else if (threeRoll < 0.096) {
+            isThreeWin = true;
+            threeType = "flush";
+            sideBetsPayout += 5;
+          }
+        }
+        
+        let mainWagerProp = 1.0;
+        let pairsWagerProp = 0.0;
+        let threeWagerProp = 0.0;
+        if (sideBets?.pairs && sideBets?.three) {
+          mainWagerProp = 0.70;
+          pairsWagerProp = 0.15;
+          threeWagerProp = 0.15;
+        } else if (sideBets?.pairs) {
+          mainWagerProp = 0.85;
+          pairsWagerProp = 0.15;
+        } else if (sideBets?.three) {
+          mainWagerProp = 0.85;
+          threeWagerProp = 0.15;
+        }
+        
+        const finalMultiplierVal = (mainWagerProp * mainMultiplier) + 
+                                (pairsWagerProp * (sideBetsPayout > 0 ? sideBetsPayout + 1 : 0)) + 
+                                (threeWagerProp * (sideBetsPayout > 0 ? sideBetsPayout + 1 : 0));
+                                
+        finalMultiplier = finalMultiplierVal;
+        responseMultiplier = finalMultiplierVal;
+        
+        extraData = {
+          mainResult,
+          sideBetsPayout,
+          isPairsWin,
+          pairsType,
+          isThreeWin,
+          threeType
+        };
       } else if (!gameId.startsWith("slot-")) {
         // General custom games
         fairSeed = generateFairRNGSeed(`custom-${Date.now()}`);
@@ -325,8 +561,9 @@ export async function POST(request: Request) {
         responseMultiplier = outcome ? outcome.multiplier : 0;
       }
 
-      const payout = Math.round(betAmount * finalMultiplier * 100) / 100;
-      const netChange = payout - totalDeduction;
+      // If payout is already calculated (Roulette), use it. Otherwise compute from finalMultiplier.
+      const computedPayout = landedNumber !== undefined ? payout : Math.round(betAmount * finalMultiplier * 100) / 100;
+      const netChange = computedPayout - totalDeduction;
       const newBalance = Math.round((activeBalance + netChange) * 100) / 100;
 
       const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -337,8 +574,8 @@ export async function POST(request: Request) {
         balanceAfter: newBalance,
         timestamp: Date.now(),
         details: commission > 0 
-          ? `Played ${gameTitle || gameId} (Wager: ₹${betAmount} + ₹${commission.toFixed(2)} Live Fee, Payout: ₹${payout})`
-          : `Played ${gameTitle || gameId} (Wager: ₹${betAmount}, Payout: ₹${payout})`,
+          ? `Played ${gameTitle || gameId} (Wager: ₹${betAmount} + ₹${commission.toFixed(2)} Live Fee, Payout: ₹${computedPayout})`
+          : `Played ${gameTitle || gameId} (Wager: ₹${betAmount}, Payout: ₹${computedPayout})`,
         status: 'Completed'
       };
 
@@ -376,11 +613,12 @@ export async function POST(request: Request) {
         isInteractive: false,
         isWin: finalMultiplier > 0,
         multiplier: responseMultiplier,
-        payout,
+        payout: computedPayout,
         newBalance,
         targetBinIndex,
         transactionId: txId,
-        seed: fairSeed
+        seed: fairSeed,
+        ...extraData
       }, { status: 200 });
     });
 

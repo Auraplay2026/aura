@@ -825,7 +825,7 @@ export default function GamePlayerPage() {
       return <DiceEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} />;
     }
     if (game.id === "orig-9" || game.title.toLowerCase().includes("coin")) {
-      return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
+      return <CoinflipEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
     }
     if (game.id === "orig-10" || game.categories.includes("shows") || game.title.toLowerCase().includes("wheel") || game.title.toLowerCase().includes("time") || game.title.toLowerCase().includes("funky") || game.title.toLowerCase().includes("monopoly") || game.title.toLowerCase().includes("dream catcher")) {
       return <LiveWheelEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
@@ -876,7 +876,9 @@ export default function GamePlayerPage() {
           onComplete: handleEngineComplete,
           activeChip: activeRouletteChip,
           onActiveChipChange: setActiveRouletteChip,
-          balance: balance
+          balance: balance,
+          gameId: game.id,
+          gameTitle: game.title
       };
       
       switch(game.id) {
@@ -930,7 +932,7 @@ export default function GamePlayerPage() {
         return <BalloonRaceEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
       }
       if (game.title.toLowerCase().includes("coin flip") || game.title.toLowerCase().includes("crazy coin")) {
-        return <CoinflipEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
+        return <CoinflipEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
       return <CrashEngine isPlaying={isSpinning} betAmount={betAmount} onLiveTick={handleLiveTick} autoCashout={autoCashoutVal || undefined} onComplete={handleEngineComplete} />;
     }
@@ -940,12 +942,12 @@ export default function GamePlayerPage() {
         return <RoyalGamingEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
       if (game.id.includes("blackjack") || game.title.toLowerCase().includes("blackjack") || game.id === "orig-8") {
-        return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
+        return <BlackjackVIPEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
       }
       if (game.id.includes("baccarat") || game.title.toLowerCase().includes("baccarat") || game.id === "table-3") {
-        return <BaccaratEngine isPlaying={isSpinning} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
+        return <BaccaratEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
       }
-      return <CardEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
+      return <CardEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
     }
     // === CLOUD / ARCADE ===
     if (isCloudRenting || isArcade) {

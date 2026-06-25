@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/fair-casino-math";
+import { useTradingStore } from "@/lib/store";
 import { PremiumCard } from "./PremiumCard";
 
 interface CardEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
   gameId?: string;
   gameTitle?: string;
@@ -24,7 +25,9 @@ const CARDS = [
   { val: "9", suit: "♣️", color: "text-slate-900", score: 9 }
 ];
 
-export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEngineProps) {
+export function CardEngine({ isPlaying, betAmount = 10, onComplete, gameId, gameTitle }: CardEngineProps) {
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
   const isBlackjack = !!(gameTitle?.toLowerCase().includes("blackjack") || gameId?.includes("blackjack") || gameId === "orig-8");
   const isBaccarat = !!(gameTitle?.toLowerCase().includes("baccarat") || gameId?.includes("baccarat") || gameId?.includes("table-3"));
 
@@ -46,133 +49,169 @@ export function CardEngine({ isPlaying, onComplete, gameId, gameTitle }: CardEng
       return;
     }
 
-    const outcome = calculateGameOutcome("TABLE");
-    const won = outcome.isWin;
+    let isActive = true;
     let interval: NodeJS.Timeout;
+    let finishTimeout: NodeJS.Timeout;
 
-    // Pre-calculate deterministic cards based on selection & outcome
-    const targetPlayerHand: typeof CARDS = [];
-    const targetDealerHand: typeof CARDS = [];
+    const executeBet = async () => {
+      try {
+        const resolvedGameId = isBaccarat ? "table-3" : isBlackjack ? "orig-8" : (gameId || "table-custom");
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: resolvedGameId,
+            gameTitle: gameTitle || (isBaccarat ? "Baccarat" : isBlackjack ? "Blackjack" : "Card Game"),
+            betAmount,
+            selectedTarget: selectedSide
+          })
+        });
+        const data = await res.json();
+        if (!isActive) return;
 
-    if (isBaccarat) {
-      const isTie = (selectedSide === "TIE" && won) || (selectedSide !== "TIE" && !won && Math.random() > 0.85);
-      const isPlayerWinner = (selectedSide === "PLAYER" && won) || (selectedSide === "BANKER" && !won && !isTie);
+        if (res.ok && data.success) {
+          const isWin = data.isWin;
+          const winningHand = data.winningHand;
 
-      if (isTie) {
-        targetPlayerHand.push(
-          { val: "4", suit: "♠", color: "text-slate-900", score: 4 },
-          { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
-        ); // Baccarat Score: 6
-        targetDealerHand.push(
-          { val: "A", suit: "♥️", color: "text-red-600", score: 1 },
-          { val: "5", suit: "♣️", color: "text-slate-900", score: 5 }
-        ); // Baccarat Score: 6
-      } else if (isPlayerWinner) {
-        targetPlayerHand.push(
-          { val: "8", suit: "♠", color: "text-slate-900", score: 8 },
-          { val: "K", suit: "♦️", color: "text-red-600", score: 0 }
-        ); // Baccarat Score: 8
-        targetDealerHand.push(
-          { val: "2", suit: "♥️", color: "text-red-600", score: 2 },
-          { val: "3", suit: "♣️", color: "text-slate-900", score: 3 }
-        ); // Baccarat Score: 5
-      } else {
-        // Banker wins
-        targetPlayerHand.push(
-          { val: "A", suit: "♠", color: "text-slate-900", score: 1 },
-          { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
-        ); // Baccarat Score: 3
-        targetDealerHand.push(
-          { val: "9", suit: "♥️", color: "text-red-600", score: 9 },
-          { val: "10", suit: "♣️", color: "text-slate-900", score: 0 }
-        ); // Baccarat Score: 9
-      }
-    } else if (isBlackjack) {
-      const isPlayerWinner = (selectedSide === "PLAYER" && won) || (selectedSide === "DEALER" && !won);
+          // Pre-calculate deterministic cards based on selection & outcome
+          const targetPlayerHand: typeof CARDS = [];
+          const targetDealerHand: typeof CARDS = [];
 
-      if (isPlayerWinner) {
-        targetPlayerHand.push(
-          { val: "A", suit: "♠", color: "text-slate-900", score: 11 },
-          { val: "J", suit: "♦️", color: "text-red-600", score: 10 }
-        ); // score: 21 (Natural Blackjack)
-        targetDealerHand.push(
-          { val: "K", suit: "♥️", color: "text-red-600", score: 10 },
-          { val: "8", suit: "♣️", color: "text-slate-900", score: 8 }
-        ); // score: 18
-      } else {
-        targetPlayerHand.push(
-          { val: "10", suit: "♠", color: "text-slate-900", score: 10 },
-          { val: "7", suit: "♦️", color: "text-red-600", score: 7 }
-        ); // score: 17
-        targetDealerHand.push(
-          { val: "A", suit: "♥️", color: "text-red-600", score: 11 },
-          { val: "9", suit: "♣️", color: "text-slate-900", score: 9 }
-        ); // score: 20
-      }
-    } else {
-      // General/Poker 5-card outcomes
-      const isPlayerWinner = (selectedSide === "PLAYER" && won) || (selectedSide === "DEALER" && !won);
+          if (isBaccarat) {
+            const isTie = winningHand === "TIE";
+            const isPlayerWinner = winningHand === "PLAYER";
 
-      if (isPlayerWinner) {
-        targetPlayerHand.push(
-          { val: "10", suit: "♠", color: "text-slate-900", score: 10 },
-          { val: "J", suit: "♠", color: "text-slate-900", score: 10 },
-          { val: "Q", suit: "♠", color: "text-slate-900", score: 10 },
-          { val: "K", suit: "♠", color: "text-slate-900", score: 10 },
-          { val: "A", suit: "♠", color: "text-slate-900", score: 11 }
-        );
-      } else {
-        targetPlayerHand.push(
-          { val: "9", suit: "♣️", color: "text-slate-900", score: 9 },
-          { val: "2", suit: "♦️", color: "text-red-600", score: 2 },
-          { val: "5", suit: "♥️", color: "text-red-600", score: 5 },
-          { val: "J", suit: "♠", color: "text-slate-900", score: 10 },
-          { val: "Q", suit: "♥️", color: "text-red-600", score: 10 }
-        );
-      }
-    }
+            if (isTie) {
+              targetPlayerHand.push(
+                { val: "4", suit: "♠", color: "text-slate-900", score: 4 },
+                { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
+              ); // Baccarat Score: 6
+              targetDealerHand.push(
+                { val: "A", suit: "♥️", color: "text-red-600", score: 1 },
+                { val: "5", suit: "♣️", color: "text-slate-900", score: 5 }
+              ); // Baccarat Score: 6
+            } else if (isPlayerWinner) {
+              targetPlayerHand.push(
+                { val: "8", suit: "♠", color: "text-slate-900", score: 8 },
+                { val: "K", suit: "♦️", color: "text-red-600", score: 0 }
+              ); // Baccarat Score: 8
+              targetDealerHand.push(
+                { val: "2", suit: "♥️", color: "text-red-600", score: 2 },
+                { val: "3", suit: "♣️", color: "text-slate-900", score: 3 }
+              ); // Baccarat Score: 5
+            } else {
+              // Banker wins
+              targetPlayerHand.push(
+                { val: "A", suit: "♠", color: "text-slate-900", score: 1 },
+                { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
+              ); // Baccarat Score: 3
+              targetDealerHand.push(
+                { val: "9", suit: "♥️", color: "text-red-600", score: 9 },
+                { val: "10", suit: "♣️", color: "text-slate-900", score: 0 }
+              ); // Baccarat Score: 9
+            }
+          } else if (isBlackjack) {
+            const isPlayerWinner = isWin;
 
-    // Deal cards in staggered interval
-    let step = 0;
-    if (isBlackjack || isBaccarat) {
-      interval = setInterval(() => {
-        if (step === 0) {
-          setPlayerHand([targetPlayerHand[0]]);
-        } else if (step === 1) {
-          setDealerHand([targetDealerHand[0]]);
-        } else if (step === 2) {
-          setPlayerHand([targetPlayerHand[0], targetPlayerHand[1]]);
-        } else if (step === 3) {
-          setDealerHand([targetDealerHand[0], targetDealerHand[1]]);
-          clearInterval(interval);
-        }
-        step++;
-      }, 450);
-    } else {
-      interval = setInterval(() => {
-        if (step < 5) {
-          setPlayerHand(p => [...p, targetPlayerHand[step]]);
+            if (isPlayerWinner) {
+              targetPlayerHand.push(
+                { val: "A", suit: "♠", color: "text-slate-900", score: 11 },
+                { val: "J", suit: "♦️", color: "text-red-600", score: 10 }
+              ); // score: 21 (Natural Blackjack)
+              targetDealerHand.push(
+                { val: "K", suit: "♥️", color: "text-red-600", score: 10 },
+                { val: "8", suit: "♣️", color: "text-slate-900", score: 8 }
+              ); // score: 18
+            } else {
+              targetPlayerHand.push(
+                { val: "10", suit: "♠", color: "text-slate-900", score: 10 },
+                { val: "7", suit: "♦️", color: "text-red-600", score: 7 }
+              ); // score: 17
+              targetDealerHand.push(
+                { val: "A", suit: "♥️", color: "text-red-600", score: 11 },
+                { val: "9", suit: "♣️", color: "text-slate-900", score: 9 }
+              ); // score: 20
+            }
+          } else {
+            // General/Poker 5-card outcomes
+            const isPlayerWinner = isWin;
+
+            if (isPlayerWinner) {
+              targetPlayerHand.push(
+                { val: "10", suit: "♠", color: "text-slate-900", score: 10 },
+                { val: "J", suit: "♠", color: "text-slate-900", score: 10 },
+                { val: "Q", suit: "♠", color: "text-slate-900", score: 10 },
+                { val: "K", suit: "♠", color: "text-slate-900", score: 10 },
+                { val: "A", suit: "♠", color: "text-slate-900", score: 11 }
+              );
+            } else {
+              targetPlayerHand.push(
+                { val: "9", suit: "♣️", color: "text-slate-900", score: 9 },
+                { val: "2", suit: "♦️", color: "text-red-600", score: 2 },
+                { val: "5", suit: "♥️", color: "text-red-600", score: 5 },
+                { val: "J", suit: "♠", color: "text-slate-900", score: 10 },
+                { val: "Q", suit: "♥️", color: "text-red-600", score: 10 }
+              );
+            }
+          }
+
+          // Deal cards in staggered interval
+          let step = 0;
+          if (isBlackjack || isBaccarat) {
+            interval = setInterval(() => {
+              if (!isActive) {
+                clearInterval(interval);
+                return;
+              }
+              if (step === 0) {
+                setPlayerHand([targetPlayerHand[0]]);
+              } else if (step === 1) {
+                setDealerHand([targetDealerHand[0]]);
+              } else if (step === 2) {
+                setPlayerHand([targetPlayerHand[0], targetPlayerHand[1]]);
+              } else if (step === 3) {
+                setDealerHand([targetDealerHand[0], targetDealerHand[1]]);
+                clearInterval(interval);
+              }
+              step++;
+            }, 450);
+          } else {
+            interval = setInterval(() => {
+              if (!isActive) {
+                clearInterval(interval);
+                return;
+              }
+              if (step < 5) {
+                setPlayerHand(p => [...p, targetPlayerHand[step]]);
+              } else {
+                clearInterval(interval);
+              }
+              step++;
+            }, 400);
+          }
+
+          // Completion trigger
+          finishTimeout = setTimeout(() => {
+            if (!isActive) return;
+            setDealt(true);
+            onCompleteRef.current(data.multiplier, isWin);
+          }, (isBlackjack || isBaccarat) ? 2200 : 2500);
+
         } else {
-          clearInterval(interval);
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
         }
-        step++;
-      }, 400);
-    }
+      } catch (err) {
+        console.error("Card game bet placement failed", err);
+        onCompleteRef.current(0, false);
+      }
+    };
 
-    // Determine correct multiplier odds
-    let odds = 2.0;
-    if (isBaccarat) {
-      if (selectedSide === "BANKER") odds = 1.95;
-      else if (selectedSide === "TIE") odds = 9.0;
-    }
-
-    // Completion trigger
-    const finishTimeout = setTimeout(() => {
-      setDealt(true);
-      onCompleteRef.current(won ? odds : 0, won);
-    }, (isBlackjack || isBaccarat) ? 2200 : 2500);
+    executeBet();
 
     return () => {
+      isActive = false;
       clearInterval(interval);
       clearTimeout(finishTimeout);
     };

@@ -59,7 +59,8 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
           email,
           gameId: "orig-6",
           gameTitle: "Keno",
-          betAmount
+          betAmount,
+          selectedTarget: currentPicks
         })
       });
       const data = await res.json();

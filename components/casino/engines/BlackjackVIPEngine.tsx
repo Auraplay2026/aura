@@ -1,13 +1,14 @@
 "use client";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/fair-casino-math";
+import { useTradingStore } from "@/lib/store";
 import { Volume2, VolumeX, Sparkles, RefreshCw, Hand, Plus, Zap, Coins } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PremiumCard } from "./PremiumCard";
 
 interface BlackjackVIPEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
   gameId?: string;
   gameTitle?: string;
@@ -122,7 +123,10 @@ const VALUES = [
   { val: "K", score: 10 },
 ];
 
-export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }: BlackjackVIPEngineProps) {
+export function BlackjackVIPEngine({ isPlaying, betAmount = 10, onComplete, gameId, gameTitle }: BlackjackVIPEngineProps) {
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+
   const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);
   const [phase, setPhase] = useState<"betting" | "dealing" | "player-turn" | "dealer-turn" | "resolved">("betting");
@@ -274,113 +278,155 @@ export function BlackjackVIPEngine({ isPlaying, onComplete, gameId, gameTitle }:
       return;
     }
 
-    // Determine math outcome early
-    const outcome = calculateGameOutcome("TABLE");
-    isWinRef.current = outcome.isWin;
+    let isActive = true;
 
-    // Start Deal sequence
-    setPhase("dealing");
-    
-    // Initial Hand Generation
-    let pCard1: Card;
-    let pCard2: Card;
-    let dCard1: Card;
-    let dCard2: Card;
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: gameId || "orig-8",
+            gameTitle: gameTitle || "Blackjack",
+            betAmount,
+            sideBets: sideBetsRef.current
+          })
+        });
+        const data = await res.json();
+        if (!isActive) return;
 
-    const currentSideBets = sideBetsRef.current;
+        if (res.ok && data.success) {
+          isWinRef.current = data.mainResult === "win" || data.mainResult === "blackjack" || data.mainResult === "push";
+          
+          const serverMainResult = data.mainResult;
+          const serverSideBetsPayout = data.sideBetsPayout;
+          const serverIsPairsWin = data.isPairsWin;
+          const serverIsThreeWin = data.isThreeWin;
+          const serverPairsType = data.pairsType;
+          const serverThreeType = data.threeType;
+          const serverMultiplier = data.multiplier;
 
-    // 1. Check for Perfect Pairs side-bet hit (15% odds)
-    if (currentSideBets.pairs && Math.random() < 0.15) {
-      const matchValObj = VALUES[Math.floor(Math.random() * VALUES.length)];
-      const suit1 = SUITS[Math.floor(Math.random() * SUITS.length)];
-      const sameSuit = Math.random() < 0.5;
-      const suit2 = sameSuit ? suit1 : SUITS.filter(s => s !== suit1)[Math.floor(Math.random() * 3)];
-      
-      pCard1 = { val: matchValObj.val, suit: suit1, color: ["♥", "♦"].includes(suit1) ? "text-rose-500" : "text-slate-900", score: matchValObj.score };
-      pCard2 = { val: matchValObj.val, suit: suit2, color: ["♥", "♦"].includes(suit2) ? "text-rose-500" : "text-slate-900", score: matchValObj.score };
-    } else {
-      pCard1 = getRandomCard();
-      pCard2 = getRandomCard();
-      // Ensure player initial is not a pair if side-bet active but did not hit
-      if (pCard1.val === pCard2.val && currentSideBets.pairs) {
-        pCard2 = getRandomCard(VALUES.filter(v => v.val !== pCard1.val)[Math.floor(Math.random() * 12)].val);
-      }
-    }
+          // Start Deal sequence
+          setPhase("dealing");
+          
+          // Initial Hand Generation
+          let pCard1: Card;
+          let pCard2: Card;
+          let dCard1: Card;
+          let dCard2: Card;
 
-    // 2. Check for 21+3 side-bet hit (15% odds)
-    if (currentSideBets.three && Math.random() < 0.15) {
-      // Force Flush or Straight combo
-      const matchSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
-      const isRed = ["♥", "♦"].includes(matchSuit);
-      const c1 = VALUES[4]; // 5
-      const c2 = VALUES[5]; // 6
-      const c3 = VALUES[6]; // 7
-      pCard1 = { val: c1.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c1.score };
-      pCard2 = { val: c2.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c2.score };
-      dCard1 = { val: c3.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c3.score };
-    } else {
-      dCard1 = getRandomCard();
-    }
+          // 1. Pairs side-bet hit
+          if (serverIsPairsWin) {
+            let pairVal = VALUES[Math.floor(Math.random() * VALUES.length)];
+            const suit1 = SUITS[Math.floor(Math.random() * SUITS.length)];
+            let suit2 = suit1;
+            if (serverPairsType === "colored") {
+              const sameColorSuits = ["♥", "♦"].includes(suit1) ? ["♥", "♦"] : ["♠", "♣"];
+              suit2 = sameColorSuits.find(s => s !== suit1) || suit1;
+            } else if (serverPairsType === "mixed") {
+              const diffColorSuits = ["♥", "♦"].includes(suit1) ? ["♠", "♣"] : ["♥", "♦"];
+              suit2 = diffColorSuits[Math.floor(Math.random() * 2)];
+            }
+            pCard1 = { val: pairVal.val, suit: suit1, color: ["♥", "♦"].includes(suit1) ? "text-rose-500" : "text-slate-900", score: pairVal.score };
+            pCard2 = { val: pairVal.val, suit: suit2, color: ["♥", "♦"].includes(suit2) ? "text-rose-500" : "text-slate-900", score: pairVal.score };
+          } else {
+            pCard1 = getRandomCard();
+            pCard2 = getRandomCard();
+            if (pCard1.val === pCard2.val && sideBetsRef.current.pairs) {
+              pCard2 = getRandomCard(VALUES.filter(v => v.val !== pCard1.val)[Math.floor(Math.random() * 12)].val);
+            }
+          }
 
-    // Generate remaining dealer starting hands
-    if (isWinRef.current) {
-      // Player natural BJ or strong hand
-      const roll = Math.random();
-      if (roll < 0.35) {
-        // Natural Blackjack
-        pCard1 = getRandomCard("A");
-        pCard2 = getRandomCard("10");
-        dCard1 = getRandomCard("9");
-        dCard2 = getRandomCard("9");
-      } else {
-        pCard1 = getRandomCard("10");
-        pCard2 = getRandomCard("9");
-        dCard1 = getRandomCard("8");
-        dCard2 = getRandomCard("9");
-      }
-    } else {
-      // Player stiff hand, dealer strong
-      pCard1 = getRandomCard("10");
-      pCard2 = getRandomCard("6");
-      dCard1 = getRandomCard("9");
-      dCard2 = getRandomCard("10");
-    }
+          // 2. 21+3 side-bet hit
+          if (serverIsThreeWin) {
+            const matchSuit = SUITS[Math.floor(Math.random() * SUITS.length)];
+            const isRed = ["♥", "♦"].includes(matchSuit);
+            const c1 = VALUES[4]; // 5
+            const c2 = VALUES[5]; // 6
+            const c3 = VALUES[6]; // 7
+            pCard1 = { val: c1.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c1.score };
+            pCard2 = { val: c2.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c2.score };
+            dCard1 = { val: c3.val, suit: matchSuit, color: isRed ? "text-rose-500" : "text-slate-900", score: c3.score };
+          } else {
+            dCard1 = getRandomCard();
+          }
 
-    dCard2.faceDown = true;
+          // Generate remaining dealer starting hands based on mainResult
+          if (serverMainResult === "blackjack") {
+            pCard1 = getRandomCard("A");
+            pCard2 = getRandomCard("10");
+            dCard1 = getRandomCard("9");
+            dCard2 = { ...getRandomCard("9"), faceDown: true };
+          } else if (serverMainResult === "win") {
+            pCard1 = getRandomCard("10");
+            pCard2 = getRandomCard("9");
+            dCard1 = getRandomCard("8");
+            dCard2 = { ...getRandomCard("9"), faceDown: true };
+          } else if (serverMainResult === "push") {
+            pCard1 = getRandomCard("10");
+            pCard2 = getRandomCard("8");
+            dCard1 = getRandomCard("10");
+            dCard2 = { ...getRandomCard("8"), faceDown: true };
+          } else {
+            pCard1 = getRandomCard("10");
+            pCard2 = getRandomCard("6");
+            dCard1 = getRandomCard("9");
+            dCard2 = { ...getRandomCard("10"), faceDown: true };
+          }
 
-    // Distribute cards with physical feel pauses
-    setTimeout(() => {
-      setPlayerHand([pCard1]);
-      playSound("deal");
-    }, 300);
+          // Distribute cards with physical feel pauses
+          setTimeout(() => {
+            if (!isActive) return;
+            setPlayerHand([pCard1]);
+            playSound("deal");
+          }, 300);
 
-    setTimeout(() => {
-      setDealerHand([dCard1]);
-      playSound("deal");
-    }, 700);
+          setTimeout(() => {
+            if (!isActive) return;
+            setDealerHand([dCard1]);
+            playSound("deal");
+          }, 700);
 
-    setTimeout(() => {
-      setPlayerHand([pCard1, pCard2]);
-      playSound("deal");
-    }, 1100);
+          setTimeout(() => {
+            if (!isActive) return;
+            setPlayerHand([pCard1, pCard2]);
+            playSound("deal");
+          }, 1100);
 
-    setTimeout(() => {
-      setDealerHand([dCard1, dCard2]);
-      playSound("deal");
+          setTimeout(() => {
+            if (!isActive) return;
+            setDealerHand([dCard1, dCard2]);
+            playSound("deal");
 
-      // Dealing phase completed
-      setTimeout(() => {
-        const pScore = getBlackjackScore([pCard1, pCard2]);
-        if (pScore === 21) {
-          // Natural Blackjack!
-          setPhase("dealer-turn");
-          revealHoleCardAndPlay(pCard1, pCard2);
+            // Dealing phase completed
+            setTimeout(() => {
+              if (!isActive) return;
+              const pScore = getBlackjackScore([pCard1, pCard2]);
+              if (pScore === 21) {
+                setPhase("dealer-turn");
+                revealHoleCardAndPlay(pCard1, pCard2);
+              } else {
+                setPhase("player-turn");
+              }
+            }, 600);
+          }, 1500);
+
         } else {
-          setPhase("player-turn");
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
         }
-      }, 600);
-    }, 1500);
+      } catch (err) {
+        console.error("Blackjack bet placement failed", err);
+        onCompleteRef.current(0, false);
+      }
+    };
 
+    executeBet();
+
+    return () => {
+      isActive = false;
+    };
   }, [isPlaying]);
 
   const getBlackjackScore = (hand: Card[]) => {

@@ -8,13 +8,16 @@ import { playGameSound } from "@/lib/audio";
 
 interface CoinflipEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplier: number, won: boolean) => void;
   selectedTarget?: string;
   setSelectedTarget?: (t: string) => void;
 }
 
-export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelectedTarget }: CoinflipEngineProps) {
+export function CoinflipEngine({ isPlaying, betAmount = 10, onComplete, selectedTarget, setSelectedTarget }: CoinflipEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
   const [flipping, setFlipping] = useState(false);
   const [landed, setLanded] = useState(false);
   const [localSide, setLocalSide] = useState<"AURA" | "SKULL">("AURA");
@@ -59,30 +62,56 @@ export function CoinflipEngine({ isPlaying, onComplete, selectedTarget, setSelec
     };
     setTimeout(playTickSequence, tickDelay);
 
-    const outcome = calculateGameOutcome("ORIGINAL");
-    const won = outcome.isWin;
-    
-    // Land on selection on win, opposite on loss
-    const finalResult = won ? selectedSide : (selectedSide === "AURA" ? "SKULL" : "AURA");
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: "orig-9",
+            gameTitle: "Coinflip",
+            betAmount,
+            selectedTarget: selectedSide
+          })
+        });
+        const data = await res.json();
+        if (!isActive) return;
 
-    const extraSpins = 1800 + (finalResult === "AURA" ? 0 : 180);
-    setRotationX(prev => prev + extraSpins);
+        if (res.ok && data.success) {
+          const isWin = data.isWin;
+          const finalResult = data.winningSide;
 
-    const timer = setTimeout(() => {
-      isActive = false;
-      setResult(finalResult);
-      setFlipping(false);
-      setLanded(true);
-      
-      // Play win or lose sound on landing
-      playGameSound(won ? "win" : "lose");
-      
-      onCompleteRef.current(2.0, won);
-    }, 2500);
+          const extraSpins = 1800 + (finalResult === "AURA" ? 0 : 180);
+          setRotationX(prev => prev + extraSpins);
+
+          setTimeout(() => {
+            if (!isActive) return;
+            setResult(finalResult);
+            setFlipping(false);
+            setLanded(true);
+            
+            // Play win or lose sound on landing
+            playGameSound(isWin ? "win" : "lose");
+            
+            onCompleteRef.current(data.multiplier, isWin);
+          }, 2500);
+        } else {
+          setFlipping(false);
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
+        }
+      } catch (err) {
+        console.error("Coinflip bet placement failed", err);
+        setFlipping(false);
+        onCompleteRef.current(0, false);
+      }
+    };
+
+    executeBet();
 
     return () => {
       isActive = false;
-      clearTimeout(timer);
     };
   }, [isPlaying, selectedSide]);
 

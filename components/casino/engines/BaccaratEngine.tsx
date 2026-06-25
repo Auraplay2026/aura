@@ -1,11 +1,12 @@
 "use client";
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { calculateGameOutcome } from "@/lib/fair-casino-math";
+import { useTradingStore } from "@/lib/store";
 import { PremiumCard } from "./PremiumCard";
 
 interface BaccaratEngineProps {
   isPlaying: boolean;
+  betAmount?: number;
   onComplete: (multiplierOrWon: number | boolean, won?: boolean) => void;
   selectedTarget?: string;
   setSelectedTarget?: (t: string) => void;
@@ -21,7 +22,10 @@ const DECK = [
   { val: "8", suit: "♦️", color: "text-red-600", score: 8 }
 ];
 
-export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelectedTarget }: BaccaratEngineProps) {
+export function BaccaratEngine({ isPlaying, betAmount = 10, onComplete, selectedTarget, setSelectedTarget }: BaccaratEngineProps) {
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+
   const [playerHand, setPlayerHand] = useState<typeof DECK>([]);
   const [bankerHand, setBankerHand] = useState<typeof DECK>([]);
   const [dealt, setDealt] = useState(false);
@@ -47,78 +51,108 @@ export function BaccaratEngine({ isPlaying, onComplete, selectedTarget, setSelec
       return;
     }
 
-    const outcome = calculateGameOutcome("TABLE");
-    const won = outcome.isWin;
-    
-    // Deterministic hands generation based on user's selection & result
-    const targetPlayerHand: typeof DECK = [];
-    const targetBankerHand: typeof DECK = [];
+    let isActive = true;
 
-    const isTie = (selectedSide === "TIE" && won) || (selectedSide !== "TIE" && !won && Math.random() > 0.85);
-    const isPlayerWinner = (selectedSide === "PLAYER" && won) || (selectedSide === "BANKER" && !won && !isTie);
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: "table-3",
+            gameTitle: "Baccarat",
+            betAmount,
+            selectedTarget: selectedSide
+          })
+        });
+        const data = await res.json();
+        if (!isActive) return;
 
-    if (isTie) {
-      targetPlayerHand.push(
-        { val: "4", suit: "♠", color: "text-slate-900", score: 4 },
-        { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
-      ); // modulo score: 6
-      targetBankerHand.push(
-        { val: "A", suit: "♥️", color: "text-red-600", score: 1 },
-        { val: "5", suit: "♣️", color: "text-slate-900", score: 5 }
-      ); // modulo score: 6
-    } else if (isPlayerWinner) {
-      targetPlayerHand.push(
-        { val: "8", suit: "♠", color: "text-slate-900", score: 8 },
-        { val: "K", suit: "♦️", color: "text-red-600", score: 0 }
-      ); // modulo score: 8
-      targetBankerHand.push(
-        { val: "2", suit: "♥️", color: "text-red-600", score: 2 },
-        { val: "3", suit: "♣️", color: "text-slate-900", score: 3 }
-      ); // modulo score: 5
-    } else {
-      // Banker wins
-      targetPlayerHand.push(
-        { val: "A", suit: "♠", color: "text-slate-900", score: 1 },
-        { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
-      ); // modulo score: 3
-      targetBankerHand.push(
-        { val: "9", suit: "♥️", color: "text-red-600", score: 9 },
-        { val: "10", suit: "♣️", color: "text-slate-900", score: 0 }
-      ); // modulo score: 9
-    }
+        if (res.ok && data.success) {
+          const isWin = data.isWin;
+          const winningHand = data.winningHand;
 
-    let count = 0;
-    const interval = setInterval(() => {
-      count++;
-      if (count === 1) {
-        setPlayerHand([targetPlayerHand[0]]);
-      } else if (count === 2) {
-        setBankerHand([targetBankerHand[0]]);
-      } else if (count === 3) {
-        setPlayerHand([targetPlayerHand[0], targetPlayerHand[1]]);
-      } else if (count === 4) {
-        setBankerHand([targetBankerHand[0], targetBankerHand[1]]);
-        clearInterval(interval);
-        
-        let odds = 2.0;
-        if (selectedSide === "BANKER") odds = 1.95;
-        else if (selectedSide === "TIE") odds = 9.0;
+          const targetPlayerHand: typeof DECK = [];
+          const targetBankerHand: typeof DECK = [];
 
-        setTimeout(() => {
-          setDealt(true);
-          if (isTie) {
-            setResultMsg("Tie Hand!");
-          } else if (isPlayerWinner) {
-            setResultMsg("Player Wins!");
+          if (winningHand === "TIE") {
+            targetPlayerHand.push(
+              { val: "4", suit: "♠", color: "text-slate-900", score: 4 },
+              { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
+            ); // modulo score: 6
+            targetBankerHand.push(
+              { val: "A", suit: "♥️", color: "text-red-600", score: 1 },
+              { val: "5", suit: "♣️", color: "text-slate-900", score: 5 }
+            ); // modulo score: 6
+          } else if (winningHand === "PLAYER") {
+            targetPlayerHand.push(
+              { val: "8", suit: "♠", color: "text-slate-900", score: 8 },
+              { val: "K", suit: "♦️", color: "text-red-600", score: 0 }
+            ); // modulo score: 8
+            targetBankerHand.push(
+              { val: "2", suit: "♥️", color: "text-red-600", score: 2 },
+              { val: "3", suit: "♣️", color: "text-slate-900", score: 3 }
+            ); // modulo score: 5
           } else {
-            setResultMsg("Banker Wins!");
+            // Banker wins
+            targetPlayerHand.push(
+              { val: "A", suit: "♠", color: "text-slate-900", score: 1 },
+              { val: "2", suit: "♦️", color: "text-red-600", score: 2 }
+            ); // modulo score: 3
+            targetBankerHand.push(
+              { val: "9", suit: "♥️", color: "text-red-600", score: 9 },
+              { val: "10", suit: "♣️", color: "text-slate-900", score: 0 }
+            ); // modulo score: 9
           }
-          onCompleteRef.current(won ? odds : 0, won);
-        }, 1200);
-      }
-    }, 450);
 
-    return () => clearInterval(interval);
+          let count = 0;
+          const interval = setInterval(() => {
+            if (!isActive) {
+              clearInterval(interval);
+              return;
+            }
+            count++;
+            if (count === 1) {
+              setPlayerHand([targetPlayerHand[0]]);
+            } else if (count === 2) {
+              setBankerHand([targetBankerHand[0]]);
+            } else if (count === 3) {
+              setPlayerHand([targetPlayerHand[0], targetPlayerHand[1]]);
+            } else if (count === 4) {
+              setBankerHand([targetBankerHand[0], targetBankerHand[1]]);
+              clearInterval(interval);
+              
+              setTimeout(() => {
+                if (!isActive) return;
+                setDealt(true);
+                if (winningHand === "TIE") {
+                  setResultMsg("Tie Hand!");
+                } else if (winningHand === "PLAYER") {
+                  setResultMsg("Player Wins!");
+                } else {
+                  setResultMsg("Banker Wins!");
+                }
+                onCompleteRef.current(data.multiplier, isWin);
+              }, 1200);
+            }
+          }, 450);
+
+        } else {
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
+        }
+      } catch (err) {
+        console.error("Baccarat bet placement failed", err);
+        onCompleteRef.current(0, false);
+      }
+    };
+
+    executeBet();
+
+    return () => {
+      isActive = false;
+    };
   }, [isPlaying, selectedSide]);
 
   const getBaccaratScore = (hand: typeof DECK) => {

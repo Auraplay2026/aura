@@ -125,6 +125,9 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   const activeBucketRef = useRef<number | null>(null);
   const isPlayingRef = useRef(isPlaying);
   const onCompleteRef = useRef(onComplete);
+  const totalBallsRef = useRef(1);
+  const landedBallsCountRef = useRef(0);
+  const accumulatedMultiplierRef = useRef(0);
 
   // Sync references
   useEffect(() => {
@@ -248,8 +251,12 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   // Launch drops trigger
   const triggerDrops = useCallback(async () => {
     const totalBalls = ballCount;
-    const completedResults: number[] = [];
     const ballOutcomes: { multiplier: number; targetBinIndex: number }[] = [];
+
+    // Reset tracking refs
+    totalBallsRef.current = totalBalls;
+    landedBallsCountRef.current = 0;
+    accumulatedMultiplierRef.current = 0;
 
     // 1. Query server API wagers
     try {
@@ -273,22 +280,16 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
             targetBinIndex: data.targetBinIndex !== undefined ? data.targetBinIndex : 5
           });
         } else {
-          const bin = Math.floor(Math.random() * (ROWS + 1));
-          ballOutcomes.push({
-            multiplier: MULTIPLIERS[risk][bin],
-            targetBinIndex: bin
-          });
+          alert(data.error || "Wager placement failed.");
+          onCompleteRef.current(0, false);
+          return;
         }
       }
     } catch (e) {
-      console.warn("Wager call fallback used:", e);
-      for (let i = 0; i < totalBalls; i++) {
-        const bin = Math.floor(Math.random() * (ROWS + 1));
-        ballOutcomes.push({
-          multiplier: MULTIPLIERS[risk][bin],
-          targetBinIndex: bin
-        });
-      }
+      console.error("Wager placement failed:", e);
+      alert("Network error or wager placement failed.");
+      onCompleteRef.current(0, false);
+      return;
     }
 
     // 2. Launch balls sequentially
@@ -654,8 +655,13 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
             setWinsCount(prev => prev + 1);
           }
 
-          // Complete parent bet callback
-          onCompleteRef.current(ball.multiplier, actWin);
+          // Complete parent bet callback when all balls have landed
+          landedBallsCountRef.current += 1;
+          accumulatedMultiplierRef.current += ball.multiplier;
+          if (landedBallsCountRef.current === totalBallsRef.current) {
+            const finalMultiplier = accumulatedMultiplierRef.current / totalBallsRef.current;
+            onCompleteRef.current(finalMultiplier, finalMultiplier > 0);
+          }
 
           // Remove ball from array
           balls.splice(i, 1);

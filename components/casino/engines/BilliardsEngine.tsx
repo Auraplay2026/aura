@@ -320,14 +320,17 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
         };
         setServerOutcome(outcome);
       } else {
-        console.warn("Bet placement fallback used due to api response:", data.error);
-        outcome = { isWin: Math.random() < 0.45, multiplier: 2.0, payout: betAmount * 2 };
-        setServerOutcome(outcome);
+        alert(data.error || "Wager placement failed.");
+        setGameState("aiming");
+        onCompleteRef.current(0, false);
+        return;
       }
     } catch (err) {
       console.error("Wager communication error:", err);
-      outcome = { isWin: Math.random() < 0.45, multiplier: 2.0, payout: betAmount * 2 };
-      setServerOutcome(outcome);
+      alert("Network error or wager communication failed.");
+      setGameState("aiming");
+      onCompleteRef.current(0, false);
+      return;
     }
 
     const force = 4 + (shotPowerRef.current / 100) * 16;

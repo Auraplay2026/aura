@@ -6,6 +6,7 @@ import { Coins } from "lucide-react";
 import { playGameSound } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/fair-casino-math";
 import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
+import { useTradingStore } from "@/lib/store";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -20,6 +21,8 @@ interface RouletteEngineProps {
   activeChip?: number;
   onActiveChipChange?: (chip: number) => void;
   balance?: number;
+  gameId?: string;
+  gameTitle?: string;
 }
 
 interface NumberConfig {
@@ -93,8 +96,12 @@ export function MultiWheelRoulette({
   onComplete,
   activeChip: propActiveChip,
   onActiveChipChange,
-  balance = 0
+  balance = 0,
+  gameId,
+  gameTitle
 }: RouletteEngineProps) {
+  const currentUser = useTradingStore(state => state.currentUser);
+  const email = currentUser?.email || "twintubrovquattro@gmail.com";
   
   // Game & Bets States
   const [localActiveChip, setLocalActiveChip] = useState<number>(100);
@@ -280,64 +287,93 @@ export function MultiWheelRoulette({
     const offsetVal = width >= 1024 ? 50 : width >= 768 ? 42 : width >= 640 ? 36 : 28;
     setBallRadiusOffset(offsetVal);
 
-    // Pick target wheel index truly randomly from the 37 pockets
-    const targetIdxList = Array(4).fill(0).map(() => Math.floor(Math.random() * EUROPEAN_NUMBERS.length));
-    const results = targetIdxList.map(idx => EUROPEAN_NUMBERS[idx]);
-    const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
-    const finalRotations = targetIdxList.map(idx => 1800 + (360 - (idx * segmentAngle)));
+    let isActive = true;
 
-    setRotations(finalRotations);
-    setBallRotation(-(2160 + 720)); // Orbit counter-rotation of ball
+    const executeBet = async () => {
+      try {
+        const res = await fetch('/api/casino/bet', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email,
+            gameId: gameId || "orig-r5",
+            gameTitle: gameTitle || "Multi-Wheel Roulette",
+            betAmount: totalBetsSum,
+            bets: bets
+          })
+        });
+        const data = await res.json();
+        if (!isActive) return;
 
-    // Ball falls into pocket
-    setTimeout(() => {
-      setBallRadiusOffset(0);
-    }, 2400);
+        if (res.ok && data.success) {
+          const multiWheelSpins = data.multiWheelSpins; // Array of 4 spin result objects
+          const results = multiWheelSpins.map((spin: any) => EUROPEAN_NUMBERS.find(n => n.n === spin.n) || EUROPEAN_NUMBERS[0]);
+          const targetIdxList = multiWheelSpins.map((spin: any) => EUROPEAN_NUMBERS.findIndex(n => n.n === spin.n));
+          const segmentAngle = 360 / EUROPEAN_NUMBERS.length;
+          const finalRotations = targetIdxList.map((idx: number) => 1800 + (360 - (idx * segmentAngle)));
 
-    // Spin completes
-    const completeTimer = setTimeout(() => {
-      setWinningNumbers(results);
-      setPrevBets(bets);
+          setRotations(finalRotations);
+          setBallRotation(-(2160 + 720)); // Orbit counter-rotation of ball
 
-      let totalWon = 0;
-      for (const result of results) {
-        totalWon += evaluateRoulettePayouts(bets, result, EUROPEAN_CONFIG).totalWon;
+          // Ball falls into pocket
+          setTimeout(() => {
+            if (isActive) setBallRadiusOffset(0);
+          }, 2400);
+
+          // Spin completes
+          setTimeout(() => {
+            if (!isActive) return;
+            setWinningNumbers(results);
+            setPrevBets(bets);
+
+            const totalWon = data.payout;
+            processVIPWinnings(results[0]);
+
+            if (totalWon > 0) {
+              setWonAmount(totalWon);
+              setShowWinOverlay(true);
+              try { playGameSound("win"); } catch {}
+              
+              const numCoins = Math.min(80, Math.max(20, Math.floor(totalWon / 100)));
+              setCoinsShower(Array.from({ length: numCoins }).map((_, i) => ({
+                id: i,
+                x: (Math.random() - 0.5) * 200,
+                rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
+                duration: Math.random() * 1.5 + 1.2,
+                left: Math.random() * 90
+              })));
+              setTimeout(() => setCoinsShower([]), 2800);
+            } else {
+              try { playGameSound("lose"); } catch {}
+            }
+
+            const computedMultiplier = totalBetsSum > 0 ? totalWon / totalBetsSum : 0;
+            onCompleteRef.current(computedMultiplier, totalWon > 0);
+            setBets({});
+            setBetHistory([]);
+
+            setTimeout(() => {
+              if (isActive) setShowWheelOverlay(false);
+            }, 4000);
+          }, 4500);
+
+        } else {
+          setIsSpinning(false);
+          onCompleteRef.current(0, false);
+          alert(data.error || "Wager placement failed.");
+        }
+      } catch (err) {
+        console.error("Multi-Wheel Roulette bet placement failed", err);
+        setIsSpinning(false);
+        onCompleteRef.current(0, false);
       }
+    };
 
-      processVIPWinnings(results[0]);
+    executeBet();
 
-      if (totalWon > 0) {
-        setWonAmount(totalWon);
-        setShowWinOverlay(true);
-        try { playGameSound("win"); } catch {}
-        
-        // Trigger coin shower relative to win size
-        const numCoins = Math.min(80, Math.max(20, Math.floor(totalWon / 100)));
-        setCoinsShower(Array.from({ length: numCoins }).map((_, i) => ({
-          id: i,
-          x: (Math.random() - 0.5) * 200,
-          rotate: 360 * (Math.random() > 0.5 ? 1 : -1),
-          duration: Math.random() * 1.5 + 1.2,
-          left: Math.random() * 90
-        })));
-        setTimeout(() => setCoinsShower([]), 2800);
-      } else {
-        try { playGameSound("lose"); } catch {}
-      }
-
-      // Complete bet platform transaction
-      const computedMultiplier = totalBetsSum > 0 ? totalWon / totalBetsSum : 0;
-      onCompleteRef.current(computedMultiplier, totalWon > 0);
-      setBets({});
-      setBetHistory([]);
-
-      // Auto dismiss wheel overlay after 4 seconds
-      setTimeout(() => {
-        setShowWheelOverlay(false);
-      }, 4000);
-    }, 4500);
-
-    return () => clearTimeout(completeTimer);
+    return () => {
+      isActive = false;
+    };
   }, [isPlaying]);
 
 
