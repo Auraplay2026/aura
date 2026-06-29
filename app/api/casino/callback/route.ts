@@ -5,16 +5,18 @@ import { prisma } from '@/lib/prisma';
 export async function POST(request: Request) {
   try {
     // 1. Authorization Gating Check
-    const expectedToken = process.env.CASINO_CALLBACK_SECRET;
-    if (!expectedToken && process.env.NODE_ENV === 'production') {
-      throw new Error("FATAL: CASINO_CALLBACK_SECRET environment variable is not set.");
+    let expectedToken = process.env.CASINO_CALLBACK_SECRET;
+    if (!expectedToken) {
+      if (process.env.NODE_ENV === 'production') {
+        throw new Error("FATAL: CASINO_CALLBACK_SECRET environment variable is not set.");
+      } else {
+        expectedToken = "aura-dev-callback-secret";
+      }
     }
     
-    if (expectedToken) {
-      const authHeader = request.headers.get('authorization');
-      if (authHeader !== `Bearer ${expectedToken}`) {
-        return NextResponse.json({ status: "ERROR_UNAUTHORIZED", message: "Unauthorized callback request." }, { status: 401 });
-      }
+    const authHeader = request.headers.get('authorization');
+    if (authHeader !== `Bearer ${expectedToken}`) {
+      return NextResponse.json({ status: "ERROR_UNAUTHORIZED", message: "Unauthorized callback request." }, { status: 401 });
     }
 
     const body = await request.json();
@@ -70,6 +72,9 @@ export async function POST(request: Request) {
           where: { id: transactionId }
         });
         if (existingTx) {
+          if (existingTx.userId !== dbUser.id) {
+            return { error: 'Transaction ID collision detected.', status: 'ERROR_TRANSACTION_COLLISION' };
+          }
           return {
             success: true,
             balance: isReal ? dbUser.realBalance : dbUser.demoBalance,

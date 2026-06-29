@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { updateUser, Transaction } from '@/lib/userDb';
 import fs from 'fs';
 import path from 'path';
+import { verifyUserSession } from '@/lib/userAuth';
 
 async function getGameSession(tx: any, sessionId: string): Promise<any> {
   const sess = await tx.gameSession.findUnique({
@@ -51,6 +52,12 @@ export async function POST(request: Request) {
 
     if (!action || !email || !sessionId) {
       return NextResponse.json({ error: 'Missing required parameters: action, email, sessionId.' }, { status: 400 });
+    }
+
+    try {
+      await verifyUserSession(email);
+    } catch (authErr: any) {
+      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
     const response = await prisma.$transaction(async (txClient) => {
@@ -270,6 +277,9 @@ export async function POST(request: Request) {
 
         if (isCrash) {
           const cashoutMult = parseFloat(Number(clientMultiplier || 1.0).toFixed(2));
+          if (isNaN(cashoutMult) || cashoutMult < 1.0) {
+            return NextResponse.json({ error: 'Invalid client multiplier.' }, { status: 400 });
+          }
           
           // Security check: Verify that user cashed out BEFORE the crash point
           if (cashoutMult > session.crashPoint) {

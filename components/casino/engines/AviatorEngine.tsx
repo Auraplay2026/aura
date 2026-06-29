@@ -3,7 +3,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { AlertCircle } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
-import { cn } from "@/lib/utils";
+import { cn, deobfuscateFloat } from "@/lib/utils";
 
 interface AviatorEngineProps {
   isPlaying: boolean;
@@ -124,7 +124,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
 
         if (res.ok && data.success) {
           setSessionId(data.sessionId);
-          const target = data.crashPoint;
+          const target = deobfuscateFloat(data.crashPointSecure, data.sessionId);
 
           let current = 1.0;
           let tick = 0;

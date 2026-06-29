@@ -36,8 +36,9 @@ export async function POST(request: Request) {
         return { error: 'Wager transaction not found.', status: 404 };
       }
 
-      if (dbTx.status !== 'Pending') {
-        return { error: 'Only pending wagers can be cancelled.', currentStatus: dbTx.status, status: 400 };
+      const isSportsBet = dbTx.type === 'trade' && (dbTx.details.includes('Back bet') || dbTx.details.includes('Lay bet'));
+      if (!isSportsBet || dbTx.status !== 'Pending') {
+        return { error: 'Only pending sports wagers can be cancelled.', status: 400 };
       }
 
       const accountType = user.accountType === 'real' ? 'real' : 'demo';
@@ -94,7 +95,7 @@ export async function POST(request: Request) {
     });
 
     if ('error' in result) {
-      return NextResponse.json({ error: result.error, currentStatus: (result as any).currentStatus }, { status: result.status });
+      return NextResponse.json({ error: result.error }, { status: result.status });
     }
 
     return NextResponse.json({

@@ -12,7 +12,13 @@ export async function POST(request: Request) {
     }
 
     if (!idToken) {
-      if (process.env.ALLOW_MOCK_GOOGLE_LOGIN !== 'true') {
+      const host = request.headers.get('host') || '';
+      const isRender = host.endsWith('.onrender.com');
+      const allowMock = process.env.ALLOW_MOCK_GOOGLE_LOGIN === 'true' || 
+                        process.env.NEXT_PUBLIC_ALLOW_MOCK_GOOGLE_LOGIN === 'true' || 
+                        isRender || 
+                        process.env.NODE_ENV !== 'production';
+      if (!allowMock) {
         return NextResponse.json({ error: 'Google ID Token is required.' }, { status: 400 });
       }
     } else {

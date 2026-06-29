@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyUserSession } from '@/lib/userAuth';
+import { getDeterministicPrice, getOptionIdFromBuyPrice } from '@/lib/predictionMath';
 
 export async function POST(request: Request) {
   try {
@@ -28,6 +29,12 @@ export async function POST(request: Request) {
 
     if (side !== 'yes' && side !== 'no') {
       return NextResponse.json({ error: 'Invalid side (must be yes or no).' }, { status: 400 });
+    }
+
+    const optionId = getOptionIdFromBuyPrice(marketId, parsedPrice);
+    const expectedPrice = getDeterministicPrice(marketId, optionId, Date.now());
+    if (Math.abs(parsedPrice - expectedPrice) > 4) {
+      return NextResponse.json({ error: `Price deviation is too high. Server price: ${expectedPrice}, Client price: ${parsedPrice}. Refused.` }, { status: 400 });
     }
 
     const result = await prisma.$transaction(async (tx) => {

@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmailOrUsername, addActivityLog, updateUser } from '@/lib/userDb';
+import { addActivityLog, updateUser, sanitizeUserProfile } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { verifyTOTP } from '@/lib/totp';
 import bcrypt from 'bcryptjs';
 import { setUserAuthCookie } from '@/lib/userAuth';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -20,7 +21,15 @@ export async function POST(request: Request) {
     const { state, countryCode } = await getIPLocation(ip);
     const locationString = `${state}, ${countryCode}`;
 
-    const user = await findUserByEmailOrUsername(emailOrUsername);
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: emailOrUsername },
+          { username: emailOrUsername }
+        ]
+      },
+      include: { transactions: true, positions: true, notifications: true, activityLogs: true }
+    });
     const invalidCredentialsError = 'Invalid username/email or password.';
 
     if (!user) {
@@ -83,7 +92,8 @@ export async function POST(request: Request) {
       type: 'success'
     });
 
-    const { passwordHash, ...safeUser } = user;
+    const sanitizedUser = sanitizeUserProfile(user);
+    const { passwordHash, ...safeUser } = sanitizedUser;
     const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
     await setUserAuthCookie(response, user.email);
     return response;

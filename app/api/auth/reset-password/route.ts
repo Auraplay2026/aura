@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { findUserByEmailOrUsername, updateUser, addActivityLog } from '@/lib/userDb';
+import { prisma } from '@/lib/prisma';
+import { updateUser, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 
 export async function POST(request: Request) {
@@ -11,7 +12,14 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
     }
 
-    const user = await findUserByEmailOrUsername(email);
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: email },
+          { username: email }
+        ]
+      }
+    });
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }

@@ -1,5 +1,37 @@
 const fs = require('fs');
 const path = require('path');
+
+const dotenvPaths = [
+  path.join(__dirname, '.env'),
+  path.join(__dirname, '.env.local'),
+  path.join(__dirname, '../.env'),
+  path.join(__dirname, '../.env.local'),
+  path.join(process.cwd(), '.env'),
+  path.join(process.cwd(), '.env.local')
+];
+for (const envPath of dotenvPaths) {
+  if (fs.existsSync(envPath)) {
+    const envText = fs.readFileSync(envPath, 'utf8');
+    envText.split(/\r?\n/).forEach(line => {
+      const trimmed = line.trim();
+      if (trimmed && !trimmed.startsWith('#')) {
+        const eqIdx = trimmed.indexOf('=');
+        if (eqIdx !== -1) {
+          const key = trimmed.slice(0, eqIdx).trim();
+          let val = trimmed.slice(eqIdx + 1).trim();
+          if (val.startsWith('"') && val.endsWith('"')) {
+            val = val.slice(1, -1);
+          }
+          if (val.startsWith("'") && val.endsWith("'")) {
+            val = val.slice(1, -1);
+          }
+          process.env[key] = val;
+        }
+      }
+    });
+  }
+}
+
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcryptjs');
 

@@ -19,6 +19,10 @@ services:
         generateValue: true
       - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
         value: 61951094794-ice7e5fabt7indlo6clki10f7093hjiu.apps.googleusercontent.com
+      - key: ALLOW_MOCK_GOOGLE_LOGIN
+        value: "true"
+      - key: NEXT_PUBLIC_ALLOW_MOCK_GOOGLE_LOGIN
+        value: "true"
 
   - type: worker
     name: referral-worker

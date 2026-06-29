@@ -79,8 +79,10 @@ export function sanitizeUserProfile(user: any): UserProfile {
   const realPositions = allPositions.filter((p: any) => p.walletType === 'real');
   const realTransactions = allTransactions.filter((t: any) => t.walletType === 'real');
 
+  const { twoFactorSecret, resetCode, resetCodeExpires, ...rest } = user;
+
   return {
-    ...user,
+    ...rest,
     accountType,
     balance: accountType === 'real' ? (user.realBalance ?? 0) : (user.demoBalance ?? 100000),
     positions: accountType === 'real' ? realPositions : demoPositions,
@@ -100,9 +102,6 @@ export function sanitizeUserProfile(user: any): UserProfile {
     dob: user.dob || "",
     address: user.address || "",
     twoFactorEnabled: !!user.twoFactorEnabled,
-    twoFactorSecret: user.twoFactorSecret || undefined,
-    resetCode: user.resetCode || undefined,
-    resetCodeExpires: user.resetCodeExpires || undefined,
   } as UserProfile;
 }
 

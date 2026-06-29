@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyUserSession } from '@/lib/userAuth';
+import { getDeterministicPrice, getOptionIdFromBuyPrice } from '@/lib/predictionMath';
 
 export async function POST(request: Request) {
   try {
@@ -49,7 +50,14 @@ export async function POST(request: Request) {
         throw new Error('WALLET_TYPE_MISMATCH');
       }
 
-      const payout = Math.round((position.shares * (currentMarketPrice / 100)) * 100) / 100;
+      const optionId = getOptionIdFromBuyPrice(position.marketId, position.buyPrice);
+      const expectedPrice = getDeterministicPrice(position.marketId, optionId, Date.now());
+
+      if (Math.abs(parsedPrice - expectedPrice) > 4) {
+        throw new Error('PRICE_MISMATCH');
+      }
+
+      const payout = Math.round((position.shares * (expectedPrice / 100)) * 100) / 100;
       const balance = wallet === 'real' ? user.realBalance : user.demoBalance;
       const newBalance = Math.round((balance + payout) * 100) / 100;
 

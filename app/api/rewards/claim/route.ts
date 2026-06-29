@@ -121,8 +121,14 @@ export async function POST(request: Request) {
           throw new Error('RAKEBACK_LIMIT_EXCEEDED');
         }
       } else if (rewardType === 'cashier_deposit') {
+        if (user.accountType === 'real') {
+          throw new Error('REAL_ACCOUNT_RESTRICTED');
+        }
         transactionType = 'deposit';
       } else if (rewardType === 'cashier_withdraw') {
+        if (user.accountType === 'real') {
+          throw new Error('REAL_ACCOUNT_RESTRICTED');
+        }
         transactionType = 'withdraw';
         const absAmount = Math.abs(amount);
         if (balance < absAmount) {
@@ -130,6 +136,9 @@ export async function POST(request: Request) {
         }
         finalAmount = -absAmount;
       } else if (rewardType === 'concierge') {
+        if (user.accountType === 'real') {
+          throw new Error('REAL_ACCOUNT_RESTRICTED');
+        }
         if (amount > 5000) {
           throw new Error('CONCIERGE_REWARD_EXCEEDED');
         }
@@ -177,6 +186,9 @@ export async function POST(request: Request) {
     console.error("Reward Claim API Error:", err);
     if (err.message === 'USER_NOT_FOUND') {
       return NextResponse.json({ error: 'User profile not found.' }, { status: 404 });
+    }
+    if (err.message === 'REAL_ACCOUNT_RESTRICTED') {
+      return NextResponse.json({ error: 'This reward type is restricted for real money accounts.' }, { status: 400 });
     }
     if (err.message === 'DAILY_ALREADY_CLAIMED') {
       return NextResponse.json({ error: 'Daily reward already claimed today.' }, { status: 400 });

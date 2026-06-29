@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { getDeterministicPrice } from '@/lib/predictionMath';
 
 export interface Market {
   id: string;
@@ -337,40 +338,24 @@ export function useLiveMarkets(categoryFilter?: string) {
 
   useEffect(() => {
     const interval = setInterval(() => {
+      const now = Date.now();
       globalMarkets = globalMarkets.map(market => {
-        // Random walk: 30% chance to move up or down by 1-3 cents
-        if (Math.random() > 0.7) {
-          const change = Math.floor(Math.random() * 3) + 1;
-          const direction = Math.random() > 0.5 ? 1 : -1;
-          
-          let newYes = market.yes + (change * direction);
-          
-          // Clamp between 1 and 99
-          if (newYes >= 99) newYes = 99;
-          if (newYes <= 1) newYes = 1;
+        const newYes = getDeterministicPrice(market.id, null, now);
+        const newHistory = [...market.history, newYes];
+        if (newHistory.length > 30) newHistory.shift();
 
-          const newHistory = [...market.history, newYes];
-          if (newHistory.length > 30) newHistory.shift(); // Keep last 30 data points
+        const newOptions = market.options?.map(opt => {
+          const optYes = getDeterministicPrice(market.id, opt.id, now);
+          return { ...opt, yes: optYes, no: 100 - optYes };
+        });
 
-          const newOptions = market.options?.map(opt => {
-            if (Math.random() > 0.5) return opt;
-            const optChange = Math.floor(Math.random() * 3) + 1;
-            const optDir = Math.random() > 0.5 ? 1 : -1;
-            let optYes = opt.yes + (optChange * optDir);
-            if (optYes >= 99) optYes = 99;
-            if (optYes <= 1) optYes = 1;
-            return { ...opt, yes: optYes, no: 100 - optYes };
-          });
-
-          return {
-            ...market,
-            yes: newYes,
-            no: 100 - newYes,
-            history: newHistory,
-            options: newOptions
-          };
-        }
-        return market;
+        return {
+          ...market,
+          yes: newYes,
+          no: 100 - newYes,
+          history: newHistory,
+          options: newOptions
+        };
       });
 
       setMarkets([...globalMarkets]);

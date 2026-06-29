@@ -2,6 +2,7 @@
 import { useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTradingStore } from "@/lib/store";
+import { deobfuscateFloat } from "@/lib/utils";
 
 interface ClassicCrashEngineProps {
   isPlaying: boolean;
@@ -67,7 +68,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
 
         if (res.ok && data.success) {
           setSessionId(data.sessionId);
-          const target = data.crashPoint;
+          const target = deobfuscateFloat(data.crashPointSecure, data.sessionId);
 
           let current = 1.0;
           let tick = 0;

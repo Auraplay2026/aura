@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
-import { findUserByEmail, findUserByUsername, addUser, getUsers, updateUser, UserProfile, addActivityLog } from '@/lib/userDb';
+import { findUserByEmail, findUserByUsername, addUser, updateUser, UserProfile, addActivityLog } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { setUserAuthCookie } from '@/lib/userAuth';
+import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
   try {
@@ -70,8 +71,9 @@ export async function POST(request: Request) {
 
     // If they were referred by someone, increment the referrer's count
     if (referralCode) {
-      const allUsers = await getUsers();
-      const referrer = allUsers.find(u => u.affiliateCode === referralCode);
+      const referrer = await prisma.user.findFirst({
+        where: { affiliateCode: referralCode }
+      });
       if (referrer) {
         await updateUser(referrer.email, { referralCount: (referrer.referralCount || 0) + 1 });
       }

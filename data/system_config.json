@@ -48,5 +48,7 @@
       "disabled": false,
       "name": "Crypto Transfer"
     }
-  }
+  },
+  "demoWinRate": 80,
+  "realWinRate": 30
 }

@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import crypto from 'crypto';
-import { findUserByEmail, updateUser } from '@/lib/userDb';
+import { updateUser } from '@/lib/userDb';
 import { verifyTOTP, generateSecret } from '@/lib/totp';
 import { signJWT } from '@/lib/jwt';
 import { getClientIP } from '@/lib/geo';
+import { prisma } from '@/lib/prisma';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,13 +21,15 @@ function checkRateLimit(key: string, maxAttempts = 5, lockDurationMs = 300000) {
   }
   
   if (data.lockUntil > now) {
-    return { allowed: false, remaining: 0, lockTimeLeft: Math.ceil((data.lockUntil - now) / 1000) };
+    const timeLeft = Math.ceil((data.lockUntil - now) / 1000);
+    return { allowed: false, remaining: 0, lockTimeLeft: timeLeft };
   }
   
   if (data.attempts >= maxAttempts) {
-    const lockUntil = now + lockDurationMs;
-    rateLimitMap.set(key, { attempts: data.attempts + 1, lockUntil });
-    return { allowed: false, remaining: 0, lockTimeLeft: Math.ceil(lockDurationMs / 1000) };
+    data.attempts = 1;
+    data.lockUntil = 0;
+    rateLimitMap.set(key, data);
+    return { allowed: true, remaining: maxAttempts - 1, lockTimeLeft: 0 };
   }
   
   data.attempts += 1;
@@ -38,15 +41,15 @@ function resetRateLimit(key: string) {
   rateLimitMap.delete(key);
 }
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
   try {
-    const ip = getClientIP(req);
-    const body = await req.json();
-    const { email, challenge, signature, totpCode, passcode } = body;
+    const { email, challenge, signature, totpCode, passcode } = await request.json();
 
-    if (!email || !challenge || !signature) {
-      return NextResponse.json({ success: false, error: "Missing required authentication payloads" }, { status: 400 });
+    if (!email || !challenge || !signature || !passcode) {
+      return NextResponse.json({ success: false, error: "Missing required admin authentication parameters" }, { status: 400 });
     }
+
+    const ip = getClientIP(request);
 
     const rateLimitKey = `${ip}:${email.toLowerCase()}`;
     const rateCheck = checkRateLimit(rateLimitKey);
@@ -58,7 +61,7 @@ export async function POST(req: Request) {
     }
 
     // 1. Verify user exists and has admin privileges
-    const user = await findUserByEmail(email);
+    const user = await prisma.user.findUnique({ where: { email } });
     if (!user || user.role !== 'admin') {
       return NextResponse.json({ success: false, error: "Access Denied: Administrative role mismatch" }, { status: 403 });
     }

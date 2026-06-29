@@ -40,7 +40,9 @@ export function AppProviders({ children }: { children: ReactNode }) {
     // 3. Poll server every 10s for admin approvals (e.g., deposits/withdrawals)
     const interval = setInterval(() => {
       const storeState = useTradingStore.getState();
-      storeState.syncFromServer();
+      if (storeState.isLoggedIn && storeState.currentUser) {
+        storeState.syncFromServer();
+      }
       storeState.fetchSystemConfig();
 
       // 4. Automatic KYC Approval after 10 minutes (600,000 ms)

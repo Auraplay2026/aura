@@ -90,6 +90,15 @@ export async function POST(request: Request) {
         return { error: 'User not found.', status: 404 };
       }
 
+      if (type === 'deposit' && utr) {
+        const existingTxn = await txClient.transaction.findFirst({
+          where: { utr }
+        });
+        if (existingTxn) {
+          return { error: 'This UTR has already been submitted or processed.', status: 400 };
+        }
+      }
+
       const user = sanitizeUserProfile(dbUser);
 
       if (type === 'withdraw' && user.realBalance < parsedAmount) {

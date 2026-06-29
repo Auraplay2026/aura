@@ -422,6 +422,9 @@ export const useTradingStore = create<TradingState>()(
       },
 
       logout: () => {
+        // 1. Clear server-side httpOnly auth cookies
+        fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+        // 2. Clear client-side state
         set({
           isLoggedIn: false,
           currentUser: null,
@@ -429,7 +432,9 @@ export const useTradingStore = create<TradingState>()(
           positions: [],
           transactions: []
         });
+        // 3. Clear persisted Zustand storage to prevent stale session on reload
         if (typeof window !== 'undefined') {
+          try { localStorage.removeItem('AuraBet-trading-storage'); } catch {}
           (window as any).__AURA_AUTH_DEBUG__ = { event: 'logout', ts: Date.now() };
         }
       },
