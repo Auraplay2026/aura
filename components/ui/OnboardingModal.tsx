@@ -553,22 +553,22 @@ export function OnboardingModal() {
                       </p>
                     </div>
 
-                    {/* Reward Claim Card */}
-                    <div className="w-full bg-gradient-to-r from-[#17112c] to-[#0d091e] border border-purple-200 rounded-2xl p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
-                      <div className="absolute right-0 top-0 w-24 h-24 bg-[#a855f7]/5 blur-xl rounded-full" />
-                      <div className="text-left">
-                        <p className="text-[8px] font-black text-[#a855f7] tracking-widest uppercase">Welcome Reward</p>
-                        <h4 className="text-sm font-black text-slate-900 uppercase mt-0.5">
-                          {selectedType === 'real' ? "100% Deposit Match Activated" : "VIP Practice Medal Granted"}
-                        </h4>
-                        <p className="text-[10px] text-slate-700 mt-1 leading-relaxed">
-                          {selectedType === 'real' ? "Make your first deposit to get up to ₹10,000 extra balance match." : "Enjoy risk-free trading simulator mode with zero limits."}
-                        </p>
-                      </div>
-                      <span className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/40 flex items-center justify-center shrink-0">
-                        <Trophy className="w-5 h-5 text-yellow-500" />
-                      </span>
-                    </div>
+                     {/* Reward Claim Card */}
+                     <div className="w-full bg-gradient-to-r from-[#17112c] to-[#0d091e] border border-[#a855f7]/30 rounded-2xl p-5 flex items-center justify-between shadow-lg relative overflow-hidden">
+                       <div className="absolute right-0 top-0 w-24 h-24 bg-[#a855f7]/5 blur-xl rounded-full" />
+                       <div className="text-left">
+                         <p className="text-[8px] font-black text-[#a855f7] tracking-widest uppercase">Welcome Reward</p>
+                         <h4 className="text-sm font-black text-slate-100 uppercase mt-0.5">
+                           {selectedType === 'real' ? "100% Deposit Match Activated" : "VIP Practice Medal Granted"}
+                         </h4>
+                         <p className="text-[10px] text-slate-300 mt-1 leading-relaxed">
+                           {selectedType === 'real' ? "Make your first deposit to get up to ₹10,000 extra balance match." : "Enjoy risk-free trading simulator mode with zero limits."}
+                         </p>
+                       </div>
+                       <span className="w-10 h-10 rounded-full bg-yellow-500/10 border border-yellow-500/40 flex items-center justify-center shrink-0">
+                         <Trophy className="w-5 h-5 text-yellow-500" />
+                       </span>
+                     </div>
                   </motion.div>
                 )}
 

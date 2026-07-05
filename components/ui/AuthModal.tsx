@@ -133,7 +133,15 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
         setIsLoading(false);
         if (res.ok && data.success) {
           setSuccessMessage(data.message || "Reset code generated.");
-          if (data.debugCode) setDemoResetCode(data.debugCode);
+          if (data.debugCode) {
+            setDemoResetCode(data.debugCode);
+          } else {
+            // Automatically switch to the enter code view after 1.8 seconds
+            setTimeout(() => {
+              setView('reset');
+              setSuccessMessage(null);
+            }, 1800);
+          }
         } else {
           setError(data.error || "Failed to process request.");
         }
@@ -277,7 +285,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
               <div className="flex justify-between items-center px-6 py-4 border-b border-slate-100 shrink-0">
                 <h2 id="auth-modal-title" className="text-xl font-black text-slate-900 flex items-center gap-2">
                   <Sparkles className="w-5 h-5 text-yellow-500" />
-                  {view === 'login'  && 'Welcome Back'}
+                  {view === 'login'  && (twoFactorRequired ? 'Two-Factor Auth' : 'Welcome Back')}
                   {view === 'signup' && 'Create Account'}
                   {view === 'forgot' && 'Reset Password'}
                   {view === 'reset'  && 'New Password'}
@@ -320,30 +328,32 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                   </motion.div>
                 )}
 
-                {/* Demo code box */}
-                {demoResetCode && (
-                  <motion.div
-                    key="demo-code"
-                    initial={{ opacity: 0, y: -8 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm flex flex-col gap-2"
-                  >
-                    <div className="flex items-center gap-2 font-bold text-slate-800">
-                      <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
-                      Demo Environment — Your Reset Code
-                    </div>
-                    <div className="bg-white border border-yellow-300 rounded-lg py-2.5 text-center font-mono text-lg font-black text-yellow-600 tracking-[0.4em]">
-                      {demoResetCode}
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => { setView('reset'); setError(null); setSuccessMessage(null); }}
-                      className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-2 rounded-lg text-xs uppercase transition-all"
-                    >
-                      Enter Code →
-                    </button>
-                  </motion.div>
-                )}
+                 {/* Demo code box */}
+                 {demoResetCode && (
+                   <motion.div
+                     key="demo-code"
+                     initial={{ opacity: 0, y: -8 }}
+                     animate={{ opacity: 1, y: 0 }}
+                     className="mb-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl text-sm flex flex-col gap-2"
+                   >
+                     <div className="flex items-center gap-2 font-bold text-slate-800">
+                       <Sparkles className="w-4 h-4 text-yellow-500 animate-pulse" />
+                       Demo Environment — Your Reset Code
+                     </div>
+                     <div className="bg-white border border-yellow-300 rounded-lg py-2.5 text-center font-mono text-lg font-black text-yellow-600 tracking-[0.4em]">
+                       {demoResetCode}
+                     </div>
+                     {view === 'forgot' && (
+                       <button
+                         type="button"
+                         onClick={() => { setView('reset'); setError(null); setSuccessMessage(null); }}
+                         className="w-full bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black py-2 rounded-lg text-xs uppercase transition-all"
+                       >
+                         Enter Code →
+                       </button>
+                     )}
+                   </motion.div>
+                 )}
 
                 {/* ── FORM ─────────────────────────────────────────────── */}
                 <form onSubmit={handleSubmit} noValidate className="space-y-4">
@@ -681,7 +691,19 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
 
                 {/* View switch links */}
                 <p className="mt-6 text-center text-sm text-slate-500 pb-2">
-                  {view === 'login' && (
+                  {twoFactorRequired ? (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setTwoFactorRequired(false);
+                        setOtpCode("");
+                        setError(null);
+                      }}
+                      className="text-yellow-500 font-bold hover:underline"
+                    >
+                      ← Back to Login Credentials
+                    </button>
+                  ) : view === 'login' && (
                     <>
                       New here?{" "}
                       <button onClick={() => { setView('signup'); setError(null); setSuccessMessage(null); setDemoResetCode(null); }} className="text-yellow-500 font-bold hover:underline">
@@ -689,7 +711,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                       </button>
                     </>
                   )}
-                  {view === 'signup' && (
+                  {!twoFactorRequired && view === 'signup' && (
                     <>
                       Already have an account?{" "}
                       <button onClick={() => { setView('login'); setError(null); setSuccessMessage(null); setDemoResetCode(null); }} className="text-yellow-500 font-bold hover:underline">
@@ -697,10 +719,21 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                       </button>
                     </>
                   )}
-                  {(view === 'forgot' || view === 'reset') && (
-                    <button onClick={() => { setView('login'); setError(null); setSuccessMessage(null); setDemoResetCode(null); }} className="text-yellow-500 font-bold hover:underline">
-                      ← Back to Sign In
-                    </button>
+                  {!twoFactorRequired && (view === 'forgot' || view === 'reset') && (
+                    <span className="flex flex-col items-center gap-2">
+                      {view === 'forgot' && (
+                        <button
+                          type="button"
+                          onClick={() => { setView('reset'); setError(null); setSuccessMessage(null); }}
+                          className="text-xs font-bold text-slate-500 hover:text-slate-800 hover:underline transition-colors mb-1"
+                        >
+                          Already have a reset code? Enter code
+                        </button>
+                      )}
+                      <button onClick={() => { setView('login'); setError(null); setSuccessMessage(null); setDemoResetCode(null); }} className="text-yellow-500 font-bold hover:underline">
+                        ← Back to Sign In
+                      </button>
+                    </span>
                   )}
                 </p>
               </div>
