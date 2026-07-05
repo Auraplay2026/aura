@@ -430,11 +430,26 @@ export async function POST(request: Request) {
 
         if (gameId.includes("multiwheel") || gameId === "orig-r5") {
           // Multi-wheel: 4 independent spins
+          let candidates = numbersList;
+          if (adminForcesLoss) {
+            const losingCandidates = numbersList.filter(n => {
+              const { totalWon } = evaluateRoulettePayouts(bets || {}, n, config);
+              return totalWon === 0;
+            });
+            if (losingCandidates.length > 0) candidates = losingCandidates;
+          } else if (adminForcesWin) {
+            const winningCandidates = numbersList.filter(n => {
+              const { totalWon } = evaluateRoulettePayouts(bets || {}, n, config);
+              return totalWon > 0;
+            });
+            if (winningCandidates.length > 0) candidates = winningCandidates;
+          }
+
           const spins: any[] = [];
           let totalWinnings = 0;
           for (let w = 0; w < 4; w++) {
-            const spinIdx = rng.nextInt(0, numbersList.length);
-            const landed = numbersList[spinIdx];
+            const spinIdx = rng.nextInt(0, candidates.length);
+            const landed = candidates[spinIdx];
             spins.push(landed);
             const { totalWon } = evaluateRoulettePayouts(bets || {}, landed, config);
             totalWinnings += totalWon;
@@ -444,28 +459,48 @@ export async function POST(request: Request) {
           extraData = { multiWheelSpins: spins, winningNumber: landedNumber };
         } else if (gameId.includes("doubleball") || gameId === "orig-r7") {
           // Double ball: 2 independent balls
-          const spinIdx1 = rng.nextInt(0, numbersList.length);
-          const spinIdx2 = rng.nextInt(0, numbersList.length);
-          const landed1 = numbersList[spinIdx1];
-          const landed2 = numbersList[spinIdx2];
-
-          let totalWinnings = 0;
-          for (const [cellId, amountVal] of Object.entries(bets || {})) {
-            const amount = Number(amountVal);
-            const win1 = isWinningBet(cellId, landed1);
-            const win2 = isWinningBet(cellId, landed2);
-            if (cellId.startsWith("num-")) {
-              if (win1 && win2) totalWinnings += amount * 35;
-              else if (win1 || win2) totalWinnings += amount * 18;
-            } else {
-              if (win1 && win2) {
-                if (["red", "black", "even", "odd", "1-18", "19-36"].includes(cellId)) totalWinnings += amount * 3;
-                else if (cellId.startsWith("doz-") || cellId.startsWith("col-")) totalWinnings += amount * 8;
-              }
+          let candidatePairs: [any, any][] = [];
+          for (let i = 0; i < numbersList.length; i++) {
+            for (let j = 0; j < numbersList.length; j++) {
+              candidatePairs.push([numbersList[i], numbersList[j]]);
             }
           }
+
+          let candidates = candidatePairs;
+          const evaluateDoubleBallPayout = (landed1: any, landed2: any) => {
+            let totalWinnings = 0;
+            for (const [cellId, amountVal] of Object.entries(bets || {})) {
+              const amount = Number(amountVal);
+              const win1 = isWinningBet(cellId, landed1);
+              const win2 = isWinningBet(cellId, landed2);
+              if (cellId.startsWith("num-")) {
+                if (win1 && win2) totalWinnings += amount * 35;
+                else if (win1 || win2) totalWinnings += amount * 18;
+              } else {
+                if (win1 && win2) {
+                  if (["red", "black", "even", "odd", "1-18", "19-36"].includes(cellId)) totalWinnings += amount * 3;
+                  else if (cellId.startsWith("doz-") || cellId.startsWith("col-")) totalWinnings += amount * 8;
+                }
+              }
+            }
+            return totalWinnings;
+          };
+
+          if (adminForcesLoss) {
+            const losingCandidates = candidatePairs.filter(pair => evaluateDoubleBallPayout(pair[0], pair[1]) === 0);
+            if (losingCandidates.length > 0) candidates = losingCandidates;
+          } else if (adminForcesWin) {
+            const winningCandidates = candidatePairs.filter(pair => evaluateDoubleBallPayout(pair[0], pair[1]) > 0);
+            if (winningCandidates.length > 0) candidates = winningCandidates;
+          }
+
+          const pairIdx = rng.nextInt(0, candidates.length);
+          const chosenPair = candidates[pairIdx];
+          const landed1 = chosenPair[0];
+          const landed2 = chosenPair[1];
+
           landedNumber = landed1;
-          payout = totalWinnings;
+          payout = evaluateDoubleBallPayout(landed1, landed2);
           extraData = { ball2: landed2, winningNumber: landedNumber };
         } else if (gameId.includes("lightning") || gameId === "orig-r6") {
           // Lightning: random lightning numbers struck with multipliers
@@ -479,16 +514,47 @@ export async function POST(request: Request) {
             const strikeMult = multOptions[rng.nextInt(0, multOptions.length)];
             strikes[strikeNum] = strikeMult;
           }
-          const spinIdx = rng.nextInt(0, numbersList.length);
-          landedNumber = numbersList[spinIdx];
+
+          let candidates = numbersList;
+          if (adminForcesLoss) {
+            const losingCandidates = numbersList.filter(n => {
+              const { totalWon } = evaluateRoulettePayouts(bets || {}, n, config, strikes);
+              return totalWon === 0;
+            });
+            if (losingCandidates.length > 0) candidates = losingCandidates;
+          } else if (adminForcesWin) {
+            const winningCandidates = numbersList.filter(n => {
+              const { totalWon } = evaluateRoulettePayouts(bets || {}, n, config, strikes);
+              return totalWon > 0;
+            });
+            if (winningCandidates.length > 0) candidates = winningCandidates;
+          }
+
+          const spinIdx = rng.nextInt(0, candidates.length);
+          landedNumber = candidates[spinIdx];
           const { totalWon, wonCells: wc } = evaluateRoulettePayouts(bets || {}, landedNumber, config, strikes);
           payout = totalWon;
           wonCells = wc;
           extraData = { lightningStrikes: strikes, winningNumber: landedNumber, wonCells };
         } else {
           // Standard Roulette
-          const spinIdx = rng.nextInt(0, numbersList.length);
-          landedNumber = numbersList[spinIdx];
+          let candidates = numbersList;
+          if (adminForcesLoss) {
+            const losingCandidates = numbersList.filter(n => {
+              const { totalWon } = evaluateRoulettePayouts(bets || {}, n, config);
+              return totalWon === 0;
+            });
+            if (losingCandidates.length > 0) candidates = losingCandidates;
+          } else if (adminForcesWin) {
+            const winningCandidates = numbersList.filter(n => {
+              const { totalWon } = evaluateRoulettePayouts(bets || {}, n, config);
+              return totalWon > 0;
+            });
+            if (winningCandidates.length > 0) candidates = winningCandidates;
+          }
+
+          const spinIdx = rng.nextInt(0, candidates.length);
+          landedNumber = candidates[spinIdx];
           const { totalWon, wonCells: wc } = evaluateRoulettePayouts(bets || {}, landedNumber, config);
           payout = totalWon;
           wonCells = wc;
