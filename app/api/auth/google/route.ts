@@ -117,8 +117,8 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
     await setUserAuthCookie(response, user.email);
     return response;
-  } catch (err) {
+  } catch (err: any) {
     console.error("Google authentication route error:", err);
-    return NextResponse.json({ error: 'Failed to process Google authentication.' }, { status: 500 });
+    return NextResponse.json({ error: `Failed to process Google authentication: ${err.message || err}` }, { status: 500 });
   }
 }
