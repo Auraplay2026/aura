@@ -39,9 +39,9 @@ export function MobileBottomNav() {
     },
     {
       label: "Account",
-      href: isLoggedIn ? (currentUser?.role === "admin" ? "/admin" : "/account") : "#",
-      icon: currentUser?.role === "admin" ? ShieldCheck : User,
-      isActive: pathname.startsWith("/account") || pathname.startsWith("/admin"),
+      href: isLoggedIn ? "/account" : "#",
+      icon: User,
+      isActive: pathname.startsWith("/account"),
       onClick: (e: React.MouseEvent) => {
         if (!isLoggedIn) {
           e.preventDefault();

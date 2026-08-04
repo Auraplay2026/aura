@@ -202,10 +202,22 @@ export default function AccountSettingsPage() {
             </div>
           </div>
 
-          {/* Quick Stats */}
-          <div className="shrink-0 mt-6 lg:mt-0 text-center lg:text-right w-full lg:w-auto">
-            <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total Net Worth</p>
-            <p className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">₹{netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+          {/* Quick Stats & Admin Shortcut */}
+          <div className="shrink-0 mt-6 lg:mt-0 flex flex-col sm:flex-row lg:flex-col items-center lg:items-end justify-between sm:justify-end gap-3 w-full lg:w-auto">
+            {currentUser?.role === 'admin' && (
+              <Link
+                href="/admin"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-gradient-to-r from-red-600 via-rose-600 to-amber-600 text-white font-black text-xs uppercase tracking-wider shadow-[0_4px_16px_rgba(225,29,72,0.35)] hover:shadow-lg active:scale-95 transition-all cursor-pointer border border-white/20"
+              >
+                <ShieldCheck className="w-4 h-4 text-yellow-300" />
+                <span>Admin Operations Hub</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Link>
+            )}
+            <div className="text-center lg:text-right">
+              <p className="text-[10px] font-bold text-slate-600 uppercase tracking-widest mb-1">Total Net Worth</p>
+              <p className="text-2xl sm:text-3xl font-black text-slate-900 font-mono tracking-tight">₹{netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+            </div>
           </div>
         </div>
       </motion.div>
