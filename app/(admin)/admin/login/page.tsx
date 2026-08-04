@@ -11,11 +11,5 @@ export default function AdminLoginPage() {
     router.replace("/admin");
   }, [router]);
 
-  return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center">
-      <div className="text-indigo-400 text-xs font-bold animate-pulse">
-        AURA SECURITY CORE INITIALIZING...
-      </div>
-    </div>
-  );
+  return null;
 }
