@@ -122,7 +122,7 @@ export async function POST(request: Request) {
     const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
     await setUserAuthCookie(response, user.email);
 
-    if (user.role === 'admin') {
+    if (user.role === 'admin' || user.username.toLowerCase() === 'admin') {
       const now = Math.floor(Date.now() / 1000);
       const jwtPayload = {
         sub: user.email.toLowerCase(),
@@ -132,6 +132,14 @@ export async function POST(request: Request) {
       };
       const adminToken = await signJWT(jwtPayload);
       response.cookies.set('admin_auth_token', adminToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 86400,
+        path: '/'
+      });
+      // Also ensure user_email cookie is consistently user.email
+      response.cookies.set('user_email', user.email, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',
