@@ -423,7 +423,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
 
                       {/* Email / Username field (Strictly Username for Login) */}
                       <div>
-                        <label htmlFor="auth-email" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
+                        <label htmlFor="auth-login-username" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
                           {view === 'login' ? 'Username' : 'Email Address'}
                         </label>
                         <div className="relative">
@@ -431,9 +431,12 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                             {view === 'login' ? <User className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
                           </div>
                           <input
-                            id="auth-email"
+                            id="auth-login-username"
+                            name="auth-login-username"
                             type="text"
-                            autoComplete="username"
+                            autoComplete="off"
+                            data-lpignore="true"
+                            data-1p-ignore="true"
                             autoCapitalize="none"
                             autoCorrect="off"
                             spellCheck={false}
