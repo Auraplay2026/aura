@@ -421,27 +421,26 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                         </div>
                       )}
 
-                      {/* Email / Username field */}
+                      {/* Email / Username field (Strictly Username for Login) */}
                       <div>
                         <label htmlFor="auth-email" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-                          {view === 'login' ? 'Email or Username' : 'Email Address'}
+                          {view === 'login' ? 'Username' : 'Email Address'}
                         </label>
                         <div className="relative">
                           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                            <Mail className="w-4 h-4" />
+                            {view === 'login' ? <User className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
                           </div>
                           <input
                             id="auth-email"
-                            type={view === 'signup' ? 'email' : 'text'}
-                            inputMode="email"
-                            autoComplete={view === 'signup' ? 'email' : 'username email'}
+                            type="text"
+                            autoComplete="username"
                             autoCapitalize="none"
                             autoCorrect="off"
                             spellCheck={false}
                             required
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            placeholder={view === 'login' ? "Email or username" : "you@example.com"}
+                            placeholder={view === 'login' ? "Username" : "you@example.com"}
                             className="w-full bg-white border border-slate-300 rounded-xl py-3.5 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
                           />
                         </div>
