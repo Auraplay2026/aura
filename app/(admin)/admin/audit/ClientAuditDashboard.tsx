@@ -8,6 +8,7 @@ import {
 import { adminResolveDiscrepancy, adminBanUser } from "../actions";
 import { motion, AnimatePresence } from "framer-motion";
 import { AuditAnomaly } from "./page";
+import { SecurityGeoMap } from "@/components/admin/SecurityGeoMap";
 
 interface UserReport {
   username: string;
@@ -408,26 +409,31 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
           <div className="absolute -inset-[1px] rounded-2xl bg-gradient-to-r from-amber-500/10 to-transparent opacity-30" />
           <div className="relative bg-white/45 border border-slate-200 rounded-2xl p-6 backdrop-blur-xl h-[420px] flex flex-col justify-between">
             <div>
-              <div className="flex items-center gap-2.5 border-b border-slate-200 pb-4 mb-4">
+              <div className="flex items-center gap-2.5 border-b border-slate-200 pb-3 mb-3">
                 <Globe className="w-4 h-4 text-amber-600" />
-                <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Geographic Clusters</h2>
+                <h2 className="text-sm font-extrabold text-slate-900 uppercase tracking-wider">Geographic Clusters Map</h2>
+              </div>
+
+              {/* Interactive Open-Source Leaflet Map */}
+              <div className="mb-3">
+                <SecurityGeoMap stateCounts={stateCounts} totalUsers={totalUsers} />
               </div>
 
               {/* State-wise active clusters breakdown */}
-              <div className="space-y-4 overflow-y-auto max-h-[260px] custom-scrollbar pr-1">
+              <div className="space-y-3 overflow-y-auto max-h-[110px] custom-scrollbar pr-1">
                 {Object.entries(stateCounts).map(([state, count]) => {
                   const percentage = totalUsers > 0 ? (count / totalUsers) * 100 : 0;
                   return (
-                    <div key={state} className="space-y-1.5">
+                    <div key={state} className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider">
                         <span className="text-slate-900">{state}</span>
                         <span className="text-slate-600">{count} Active ({percentage.toFixed(0)}%)</span>
                       </div>
-                      <div className="relative w-full h-2 bg-slate-50 rounded-full overflow-hidden border border-white/[0.02]">
+                      <div className="relative w-full h-1.5 bg-slate-50 rounded-full overflow-hidden border border-white/[0.02]">
                         <motion.div
                           initial={{ width: 0 }}
                           animate={{ width: `${percentage}%` }}
-                          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400 shadow-[0_0_8px_rgba(245,158,11,0.2)]"
+                          className="h-full rounded-full bg-gradient-to-r from-amber-500 to-yellow-400"
                           transition={{ duration: 0.8, ease: "easeOut" }}
                         />
                       </div>
@@ -437,7 +443,7 @@ export default function ClientAuditDashboard({ userReports, anomalies, vaultStat
               </div>
             </div>
 
-            <div className="border-t border-slate-200 pt-4 text-[9px] text-slate-600 uppercase tracking-widest font-extrabold text-left leading-normal">
+            <div className="border-t border-slate-200 pt-3 text-[9px] text-slate-600 uppercase tracking-widest font-extrabold text-left leading-normal">
               State activity metrics are aggregated from player compliance onboarding profiles.
             </div>
           </div>
