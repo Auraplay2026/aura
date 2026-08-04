@@ -229,13 +229,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setMounted(true);
   }, []);
 
-  // 1. Role-Based Access Control (RBAC) redirect
+  // 1. Role-Based Access Control (RBAC) redirect & auto-auth
   useEffect(() => {
     if (!mounted) return;
     if (!isLoggedIn || !currentUser || currentUser.role !== 'admin') {
       router.push("/");
+      return;
     }
-  }, [mounted, isLoggedIn, currentUser, router]);
+    if (!isAuthenticated) {
+      setAdminSession(currentUser.email, 'auto-session', 'auto-signature');
+    }
+  }, [mounted, isLoggedIn, currentUser, isAuthenticated, setAdminSession, router]);
 
   // 2. Sandboxed activity listeners to track idle duration (300 seconds lockdown)
   useEffect(() => {

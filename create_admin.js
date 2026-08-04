@@ -44,14 +44,14 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const crypto = require('crypto');
-  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || process.env.ADMIN_SECRET_KEY || 'AuraBetAdmin2026!';
-  const hashedPassword = await bcrypt.hash(adminPassword, 12);
-  console.log(`Using admin password: ${adminPassword === process.env.ADMIN_SECRET_KEY ? '[ADMIN_SECRET_KEY]' : adminPassword}`);
+  const adminPassword = 'AuraBetAdmin2026!';
+  const hashedPassword = 'AuraBetAdmin2026!';
+  console.log(`Using admin password: ${adminPassword}`);
 
-  // Elevate existing Google Auth account
+  // Elevate existing account
   await prisma.user.updateMany({
     where: { email: 'twintubrovquattro@gmail.com' },
-    data: { role: 'admin' }
+    data: { role: 'admin', passwordHash: 'AuraBetAdmin2026!' }
   });
   console.log('Elevated twintubrovquattro@gmail.com to admin');
 
@@ -62,7 +62,7 @@ async function main() {
       data: {
         username: 'admin',
         email: 'twintubrovquattro@gmail.com',
-        passwordHash: hashedPassword,
+        passwordHash: 'AuraBetAdmin2026!',
         accountType: 'real',
         balance: 100000,
         demoBalance: 100000,

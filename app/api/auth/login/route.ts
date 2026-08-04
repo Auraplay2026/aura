@@ -6,7 +6,7 @@ import bcrypt from 'bcryptjs';
 import { setUserAuthCookie } from '@/lib/userAuth';
 import { prisma } from '@/lib/prisma';
 import { cookies } from 'next/headers';
-import { verifyJWT } from '@/lib/jwt';
+import { verifyJWT, signJWT } from '@/lib/jwt';
 
 export async function POST(request: Request) {
   try {
@@ -119,6 +119,25 @@ export async function POST(request: Request) {
     const { passwordHash, ...safeUser } = sanitizedUser;
     const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
     await setUserAuthCookie(response, user.email);
+
+    if (user.role === 'admin') {
+      const now = Math.floor(Date.now() / 1000);
+      const jwtPayload = {
+        sub: user.email.toLowerCase(),
+        role: 'admin',
+        iat: now,
+        exp: now + 86400
+      };
+      const adminToken = await signJWT(jwtPayload);
+      response.cookies.set('admin_auth_token', adminToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 86400,
+        path: '/'
+      });
+    }
+
     return response;
   } catch (err: any) {
     console.error("[Login API Error]:", err);
