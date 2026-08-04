@@ -983,7 +983,7 @@ export default function GamePlayerPage() {
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-28 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-36 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-3">

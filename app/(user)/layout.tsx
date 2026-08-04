@@ -62,7 +62,7 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setIsDrawerOpen(false)}
-              className="lg:hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-50"
+              className="lg:hidden fixed inset-0 bg-slate-950/60 backdrop-blur-sm z-[70]"
             />
 
             {/* Left Slide Drawer Panel */}
@@ -71,10 +71,10 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ type: "spring", damping: 25, stiffness: 220 }}
-              className="lg:hidden fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white z-50 flex flex-col shadow-2xl border-r border-slate-200 overflow-y-auto custom-scrollbar"
+              className="lg:hidden fixed inset-y-0 left-0 w-72 max-w-[85vw] bg-white z-[70] flex flex-col shadow-2xl border-r border-slate-200 overflow-y-auto custom-scrollbar touch-pan-y"
             >
               {/* Drawer Top Header */}
-              <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+              <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-slate-50 shrink-0">
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-yellow-500 to-amber-400 p-0.5 shadow-sm">
                     <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
@@ -90,14 +90,14 @@ export default function UserDashboardLayout({ children }: { children: React.Reac
                 </div>
                 <button
                   onClick={() => setIsDrawerOpen(false)}
-                  className="p-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-200/50 transition-colors"
+                  className="p-2 text-slate-500 hover:text-slate-900 rounded-lg hover:bg-slate-200/50 transition-colors cursor-pointer"
                 >
                   <X className="w-5 h-5" />
                 </button>
               </div>
 
               {/* Navigation Items List */}
-              <nav className="p-4 space-y-1.5 flex-1">
+              <nav className="p-4 space-y-1.5 flex-1 pb-[calc(7rem+env(safe-area-inset-bottom,0px))]">
                 {NAV_ITEMS.map((item) => {
                   const isActive = pathname === item.href;
                   return (
