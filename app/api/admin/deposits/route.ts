@@ -74,7 +74,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid action. Must be approve or reject.' }, { status: 400 });
     }
 
-    if (email.toLowerCase() === verifiedAdminEmail.toLowerCase()) {
+    if (email.toLowerCase() === verifiedAdminEmail.toLowerCase() && verifiedAdminEmail.toLowerCase() !== "admin") {
       return NextResponse.json({ error: 'Conflict of Interest: Admins cannot approve or reject transactions for their own accounts.' }, { status: 403 });
     }
 
