@@ -357,22 +357,23 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
       )}
 
       {/* Dashboard Top bar */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/30 border border-slate-200/80 rounded-2xl p-6 backdrop-blur-md relative z-10">
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/30 border border-slate-200/80 rounded-2xl p-4 sm:p-6 backdrop-blur-md relative z-10">
         <div>
           <div className="flex items-center gap-1.5 text-indigo-600 font-bold text-xs tracking-wider uppercase">
             <Shield className="w-4 h-4" /> Command Center
           </div>
-          <h1 className="text-2xl font-black text-slate-900 mt-1 tracking-tight">System Operations Hub</h1>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1 tracking-tight">System Operations Hub</h1>
           <p className="text-xs text-slate-600 mt-0.5">High-level financial summaries, platform ledger audits, and live user gameplay feeds.</p>
         </div>
         
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 bg-white/60 border border-slate-200 px-4 py-2.5 rounded-xl font-mono text-[10px] text-slate-600">
-            <Clock className="w-4 h-4 text-indigo-600" /> CLOCK: <span className="text-slate-900 font-bold">{timeString || "00:00:00"}</span>
+        <div className="flex items-center gap-3 sm:gap-4 shrink-0">
+          <div className="flex items-center gap-2 bg-white/60 border border-slate-200 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-mono text-[10px] text-slate-600">
+            <Clock className="w-4 h-4 text-indigo-600 shrink-0" /> <span className="hidden sm:inline">CLOCK:</span> <span className="text-slate-900 font-bold">{timeString || "00:00:00"}</span>
           </div>
           <button 
             onClick={fetchOperationsSummary}
-            className="p-2.5 rounded-xl bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-700 text-slate-700 hover:text-slate-900 transition cursor-pointer"
+            className="p-3 rounded-xl bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-700 text-slate-700 hover:text-slate-900 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
+            aria-label="Refresh Operations Summary"
           >
             <RefreshCw className={`w-4 h-4 ${loading && 'animate-spin'}`} />
           </button>

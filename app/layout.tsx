@@ -10,6 +10,8 @@ import { AchievementToast } from "@/components/ui/AchievementToast";
 import { WinCelebration } from "@/components/ui/WinCelebration";
 import { SmartNotificationBanner } from "@/components/ui/SmartNotificationBanner";
 
+import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
+
 const outfit = Outfit({ subsets: ["latin"], display: 'swap', weight: ['300', '400', '500', '600', '700', '800', '900'] });
 
 export const viewport = {
@@ -18,6 +20,7 @@ export const viewport = {
   initialScale: 1,
   maximumScale: 1,
   userScalable: false,
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {
@@ -55,7 +58,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode; }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-red-200/50 selection:text-red-900`}>
+      <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-red-200/50 selection:text-red-900 pb-16 md:pb-0`}>
         <AppProviders>
           <GlobalAlerts />
           <GlobalHypeFeed />
@@ -65,6 +68,7 @@ export default function RootLayout({
           <WinCelebration />
           <SmartNotificationBanner />
           {children}
+          <MobileBottomNav />
         </AppProviders>
       </body>
     </html>

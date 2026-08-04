@@ -530,13 +530,13 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
           })}
         </nav>
 
-        <div className="p-4 z-10 relative border-t border-slate-200 shrink-0">
+        <div className="p-4 z-10 relative border-t border-slate-200 shrink-0 pb-[calc(1rem+env(safe-area-inset-bottom,0px))]">
           <button 
             onClick={() => {
               clearAdminSession();
               router.push("/");
             }} 
-            className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 font-bold tracking-widest text-xs uppercase transition-all duration-300 border border-transparent hover:border-rose-500/10 text-left"
+            className="w-full flex items-center gap-3.5 px-4 py-3.5 rounded-xl text-rose-600 hover:text-rose-700 hover:bg-rose-500/10 font-bold tracking-widest text-xs uppercase transition-all duration-300 border border-transparent hover:border-rose-500/10 text-left min-h-[44px]"
           >
             <div className="w-7 h-7 rounded-lg bg-rose-500/10 flex items-center justify-center text-rose-600 shrink-0">
               <LogOut className="w-4 h-4" />
