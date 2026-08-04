@@ -115,18 +115,12 @@ export default function RewardsPage() {
             Please authenticate your player account to claim your daily drops, monitor rakeback progress, and access the rewards schedule.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+          <div className="flex gap-4 w-full justify-center">
             <button 
               onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
-              className="bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-slate-950 font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(234,179,8,0.25)] transform hover:scale-[1.02] active:scale-95"
+              className="bg-gradient-to-r from-yellow-600 to-amber-500 hover:from-yellow-500 hover:to-amber-400 text-slate-950 font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(234,179,8,0.25)] transform hover:scale-[1.02] active:scale-95 w-full max-w-xs"
             >
               Log In to Claim
-            </button>
-            <button 
-              onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-              className="bg-slate-50 hover:bg-slate-100 border border-slate-700/80 text-slate-900 font-bold px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-colors"
-            >
-              Register Account
             </button>
           </div>
         </div>

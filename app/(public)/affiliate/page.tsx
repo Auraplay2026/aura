@@ -121,20 +121,14 @@ export default function AffiliatePage() {
             Access the AuraBet B2B portal. Log in to your player account to track your referrals, monitor real-time commissions, and create custom tracking URLs.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+          <div className="flex gap-4 w-full justify-center">
             <button 
-              onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
-              className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-slate-900 font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(220,38,38,0.3)] transform hover:scale-[1.02] active:scale-95"
-            >
-              Sign In to Partner Account
-            </button>
-            <button 
-              onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'signup' } }))}
-              className="bg-slate-50 hover:bg-slate-100 border border-slate-700/80 text-slate-900 font-bold px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-colors"
-            >
-              Create Account
-            </button>
-          </div>
+               onClick={() => window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }))}
+               className="bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-slate-900 font-black px-8 py-4 rounded-xl text-lg tracking-wide uppercase transition-all shadow-[0_0_30px_rgba(220,38,38,0.3)] transform hover:scale-[1.02] active:scale-95 w-full max-w-xs"
+             >
+               Sign In to Partner Account
+             </button>
+           </div>
         </div>
       </div>
     );

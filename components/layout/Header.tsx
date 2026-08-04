@@ -347,15 +347,9 @@ export function Header() {
           <div className="flex items-center gap-2">
             <button 
               onClick={() => { setAuthView('login'); setIsAuthOpen(true); }}
-              className="text-exchange-text hover:text-red-600 font-bold text-xs px-3 py-1.5 transition-colors"
+              className="bg-exchange-text hover:bg-slate-100 text-slate-900 font-bold text-xs px-4 py-1.5 rounded-sm transition-colors cursor-pointer"
             >
               Log In
-            </button>
-            <button 
-              onClick={() => { setAuthView('signup'); setIsAuthOpen(true); }}
-              className="bg-exchange-text hover:bg-slate-100 text-slate-900 font-bold text-xs px-4 py-1.5 rounded-sm transition-colors"
-            >
-              Sign Up
             </button>
           </div>
         )}

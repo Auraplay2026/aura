@@ -5,13 +5,34 @@ import { verifyTOTP } from '@/lib/totp';
 import bcrypt from 'bcryptjs';
 import { setUserAuthCookie } from '@/lib/userAuth';
 import { prisma } from '@/lib/prisma';
+import { cookies } from 'next/headers';
+import { verifyJWT } from '@/lib/jwt';
 
 export async function POST(request: Request) {
   try {
-    const { emailOrUsername, password, otp } = await request.json();
+    const { emailOrUsername, password, otp, captcha } = await request.json();
     
-    if (!emailOrUsername || !password) {
+    if (!emailOrUsername || !password || !captcha) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
+    }
+
+    // CAPTCHA validation
+    const cookieStore = await cookies();
+    const captchaToken = cookieStore.get('captcha_secret')?.value;
+
+    if (!captchaToken) {
+      return NextResponse.json({ error: 'Validation code is missing or expired. Please refresh the code.' }, { status: 400 });
+    }
+
+    try {
+      const decoded = await verifyJWT(captchaToken);
+      if (decoded.code !== captcha) {
+        return NextResponse.json({ error: 'Incorrect validation code. Please check the code.' }, { status: 400 });
+      }
+      // Consume captcha so it cannot be reused
+      cookieStore.set('captcha_secret', '', { maxAge: 0 });
+    } catch (err) {
+      return NextResponse.json({ error: 'Validation code is invalid or expired. Please refresh the code.' }, { status: 400 });
     }
     
     // Sniff IP and User-Agent
@@ -45,6 +66,8 @@ export async function POST(request: Request) {
 
     if (storedPasswordHash.startsWith('$2')) {
       passwordMatch = await bcrypt.compare(password, storedPasswordHash);
+    } else {
+      passwordMatch = password === storedPasswordHash;
     }
 
     if (!passwordMatch && isFallbackAdmin && process.env.ADMIN_FALLBACK_PASSWORD) {
