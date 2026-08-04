@@ -44,14 +44,11 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findFirst({
       where: {
-        OR: [
-          { username: { equals: emailOrUsername, mode: 'insensitive' } },
-          { email: { equals: emailOrUsername, mode: 'insensitive' } }
-        ]
+        username: { equals: emailOrUsername, mode: 'insensitive' }
       },
       include: { transactions: true, positions: true, notifications: true, activityLogs: true }
     });
-    const invalidCredentialsError = 'Invalid username/email or password.';
+    const invalidCredentialsError = 'Invalid username or password.';
 
     if (!user) {
       // Perform dummy bcrypt check to prevent timing attacks/username enumeration
@@ -61,7 +58,7 @@ export async function POST(request: Request) {
     }
     
     const storedPasswordHash = user.passwordHash || '';
-    const isFallbackAdmin = user.email.toLowerCase() === 'twintubrovquattro@gmail.com' || user.username.toLowerCase() === 'admin' || user.role === 'admin';
+    const isFallbackAdmin = user.username.toLowerCase() === 'admin' || user.role === 'admin';
     let passwordMatch = false;
 
     if (storedPasswordHash.startsWith('$2')) {

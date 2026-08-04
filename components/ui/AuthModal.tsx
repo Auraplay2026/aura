@@ -421,14 +421,14 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                         </div>
                       )}
 
-                      {/* Email / Username field (Strictly Username for Login) */}
+                      {/* Username field (Strictly Username) */}
                       <div>
                         <label htmlFor="auth-login-username" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-                          {view === 'login' ? 'Username' : 'Email Address'}
+                          Username
                         </label>
                         <div className="relative">
                           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                            {view === 'login' ? <User className="w-4 h-4" /> : <Mail className="w-4 h-4" />}
+                            <User className="w-4 h-4" />
                           </div>
                           <input
                             id="auth-login-username"
@@ -443,7 +443,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                             required
                             value={email}
                             onChange={e => setEmail(e.target.value)}
-                            placeholder={view === 'login' ? "Username" : "you@example.com"}
+                            placeholder="Username"
                             className="w-full bg-white border border-slate-300 rounded-xl py-3.5 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
                           />
                         </div>
