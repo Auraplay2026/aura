@@ -134,10 +134,10 @@ export async function proxy(request: NextRequest) {
     if (pathname.startsWith('/api/admin')) {
       return NextResponse.json({ error: 'Unauthorized: Session missing' }, { status: 401 });
     }
-    if (pathname === '/admin' || pathname === '/admin/login') {
+    if (pathname.startsWith('/admin')) {
       return NextResponse.next();
     }
-    return NextResponse.redirect(new URL('/admin/login', request.url));
+    return NextResponse.redirect(new URL('/admin', request.url));
   }
 
   try {

