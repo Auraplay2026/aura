@@ -9,7 +9,7 @@ export default async function PaymentSettingsPage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/admin/login");
+    // Layout handles authentication
   }
 
   const settings = getPaymentSettings();

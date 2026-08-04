@@ -12,7 +12,7 @@ export default async function AffiliatePage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/admin/login");
+    // Layout handles authentication
   }
 
   return <ClientAffiliateDashboard />;

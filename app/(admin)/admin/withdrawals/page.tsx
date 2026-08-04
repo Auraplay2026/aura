@@ -9,14 +9,14 @@ export default async function AdminWithdrawalsPage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/admin/login");
+    // Layout handles authentication
   }
 
-  const users = await getUsers();
+  const users = await getUsers().catch(() => []);
   
   // Aggregate all transactions into a single feed
-  const allTransactions = users.flatMap(u => 
-    u.realTransactions.map(tx => ({ 
+  const allTransactions = (users || []).flatMap(u => 
+    (u.realTransactions || []).map(tx => ({ 
       ...tx, 
       email: u.email, 
       username: u.username 

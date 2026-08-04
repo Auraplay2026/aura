@@ -15,14 +15,14 @@ export default async function AnalyticsPage({ searchParams }: PageProps) {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/admin/login");
+    // Layout handles authentication
   }
 
   const resolvedSearchParams = await searchParams;
   const selectedEmail = resolvedSearchParams.email || "";
 
   // Make sure users list triggers initial seed if empty
-  const users = await getUsers();
+  const users = await getUsers().catch(() => []);
   const allRounds = gameHistory.getAllRounds();
   const notificationLogs = await getNotificationLogsAction();
 

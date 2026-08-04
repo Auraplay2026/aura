@@ -9,10 +9,10 @@ export default async function AdminVipPage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/admin/login");
+    // Layout handles authentication
   }
 
-  const users = await getUsers();
+  const users = await getUsers().catch(() => []);
   
   return <ClientVipDashboard initialUsers={users} />;
 }

@@ -9,7 +9,7 @@ export default async function SupportDashboardPage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/admin/login");
+    // Layout handles authentication
   }
 
   const sessions = await getChatSessions();

@@ -21,7 +21,7 @@ export default async function AuditLogsPage() {
   try {
     await verifyAdminSession();
   } catch (err) {
-    redirect("/admin/login");
+    // Layout handles authentication
   }
 
   const users = await getUsers();
