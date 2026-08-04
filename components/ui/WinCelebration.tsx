@@ -7,6 +7,8 @@ import { Trophy } from "lucide-react";
 import { ConfettiCanvas } from "./ConfettiCanvas";
 import { usePathname } from "next/navigation";
 
+import confetti from "canvas-confetti";
+
 export function WinCelebration() {
   const pathname = usePathname();
   const { latestWinCelebration, clearLatestWinCelebration, currentUser, soundEnabled } = useTradingStore();
@@ -32,6 +34,16 @@ export function WinCelebration() {
     }
     setTier(currentTier);
     setActive(true);
+
+    // Fire canvas-confetti burst
+    try {
+      confetti({
+        particleCount: currentTier === 3 ? 150 : currentTier === 2 ? 80 : 40,
+        spread: currentTier === 3 ? 100 : 70,
+        origin: { y: 0.6 },
+        colors: ['#FFD700', '#22C55E', '#A855F7', '#3B82F6']
+      });
+    } catch {}
 
     // Audio context sounds based on tier
     if (soundEnabled !== false) {

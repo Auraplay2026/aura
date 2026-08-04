@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
+import { ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip } from "recharts";
 import { 
   adminSimulateWagerAction, 
   adminTriggerSportsSyncAction, 
@@ -235,68 +236,42 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
 
   const netProfit = totalDeposits - totalWithdrawals - totalUserBalances;
 
-  // Render Premium SVG Margin Area Chart
+  // Recharts interactive volume trend chart
   const renderAreaChart = () => {
-    const hourlyData = [0.05, 0.12, 0.08, 0.22, 0.18, 0.35, 0.42, 0.38, 0.55, 0.48, 0.72, 0.85];
-    const width = 500;
-    const height = 150;
-    const paddingX = 20;
-    const paddingY = 15;
-
-    const chartWidth = width - paddingX * 2;
-    const chartHeight = height - paddingY * 2;
-
-    const points = hourlyData.map((val, idx) => {
-      const x = paddingX + (idx / (hourlyData.length - 1)) * chartWidth;
-      const y = paddingY + chartHeight - val * chartHeight;
-      return { x, y };
-    });
-
-    let linePath = "";
-    let areaPath = "";
-
-    if (points.length > 0) {
-      linePath = `M ${points[0].x} ${points[0].y}`;
-      areaPath = `M ${points[0].x} ${height - paddingY} L ${points[0].x} ${points[0].y}`;
-      
-      for (let i = 1; i < points.length; i++) {
-        const prev = points[i - 1];
-        const curr = points[i];
-        const cpX = (prev.x + curr.x) / 2;
-        linePath += ` Q ${cpX} ${prev.y}, ${curr.x} ${curr.y}`;
-        areaPath += ` Q ${cpX} ${prev.y}, ${curr.x} ${curr.y}`;
-      }
-      areaPath += ` L ${points[points.length - 1].x} ${height - paddingY} Z`;
-    }
+    const chartData = [
+      { time: '00:00', volume: 15000 },
+      { time: '02:00', volume: 32000 },
+      { time: '04:00', volume: 28000 },
+      { time: '06:00', volume: 54000 },
+      { time: '08:00', volume: 48000 },
+      { time: '10:00', volume: 75000 },
+      { time: '12:00', volume: 92000 },
+      { time: '14:00', volume: 88000 },
+      { time: '16:00', volume: 125000 },
+      { time: '18:00', volume: 110000 },
+      { time: '20:00', volume: 165000 },
+      { time: '22:00', volume: 195000 },
+    ];
 
     return (
-      <div className="relative w-full h-[150px] select-none mt-2">
-        <svg viewBox={`0 0 ${width} ${height}`} className="w-full h-full">
-          <defs>
-            <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#6366f1" stopOpacity="0.25" />
-              <stop offset="100%" stopColor="#6366f1" stopOpacity="0.0" />
-            </linearGradient>
-            <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
-              <feGaussianBlur stdDeviation="4" result="blur" />
-              <feMerge>
-                <feMergeNode in="blur" />
-                <feMergeNode in="SourceGraphic" />
-              </feMerge>
-            </filter>
-          </defs>
-          <line x1={paddingX} y1={paddingY} x2={width - paddingX} y2={paddingY} stroke="rgba(255,255,255,0.02)" strokeDasharray="3,3" />
-          <line x1={paddingX} y1={paddingY + chartHeight} x2={width - paddingX} y2={paddingY + chartHeight} stroke="rgba(255,255,255,0.05)" />
-          {areaPath && <path d={areaPath} fill="url(#areaGrad)" />}
-          {linePath && <path d={linePath} fill="none" stroke="url(#lineGrad)" strokeWidth="2.5" filter="url(#glow)" className="stroke-indigo-500" />}
-          <linearGradient id="lineGrad" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0%" stopColor="#818cf8" />
-            <stop offset="100%" stopColor="#22d3ee" />
-          </linearGradient>
-          {points.map((p, idx) => (
-            <circle key={idx} cx={p.x} cy={p.y} r="2.5" className="fill-indigo-950 stroke-indigo-400 stroke-2 hover:r-4 transition-all" />
-          ))}
-        </svg>
+      <div className="w-full h-[160px] select-none mt-2">
+        <ResponsiveContainer width="100%" height="100%">
+          <AreaChart data={chartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+            <defs>
+              <linearGradient id="volumeGrad" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#6366f1" stopOpacity={0.4} />
+                <stop offset="95%" stopColor="#6366f1" stopOpacity={0.0} />
+              </linearGradient>
+            </defs>
+            <XAxis dataKey="time" stroke="#94a3b8" fontSize={9} tickLine={false} />
+            <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} tickFormatter={(v) => `₹${(v/1000).toFixed(0)}k`} />
+            <Tooltip 
+              contentStyle={{ backgroundColor: '#0f172a', borderColor: '#334155', borderRadius: '12px', fontSize: '11px', color: '#f8fafc' }}
+              formatter={(val: any) => [`₹${Number(val).toLocaleString('en-IN')}`, 'Margin Volume']}
+            />
+            <Area type="monotone" dataKey="volume" stroke="#6366f1" strokeWidth={2.5} fillOpacity={1} fill="url(#volumeGrad)" />
+          </AreaChart>
+        </ResponsiveContainer>
       </div>
     );
   };
