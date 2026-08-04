@@ -53,7 +53,7 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
   if (!draftBet) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 sm:left-auto sm:right-8 z-50 w-full sm:max-w-[340px] px-3 sm:px-0 pb-3 sm:pb-0">
+    <div className="fixed bottom-0 left-0 right-0 sm:left-auto sm:right-8 z-[60] w-full sm:max-w-[340px] px-3 sm:px-0 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-3 sm:pb-0">
       {/* Drawer Header (Always visible when there is a draft bet) */}
       <div 
         onClick={() => setIsExpanded(!isExpanded)}
@@ -152,10 +152,10 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
               <button
                 onClick={handlePlaceBet}
                 disabled={isProcessing || stake <= 0 || balance < totalCost}
-                className="w-full bg-white hover:bg-slate-50 disabled:bg-slate-200 disabled:text-slate-400 text-slate-900 font-black py-3 rounded-lg flex justify-center items-center gap-2 transition-all uppercase tracking-widest text-sm cursor-pointer"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:bg-slate-200 disabled:text-slate-400 text-white font-extrabold py-3.5 rounded-lg flex justify-center items-center gap-2 transition-all uppercase tracking-wider text-sm cursor-pointer shadow-md active:scale-95"
               >
                 {isProcessing ? (
-                  <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                 ) : balance < totalCost ? (
                   "Insufficient Funds"
                 ) : (

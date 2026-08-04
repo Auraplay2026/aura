@@ -46,7 +46,7 @@ export function AIConcierge() {
   if (!isClient) return null;
 
   return (
-    <div className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-6"} z-[100] flex flex-col items-end gap-4 transition-all duration-300 pointer-events-none ${isSportsbook ? "right-6 lg:right-[344px]" : "right-6"}`}>
+    <div className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-20 md:bottom-6"} z-[42] flex flex-col items-end gap-4 transition-all duration-300 pointer-events-none ${isSportsbook ? "right-4 sm:right-6 lg:right-[344px]" : "right-4 sm:right-6"}`}>
       <AnimatePresence>
         {isOpen && (
           <motion.div

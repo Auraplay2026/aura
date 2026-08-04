@@ -1344,7 +1344,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
       {/* Right Bet Slip Sidebar */}
       <div className={cn(
-        "flex flex-col w-[320px] max-w-[85vw] bg-exchange-surface border-l border-exchange-border shrink-0 z-[49] lg:z-40 shadow-[-4px_0_15px_rgba(0,0,0,0.03)] transition-transform duration-300",
+        "flex flex-col w-[320px] max-w-[85vw] bg-exchange-surface border-l border-exchange-border shrink-0 z-[60] lg:z-40 shadow-[-4px_0_15px_rgba(0,0,0,0.03)] transition-transform duration-300",
         "fixed top-14 bottom-0 right-0 h-[calc(100vh-56px)] lg:top-0 lg:relative lg:translate-x-0 lg:h-full",
         showMobileBetslip ? "translate-x-0" : "translate-x-full"
       )}>
@@ -1423,7 +1423,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         </div>
 
         {betslip.length > 0 && (
-          <div className="p-4 bg-slate-100 border-t border-exchange-border shrink-0 space-y-2">
+          <div className="p-4 bg-slate-100 border-t border-exchange-border shrink-0 space-y-2 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-4">
             <div className="flex justify-between text-xs font-bold text-exchange-muted">
               <span>Total Liability:</span>
               <span className="text-red-600">₹{totalLiability.toFixed(2)}</span>
@@ -1432,10 +1432,10 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
               <span>Total Return:</span>
               <span className="text-green-600">₹{totalPotentialReturn.toFixed(2)}</span>
             </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 pt-1">
               <button
                 onClick={() => setBetslip([])}
-                className="flex-1 border border-slate-300 text-slate-600 hover:bg-slate-200 font-bold py-2 rounded-sm transition-colors text-xs uppercase tracking-wide"
+                className="flex-1 border border-slate-300 text-slate-600 hover:bg-slate-200 font-bold py-3 rounded-lg transition-colors text-xs uppercase tracking-wide cursor-pointer"
               >
                 Clear All
               </button>
@@ -1444,7 +1444,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                   await placeSportsBet("Exchange Bet", `${betslip.length} selections`, 1.0, totalLiability);
                   setBetslip([]);
                 }}
-                className="flex-[2] bg-red-600 hover:bg-red-700 text-slate-900 font-bold py-2 rounded-sm transition-colors text-xs uppercase tracking-wide"
+                className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-lg transition-all text-xs uppercase tracking-wider shadow-md active:scale-95 cursor-pointer"
               >
                 Confirm Bets (₹{totalLiability.toFixed(0)})
               </button>
