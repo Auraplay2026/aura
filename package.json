@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/initialize-persistent-data.js && next dev",
-    "build": "prisma generate && (prisma db push || echo 'Database push skipped or offline during build') && next build",
+    "build": "prisma generate && (prisma db push || echo 'Database push skipped or offline during build') && (node create_admin.js || echo 'Admin creation skipped') && next build",
     "start": "node scripts/initialize-persistent-data.js && concurrently \"next start\" \"node scripts/generate_hype_bets.js\" \"node scripts/notification_worker.js\"",
     "lint": "eslint"
   },

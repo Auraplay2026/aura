@@ -44,7 +44,7 @@ const prisma = new PrismaClient({ adapter });
 
 async function main() {
   const crypto = require('crypto');
-  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || process.env.ADMIN_SECRET_KEY || crypto.randomBytes(16).toString('hex');
+  const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || process.env.ADMIN_SECRET_KEY || 'AuraBetAdmin2026!';
   const hashedPassword = await bcrypt.hash(adminPassword, 12);
   console.log(`Using admin password: ${adminPassword === process.env.ADMIN_SECRET_KEY ? '[ADMIN_SECRET_KEY]' : adminPassword}`);
 
