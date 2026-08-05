@@ -56,9 +56,26 @@ export const metadata: Metadata = {
 export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode; }>) {
+  const jsonLdSchema = {
+    "@context": "https://schema.org",
+    "@type": "EntertainmentBusiness",
+    "name": "AuraPlay Exchange",
+    "url": "https://auraplay.com",
+    "logo": "https://auraplay.com/logo.png",
+    "description": "Top 1% iGaming, Sportsbook Exchange, and Cloud Gaming Platform.",
+    "sameAs": [
+      "https://twitter.com/AuraPlay",
+      "https://t.me/AuraPlayOfficial"
+    ]
+  };
+
   return (
     <html lang="en" suppressHydrationWarning>
       <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-red-200/50 selection:text-red-900 pb-16 md:pb-0`}>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLdSchema) }}
+        />
         <AppProviders>
           <GlobalAlerts />
           <GlobalHypeFeed />

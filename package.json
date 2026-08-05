@@ -22,12 +22,14 @@
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",
     "concurrently": "^10.0.3",
+    "dompurify": "^3.4.13",
     "eslint": "^9",
     "eslint-config-next": "16.2.7",
     "framer-motion": "^12.40.0",
     "leaflet": "^1.9.4",
     "lucide-react": "^1.17.0",
     "next": "16.2.7",
+    "next-sitemap": "^4.2.3",
     "nodemailer": "^8.0.11",
     "pg": "^8.21.0",
     "prisma": "^7.8.0",
@@ -35,6 +37,7 @@
     "react-dom": "19.2.4",
     "react-leaflet": "^5.0.0",
     "recharts": "^3.10.1",
+    "schema-dts": "^2.0.0",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4",
     "three": "^0.184.0",
@@ -44,6 +47,7 @@
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",
+    "@types/dompurify": "^3.0.5",
     "@types/leaflet": "^1.9.22",
     "@types/three": "^0.184.1"
   }
