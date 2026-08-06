@@ -7,6 +7,7 @@ import { useTradingStore } from "@/lib/store";
 import { useSearchParams } from "next/navigation";
 import { useSidebarContext } from "@/components/layout/AppProviders";
 import { validateTransactionIdempotency, adjustOddsForExposure, parseAndSettleBet } from "@/lib/mathEngine";
+import { MarketPulseTicker } from "@/components/sportsbook/MarketPulseTicker";
 
 // ─── Exchange Cell (Match Odds Back/Lay) ─────────────────────────────────────
 const ExchangeCell = ({ value, trend, type, onClick, isSelected, suspended }: any) => {
@@ -718,6 +719,9 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
       {/* Main Exchange Grid */}
       <div className="flex-1 flex flex-col min-w-0 bg-exchange-surface">
+        
+        {/* Live Market Pulse Ticker Stream */}
+        <MarketPulseTicker />
 
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-exchange-border bg-white shrink-0">
