@@ -13,9 +13,12 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Missing settlement parameters: email, transactionId, status, payout.' }, { status: 400 });
     }
 
-    if (status !== 'Won' && status !== 'Lost') {
-      return NextResponse.json({ error: 'Invalid settlement status. Must be "Won" or "Lost".' }, { status: 400 });
+    const validStatuses = ['Won', 'Lost', 'Void', 'VOID'];
+    if (!validStatuses.includes(status)) {
+      return NextResponse.json({ error: 'Invalid settlement status. Must be "Won", "Lost", or "Void".' }, { status: 400 });
     }
+
+    const normalizedStatus = (status === 'VOID' || status === 'Void') ? 'Void' : status;
 
     const result = await prisma.$transaction(async (txClient) => {
       // Lock user row by email OR username to prevent race conditions
@@ -65,8 +68,10 @@ export async function POST(request: Request) {
       const totalRequired = stake + liability;
 
       let expectedPayout = 0;
-      if (status === 'Won') {
+      if (normalizedStatus === 'Won') {
         expectedPayout = isLay ? totalRequired : Math.round(stake * odds * 100) / 100;
+      } else if (normalizedStatus === 'Void') {
+        expectedPayout = totalRequired; // Full stake + liability refund for Rain/Interruption
       }
 
       // Enforce math validation
@@ -84,7 +89,7 @@ export async function POST(request: Request) {
       const newBalance = Math.round((activeBalance + payout) * 100) / 100;
 
       // Update transaction status and details in DB
-      const updatedDetails = `${details} · Settle: ${status}`;
+      const updatedDetails = `${details} · Settle: ${normalizedStatus}`;
       
       // Perform update
       const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
@@ -95,7 +100,7 @@ export async function POST(request: Request) {
         balanceAfter: newBalance,
         timestamp: dbTx.timestamp,
         details: updatedDetails,
-        status: status
+        status: normalizedStatus === 'Void' ? 'Failed' : normalizedStatus
       };
 
       const updates: any = {
@@ -103,16 +108,18 @@ export async function POST(request: Request) {
         transactions: [txItem]
       };
 
-      // If won and payout > 0, we also record a separate deposit transaction for payout trace
+      // If won or void with payout > 0, record a separate deposit/refund transaction for payout trace
       let payoutTx: Transaction | null = null;
-      if (status === 'Won' && payout > 0) {
+      if ((normalizedStatus === 'Won' || normalizedStatus === 'Void') && payout > 0) {
         payoutTx = {
           id: txId,
-          type: 'deposit',
+          type: normalizedStatus === 'Void' ? 'deposit' : 'deposit',
           amount: payout,
           balanceAfter: newBalance,
           timestamp: Date.now(),
-          details: `Settle Payout: ${details.split('on')[1] || details}`,
+          details: normalizedStatus === 'Void' 
+            ? `Refund: Market Voided (Rain/Interruption) for ${details.split('on')[1] || details}`
+            : `Settle Payout: ${details.split('on')[1] || details}`,
           status: 'Completed'
         };
         updates.transactions.push(payoutTx);

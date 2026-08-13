@@ -5,7 +5,7 @@ import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
-    const { email, matchTitle, selection, odds, stake, side, uuid } = await request.json();
+    const { email, matchTitle, selection, odds, stake, side, uuid, currentMarketOdds, marketStatus } = await request.json();
 
     if (!email || !matchTitle || !selection || !odds || !stake) {
       return NextResponse.json({ error: 'Missing required sportsbook bet parameters.' }, { status: 400 });
@@ -17,6 +17,11 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
+    // Anti-Courtsiding & Market Status Guard
+    if (marketStatus && (marketStatus === 'SUSPENDED' || marketStatus === 'suspended' || marketStatus === 'Closed')) {
+      return NextResponse.json({ error: 'MARKET_SUSPENDED: Wagers are temporarily suspended on this market.' }, { status: 400 });
+    }
+
     const parsedStake = Number(stake);
     const parsedOdds = Number(odds);
 
@@ -25,6 +30,19 @@ export async function POST(request: Request) {
       typeof odds !== 'number' || isNaN(parsedOdds) || !isFinite(parsedOdds) || parsedOdds <= 1
     ) {
       return NextResponse.json({ error: 'Stake must be positive and odds must be greater than 1.' }, { status: 400 });
+    }
+
+    // Anti-Courtsiding Odds Slippage Guard (> 5% drift)
+    if (currentMarketOdds && typeof currentMarketOdds === 'number' && currentMarketOdds > 0) {
+      const oddsDrift = Math.abs(parsedOdds - currentMarketOdds) / currentMarketOdds;
+      if (oddsDrift > 0.05) {
+        return NextResponse.json({ 
+          error: 'ODDS_DRIFT_EXCEEDED: Market odds shifted by more than 5% during execution buffer. Please reconfirm.',
+          requestedOdds: parsedOdds,
+          currentOdds: currentMarketOdds,
+          driftPercentage: (oddsDrift * 100).toFixed(1) + '%'
+        }, { status: 400 });
+      }
     }
 
     const result = await prisma.$transaction(async (txClient) => {

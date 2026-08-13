@@ -211,11 +211,16 @@ export async function GET(req: NextRequest) {
             tick: tickCount,
           });
 
-          controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
-        } catch (err) {
-          console.error("[SSE Stream] Error fetching live data:", err);
-          // Send error event so client knows something went wrong
-          controller.enqueue(encoder.encode(`event: error\ndata: {"message":"Feed temporarily unavailable"}\n\n`));
+          if (!cancelled) {
+            controller.enqueue(encoder.encode(`data: ${payload}\n\n`));
+          }
+        } catch (err: any) {
+          if (!cancelled && err?.code !== 'ERR_INVALID_STATE') {
+            console.error("[SSE Stream] Error fetching live data:", err);
+            try {
+              controller.enqueue(encoder.encode(`event: error\ndata: {"message":"Feed temporarily unavailable"}\n\n`));
+            } catch {}
+          }
         }
       };
 
