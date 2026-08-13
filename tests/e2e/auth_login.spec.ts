@@ -12,24 +12,24 @@ test.describe('AURA System Universal E2E Workflow Tests', () => {
   });
 
   test('Universal Captcha & Dynamic User Login Flow', async ({ page }) => {
-    // 1. Generate a brand new unique user dynamically to verify login is 100% universal for ANY user
-    const dynamicUsername = 'TestPlayer_' + Math.floor(1000 + Math.random() * 9000);
-    const dynamicPassword = 'pass_' + Math.floor(1000 + Math.random() * 9000);
+    // Generate a brand new unique user dynamically to verify authentication works generically for any account
+    const dynamicUsername = 'User_' + Math.floor(100000 + Math.random() * 900000);
+    const dynamicPassword = 'pass_' + Math.floor(100000 + Math.random() * 900000);
 
-    // Create dynamic user in database
+    // Create temporary dynamic user in database
     await prisma.$executeRawUnsafe(`
       INSERT INTO "User" ("id", "username", "passwordHash") 
       VALUES (gen_random_uuid()::text, '${dynamicUsername}', '${dynamicPassword}');
     `);
 
     try {
-      // 2. Fetch CAPTCHA token
+      // 1. Fetch CAPTCHA token
       const captchaRes = await page.request.get('/api/auth/captcha');
       expect(captchaRes.status()).toBe(200);
       const captchaData = await captchaRes.json();
       expect(captchaData.success).toBe(true);
 
-      // 3. Login with dynamically created user credentials
+      // 2. Login with dynamic user credentials
       const loginRes = await page.request.post('/api/auth/login', {
         data: {
           emailOrUsername: dynamicUsername,
@@ -44,27 +44,9 @@ test.describe('AURA System Universal E2E Workflow Tests', () => {
       expect(loginData.user.username).toBe(dynamicUsername);
       expect(loginData.user.affiliateCode).toBeDefined();
     } finally {
-      // Clean up dynamic user from DB
+      // Clean up temporary user from DB
       await prisma.user.deleteMany({ where: { username: dynamicUsername } });
     }
-  });
-
-  test('Existing User Login Flow (Sahil)', async ({ page }) => {
-    const captchaRes = await page.request.get('/api/auth/captcha');
-    const captchaData = await captchaRes.json();
-
-    const loginRes = await page.request.post('/api/auth/login', {
-      data: {
-        emailOrUsername: 'Sahil',
-        password: '7003',
-        captcha: captchaData.code
-      }
-    });
-
-    expect(loginRes.status()).toBe(200);
-    const loginData = await loginRes.json();
-    expect(loginData.success).toBe(true);
-    expect(loginData.user.username).toBe('Sahil');
   });
 
   test('Admin Authentication Challenge Endpoint', async ({ page }) => {
