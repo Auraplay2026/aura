@@ -10,7 +10,9 @@ import { verifyJWT, signJWT } from '@/lib/jwt';
 
 export async function POST(request: Request) {
   try {
-    const { emailOrUsername, password, otp, captcha } = await request.json();
+    const body = await request.json();
+    const emailOrUsername = body.emailOrUsername || body.email;
+    const { password, otp, captcha } = body;
     
     if (!emailOrUsername || !password || !captcha) {
       return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
