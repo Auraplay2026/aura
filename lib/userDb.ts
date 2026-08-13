@@ -27,6 +27,7 @@ export interface Transaction {
 }
 
 export interface UserProfile {
+  id?: string;
   username: string;
   email: string;
   passwordHash: string;
@@ -41,32 +42,30 @@ export interface UserProfile {
   realPositions: Position[];
   realTransactions: Transaction[];
   hasCompletedOnboarding?: boolean;
-  phoneNumber?: string;
-  gamingState?: string;
-  upiId?: string;
-  fullName?: string;
-  dob?: string;
-  address?: string;
   twoFactorEnabled?: boolean;
-  twoFactorSecret?: string;
+  twoFactorSecret?: string | null;
   role?: 'user' | 'admin' | 'BANNED';
   kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
-  kycDocumentUrl?: string;
-  notifications?: { id: string; message: string; timestamp: number; read: boolean }[];
-  activityLogs?: any[];
-  geoRestricted?: boolean;
-  verifiedAge?: number;
-  adminNotes?: string;
-  affiliateCode?: string;
-  referredBy?: string;
+  kycDocumentUrl?: string | null;
+  adminNotes?: string | null;
+  phoneNumber?: string | null;
+  gamingState?: string | null;
+  upiId?: string | null;
+  fullName?: string | null;
+  dob?: string | null;
+  address?: string | null;
+  resetCode?: string | null;
+  resetCodeExpires?: number | null;
+  affiliateCode?: string | null;
+  referredBy?: string | null;
   referralCount?: number;
   affiliateEarnings?: number;
   totalWagered?: number;
   vipLevel?: string;
   manualVipLevel?: string | null;
-  vipRewardsClaimed?: Record<string, boolean>;
-  resetCode?: string;
-  resetCodeExpires?: number;
+  vipRewardsClaimed?: Record<string, boolean> | null;
+  notifications?: { id: string; message: string; timestamp: number; read: boolean }[];
+  activityLogs?: any[];
 }
 
 export function sanitizeUserProfile(user: any): UserProfile {
@@ -79,10 +78,9 @@ export function sanitizeUserProfile(user: any): UserProfile {
   const realPositions = allPositions.filter((p: any) => p.walletType === 'real');
   const realTransactions = allTransactions.filter((t: any) => t.walletType === 'real');
 
-  const { twoFactorSecret, resetCode, resetCodeExpires, ...rest } = user;
-
   return {
-    ...rest,
+    ...user,
+    email: user.email || user.username || "",
     accountType,
     balance: accountType === 'real' ? (user.realBalance ?? 0) : (user.demoBalance ?? 100000),
     positions: accountType === 'real' ? realPositions : demoPositions,
@@ -93,15 +91,11 @@ export function sanitizeUserProfile(user: any): UserProfile {
     realTransactions,
     notifications: user.notifications || [],
     activityLogs: user.activityLogs || [],
-    hasCompletedOnboarding: !!user.hasCompletedOnboarding,
+    hasCompletedOnboarding: user.hasCompletedOnboarding !== false,
     role: user.role === 'admin' ? 'admin' : (user.role === 'BANNED' ? 'BANNED' : 'user'),
     kycStatus: user.kycStatus || 'NONE',
-    affiliateEarnings: user.affiliateEarnings || 0,
-    referralCount: user.referralCount || 0,
-    fullName: user.fullName || "",
-    dob: user.dob || "",
-    address: user.address || "",
     twoFactorEnabled: !!user.twoFactorEnabled,
+    vipLevel: user.vipLevel || 'Bronze',
   } as UserProfile;
 }
 
@@ -182,33 +176,16 @@ export async function updateUser(email: string, updates: Partial<UserProfile>, p
 
     const data: any = {};
     if (updates.passwordHash !== undefined) data.passwordHash = updates.passwordHash;
-    if (updates.resetCode !== undefined) data.resetCode = updates.resetCode;
-    if (updates.resetCodeExpires !== undefined) data.resetCodeExpires = updates.resetCodeExpires;
     if (updates.balance !== undefined) data.balance = updates.balance;
     if (updates.realBalance !== undefined) data.realBalance = updates.realBalance;
     if (updates.demoBalance !== undefined) data.demoBalance = updates.demoBalance;
     if (updates.role !== undefined) data.role = updates.role;
     if (updates.accountType !== undefined) data.accountType = updates.accountType;
     if (updates.kycStatus !== undefined) data.kycStatus = updates.kycStatus;
-    if (updates.kycDocumentUrl !== undefined) data.kycDocumentUrl = updates.kycDocumentUrl;
-    if (updates.adminNotes !== undefined) data.adminNotes = updates.adminNotes;
-    if (updates.affiliateEarnings !== undefined) data.affiliateEarnings = updates.affiliateEarnings;
-    if (updates.referralCount !== undefined) data.referralCount = updates.referralCount;
     if (updates.totalWagered !== undefined) data.totalWagered = updates.totalWagered;
     if (updates.vipLevel !== undefined) data.vipLevel = updates.vipLevel;
-    if (updates.fullName !== undefined) data.fullName = updates.fullName;
-    if (updates.dob !== undefined) data.dob = updates.dob;
-    if (updates.address !== undefined) data.address = updates.address;
     if (updates.twoFactorEnabled !== undefined) data.twoFactorEnabled = updates.twoFactorEnabled;
-    if (updates.twoFactorSecret !== undefined) data.twoFactorSecret = updates.twoFactorSecret;
     if (updates.hasCompletedOnboarding !== undefined) data.hasCompletedOnboarding = updates.hasCompletedOnboarding;
-    if (updates.phoneNumber !== undefined) data.phoneNumber = updates.phoneNumber;
-    if (updates.gamingState !== undefined) data.gamingState = updates.gamingState;
-    if (updates.upiId !== undefined) data.upiId = updates.upiId;
-    if (updates.manualVipLevel !== undefined) data.manualVipLevel = updates.manualVipLevel;
-    if (updates.vipRewardsClaimed !== undefined) data.vipRewardsClaimed = updates.vipRewardsClaimed;
-    if (updates.affiliateCode !== undefined) data.affiliateCode = updates.affiliateCode;
-    if (updates.referredBy !== undefined) data.referredBy = updates.referredBy;
 
     const txToProcess = [
       ...(updates.realTransactions || []),

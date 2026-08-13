@@ -17,32 +17,13 @@ model User {
   demoBalance            Float    @default(100000)
   realBalance            Float    @default(0)
   
-  hasCompletedOnboarding Boolean  @default(false)
-  phoneNumber            String?
-  gamingState            String?
-  upiId                  String?
+  hasCompletedOnboarding Boolean  @default(true)
   role                   String   @default("user")
   kycStatus              String   @default("NONE")
-  kycDocumentUrl         String?
-  adminNotes             String?
-  fullName               String?
-  dob                    String?
-  address                String?
   twoFactorEnabled       Boolean  @default(false)
-  twoFactorSecret        String?
-  
-  resetCode              String?
-  resetCodeExpires       Float?
-  
-  affiliateCode          String?  @unique
-  referredBy             String?
-  referralCount          Int      @default(0)
-  affiliateEarnings      Float    @default(0)
   
   totalWagered           Float    @default(0)
-  vipLevel               String?
-  manualVipLevel         String?
-  vipRewardsClaimed      Json?    @default("{}")
+  vipLevel               String?  @default("Bronze")
   
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt

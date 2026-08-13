@@ -40,29 +40,7 @@ interface Transaction {
   screenshotUrl?: string;
 }
 
-interface UserProfile {
-  username: string;
-  email: string;
-  accountType: 'demo' | 'real';
-  balance: number;
-  positions: Position[];
-  transactions: Transaction[];
-  demoBalance: number;
-  demoPositions: Position[];
-  demoTransactions: Transaction[];
-  realBalance: number;
-  realPositions: Position[];
-  realTransactions: Transaction[];
-  hasCompletedOnboarding?: boolean;
-  phoneNumber?: string;
-  gamingState?: string;
-  upiId?: string;
-  role?: 'user' | 'admin' | 'BANNED';
-  kycStatus?: 'NONE' | 'PENDING' | 'APPROVED' | 'REJECTED' | 'UNVERIFIED' | 'PROCESSING' | 'VERIFIED';
-  kycDocumentUrl?: string;
-  notifications?: any[];
-  adminNotes?: string;
-}
+import { UserProfile } from "@/lib/userDb";
 
 interface NotificationLog {
   id: string;
