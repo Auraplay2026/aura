@@ -170,9 +170,14 @@ export async function addUser(user: UserProfile): Promise<void> {
 
 export async function updateUser(email: string, updates: Partial<UserProfile>, parentTx?: any): Promise<UserProfile | null> {
   const runWithTx = async (tx: any) => {
-    // Acquire exclusive row lock in PostgreSQL to prevent race conditions
-    await tx.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
-    const existing = await tx.user.findUnique({ where: { email } });
+    const existing = await tx.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: email, mode: 'insensitive' } },
+          { username: { equals: email, mode: 'insensitive' } }
+        ]
+      }
+    });
     if (!existing) return null;
 
     const data: any = {};

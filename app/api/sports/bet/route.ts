@@ -31,8 +31,13 @@ export async function POST(request: Request) {
       // Lock user row first to prevent race conditions
       await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
 
-      const user = await txClient.user.findUnique({
-        where: { email },
+      const user = await txClient.user.findFirst({
+        where: {
+          OR: [
+            { email: { equals: email, mode: 'insensitive' } },
+            { username: { equals: email, mode: 'insensitive' } }
+          ]
+        },
         include: { transactions: true }
       });
 

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { findUserByEmail, updateUser, sanitizeUserProfile } from '@/lib/userDb';
+import { findUserByEmailOrUsername, updateUser, sanitizeUserProfile } from '@/lib/userDb';
 import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
@@ -7,7 +7,7 @@ export async function POST(request: Request) {
     const { email } = await request.json();
     
     if (!email) {
-      return NextResponse.json({ error: 'Email is required.' }, { status: 400 });
+      return NextResponse.json({ error: 'Email or username is required.' }, { status: 400 });
     }
 
     try {
@@ -16,7 +16,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
     
-    let user = await findUserByEmail(email);
+    let user = await findUserByEmailOrUsername(email);
     
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });

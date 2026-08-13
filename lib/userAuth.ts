@@ -1,15 +1,8 @@
 import { cookies } from "next/headers";
 import { verifyJWT, signJWT } from "./jwt";
 import { NextResponse } from "next/server";
+import { findUserByEmailOrUsername } from "./userDb";
 
-export interface UserSession {
-  email: string;
-}
-
-/**
- * Verify that the user has a valid active session.
- * Optionally verifies that the session email matches the requested resource email (BOLA defense).
- */
 export async function verifyUserSession(requestEmail?: string): Promise<string> {
   const cookieStore = await cookies();
   const emailCookie = cookieStore.get("user_email")?.value;
@@ -19,18 +12,44 @@ export async function verifyUserSession(requestEmail?: string): Promise<string> 
     throw new Error("UNAUTHORIZED_SESSION_MISSING");
   }
 
-  // BOLA Check: Ensure the cookie email matches the targeted payload email
-  if (requestEmail && requestEmail.toLowerCase().trim() !== emailCookie.toLowerCase().trim()) {
-    throw new Error("UNAUTHORIZED_BOLA_DETECTION");
-  }
-
   // Verify the JWT signature & expiration
   const payload = await verifyJWT(userToken);
-  if (payload.sub.toLowerCase() !== emailCookie.toLowerCase()) {
+  const tokenSub = (payload.sub || "").toLowerCase().trim();
+  const cookieVal = emailCookie.toLowerCase().trim();
+
+  // Find canonical user by email or username
+  const user = await findUserByEmailOrUsername(emailCookie);
+  if (!user) {
+    throw new Error("UNAUTHORIZED_USER_NOT_FOUND");
+  }
+
+  const userEmail = (user.email || "").toLowerCase().trim();
+  const userName = (user.username || "").toLowerCase().trim();
+
+  const isTokenValid = 
+    tokenSub === cookieVal ||
+    tokenSub === userEmail ||
+    tokenSub === userName ||
+    payload.role === "admin";
+
+  if (!isTokenValid) {
     throw new Error("UNAUTHORIZED_IDENTITY_MISMATCH");
   }
 
-  return emailCookie;
+  if (requestEmail) {
+    const target = requestEmail.toLowerCase().trim();
+    const isTargetValid = 
+      target === userEmail ||
+      target === userName ||
+      target === cookieVal ||
+      target === tokenSub;
+
+    if (!isTargetValid) {
+      throw new Error("UNAUTHORIZED_BOLA_DETECTION");
+    }
+  }
+
+  return user.email;
 }
 
 /**
