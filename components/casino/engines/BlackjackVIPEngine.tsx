@@ -125,7 +125,7 @@ const VALUES = [
 
 export function BlackjackVIPEngine({ isPlaying, betAmount = 10, onComplete, gameId, gameTitle }: BlackjackVIPEngineProps) {
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   const [playerHand, setPlayerHand] = useState<Card[]>([]);
   const [dealerHand, setDealerHand] = useState<Card[]>([]);

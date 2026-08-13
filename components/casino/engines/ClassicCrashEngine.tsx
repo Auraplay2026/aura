@@ -20,7 +20,7 @@ export function ClassicCrashEngine({ isPlaying, betAmount = 10, autoCashout, onL
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {

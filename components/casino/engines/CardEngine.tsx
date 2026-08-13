@@ -27,7 +27,7 @@ const CARDS = [
 
 export function CardEngine({ isPlaying, betAmount = 10, onComplete, gameId, gameTitle }: CardEngineProps) {
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
   const isBlackjack = !!(gameTitle?.toLowerCase().includes("blackjack") || gameId?.includes("blackjack") || gameId === "orig-8");
   const isBaccarat = !!(gameTitle?.toLowerCase().includes("baccarat") || gameId?.includes("baccarat") || gameId?.includes("table-3"));
 

@@ -108,7 +108,7 @@ export function PlinkoEngine({ isPlaying, betAmount = 100, onComplete }: PlinkoE
   const [winsCount, setWinsCount] = useState(32);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   // Physics simulation constants
   const WIDTH = 600;

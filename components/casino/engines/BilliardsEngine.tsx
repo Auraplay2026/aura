@@ -45,7 +45,7 @@ export function BilliardsEngine({ isPlaying, betAmount = 10, onComplete }: Billi
   const [shotClock, setShotClock] = useState(30);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   // Physics constants
   const TABLE_WIDTH = 800;

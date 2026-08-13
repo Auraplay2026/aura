@@ -45,7 +45,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
   const [dailyProgress, setDailyProgress] = useState(65); // 65% complete
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   const onCompleteRef = useRef(onComplete);
   const phaseRef = useRef(phase);
@@ -206,7 +206,7 @@ export function LimboEngine({ isPlaying, betAmount, onComplete }: LimboEnginePro
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            email: currentUser?.email || "twintubrovquattro@gmail.com",
+            email: currentUser?.username || currentUser?.email || "",
             gameId: "orig-2",
             gameTitle: "Limbo",
             betAmount: betAmountRef.current,

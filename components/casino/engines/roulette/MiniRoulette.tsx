@@ -77,7 +77,7 @@ export function MiniRoulette({
   gameTitle
 }: RouletteEngineProps) {
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
   
   // Game & Bets States
   const [localActiveChip, setLocalActiveChip] = useState<number>(100);

@@ -17,7 +17,7 @@ interface CoinflipEngineProps {
 export function CoinflipEngine({ isPlaying, betAmount = 10, onComplete, selectedTarget, setSelectedTarget }: CoinflipEngineProps) {
   const houseEdge = useTradingStore(state => state.houseEdge);
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
   const [flipping, setFlipping] = useState(false);
   const [landed, setLanded] = useState(false);
   const [localSide, setLocalSide] = useState<"AURA" | "SKULL">("AURA");

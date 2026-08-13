@@ -53,16 +53,22 @@ async function saveGameSession(tx: any, session: any) {
 
 export async function POST(request: Request) {
   try {
-    const { email, gameId, gameTitle, betAmount, targetMultiplier, selectedTarget, bets, sideBets } = await request.json();
+    const body = await request.json();
+    const { gameId, gameTitle, betAmount, targetMultiplier, selectedTarget, bets, sideBets } = body;
+    let email = body.email || body.emailOrUsername;
 
-    if (!email || !gameId || betAmount === undefined) {
-      return NextResponse.json({ error: 'Missing required parameters: email, gameId, betAmount.' }, { status: 400 });
-    }
-
+    let sessionUser: string;
     try {
-      await verifyUserSession(email);
+      sessionUser = await verifyUserSession(email);
+      if (!email) {
+        email = sessionUser;
+      }
     } catch (authErr: any) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
+    }
+
+    if (!gameId || betAmount === undefined) {
+      return NextResponse.json({ error: 'Missing required parameters: gameId, betAmount.' }, { status: 400 });
     }
 
     const parsedBetAmount = Number(betAmount);

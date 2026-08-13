@@ -20,7 +20,7 @@ export function KenoEngine({ isPlaying, betAmount = 10, onComplete }: KenoEngine
   const [outcomeMultiplier, setOutcomeMultiplier] = useState(0);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => { onCompleteRef.current = onComplete; }, [onComplete]);

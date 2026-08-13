@@ -32,7 +32,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
   const [sessionId, setSessionId] = useState<string | null>(null);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
   
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {

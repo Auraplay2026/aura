@@ -16,7 +16,7 @@ export function DiceEngine({ isPlaying, betAmount = 10, onComplete }: DiceEngine
   const [won, setWon] = useState<boolean | null>(null);
 
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {

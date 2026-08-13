@@ -24,7 +24,7 @@ const DECK = [
 
 export function BaccaratEngine({ isPlaying, betAmount = 10, onComplete, selectedTarget, setSelectedTarget }: BaccaratEngineProps) {
   const currentUser = useTradingStore(state => state.currentUser);
-  const email = currentUser?.email || "twintubrovquattro@gmail.com";
+  const email = currentUser?.username || currentUser?.email || "";
 
   const [playerHand, setPlayerHand] = useState<typeof DECK>([]);
   const [bankerHand, setBankerHand] = useState<typeof DECK>([]);
