@@ -204,4 +204,90 @@ test.describe('Live Betting System & Real-Time Engine E2E Suite', () => {
     expect(Array.isArray(auditData.reports)).toBe(true);
   });
 
+  test('Enterprise Pillar 3: System Health & Telemetry Endpoint', async ({ page }) => {
+    const res = await page.request.get('/api/health');
+    expect(res.status()).toBe(200);
+    const data = await res.json();
+    expect(data.status).toBe('HEALTHY');
+    expect(data.services.database.status).toBe('HEALTHY');
+    expect(data.services.database.latencyMs).toBeGreaterThanOrEqual(0);
+    expect(data.system.memory.rssMb).toBeGreaterThan(0);
+  });
+
+  test('Enterprise Pillar 2 & 4: Anti-Hedging Detection & KYC Limits', async ({ page }) => {
+    const testUsername = 'HardenedUser_' + Math.floor(100000 + Math.random() * 900000);
+    const plainPassword = 'SecurePass2026!';
+    const passwordHash = await bcrypt.hash(plainPassword, 10);
+
+    // Seed unverified real-money user with balance
+    await prisma.user.create({
+      data: {
+        username: testUsername,
+        passwordHash,
+        accountType: 'real',
+        realBalance: 100000,
+        kycStatus: 'NONE', // Unverified
+      }
+    });
+
+    try {
+      const captchaRes = await page.request.get('/api/auth/captcha');
+      const captchaData = await captchaRes.json();
+      
+      await page.request.post('/api/auth/login', {
+        data: {
+          emailOrUsername: testUsername,
+          password: plainPassword,
+          captcha: captchaData.code
+        }
+      });
+
+      // 1. Place Back Bet
+      const backRes = await page.request.post('/api/sports/bet', {
+        data: {
+          email: testUsername,
+          matchTitle: 'Liverpool vs Arsenal',
+          selection: 'Liverpool',
+          odds: 2.10,
+          stake: 500,
+          side: 'yes'
+        }
+      });
+      expect(backRes.status()).toBe(200);
+
+      // 2. Immediate Opposite Lay Bet on identical match & selection (Anti-Hedging Guard should trigger)
+      const layHedgeRes = await page.request.post('/api/sports/bet', {
+        data: {
+          email: testUsername,
+          matchTitle: 'Liverpool vs Arsenal',
+          selection: 'Liverpool',
+          odds: 2.10,
+          stake: 500,
+          side: 'no'
+        }
+      });
+      expect(layHedgeRes.status()).toBe(429);
+      const hedgeData = await layHedgeRes.json();
+      expect(hedgeData.flagType).toBe('ARBITRAGE_HEDGING');
+
+      // 3. High-Stake KYC Threshold Requirement (> ₹50,000 without verified KYC)
+      const highStakeRes = await page.request.post('/api/sports/bet', {
+        data: {
+          email: testUsername,
+          matchTitle: 'Man City vs Chelsea',
+          selection: 'Man City',
+          odds: 1.50,
+          stake: 60000, // > 50,000 threshold
+          side: 'yes'
+        }
+      });
+      expect(highStakeRes.status()).toBe(403);
+      const kycError = await highStakeRes.json();
+      expect(kycError.error).toContain('KYC_VERIFICATION_REQUIRED');
+
+    } finally {
+      await prisma.user.deleteMany({ where: { username: testUsername } });
+    }
+  });
+
 });

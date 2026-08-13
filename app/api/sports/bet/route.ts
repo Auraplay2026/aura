@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { updateUser, Transaction } from '@/lib/userDb';
 import { verifyUserSession } from '@/lib/userAuth';
+import { validateBetSecurity } from '@/lib/security/fraudGuard';
+import { validateResponsibleGaming } from '@/lib/compliance/limits';
 
 export async function POST(request: Request) {
   try {
@@ -15,6 +17,22 @@ export async function POST(request: Request) {
       await verifyUserSession(email);
     } catch (authErr: any) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
+    }
+
+    // Anti-Fraud & Velocity Protection
+    const clientIp = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip');
+    const fraudCheck = await validateBetSecurity({
+      userIdOrEmail: email,
+      ip: clientIp,
+      matchTitle,
+      selection,
+      side: side || 'yes',
+      stake: Number(stake),
+      odds: Number(odds)
+    });
+
+    if (!fraudCheck.allowed) {
+      return NextResponse.json({ error: fraudCheck.reason, flagType: fraudCheck.flagType }, { status: 429 });
     }
 
     // Anti-Courtsiding & Market Status Guard
@@ -64,6 +82,17 @@ export async function POST(request: Request) {
 
       if (!user) {
         return { error: 'User profile not found.', status: 404 };
+      }
+
+      // Responsible Gaming & Compliance Limits Check
+      const compliance = validateResponsibleGaming({
+        user,
+        stakeOrAmount: parsedStake,
+        actionType: 'bet'
+      });
+
+      if (!compliance.allowed) {
+        return { error: compliance.reason, status: 403 };
       }
 
       const accountType = user.accountType === 'real' ? 'real' : 'demo';
