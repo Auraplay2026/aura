@@ -186,6 +186,18 @@ export async function updateUser(email: string, updates: Partial<UserProfile>, p
     if (updates.vipLevel !== undefined) data.vipLevel = updates.vipLevel;
     if (updates.twoFactorEnabled !== undefined) data.twoFactorEnabled = updates.twoFactorEnabled;
     if (updates.hasCompletedOnboarding !== undefined) data.hasCompletedOnboarding = updates.hasCompletedOnboarding;
+    if (updates.affiliateCode !== undefined) data.affiliateCode = updates.affiliateCode;
+    if (updates.referredBy !== undefined) data.referredBy = updates.referredBy;
+    if (updates.referralCount !== undefined) data.referralCount = updates.referralCount;
+    if (updates.affiliateEarnings !== undefined) data.affiliateEarnings = updates.affiliateEarnings;
+    if (updates.resetCode !== undefined) data.resetCode = updates.resetCode;
+    if (updates.resetCodeExpires !== undefined) data.resetCodeExpires = updates.resetCodeExpires;
+    if (updates.manualVipLevel !== undefined) data.manualVipLevel = updates.manualVipLevel;
+    if (updates.vipRewardsClaimed !== undefined) data.vipRewardsClaimed = updates.vipRewardsClaimed;
+    if (updates.adminNotes !== undefined) data.adminNotes = updates.adminNotes;
+    if (updates.phoneNumber !== undefined) data.phoneNumber = updates.phoneNumber;
+    if (updates.gamingState !== undefined) data.gamingState = updates.gamingState;
+    if (updates.upiId !== undefined) data.upiId = updates.upiId;
 
     const txToProcess = [
       ...(updates.realTransactions || []),
