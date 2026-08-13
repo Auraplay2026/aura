@@ -4,8 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "node scripts/initialize-persistent-data.js && next dev",
-    "build": "prisma generate && (prisma db push || echo 'Database push skipped or offline during build') && next build",
-    "start": "npx prisma db push && node create_admin.js && node scripts/initialize-persistent-data.js && concurrently \"next start\" \"node scripts/generate_hype_bets.js\" \"node scripts/notification_worker.js\"",
+    "build": "prisma generate && next build",
+    "start": "npx prisma db push --accept-data-loss && node create_admin.js && node scripts/initialize-persistent-data.js && concurrently \"next start\" \"node scripts/generate_hype_bets.js\" \"node scripts/notification_worker.js\"",
     "lint": "eslint"
   },
   "dependencies": {
