@@ -72,7 +72,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-red-200/50 selection:text-red-900 pb-16 md:pb-0`}>
+      <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-red-200/50 selection:text-red-900 pb-20 md:pb-0`}>
         <AppProviders>
           <GlobalAlerts />
           <GlobalHypeFeed />

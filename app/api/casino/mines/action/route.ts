@@ -62,7 +62,15 @@ export async function POST(request: Request) {
 
     const response = await prisma.$transaction(async (txClient) => {
       // Acquire exclusive row lock in PostgreSQL to serialize user sessions & wagers
-      await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
+      const lockedRows: any[] = await txClient.$queryRaw`
+        SELECT id FROM "User"
+        WHERE LOWER(email) = LOWER(${email}) OR LOWER(username) = LOWER(${email})
+        FOR UPDATE
+      `;
+
+      if (lockedRows.length === 0) {
+        return NextResponse.json({ error: 'User profile not found.' }, { status: 404 });
+      }
 
       const session = await getGameSession(txClient, sessionId);
 
@@ -78,8 +86,8 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: 'Session is already completed or busted.', state: session.gameState }, { status: 400 });
       }
 
-      const user = await txClient.user.findUnique({
-        where: { email },
+      const user = await txClient.user.findFirst({
+        where: { id: lockedRows[0].id },
         include: { transactions: true }
       });
 

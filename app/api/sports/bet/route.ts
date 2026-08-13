@@ -28,16 +28,19 @@ export async function POST(request: Request) {
     }
 
     const result = await prisma.$transaction(async (txClient) => {
-      // Lock user row first to prevent race conditions
-      await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
+      // Lock user row by email OR username to prevent race conditions
+      const lockedRows: any[] = await txClient.$queryRaw`
+        SELECT id FROM "User"
+        WHERE LOWER(email) = LOWER(${email}) OR LOWER(username) = LOWER(${email})
+        FOR UPDATE
+      `;
+
+      if (lockedRows.length === 0) {
+        return { error: 'User profile not found.', status: 404 };
+      }
 
       const user = await txClient.user.findFirst({
-        where: {
-          OR: [
-            { email: { equals: email, mode: 'insensitive' } },
-            { username: { equals: email, mode: 'insensitive' } }
-          ]
-        },
+        where: { id: lockedRows[0].id },
         include: { transactions: true }
       });
 

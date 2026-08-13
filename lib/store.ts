@@ -914,7 +914,7 @@ export const useTradingStore = create<TradingState>()(
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.email,
+              email: state.currentUser.username || state.currentUser.email,
               matchTitle,
               selection,
               odds,
@@ -928,7 +928,6 @@ export const useTradingStore = create<TradingState>()(
             await state.syncFromServer();
             return data;
           } else {
-            console.error(data.error || "Failed to place sports bet on server");
             console.error(data.error || "Failed to place sports bet.");
             return null;
           }
@@ -947,7 +946,7 @@ export const useTradingStore = create<TradingState>()(
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.email,
+              email: state.currentUser.username || state.currentUser.email,
               transactionId
             })
           });
@@ -955,7 +954,6 @@ export const useTradingStore = create<TradingState>()(
           if (res.ok && data.success) {
             await state.syncFromServer();
           } else {
-            console.error(data.error || "Failed to cancel sports bet on server");
             console.error(data.error || "Failed to cancel sports bet.");
           }
         } catch (err) {

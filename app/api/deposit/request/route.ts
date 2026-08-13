@@ -79,10 +79,18 @@ export async function POST(request: Request) {
 
     const result = await prisma.$transaction(async (txClient) => {
       // Lock user row first to prevent race conditions (especially on withdrawals)
-      await txClient.$queryRaw`SELECT id FROM "User" WHERE email = ${email} FOR UPDATE`;
+      const lockedRows: any[] = await txClient.$queryRaw`
+        SELECT id FROM "User"
+        WHERE LOWER(email) = LOWER(${email}) OR LOWER(username) = LOWER(${email})
+        FOR UPDATE
+      `;
 
-      const dbUser = await txClient.user.findUnique({
-        where: { email },
+      if (lockedRows.length === 0) {
+        return { error: 'User not found.', status: 404 };
+      }
+
+      const dbUser = await txClient.user.findFirst({
+        where: { id: lockedRows[0].id },
         include: { transactions: true, positions: true, notifications: true }
       });
 

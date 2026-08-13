@@ -199,7 +199,6 @@ const INITIAL_MARKETS: Market[] = [
 
 // Global market state (outside component so it persists across navigations)
 let globalMarkets = [...INITIAL_MARKETS];
-let isSportsScraped = false;
 
 // Load custom user prediction markets from localStorage
 if (typeof window !== 'undefined') {
@@ -271,69 +270,106 @@ export function useLiveMarkets(categoryFilter?: string) {
     return () => clearInterval(latInterval);
   }, []);
 
-  // Fetch live sports matches and merge them into predictions state
+  // Real-time live sports feed via Server-Sent Events (SSE) with HTTP fallback
   useEffect(() => {
-    const fetchLiveSports = async () => {
-      if (isSportsScraped) return;
+    let eventSource: EventSource | null = null;
+    let fallbackInterval: NodeJS.Timeout | null = null;
+
+    const processMatches = (matches: any[]) => {
+      if (!Array.isArray(matches) || matches.length === 0) return;
+
+      const liveSportsMarkets: Market[] = matches.map((m: any) => {
+        const team1Odds = m.odds?.team1 || 2.0;
+        const team2Odds = m.odds?.team2 || 2.0;
+        const yesPrice = calculateYesPrice(team1Odds, team2Odds);
+
+        return {
+          id: `live-${m.sport || 'sport'}-${m.id}`,
+          category: 'sports',
+          sportId: m.sport || 'all',
+          title: `${m.team1} vs ${m.team2}`,
+          volume: `₹ ${(Math.random() * 30 + 10).toFixed(1)}M`,
+          yes: yesPrice,
+          no: 100 - yesPrice,
+          history: [yesPrice - 1, yesPrice + 1, yesPrice],
+          team1Logo: m.team1Logo,
+          team2Logo: m.team2Logo,
+          status: (m.status?.toLowerCase() === 'live' ? 'live' : 'upcoming') as 'live' | 'upcoming',
+          startTime: m.status === 'Upcoming' ? m.score : undefined,
+        };
+      });
+
+      // Keep non-sports markets + custom markets, replace live scraped sports
+      const nonLiveMarkets = globalMarkets.filter(m => 
+        m.category !== 'sports' || 
+        (!m.id.startsWith('live-') && !m.id.startsWith('scraped-'))
+      );
+
+      globalMarkets = [...nonLiveMarkets, ...liveSportsMarkets];
+      setMarkets([...globalMarkets]);
+      marketListeners.forEach(listener => listener([...globalMarkets]));
+    };
+
+    const setupSSE = () => {
+      if (typeof window === 'undefined' || typeof EventSource === 'undefined') return;
+
       try {
-        const res = await fetch("/api/sports/live?sport=all");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            const cricket = data.cricket || [];
-            const tennis = data.tennis || [];
-            
-            const scrapedMarkets: Market[] = [];
-            
-            cricket.forEach((m: any) => {
-              const yesPrice = calculateYesPrice(m.odds.team1, m.odds.team2);
-              scrapedMarkets.push({
-                id: `scraped-cri-${m.id}`,
-                category: 'sports',
-                sportId: 'cricket',
-                title: `${m.team1} vs ${m.team2}`,
-                volume: `₹ ${(Math.random() * 40 + 10).toFixed(1)}M`,
-                yes: yesPrice,
-                no: 100 - yesPrice,
-                history: [yesPrice - 2, yesPrice - 1, yesPrice],
-                status: m.status.toLowerCase() as 'live' | 'upcoming',
-                startTime: m.status === 'Upcoming' ? m.score : undefined
-              });
-            });
+        eventSource = new EventSource('/api/sports/stream');
 
-            tennis.forEach((m: any) => {
-              const yesPrice = calculateYesPrice(m.odds.team1, m.odds.team2);
-              scrapedMarkets.push({
-                id: `scraped-ten-${m.id}`,
-                category: 'sports',
-                sportId: 'tennis',
-                title: `${m.team1} vs ${m.team2}`,
-                volume: `₹ ${(Math.random() * 20 + 5).toFixed(1)}M`,
-                yes: yesPrice,
-                no: 100 - yesPrice,
-                history: [yesPrice - 1, yesPrice + 1, yesPrice],
-                status: m.status.toLowerCase() as 'live' | 'upcoming',
-                startTime: m.status === 'Upcoming' ? m.score : undefined
-              });
-            });
-
-            // Keep non-sports predictions + other simulated sports predictions (except simulated cricket/tennis)
-            const otherMarkets = globalMarkets.filter(m => 
-              m.category !== 'sports' || 
-              (m.id.startsWith('spo-') && !m.id.includes('cri') && !m.id.includes('ten'))
-            );
-            
-            globalMarkets = [...otherMarkets, ...scrapedMarkets];
-            setMarkets([...globalMarkets]);
-            isSportsScraped = true;
+        eventSource.onmessage = (event) => {
+          try {
+            const data = JSON.parse(event.data);
+            if (data.type === 'SCORE_UPDATE' && Array.isArray(data.matches)) {
+              processMatches(data.matches);
+            }
+          } catch (e) {
+            // Ignore parse errors on heartbeat comments
           }
-        }
+        };
+
+        eventSource.onerror = () => {
+          // SSE failed or reconnecting, fall back to periodic polling
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+          startPollingFallback();
+        };
       } catch (err) {
-        console.error("Failed to load scraped sports for predictions:", err);
+        startPollingFallback();
       }
     };
-    
-    fetchLiveSports();
+
+    const startPollingFallback = () => {
+      if (fallbackInterval) return;
+      const fetchFallback = async () => {
+        try {
+          const res = await fetch("/api/sports/live?sport=all");
+          if (res.ok) {
+            const data = await res.json();
+            if (data.success && Array.isArray(data.matches)) {
+              processMatches(data.matches);
+            }
+          }
+        } catch (err) {
+          console.warn("Sports live fallback polling error:", err);
+        }
+      };
+
+      fetchFallback();
+      fallbackInterval = setInterval(fetchFallback, 15000);
+    };
+
+    setupSSE();
+
+    return () => {
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (fallbackInterval) {
+        clearInterval(fallbackInterval);
+      }
+    };
   }, []);
 
   useEffect(() => {
