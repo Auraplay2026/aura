@@ -112,8 +112,9 @@ export async function POST(request: Request) {
       }
 
       const isValid = verifyTOTP(otp, user.twoFactorSecret || "");
+      const userIdentifier = user.email || user.username;
       if (!isValid) {
-        await addActivityLog(user.email, {
+        await addActivityLog(userIdentifier, {
           action: "Failed 2FA Login Attempt",
           device,
           location: locationString,
@@ -124,8 +125,9 @@ export async function POST(request: Request) {
       }
     }
     
+    const userIdentifier = user.email || user.username;
     // Log successful login
-    await addActivityLog(user.email, {
+    await addActivityLog(userIdentifier, {
       action: "Successful Login",
       device,
       location: locationString,
@@ -136,12 +138,12 @@ export async function POST(request: Request) {
     const sanitizedUser = sanitizeUserProfile(user);
     const { passwordHash, ...safeUser } = sanitizedUser;
     const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
-    await setUserAuthCookie(response, user.email);
+    await setUserAuthCookie(response, userIdentifier);
 
     if (user.role === 'admin' || user.username.toLowerCase() === 'admin') {
       const now = Math.floor(Date.now() / 1000);
       const jwtPayload = {
-        sub: user.email.toLowerCase(),
+        sub: userIdentifier.toLowerCase(),
         role: 'admin',
         iat: now,
         exp: now + 86400
@@ -154,8 +156,8 @@ export async function POST(request: Request) {
         maxAge: 86400,
         path: '/'
       });
-      // Also ensure user_email cookie is consistently user.email
-      response.cookies.set('user_email', user.email, {
+      // Also ensure user_email cookie is consistently userIdentifier
+      response.cookies.set('user_email', userIdentifier, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'strict',

@@ -32,8 +32,9 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Reset code has expired. Please request a new one.' }, { status: 400 });
     }
 
+    const userIdentifier = user.email || user.username;
     // Reset password and clear code columns
-    await updateUser(user.email, {
+    await updateUser(userIdentifier, {
       passwordHash: await bcrypt.hash(newPassword, 12),
       resetCode: "",
       resetCodeExpires: 0
@@ -46,7 +47,7 @@ export async function POST(request: Request) {
     const { state, countryCode } = await getIPLocation(ip);
     const locationString = `${state}, ${countryCode}`;
 
-    await addActivityLog(user.email, {
+    await addActivityLog(userIdentifier, {
       action: "Password Reset Successfully",
       device,
       location: locationString,
