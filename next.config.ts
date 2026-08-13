@@ -1,4 +1,5 @@
 import type { NextConfig } from "next";
+import { withSentryConfig } from "@sentry/nextjs";
 
 const securityHeaders = [
   {
@@ -31,7 +32,7 @@ const securityHeaders = [
   },
   {
     key: 'Content-Security-Policy',
-    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https:; frame-src 'self' https://accounts.google.com https:; object-src 'none';"
+    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://*.sentry.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: https://*.sentry.io; frame-src 'self' https://accounts.google.com https:; object-src 'none';"
   }
 ];
 
@@ -45,18 +46,15 @@ const gameProxyHeaders = [
     key: 'Access-Control-Allow-Methods',
     value: 'GET, OPTIONS',
   },
-  // Deliberately NO X-Frame-Options so the proxied content embeds freely
 ];
 
 const nextConfig: NextConfig = {
   async headers() {
     return [
-      // Game proxy: open CORS, no frame restrictions
       {
         source: '/api/game-proxy/:path*',
         headers: gameProxyHeaders,
       },
-      // All other routes: full security headers
       {
         source: '/((?!api/game-proxy).*)',
         headers: securityHeaders,
@@ -85,4 +83,10 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withSentryConfig(nextConfig, {
+  org: process.env.SENTRY_ORG || "aura-i9",
+  project: process.env.SENTRY_PROJECT || "javascript-nextjs",
+  silent: !process.env.CI,
+  tunnelRoute: "/monitoring",
+  widenClientFileUpload: true,
+});
