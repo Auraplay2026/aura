@@ -5,7 +5,7 @@ import { UserProfile, Transaction } from "@/lib/userDb";
 import { useTradingStore } from "@/lib/store";
 import { 
   Shield, Users, Coins, TrendingUp, Clock, ArrowUpRight, ArrowDownLeft, 
-  RefreshCw, Eye, AlertTriangle, CheckCircle, Activity, Bell, CreditCard, ArrowRight, Crown
+  RefreshCw, Eye, AlertTriangle, CheckCircle, Activity, Bell, CreditCard, ArrowRight, Crown, UserPlus
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Link from "next/link";
@@ -14,7 +14,8 @@ import {
   adminSimulateWagerAction, 
   adminTriggerSportsSyncAction, 
   adminClearActivityAction,
-  adminBroadcastNotificationAction
+  adminBroadcastNotificationAction,
+  adminCreateUser
 } from "./actions";
 
 interface ExtendedTransaction extends Transaction {
@@ -42,6 +43,13 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   
   const [pendingDepositsCount, setPendingDepositsCount] = useState(0);
   const [pendingWithdrawalsCount, setPendingWithdrawalsCount] = useState(0);
+
+  // Quick User Creator States
+  const [newUsername, setNewUsername] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [newBalance, setNewBalance] = useState("0");
+  const [newWalletType, setNewWalletType] = useState<'real' | 'demo'>('real');
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
 
   // Live Telemetry states
   const [telemetryHistory, setTelemetryHistory] = useState<any[]>([]);
@@ -524,6 +532,88 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               </Link>
 
             </div>
+          </div>
+
+          {/* Super Easy Quick Create User Tool */}
+          <div className="bg-white/60 border border-emerald-500/20 p-6 rounded-2xl backdrop-blur-md shadow-sm">
+            <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-4">
+              <UserPlus className="w-4 h-4 text-emerald-600" />
+              <div>
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Super Easy Quick User Creator</h3>
+                <p className="text-[10px] text-slate-500 mt-0.5">Instant 1-step client registration — enter username & password only</p>
+              </div>
+            </div>
+
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              if (!newUsername.trim() || !newPassword.trim()) {
+                showToast("Please enter both username and password", "error");
+                return;
+              }
+              try {
+                setIsCreatingUser(true);
+                const res = await adminCreateUser(newUsername.trim(), newPassword.trim(), Number(newBalance) || 0, newWalletType);
+                if (res.success) {
+                  showToast(`User '${res.username}' created successfully!`, "success");
+                  setNewUsername("");
+                  setNewPassword("");
+                  setNewBalance("0");
+                } else {
+                  showToast(res.error || "Failed to create user", "error");
+                }
+              } catch (err: any) {
+                showToast(err.message || "Failed to create user", "error");
+              } finally {
+                setIsCreatingUser(false);
+              }
+            }} className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Username</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. john123"
+                  value={newUsername}
+                  onChange={(e) => setNewUsername(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Password</label>
+                <input
+                  type="password"
+                  required
+                  placeholder="Password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-bold"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Initial Credit (₹)</label>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="0"
+                  value={newBalance}
+                  onChange={(e) => setNewBalance(e.target.value)}
+                  className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-bold font-mono"
+                />
+              </div>
+
+              <div className="flex items-end">
+                <button
+                  type="submit"
+                  disabled={isCreatingUser}
+                  className="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider py-2.5 rounded-xl shadow transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+                >
+                  <UserPlus className="w-3.5 h-3.5" />
+                  <span>{isCreatingUser ? "Creating..." : "Create User Now"}</span>
+                </button>
+              </div>
+            </form>
           </div>
 
           {/* Area Chart Card */}

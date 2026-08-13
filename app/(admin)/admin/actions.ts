@@ -1,6 +1,6 @@
 "use server"
 
-import { getUsers, updateUser, Transaction } from "@/lib/userDb";
+import { getUsers, updateUser, addUser, findUserByEmailOrUsername, UserProfile, Transaction } from "@/lib/userDb";
 import { verifyAdminSession } from "@/lib/adminAuth";
 import { parseCasinoDetails } from "@/lib/utils";
 import { getSystemConfig, saveSystemConfig, SystemConfig } from "@/lib/systemConfig";
@@ -269,6 +269,60 @@ export async function adminDebitUser(email: string, amount: number, adminEmail: 
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };
+}
+
+// Quick Create User Action (Super Easy Username & Password Creation)
+export async function adminCreateUser(username: string, password: string, initialBalance: number = 0, walletType: 'real' | 'demo' = 'real') {
+  const auth = await secureAction();
+  if (!auth.success) return { success: false, error: auth.error };
+
+  const cleanUsername = username.trim();
+  if (!cleanUsername || cleanUsername.length < 3) {
+    return { success: false, error: "Username must be at least 3 characters long." };
+  }
+
+  if (!password || password.length < 4) {
+    return { success: false, error: "Password must be at least 4 characters long." };
+  }
+
+  const existing = await findUserByEmailOrUsername(cleanUsername);
+  if (existing) {
+    return { success: false, error: `User '${cleanUsername}' already exists.` };
+  }
+
+  const bcrypt = await import("bcryptjs");
+  const passwordHash = await bcrypt.hash(password, 10);
+  const email = `${cleanUsername.toLowerCase()}@aurabet.io`;
+
+  const realBalance = walletType === 'real' ? Math.max(0, initialBalance) : 0;
+  const demoBalance = walletType === 'demo' ? Math.max(0, initialBalance) : 100000;
+
+  const newUser: UserProfile = {
+    username: cleanUsername,
+    email,
+    passwordHash,
+    accountType: walletType,
+    balance: walletType === 'real' ? realBalance : demoBalance,
+    demoBalance,
+    realBalance,
+    positions: [],
+    transactions: [],
+    demoPositions: [],
+    demoTransactions: [],
+    realPositions: [],
+    realTransactions: [],
+    role: 'user',
+    kycStatus: 'VERIFIED'
+  };
+
+  await addUser(newUser);
+
+  const ip = await getActionIP();
+  await logAdminAction(auth.email, "CREATE_USER", email, `Created user '${cleanUsername}' with initial ${walletType} balance ₹${initialBalance}`, 0, initialBalance, ip);
+
+  revalidatePath("/admin");
+  revalidatePath("/admin/users");
+  return { success: true, username: cleanUsername, email };
 }
 
 // God-Mode Balance Override
