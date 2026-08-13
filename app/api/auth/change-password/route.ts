@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import { prisma } from '@/lib/prisma';
-import { addActivityLog, updateUser } from '@/lib/userDb';
+import { addActivityLog, updateUser, findUserByEmailOrUsername } from '@/lib/userDb';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { verifyUserSession } from '@/lib/userAuth';
 
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await findUserByEmailOrUsername(email);
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }

@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { updateUser, addActivityLog } from '@/lib/userDb';
+import { updateUser, addActivityLog, findUserByEmailOrUsername } from '@/lib/userDb';
 import { verifyUserSession } from '@/lib/userAuth';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { prisma } from '@/lib/prisma';
@@ -55,9 +55,7 @@ export async function POST(request: Request) {
     const locationString = `${state}, ${countryCode}`;
 
     // Read current state to audit changes
-    const existingUser = await prisma.user.findUnique({ 
-      where: { email }
-    });
+    const existingUser = await findUserByEmailOrUsername(email);
 
     if (!existingUser) {
       return NextResponse.json({ error: 'User profile not found.' }, { status: 404 });
@@ -104,14 +102,10 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'User not found on server database.' }, { status: 404 });
     }
     
-    const freshUser = await prisma.user.findUnique({
-      where: { email },
-      include: { transactions: true }
-    });
+    const freshUser = await findUserByEmailOrUsername(email);
     
     const serverBalance = accountType === 'real' ? freshUser!.realBalance : freshUser!.demoBalance;
-    const serverTransactions = freshUser!.transactions
-      .filter((t: any) => t.walletType === accountType)
+    const serverTransactions = (freshUser!.transactions || [])
       .map((t: any) => ({
         id: t.id,
         type: t.type,

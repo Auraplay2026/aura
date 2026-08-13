@@ -398,10 +398,11 @@ export const useTradingStore = create<TradingState>()(
         if (!state.isLoggedIn || !state.currentUser) return;
         
         try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/auth/me', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: state.currentUser.email })
+            body: JSON.stringify({ email: userIdentifier })
           });
           const data = await res.json();
           if (res.ok && data.success && data.user) {
@@ -511,10 +512,11 @@ export const useTradingStore = create<TradingState>()(
         const currentUser = get().currentUser;
         if (!currentUser) return { success: false, error: "Not logged in." };
         try {
+          const userIdentifier = currentUser.email || currentUser.username;
           const res = await fetch('/api/auth/change-password', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email, currentPassword, newPassword })
+            body: JSON.stringify({ email: userIdentifier, currentPassword, newPassword })
           });
           const data = await res.json();
           if (!res.ok) {
@@ -530,10 +532,11 @@ export const useTradingStore = create<TradingState>()(
         const currentUser = get().currentUser;
         if (!currentUser) return { success: false, error: "Not logged in." };
         try {
+          const userIdentifier = currentUser.email || currentUser.username;
           const res = await fetch('/api/auth/2fa/setup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email })
+            body: JSON.stringify({ email: userIdentifier })
           });
           const data = await res.json();
           if (!res.ok) {
@@ -549,10 +552,11 @@ export const useTradingStore = create<TradingState>()(
         const currentUser = get().currentUser;
         if (!currentUser) return { success: false, error: "Not logged in." };
         try {
+          const userIdentifier = currentUser.email || currentUser.username;
           const res = await fetch('/api/auth/2fa/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email, token, secret, enable: true })
+            body: JSON.stringify({ email: userIdentifier, token, secret, enable: true })
           });
           const data = await res.json();
           if (!res.ok) {
@@ -579,10 +583,11 @@ export const useTradingStore = create<TradingState>()(
         const currentUser = get().currentUser;
         if (!currentUser) return { success: false, error: "Not logged in." };
         try {
+          const userIdentifier = currentUser.email || currentUser.username;
           const res = await fetch('/api/auth/2fa/verify', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: currentUser.email, token, enable: false })
+            body: JSON.stringify({ email: userIdentifier, token, enable: false })
           });
           const data = await res.json();
           if (!res.ok) {
@@ -817,11 +822,12 @@ export const useTradingStore = create<TradingState>()(
         }
 
         try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/rewards/claim', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.email,
+              email: userIdentifier,
               rewardType,
               amount: Math.abs(amount),
               details: method
@@ -868,11 +874,12 @@ export const useTradingStore = create<TradingState>()(
         }
 
         try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/predictions/trade', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.email,
+              email: userIdentifier,
               marketId,
               marketTitle,
               side,
@@ -887,7 +894,7 @@ export const useTradingStore = create<TradingState>()(
             if (state.currentUser?.accountType === 'real') {
               recordGameRound({
                 gameId: 'predictions',
-                userId: state.currentUser.email,
+                userId: userIdentifier,
                 wager: investment,
                 payout: 0,
                 multiplier: 0,
@@ -1205,11 +1212,12 @@ export const useTradingStore = create<TradingState>()(
         if (!position) return;
 
         try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/predictions/cashout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.email,
+              email: userIdentifier,
               positionId,
               currentMarketPrice
             })
@@ -1223,7 +1231,7 @@ export const useTradingStore = create<TradingState>()(
             if (state.currentUser?.accountType === 'real') {
               recordGameRound({
                 gameId: 'predictions_cashout',
-                userId: state.currentUser.email,
+                userId: userIdentifier,
                 wager: position.investment,
                 payout: currentValue,
                 multiplier: currentValue / position.investment,
@@ -1383,11 +1391,12 @@ export const useTradingStore = create<TradingState>()(
         const todayStr = new Date().toISOString().split('T')[0];
 
         try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/rewards/claim', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.email,
+              email: userIdentifier,
               rewardType: 'daily',
               amount: rewardAmount,
               details: `Claimed Daily Reward (Day ${currentStreak} Streak)`
@@ -1417,11 +1426,12 @@ export const useTradingStore = create<TradingState>()(
         if (state.spinWheelClaimedToday || !state.isLoggedIn || !state.currentUser) return;
 
         try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/rewards/claim', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.email,
+              email: userIdentifier,
               rewardType: 'spin',
               amount: prizeAmount,
               details: `Spin the Wheel: ${prizeName}`
@@ -1578,10 +1588,11 @@ export const useTradingStore = create<TradingState>()(
         const state = get();
         if (!state.isLoggedIn || !state.currentUser) return;
         try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/account/activity', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: state.currentUser.email })
+            body: JSON.stringify({ email: userIdentifier })
           });
           const data = await res.json();
           if (res.ok && data.success) {

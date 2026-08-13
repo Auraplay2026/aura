@@ -6,19 +6,19 @@ import { findUserByEmailOrUsername } from "./userDb";
 export async function verifyUserSession(requestEmail?: string): Promise<string> {
   const cookieStore = await cookies();
   const emailCookie = cookieStore.get("user_email")?.value;
-  const userToken = cookieStore.get("user_auth_token")?.value;
+  const userToken = cookieStore.get("user_auth_token")?.value || cookieStore.get("admin_auth_token")?.value;
 
-  if (!emailCookie || !userToken) {
+  if (!userToken) {
     throw new Error("UNAUTHORIZED_SESSION_MISSING");
   }
 
   // Verify the JWT signature & expiration
   const payload = await verifyJWT(userToken);
   const tokenSub = (payload.sub || "").toLowerCase().trim();
-  const cookieVal = emailCookie.toLowerCase().trim();
+  const cookieVal = (emailCookie || tokenSub).toLowerCase().trim();
 
   // Find canonical user by email or username
-  const user = await findUserByEmailOrUsername(emailCookie);
+  const user = await findUserByEmailOrUsername(cookieVal || tokenSub);
   if (!user) {
     throw new Error("UNAUTHORIZED_USER_NOT_FOUND");
   }
@@ -42,7 +42,8 @@ export async function verifyUserSession(requestEmail?: string): Promise<string> 
       target === userEmail ||
       target === userName ||
       target === cookieVal ||
-      target === tokenSub;
+      target === tokenSub ||
+      payload.role === "admin";
 
     if (!isTargetValid) {
       throw new Error("UNAUTHORIZED_BOLA_DETECTION");
@@ -69,7 +70,7 @@ export async function setUserAuthCookie(response: NextResponse, email: string): 
   response.cookies.set('user_auth_token', token, {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'strict',
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60, // 7 days
     path: '/'
   });
@@ -77,7 +78,7 @@ export async function setUserAuthCookie(response: NextResponse, email: string): 
   response.cookies.set('user_email', email, {
     httpOnly: true,
     secure: isProd,
-    sameSite: 'strict',
+    sameSite: 'lax',
     maxAge: 7 * 24 * 60 * 60,
     path: '/'
   });

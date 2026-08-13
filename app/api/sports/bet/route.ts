@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { updateUser, Transaction } from '@/lib/userDb';
+import { updateUser, addActivityLog, Transaction } from '@/lib/userDb';
 import { verifyUserSession } from '@/lib/userAuth';
 import { validateBetSecurity } from '@/lib/security/fraudGuard';
 import { validateResponsibleGaming } from '@/lib/compliance/limits';
@@ -184,6 +184,14 @@ export async function POST(request: Request) {
     if ('error' in result) {
       return NextResponse.json({ error: result.error, required: (result as any).required, available: (result as any).available }, { status: result.status });
     }
+
+    addActivityLog(email, {
+      action: `Sports Wager Placed: ₹${parsedStake} on ${selection} @ ${parsedOdds.toFixed(2)} (${matchTitle})`,
+      device: 'Web Client',
+      location: 'In-Play Exchange',
+      ip: clientIp || '127.0.0.1',
+      type: 'trade'
+    }).catch(() => {});
 
     return NextResponse.json({
       success: true,

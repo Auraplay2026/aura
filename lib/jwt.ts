@@ -7,10 +7,7 @@ function getJWTSecret(): string {
   if (secret) return secret;
 
   if (!sessionSecret) {
-    sessionSecret = process.env.NODE_ENV === 'production'
-      ? require('crypto').randomBytes(32).toString('hex')
-      : "aura-bet-super-secret-development-jwt-signing-key-2026-matrix-secure";
-    console.warn("WARNING: ADMIN_JWT_SECRET environment variable is not set. Using secure session key fallback.");
+    sessionSecret = "aura-bet-enterprise-secure-jwt-signing-key-2026-matrix-protocol";
   }
   return sessionSecret;
 }

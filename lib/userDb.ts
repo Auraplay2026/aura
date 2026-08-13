@@ -111,9 +111,9 @@ export async function saveUsers(users: UserProfile[]) {
 }
 
 export async function findUserByEmail(email: string): Promise<UserProfile | undefined> {
-  const user = await prisma.user.findUnique({
-    where: { email },
-    include: { transactions: true, positions: true, notifications: true }
+  const user = await prisma.user.findFirst({
+    where: { email: { equals: email, mode: 'insensitive' } },
+    include: { transactions: true, positions: true, notifications: true, activityLogs: true }
   });
   if (user) return sanitizeUserProfile(user);
 
@@ -121,9 +121,9 @@ export async function findUserByEmail(email: string): Promise<UserProfile | unde
 }
 
 export async function findUserByUsername(username: string): Promise<UserProfile | undefined> {
-  const user = await prisma.user.findUnique({
-    where: { username },
-    include: { transactions: true, positions: true, notifications: true }
+  const user = await prisma.user.findFirst({
+    where: { username: { equals: username, mode: 'insensitive' } },
+    include: { transactions: true, positions: true, notifications: true, activityLogs: true }
   });
   if (user) return sanitizeUserProfile(user);
 
@@ -131,14 +131,15 @@ export async function findUserByUsername(username: string): Promise<UserProfile 
 }
 
 export async function findUserByEmailOrUsername(identifier: string): Promise<UserProfile | undefined> {
+  if (!identifier) return undefined;
   const user = await prisma.user.findFirst({
     where: {
       OR: [
-        { email: identifier },
-        { username: identifier }
+        { email: { equals: identifier, mode: 'insensitive' } },
+        { username: { equals: identifier, mode: 'insensitive' } }
       ]
     },
-    include: { transactions: true, positions: true, notifications: true }
+    include: { transactions: true, positions: true, notifications: true, activityLogs: true }
   });
   if (user) return sanitizeUserProfile(user);
 

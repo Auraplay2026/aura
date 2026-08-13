@@ -264,14 +264,15 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                       className="space-y-4"
                     >
                       {pendingSportsBets.map((bet) => {
-                        // details format: Placed ₹100 bet on India @ 1.50 (India vs Pakistan)
-                        const regex = /Placed ₹([\d.]+) bet on (.+?) @ ([\d.]+) \((.+?)\)/;
+                        // details format: Placed ₹100 Back bet on Australia @ 4.50 (Australia vs Bangladesh)
+                        const regex = /Placed\s+₹?([\d.]+)\s+(?:Lay|Back)?\s*bet(?:\s*\(Liability:\s*₹?[\d.]+\))?\s+on\s+(.+?)\s+@\s+([\d.]+)\s*\((.+?)\)/i;
                         const match = bet.details.match(regex);
                         
-                        const selection = match ? match[2] : "Selection";
-                        const odds = match ? match[3] : "0.00";
-                        const matchTitle = match ? match[4] : bet.details;
-                        const payout = bet.amount * parseFloat(odds);
+                        const selection = match ? match[2] : (bet.details.includes('on ') ? bet.details.split('on ')[1]?.split(' @')[0] : "Selection");
+                        const odds = match ? match[3] : (bet.details.includes('@ ') ? bet.details.split('@ ')[1]?.split(' ')[0] : "1.00");
+                        const matchTitle = match ? match[4] : (bet.details.includes('(') ? bet.details.split('(')[1]?.replace(')', '') : bet.details);
+                        const parsedOdds = parseFloat(odds) || 1.0;
+                        const payout = bet.amount * parsedOdds;
 
                         return (
                           <motion.div variants={itemVariants} key={bet.id} className="group bg-slate-50/60 backdrop-blur-xl border border-slate-200 rounded-[1.5rem] p-5 hover:border-white/20 transition-all duration-300 relative overflow-hidden">

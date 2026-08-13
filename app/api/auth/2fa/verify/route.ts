@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
-import { updateUser, addActivityLog } from '@/lib/userDb';
+import { updateUser, addActivityLog, findUserByEmailOrUsername } from '@/lib/userDb';
 import { verifyTOTP } from '@/lib/totp';
 import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 import { verifyUserSession } from '@/lib/userAuth';
@@ -19,7 +19,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await findUserByEmailOrUsername(email);
     if (!user) {
       return NextResponse.json({ error: 'User not found.' }, { status: 404 });
     }

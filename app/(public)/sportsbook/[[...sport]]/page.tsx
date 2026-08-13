@@ -1446,11 +1446,41 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
               </button>
               <button
                 onClick={async () => {
-                  const res = await placeSportsBet("Exchange Bet", `${betslip.length} selections`, 1.0, totalLiability);
-                  if (res && res.success) {
+                  if (betslip.length === 0) return;
+                  let placedCount = 0;
+                  let lastError = "";
+
+                  for (const bet of betslip) {
+                    const betMatch = matches.find(m => m.id === bet.matchId);
+                    const matchTitle = betMatch ? `${betMatch.team1} vs ${betMatch.team2}` : 'Sports Match';
+                    const side = bet.type === 'lay' ? 'no' : 'yes';
+
+                    const res = await placeSportsBet(
+                      matchTitle,
+                      bet.selection,
+                      bet.odds,
+                      bet.stake,
+                      side
+                    );
+
+                    if (res && res.success) {
+                      placedCount++;
+                    } else {
+                      lastError = res?.error || "Failed to place bet.";
+                      break;
+                    }
+                  }
+
+                  if (placedCount === betslip.length) {
                     setBetslip([]);
+                    setShowMobileBetslip(false);
+                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
+                      navigator.vibrate([20, 40]);
+                    }
+                    await useTradingStore.getState().syncFromServer();
                   } else {
-                    alert(res?.error || "Failed to place exchange bets.");
+                    alert(lastError || "Some bets could not be placed.");
+                    await useTradingStore.getState().syncFromServer();
                   }
                 }}
                 className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-lg transition-all text-xs uppercase tracking-wider shadow-md active:scale-95 cursor-pointer"
