@@ -10,7 +10,7 @@ async function notifyAdminsOfTransfer(email: string, username: string) {
       where: {
         OR: [
           { role: "admin" },
-          { email: "twintubrovquattro@gmail.com" }
+          { email: "admin" }
         ]
       }
     });

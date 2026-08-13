@@ -61,7 +61,14 @@ export async function POST(request: Request) {
     }
 
     // 1. Verify user exists and has admin privileges
-    const user = await prisma.user.findUnique({ where: { email } });
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: email, mode: 'insensitive' } },
+          { username: { equals: email, mode: 'insensitive' } }
+        ]
+      }
+    });
     if (!user || user.role !== 'admin') {
       return NextResponse.json({ success: false, error: "Access Denied: Administrative role mismatch" }, { status: 403 });
     }
@@ -75,8 +82,6 @@ export async function POST(request: Request) {
 
     // 3. Server-side validation of the cryptographic signature using the unified admin password
     const validPasscodes = [
-      'AuraBetAdmin2026!',
-      'aura-dev-admin-secret',
       process.env.ADMIN_PASSCODE,
       process.env.ADMIN_HMAC_SECRET,
       process.env.ADMIN_FALLBACK_PASSWORD

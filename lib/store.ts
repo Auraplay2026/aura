@@ -192,7 +192,7 @@ function syncWithServer(
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ 
-      email, 
+      email: email || '', 
       accountType, 
       hasCompletedOnboarding,
       phoneNumber,
@@ -221,7 +221,7 @@ function getSyncedStateAndSync(
     const hasCompletedOnboarding = state.currentUser.hasCompletedOnboarding;
     const { phoneNumber, gamingState, upiId, totalWagered, vipLevel, manualVipLevel, vipRewardsClaimed } = state.currentUser;
     syncWithServer(
-      state.currentUser.email, 
+      state.currentUser.email || state.currentUser.username, 
       accountType, 
       hasCompletedOnboarding,
       phoneNumber,
@@ -470,17 +470,12 @@ export const useTradingStore = create<TradingState>()(
 
       loginWithCredentials: async (emailOrUsername, password, otp, captcha) => {
         try {
-          console.log('[store] loginWithCredentials request', { emailOrUsername, passwordLength: password.length, otp, captcha });
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ emailOrUsername, password, otp, captcha })
           });
           const data = await res.json();
-          console.log('[store] loginWithCredentials response', { ok: res.ok, status: res.status, data });
-          if (typeof window !== 'undefined') {
-            (window as any).__AURA_AUTH_DEBUG__ = { event: 'store-login-response', payload: { ok: res.ok, status: res.status, data }, ts: Date.now() };
-          }
           if (data && data.twoFactorRequired) {
             return { success: false, twoFactorRequired: true };
           }

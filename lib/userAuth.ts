@@ -49,7 +49,7 @@ export async function verifyUserSession(requestEmail?: string): Promise<string> 
     }
   }
 
-  return user.email;
+  return user.email || user.username;
 }
 
 /**

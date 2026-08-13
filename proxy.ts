@@ -144,9 +144,8 @@ export async function proxy(request: NextRequest) {
     // 9. Verify the signed JWT
     const payload = await verifyJWT(adminToken);
 
-    // BOLA defense: Verify cookie matches JWT subject
-    const allowedAdmins = ['admin', 'twintubrovquattro@gmail.com'];
-    if (!payload.sub || !allowedAdmins.includes(payload.sub.toLowerCase())) {
+    // BOLA defense: Verify JWT has admin role and valid subject
+    if (!payload.sub || payload.role !== 'admin') {
       throw new Error('Identity mismatch / Unauthorized');
     }
 

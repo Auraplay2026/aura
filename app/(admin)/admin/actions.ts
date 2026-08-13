@@ -49,7 +49,7 @@ async function secureAction(clientAdminEmail?: string, targetUserEmail?: string,
       !clientAdminEmail ||
       clientAdminEmail === "admin" ||
       clientAdminEmail === "system@aurabet.io" ||
-      clientAdminEmail === "twintubrovquattro@gmail.com" ||
+      // Admin email allowlist uses verified session only
       clientAdminEmail.toLowerCase() === verifiedEmail.toLowerCase() ||
       verifiedEmail.toLowerCase() === "admin";
 
@@ -711,7 +711,7 @@ export async function adminUpdatePaymentSettingsAction(settings: PaymentSettings
   }
 }
 
-export async function adminUploadPaymentQrAction(base64Image: string, fileNamePrefix: string, adminEmail: string = "twintubrovquattro@gmail.com") {
+export async function adminUploadPaymentQrAction(base64Image: string, fileNamePrefix: string, adminEmail: string = "admin") {
   const auth = await secureAction(adminEmail);
   if (!auth.success) return { success: false, error: auth.error };
   const verifiedAdminEmail = auth.email;

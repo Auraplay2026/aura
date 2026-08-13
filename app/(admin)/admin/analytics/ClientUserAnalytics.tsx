@@ -171,7 +171,7 @@ export default function ClientUserAnalytics({
   // Save auditor notes
   const handleSaveNotes = () => {
     if (!activeUser) return;
-    const adminEmail = currentUser?.email || "twintubrovquattro@gmail.com";
+    const adminEmail = currentUser?.username || currentUser?.email || "admin";
     
     startTransition(async () => {
       const res = await adminSaveUserNotes(activeUser.email, notesInput, adminEmail);
@@ -194,7 +194,7 @@ export default function ClientUserAnalytics({
 
     setActionLoading(true);
     try {
-      const res = await adminCreditUser(activeUser.email, amount, currentUser?.email || "twintubrovquattro@gmail.com", walletSelection);
+      const res = await adminCreditUser(activeUser.email, amount, currentUser?.username || currentUser?.email || "admin", walletSelection);
       if (res.success) {
         showToast(`Successfully credited ₹${amount.toLocaleString()} to ${activeUser.username}'s ${walletSelection} wallet`, "success");
         setCreditModalOpen(false);
@@ -226,7 +226,7 @@ export default function ClientUserAnalytics({
 
     setActionLoading(true);
     try {
-      const res = await adminDebitUser(activeUser.email, amount, currentUser?.email || "twintubrovquattro@gmail.com", walletSelection);
+      const res = await adminDebitUser(activeUser.email, amount, currentUser?.username || currentUser?.email || "admin", walletSelection);
       if (res.success) {
         showToast(`Successfully debited ₹${amount.toLocaleString()} from ${activeUser.username}'s ${walletSelection} wallet`, "success");
         setDebitModalOpen(false);
@@ -253,7 +253,7 @@ export default function ClientUserAnalytics({
 
     setActionLoading(true);
     try {
-      const res = await adminOverrideBalance(activeUser.email, target, currentUser?.email || "twintubrovquattro@gmail.com", walletSelection);
+      const res = await adminOverrideBalance(activeUser.email, target, currentUser?.username || currentUser?.email || "admin", walletSelection);
       if (res.success) {
         showToast(`Successfully overrode ${walletSelection} balance to ₹${target.toLocaleString()} for ${activeUser.username}`, "success");
         setOverrideModalOpen(false);
@@ -279,7 +279,7 @@ export default function ClientUserAnalytics({
 
     setActionLoading(true);
     try {
-      const res = await adminBanUser(activeUser.email, currentUser?.email || "twintubrovquattro@gmail.com");
+      const res = await adminBanUser(activeUser.email, currentUser?.username || currentUser?.email || "admin");
       if (res.success) {
         const word = activeUser.role === 'BANNED' ? 'Unbanned' : 'Suspended';
         showToast(`User ${activeUser.username} is now ${word}`, "success");
@@ -301,7 +301,7 @@ export default function ClientUserAnalytics({
     if (!activeUser || actionLoading) return;
     setActionLoading(true);
     try {
-      const res = await adminUpdateKYCStatus(activeUser.email, status, currentUser?.email || "twintubrovquattro@gmail.com", reason);
+      const res = await adminUpdateKYCStatus(activeUser.email, status, currentUser?.username || currentUser?.email || "admin", reason);
       if (res.success) {
         showToast(`User KYC status set to ${status}`, "success");
         setKycDeclineModalOpen(false);

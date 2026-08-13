@@ -68,15 +68,12 @@ export async function POST(request: Request) {
 
     if (storedPasswordHash.startsWith('$2')) {
       passwordMatch = await bcrypt.compare(password, storedPasswordHash);
-    } else {
+    } else if (storedPasswordHash) {
+      // Legacy plaintext comparison (will be auto-hashed to bcrypt below on success)
       passwordMatch = password === storedPasswordHash;
     }
 
-    // Bulletproof fallback: Always allow AuraBetAdmin2026! for admin account
-    if (!passwordMatch && isFallbackAdmin && password === 'AuraBetAdmin2026!') {
-      passwordMatch = true;
-    }
-
+    // Admin fallback: use environment variable only (never hardcode passwords in source)
     if (!passwordMatch && isFallbackAdmin && process.env.ADMIN_FALLBACK_PASSWORD) {
       passwordMatch = password === process.env.ADMIN_FALLBACK_PASSWORD;
     }

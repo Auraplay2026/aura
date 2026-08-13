@@ -23,7 +23,7 @@ interface ToastMessage {
 
 export default function ClientRtpMonitorDashboard({ initialSystemConfig }: ClientRtpMonitorDashboardProps) {
   const currentUser = useTradingStore(state => state.currentUser);
-  const adminEmail = currentUser?.email || "twintubrovquattro@gmail.com";
+  const adminEmail = currentUser?.username || currentUser?.email || "admin";
 
   const [config, setConfig] = useState<SystemConfig>(initialSystemConfig);
   const [houseEdge, setHouseEdge] = useState(initialSystemConfig.houseEdge);
