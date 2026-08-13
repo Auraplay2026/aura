@@ -182,7 +182,8 @@ export async function adminCreditUser(email: string, amount: number, adminEmail:
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => u.email.toLowerCase().trim() === targetLower || u.username.toLowerCase().trim() === targetLower);
   if (!user) return { success: false, error: "User not found" };
 
   const isReal = walletType === 'real';
@@ -212,10 +213,10 @@ export async function adminCreditUser(email: string, amount: number, adminEmail:
     updates.balance = newBalance;
   }
 
-  await updateUser(email, updates);
+  await updateUser(user.email, updates);
   
   const ip = await getActionIP();
-  await logAdminAction(verifiedAdminEmail, "CREDIT_USER", email, `Injected credit of ₹${amount.toLocaleString()} into ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`, oldBalance, newBalance, ip);
+  await logAdminAction(verifiedAdminEmail, "CREDIT_USER", user.email, `Injected credit of ₹${amount.toLocaleString()} into ${walletType} wallet. Balance: ${oldBalance} -> ${newBalance}`, oldBalance, newBalance, ip);
   revalidatePath("/admin");
   revalidatePath("/admin/audit");
   return { success: true };
@@ -229,7 +230,8 @@ export async function adminDebitUser(email: string, amount: number, adminEmail: 
   if (amount <= 0) return { success: false, error: "Amount must be positive" };
   
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => u.email.toLowerCase().trim() === targetLower || u.username.toLowerCase().trim() === targetLower);
   if (!user) return { success: false, error: "User not found" };
 
   const isReal = walletType === 'real';
