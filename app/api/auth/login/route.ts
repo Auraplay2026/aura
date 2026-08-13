@@ -44,7 +44,10 @@ export async function POST(request: Request) {
 
     const user = await prisma.user.findFirst({
       where: {
-        username: { equals: emailOrUsername, mode: 'insensitive' }
+        OR: [
+          { username: { equals: emailOrUsername, mode: 'insensitive' } },
+          { email: { equals: emailOrUsername, mode: 'insensitive' } }
+        ]
       },
       include: { transactions: true, positions: true, notifications: true, activityLogs: true }
     });
@@ -78,7 +81,7 @@ export async function POST(request: Request) {
 
     if (!passwordMatch) {
       // Log failed login attempt
-      await addActivityLog(user.email, {
+      await addActivityLog(user.username || user.email || emailOrUsername, {
         action: "Failed Login Attempt",
         device,
         location: locationString,
@@ -86,6 +89,19 @@ export async function POST(request: Request) {
         type: 'danger'
       });
       return NextResponse.json({ error: invalidCredentialsError }, { status: 400 });
+    }
+
+    // Automatically hash plain text password if entered directly via DB or Supabase Table Editor
+    if (passwordMatch && !storedPasswordHash.startsWith('$2')) {
+      try {
+        const newHash = await bcrypt.hash(password, 10);
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { passwordHash: newHash }
+        });
+      } catch (err) {
+        console.error('Failed to auto-hash plain password:', err);
+      }
     }
 
 

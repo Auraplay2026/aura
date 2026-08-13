@@ -368,7 +368,7 @@ export async function updateUser(email: string, updates: Partial<UserProfile>, p
     }
 
     const updatedUser = await tx.user.update({
-      where: { email },
+      where: { id: existing.id },
       data,
       include: { transactions: true, positions: true, notifications: true, activityLogs: true }
     });
@@ -386,10 +386,18 @@ export async function updateUser(email: string, updates: Partial<UserProfile>, p
 }
 
 export async function addActivityLog(
-  email: string,
+  identifier: string,
   log: { action: string; device: string; location: string; ip: string; type?: string }
 ): Promise<any> {
-  const user = await prisma.user.findUnique({ where: { email } });
+  if (!identifier) return null;
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: { equals: identifier, mode: 'insensitive' } },
+        { username: { equals: identifier, mode: 'insensitive' } }
+      ]
+    }
+  });
   if (!user) return null;
 
   return await prisma.activityLog.create({
@@ -405,9 +413,15 @@ export async function addActivityLog(
   });
 }
 
-export async function getActivityLogs(email: string): Promise<any[]> {
-  const user = await prisma.user.findUnique({
-    where: { email },
+export async function getActivityLogs(identifier: string): Promise<any[]> {
+  if (!identifier) return [];
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: { equals: identifier, mode: 'insensitive' } },
+        { username: { equals: identifier, mode: 'insensitive' } }
+      ]
+    },
     include: {
       activityLogs: {
         orderBy: {
