@@ -868,12 +868,12 @@ export function LudoEngine({ betAmount, onBetAmountChange, onStartGame, isPlayin
 
                 <div className="flex items-center justify-between gap-1 mt-4 overflow-x-auto py-1 scrollbar-none">
                   {[
+                    { amount: 10, label: "10", color: "from-slate-400 to-slate-500 border-slate-400" },
+                    { amount: 50, label: "50", color: "from-blue-500 to-blue-600 border-blue-450" },
                     { amount: 100, label: "100", color: "from-red-650 to-red-700 border-red-500" },
                     { amount: 500, label: "500", color: "from-teal-650 to-teal-700 border-teal-500" },
                     { amount: 1000, label: "1k", color: "from-amber-500 to-amber-600 border-amber-400" },
-                    { amount: 5000, label: "5k", color: "from-pink-500 to-pink-650 border-pink-400" },
-                    { amount: 10000, label: "10k", color: "from-rose-500 to-rose-600 border-rose-450" },
-                    { amount: 50000, label: "50k", color: "from-red-800 to-red-900 border-red-700" }
+                    { amount: 5000, label: "5k", color: "from-pink-500 to-pink-650 border-pink-400" }
                   ].map((chip) => {
                     const isSelected = betAmount === chip.amount;
                     return (

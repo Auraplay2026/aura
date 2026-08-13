@@ -1063,12 +1063,12 @@ export function LudoFusionEngine({
                 {/* Stake Presets Chip layout */}
                 <div className="flex items-center justify-between gap-1.5 mt-4 overflow-x-auto py-1 scrollbar-none">
                   {[
+                    { amount: 10, label: "10", color: "from-slate-500 to-slate-600 border-slate-500" },
+                    { amount: 50, label: "50", color: "from-blue-600 to-blue-700 border-blue-500" },
                     { amount: 100, label: "100", color: "from-purple-600 to-indigo-700 border-purple-500" },
                     { amount: 500, label: "500", color: "from-fuchsia-600 to-pink-700 border-fuchsia-500" },
                     { amount: 1000, label: "1k", color: "from-indigo-650 to-purple-800 border-indigo-500" },
-                    { amount: 5000, label: "5k", color: "from-rose-500 to-pink-650 border-rose-450" },
-                    { amount: 10000, label: "10k", color: "from-purple-800 to-fuchsia-900 border-purple-700" },
-                    { amount: 50000, label: "50k", color: "from-indigo-900 to-slate-900 border-indigo-750" }
+                    { amount: 5000, label: "5k", color: "from-rose-500 to-pink-650 border-rose-450" }
                   ].map((chip) => {
                     const isSelected = betAmount === chip.amount;
                     return (

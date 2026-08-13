@@ -1287,6 +1287,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                   setBetPlacing(false);
                                   setTimeout(() => setBetSuccessFlash(false), 1500);
                                 } else {
+                                  setBetError(betRes?.error || "Failed to place bet on server.");
                                   setBetPlacing(false);
                                 }
                               }, 300);
@@ -1445,8 +1446,12 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
               </button>
               <button
                 onClick={async () => {
-                  await placeSportsBet("Exchange Bet", `${betslip.length} selections`, 1.0, totalLiability);
-                  setBetslip([]);
+                  const res = await placeSportsBet("Exchange Bet", `${betslip.length} selections`, 1.0, totalLiability);
+                  if (res && res.success) {
+                    setBetslip([]);
+                  } else {
+                    alert(res?.error || "Failed to place exchange bets.");
+                  }
                 }}
                 className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-lg transition-all text-xs uppercase tracking-wider shadow-md active:scale-95 cursor-pointer"
               >

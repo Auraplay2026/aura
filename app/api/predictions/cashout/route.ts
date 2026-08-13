@@ -127,6 +127,9 @@ export async function POST(request: Request) {
     if (err.message === 'WALLET_TYPE_MISMATCH') {
       return NextResponse.json({ error: 'Position wallet type does not match current account context.' }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Failed to process prediction cashout.', details: err?.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to process prediction cashout.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

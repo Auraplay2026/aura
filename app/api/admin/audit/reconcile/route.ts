@@ -146,6 +146,9 @@ export async function GET(request: Request) {
 
   } catch (err: any) {
     console.error("Reconciliation Audit API Error:", err);
-    return NextResponse.json({ error: 'Failed to run financial audit.', details: err?.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to run financial audit.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

@@ -983,7 +983,7 @@ export default function GamePlayerPage() {
   );
 
   return (
-    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-36 sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
+    <div className="w-full max-w-[1600px] mx-auto p-1.5 pb-[120px] sm:p-6 sm:pb-4 md:pb-6 lg:p-8">
       {/* Top Bar */}
       <div className="flex items-center justify-between mb-3.5">
         <div className="flex items-center gap-3">
@@ -1247,12 +1247,12 @@ export default function GamePlayerPage() {
                                       </div>
                                       <div className="flex flex-wrap items-center justify-between gap-2 mt-1.5 py-1.5">
                                         {[
+                                          { amount: 10, label: "10", color: "from-slate-400 to-slate-500 border-slate-400" },
+                                          { amount: 50, label: "50", color: "from-blue-500 to-blue-600 border-blue-450" },
                                           { amount: 100, label: "100", color: "from-red-650 to-red-700 border-red-500" },
                                           { amount: 500, label: "500", color: "from-teal-650 to-teal-700 border-teal-500" },
                                           { amount: 1000, label: "1k", color: "from-amber-500 to-amber-600 border-amber-400" },
-                                          { amount: 5000, label: "5k", color: "from-pink-500 to-pink-650 border-pink-400" },
-                                          { amount: 10000, label: "10k", color: "from-rose-500 to-rose-600 border-rose-450" },
-                                          { amount: 50000, label: "50k", color: "from-red-800 to-red-100 border-red-700" }
+                                          { amount: 5000, label: "5k", color: "from-pink-500 to-pink-650 border-pink-400" }
                                         ].map((chip) => {
                                           const isSelected = betAmount === chip.amount;
                                           return (
@@ -1744,7 +1744,7 @@ export default function GamePlayerPage() {
 
                     {/* ═══════ INLINE BETTING PANEL ═══════ */}
                     {!isCloudRenting && (
-                      <div className="fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] pb-safe md:relative md:bottom-auto md:left-auto md:right-auto md:z-30 md:shadow-inner flex flex-col">
+                      <div className="relative w-full z-30 bg-white border-t border-slate-200 shadow-inner flex flex-col">
                         {!currentUser ? (
                           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 md:p-6 bg-white text-slate-900">
                             <div className="flex items-center gap-3">
@@ -1880,14 +1880,14 @@ export default function GamePlayerPage() {
                         </div>
 
                         {/* Row 2: Chips + mobile extras + balance */}
-                        <div className="flex flex-wrap items-center gap-1.5 px-3 pb-6 md:px-5 md:pb-6">
+                        <div className="flex items-center gap-1.5 px-3 pb-3 md:px-5 md:pb-4 w-full overflow-x-auto flex-nowrap touch-pan-x scrollbar-none">
                           {[
+                            {amount:10, label:"₹10", color:"from-slate-500 to-slate-600"},
+                            {amount:50, label:"₹50", color:"from-blue-500 to-blue-600"},
                             {amount:100, label:"₹100", color:"from-red-600 to-red-700"},
                             {amount:500, label:"₹500", color:"from-teal-600 to-teal-700"},
                             {amount:1000, label:"1k", color:"from-amber-500 to-amber-600"},
                             {amount:5000, label:"5k", color:"from-pink-500 to-pink-600"},
-                            {amount:10000, label:"10k", color:"from-rose-600 to-rose-700"},
-                            {amount:50000, label:"50k", color:"from-violet-700 to-violet-100"},
                           ].map(chip => {
                             const isSelected = isLiveRoulette 
                               ? activeRouletteChip === chip.amount 

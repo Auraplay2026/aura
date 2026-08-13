@@ -28,7 +28,7 @@ export function TraditionalSportsbookUI() {
   const [draftBet, setDraftBet] = useState<DraftBet | null>(null);
   const [isTurboBetEnabled, setIsTurboBetEnabled] = useState(false);
 
-  const { positions, placeTrade, balance } = useTradingStore();
+  const { positions, placeTrade, placeSportsBet, balance } = useTradingStore();
 
   // Filter the mock liveMarkets using the new sportId property
   const getMatchesForSport = (sportId: string, markets: Market[]) => {
@@ -49,11 +49,21 @@ export function TraditionalSportsbookUI() {
 
     if (isTurboBetEnabled) {
       if (balance >= 1000) {
+        const prob = side === 'yes' ? market.yes : market.no;
+        const decimalOdds = Number(toDecimalOdds(prob));
+        const teamName = side === 'yes' ? market.title.split(' vs ')[0] || "Yes" : market.title.split(' vs ')[1] || "No";
         const transactionUuid = `UUID-${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
-        placeTrade(market.id, market.title, side, 1000, side === 'yes' ? market.yes : market.no, transactionUuid);
-        if (typeof navigator !== "undefined" && navigator.vibrate) {
-          navigator.vibrate([15, 30]);
-        }
+        placeSportsBet(market.title, teamName, decimalOdds, 1000, side, transactionUuid).then((res) => {
+          if (res && res.success) {
+            if (typeof navigator !== "undefined" && navigator.vibrate) {
+              navigator.vibrate([15, 30]);
+            }
+          } else {
+            alert(res?.error || "Turbo bet failed to execute.");
+          }
+        }).catch(err => {
+          alert("Turbo bet execution failed: " + err?.message);
+        });
       } else {
         alert("Insufficient balance for Turbo Bet (₹1,000)");
       }

@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 export function AIConcierge() {
   const pathname = usePathname();
   const isSportsbook = pathname?.startsWith("/sportsbook");
-  const isCasinoGame = pathname?.startsWith("/casino/game");
+  const isCasinoGame = pathname?.startsWith("/casino/game") || pathname?.startsWith("/casino/slots") || pathname?.startsWith("/arcade/game");
   const [isOpen, setIsOpen] = useState(false);
   const { isLoggedIn, deposit } = useTradingStore();
   const [claimed, setClaimed] = useState(false);
@@ -98,7 +98,7 @@ export function AIConcierge() {
 
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center relative group shadow-xl pointer-events-auto ${isCasinoGame ? "hidden sm:flex" : "flex"}`}
+        className={`w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center relative group shadow-xl pointer-events-auto ${isCasinoGame ? "hidden" : "flex"}`}
       >
         {/* Pulsing Aura */}
         <div className="absolute inset-[-10px] rounded-full bg-red-100 blur-xl opacity-40 group-hover:opacity-80 transition-opacity animate-pulse pointer-events-none" />

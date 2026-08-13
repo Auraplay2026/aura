@@ -32,22 +32,37 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
   const totalCost = stake + potentialLiability;
   const payout = draftBet?.side === 'no' ? stake : stake * (draftBet?.odds || 0);
 
-  const handlePlaceBet = () => {
-    if (isProcessing || !draftBet || stake <= 0 || balance < totalCost) return;
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handlePlaceBet = async () => {
+    if (isProcessing || !draftBet || stake <= 0) return;
+    if (balance < totalCost) {
+      setErrorMessage(`Insufficient balance: Required ₹${totalCost.toFixed(2)}, Available ₹${balance.toFixed(2)}`);
+      return;
+    }
     
     setIsProcessing(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+    try {
       const transactionUuid = `UUID-${Math.random().toString(36).substring(2, 15).toUpperCase()}`;
-      placeSportsBet(draftBet.marketTitle, draftBet.team, draftBet.odds, stake, draftBet.side, transactionUuid);
+      const res = await placeSportsBet(draftBet.marketTitle, draftBet.team, draftBet.odds, stake, draftBet.side, transactionUuid);
       
-      // Haptic tactile vibration
-      if (typeof navigator !== "undefined" && navigator.vibrate) {
-        navigator.vibrate([15, 30]);
+      if (res && res.success) {
+        // Haptic tactile vibration
+        if (typeof navigator !== "undefined" && navigator.vibrate) {
+          navigator.vibrate([15, 30]);
+        }
+        setIsProcessing(false);
+        onClearBet();
+      } else {
+        const err = res?.error || "Failed to place bet on server.";
+        setErrorMessage(err);
+        setIsProcessing(false);
       }
-      
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Network error. Failed to place wager.");
       setIsProcessing(false);
-      onClearBet();
-    }, 1000);
+    }
   };
 
   if (!draftBet) return null;
@@ -120,7 +135,10 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
                   <input
                     type="number"
                     value={stake}
-                    onChange={(e) => setStake(Number(e.target.value))}
+                    onChange={(e) => {
+                      setStake(Number(e.target.value));
+                      setErrorMessage(null);
+                    }}
                     className="w-full bg-transparent border-none text-slate-900 font-black text-lg py-1 px-2 outline-none"
                   />
                 </div>
@@ -147,6 +165,14 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
                   ₹{draftBet.side === 'no' ? stake.toFixed(2) : (payout - stake).toFixed(2)}
                 </span>
               </div>
+
+              {/* Error Message Notification */}
+              {errorMessage && (
+                <div className="mb-3 p-2.5 bg-red-50 border border-red-200 rounded-lg text-red-600 text-xs font-bold flex items-center gap-2">
+                  <span>⚠️</span>
+                  <span className="leading-tight">{errorMessage}</span>
+                </div>
+              )}
 
               {/* Place Bet Button */}
               <button

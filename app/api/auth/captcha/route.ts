@@ -1,9 +1,10 @@
 import { NextResponse } from 'next/server';
 import { signJWT } from '@/lib/jwt';
+import crypto from 'crypto';
 
 export async function GET() {
   try {
-    const code = Math.floor(1000 + Math.random() * 9000).toString();
+    const code = crypto.randomInt(1000, 10000).toString();
     const exp = Math.floor(Date.now() / 1000) + 120; // 2 minutes expiry
     const token = await signJWT({ code, exp });
 
@@ -19,6 +20,9 @@ export async function GET() {
 
     return response;
   } catch (err: any) {
-    return NextResponse.json({ error: 'Failed to generate captcha.', details: err.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to generate captcha.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

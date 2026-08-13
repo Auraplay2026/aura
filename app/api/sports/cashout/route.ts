@@ -151,6 +151,9 @@ export async function POST(request: Request) {
 
   } catch (err: any) {
     console.error("Sports Cashout API Error:", err);
-    return NextResponse.json({ error: 'Failed to process sports cashout.', details: err?.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to process sports cashout.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

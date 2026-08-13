@@ -15,39 +15,39 @@ export async function verifyAdminSession(): Promise<SessionUser> {
     cookieStore.get("user_auth_token")?.value || 
     cookieStore.get("admin_token")?.value;
 
-  let identifier = emailCookie;
-
-  if (!identifier && adminToken) {
-    try {
-      const payload = await verifyJWT(adminToken);
-      identifier = payload.sub;
-    } catch {
-      // Fallback
-    }
+  if (!adminToken) {
+    throw new Error("UNAUTHORIZED_ADMIN_SESSION_MISSING: Authentication token required.");
   }
 
-  if (!identifier) {
-    identifier = "admin";
+  let payload: any;
+  try {
+    payload = await verifyJWT(adminToken);
+  } catch (err: any) {
+    throw new Error("UNAUTHORIZED_INVALID_ADMIN_TOKEN: " + (err.message || "Token signature or expiration invalid."));
   }
 
-  let user = await findUserByEmailOrUsername(identifier);
+  const tokenSub = (payload.sub || "").toLowerCase().trim();
+  if (!tokenSub) {
+    throw new Error("UNAUTHORIZED_INVALID_TOKEN_SUBJECT: Token subject is missing.");
+  }
+
+  // Find canonical user by email or username
+  const user = await findUserByEmailOrUsername(tokenSub);
 
   if (!user || user.role !== "admin") {
-    const adminFallback = await findUserByEmailOrUsername("admin");
-    if (adminFallback && adminFallback.role === "admin") {
-      user = adminFallback;
-    } else {
-      throw new Error("Forbidden: Administrator privileges required");
+    throw new Error("FORBIDDEN_INSUFFICIENT_PRIVILEGES: Administrator privileges required.");
+  }
+
+  // If emailCookie is present, verify identity match
+  if (emailCookie) {
+    const cookieVal = emailCookie.toLowerCase().trim();
+    const userEmail = (user.email || "").toLowerCase().trim();
+    const userName = (user.username || "").toLowerCase().trim();
+
+    if (cookieVal !== userEmail && cookieVal !== userName && cookieVal !== tokenSub) {
+      throw new Error("UNAUTHORIZED_IDENTITY_MISMATCH: Cookie identity does not match authenticated token subject.");
     }
   }
 
-  if (adminToken) {
-    try {
-      await verifyJWT(adminToken);
-    } catch {
-      // Allow active admin session
-    }
-  }
-
-  return { email: user.email, role: user.role || "admin" };
+  return { email: user.email || user.username, role: user.role };
 }

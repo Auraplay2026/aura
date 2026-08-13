@@ -151,6 +151,9 @@ export async function POST(request: Request) {
     if (err.message === 'INSUFFICIENT_FUNDS') {
       return NextResponse.json({ error: 'INSUFFICIENT_FUNDS' }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Failed to process prediction trade.', details: err?.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to process prediction trade.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

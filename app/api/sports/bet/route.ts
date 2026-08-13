@@ -152,12 +152,31 @@ export async function POST(request: Request) {
         updates.demoTransactions = [tx];
       }
 
+      const marketIdGenerated = `SPORT-${(matchTitle || 'MATCH').replace(/[^a-zA-Z0-9]/g, '-').toUpperCase()}`;
+      const positionTitle = `${matchTitle}: ${selection} (${odds.toFixed(2)})`;
+      const sharesCount = side === 'no' ? stake : Math.round(stake * odds * 100) / 100;
+
+      const createdPosition = await txClient.position.create({
+        data: {
+          userId: user.id,
+          marketId: marketIdGenerated,
+          marketTitle: positionTitle,
+          side: side || 'yes',
+          shares: sharesCount,
+          buyPrice: odds,
+          investment: totalRequired,
+          timestamp: Date.now(),
+          walletType: accountType
+        }
+      });
+
       await updateUser(email, updates, txClient);
 
       return {
         success: true,
         transactionId: txId,
         newBalance,
+        position: createdPosition,
         tx
       };
     });
@@ -170,11 +189,15 @@ export async function POST(request: Request) {
       success: true,
       transactionId: result.transactionId,
       newBalance: result.newBalance,
+      position: result.position,
       tx: result.tx
     }, { status: 200 });
 
   } catch (err: any) {
     console.error("Sportsbook Bet API Error:", err);
-    return NextResponse.json({ error: 'Failed to place sports wager.', details: err?.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to place sports wager.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

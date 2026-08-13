@@ -94,6 +94,9 @@ export async function POST(request: Request) {
       randomValues: outcome.randomValues
     }, { status: 200 });
   } catch (err: any) {
-    return NextResponse.json({ error: 'Verification failed.', details: err.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Verification failed.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

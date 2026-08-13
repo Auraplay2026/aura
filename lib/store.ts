@@ -905,35 +905,105 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      placeSportsBet: async (matchTitle, selection, odds, stake, side, uuid) => {
+      placeSportsBet: async (matchTitle, selection, odds, stake, side = 'yes', uuid) => {
         const state = useTradingStore.getState();
-        if (!state.isLoggedIn || !state.currentUser) return null;
+        if (!state.isLoggedIn || !state.currentUser) {
+          return { success: false, error: 'Please log in to place a bet.' };
+        }
 
         try {
+          const userEmail = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/sports/bet', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              email: state.currentUser.username || state.currentUser.email,
+              email: userEmail,
               matchTitle,
               selection,
-              odds,
-              stake,
-              side,
-              uuid
+              odds: Number(odds),
+              stake: Number(stake),
+              side: side || 'yes',
+              uuid: uuid || `BET-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
             })
           });
           const data = await res.json();
           if (res.ok && data.success) {
-            await state.syncFromServer();
-            return data;
+            // Instant Client-side Store Append for 0-latency UI responsiveness
+            const newPos: Position = data.position || {
+              id: data.transactionId || `POS-${Date.now()}`,
+              marketId: `SPORT-${(matchTitle || 'MATCH').replace(/[^a-zA-Z0-9]/g, '-').toUpperCase()}`,
+              marketTitle: `${matchTitle}: ${selection} (${Number(odds).toFixed(2)})`,
+              side: side || 'yes',
+              shares: side === 'no' ? Number(stake) : Math.round(Number(stake) * Number(odds) * 100) / 100,
+              buyPrice: Number(odds),
+              investment: side === 'no' ? Number(stake) * Number(odds) : Number(stake),
+              timestamp: Date.now()
+            };
+
+            const newTx: Transaction = data.tx || {
+              id: data.transactionId || `TX-${Date.now()}`,
+              type: 'trade',
+              amount: Number(stake),
+              balanceAfter: typeof data.newBalance === 'number' ? data.newBalance : state.balance - Number(stake),
+              timestamp: Date.now(),
+              details: `Placed ₹${stake} ${side === 'no' ? 'Lay' : 'Back'} bet on ${selection} @ ${Number(odds).toFixed(2)} (${matchTitle})`,
+              status: 'Completed'
+            };
+
+            const updatedPositions = [newPos, ...state.positions];
+            const updatedTransactions = [newTx, ...state.transactions];
+            const updatedBalance = typeof data.newBalance === 'number' ? data.newBalance : Math.round((state.balance - Number(stake)) * 100) / 100;
+
+            const isReal = state.currentUser.accountType === 'real';
+            const updatedUser: UserProfile = {
+              ...state.currentUser,
+              balance: updatedBalance,
+              positions: updatedPositions,
+              transactions: updatedTransactions,
+              ...(isReal
+                ? {
+                    realBalance: updatedBalance,
+                    realPositions: updatedPositions,
+                    realTransactions: updatedTransactions,
+                    totalWagered: (state.currentUser.totalWagered || 0) + Number(stake)
+                  }
+                : {
+                    demoBalance: updatedBalance,
+                    demoPositions: updatedPositions,
+                    demoTransactions: updatedTransactions
+                  })
+            };
+
+            set({
+              balance: updatedBalance,
+              positions: updatedPositions,
+              transactions: updatedTransactions,
+              currentUser: updatedUser
+            });
+
+            // Async background sync
+            state.syncFromServer().catch(() => {});
+
+            return {
+              success: true,
+              transactionId: data.transactionId,
+              newBalance: updatedBalance,
+              position: newPos,
+              tx: newTx
+            };
           } else {
             console.error(data.error || "Failed to place sports bet.");
-            return null;
+            return {
+              success: false,
+              error: data.error || 'Failed to place sports wager.'
+            };
           }
-        } catch (err) {
+        } catch (err: any) {
           console.error("Failed to place sports bet", err);
-          return null;
+          return {
+            success: false,
+            error: err?.message || 'Network communication error.'
+          };
         }
       },
 

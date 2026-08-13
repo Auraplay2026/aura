@@ -12,7 +12,7 @@ import { SmartNotificationBanner } from "@/components/ui/SmartNotificationBanner
 
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 
-const outfit = Outfit({ subsets: ["latin"], display: 'swap', weight: ['300', '400', '500', '600', '700', '800', '900'] });
+const outfit = Outfit({ subsets: ["latin"], display: 'swap', weight: ['300', '400', '500', '600', '700', '800', '900'], preload: false });
 
 export const viewport = {
   themeColor: "#f8fafc",

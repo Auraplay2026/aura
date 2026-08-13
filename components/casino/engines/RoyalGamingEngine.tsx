@@ -167,7 +167,7 @@ const GAME_CONFIGS: Record<string, {
   }
 };
 
-const COIN_VALUES = [100, 500, 1000, 5000, 10000, 50000];
+const COIN_VALUES = [10, 50, 100, 500, 1000, 5000];
 
 // Simulated live player avatars for social proof (tiny face circles)
 const LIVE_PLAYERS = [
@@ -1879,12 +1879,12 @@ setPlacedChips([]);
         <div className="flex items-center gap-2 sm:gap-3">
           {COIN_VALUES.map(val => {
             const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
+              10: { bg: "from-slate-500 to-slate-700", border: "border-slate-350", text: "text-slate-900", shadow: "shadow-slate-500/40" },
+              50: { bg: "from-blue-500 to-blue-700", border: "border-blue-350", text: "text-slate-900", shadow: "shadow-blue-500/40" },
               100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-slate-900", shadow: "shadow-sky-500/40" },
               500: { bg: "from-emerald-500 to-emerald-700", border: "border-emerald-350", text: "text-slate-900", shadow: "shadow-emerald-500/40" },
               1000: { bg: "from-amber-500 to-amber-700", border: "border-amber-350", text: "text-slate-900", shadow: "shadow-amber-500/40" },
-              5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-slate-900", shadow: "shadow-rose-500/40" },
-              10000: { bg: "from-purple-500 to-purple-700", border: "border-purple-350", text: "text-slate-900", shadow: "shadow-purple-500/40" },
-              50000: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-slate-900", shadow: "shadow-slate-700/40" }
+              5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-slate-900", shadow: "shadow-rose-500/40" }
             };
             const config = styles[val] || { bg: "from-purple-600 to-purple-800", border: "border-purple-400", text: "text-slate-900", shadow: "shadow-purple-500/40" };
             const isSelected = selectedCoin === val;
@@ -2330,12 +2330,12 @@ setPlacedChips([]);
         <div className="flex items-center justify-between gap-1 bg-white/40 p-2 border border-slate-200 rounded-xl overflow-x-auto select-none">
           {COIN_VALUES.map(val => {
             const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
+              10: { bg: "from-slate-500 to-slate-700", border: "border-slate-350", text: "text-slate-900", shadow: "shadow-slate-500/40" },
+              50: { bg: "from-blue-500 to-blue-700", border: "border-blue-350", text: "text-slate-900", shadow: "shadow-blue-500/40" },
               100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-slate-900", shadow: "shadow-sky-500/40" },
               500: { bg: "from-emerald-500 to-emerald-700", border: "border-emerald-350", text: "text-slate-900", shadow: "shadow-emerald-500/40" },
               1000: { bg: "from-amber-500 to-amber-700", border: "border-amber-350", text: "text-slate-900", shadow: "shadow-amber-500/40" },
-              5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-slate-900", shadow: "shadow-rose-500/40" },
-              10000: { bg: "from-purple-500 to-purple-700", border: "border-purple-350", text: "text-slate-900", shadow: "shadow-purple-500/40" },
-              50000: { bg: "from-slate-700 to-slate-900", border: "border-slate-600", text: "text-slate-900", shadow: "shadow-slate-700/40" }
+              5000: { bg: "from-rose-500 to-rose-700", border: "border-rose-350", text: "text-slate-900", shadow: "shadow-rose-500/40" }
             };
             const config = styles[val] || { bg: "from-purple-600 to-purple-800", border: "border-purple-400", text: "text-slate-900", shadow: "shadow-purple-500/40" };
             const isSelected = selectedCoin === val;

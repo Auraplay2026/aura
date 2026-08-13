@@ -160,6 +160,9 @@ export async function POST(request: Request) {
 
   } catch (err: any) {
     console.error("Sportsbook Settlement API Error:", err);
-    return NextResponse.json({ error: 'Failed to settle sports wager.', details: err?.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to settle sports wager.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }

@@ -194,7 +194,10 @@ export async function GET(request: Request) {
   } catch (error) {
     console.error('[RTP Monitor] Error:', error);
     return NextResponse.json(
-      { error: 'Failed to generate RTP report', details: String(error) },
+      {
+        error: 'Failed to generate RTP report',
+        ...(process.env.NODE_ENV !== 'production' && { details: String(error) })
+      },
       { status: 500 }
     );
   }

@@ -223,6 +223,9 @@ export async function POST(request: Request) {
     ) {
       return NextResponse.json({ error: `Reward limit exceeded: ${err.message}` }, { status: 400 });
     }
-    return NextResponse.json({ error: 'Failed to process reward claim.', details: err?.message }, { status: 500 });
+    return NextResponse.json({
+      error: 'Failed to process reward claim.',
+      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+    }, { status: 500 });
   }
 }
