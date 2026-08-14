@@ -63,32 +63,32 @@ const LIVE_MATCHES_DATA: LiveMatch[] = [
 const CAROUSEL_SLIDES = [
   {
     id: 1,
-    title: "AuraPlay Sovereign Exchange",
-    subtitle: "Direct Liquidity & Indian Bhav",
-    accent: "INSTANT 5% SOVEREIGN LIQUIDITY CREDIT",
+    title: "🏏 India's #1 Live Cricket Bhav Exchange",
+    subtitle: "0% Commission Bhav • 0.2s Pitch-Side Radar",
+    accent: "₹10,000 WELCOME BONUS ON 1ST UPI DEPOSIT",
     bgUrl: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop",
-    gradient: "from-rose-100 via-rose-50 to-slate-50",
-    buttonText: "Claim Exchange Access",
-    link: "/auth"
+    gradient: "from-emerald-100 via-teal-50 to-slate-50",
+    buttonText: "Bet On Live Cricket",
+    link: "/sportsbook/cricket"
   },
   {
     id: 2,
-    title: "Global Sports Arena",
-    subtitle: "Zero-Commission Exchange Rails",
-    accent: "TRADE LIVE CRICKET, EPL & ATP TENNIS WITH 0.2S RADAR",
+    title: "🎴 Desi Teen Patti & Super Andar Bahar",
+    subtitle: "Live Hindi Dealers • 10% Instant Daily Cashback",
+    accent: "24/7 4K LIVE STREAMING • 1-TAP INSTANT SEATING",
     bgUrl: "https://images.unsplash.com/photo-1518605368461-1e128014792c?q=80&w=2000&auto=format&fit=crop",
-    gradient: "from-indigo-100 via-indigo-50 to-slate-50",
-    buttonText: "Enter Sports Exchange",
-    link: "/sportsbook"
+    gradient: "from-amber-100 via-orange-50 to-slate-50",
+    buttonText: "Enter Desi Club",
+    link: "/casino"
   },
   {
     id: 3,
-    title: "Provably Fair Arcade & Yield",
-    subtitle: "Cryptographically Audited Games",
-    accent: "NEON HORIZON, ZEN ARCHERY & CRASH MULTIPLIERS",
+    title: "🚀 Aviator & Turbo Multiplier Arena",
+    subtitle: "Cashout up to 10,000x • Instant 15-Sec UPI Payouts",
+    accent: "100% PROVABLY FAIR CRYPTOGRAPHIC ENGINE",
     bgUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2000&auto=format&fit=crop",
-    gradient: "from-emerald-100 via-emerald-50 to-slate-50",
-    buttonText: "Launch Verifiable Games",
+    gradient: "from-sky-100 via-indigo-50 to-slate-50",
+    buttonText: "Play Turbo Crash",
     link: "/arcade"
   }
 ];
@@ -458,6 +458,9 @@ export default function GlobalHomepage() {
   const featuredArcade = ARCADE_GAMES.slice(0, 4);
   const originals = getGamesByCategory("originals").slice(0, 4);
   const liveDealers = getGamesByCategory("live").slice(0, 4);
+  const desiLiveGames = GAMES.filter(g => 
+    ["royal-1-20", "royal-3", "royal-6", "orig-r6", "royal-5", "royal-1", "royal-4"].includes(g.id)
+  );
   const inHouseOriginals = GAMES.filter(g => 
     ["orig-15", "orig-1", "orig-3", "orig-4", "orig-2", "orig-8", "orig-12", "orig-13"].includes(g.id)
   );
@@ -572,50 +575,80 @@ export default function GlobalHomepage() {
         </button>
       </div>
 
-      {/* ── SOVEREIGN PROOF OF LIQUIDITY & INSTITUTIONAL TRUST STRIP ── */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 bg-white border border-slate-200/90 rounded-xl p-3 sm:p-4 shadow-xs">
+      {/* ── 2. SOVEREIGN PROOF OF LIQUIDITY & INDIAN PAYMENT TRUST STRIP ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 bg-white border border-slate-200/90 rounded-2xl p-3 sm:p-4 shadow-sm">
         <div className="flex items-center gap-2.5 p-1">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
-            <Activity className="w-4 h-4 text-emerald-600" />
+          <div className="w-9 h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0 shadow-xs">
+            <Zap className="w-4 h-4 text-emerald-600 fill-emerald-600/10" />
           </div>
           <div>
-            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">24h Liquid Volume</div>
-            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">₹48.92 Cr+</div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Instant Payouts</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-emerald-700">⚡ 15-Sec Direct UPI</div>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 p-1">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0 shadow-xs">
             <Radio className="w-4 h-4 text-sky-600 animate-pulse" />
           </div>
           <div>
-            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Radar Execution</div>
-            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">0.2s Pitch-Side</div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Pitch-Side Sync</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">0.2s Cricket Radar</div>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 p-1">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+          <div className="w-9 h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0 shadow-xs">
             <ShieldCheck className="w-4 h-4 text-amber-600" />
           </div>
           <div>
-            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Solvency Audit</div>
-            <div className="text-xs sm:text-sm font-black font-mono text-emerald-700">100% Reserve Backed</div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Solvency Reserve</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">100% Reserve Backed</div>
           </div>
         </div>
 
         <div className="flex items-center gap-2.5 p-1">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center shrink-0">
-            <Zap className="w-4 h-4 text-purple-600" />
+          <div className="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-200 flex items-center justify-center shrink-0 shadow-xs">
+            <Percent className="w-4 h-4 text-indigo-600" />
           </div>
           <div>
-            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Exchange Margin</div>
-            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">0% Commission Bhav</div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Market Bhav</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">0% Commission Odds</div>
           </div>
         </div>
       </div>
 
-      {/* 2. SECOND ROW: SPORTS LIVE MATCHES (60%) & BLOG (40%) */}
+      {/* ── 3. LIVE SOCIAL PROOF & RECENT INDIAN HIGH-ROLLER WINS TICKER ── */}
+      <div className="w-full bg-slate-900 text-white rounded-xl px-4 py-2.5 flex items-center gap-3 overflow-hidden shadow-md border border-slate-800">
+        <div className="flex items-center gap-1.5 shrink-0 bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest">
+          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping" />
+          LIVE WINS
+        </div>
+
+        <div className="flex items-center gap-6 overflow-x-auto no-scrollbar scroll-smooth whitespace-nowrap text-xs font-semibold">
+          <div className="flex items-center gap-1.5 text-slate-300">
+            <span className="text-emerald-400 font-bold">@rahul_delhi</span> won <span className="text-emerald-300 font-mono font-bold">₹84,200</span> on <span className="text-white font-medium">India vs Aus (Back 2.15)</span>
+          </div>
+          <span className="text-slate-600">•</span>
+          <div className="flex items-center gap-1.5 text-slate-300">
+            <span className="text-sky-400 font-bold">@amit_mumbai</span> cashed out <span className="text-sky-300 font-mono font-bold">₹1,45,000</span> on <span className="text-white font-medium">Aviator 3D (18.4x)</span>
+          </div>
+          <span className="text-slate-600">•</span>
+          <div className="flex items-center gap-1.5 text-slate-300">
+            <span className="text-amber-400 font-bold">@priya_jaipur</span> won <span className="text-amber-300 font-mono font-bold">₹52,000</span> on <span className="text-white font-medium">Teen Patti 20-20</span>
+          </div>
+          <span className="text-slate-600">•</span>
+          <div className="flex items-center gap-1.5 text-slate-300">
+            <span className="text-purple-400 font-bold">@deepak_punjab</span> won <span className="text-purple-300 font-mono font-bold">₹2,10,000</span> on <span className="text-white font-medium">IPL RCB vs CSK</span>
+          </div>
+          <span className="text-slate-600">•</span>
+          <div className="flex items-center gap-1.5 text-slate-300">
+            <span className="text-rose-400 font-bold">@sanjay_blr</span> won <span className="text-rose-300 font-mono font-bold">₹38,500</span> on <span className="text-white font-medium">Super Andar Bahar</span>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 4. SECOND ROW: SPORTS LIVE MATCHES (60%) & CRICKET / BLOG HUB (40%) ── */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         
         {/* SPORTS LIVE ODDS WIDGET (DYNAMIC LIVE MATCHES & QUICK BET SLIP) */}
@@ -623,19 +656,30 @@ export default function GlobalHomepage() {
           <LiveExchangeWidget />
         </div>
 
-        {/* BLOG BANNER */}
-        <Link href="/blog" className="md:col-span-2 relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-auto md:h-auto bg-gradient-to-br from-yellow-400 to-amber-500 group cursor-pointer shadow-sm hover:shadow-xl transition-shadow duration-300 flex items-center justify-center p-6">
+        {/* INDIAN PREMIER LEAGUE & SPORTS EXPERT BLOG BANNER */}
+        <Link href="/blog" className="md:col-span-2 relative w-full rounded-2xl overflow-hidden aspect-[16/9] md:aspect-auto md:h-auto bg-gradient-to-br from-amber-400 via-amber-500 to-yellow-500 group cursor-pointer shadow-md hover:shadow-xl transition-all duration-300 flex items-center justify-center p-6 border border-amber-300/60">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay z-0" />
-          <div className="relative z-10 flex flex-col items-center w-full">
-            <div className="bg-red-600 text-slate-900 font-black text-6xl md:text-7xl italic tracking-tighter px-6 py-2 rounded-xl shadow-xl transform -rotate-2 mb-4 border-4 border-white">
-              BLOG
+          <div className="relative z-10 flex flex-col items-center w-full text-center">
+            <div className="bg-red-600 text-white font-black text-4xl md:text-5xl italic tracking-tighter px-6 py-2 rounded-2xl shadow-xl transform -rotate-1 mb-3 border-2 border-white">
+              MATCH RADAR & BLOG
             </div>
-            <p className="text-slate-900 font-black uppercase tracking-widest text-sm mb-6 bg-white px-3 py-1 rounded">News | Sporting Info | Etc.</p>
+            <p className="text-slate-950 font-black uppercase tracking-widest text-xs mb-5 bg-white/90 px-3 py-1 rounded-full shadow-xs">
+              Live Pitch Reports • IPL Match Analysis • Expert Tips
+            </p>
             
-            <div className="flex justify-center gap-4 text-slate-900 w-full bg-white/10 p-3 rounded-lg">
-              <div className="flex flex-col items-center gap-1"><Trophy className="w-6 h-6" /><span className="text-[9px] font-bold uppercase">Cricket</span></div>
-              <div className="flex flex-col items-center gap-1"><Activity className="w-6 h-6" /><span className="text-[9px] font-bold uppercase">Tennis</span></div>
-              <div className="flex flex-col items-center gap-1"><Star className="w-6 h-6" /><span className="text-[9px] font-bold uppercase">Football</span></div>
+            <div className="grid grid-cols-3 gap-2 text-slate-900 w-full bg-white/40 backdrop-blur-xs p-3 rounded-xl border border-white/60">
+              <div className="flex flex-col items-center gap-1">
+                <Trophy className="w-5 h-5 text-slate-900" />
+                <span className="text-[10px] font-black uppercase">Cricket IPL</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <Activity className="w-5 h-5 text-slate-900" />
+                <span className="text-[10px] font-black uppercase">Tennis ATP</span>
+              </div>
+              <div className="flex flex-col items-center gap-1">
+                <Star className="w-5 h-5 text-slate-900" />
+                <span className="text-[10px] font-black uppercase">Football EPL</span>
+              </div>
             </div>
           </div>
         </Link>
@@ -966,73 +1010,73 @@ export default function GlobalHomepage() {
       </motion.section>
 
       {/* ========================================== */}
-      {/* CATEGORY 4: LIVE VR & TABLE CASINO */}
+      {/* CATEGORY 4: DESI LIVE CLUB & TEEN PATTI LOUNGE */}
       {/* ========================================== */}
       <motion.section 
         initial={{ opacity: 0, y: 20 }} 
         whileInView={{ opacity: 1, y: 0 }} 
         viewport={{ once: true, margin: "-50px" }} 
         transition={{ duration: 0.6 }} 
-        className="w-full mt-6 bg-white border border-slate-200/80 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.03)]"
+        className="w-full mt-6 bg-white border border-amber-200/80 rounded-[2.5rem] p-6 md:p-8 relative overflow-hidden shadow-[0_20px_50px_rgba(217,119,6,0.05)]"
       >
-        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/5 blur-[120px] rounded-full pointer-events-none" />
+        <div className="absolute top-0 right-0 w-80 h-80 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
         
         {/* Header */}
-        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-100 pb-5">
+        <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-amber-100 pb-5">
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] bg-amber-50 border border-amber-200 text-amber-800 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
-              <Radio className="w-3 h-3 text-amber-600" /> ULTRA-LOW LATENCY STREAM
+            <span className="text-[9px] bg-amber-100 border border-amber-300 text-amber-900 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5 shadow-xs">
+              <Flame className="w-3 h-3 text-amber-600 animate-pulse" /> 10% DAILY DESI LOSS CASHBACK
             </span>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
-              Live <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-600 drop-shadow-sm">VR Casino</span>
+              Desi <span className="text-transparent bg-clip-text bg-gradient-to-r from-amber-600 via-orange-600 to-red-600 drop-shadow-xs">Live Club & Teen Patti</span>
             </h2>
-            <p className="text-xs text-slate-600 font-semibold mt-1">
-              Interact with real dealers. 4K WebRTC feed broadcasts with physical table integrations.
+            <p className="text-xs text-slate-700 font-semibold mt-1">
+              Interact with real Hindi-speaking live dealers. 4K WebRTC direct stream from Mumbai studios with 1-tap instant table seating.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-700 hover:text-amber-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
-            Enter Live Arena <ChevronRight className="w-4 h-4" />
+          <Link href="/casino" className="text-xs font-black text-amber-700 hover:text-amber-800 uppercase tracking-widest flex items-center gap-1 transition-colors bg-amber-50 px-3 py-1.5 rounded-xl border border-amber-200">
+            All Desi Tables <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
 
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5 relative z-10">
-          {liveVR.slice(0, 5).map(game => {
+          {desiLiveGames.slice(0, 5).map(game => {
             return (
               <div key={game.id} className="relative group">
                 <Link 
                   href={`/casino/game/${game.id}`}
-                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-200 transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
+                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-amber-200/80 transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-500 hover:shadow-[0_10px_30px_rgba(217,119,6,0.15)] relative"
                 >
                   <img 
                     src={game.image} 
                     alt={game.title} 
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-85 group-hover:opacity-50"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
                   <div className="absolute top-3 inset-x-3 flex justify-between items-center z-20 pointer-events-none">
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/90 border border-slate-200 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/95 border border-slate-200 text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
                       <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       {(game.players || 24000) > 1000 ? ((game.players || 24000) / 1000).toFixed(1) + 'k' : game.players} LIVE
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
-                      RTP {game.rtp || 97.2}%
+                    <span className="px-2 py-0.5 bg-amber-100 border border-amber-300 text-amber-900 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
+                      RTP {game.rtp || 98.4}%
                     </span>
                   </div>
 
                   <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
-                    <span className={`text-[8px] font-black uppercase tracking-[0.2em] text-slate-600`}>
-                      LIVE DEALER
+                    <span className="text-[8px] font-black uppercase tracking-[0.2em] text-amber-700">
+                      HINDI LIVE DEALER
                     </span>
-                    <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-amber-600 transition-colors">
+                    <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-amber-700 transition-colors">
                       {game.title}
                     </h4>
-                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[8px] text-slate-600 font-bold uppercase">4K WebRTC</p>
-                      <div className="flex items-center gap-0.5 px-2.5 py-1 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
-                        JOIN <Play className="w-2 h-2 fill-white ml-0.5" />
+                    <div className="flex items-center justify-between mt-2 pt-2 border-t border-amber-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                      <p className="text-[8px] text-slate-700 font-bold uppercase">4K WebRTC</p>
+                      <div className="flex items-center gap-0.5 px-2.5 py-1 bg-amber-600 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
+                        JOIN TABLE <Play className="w-2 h-2 fill-white ml-0.5" />
                       </div>
                     </div>
                   </div>
