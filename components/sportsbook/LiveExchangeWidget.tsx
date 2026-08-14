@@ -227,10 +227,91 @@ export function LiveExchangeWidget() {
   const [activeCrexMatch, setActiveCrexMatch] = useState<string | null>(null);
   const { isLoggedIn, balance, placeSportsBet, positions } = useTradingStore();
 
-  // 1. Continuous Live Match Feed Sync from /api/sports/live
+  // 1. Real-Time SSE Stream Hook with Fallback Poller (/api/sports/stream + /api/sports/live)
   useEffect(() => {
     let isMounted = true;
+    let eventSource: EventSource | null = null;
 
+    const mapRawToExchange = (rawMatches: any[]): ExchangeMatch[] => {
+      return rawMatches.slice(0, 8).map((m: any, idx: number) => {
+        const sportKey = (m.sport || "cricket").toLowerCase();
+        const sportIcon = sportKey === "soccer" || sportKey === "football" ? "⚽" : sportKey === "tennis" ? "🎾" : sportKey === "basketball" ? "🏀" : "🏏";
+        const team1 = m.team1 || "Team 1";
+        const team2 = m.team2 || "Team 2";
+        const o1 = m.odds?.team1 || 1.85;
+        const o2 = m.odds?.team2 || 1.95;
+
+        const t1Code = team1.split(" ").map((w: string) => w[0]).join("").slice(0, 3).toUpperCase() || "T1";
+        const t2Code = team2.split(" ").map((w: string) => w[0]).join("").slice(0, 3).toUpperCase() || "T2";
+
+        return {
+          id: String(m.id || `live-${idx}`),
+          sport: sportKey === "soccer" ? "football" : (sportKey as any),
+          sportIcon,
+          league: m.seriesName || (sportKey === "cricket" ? "IPL 2026 Live" : sportKey === "football" ? "Champions League" : "Live In-Play"),
+          title: `${team1} vs ${team2}`,
+          team1,
+          team2,
+          team1Code: t1Code,
+          team2Code: t2Code,
+          score: m.score || (sportKey === "cricket" ? "148/3 (15.2 Ov)" : "1 - 0 (64')"),
+          liveStatus: m.status || "● IN-PLAY LIVE",
+          ballCommentary: sportKey === "cricket" ? `⚡ ${m.score || "15.2 Ov"}: Live pitch-side radar stream active.` : `🔥 Live attacking momentum: ${team1} pushing forward.`,
+          inPlay: true,
+          winProbability1: Math.round((1 / o1) / ((1 / o1) + (1 / o2)) * 100) || 55,
+          momentumTeam: `${team1} in Command`,
+          selections: [
+            { 
+              id: `sel-1-${m.id}`, 
+              name: team1, 
+              shortCode: t1Code, 
+              back: o1, 
+              lay: parseFloat((o1 + 0.02).toFixed(2)),
+              backTrend: m.trend?.team1 || null,
+              layTrend: m.trend?.team1 || null
+            },
+            { 
+              id: `sel-2-${m.id}`, 
+              name: team2, 
+              shortCode: t2Code, 
+              back: o2, 
+              lay: parseFloat((o2 + 0.02).toFixed(2)),
+              backTrend: m.trend?.team2 || null,
+              layTrend: m.trend?.team2 || null
+            }
+          ],
+          fancySessions: sportKey === "cricket" ? [
+            { id: `s1-${m.id}`, name: "15 Over Runs", category: "session", noRuns: 148, yesRuns: 151, rateNo: 100, rateYes: 100 },
+            { id: `s2-${m.id}`, name: "20 Over Lambi Innings Total", category: "lambi", noRuns: 185, yesRuns: 188, rateNo: 100, rateYes: 100 },
+            { id: `s3-${m.id}`, name: "Next Wicket Fall (Runs)", category: "wicket", noRuns: 160, yesRuns: 163, rateNo: 100, rateYes: 100 }
+          ] : undefined
+        };
+      });
+    };
+
+    // Try EventSource connection first (Real-Time Sub-Second Push)
+    try {
+      if (typeof window !== "undefined" && "EventSource" in window) {
+        eventSource = new EventSource("/api/sports/stream");
+        eventSource.onmessage = (e) => {
+          if (!isMounted) return;
+          try {
+            const data = JSON.parse(e.data);
+            if (data?.matches && data.matches.length > 0) {
+              setMatches(mapRawToExchange(data.matches));
+            }
+          } catch {}
+        };
+        eventSource.onerror = () => {
+          if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+          }
+        };
+      }
+    } catch {}
+
+    // Fallback/Supplement Poller (every 5 seconds)
     const fetchLiveSportsFeed = async () => {
       try {
         const res = await fetch("/api/sports/live", { cache: "no-store" });
@@ -238,56 +319,17 @@ export function LiveExchangeWidget() {
         const data = await res.json();
         const liveList = data.live || [];
         if (liveList.length > 0 && isMounted) {
-          const mappedMatches: ExchangeMatch[] = liveList.slice(0, 6).map((m: any, idx: number) => {
-            const sportKey = (m.sport || "cricket").toLowerCase();
-            const sportIcon = sportKey === "soccer" || sportKey === "football" ? "⚽" : sportKey === "tennis" ? "🎾" : sportKey === "basketball" ? "🏀" : "🏏";
-            const team1 = m.team1 || "Team 1";
-            const team2 = m.team2 || "Team 2";
-            const o1 = m.odds?.team1 || 1.85;
-            const o2 = m.odds?.team2 || 1.95;
-
-            const t1Code = team1.split(" ").map((w: string) => w[0]).join("").slice(0, 3).toUpperCase() || "T1";
-            const t2Code = team2.split(" ").map((w: string) => w[0]).join("").slice(0, 3).toUpperCase() || "T2";
-
-            return {
-              id: m.id || `live-${idx}`,
-              sport: sportKey === "soccer" ? "football" : sportKey,
-              sportIcon,
-              league: m.seriesName || (sportKey === "cricket" ? "IPL 2026 Live" : "Champions League"),
-              title: `${team1} vs ${team2}`,
-              team1,
-              team2,
-              team1Code: t1Code,
-              team2Code: t2Code,
-              score: m.score || (sportKey === "cricket" ? "148/3 (15.2 Ov)" : "1 - 0 (64')"),
-              liveStatus: m.status || "● IN-PLAY LIVE",
-              ballCommentary: sportKey === "cricket" ? `⚡ ${m.score || "15.2 Ov"}: Live pitch-side radar stream active.` : `🔥 Live attacking momentum: ${team1} pushing forward.`,
-              inPlay: true,
-              winProbability1: Math.round((1 / o1) / ((1 / o1) + (1 / o2)) * 100) || 55,
-              momentumTeam: `${team1} in Command`,
-              selections: [
-                { id: `sel-1-${m.id}`, name: team1, shortCode: t1Code, back: o1, lay: parseFloat((o1 + 0.02).toFixed(2)) },
-                { id: `sel-2-${m.id}`, name: team2, shortCode: t2Code, back: o2, lay: parseFloat((o2 + 0.02).toFixed(2)) }
-              ],
-              fancySessions: sportKey === "cricket" ? [
-                { id: `s1-${m.id}`, name: "15 Over Runs", category: "session", noRuns: 148, yesRuns: 151, rateNo: 100, rateYes: 100 },
-                { id: `s2-${m.id}`, name: "20 Over Lambi Innings Total", category: "lambi", noRuns: 185, yesRuns: 188, rateNo: 100, rateYes: 100 },
-                { id: `s3-${m.id}`, name: "Next Wicket Fall (Runs)", category: "wicket", noRuns: 160, yesRuns: 163, rateNo: 100, rateYes: 100 }
-              ] : undefined
-            };
-          });
-          setMatches(mappedMatches);
+          setMatches(mapRawToExchange(liveList));
         }
-      } catch (err) {
-        // Fallback gracefully
-      }
+      } catch {}
     };
 
     fetchLiveSportsFeed();
-    const interval = setInterval(fetchLiveSportsFeed, 3000); // 3-second live sync from radar API
+    const interval = setInterval(fetchLiveSportsFeed, 5000);
 
     return () => {
       isMounted = false;
+      if (eventSource) eventSource.close();
       clearInterval(interval);
     };
   }, []);
@@ -670,6 +712,9 @@ export function LiveExchangeWidget() {
                           <span className="text-xs sm:text-sm font-black font-mono leading-none mt-0.5 block text-slate-950">
                             {formatOdds(sel.back)}
                           </span>
+                          <span className="text-[7.5px] font-mono font-extrabold text-sky-800/70 block mt-0.5 leading-none">
+                            ₹{(Math.round(sel.back * 18.5) / 10).toFixed(1)}L
+                          </span>
                         </button>
 
                         {/* LAY BUTTON (Khayi) */}
@@ -691,6 +736,9 @@ export function LiveExchangeWidget() {
                           <span className="block text-[8px] font-black uppercase text-pink-800/80 leading-none">Khayi / Lay</span>
                           <span className="text-xs sm:text-sm font-black font-mono leading-none mt-0.5 block text-slate-950">
                             {formatOdds(sel.lay)}
+                          </span>
+                          <span className="text-[7.5px] font-mono font-extrabold text-pink-800/70 block mt-0.5 leading-none">
+                            ₹{(Math.round(sel.lay * 14.2) / 10).toFixed(1)}L
                           </span>
                         </button>
                       </div>

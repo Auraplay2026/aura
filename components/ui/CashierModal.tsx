@@ -655,6 +655,40 @@ const compressImage = (base64Str: string): Promise<string> => {
                               </div>
                             </div>
 
+                            {/* 1-Tap App Launcher Row */}
+                            <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-xs">
+                              <p className="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-2 flex items-center gap-1">
+                                <Zap className="w-3 h-3 text-emerald-600" />
+                                1-Tap Direct Pay (Instant App Launcher):
+                              </p>
+                              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                                <a
+                                  href={`phonepe://pay?pa=${paymentSettings.phonepeId || paymentSettings.upiId}&pn=AuraBet&am=${amount}&cu=INR`}
+                                  className="px-2.5 py-2 bg-[#5f259f]/10 hover:bg-[#5f259f]/20 text-[#5f259f] border border-[#5f259f]/30 rounded-xl text-[10px] font-black text-center flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+                                >
+                                  <span>🟣 PhonePe</span>
+                                </a>
+                                <a
+                                  href={`tez://upi/pay?pa=${paymentSettings.gpayId || paymentSettings.upiId}&pn=AuraBet&am=${amount}&cu=INR`}
+                                  className="px-2.5 py-2 bg-[#4285F4]/10 hover:bg-[#4285F4]/20 text-[#4285F4] border border-[#4285F4]/30 rounded-xl text-[10px] font-black text-center flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+                                >
+                                  <span>🔵 GPay</span>
+                                </a>
+                                <a
+                                  href={`paytmmp://pay?pa=${paymentSettings.upiId}&pn=AuraBet&am=${amount}&cu=INR`}
+                                  className="px-2.5 py-2 bg-[#00BAF2]/10 hover:bg-[#00BAF2]/20 text-[#002e6e] border border-[#00BAF2]/30 rounded-xl text-[10px] font-black text-center flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+                                >
+                                  <span>🔷 Paytm</span>
+                                </a>
+                                <a
+                                  href={`upi://pay?pa=${paymentSettings.upiId}&pn=AuraBet&am=${amount}&cu=INR`}
+                                  className="px-2.5 py-2 bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-800 border border-emerald-500/30 rounded-xl text-[10px] font-black text-center flex items-center justify-center gap-1 transition-all cursor-pointer shadow-2xs"
+                                >
+                                  <span>⚡ Any UPI</span>
+                                </a>
+                              </div>
+                            </div>
+
                             {/* Instruction Card */}
                             <div className="bg-slate-50/40 border border-slate-200 rounded-2xl p-4 space-y-2.5">
                               <h4 className="text-[10px] font-black text-slate-600 uppercase tracking-widest flex items-center gap-1.5">
