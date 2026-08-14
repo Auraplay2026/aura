@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, use } from "react";
+import { use, useState, useEffect } from "react";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
 import { 
-  ArrowLeft, Trophy, Calendar, MapPin, Wind, CloudSun, Shield, 
+  ArrowLeft, Calendar, MapPin, Wind, Droplets, Trophy, 
+  TrendingUp, Shield, Clock, Award, Check, AlertCircle, 
   User, ChevronRight, Zap, Info, Users, Activity, Flame, Share2, Star, CheckCircle2, ChevronDown
 } from "lucide-react";
 import { 
@@ -14,7 +14,6 @@ import { formatOddsByMode, OddsDisplayMode, convertDecimalToBhav, convertDecimal
 import { PlayerProfileModal } from "@/components/sportsbook/PlayerProfileModal";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
-import { useEffect } from "react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -89,23 +88,27 @@ export default function MatchDetailPage({ params }: PageProps) {
         setTimeout(() => {
           setSelectedMarketBet(null);
           setBetFeedback(null);
-        }, 2500);
+        }, 2200);
       } else {
-        setBetFeedback(res?.error || "Failed to place bet");
+        setBetFeedback(res?.message || "Failed to place bet. Please verify balance.");
+        setTimeout(() => setBetFeedback(null), 3000);
       }
-    } catch {
-      setBetFeedback("Network error placing bet");
+    } catch (e) {
+      setBetFeedback("Network error. Please try again.");
+      setTimeout(() => setBetFeedback(null), 3000);
     } finally {
       setIsPlacing(false);
     }
   };
 
+  const selectedPlayer = selectedPlayerId ? PLAYERS_DATABASE[selectedPlayerId] : null;
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans pb-24">
+    <div className="min-h-screen bg-slate-50 text-slate-900 pb-28">
       
-      {/* ═══ TOP APP BAR (PURE LIGHT THEME) ═══ */}
-      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 py-3 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex items-center justify-between">
+      {/* ═══ TOP BREADCRUMB / HEADER ═══ */}
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-40 px-4 sm:px-6 py-3 shadow-xs">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
             <Link
               href="/sportsbook"
@@ -165,7 +168,7 @@ export default function MatchDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* ═══ CREX HERO SCORECARD HUD (EXACT SCREENSHOT 1 MATCH) ═══ */}
+      {/* ═══ CREX HERO SCORECARD HUD ═══ */}
       <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-6 text-slate-950 shadow-xs">
         <div className="max-w-6xl mx-auto">
           
@@ -178,7 +181,7 @@ export default function MatchDetailPage({ params }: PageProps) {
             {/* Team 1 Score (Left) */}
             <div className="flex items-center gap-4 justify-start">
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-2xl sm:text-3xl font-black text-emerald-900 shadow-md shrink-0">
-                {match.team1.code.includes("BAN") ? "🇧🇩" : match.team1.code.includes("AUS") ? "🇦🇺" : match.team1.code.includes("SB") ? "🔴" : match.team1.code.slice(0, 2)}
+                {match.team1.code.includes("BAN") ? "🇧🇩" : match.team1.code.includes("AUS") ? "🇦🇺" : match.team1.code.includes("SB") ? "🔴" : match.team1.code.includes("MCI") ? "🔵" : match.team1.code.includes("DJO") ? "🎾" : match.team1.code.includes("LAL") ? "🟡" : match.team1.code.slice(0, 2)}
               </div>
               <div>
                 <div className="text-base sm:text-lg font-black text-slate-950 flex items-center gap-2">
@@ -213,7 +216,7 @@ export default function MatchDetailPage({ params }: PageProps) {
                 </div>
               </div>
               <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-sky-50 border-2 border-sky-500 flex items-center justify-center text-2xl sm:text-3xl font-black text-sky-900 shadow-md shrink-0 order-1 md:order-2">
-                {match.team2.code.includes("BAN") ? "🇧🇩" : match.team2.code.includes("AUS") ? "🇦🇺" : match.team2.code.includes("SL") ? "🟠" : match.team2.code.slice(0, 2)}
+                {match.team2.code.includes("BAN") ? "🇧🇩" : match.team2.code.includes("AUS") ? "🇦🇺" : match.team2.code.includes("SL") ? "🟠" : match.team2.code.includes("RMA") ? "⚪" : match.team2.code.includes("ALC") ? "🇪🇸" : match.team2.code.includes("GSW") ? "🔵" : match.team2.code.slice(0, 2)}
               </div>
             </div>
 
@@ -225,36 +228,36 @@ export default function MatchDetailPage({ params }: PageProps) {
               <span className="text-[11px] font-black uppercase tracking-wider text-slate-700">Match Odds:</span>
               <button
                 type="button"
-                onClick={() => setSelectedMarketBet({ name: `${match.team1.name} To Win`, type: "back", odds: 3.40 })}
+                onClick={() => setSelectedMarketBet({ name: `${match.team1.name} To Win`, type: "back", odds: 1.83 })}
                 className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-300 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                {match.team1.code}: <span className="font-mono text-emerald-800 font-black">{formatOddsByMode(3.40, oddsMode)}</span>
+                {match.team1.code}: <span className="font-mono text-emerald-800 font-black">{formatOddsByMode(1.83, oddsMode)}</span>
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedMarketBet({ name: `${match.team2.name} To Win`, type: "back", odds: 1.30 })}
+                onClick={() => setSelectedMarketBet({ name: `${match.team2.name} To Win`, type: "back", odds: 1.95 })}
                 className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-950 border border-sky-300 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                {match.team2.code}: <span className="font-mono text-sky-800 font-black">{formatOddsByMode(1.30, oddsMode)}</span>
+                {match.team2.code}: <span className="font-mono text-sky-800 font-black">{formatOddsByMode(1.95, oddsMode)}</span>
               </button>
             </div>
 
             <div className="text-[11px] text-slate-700 font-bold">
-              Toss: <strong className="text-slate-950">{match.toss}</strong>
+              Toss / Kickoff: <strong className="text-slate-950">{match.toss}</strong>
             </div>
           </div>
 
         </div>
       </div>
 
-      {/* ═══ CREX NAVIGATION TABS (MATCHING SCREENSHOTS) ═══ */}
+      {/* ═══ NAVIGATION TABS ═══ */}
       <div className="sticky top-[61px] z-30 bg-white border-b border-slate-200 px-4 sm:px-6 shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-none py-2.5 select-none">
           {[
-            { id: "scorecard", label: "Scorecard" },
+            { id: "scorecard", label: match.matchType === "FOOTBALL" ? "Match Tracker & Stats" : match.matchType === "TENNIS" ? "Set Scores & Court Stats" : match.matchType === "NBA" ? "Box Score & Leaders" : "Scorecard" },
             { id: "betting", label: "⚡ In-Play Exchange & Sessions" },
-            { id: "info", label: "Match info" },
-            { id: "squads", label: "Squads" },
+            { id: "info", label: "Match info & Pitch" },
+            { id: "squads", label: "Squads & Lineups" },
             { id: "fixtures", label: "Series Fixtures" }
           ].map(tab => (
             <button
@@ -278,9 +281,9 @@ export default function MatchDetailPage({ params }: PageProps) {
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
 
         {/* ═══════════════════════════════════════════════════════════════
-            TAB 1: FULL SCORECARD (MATCHING SCREENSHOT 1)
+            TAB 1A: CRICKET SCORECARD
         ═══════════════════════════════════════════════════════════════ */}
-        {activeTab === "scorecard" && currentInnings && (
+        {activeTab === "scorecard" && match.scorecards && match.scorecards.length > 0 && currentInnings && (
           <div className="space-y-6">
             
             {/* Innings Selector Pills */}
@@ -318,204 +321,327 @@ export default function MatchDetailPage({ params }: PageProps) {
               </div>
             </div>
 
-            {/* Scorecard Layout: Batting & Bowling Left, Yet to Bat Right (Like Screenshot 1) */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-              
-              {/* Left 2 Cols: Batting & Bowling & FOW */}
-              <div className="lg:col-span-2 space-y-6">
-                
-                {/* ═══ BATTING CARD ═══ */}
-                <div className="bg-white text-slate-900 rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-                  <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between">
-                    <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🏏</span> BATTING
-                    </h4>
-                    <span className="text-[10px] text-slate-300 font-bold">Click batter for full career stats</span>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left">
-                      <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-black uppercase text-slate-700 tracking-wider">
-                          <th className="py-3 px-4">Batter</th>
-                          <th className="py-3 px-2 text-right">R</th>
-                          <th className="py-3 px-2 text-right">B</th>
-                          <th className="py-3 px-2 text-right">4s</th>
-                          <th className="py-3 px-2 text-right">6s</th>
-                          <th className="py-3 px-4 text-right">SR</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100">
-                        {currentInnings.batting.map((bt, idx) => (
-                          <tr key={idx} className="hover:bg-amber-50/50 transition-colors">
-                            <td className="py-3 px-4">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedPlayerId(bt.playerId)}
-                                className="text-left font-black text-slate-950 hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1.5"
-                              >
-                                <span className="text-xs font-black">{bt.name}</span>
-                                <span className="text-[10px] text-slate-400">ℹ️</span>
-                              </button>
-                              <p className="text-[11px] text-slate-600 font-semibold mt-0.5">{bt.dismissal}</p>
-                            </td>
-                            <td className="py-3 px-2 text-right font-black font-mono text-sm text-slate-950">{bt.runs}</td>
-                            <td className="py-3 px-2 text-right font-mono text-slate-800 font-bold">{bt.balls}</td>
-                            <td className="py-3 px-2 text-right font-mono text-slate-800 font-bold">{bt.fours}</td>
-                            <td className="py-3 px-2 text-right font-mono text-slate-800 font-bold">{bt.sixes}</td>
-                            <td className="py-3 px-4 text-right font-mono font-black text-slate-950">{bt.strikeRate.toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-
-                  {/* Extras & Total */}
-                  <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-800">
-                    <span>Extras: <strong className="text-slate-950">{currentInnings.extras.total}</strong> ({currentInnings.extras.breakdown})</span>
-                    <span className="font-mono text-slate-950 font-black">Total: {currentInnings.totalScore}</span>
-                  </div>
-                </div>
-
-                {/* ═══ BOWLING CARD ═══ */}
-                <div className="bg-white text-slate-900 rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
-                  <div className="p-3.5 bg-slate-900 text-white">
-                    <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                      <span>🎯</span> BOWLING
-                    </h4>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left">
-                      <thead>
-                        <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-black uppercase text-slate-700 tracking-wider">
-                          <th className="py-3 px-4">Bowler</th>
-                          <th className="py-3 px-2 text-right">O</th>
-                          <th className="py-3 px-2 text-right">M</th>
-                          <th className="py-3 px-2 text-right">R</th>
-                          <th className="py-3 px-2 text-right">W</th>
-                          <th className="py-3 px-4 text-right">ER</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 font-mono">
-                        {currentInnings.bowling.map((bw, idx) => (
-                          <tr key={idx} className="hover:bg-slate-50">
-                            <td className="py-3 px-4 font-sans">
-                              <button
-                                type="button"
-                                onClick={() => setSelectedPlayerId(bw.playerId)}
-                                className="font-black text-slate-950 hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1"
-                              >
-                                <span>{bw.name}</span>
-                                <span className="text-[10px] text-slate-400">ℹ️</span>
-                              </button>
-                            </td>
-                            <td className="py-3 px-2 text-right text-slate-800 font-bold">{bw.overs}</td>
-                            <td className="py-3 px-2 text-right text-slate-800 font-bold">{bw.maidens}</td>
-                            <td className="py-3 px-2 text-right text-slate-800 font-bold">{bw.runs}</td>
-                            <td className="py-3 px-2 text-right font-black text-emerald-700 text-sm">{bw.wickets}</td>
-                            <td className="py-3 px-4 text-right font-black text-slate-950">{bw.economy.toFixed(2)}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-
-                {/* ═══ FALL OF WICKETS (FOW) ═══ */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 text-slate-950 shadow-xs">
-                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-700">
-                    FALL OF WICKETS
-                  </h4>
-                  <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
-                    {currentInnings.fallOfWickets.map((fow, idx) => (
-                      <div key={idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
-                        <span className="text-xs font-black font-mono text-rose-700 block">{fow.score}</span>
-                        <span className="text-[10px] font-black text-slate-900 truncate block mt-0.5">{fow.batsmanName}</span>
-                        <span className="text-[9px] font-mono text-slate-600 font-bold block">{fow.over} ov</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ═══ PARTNERSHIPS ═══ */}
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 text-slate-950 shadow-xs">
-                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-700">
-                    PARTNERSHIP BREAKDOWN
-                  </h4>
-                  <div className="space-y-2.5">
-                    {currentInnings.partnerships.map((ps, idx) => (
-                      <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
-                        <div className="flex justify-between items-center font-black mb-1">
-                          <span className="text-slate-900">{ps.batter1.name} ({ps.batter1.runs})</span>
-                          <span className="font-mono text-slate-950 bg-amber-100 text-amber-950 px-2 py-0.5 rounded font-black border border-amber-300">
-                            {ps.wicket}: {ps.totalRuns} runs ({ps.totalBalls}b)
-                          </span>
-                          <span className="text-slate-900">{ps.batter2.name} ({ps.batter2.runs})</span>
-                        </div>
-                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex">
-                          <div 
-                            className="bg-sky-500 h-full"
-                            style={{ width: `${(ps.batter1.runs / (ps.totalRuns || 1)) * 100}%` }}
-                          />
-                          <div 
-                            className="bg-emerald-500 h-full"
-                            style={{ width: `${(ps.batter2.runs / (ps.totalRuns || 1)) * 100}%` }}
-                          />
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
+            {/* BATTING TABLE */}
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+              <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                  <span>🏏</span> Batting
+                </h4>
+                <span className="text-[11px] text-slate-300 font-bold">Click batter for full career stats</span>
               </div>
 
-              {/* Right Column: Yet to Bat with Player Portraits (Matching Screenshot 1) */}
-              <div className="space-y-4">
-                <div className="bg-white border border-slate-200 rounded-2xl p-4 text-slate-950 shadow-xs">
-                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-800 flex items-center justify-between">
-                    <span>Yet to bat</span>
-                    <span className="text-[10px] text-slate-600 font-mono font-bold">{currentInnings.yetToBat.length} Players</span>
-                  </h4>
-
-                  <div className="space-y-2.5">
-                    {currentInnings.yetToBat.map((ytb, idx) => (
-                      <div 
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-100/80 text-slate-700 font-black border-b border-slate-200 text-[10px] uppercase tracking-wider">
+                      <th className="py-2.5 px-4 font-black">Batter</th>
+                      <th className="py-2.5 px-3 text-right font-black">R</th>
+                      <th className="py-2.5 px-3 text-right font-black">B</th>
+                      <th className="py-2.5 px-3 text-right font-black">4s</th>
+                      <th className="py-2.5 px-3 text-right font-black">6s</th>
+                      <th className="py-2.5 px-4 text-right font-black">SR</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium text-slate-900">
+                    {currentInnings.batting.map((b, idx) => (
+                      <tr
                         key={idx}
-                        className="flex items-center gap-3 p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-amber-400 transition-colors shadow-2xs"
+                        onClick={() => setSelectedPlayerId(b.playerId)}
+                        className="hover:bg-amber-50/70 transition-colors cursor-pointer group"
                       >
-                        {/* Player Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-white border border-slate-300 flex items-center justify-center text-lg shrink-0 shadow-2xs">
-                          🏏
-                        </div>
-                        <div>
-                          <h5 className="text-xs font-black text-slate-950">{ytb.name}</h5>
-                          <p className="text-[10px] text-slate-600 font-mono font-bold">Avg: {ytb.average.toFixed(2)}</p>
-                        </div>
-                      </div>
+                        <td className="py-3 px-4">
+                          <div className="font-black text-slate-950 group-hover:text-red-700 flex items-center gap-1.5">
+                            <span>{b.name}</span>
+                            <span className="text-[9px] bg-slate-100 text-slate-600 px-1 py-0.2 rounded font-mono group-hover:bg-red-100 group-hover:text-red-800">
+                              BIO ➔
+                            </span>
+                          </div>
+                          <div className="text-[11px] text-slate-600 font-semibold mt-0.5">
+                            {b.dismissal}
+                          </div>
+                        </td>
+                        <td className="py-3 px-3 text-right font-black font-mono text-slate-950 text-sm">{b.runs}</td>
+                        <td className="py-3 px-3 text-right font-mono text-slate-700">{b.balls}</td>
+                        <td className="py-3 px-3 text-right font-mono text-slate-700">{b.fours}</td>
+                        <td className="py-3 px-3 text-right font-mono text-slate-700">{b.sixes}</td>
+                        <td className="py-3 px-4 text-right font-black font-mono text-emerald-800">{b.strikeRate.toFixed(2)}</td>
+                      </tr>
                     ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Extras Bar */}
+              <div className="bg-slate-50 border-t border-slate-200 px-4 py-2.5 flex items-center justify-between text-xs text-slate-700">
+                <span className="font-bold">Extras: <strong>{currentInnings.extras.total}</strong></span>
+                <span className="text-[11px] text-slate-500 font-mono">({currentInnings.extras.breakdown})</span>
+              </div>
+            </div>
+
+            {/* BOWLING TABLE */}
+            <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-xs">
+              <div className="bg-slate-900 text-white px-4 py-3 flex items-center justify-between">
+                <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                  <span>🎯</span> Bowling
+                </h4>
+                <span className="text-[11px] text-slate-300 font-bold">Figures & Economy</span>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-100/80 text-slate-700 font-black border-b border-slate-200 text-[10px] uppercase tracking-wider">
+                      <th className="py-2.5 px-4 font-black">Bowler</th>
+                      <th className="py-2.5 px-3 text-right font-black">O</th>
+                      <th className="py-2.5 px-3 text-right font-black">M</th>
+                      <th className="py-2.5 px-3 text-right font-black">R</th>
+                      <th className="py-2.5 px-3 text-right font-black">W</th>
+                      <th className="py-2.5 px-4 text-right font-black">ER</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-medium text-slate-900">
+                    {currentInnings.bowling.map((bw, idx) => (
+                      <tr
+                        key={idx}
+                        onClick={() => setSelectedPlayerId(bw.playerId)}
+                        className="hover:bg-amber-50/70 transition-colors cursor-pointer group"
+                      >
+                        <td className="py-3 px-4 font-black text-slate-950 group-hover:text-red-700">
+                          {bw.name}
+                        </td>
+                        <td className="py-3 px-3 text-right font-mono font-bold text-slate-800">{bw.overs}</td>
+                        <td className="py-3 px-3 text-right font-mono text-slate-700">{bw.maidens}</td>
+                        <td className="py-3 px-3 text-right font-mono text-slate-700">{bw.runs}</td>
+                        <td className="py-3 px-3 text-right font-black font-mono text-rose-800 text-sm">{bw.wickets}</td>
+                        <td className="py-3 px-4 text-right font-black font-mono text-emerald-800">{bw.economy.toFixed(2)}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* FALL OF WICKETS */}
+            {currentInnings.fallOfWickets.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 mb-3 flex items-center gap-1.5">
+                  <span>📉</span> Fall of Wickets
+                </h4>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2.5">
+                  {currentInnings.fallOfWickets.map((fow, i) => (
+                    <div key={i} className="bg-slate-50 border border-slate-200 rounded-xl p-2.5 text-center shadow-2xs">
+                      <span className="text-[11px] font-black font-mono text-rose-800 block">{fow.score}</span>
+                      <span className="text-xs font-bold text-slate-950 truncate block mt-0.5">{fow.batsmanName}</span>
+                      <span className="text-[10px] text-slate-500 font-mono block">Ov {fow.over}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* YET TO BAT */}
+            {currentInnings.yetToBat && currentInnings.yetToBat.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 shadow-xs">
+                <div className="flex items-center justify-between mb-3">
+                  <h4 className="text-xs font-black uppercase tracking-wider text-slate-900 flex items-center gap-1.5">
+                    <span>⏳</span> Yet to Bat
+                  </h4>
+                  <span className="text-[10px] font-mono text-slate-500 font-bold">{currentInnings.yetToBat.length} PLAYERS</span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                  {currentInnings.yetToBat.map((ytb, i) => (
+                    <div
+                      key={i}
+                      className="p-3 bg-slate-50 hover:bg-slate-100 border border-slate-200 rounded-xl flex items-center gap-3 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      <div className="w-10 h-10 rounded-full bg-slate-200 text-slate-800 flex items-center justify-center font-black text-sm border border-slate-300">
+                        🏏
+                      </div>
+                      <div>
+                        <span className="font-black text-xs text-slate-950 block">{ytb.name}</span>
+                        <span className="text-[10px] text-slate-600 font-bold block">{ytb.role} • Avg: {ytb.average}</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════
+            TAB 1B: FOOTBALL / SOCCER TRACKER & STATISTICS (UCL / EPL)
+        ═══════════════════════════════════════════════════════════════ */}
+        {activeTab === "scorecard" && match.matchType === "FOOTBALL" && match.footballDetails && (
+          <div className="space-y-6">
+            
+            {/* Live Match Stats Gauges */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+              <h3 className="text-xs font-black uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span>📊</span> Opta Match Statistics
+              </h3>
+
+              <div className="space-y-4">
+                {/* Possession Bar */}
+                <div>
+                  <div className="flex justify-between text-xs font-black mb-1">
+                    <span>{match.team1.name} ({match.footballDetails.possession1}%)</span>
+                    <span className="text-slate-500 font-bold uppercase text-[10px]">Ball Possession</span>
+                    <span>{match.footballDetails.possession2}% ({match.team2.name})</span>
+                  </div>
+                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex border border-slate-200">
+                    <div style={{ width: `${match.footballDetails.possession1}%` }} className="bg-emerald-600 h-full" />
+                    <div style={{ width: `${match.footballDetails.possession2}%` }} className="bg-sky-600 h-full" />
                   </div>
                 </div>
 
-                {/* Quick In-Play Bet CTA */}
-                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-300 rounded-2xl p-4 text-amber-950 shadow-xs">
-                  <h5 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                    <Zap className="w-4 h-4 text-amber-600 fill-amber-600" />
-                    In-Play Fancy Betting Active
-                  </h5>
-                  <p className="text-[11px] text-amber-900 font-bold mt-1">
-                    Live 6-Over, 10-Over, and Lambi session markets are active for this fixture.
-                  </p>
-                  <button
-                    type="button"
-                    onClick={() => setActiveTab("betting")}
-                    className="w-full mt-3 py-2 bg-slate-950 hover:bg-slate-800 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer shadow-sm"
-                  >
-                    View In-Play Markets ➔
-                  </button>
+                {/* Key Metrics Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-3 border-t border-slate-100 text-center">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Total Shots</span>
+                    <span className="text-base font-black font-mono text-slate-950">{match.footballDetails.shots1} - {match.footballDetails.shots2}</span>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Shots on Target</span>
+                    <span className="text-base font-black font-mono text-emerald-800">{match.footballDetails.shotsOnTarget1} - {match.footballDetails.shotsOnTarget2}</span>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Expected Goals (xG)</span>
+                    <span className="text-base font-black font-mono text-indigo-800">{match.footballDetails.xG1} - {match.footballDetails.xG2}</span>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Corners / Fouls</span>
+                    <span className="text-base font-black font-mono text-slate-950">{match.footballDetails.corners1} ({match.footballDetails.fouls1}) - {match.footballDetails.corners2} ({match.footballDetails.fouls2})</span>
+                  </div>
                 </div>
               </div>
+            </div>
 
+            {/* Live Goal / Match Timeline */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+              <h3 className="text-xs font-black uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span>⏱️</span> Match Events Timeline
+              </h3>
+              <div className="space-y-3">
+                {match.footballDetails.timeline.map((ev, i) => (
+                  <div key={i} className="flex items-center justify-between p-3 bg-slate-50 border border-slate-200 rounded-xl shadow-2xs">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono font-black text-xs bg-slate-200 text-slate-900 px-2 py-0.5 rounded">
+                        {ev.minute}
+                      </span>
+                      <div>
+                        <span className="font-black text-xs text-slate-950 block">{ev.event}</span>
+                        <span className="text-[11px] font-semibold text-slate-600">{ev.player}</span>
+                      </div>
+                    </div>
+                    <span className="text-[11px] font-bold text-slate-500 uppercase">{ev.team}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════
+            TAB 1C: TENNIS COURT TRACKER & SERVICE STATS (WIMBLEDON)
+        ═══════════════════════════════════════════════════════════════ */}
+        {activeTab === "scorecard" && match.matchType === "TENNIS" && match.tennisDetails && (
+          <div className="space-y-6">
+            
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2">
+                  <span>🎾</span> Service & Match Performance
+                </h3>
+                <span className="text-xs font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
+                  {match.tennisDetails.surface}
+                </span>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Aces</span>
+                  <span className="text-base font-black font-mono text-slate-950">{match.tennisDetails.aces1} vs {match.tennisDetails.aces2}</span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Double Faults</span>
+                  <span className="text-base font-black font-mono text-rose-800">{match.tennisDetails.doubleFaults1} vs {match.tennisDetails.doubleFaults2}</span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">1st Serve %</span>
+                  <span className="text-base font-black font-mono text-emerald-800">{match.tennisDetails.firstServePct1}% vs {match.tennisDetails.firstServePct2}%</span>
+                </div>
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-200">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Break Points Won</span>
+                  <span className="text-base font-black font-mono text-indigo-800">{match.tennisDetails.breakPointsConverted1}</span>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════
+            TAB 1D: BASKETBALL / NBA BOX SCORE
+        ═══════════════════════════════════════════════════════════════ */}
+        {activeTab === "scorecard" && match.matchType === "NBA" && match.basketballDetails && (
+          <div className="space-y-6">
+            
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+              <h3 className="text-xs font-black uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span>🏀</span> Quarter by Quarter Box Score
+              </h3>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-left border-collapse text-xs">
+                  <thead>
+                    <tr className="bg-slate-100 text-slate-700 font-black border-b border-slate-200 text-[10px] uppercase">
+                      <th className="py-2.5 px-4">Team</th>
+                      <th className="py-2.5 px-3 text-center">Q1</th>
+                      <th className="py-2.5 px-3 text-center">Q2</th>
+                      <th className="py-2.5 px-3 text-center">Q3</th>
+                      <th className="py-2.5 px-3 text-center">Q4</th>
+                      <th className="py-2.5 px-4 text-right font-black">TOTAL</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 font-bold font-mono">
+                    <tr>
+                      <td className="py-3 px-4 font-black font-sans text-slate-950">{match.team1.name}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q1[0]}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q2[0]}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q3[0]}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q4[0]}</td>
+                      <td className="py-3 px-4 text-right font-black text-emerald-800 text-sm">108</td>
+                    </tr>
+                    <tr>
+                      <td className="py-3 px-4 font-black font-sans text-slate-950">{match.team2.name}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q1[1]}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q2[1]}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q3[1]}</td>
+                      <td className="py-3 px-3 text-center">{match.basketballDetails.quarters.q4[1]}</td>
+                      <td className="py-3 px-4 text-right font-black text-slate-950 text-sm">104</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Top Performers Leaderboard */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+              <h3 className="text-xs font-black uppercase tracking-wider mb-4 flex items-center gap-2">
+                <span>🌟</span> Top Performers Leaderboard
+              </h3>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                {match.basketballDetails.topPerformers.map((tp, i) => (
+                  <div key={i} className="p-3.5 bg-slate-50 border border-slate-200 rounded-xl shadow-2xs">
+                    <span className="text-[10px] font-black uppercase tracking-wider text-amber-700 block">{tp.team} STAR</span>
+                    <h4 className="font-black text-sm text-slate-950 mt-0.5">{tp.name}</h4>
+                    <p className="text-xs font-mono font-bold text-slate-700 mt-1">{tp.statLine}</p>
+                  </div>
+                ))}
+              </div>
             </div>
 
           </div>
@@ -549,19 +675,19 @@ export default function MatchDetailPage({ params }: PageProps) {
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Lagai/Back)`, type: "back", odds: 3.40 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Lagai/Back)`, type: "back", odds: 1.83 })}
                       className="w-20 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-emerald-800">BACK</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(3.40, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.83, oddsMode)}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Khayi/Lay)`, type: "lay", odds: 3.45 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Khayi/Lay)`, type: "lay", odds: 1.85 })}
                       className="w-20 py-2 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-pink-800">LAY</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(3.45, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.85, oddsMode)}</span>
                     </button>
                   </div>
                 </div>
@@ -572,19 +698,19 @@ export default function MatchDetailPage({ params }: PageProps) {
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Lagai/Back)`, type: "back", odds: 1.30 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Lagai/Back)`, type: "back", odds: 1.95 })}
                       className="w-20 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-emerald-800">BACK</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.30, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.95, oddsMode)}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Khayi/Lay)`, type: "lay", odds: 1.32 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Khayi/Lay)`, type: "lay", odds: 1.98 })}
                       className="w-20 py-2 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-pink-800">LAY</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.32, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.98, oddsMode)}</span>
                     </button>
                   </div>
                 </div>
@@ -599,31 +725,36 @@ export default function MatchDetailPage({ params }: PageProps) {
 
               <div className="space-y-2.5">
                 {[
-                  { name: "6 Over Powerplay Runs (BAN)", no: 48, yes: 50 },
-                  { name: "10 Over Innings Runs (BAN)", no: 78, yes: 81 },
-                  { name: "20 Over Lambi Innings Score", no: 184, yes: 187 },
-                  { name: "Fall of Next Wicket (FOW)", no: 58, yes: 60 },
-                  { name: "Tanzid Hasan Total Runs", no: 24, yes: 26 },
-                  { name: "Campbell Thompson Wickets", no: 2, yes: 3 }
-                ].map((ses, idx) => (
-                  <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between shadow-2xs">
-                    <span className="font-black text-xs text-slate-950 truncate pr-2">{ses.name}</span>
-                    <div className="flex items-center gap-2 shrink-0">
+                  { name: "20 Over Total Lambi Runs", noVal: 156, noOdds: 1.90, yesVal: 158, yesOdds: 1.90 },
+                  { name: "10 Over Total Session Runs", noVal: 78, noOdds: 1.88, yesVal: 80, yesOdds: 1.88 },
+                  { name: "Next Wicket Fall Over (FOW)", noVal: 165, noOdds: 1.85, yesVal: 167, yesOdds: 1.85 }
+                ].map((s, i) => (
+                  <div
+                    key={i}
+                    className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex flex-wrap items-center justify-between gap-3 shadow-2xs"
+                  >
+                    <div>
+                      <h4 className="font-black text-xs text-slate-950">{s.name}</h4>
+                      <span className="text-[10px] text-slate-500 font-bold">Max Limit: ₹1,00,000</span>
+                    </div>
+
+                    <div className="flex items-center gap-2">
                       <button
                         type="button"
-                        onClick={() => setSelectedMarketBet({ name: `${ses.name} NO (${ses.no})`, type: "no", odds: 2.00, line: ses.no })}
-                        className="w-20 py-1.5 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer active:scale-95 shadow-2xs"
+                        onClick={() => setSelectedMarketBet({ name: `${s.name} [NO ${s.noVal}]`, type: "no", odds: s.noOdds, line: s.noVal })}
+                        className="w-24 py-2 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                       >
-                        <span className="block text-[8px] font-black uppercase text-pink-800">NO</span>
-                        <span className="text-xs font-black font-mono">{ses.no}</span>
+                        <span className="block text-[8px] font-black uppercase text-pink-800">NO ({s.noVal})</span>
+                        <span className="text-xs font-black font-mono">{formatOddsByMode(s.noOdds, oddsMode)}</span>
                       </button>
+
                       <button
                         type="button"
-                        onClick={() => setSelectedMarketBet({ name: `${ses.name} YES (${ses.yes})`, type: "yes", odds: 2.00, line: ses.yes })}
-                        className="w-20 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer active:scale-95 shadow-2xs"
+                        onClick={() => setSelectedMarketBet({ name: `${s.name} [YES ${s.yesVal}]`, type: "yes", odds: s.yesOdds, line: s.yesVal })}
+                        className="w-24 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                       >
-                        <span className="block text-[8px] font-black uppercase text-emerald-800">YES</span>
-                        <span className="text-xs font-black font-mono">{ses.yes}</span>
+                        <span className="block text-[8px] font-black uppercase text-emerald-800">YES ({s.yesVal})</span>
+                        <span className="text-xs font-black font-mono">{formatOddsByMode(s.yesOdds, oddsMode)}</span>
                       </button>
                     </div>
                   </div>
@@ -635,162 +766,199 @@ export default function MatchDetailPage({ params }: PageProps) {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════
-            TAB 3: SQUADS WITH PLAYER PORTRAITS (MATCHING SCREENSHOT 3)
+            TAB 3: MATCH INFO & PITCH REPORT
+        ═══════════════════════════════════════════════════════════════ */}
+        {activeTab === "info" && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            {/* Stadium & Pitch Dossier */}
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950 space-y-4">
+              <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
+                <MapPin className="w-4 h-4 text-red-600" />
+                Venue & Stadium Intel
+              </h3>
+
+              <div className="space-y-3 text-xs">
+                <div className="flex justify-between py-1.5 border-b border-slate-50">
+                  <span className="text-slate-600 font-bold">Stadium:</span>
+                  <span className="font-black text-slate-950">{match.venue.stadium}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-slate-50">
+                  <span className="text-slate-600 font-bold">City / Country:</span>
+                  <span className="font-black text-slate-950">{match.venue.city}, {match.venue.country}</span>
+                </div>
+                <div className="flex justify-between py-1.5 border-b border-slate-50">
+                  <span className="text-slate-600 font-bold">Capacity:</span>
+                  <span className="font-black font-mono text-slate-950">{match.venue.capacity} spectators</span>
+                </div>
+              </div>
+
+              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mt-3 shadow-2xs">
+                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
+                  Official Pitch Report:
+                </span>
+                <p className="text-xs text-slate-800 leading-relaxed font-medium">
+                  {match.venue.pitchReport}
+                </p>
+              </div>
+            </div>
+
+            {/* Weather & Match Officials */}
+            <div className="space-y-6">
+              
+              {/* Weather Card */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+                <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3 mb-4">
+                  <Wind className="w-4 h-4 text-sky-600" />
+                  Live Atmospheric Conditions
+                </h3>
+
+                <div className="grid grid-cols-3 gap-2 text-center">
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Temp</span>
+                    <span className="text-xs font-black font-mono text-slate-950">{match.venue.weather.temperature}</span>
+                  </div>
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Humidity</span>
+                    <span className="text-xs font-black font-mono text-slate-950">{match.venue.weather.humidity}</span>
+                  </div>
+                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Rain Risk</span>
+                    <span className="text-xs font-black font-mono text-emerald-800">{match.venue.weather.rainProbability}</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Match Officials */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+                <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3 mb-3">
+                  <Award className="w-4 h-4 text-amber-600" />
+                  Match Officials
+                </h3>
+                <div className="space-y-2 text-xs">
+                  <div className="flex justify-between py-1 border-b border-slate-50">
+                    <span className="text-slate-600 font-bold">On-Field Umpires:</span>
+                    <span className="font-bold text-slate-950">{match.officials.umpires.join(" • ")}</span>
+                  </div>
+                  <div className="flex justify-between py-1 border-b border-slate-50">
+                    <span className="text-slate-600 font-bold">TV / Third Umpire:</span>
+                    <span className="font-bold text-slate-950">{match.officials.thirdUmpire}</span>
+                  </div>
+                  <div className="flex justify-between py-1">
+                    <span className="text-slate-600 font-bold">Match Referee:</span>
+                    <span className="font-bold text-slate-950">{match.officials.matchReferee}</span>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════
+            TAB 4: SQUADS & LINEUPS
         ═══════════════════════════════════════════════════════════════ */}
         {activeTab === "squads" && (
           <div className="space-y-6">
             
-            {/* Squad Team Selector Tabs */}
-            <div className="flex items-center gap-2">
+            {/* Squad Team Selector */}
+            <div className="flex items-center gap-2 border-b border-slate-200 pb-3">
               <button
                 type="button"
                 onClick={() => setSelectedSquadTeam("team1")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer",
+                  "px-4 py-2 rounded-xl text-xs font-black uppercase transition-all cursor-pointer",
                   selectedSquadTeam === "team1"
-                    ? "bg-slate-950 text-white border-slate-950 shadow-sm"
-                    : "bg-white text-slate-800 border-slate-300 hover:bg-slate-100"
+                    ? "bg-slate-950 text-white shadow-xs"
+                    : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-100"
                 )}
               >
-                <span>🇧🇩</span>
-                <span>{match.team1.name} (16 Players)</span>
+                {match.team1.name} ({match.team1.code})
               </button>
-
               <button
                 type="button"
                 onClick={() => setSelectedSquadTeam("team2")}
                 className={cn(
-                  "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer",
+                  "px-4 py-2 rounded-xl text-xs font-black uppercase transition-all cursor-pointer",
                   selectedSquadTeam === "team2"
-                    ? "bg-slate-950 text-white border-slate-950 shadow-sm"
-                    : "bg-white text-slate-800 border-slate-300 hover:bg-slate-100"
+                    ? "bg-slate-950 text-white shadow-xs"
+                    : "bg-white text-slate-700 border border-slate-300 hover:bg-slate-100"
                 )}
               >
-                <span>🇦🇺</span>
-                <span>{match.team2.name} (13 Players)</span>
+                {match.team2.name} ({match.team2.code})
               </button>
             </div>
 
-            {/* Categorized Squad Grid (Batters, Bowlers, WKs) */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 text-slate-950 space-y-6 shadow-xs">
-              
-              <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 border-b border-slate-200 pb-2 mb-4">
-                  Batters & All-Rounders
-                </h4>
+            {/* Squad Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
+              {(selectedSquadTeam === "team1" ? match.team1.playingXI : match.team2.playingXI).map((pId, idx) => {
+                const player = PLAYERS_DATABASE[pId];
+                if (!player) return null;
 
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-                  {(selectedSquadTeam === "team1" ? match.team1.playingXI : match.team2.playingXI).map((pid, idx) => {
-                    const pl = PLAYERS_DATABASE[pid];
-                    return (
-                      <div
-                        key={idx}
-                        onClick={() => setSelectedPlayerId(pid)}
-                        className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center text-center hover:border-red-500 hover:shadow-md transition-all cursor-pointer shadow-2xs group"
-                      >
-                        {/* Player Portrait Avatar */}
-                        <div className="w-14 h-14 rounded-full bg-white border-2 border-slate-300 group-hover:border-red-500 flex items-center justify-center text-2xl shadow-xs mb-2.5 transition-all">
-                          {pl?.avatar || "🏏"}
-                        </div>
-                        <h5 className="text-xs font-black text-slate-950 group-hover:text-red-700 transition-colors truncate w-full">
-                          {pl?.name || pid}
-                        </h5>
-                        <p className="text-[10px] text-slate-600 font-bold mt-0.5 truncate w-full">
-                          {pl?.role || "Batsman"}
-                        </p>
+                return (
+                  <div
+                    key={idx}
+                    onClick={() => setSelectedPlayerId(pId)}
+                    className="p-4 bg-white border border-slate-200 hover:border-red-400 rounded-2xl flex items-center justify-between gap-3 shadow-xs hover:shadow-md transition-all cursor-pointer group"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-12 h-12 rounded-2xl bg-amber-100 text-slate-950 border border-amber-300 flex items-center justify-center text-xl font-black shrink-0">
+                        {player.avatar}
                       </div>
-                    );
-                  })}
-                </div>
-              </div>
+                      <div>
+                        <h4 className="font-black text-xs sm:text-sm text-slate-950 group-hover:text-red-700 transition-colors">
+                          {player.name}
+                        </h4>
+                        <span className="text-[10px] text-slate-500 font-bold block mt-0.5">
+                          {player.role}
+                        </span>
+                      </div>
+                    </div>
 
+                    <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-red-600 transition-colors" />
+                  </div>
+                );
+              })}
             </div>
 
           </div>
         )}
 
         {/* ═══════════════════════════════════════════════════════════════
-            TAB 4: MATCH INFO & PITCH REPORT (LIGHT THEME)
-        ═══════════════════════════════════════════════════════════════ */}
-        {activeTab === "info" && (
-          <div className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
-                <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-rose-600" /> Stadium & Venue Details
-                </h4>
-                <p className="text-sm font-black text-slate-950">{match.venue.stadium}</p>
-                <p className="text-xs text-slate-700 font-bold">{match.venue.city}, {match.venue.country}</p>
-                <p className="text-xs text-slate-600 font-mono">Spectator Capacity: <strong className="text-slate-950">{match.venue.capacity}</strong></p>
-              </div>
-
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
-                <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
-                  <CloudSun className="w-4 h-4 text-amber-600" /> Weather & Conditions
-                </h4>
-                <p className="text-sm font-black text-slate-950">{match.venue.weather.temperature} • {match.venue.weather.condition}</p>
-                <p className="text-xs text-slate-700 font-bold">Humidity: <strong className="text-slate-950">{match.venue.weather.humidity}</strong> | Rain Chance: <strong className="text-slate-950">{match.venue.weather.rainProbability}</strong></p>
-              </div>
-            </div>
-
-            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
-              <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Activity className="w-4 h-4 text-emerald-700" /> Official Pitch Report
-              </h4>
-              <p className="text-xs text-slate-800 leading-relaxed font-medium">
-                {match.venue.pitchReport}
-              </p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Toss Decision</span>
-                <p className="text-xs font-black text-slate-950 mt-1">{match.toss}</p>
-              </div>
-              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
-                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Match Officials</span>
-                <p className="text-xs font-bold text-slate-950 mt-1">Umpires: {match.officials.umpires.join(', ')}</p>
-                <p className="text-[11px] text-slate-700 mt-0.5">Referee: {match.officials.matchReferee}</p>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* ═══════════════════════════════════════════════════════════════
-            TAB 5: SERIES FIXTURES (MATCHING SCREENSHOT 2)
+            TAB 5: SERIES FIXTURES
         ═══════════════════════════════════════════════════════════════ */}
         {activeTab === "fixtures" && (
-          <div className="bg-white border border-slate-200 rounded-2xl p-5 text-slate-950 space-y-4 shadow-xs">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 mb-2">
-              {match.series} Schedule
-            </h4>
+          <div className="space-y-4">
+            <h3 className="text-xs font-black uppercase tracking-wider text-slate-800">
+              Fixtures in {match.series}
+            </h3>
 
             <div className="space-y-3">
-              {/* Match 1 */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
-                <div>
-                  <span className="text-[10px] text-slate-600 font-black uppercase block">Wednesday, August 5 • Warm-Up Match</span>
-                  <h5 className="text-sm font-black text-slate-950 mt-0.5">AUS-XI vs BAN</h5>
-                  <p className="text-xs text-amber-800 font-black mt-0.5">AUS-XI Won by an inn & 38 runs 🏆</p>
+              {[
+                { title: match.title, date: match.date, status: match.status, isCurrent: true },
+                { title: "2nd Fixture • Championship Series", date: "August 18, 2026", status: "Upcoming", isCurrent: false },
+                { title: "3rd Fixture • Grand Final", date: "August 22, 2026", status: "Upcoming", isCurrent: false }
+              ].map((fix, idx) => (
+                <div
+                  key={idx}
+                  className={cn(
+                    "p-4 bg-white border rounded-2xl flex items-center justify-between gap-3 shadow-xs",
+                    fix.isCurrent ? "border-red-400 bg-red-50/20" : "border-slate-200"
+                  )}
+                >
+                  <div>
+                    <span className="text-[10px] font-black uppercase tracking-wider text-slate-500 block">{fix.date}</span>
+                    <h4 className="font-black text-xs sm:text-sm text-slate-950 mt-0.5">{fix.title}</h4>
+                  </div>
+                  <span className={cn(
+                    "px-3 py-1 rounded-xl text-xs font-black font-mono",
+                    fix.isCurrent ? "bg-red-600 text-white shadow-xs" : "bg-slate-100 text-slate-700"
+                  )}>
+                    {fix.status}
+                  </span>
                 </div>
-                <div className="text-right font-mono text-xs font-black text-slate-950">
-                  <div>AUS-XI 355 (87.2)</div>
-                  <div className="text-slate-600">BAN 263 & 54</div>
-                </div>
-              </div>
-
-              {/* Match 2 */}
-              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
-                <div>
-                  <span className="text-[10px] text-slate-600 font-black uppercase block">Wednesday, August 12 • 1st Test</span>
-                  <h5 className="text-sm font-black text-slate-950 mt-0.5">AUS vs BAN</h5>
-                  <p className="text-xs text-emerald-800 font-black mt-0.5">Stumps Day 3</p>
-                </div>
-                <div className="text-right font-mono text-xs font-black text-slate-950">
-                  <div>BAN 351/6 (110.0)</div>
-                  <div className="text-slate-600">AUS 198 (53.0)</div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         )}
@@ -798,72 +966,85 @@ export default function MatchDetailPage({ params }: PageProps) {
       </div>
 
       {/* ═══ SLIDE-UP QUICK BET SLIP (LIGHT THEME) ═══ */}
-      <AnimatePresence>
-        {selectedMarketBet && (
-          <div className="fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 bg-white/95 backdrop-blur-md border-t-2 border-red-600 shadow-2xl">
-            <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
-              <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center text-lg font-black shrink-0 border border-amber-300">
-                  ⚡
-                </div>
-                <div>
-                  <h5 className="text-xs sm:text-sm font-black text-slate-950">{selectedMarketBet.name}</h5>
-                  <p className="text-[10px] font-mono text-emerald-800 font-black">
-                    Odds: {formatOddsByMode(selectedMarketBet.odds, oddsMode)} | Potential Return: ₹{Math.round(quickBetStake * selectedMarketBet.odds).toLocaleString()}
-                  </p>
-                </div>
+      {selectedMarketBet && (
+        <div className="fixed bottom-0 left-0 right-0 z-50 bg-white border-t-2 border-slate-300 p-4 sm:p-5 shadow-2xl animate-in slide-in-from-bottom duration-200">
+          <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
+            
+            <div className="w-full sm:w-auto">
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "px-2 py-0.5 rounded text-[10px] font-black uppercase font-mono",
+                  selectedMarketBet.type === "back" || selectedMarketBet.type === "yes"
+                    ? "bg-emerald-100 text-emerald-900 border border-emerald-300"
+                    : "bg-pink-100 text-pink-900 border border-pink-300"
+                )}>
+                  {selectedMarketBet.type.toUpperCase()}
+                </span>
+                <h4 className="font-black text-sm text-slate-950">{selectedMarketBet.name}</h4>
               </div>
+              <p className="text-xs text-slate-600 font-bold mt-0.5">
+                Odds: <strong className="font-mono text-slate-950">{formatOddsByMode(selectedMarketBet.odds, oddsMode)}</strong> • Potential Profit: <strong className="text-emerald-800 font-mono">₹{Math.round(quickBetStake * (selectedMarketBet.odds - 1)).toLocaleString()}</strong>
+              </p>
+            </div>
 
-              {/* Stake Presets & Submit */}
-              <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+            {/* Stake Presets & Submit */}
+            <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+              <div className="flex items-center gap-1 bg-slate-100 p-1 rounded-xl border border-slate-200">
                 {[100, 500, 1000, 5000].map(amt => (
                   <button
                     key={amt}
                     type="button"
                     onClick={() => setQuickBetStake(amt)}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-xs font-mono font-black border transition-all cursor-pointer",
-                      quickBetStake === amt
-                        ? "bg-slate-950 text-white border-slate-950"
-                        : "bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200"
+                      "px-2.5 py-1 rounded-lg text-xs font-black font-mono transition-all cursor-pointer",
+                      quickBetStake === amt ? "bg-slate-950 text-white shadow-xs" : "text-slate-700 hover:text-slate-950"
                     )}
                   >
-                    ₹{amt}
+                    ₹{amt >= 1000 ? `${amt / 1000}k` : amt}
                   </button>
                 ))}
-
-                <button
-                  type="button"
-                  onClick={handlePlaceBet}
-                  disabled={isPlacing}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer shrink-0"
-                >
-                  {isPlacing ? "Matching..." : `Bet ₹${quickBetStake}`}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setSelectedMarketBet(null)}
-                  className="p-2 text-slate-500 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
-                >
-                  ✕
-                </button>
               </div>
+
+              <button
+                type="button"
+                disabled={isPlacing}
+                onClick={handlePlaceBet}
+                className="px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer"
+              >
+                {isPlacing ? "Placing..." : `Place Bet ₹${quickBetStake.toLocaleString()}`}
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setSelectedMarketBet(null)}
+                className="w-8 h-8 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs cursor-pointer border border-slate-200"
+              >
+                ✕
+              </button>
             </div>
 
-            {betFeedback && (
-              <div className="text-center text-xs font-black text-emerald-800 mt-2">
-                {betFeedback}
-              </div>
-            )}
           </div>
-        )}
-      </AnimatePresence>
 
-      {/* ═══ INTERACTIVE PLAYER PROFILE MODAL ═══ */}
+          {betFeedback && (
+            <div className="max-w-4xl mx-auto mt-2 text-center text-xs font-black text-emerald-800 bg-emerald-50 border border-emerald-200 p-1.5 rounded-lg">
+              {betFeedback}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ═══ INTERACTIVE PLAYER PROFILE DOSSIER MODAL ═══ */}
       <PlayerProfileModal
         playerId={selectedPlayerId}
         onClose={() => setSelectedPlayerId(null)}
+        onPlaceBet={(selectionName, odds) => {
+          setSelectedMarketBet({
+            name: selectionName,
+            type: "back",
+            odds
+          });
+          setSelectedPlayerId(null);
+        }}
       />
 
     </div>
