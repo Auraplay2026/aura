@@ -12,6 +12,7 @@ import { getGamesByCategory, GAMES } from "@/lib/games";
 import { ARCADE_GAMES } from "@/lib/arcade-games";
 import { GameCard } from "@/components/casino/GameCard";
 import { LiveActionFeed } from "@/components/casino/LiveActionFeed";
+import { LiveExchangeWidget } from "@/components/sportsbook/LiveExchangeWidget";
 import { useTradingStore } from "@/lib/store";
 
 interface LiveMatch {
@@ -549,19 +550,6 @@ export default function GlobalHomepage() {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progressActive, setProgressActive] = useState(false);
   
-  // Betslip state
-  const { isLoggedIn, balance, placeSportsBet } = useTradingStore();
-  const [selectedBet, setSelectedBet] = useState<{
-    matchTitle: string;
-    selectionName: string;
-    odds: number;
-    type: "back" | "lay";
-  } | null>(null);
-  const [stake, setStake] = useState<string>("500");
-  const [isPlacingBet, setIsPlacingBet] = useState(false);
-  const [betSuccess, setBetSuccess] = useState(false);
-  const [betError, setBetError] = useState("");
-
   // Slide rotation
   useEffect(() => {
     const timer = setInterval(() => {
@@ -578,58 +566,6 @@ export default function GlobalHomepage() {
     });
     return () => cancelAnimationFrame(raf);
   }, [currentSlide]);
-
-  const handleOddsClick = (bet: { matchTitle: string; selectionName: string; odds: number; type: "back" | "lay" }) => {
-    if (!isLoggedIn) {
-      window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }));
-      return;
-    }
-    setSelectedBet(bet);
-  };
-
-  const handlePlaceBet = async () => {
-    if (!isLoggedIn) {
-      setBetError("Please log in to place wagers.");
-      // Open auth login modal
-      window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: 'login' } }));
-      return;
-    }
-
-    const stakeNum = parseFloat(stake);
-    if (isNaN(stakeNum) || stakeNum <= 0) {
-      setBetError("Invalid stake amount.");
-      return;
-    }
-
-    if (stakeNum > balance) {
-      setBetError("Insufficient balance.");
-      return;
-    }
-
-    setIsPlacingBet(true);
-    setBetError("");
-    
-    try {
-      if (selectedBet) {
-        // Zustand action
-        placeSportsBet(
-          selectedBet.matchTitle,
-          selectedBet.selectionName,
-          selectedBet.odds,
-          stakeNum
-        );
-        setBetSuccess(true);
-        setTimeout(() => {
-          setSelectedBet(null);
-          setBetSuccess(false);
-        }, 1500);
-      }
-    } catch (err) {
-      setBetError("Failed to place bet. Please try again.");
-    } finally {
-      setIsPlacingBet(false);
-    }
-  };
 
   return (
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto pb-20 w-full overflow-hidden px-4 sm:px-6 lg:px-8 mt-6">
@@ -714,54 +650,9 @@ export default function GlobalHomepage() {
       {/* 2. SECOND ROW: SPORTS LIVE MATCHES (60%) & BLOG (40%) */}
       <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
         
-        {/* SPORTS LIVE ODDS WIDGET */}
-        <div className="md:col-span-3 bg-white border border-slate-200 rounded-md p-5 flex flex-col justify-between shadow-sm relative overflow-hidden ring-1 ring-red-100">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse shadow-[0_0_8px_rgba(239,68,68,0.4)]" />
-              <h3 className="text-base font-black text-slate-900 uppercase tracking-wider">Live Exchange Matches</h3>
-            </div>
-            <Link href="/sportsbook" className="text-xs font-bold text-slate-500 hover:text-slate-900 uppercase tracking-widest flex items-center gap-1 transition-colors">
-              Full Sportsbook <ChevronRight className="w-4 h-4" />
-            </Link>
-          </div>
-
-          <div className="space-y-3">
-            {LIVE_MATCHES_DATA.map((match) => (
-              <div key={match.id} className="border border-slate-100 rounded p-3 bg-slate-50 hover:bg-slate-100/50 transition-colors">
-                <div className="flex justify-between items-center mb-2">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-black text-slate-900 truncate max-w-[220px] sm:max-w-none">{match.title}</span>
-                    <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">{match.status}</span>
-                  </div>
-                </div>
-                
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 mt-1">
-                  {match.selections.map((sel, idx) => (
-                    <div key={idx} className="flex justify-between items-center bg-white border border-slate-200 rounded px-3 py-1.5 shadow-sm">
-                      <span className="text-[11px] font-bold text-slate-800 truncate pr-2">{sel.name.split(" ").slice(-1)[0]}</span>
-                      <div className="flex gap-1">
-                        <button 
-                          onClick={() => handleOddsClick({ matchTitle: match.title, selectionName: sel.name, odds: sel.back, type: 'back' })}
-                          className="w-12 py-1 bg-emerald-100 hover:bg-emerald-200 border border-emerald-200 rounded text-center text-emerald-800 transition-colors"
-                        >
-                          <span className="block text-[8px] font-black uppercase text-emerald-700/80 leading-none">Back</span>
-                          <span className="text-xs font-black font-mono leading-none">{sel.back.toFixed(2)}</span>
-                        </button>
-                        <button 
-                          onClick={() => handleOddsClick({ matchTitle: match.title, selectionName: sel.name, odds: sel.lay, type: 'lay' })}
-                          className="w-12 py-1 bg-pink-100 hover:bg-pink-200 border border-pink-200 rounded text-center text-pink-800 transition-colors"
-                        >
-                          <span className="block text-[8px] font-black uppercase text-pink-700/80 leading-none">Lay</span>
-                          <span className="text-xs font-black font-mono leading-none">{sel.lay.toFixed(2)}</span>
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
+        {/* SPORTS LIVE ODDS WIDGET (DYNAMIC LIVE MATCHES & QUICK BET SLIP) */}
+        <div className="md:col-span-3">
+          <LiveExchangeWidget />
         </div>
 
         {/* BLOG BANNER */}
@@ -1307,108 +1198,7 @@ export default function GlobalHomepage() {
         <LiveActionFeed />
       </motion.section>
 
-      {/* 9. QUICK BET SLIP MODAL */}
-      <AnimatePresence>
-        {selectedBet && (
-          <>
-            {/* Dim Backdrop */}
-            <motion.div 
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setSelectedBet(null)}
-              className="fixed inset-0 bg-white/40 backdrop-blur-[2px] z-50 flex items-center justify-center p-4"
-            >
-              {/* Slip Card */}
-              <motion.div 
-                initial={{ scale: 0.9, y: 20 }}
-                animate={{ scale: 1, y: 0 }}
-                exit={{ scale: 0.9, y: 20 }}
-                onClick={(e) => e.stopPropagation()}
-                className="w-full max-w-sm bg-white border border-slate-200 rounded-xl shadow-[0_25px_60px_rgba(0,0,0,0.15)] overflow-hidden"
-              >
-                <div className="p-4 border-b border-slate-100 bg-slate-50 flex justify-between items-center">
-                  <span className="text-xs font-black text-slate-800 uppercase tracking-wider flex items-center gap-1.5">
-                    <Trophy className="w-4 h-4 text-red-600" /> Quick Wager Slip
-                  </span>
-                  <button onClick={() => setSelectedBet(null)} className="text-slate-600 hover:text-slate-800">
-                    <X className="w-5 h-5" />
-                  </button>
-                </div>
 
-                <div className="p-5 space-y-4">
-                  <div className="text-slate-605 text-[10px] font-bold uppercase tracking-wider">{selectedBet.matchTitle}</div>
-                  <div className="flex justify-between items-center">
-                    <span className="font-black text-slate-900 text-sm">{selectedBet.selectionName}</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-black uppercase font-mono ${selectedBet.type === 'back' ? 'bg-emerald-100 text-emerald-800' : 'bg-pink-100 text-pink-800'}`}>
-                      {selectedBet.type} @ {selectedBet.odds.toFixed(2)}
-                    </span>
-                  </div>
-
-                  {betSuccess ? (
-                    <div className="bg-emerald-50 border border-emerald-200 text-emerald-800 p-4 rounded-xl flex items-center gap-3 text-xs font-black">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
-                      Bet Placed Successfully!
-                    </div>
-                  ) : (
-                    <>
-                      {betError && (
-                        <div className="bg-red-50 border border-red-200 text-red-800 p-3 rounded flex items-center gap-2 text-xs font-semibold">
-                          <AlertCircle className="w-4 h-4 text-red-600" />
-                          {betError}
-                        </div>
-                      )}
-
-                      <div className="space-y-2">
-                        <label className="text-[10px] font-bold text-slate-650 uppercase tracking-widest pl-0.5">Stake Amount (₹)</label>
-                        <input 
-                          type="number"
-                          value={stake}
-                          onChange={(e) => setStake(e.target.value)}
-                          className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-slate-900 font-bold font-mono focus:outline-none focus:border-red-600 transition-colors"
-                        />
-                      </div>
-
-                      {/* Quick Stake Buttons */}
-                      <div className="grid grid-cols-4 gap-2">
-                        {["100", "500", "1000", "5000"].map((s) => (
-                          <button
-                            key={s}
-                            onClick={() => setStake(s)}
-                            className={`py-1.5 border rounded text-xs font-bold font-mono transition-colors ${stake === s ? 'bg-red-600 text-slate-900 border-red-600' : 'bg-slate-50 hover:bg-slate-100 border-slate-200 text-slate-700'}`}
-                          >
-                            ₹{s}
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* Summary */}
-                      <div className="pt-2 border-t border-slate-100 flex justify-between items-center text-xs font-bold text-slate-600">
-                        <span>Est. Return</span>
-                        <span className="text-slate-900 font-mono text-sm">
-                          ₹{((parseFloat(stake) || 0) * selectedBet.odds).toFixed(2)}
-                        </span>
-                      </div>
-
-                      <button
-                        onClick={handlePlaceBet}
-                        disabled={isPlacingBet}
-                        className={`w-full py-3 rounded-xl font-black uppercase tracking-wider text-xs shadow-md transition-all ${
-                          selectedBet.type === 'back' 
-                            ? 'bg-emerald-600 hover:bg-emerald-700 text-slate-900 shadow-emerald-500/20' 
-                            : 'bg-pink-600 hover:bg-pink-700 text-slate-900 shadow-pink-500/20'
-                        } disabled:opacity-50`}
-                      >
-                        {isPlacingBet ? "Processing..." : "Confirm Wager"}
-                      </button>
-                    </>
-                  )}
-                </div>
-              </motion.div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
 
     </div>
   );

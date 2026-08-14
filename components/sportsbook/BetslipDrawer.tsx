@@ -125,12 +125,12 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
               </div>
 
               {/* Stake Input */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <div className="flex justify-between items-center mb-1">
                   <span className="text-[10px] font-bold text-slate-600 uppercase">Stake</span>
                   <span className="text-[10px] font-bold text-slate-500">Bal: ₹{balance.toLocaleString()}</span>
                 </div>
-                <div className="relative flex items-center bg-slate-50 rounded-lg border border-slate-200 p-1">
+                <div className="relative flex items-center bg-slate-50 rounded-lg border border-slate-200 p-1 mb-2">
                   <span className="pl-3 text-slate-500 font-bold text-sm">₹</span>
                   <input
                     type="number"
@@ -139,8 +139,30 @@ export function BetslipDrawer({ draftBet, onClearBet }: BetslipDrawerProps) {
                       setStake(Number(e.target.value));
                       setErrorMessage(null);
                     }}
-                    className="w-full bg-transparent border-none text-slate-900 font-black text-lg py-1 px-2 outline-none"
+                    className="w-full bg-transparent border-none text-slate-900 font-black text-lg py-1 px-2 outline-none font-mono"
                   />
+                </div>
+
+                {/* Quick Stake Preset Chips */}
+                <div className="grid grid-cols-6 gap-1">
+                  {[100, 500, 1000, 2500, 5000, 10000].map(val => (
+                    <button
+                      key={val}
+                      type="button"
+                      onClick={() => {
+                        setStake(val);
+                        setErrorMessage(null);
+                        if (typeof navigator !== "undefined" && navigator.vibrate) navigator.vibrate([15]);
+                      }}
+                      className={`py-1 rounded text-[10px] font-black font-mono transition-all border cursor-pointer ${
+                        stake === val 
+                          ? "bg-slate-900 text-white border-slate-900 shadow-xs" 
+                          : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100"
+                      }`}
+                    >
+                      {val >= 1000 ? `${val/1000}k` : val}
+                    </button>
+                  ))}
                 </div>
               </div>
 
