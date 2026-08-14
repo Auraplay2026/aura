@@ -72,54 +72,55 @@ export default function MatchDetailPage({ params }: PageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 text-slate-100 pb-20">
+    <div className="min-h-screen bg-[#F8FAFC] text-slate-900 font-sans pb-24">
       
-      {/* ═══ TOP APP BAR ═══ */}
-      <div className="sticky top-0 z-40 bg-slate-950/95 backdrop-blur-md border-b border-slate-800 px-3 sm:px-6 py-3">
+      {/* ═══ TOP APP BAR (PURE LIGHT THEME) ═══ */}
+      <div className="sticky top-0 z-40 bg-white/95 backdrop-blur-md border-b border-slate-200 px-3 sm:px-6 py-3 shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Link
               href="/sportsbook"
-              className="w-9 h-9 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer border border-slate-700"
+              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center transition-colors cursor-pointer border border-slate-300"
               title="Back to Sportsbook"
             >
               <ArrowLeft className="w-5 h-5" />
             </Link>
             <div>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">
+                <span className="text-[10px] font-black uppercase tracking-widest text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-300">
                   {match.matchType}
                 </span>
-                <span className="text-xs font-extrabold text-slate-300 truncate max-w-[200px] sm:max-w-md">
+                <span className="text-xs font-extrabold text-slate-700 truncate max-w-[200px] sm:max-w-md">
                   {match.series}
                 </span>
               </div>
-              <h1 className="text-sm sm:text-base font-black text-white truncate">
+              <h1 className="text-sm sm:text-base font-black text-slate-950 truncate">
                 {match.title}
               </h1>
             </div>
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="hidden sm:flex items-center gap-1 bg-slate-900 border border-slate-800 rounded-xl p-1 text-xs">
+            {/* Odds Mode Selector */}
+            <div className="hidden sm:flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-xl p-1 text-xs">
               <button
                 type="button"
                 onClick={() => setOddsMode("decimal")}
-                className={cn("px-2 py-1 rounded-lg font-bold text-[11px] transition-all", oddsMode === "decimal" ? "bg-amber-500 text-slate-950" : "text-slate-400 hover:text-white")}
+                className={cn("px-2.5 py-1 rounded-lg font-black text-[11px] transition-all cursor-pointer", oddsMode === "decimal" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
               >
                 1.90
               </button>
               <button
                 type="button"
                 onClick={() => setOddsMode("bhav")}
-                className={cn("px-2 py-1 rounded-lg font-bold text-[11px] transition-all", oddsMode === "bhav" ? "bg-amber-500 text-slate-950" : "text-slate-400 hover:text-white")}
+                className={cn("px-2.5 py-1 rounded-lg font-black text-[11px] transition-all cursor-pointer", oddsMode === "bhav" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
               >
                 🇮🇳 Bhav
               </button>
               <button
                 type="button"
                 onClick={() => setOddsMode("multiplier")}
-                className={cn("px-2 py-1 rounded-lg font-bold text-[11px] transition-all", oddsMode === "multiplier" ? "bg-amber-500 text-slate-950" : "text-slate-400 hover:text-white")}
+                className={cn("px-2.5 py-1 rounded-lg font-black text-[11px] transition-all cursor-pointer", oddsMode === "multiplier" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
               >
                 1 ka X
               </button>
@@ -127,7 +128,7 @@ export default function MatchDetailPage({ params }: PageProps) {
 
             <Link
               href="/sportsbook"
-              className="px-3 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors"
+              className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors shadow-xs"
             >
               Live Sportsbook
             </Link>
@@ -135,39 +136,39 @@ export default function MatchDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* ═══ CREX HERO SCORECARD HUD (MATCHING SCREENSHOT 1) ═══ */}
-      <div className="bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950 border-b border-slate-800 px-4 sm:px-6 py-6 text-white">
+      {/* ═══ CREX HERO SCORECARD HUD (EXACT SCREENSHOT 1 MATCH) ═══ */}
+      <div className="bg-white border-b border-slate-200 px-4 sm:px-6 py-6 text-slate-950 shadow-xs">
         <div className="max-w-6xl mx-auto">
           
-          <div className="text-center text-xs font-extrabold text-slate-400 mb-4 tracking-wide uppercase">
+          <div className="text-center text-xs font-extrabold text-slate-500 mb-5 tracking-wide uppercase">
             {match.title}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-center">
             
             {/* Team 1 Score (Left) */}
-            <div className="flex items-center gap-4 justify-start md:justify-start">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-700/30 border-2 border-emerald-500/50 flex items-center justify-center text-3xl shadow-lg shrink-0">
+            <div className="flex items-center gap-4 justify-start">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-3xl shadow-md shrink-0">
                 🇧🇩
               </div>
               <div>
-                <div className="text-base sm:text-lg font-black text-white flex items-center gap-2">
+                <div className="text-base sm:text-lg font-black text-slate-950 flex items-center gap-2">
                   <span>{match.team1.code}</span>
-                  <span className="text-xs text-slate-400 font-normal">263 (75.5)</span>
+                  <span className="text-xs text-slate-600 font-bold">263 (75.5)</span>
                 </div>
-                <div className="text-xl sm:text-2xl font-black font-mono text-emerald-400 tracking-tight">
-                  54-10 <span className="text-xs text-slate-400 font-normal">(22.0)</span>
+                <div className="text-xl sm:text-2xl font-black font-mono text-emerald-800 tracking-tight">
+                  54-10 <span className="text-xs text-slate-600 font-bold">(22.0)</span>
                 </div>
               </div>
             </div>
 
             {/* Victory / Match Status Banner (Center) */}
-            <div className="text-center bg-slate-900/80 border border-slate-800 rounded-2xl p-4 shadow-inner">
-              <div className="text-amber-400 font-black text-sm sm:text-base leading-snug flex items-center justify-center gap-1.5">
-                <Trophy className="w-4 h-4 text-yellow-400 shrink-0" />
+            <div className="text-center bg-amber-50 border-2 border-amber-300/80 rounded-2xl p-4 shadow-2xs">
+              <div className="text-amber-950 font-black text-sm sm:text-base leading-snug flex items-center justify-center gap-1.5">
+                <Trophy className="w-4 h-4 text-amber-600 shrink-0" />
                 <span>{match.status}</span>
               </div>
-              <p className="text-[11px] font-bold text-slate-400 mt-1">
+              <p className="text-[11px] font-bold text-amber-800 mt-1">
                 📍 {match.venue.stadium}, {match.venue.city}
               </p>
             </div>
@@ -175,14 +176,14 @@ export default function MatchDetailPage({ params }: PageProps) {
             {/* Team 2 Score (Right) */}
             <div className="flex items-center gap-4 justify-start md:justify-end">
               <div className="text-left md:text-right order-2 md:order-1">
-                <div className="text-xl sm:text-2xl font-black font-mono text-amber-400 tracking-tight">
-                  355 <span className="text-xs text-slate-400 font-normal">(87.2)</span>
+                <div className="text-xl sm:text-2xl font-black font-mono text-slate-950 tracking-tight">
+                  355 <span className="text-xs text-slate-600 font-bold">(87.2)</span>
                 </div>
-                <div className="text-base sm:text-lg font-black text-white">
+                <div className="text-base sm:text-lg font-black text-slate-950">
                   {match.team2.code}
                 </div>
               </div>
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-sky-900/40 border-2 border-sky-500/50 flex items-center justify-center text-3xl shadow-lg shrink-0 order-1 md:order-2">
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-sky-50 border-2 border-sky-500 flex items-center justify-center text-3xl shadow-md shrink-0 order-1 md:order-2">
                 🇦🇺
               </div>
             </div>
@@ -190,35 +191,35 @@ export default function MatchDetailPage({ params }: PageProps) {
           </div>
 
           {/* Quick Odds Bar on Hero */}
-          <div className="mt-6 pt-4 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-3">
+          <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-black uppercase tracking-wider text-slate-400">Match Odds:</span>
+              <span className="text-[11px] font-black uppercase tracking-wider text-slate-700">Match Odds:</span>
               <button
                 type="button"
                 onClick={() => setSelectedMarketBet({ name: `${match.team1.name} To Win`, type: "back", odds: 3.40 })}
-                className="px-3 py-1 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-700/80 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95"
+                className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-300 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                {match.team1.code}: <span className="font-mono text-white">{formatOddsByMode(3.40, oddsMode)}</span>
+                {match.team1.code}: <span className="font-mono text-emerald-800 font-black">{formatOddsByMode(3.40, oddsMode)}</span>
               </button>
               <button
                 type="button"
                 onClick={() => setSelectedMarketBet({ name: `${match.team2.name} To Win`, type: "back", odds: 1.30 })}
-                className="px-3 py-1 bg-sky-950 hover:bg-sky-900 text-sky-300 border border-sky-700/80 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95"
+                className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-950 border border-sky-300 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                {match.team2.code}: <span className="font-mono text-white">{formatOddsByMode(1.30, oddsMode)}</span>
+                {match.team2.code}: <span className="font-mono text-sky-800 font-black">{formatOddsByMode(1.30, oddsMode)}</span>
               </button>
             </div>
 
-            <div className="text-[11px] text-slate-400 font-bold">
-              Toss: <strong className="text-slate-200">{match.toss}</strong>
+            <div className="text-[11px] text-slate-700 font-bold">
+              Toss: <strong className="text-slate-950">{match.toss}</strong>
             </div>
           </div>
 
         </div>
       </div>
 
-      {/* ═══ CREX NAVIGATION TABS (MATCHING SCREENSHOT 1 & 2) ═══ */}
-      <div className="sticky top-[61px] z-30 bg-slate-950 border-b border-slate-800 px-4 sm:px-6">
+      {/* ═══ CREX NAVIGATION TABS (MATCHING SCREENSHOTS) ═══ */}
+      <div className="sticky top-[61px] z-30 bg-white border-b border-slate-200 px-4 sm:px-6 shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-none py-2.5 select-none">
           {[
             { id: "scorecard", label: "Scorecard" },
@@ -234,8 +235,8 @@ export default function MatchDetailPage({ params }: PageProps) {
               className={cn(
                 "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-all cursor-pointer",
                 activeTab === tab.id
-                  ? "bg-red-600 text-white shadow-md"
-                  : "text-slate-400 hover:text-white hover:bg-slate-900"
+                  ? "bg-red-600 text-white shadow-xs"
+                  : "text-slate-700 hover:text-slate-950 hover:bg-slate-100"
               )}
             >
               {tab.label}
@@ -263,8 +264,8 @@ export default function MatchDetailPage({ params }: PageProps) {
                   className={cn(
                     "px-4 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer shrink-0",
                     activeInningsIdx === i
-                      ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md font-black"
-                      : "bg-slate-800/80 text-slate-300 border-slate-700 hover:bg-slate-700"
+                      ? "bg-slate-950 text-white border-slate-950 shadow-sm"
+                      : "bg-white text-slate-800 border-slate-300 hover:bg-slate-100"
                   )}
                 >
                   {sc.teamCode} {sc.inningsNumber === 1 ? "1st Innings" : "2nd Innings"} ({sc.totalScore.split(' ')[0]})
@@ -273,18 +274,18 @@ export default function MatchDetailPage({ params }: PageProps) {
             </div>
 
             {/* Innings Total Score Header */}
-            <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 flex items-center justify-between text-white">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 flex items-center justify-between text-slate-950 shadow-xs">
               <div>
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">
                   Total Score ({currentInnings.teamName} {currentInnings.inningsNumber === 1 ? "1st" : "2nd"} Innings)
                 </span>
-                <h3 className="text-2xl font-black font-mono text-emerald-400 mt-0.5">
+                <h3 className="text-2xl font-black font-mono text-slate-950 mt-0.5">
                   {currentInnings.totalScore}
                 </h3>
               </div>
               <div className="text-right">
-                <span className="text-[10px] font-bold text-slate-400 uppercase block">Run Rate</span>
-                <span className="text-sm font-black font-mono text-amber-400">{currentInnings.runRate}</span>
+                <span className="text-[10px] font-bold text-slate-500 uppercase block">Run Rate</span>
+                <span className="text-sm font-black font-mono text-emerald-700">{currentInnings.runRate}</span>
               </div>
             </div>
 
@@ -295,18 +296,18 @@ export default function MatchDetailPage({ params }: PageProps) {
               <div className="lg:col-span-2 space-y-6">
                 
                 {/* ═══ BATTING CARD ═══ */}
-                <div className="bg-white text-slate-900 rounded-2xl border border-slate-200 overflow-hidden shadow-xl">
-                  <div className="p-3.5 bg-slate-950 text-white flex items-center justify-between">
+                <div className="bg-white text-slate-900 rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                  <div className="p-3.5 bg-slate-900 text-white flex items-center justify-between">
                     <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
                       <span>🏏</span> BATTING
                     </h4>
-                    <span className="text-[10px] text-slate-400 font-bold">Click batter for full career stats</span>
+                    <span className="text-[10px] text-slate-300 font-bold">Click batter for full career stats</span>
                   </div>
 
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-100 text-[10px] font-black uppercase text-slate-600 tracking-wider">
+                        <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-black uppercase text-slate-700 tracking-wider">
                           <th className="py-3 px-4">Batter</th>
                           <th className="py-3 px-2 text-right">R</th>
                           <th className="py-3 px-2 text-right">B</th>
@@ -322,18 +323,18 @@ export default function MatchDetailPage({ params }: PageProps) {
                               <button
                                 type="button"
                                 onClick={() => setSelectedPlayerId(bt.playerId)}
-                                className="text-left font-black text-slate-950 hover:text-amber-800 transition-colors cursor-pointer flex items-center gap-1.5"
+                                className="text-left font-black text-slate-950 hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1.5"
                               >
                                 <span className="text-xs font-black">{bt.name}</span>
                                 <span className="text-[10px] text-slate-400">ℹ️</span>
                               </button>
-                              <p className="text-[11px] text-slate-500 font-semibold mt-0.5">{bt.dismissal}</p>
+                              <p className="text-[11px] text-slate-600 font-semibold mt-0.5">{bt.dismissal}</p>
                             </td>
                             <td className="py-3 px-2 text-right font-black font-mono text-sm text-slate-950">{bt.runs}</td>
-                            <td className="py-3 px-2 text-right font-mono text-slate-600">{bt.balls}</td>
-                            <td className="py-3 px-2 text-right font-mono text-slate-700">{bt.fours}</td>
-                            <td className="py-3 px-2 text-right font-mono text-slate-700">{bt.sixes}</td>
-                            <td className="py-3 px-4 text-right font-mono font-black text-slate-800">{bt.strikeRate.toFixed(2)}</td>
+                            <td className="py-3 px-2 text-right font-mono text-slate-800 font-bold">{bt.balls}</td>
+                            <td className="py-3 px-2 text-right font-mono text-slate-800 font-bold">{bt.fours}</td>
+                            <td className="py-3 px-2 text-right font-mono text-slate-800 font-bold">{bt.sixes}</td>
+                            <td className="py-3 px-4 text-right font-mono font-black text-slate-950">{bt.strikeRate.toFixed(2)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -341,15 +342,15 @@ export default function MatchDetailPage({ params }: PageProps) {
                   </div>
 
                   {/* Extras & Total */}
-                  <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-700">
-                    <span>Extras: <strong>{currentInnings.extras.total}</strong> ({currentInnings.extras.breakdown})</span>
+                  <div className="p-3.5 bg-slate-50 border-t border-slate-200 flex items-center justify-between text-xs font-bold text-slate-800">
+                    <span>Extras: <strong className="text-slate-950">{currentInnings.extras.total}</strong> ({currentInnings.extras.breakdown})</span>
                     <span className="font-mono text-slate-950 font-black">Total: {currentInnings.totalScore}</span>
                   </div>
                 </div>
 
                 {/* ═══ BOWLING CARD ═══ */}
-                <div className="bg-white text-slate-900 rounded-2xl border border-slate-200 overflow-hidden shadow-xl">
-                  <div className="p-3.5 bg-slate-950 text-white">
+                <div className="bg-white text-slate-900 rounded-2xl border border-slate-200 overflow-hidden shadow-xs">
+                  <div className="p-3.5 bg-slate-900 text-white">
                     <h4 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
                       <span>🎯</span> BOWLING
                     </h4>
@@ -358,7 +359,7 @@ export default function MatchDetailPage({ params }: PageProps) {
                   <div className="overflow-x-auto">
                     <table className="w-full text-xs text-left">
                       <thead>
-                        <tr className="border-b border-slate-200 bg-slate-100 text-[10px] font-black uppercase text-slate-600 tracking-wider">
+                        <tr className="border-b border-slate-200 bg-slate-50 text-[10px] font-black uppercase text-slate-700 tracking-wider">
                           <th className="py-3 px-4">Bowler</th>
                           <th className="py-3 px-2 text-right">O</th>
                           <th className="py-3 px-2 text-right">M</th>
@@ -374,17 +375,17 @@ export default function MatchDetailPage({ params }: PageProps) {
                               <button
                                 type="button"
                                 onClick={() => setSelectedPlayerId(bw.playerId)}
-                                className="font-black text-slate-950 hover:text-amber-800 transition-colors cursor-pointer flex items-center gap-1"
+                                className="font-black text-slate-950 hover:text-red-700 transition-colors cursor-pointer flex items-center gap-1"
                               >
                                 <span>{bw.name}</span>
                                 <span className="text-[10px] text-slate-400">ℹ️</span>
                               </button>
                             </td>
-                            <td className="py-3 px-2 text-right text-slate-700">{bw.overs}</td>
-                            <td className="py-3 px-2 text-right text-slate-600">{bw.maidens}</td>
-                            <td className="py-3 px-2 text-right text-slate-700">{bw.runs}</td>
+                            <td className="py-3 px-2 text-right text-slate-800 font-bold">{bw.overs}</td>
+                            <td className="py-3 px-2 text-right text-slate-800 font-bold">{bw.maidens}</td>
+                            <td className="py-3 px-2 text-right text-slate-800 font-bold">{bw.runs}</td>
                             <td className="py-3 px-2 text-right font-black text-emerald-700 text-sm">{bw.wickets}</td>
-                            <td className="py-3 px-4 text-right font-bold text-slate-800">{bw.economy.toFixed(2)}</td>
+                            <td className="py-3 px-4 text-right font-black text-slate-950">{bw.economy.toFixed(2)}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -393,43 +394,43 @@ export default function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 {/* ═══ FALL OF WICKETS (FOW) ═══ */}
-                <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-white">
-                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-300">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 text-slate-950 shadow-xs">
+                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-700">
                     FALL OF WICKETS
                   </h4>
                   <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
                     {currentInnings.fallOfWickets.map((fow, idx) => (
-                      <div key={idx} className="p-2.5 rounded-xl bg-slate-900/90 border border-slate-700/80 text-center">
-                        <span className="text-xs font-black font-mono text-rose-400 block">{fow.score}</span>
-                        <span className="text-[10px] font-bold text-slate-200 truncate block mt-0.5">{fow.batsmanName}</span>
-                        <span className="text-[9px] font-mono text-slate-400 block">{fow.over} ov</span>
+                      <div key={idx} className="p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-center">
+                        <span className="text-xs font-black font-mono text-rose-700 block">{fow.score}</span>
+                        <span className="text-[10px] font-black text-slate-900 truncate block mt-0.5">{fow.batsmanName}</span>
+                        <span className="text-[9px] font-mono text-slate-600 font-bold block">{fow.over} ov</span>
                       </div>
                     ))}
                   </div>
                 </div>
 
                 {/* ═══ PARTNERSHIPS ═══ */}
-                <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-white">
-                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-300">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 text-slate-950 shadow-xs">
+                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-700">
                     PARTNERSHIP BREAKDOWN
                   </h4>
                   <div className="space-y-2.5">
                     {currentInnings.partnerships.map((ps, idx) => (
-                      <div key={idx} className="p-3 bg-slate-900 border border-slate-700/80 rounded-xl text-xs">
-                        <div className="flex justify-between items-center font-extrabold mb-1">
-                          <span className="text-slate-300">{ps.batter1.name} ({ps.batter1.runs})</span>
-                          <span className="font-mono text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded font-black border border-amber-400/20">
+                      <div key={idx} className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-xs">
+                        <div className="flex justify-between items-center font-black mb-1">
+                          <span className="text-slate-900">{ps.batter1.name} ({ps.batter1.runs})</span>
+                          <span className="font-mono text-slate-950 bg-amber-100 text-amber-950 px-2 py-0.5 rounded font-black border border-amber-300">
                             {ps.wicket}: {ps.totalRuns} runs ({ps.totalBalls}b)
                           </span>
-                          <span className="text-slate-300">{ps.batter2.name} ({ps.batter2.runs})</span>
+                          <span className="text-slate-900">{ps.batter2.name} ({ps.batter2.runs})</span>
                         </div>
-                        <div className="w-full h-1.5 bg-slate-700 rounded-full overflow-hidden flex">
+                        <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex">
                           <div 
-                            className="bg-sky-400 h-full"
+                            className="bg-sky-500 h-full"
                             style={{ width: `${(ps.batter1.runs / (ps.totalRuns || 1)) * 100}%` }}
                           />
                           <div 
-                            className="bg-emerald-400 h-full"
+                            className="bg-emerald-500 h-full"
                             style={{ width: `${(ps.batter2.runs / (ps.totalRuns || 1)) * 100}%` }}
                           />
                         </div>
@@ -442,25 +443,25 @@ export default function MatchDetailPage({ params }: PageProps) {
 
               {/* Right Column: Yet to Bat with Player Portraits (Matching Screenshot 1) */}
               <div className="space-y-4">
-                <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 text-white">
-                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-300 flex items-center justify-between">
+                <div className="bg-white border border-slate-200 rounded-2xl p-4 text-slate-950 shadow-xs">
+                  <h4 className="text-xs font-black uppercase tracking-wider mb-3 text-slate-800 flex items-center justify-between">
                     <span>Yet to bat</span>
-                    <span className="text-[10px] text-slate-400 font-mono">{currentInnings.yetToBat.length} Players</span>
+                    <span className="text-[10px] text-slate-600 font-mono font-bold">{currentInnings.yetToBat.length} Players</span>
                   </h4>
 
-                  <div className="space-y-3">
+                  <div className="space-y-2.5">
                     {currentInnings.yetToBat.map((ytb, idx) => (
                       <div 
                         key={idx}
-                        className="flex items-center gap-3 p-2.5 bg-slate-900 border border-slate-700/80 rounded-xl hover:border-amber-400/50 transition-colors"
+                        className="flex items-center gap-3 p-2.5 bg-slate-50 border border-slate-200 rounded-xl hover:border-amber-400 transition-colors shadow-2xs"
                       >
                         {/* Player Avatar */}
-                        <div className="w-10 h-10 rounded-full bg-slate-800 border border-slate-600 flex items-center justify-center text-lg shrink-0">
+                        <div className="w-10 h-10 rounded-full bg-white border border-slate-300 flex items-center justify-center text-lg shrink-0 shadow-2xs">
                           🏏
                         </div>
                         <div>
-                          <h5 className="text-xs font-black text-white">{ytb.name}</h5>
-                          <p className="text-[10px] text-slate-400 font-mono">Avg: {ytb.average.toFixed(2)}</p>
+                          <h5 className="text-xs font-black text-slate-950">{ytb.name}</h5>
+                          <p className="text-[10px] text-slate-600 font-mono font-bold">Avg: {ytb.average.toFixed(2)}</p>
                         </div>
                       </div>
                     ))}
@@ -468,18 +469,18 @@ export default function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 {/* Quick In-Play Bet CTA */}
-                <div className="bg-gradient-to-br from-amber-500/20 to-yellow-500/10 border border-amber-400/30 rounded-2xl p-4 text-amber-200">
+                <div className="bg-gradient-to-br from-amber-50 to-yellow-50 border border-amber-300 rounded-2xl p-4 text-amber-950 shadow-xs">
                   <h5 className="text-xs font-black uppercase tracking-wider flex items-center gap-1.5">
-                    <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <Zap className="w-4 h-4 text-amber-600 fill-amber-600" />
                     In-Play Fancy Betting Active
                   </h5>
-                  <p className="text-[11px] text-slate-300 mt-1">
+                  <p className="text-[11px] text-amber-900 font-bold mt-1">
                     Live 6-Over, 10-Over, and Lambi session markets are active for this fixture.
                   </p>
                   <button
                     type="button"
                     onClick={() => setActiveTab("betting")}
-                    className="w-full mt-3 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer shadow-md"
+                    className="w-full mt-3 py-2 bg-slate-950 hover:bg-slate-800 text-white font-black rounded-xl text-xs uppercase tracking-wider transition-all cursor-pointer shadow-sm"
                   >
                     View In-Play Markets ➔
                   </button>
@@ -492,68 +493,68 @@ export default function MatchDetailPage({ params }: PageProps) {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════
-            TAB 2: IN-PLAY BETTING & SESSIONS EXCHANGE
+            TAB 2: IN-PLAY BETTING & SESSIONS EXCHANGE (LIGHT THEME)
         ═══════════════════════════════════════════════════════════════ */}
         {activeTab === "betting" && (
           <div className="space-y-6">
             
             {/* Match Odds (Back & Lay) */}
-            <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-5 text-white">
-              <div className="flex items-center justify-between border-b border-slate-700 pb-3 mb-4">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 text-slate-950 shadow-xs">
+              <div className="flex items-center justify-between border-b border-slate-100 pb-3 mb-4">
                 <div>
                   <h3 className="text-sm font-black uppercase tracking-wider flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-400 fill-amber-400" />
+                    <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
                     Match Odds (Back / Lay)
                   </h3>
-                  <p className="text-[11px] text-slate-400">Zero commission Indian Bhav exchange</p>
+                  <p className="text-[11px] text-slate-600 font-bold">Zero commission Indian Bhav exchange</p>
                 </div>
-                <span className="text-xs font-mono text-emerald-400 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-800">
+                <span className="text-xs font-mono font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">
                   ● LIVE TRADING
                 </span>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 {/* Team 1 */}
-                <div className="p-3 bg-slate-900 border border-slate-700 rounded-xl flex items-center justify-between">
-                  <span className="font-black text-sm text-white">{match.team1.name}</span>
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
+                  <span className="font-black text-sm text-slate-950">{match.team1.name}</span>
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Lagai/Back)`, type: "back", odds: 3.40 })}
-                      className="w-20 py-2 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/80 rounded-xl text-center cursor-pointer transition-all active:scale-95"
+                      className="w-20 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
-                      <span className="block text-[8px] font-black uppercase text-emerald-400">BACK</span>
+                      <span className="block text-[8px] font-black uppercase text-emerald-800">BACK</span>
                       <span className="text-xs font-black font-mono">{formatOddsByMode(3.40, oddsMode)}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Khayi/Lay)`, type: "lay", odds: 3.45 })}
-                      className="w-20 py-2 bg-pink-950 hover:bg-pink-900 text-pink-300 border border-pink-600/80 rounded-xl text-center cursor-pointer transition-all active:scale-95"
+                      className="w-20 py-2 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
-                      <span className="block text-[8px] font-black uppercase text-pink-400">LAY</span>
+                      <span className="block text-[8px] font-black uppercase text-pink-800">LAY</span>
                       <span className="text-xs font-black font-mono">{formatOddsByMode(3.45, oddsMode)}</span>
                     </button>
                   </div>
                 </div>
 
                 {/* Team 2 */}
-                <div className="p-3 bg-slate-900 border border-slate-700 rounded-xl flex items-center justify-between">
-                  <span className="font-black text-sm text-white">{match.team2.name}</span>
+                <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
+                  <span className="font-black text-sm text-slate-950">{match.team2.name}</span>
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
                       onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Lagai/Back)`, type: "back", odds: 1.30 })}
-                      className="w-20 py-2 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/80 rounded-xl text-center cursor-pointer transition-all active:scale-95"
+                      className="w-20 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
-                      <span className="block text-[8px] font-black uppercase text-emerald-400">BACK</span>
+                      <span className="block text-[8px] font-black uppercase text-emerald-800">BACK</span>
                       <span className="text-xs font-black font-mono">{formatOddsByMode(1.30, oddsMode)}</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Khayi/Lay)`, type: "lay", odds: 1.32 })}
-                      className="w-20 py-2 bg-pink-950 hover:bg-pink-900 text-pink-300 border border-pink-600/80 rounded-xl text-center cursor-pointer transition-all active:scale-95"
+                      className="w-20 py-2 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
-                      <span className="block text-[8px] font-black uppercase text-pink-400">LAY</span>
+                      <span className="block text-[8px] font-black uppercase text-pink-800">LAY</span>
                       <span className="text-xs font-black font-mono">{formatOddsByMode(1.32, oddsMode)}</span>
                     </button>
                   </div>
@@ -562,8 +563,8 @@ export default function MatchDetailPage({ params }: PageProps) {
             </div>
 
             {/* Fancy Session Markets */}
-            <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 sm:p-5 text-white">
-              <h3 className="text-sm font-black uppercase tracking-wider mb-3 text-slate-200">
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 sm:p-5 text-slate-950 shadow-xs">
+              <h3 className="text-sm font-black uppercase tracking-wider mb-3 text-slate-900">
                 ⚡ Subcontinent Fancy Sessions & Lambi
               </h3>
 
@@ -576,23 +577,23 @@ export default function MatchDetailPage({ params }: PageProps) {
                   { name: "Tanzid Hasan Total Runs", no: 24, yes: 26 },
                   { name: "Campbell Thompson Wickets", no: 2, yes: 3 }
                 ].map((ses, idx) => (
-                  <div key={idx} className="bg-slate-900 border border-slate-700/80 rounded-xl p-3 flex items-center justify-between">
-                    <span className="font-black text-xs text-white truncate pr-2">{ses.name}</span>
+                  <div key={idx} className="bg-slate-50 border border-slate-200 rounded-xl p-3 flex items-center justify-between shadow-2xs">
+                    <span className="font-black text-xs text-slate-950 truncate pr-2">{ses.name}</span>
                     <div className="flex items-center gap-2 shrink-0">
                       <button
                         type="button"
                         onClick={() => setSelectedMarketBet({ name: `${ses.name} NO (${ses.no})`, type: "no", odds: 2.00, line: ses.no })}
-                        className="w-20 py-1.5 bg-pink-950 hover:bg-pink-900 text-pink-300 border border-pink-600/80 rounded-xl text-center cursor-pointer active:scale-95"
+                        className="w-20 py-1.5 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer active:scale-95 shadow-2xs"
                       >
-                        <span className="block text-[8px] font-black uppercase text-pink-400">NO</span>
+                        <span className="block text-[8px] font-black uppercase text-pink-800">NO</span>
                         <span className="text-xs font-black font-mono">{ses.no}</span>
                       </button>
                       <button
                         type="button"
                         onClick={() => setSelectedMarketBet({ name: `${ses.name} YES (${ses.yes})`, type: "yes", odds: 2.00, line: ses.yes })}
-                        className="w-20 py-1.5 bg-emerald-950 hover:bg-emerald-900 text-emerald-300 border border-emerald-600/80 rounded-xl text-center cursor-pointer active:scale-95"
+                        className="w-20 py-1.5 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer active:scale-95 shadow-2xs"
                       >
-                        <span className="block text-[8px] font-black uppercase text-emerald-400">YES</span>
+                        <span className="block text-[8px] font-black uppercase text-emerald-800">YES</span>
                         <span className="text-xs font-black font-mono">{ses.yes}</span>
                       </button>
                     </div>
@@ -618,8 +619,8 @@ export default function MatchDetailPage({ params }: PageProps) {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer",
                   selectedSquadTeam === "team1"
-                    ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
-                    : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                    ? "bg-slate-950 text-white border-slate-950 shadow-sm"
+                    : "bg-white text-slate-800 border-slate-300 hover:bg-slate-100"
                 )}
               >
                 <span>🇧🇩</span>
@@ -632,8 +633,8 @@ export default function MatchDetailPage({ params }: PageProps) {
                 className={cn(
                   "flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-black border transition-all cursor-pointer",
                   selectedSquadTeam === "team2"
-                    ? "bg-amber-500 text-slate-950 border-amber-400 shadow-md"
-                    : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                    ? "bg-slate-950 text-white border-slate-950 shadow-sm"
+                    : "bg-white text-slate-800 border-slate-300 hover:bg-slate-100"
                 )}
               >
                 <span>🇦🇺</span>
@@ -642,10 +643,10 @@ export default function MatchDetailPage({ params }: PageProps) {
             </div>
 
             {/* Categorized Squad Grid (Batters, Bowlers, WKs) */}
-            <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 text-white space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-5 text-slate-950 space-y-6 shadow-xs">
               
               <div>
-                <h4 className="text-xs font-black uppercase tracking-wider text-slate-400 border-b border-slate-700 pb-2 mb-4">
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-700 border-b border-slate-200 pb-2 mb-4">
                   Batters & All-Rounders
                 </h4>
 
@@ -656,16 +657,16 @@ export default function MatchDetailPage({ params }: PageProps) {
                       <div
                         key={idx}
                         onClick={() => setSelectedPlayerId(pid)}
-                        className="bg-slate-900 border border-slate-700/80 rounded-2xl p-3.5 flex flex-col items-center text-center hover:border-amber-400 transition-all cursor-pointer shadow-xs group"
+                        className="bg-slate-50 border border-slate-200 rounded-2xl p-4 flex flex-col items-center text-center hover:border-red-500 hover:shadow-md transition-all cursor-pointer shadow-2xs group"
                       >
                         {/* Player Portrait Avatar */}
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-slate-800 to-slate-700 border-2 border-slate-600 group-hover:border-amber-400 flex items-center justify-center text-2xl shadow-inner mb-2 transition-all">
+                        <div className="w-14 h-14 rounded-full bg-white border-2 border-slate-300 group-hover:border-red-500 flex items-center justify-center text-2xl shadow-xs mb-2.5 transition-all">
                           {pl?.avatar || "🏏"}
                         </div>
-                        <h5 className="text-xs font-black text-white group-hover:text-amber-400 transition-colors truncate w-full">
+                        <h5 className="text-xs font-black text-slate-950 group-hover:text-red-700 transition-colors truncate w-full">
                           {pl?.name || pid}
                         </h5>
-                        <p className="text-[10px] text-slate-400 font-bold mt-0.5 truncate w-full">
+                        <p className="text-[10px] text-slate-600 font-bold mt-0.5 truncate w-full">
                           {pl?.role || "Batsman"}
                         </p>
                       </div>
@@ -680,47 +681,47 @@ export default function MatchDetailPage({ params }: PageProps) {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════
-            TAB 4: MATCH INFO & PITCH REPORT
+            TAB 4: MATCH INFO & PITCH REPORT (LIGHT THEME)
         ═══════════════════════════════════════════════════════════════ */}
         {activeTab === "info" && (
           <div className="space-y-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-2">
-                <h4 className="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <MapPin className="w-4 h-4 text-rose-500" /> Stadium & Venue Details
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
+                <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <MapPin className="w-4 h-4 text-rose-600" /> Stadium & Venue Details
                 </h4>
-                <p className="text-sm font-black text-white">{match.venue.stadium}</p>
-                <p className="text-xs text-slate-300">{match.venue.city}, {match.venue.country}</p>
-                <p className="text-xs text-slate-400 font-mono">Spectator Capacity: <strong>{match.venue.capacity}</strong></p>
+                <p className="text-sm font-black text-slate-950">{match.venue.stadium}</p>
+                <p className="text-xs text-slate-700 font-bold">{match.venue.city}, {match.venue.country}</p>
+                <p className="text-xs text-slate-600 font-mono">Spectator Capacity: <strong className="text-slate-950">{match.venue.capacity}</strong></p>
               </div>
 
-              <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 space-y-2">
-                <h4 className="text-xs font-black text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
-                  <CloudSun className="w-4 h-4 text-amber-500" /> Weather & Conditions
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 space-y-2 shadow-xs">
+                <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-1.5">
+                  <CloudSun className="w-4 h-4 text-amber-600" /> Weather & Conditions
                 </h4>
-                <p className="text-sm font-black text-white">{match.venue.weather.temperature} • {match.venue.weather.condition}</p>
-                <p className="text-xs text-slate-300">Humidity: <strong>{match.venue.weather.humidity}</strong> | Rain Chance: <strong>{match.venue.weather.rainProbability}</strong></p>
+                <p className="text-sm font-black text-slate-950">{match.venue.weather.temperature} • {match.venue.weather.condition}</p>
+                <p className="text-xs text-slate-700 font-bold">Humidity: <strong className="text-slate-950">{match.venue.weather.humidity}</strong> | Rain Chance: <strong className="text-slate-950">{match.venue.weather.rainProbability}</strong></p>
               </div>
             </div>
 
-            <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4 shadow-xs">
-              <h4 className="text-xs font-black text-slate-300 uppercase tracking-wider mb-2 flex items-center gap-1.5">
-                <Activity className="w-4 h-4 text-emerald-400" /> Official Pitch Report
+            <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+              <h4 className="text-xs font-black text-slate-700 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+                <Activity className="w-4 h-4 text-emerald-700" /> Official Pitch Report
               </h4>
-              <p className="text-xs text-slate-300 leading-relaxed font-medium">
+              <p className="text-xs text-slate-800 leading-relaxed font-medium">
                 {match.venue.pitchReport}
               </p>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Toss Decision</span>
-                <p className="text-xs font-black text-white mt-1">{match.toss}</p>
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Toss Decision</span>
+                <p className="text-xs font-black text-slate-950 mt-1">{match.toss}</p>
               </div>
-              <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-4">
-                <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider block">Match Officials</span>
-                <p className="text-xs font-bold text-white mt-1">Umpires: {match.officials.umpires.join(', ')}</p>
-                <p className="text-[11px] text-slate-300 mt-0.5">Referee: {match.officials.matchReferee}</p>
+              <div className="bg-white border border-slate-200 rounded-2xl p-4 shadow-xs">
+                <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block">Match Officials</span>
+                <p className="text-xs font-bold text-slate-950 mt-1">Umpires: {match.officials.umpires.join(', ')}</p>
+                <p className="text-[11px] text-slate-700 mt-0.5">Referee: {match.officials.matchReferee}</p>
               </div>
             </div>
           </div>
@@ -730,35 +731,35 @@ export default function MatchDetailPage({ params }: PageProps) {
             TAB 5: SERIES FIXTURES (MATCHING SCREENSHOT 2)
         ═══════════════════════════════════════════════════════════════ */}
         {activeTab === "fixtures" && (
-          <div className="bg-slate-800/90 border border-slate-700 rounded-2xl p-5 text-white space-y-4">
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-300 mb-2">
+          <div className="bg-white border border-slate-200 rounded-2xl p-5 text-slate-950 space-y-4 shadow-xs">
+            <h4 className="text-xs font-black uppercase tracking-wider text-slate-800 mb-2">
               {match.series} Schedule
             </h4>
 
             <div className="space-y-3">
               {/* Match 1 */}
-              <div className="p-4 bg-slate-900 border border-slate-700 rounded-xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Wednesday, August 5 • Warm-Up Match</span>
-                  <h5 className="text-sm font-black text-white mt-0.5">AUS-XI vs BAN</h5>
-                  <p className="text-xs text-amber-400 font-bold mt-0.5">AUS-XI Won by an inn & 38 runs 🏆</p>
+                  <span className="text-[10px] text-slate-600 font-black uppercase block">Wednesday, August 5 • Warm-Up Match</span>
+                  <h5 className="text-sm font-black text-slate-950 mt-0.5">AUS-XI vs BAN</h5>
+                  <p className="text-xs text-amber-800 font-black mt-0.5">AUS-XI Won by an inn & 38 runs 🏆</p>
                 </div>
-                <div className="text-right font-mono text-xs font-black">
+                <div className="text-right font-mono text-xs font-black text-slate-950">
                   <div>AUS-XI 355 (87.2)</div>
-                  <div className="text-slate-400">BAN 263 & 54</div>
+                  <div className="text-slate-600">BAN 263 & 54</div>
                 </div>
               </div>
 
               {/* Match 2 */}
-              <div className="p-4 bg-slate-900 border border-slate-700 rounded-xl flex items-center justify-between">
+              <div className="p-4 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-2xs">
                 <div>
-                  <span className="text-[10px] text-slate-400 font-bold uppercase block">Wednesday, August 12 • 1st Test</span>
-                  <h5 className="text-sm font-black text-white mt-0.5">AUS vs BAN</h5>
-                  <p className="text-xs text-emerald-400 font-bold mt-0.5">Stumps Day 3</p>
+                  <span className="text-[10px] text-slate-600 font-black uppercase block">Wednesday, August 12 • 1st Test</span>
+                  <h5 className="text-sm font-black text-slate-950 mt-0.5">AUS vs BAN</h5>
+                  <p className="text-xs text-emerald-800 font-black mt-0.5">Stumps Day 3</p>
                 </div>
-                <div className="text-right font-mono text-xs font-black">
+                <div className="text-right font-mono text-xs font-black text-slate-950">
                   <div>BAN 351/6 (110.0)</div>
-                  <div className="text-slate-400">AUS 198 (53.0)</div>
+                  <div className="text-slate-600">AUS 198 (53.0)</div>
                 </div>
               </div>
             </div>
@@ -767,18 +768,18 @@ export default function MatchDetailPage({ params }: PageProps) {
 
       </div>
 
-      {/* ═══ SLIDE-UP QUICK BET SLIP ═══ */}
+      {/* ═══ SLIDE-UP QUICK BET SLIP (LIGHT THEME) ═══ */}
       <AnimatePresence>
         {selectedMarketBet && (
-          <div className="fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 bg-slate-950/95 backdrop-blur-md border-t-2 border-amber-500 shadow-2xl">
+          <div className="fixed bottom-0 inset-x-0 z-50 p-3 sm:p-4 bg-white/95 backdrop-blur-md border-t-2 border-red-600 shadow-2xl">
             <div className="max-w-2xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-3">
               <div className="flex items-center gap-3 w-full sm:w-auto">
-                <div className="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 flex items-center justify-center text-lg font-black shrink-0 border border-amber-500/30">
+                <div className="w-10 h-10 rounded-xl bg-amber-100 text-amber-900 flex items-center justify-center text-lg font-black shrink-0 border border-amber-300">
                   ⚡
                 </div>
                 <div>
-                  <h5 className="text-xs sm:text-sm font-black text-white">{selectedMarketBet.name}</h5>
-                  <p className="text-[10px] font-mono text-emerald-400 font-bold">
+                  <h5 className="text-xs sm:text-sm font-black text-slate-950">{selectedMarketBet.name}</h5>
+                  <p className="text-[10px] font-mono text-emerald-800 font-black">
                     Odds: {formatOddsByMode(selectedMarketBet.odds, oddsMode)} | Potential Return: ₹{Math.round(quickBetStake * selectedMarketBet.odds).toLocaleString()}
                   </p>
                 </div>
@@ -792,10 +793,10 @@ export default function MatchDetailPage({ params }: PageProps) {
                     type="button"
                     onClick={() => setQuickBetStake(amt)}
                     className={cn(
-                      "px-2.5 py-1 rounded-lg text-xs font-mono font-bold border transition-all cursor-pointer",
+                      "px-2.5 py-1 rounded-lg text-xs font-mono font-black border transition-all cursor-pointer",
                       quickBetStake === amt
-                        ? "bg-amber-500 text-slate-950 border-amber-400 font-black"
-                        : "bg-slate-800 text-slate-300 border-slate-700 hover:bg-slate-700"
+                        ? "bg-slate-950 text-white border-slate-950"
+                        : "bg-slate-100 text-slate-800 border-slate-300 hover:bg-slate-200"
                     )}
                   >
                     ₹{amt}
@@ -806,7 +807,7 @@ export default function MatchDetailPage({ params }: PageProps) {
                   type="button"
                   onClick={handlePlaceBet}
                   disabled={isPlacing}
-                  className="px-4 py-2 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-600 hover:to-teal-700 text-slate-950 font-black rounded-xl text-xs uppercase tracking-wider shadow-lg transition-all cursor-pointer shrink-0"
+                  className="px-4 py-2 bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-black rounded-xl text-xs uppercase tracking-wider shadow-md transition-all cursor-pointer shrink-0"
                 >
                   {isPlacing ? "Matching..." : `Bet ₹${quickBetStake}`}
                 </button>
@@ -814,7 +815,7 @@ export default function MatchDetailPage({ params }: PageProps) {
                 <button
                   type="button"
                   onClick={() => setSelectedMarketBet(null)}
-                  className="p-2 text-slate-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                  className="p-2 text-slate-500 hover:text-slate-900 rounded-lg transition-colors cursor-pointer"
                 >
                   ✕
                 </button>
@@ -822,7 +823,7 @@ export default function MatchDetailPage({ params }: PageProps) {
             </div>
 
             {betFeedback && (
-              <div className="text-center text-xs font-bold text-amber-300 mt-2">
+              <div className="text-center text-xs font-black text-emerald-800 mt-2">
                 {betFeedback}
               </div>
             )}
