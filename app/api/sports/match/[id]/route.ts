@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
-import { resolveDeepMatch, DeepMatchInfo } from "@/lib/sportsDeepData";
+import { MultiSourceGateKeeper } from "@/lib/multiSourceGateKeeper";
+import { resolveDeepMatch } from "@/lib/sportsDeepData";
 
 export const dynamic = "force-dynamic";
 
@@ -11,7 +12,7 @@ export async function GET(
     const { id } = await params;
     const matchId = id || "145357";
 
-    // 1. Try to find match in live feed
+    // 1. Try to find match in live feed for team name hints
     let liveMatch: any = null;
     try {
       const url = new URL(req.url);
@@ -26,12 +27,21 @@ export async function GET(
       console.warn("Could not fetch internal live feed for match", matchId);
     }
 
-    // 2. Resolve sanitized, zero-dummy match data
-    const deepMatch = resolveDeepMatch(matchId, liveMatch);
+    // 2. Execute 5-Source Gate-Check Verification
+    const gateCheckResult = await MultiSourceGateKeeper.executeGateCheck(
+      matchId,
+      liveMatch ? {
+        team1: liveMatch.team1,
+        team2: liveMatch.team2,
+        sport: liveMatch.sport,
+        score: liveMatch.score
+      } : undefined
+    );
 
     return NextResponse.json({
       success: true,
-      match: deepMatch
+      match: gateCheckResult.match,
+      gateCheck: gateCheckResult.gateCheck
     });
   } catch (err: any) {
     console.error("Match detail API error:", err);
