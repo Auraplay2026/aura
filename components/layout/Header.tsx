@@ -230,15 +230,16 @@ export function Header() {
               </button>
             </div>
 
-            {/* Positions Button */}
+            {/* Positions Button (Visible on Mobile & Desktop) */}
             <button 
-              onClick={() => setIsPortfolioOpen(true)}
-              className="relative hidden sm:flex items-center gap-1.5 text-slate-500 hover:text-slate-900 transition-colors p-1.5 group cursor-pointer"
+              onClick={() => window.dispatchEvent(new CustomEvent("open-positions-drawer"))}
+              className="relative flex items-center gap-1 text-slate-700 hover:text-slate-900 transition-colors p-1.5 sm:p-2 rounded-lg bg-slate-100/80 hover:bg-slate-200/80 group cursor-pointer select-none"
               aria-label="View open bet positions"
+              title="My Active Bets & Positions"
             >
-              <Briefcase className="w-5 h-5 group-hover:scale-110 group-hover:rotate-6 transition-transform duration-200" />
+              <Briefcase className="w-4 h-4 sm:w-5 sm:h-5 text-slate-800 group-hover:scale-110 transition-transform duration-200" />
               {isClient && positions.length > 0 && (
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 rounded-full text-[9px] font-black text-slate-900 flex items-center justify-center">
+                <span className="absolute -top-1 -right-1 min-w-[16px] h-4 px-1 bg-red-600 rounded-full text-[9px] font-black text-white flex items-center justify-center animate-pulse border border-white shadow-xs">
                   {positions.length}
                 </span>
               )}

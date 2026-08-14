@@ -5,10 +5,23 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
   ChevronRight, Zap, Trophy, Activity, CheckCircle2, AlertCircle, 
-  X, Flame, TrendingUp, Radio, ShieldCheck, Sparkles, SlidersHorizontal, Eye
+  X, Flame, TrendingUp, Radio, ShieldCheck, Sparkles, SlidersHorizontal, 
+  Eye, Target, ArrowRight, Gauge, HelpCircle
 } from "lucide-react";
 import { useTradingStore, Position } from "@/lib/store";
 import { cn } from "@/lib/utils";
+
+export type OddsFormatMode = "decimal" | "bhav" | "multiplier";
+
+export interface FancySessionMarket {
+  id: string;
+  name: string;
+  category: "session" | "lambi" | "player" | "wicket";
+  noRuns: number;
+  yesRuns: number;
+  rateNo: number;  // typically 100 in Indian exchange
+  rateYes: number; // typically 100 in Indian exchange
+}
 
 export interface ExchangeMatchSelection {
   id: string;
@@ -34,7 +47,10 @@ export interface ExchangeMatch {
   liveStatus: string;
   ballCommentary: string;
   inPlay: boolean;
+  winProbability1: number; // 0-100
+  momentumTeam: string;
   selections: ExchangeMatchSelection[];
+  fancySessions?: FancySessionMarket[];
 }
 
 const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
@@ -50,11 +66,19 @@ const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
     team2Code: "CSK",
     score: "144/3 (14.3 Overs)",
     liveStatus: "Target 186 • Req RR: 7.63",
-    ballCommentary: "⚡ 14.3 Ov: Kohli pushes for a quick 2! Strike rotation on point.",
+    ballCommentary: "⚡ 14.3 Ov: Kohli pushes for 2! Strong running between wickets.",
     inPlay: true,
+    winProbability1: 64,
+    momentumTeam: "RCB in Command",
     selections: [
       { id: "rcb", name: "Royal Challengers Bengaluru", shortCode: "RCB", back: 1.90, lay: 1.91 },
       { id: "csk", name: "Chennai Super Kings", shortCode: "CSK", back: 1.96, lay: 1.97 }
+    ],
+    fancySessions: [
+      { id: "s-1", name: "15 Over Runs (RCB)", category: "session", noRuns: 149, yesRuns: 151, rateNo: 100, rateYes: 100 },
+      { id: "s-2", name: "20 Over Lambi Innings Score", category: "lambi", noRuns: 184, yesRuns: 187, rateNo: 100, rateYes: 100 },
+      { id: "s-3", name: "Virat Kohli Total Runs", category: "player", noRuns: 68, yesRuns: 70, rateNo: 100, rateYes: 100 },
+      { id: "s-4", name: "Fall of 4th Wicket (RCB)", category: "wicket", noRuns: 162, yesRuns: 165, rateNo: 100, rateYes: 100 }
     ]
   },
   {
@@ -68,12 +92,18 @@ const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
     team1Code: "MCI",
     team2Code: "RMA",
     score: "2 - 1 (74')",
-    liveStatus: "2nd Half In-Play • Intense Pressure",
+    liveStatus: "2nd Half In-Play • High Attack Rate",
     ballCommentary: "🔥 74': De Bruyne delivers a curling free-kick into the 6-yard box!",
     inPlay: true,
+    winProbability1: 72,
+    momentumTeam: "Man City Dominating",
     selections: [
       { id: "mci", name: "Manchester City", shortCode: "City", back: 2.10, lay: 2.12 },
       { id: "rma", name: "Real Madrid", shortCode: "Madrid", back: 3.40, lay: 3.45 }
+    ],
+    fancySessions: [
+      { id: "f-1", name: "Total Goals Over 3.5", category: "session", noRuns: 0, yesRuns: 3.5, rateNo: 95, rateYes: 105 },
+      { id: "f-2", name: "Next Goal (75'-90')", category: "session", noRuns: 0, yesRuns: 1, rateNo: 80, rateYes: 120 }
     ]
   },
   {
@@ -90,6 +120,8 @@ const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
     liveStatus: "Serve: Alcaraz (138 km/h)",
     ballCommentary: "🎾 30-30: 24-shot baseline rally ended with a blistering forehand down the line!",
     inPlay: true,
+    winProbability1: 52,
+    momentumTeam: "Dead Even Battle",
     selections: [
       { id: "djokovic", name: "Novak Djokovic", shortCode: "Djokovic", back: 1.75, lay: 1.76 },
       { id: "alcaraz", name: "Carlos Alcaraz", shortCode: "Alcaraz", back: 2.10, lay: 2.12 }
@@ -109,9 +141,15 @@ const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
     liveStatus: "1st Innings • Projected 205",
     ballCommentary: "🚀 18.4 Ov: MAXIMUM! Smashed over deep mid-wicket for a 94m SIX!",
     inPlay: true,
+    winProbability1: 68,
+    momentumTeam: "India on Charge",
     selections: [
       { id: "ind", name: "India", shortCode: "IND", back: 1.72, lay: 1.74 },
       { id: "aus", name: "Australia", shortCode: "AUS", back: 2.15, lay: 2.18 }
+    ],
+    fancySessions: [
+      { id: "ind-s1", name: "20 Over Lambi Runs (IND)", category: "lambi", noRuns: 202, yesRuns: 205, rateNo: 100, rateYes: 100 },
+      { id: "ind-s2", name: "Hardik Pandya Runs", category: "player", noRuns: 34, yesRuns: 36, rateNo: 100, rateYes: 100 }
     ]
   },
   {
@@ -128,6 +166,8 @@ const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
     liveStatus: "2nd Half In-Play",
     ballCommentary: "🛡️ 58': Saka cuts inside from the right flank, deflected out for a corner.",
     inPlay: true,
+    winProbability1: 78,
+    momentumTeam: "Gunners Pressing",
     selections: [
       { id: "ars", name: "Arsenal", shortCode: "Arsenal", back: 1.65, lay: 1.67 },
       { id: "che", name: "Chelsea", shortCode: "Chelsea", back: 4.80, lay: 4.90 }
@@ -147,6 +187,8 @@ const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
     liveStatus: "3rd Quarter • 3:24 Remaining",
     ballCommentary: "🏀 Curry pulls up from downtown! Swish for three!",
     inPlay: true,
+    winProbability1: 56,
+    momentumTeam: "Lakers Leading by 3",
     selections: [
       { id: "lal", name: "LA Lakers", shortCode: "Lakers", back: 1.82, lay: 1.84 },
       { id: "gsw", name: "Golden State Warriors", shortCode: "Warriors", back: 2.02, lay: 2.05 }
@@ -157,6 +199,8 @@ const INITIAL_EXCHANGE_MATCHES: ExchangeMatch[] = [
 export function LiveExchangeWidget() {
   const [matches, setMatches] = useState<ExchangeMatch[]>(INITIAL_EXCHANGE_MATCHES);
   const [activeTab, setActiveTab] = useState<"all" | "cricket" | "football" | "tennis" | "basketball">("all");
+  const [oddsMode, setOddsMode] = useState<OddsFormatMode>("decimal");
+  const [expandedSessionsMatchId, setExpandedSessionsMatchId] = useState<string | null>(null);
   const [turboBet, setTurboBet] = useState(false);
   const [turboStake, setTurboStake] = useState<number>(1000);
   
@@ -170,6 +214,8 @@ export function LiveExchangeWidget() {
     type: "back" | "lay";
     team1Code: string;
     team2Code: string;
+    marketCategory?: string;
+    targetLine?: number;
   } | null>(null);
 
   const [stakeInput, setStakeInput] = useState<string>("500");
@@ -183,7 +229,6 @@ export function LiveExchangeWidget() {
   useEffect(() => {
     const interval = setInterval(() => {
       setMatches(prev => prev.map(match => {
-        // Random micro odds drift (-0.03 to +0.03)
         const drift = (Math.random() - 0.5) * 0.04;
         const updatedSelections = match.selections.map(sel => {
           const shift = (Math.random() - 0.5) > 0 ? drift : -drift;
@@ -199,9 +244,9 @@ export function LiveExchangeWidget() {
           };
         });
 
-        // Random cricket over advancement / football minute tick
         let newScore = match.score;
         let newCommentary = match.ballCommentary;
+        let newProb = match.winProbability1;
 
         if (match.sport === "cricket" && Math.random() > 0.6) {
           const runs = [0, 1, 2, 4, 6, 1][Math.floor(Math.random() * 6)];
@@ -212,13 +257,15 @@ export function LiveExchangeWidget() {
             : runs === 4 
               ? `⚡ ${overs} Ov: CRACKING FOUR! Pierced the off-side field!`
               : `🏏 ${overs} Ov: Single taken, rotating the strike.`;
+          newProb = Math.min(92, Math.max(15, newProb + (runs >= 4 ? 3 : -1)));
         }
 
         return {
           ...match,
           selections: updatedSelections,
           score: newScore,
-          ballCommentary: newCommentary
+          ballCommentary: newCommentary,
+          winProbability1: newProb
         };
       }));
     }, 4500);
@@ -226,12 +273,27 @@ export function LiveExchangeWidget() {
     return () => clearInterval(interval);
   }, []);
 
-  // Quick sound & haptics trigger
   const triggerHaptics = useCallback(() => {
     if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.vibrate) {
       try { navigator.vibrate([15, 30]); } catch {}
     }
   }, []);
+
+  // Format odds according to Indian Bhav / Multiplier / Decimal
+  const formatOdds = (odds: number) => {
+    if (oddsMode === "bhav") {
+      if (odds < 2.0) {
+        const paise = Math.round((odds - 1) * 100);
+        return `${paise}p`;
+      }
+      return `${(odds - 1).toFixed(2)}`;
+    }
+    if (oddsMode === "multiplier") {
+      const mult = odds % 1 === 0 ? odds.toFixed(0) : odds.toFixed(1);
+      return `1 ka ${mult}`;
+    }
+    return odds.toFixed(2);
+  };
 
   const handleOddsSelection = (
     match: ExchangeMatch, 
@@ -246,7 +308,6 @@ export function LiveExchangeWidget() {
       return;
     }
 
-    // If Turbo Bet is enabled, place instant bet in 1 click!
     if (turboBet) {
       if (balance < turboStake) {
         alert(`Insufficient balance for 1-Click Turbo Bet (₹${turboStake.toLocaleString()}). Please deposit funds.`);
@@ -269,7 +330,6 @@ export function LiveExchangeWidget() {
       return;
     }
 
-    // Normal flow: Open high-dopamine Quick Bet Slip
     setSelectedBet({
       matchId: match.id,
       matchTitle: match.title,
@@ -284,6 +344,31 @@ export function LiveExchangeWidget() {
     setBetSuccess(false);
   };
 
+  // Session (Fancy / Khayi-Lagai) Selection Handler
+  const handleSessionBet = (match: ExchangeMatch, session: FancySessionMarket, type: "yes" | "no") => {
+    triggerHaptics();
+    if (!isLoggedIn) {
+      window.dispatchEvent(new CustomEvent("open-auth", { detail: { view: "login" } }));
+      return;
+    }
+
+    const runs = type === "yes" ? session.yesRuns : session.noRuns;
+    const selectionName = `${session.name}: ${runs} (${type.toUpperCase()})`;
+
+    setSelectedBet({
+      matchId: match.id,
+      matchTitle: match.title,
+      selectionName,
+      shortCode: type === "yes" ? `${runs} YES` : `${runs} NO`,
+      odds: 2.00, // standard even money session payout
+      type: type === "yes" ? "back" : "lay",
+      team1Code: match.team1Code,
+      team2Code: match.team2Code,
+      marketCategory: "session",
+      targetLine: runs
+    });
+  };
+
   const handleConfirmWager = async () => {
     if (!selectedBet) return;
     triggerHaptics();
@@ -294,7 +379,6 @@ export function LiveExchangeWidget() {
       return;
     }
 
-    // Calculate required amount
     const isLay = selectedBet.type === "lay";
     const liability = isLay ? stakeVal * (selectedBet.odds - 1) : 0;
     const totalRequired = stakeVal + liability;
@@ -348,7 +432,7 @@ export function LiveExchangeWidget() {
   return (
     <div className="w-full bg-white border border-slate-200/90 rounded-2xl p-4 sm:p-5 shadow-sm relative overflow-hidden ring-1 ring-slate-100 flex flex-col">
       
-      {/* ═══ HEADER: TITLE + TURBO TOGGLE + FULL SPORTSBOOK LINK ═══ */}
+      {/* ═══ TOP HEADER: TITLE + INDIAN BHAV FORMAT SWITCHER + TURBO TOGGLE ═══ */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3.5 border-b border-slate-100">
         <div className="flex items-center gap-2.5">
           <div className="relative flex items-center justify-center">
@@ -365,13 +449,49 @@ export function LiveExchangeWidget() {
           </div>
         </div>
 
-        <div className="flex items-center gap-2 self-end sm:self-auto">
+        <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap justify-between sm:justify-end">
+          {/* Indian Bhav / Multiplier / Decimal Toggle */}
+          <div className="flex items-center bg-slate-100 p-0.5 rounded-lg border border-slate-200 text-[11px] font-extrabold select-none">
+            <button
+              type="button"
+              onClick={() => { setOddsMode("decimal"); triggerHaptics(); }}
+              className={cn(
+                "px-2 py-0.5 rounded-md transition-all cursor-pointer",
+                oddsMode === "decimal" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-800"
+              )}
+            >
+              1.90
+            </button>
+            <button
+              type="button"
+              onClick={() => { setOddsMode("bhav"); triggerHaptics(); }}
+              className={cn(
+                "px-2 py-0.5 rounded-md transition-all cursor-pointer flex items-center gap-1",
+                oddsMode === "bhav" ? "bg-white text-amber-700 shadow-xs font-black" : "text-slate-500 hover:text-slate-800"
+              )}
+              title="Indian Paisa Bhav (e.g. 90p, 60p)"
+            >
+              <span>🇮🇳 Bhav</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => { setOddsMode("multiplier"); triggerHaptics(); }}
+              className={cn(
+                "px-2 py-0.5 rounded-md transition-all cursor-pointer",
+                oddsMode === "multiplier" ? "bg-white text-emerald-700 shadow-xs font-black" : "text-slate-500 hover:text-slate-800"
+              )}
+              title="1 ka 2 / 1 ka 3 Double/Triple format"
+            >
+              1 ka X
+            </button>
+          </div>
+
           {/* Turbo 1-Click Bet Mode */}
           <button
             type="button"
             onClick={() => { setTurboBet(!turboBet); triggerHaptics(); }}
             className={cn(
-              "flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-extrabold transition-all border cursor-pointer",
+              "flex items-center gap-1 px-2 py-1 rounded-lg text-[11px] font-extrabold transition-all border cursor-pointer",
               turboBet
                 ? "bg-amber-50 text-amber-700 border-amber-300 shadow-sm"
                 : "bg-slate-50 text-slate-600 border-slate-200 hover:bg-slate-100"
@@ -379,14 +499,14 @@ export function LiveExchangeWidget() {
             title="When active, tap any Back/Lay chip to place 1-click ₹1K bet instantly"
           >
             <Zap className={cn("w-3.5 h-3.5", turboBet ? "text-amber-600 fill-amber-500" : "text-slate-400")} />
-            <span>{turboBet ? "1-Click Bet ON (₹1k)" : "1-Click OFF"}</span>
+            <span>{turboBet ? "1-Click ON" : "1-Click"}</span>
           </button>
 
           <Link 
             href="/sportsbook" 
-            className="text-xs font-black text-slate-700 hover:text-red-650 uppercase tracking-wider flex items-center gap-0.5 transition-colors ml-1 bg-slate-50 hover:bg-slate-100 px-2.5 py-1 rounded-lg border border-slate-200"
+            className="text-xs font-black text-slate-700 hover:text-red-650 uppercase tracking-wider flex items-center gap-0.5 transition-colors bg-slate-50 hover:bg-slate-100 px-2 py-1 rounded-lg border border-slate-200"
           >
-            Full Sportsbook <ChevronRight className="w-3.5 h-3.5" />
+            Sportsbook <ChevronRight className="w-3 h-3" />
           </Link>
         </div>
       </div>
@@ -395,7 +515,7 @@ export function LiveExchangeWidget() {
       <div className="flex items-center gap-1.5 py-2.5 overflow-x-auto scrollbar-none select-none">
         {[
           { id: "all", label: "🔥 All Live", count: matches.length },
-          { id: "cricket", label: "🏏 Cricket", count: matches.filter(m => m.sport === "cricket").length },
+          { id: "cricket", label: "🏏 Cricket & Sessions", count: matches.filter(m => m.sport === "cricket").length },
           { id: "football", label: "⚽ Football", count: matches.filter(m => m.sport === "football").length },
           { id: "tennis", label: "🎾 Tennis", count: matches.filter(m => m.sport === "tennis").length },
           { id: "basketball", label: "🏀 Basketball", count: matches.filter(m => m.sport === "basketball").length },
@@ -417,108 +537,227 @@ export function LiveExchangeWidget() {
       </div>
 
       {/* ═══ MATCH CARDS LIST ═══ */}
-      <div className="space-y-2.5 mt-1">
-        {filteredMatches.map(match => (
-          <div 
-            key={match.id}
-            className="border border-slate-200/80 rounded-xl p-3 sm:p-3.5 bg-gradient-to-b from-white to-slate-50/60 hover:border-slate-300 transition-all shadow-xs"
-          >
-            {/* Match Header: League + Title + Score */}
-            <div className="flex items-center justify-between gap-2 mb-2 pb-2 border-b border-slate-100">
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs">{match.sportIcon}</span>
-                  <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">{match.league}</span>
-                </div>
-                <h4 className="text-xs sm:text-sm font-black text-slate-900 truncate">
-                  {match.team1} <span className="text-slate-400 font-normal">vs</span> {match.team2}
-                </h4>
-              </div>
+      <div className="space-y-3 mt-1">
+        {filteredMatches.map(match => {
+          const isSessionsExpanded = expandedSessionsMatchId === match.id;
 
-              <div className="text-right shrink-0">
-                <div className="text-xs sm:text-sm font-black font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 inline-block">
-                  {match.score}
-                </div>
-                <div className="text-[9px] font-bold text-slate-500 tracking-tight mt-0.5">
-                  {match.liveStatus}
-                </div>
-              </div>
-            </div>
-
-            {/* Match Selections: Team 1 & Team 2 with Back & Lay */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-              {match.selections.map(sel => {
-                const isSelectedBack = selectedBet?.matchId === match.id && selectedBet?.selectionName === sel.name && selectedBet?.type === "back";
-                const isSelectedLay = selectedBet?.matchId === match.id && selectedBet?.selectionName === sel.name && selectedBet?.type === "lay";
-
-                return (
-                  <div 
-                    key={sel.id}
-                    className="flex items-center justify-between bg-white border border-slate-200/90 rounded-lg p-2 shadow-xs hover:shadow-sm transition-all"
-                  >
-                    {/* Team Name / Short Code */}
-                    <div className="flex items-center gap-2 min-w-0 pr-2">
-                      <span className="w-7 h-7 rounded-md bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-[10px] text-slate-800 shrink-0 select-none">
-                        {sel.shortCode.substring(0, 3).toUpperCase()}
-                      </span>
-                      <span className="text-xs font-extrabold text-slate-900 truncate">
-                        {sel.shortCode}
-                      </span>
-                    </div>
-
-                    {/* Back & Lay Buttons */}
-                    <div className="flex items-center gap-1 shrink-0">
-                      {/* BACK BUTTON (Sky/Emerald) */}
-                      <button
-                        type="button"
-                        onClick={() => handleOddsSelection(match, sel, "back", sel.back)}
-                        className={cn(
-                          "w-14 sm:w-16 py-1.5 px-1 rounded-md text-center border transition-all cursor-pointer select-none active:scale-95",
-                          isSelectedBack
-                            ? "bg-emerald-500 text-white border-emerald-600 ring-2 ring-emerald-300 shadow-sm"
-                            : "bg-[#E0F2FE] hover:bg-[#BAE6FD] text-sky-900 border-sky-200/80",
-                          sel.backTrend === "up" && "ring-2 ring-emerald-400 animate-pulse"
-                        )}
-                        title={`Back ${sel.name} at ${sel.back}`}
-                      >
-                        <span className="block text-[8px] font-black uppercase text-sky-800/80 leading-none">Back</span>
-                        <span className="text-xs sm:text-sm font-black font-mono leading-none mt-0.5 block text-slate-950">
-                          {sel.back.toFixed(2)}
-                        </span>
-                      </button>
-
-                      {/* LAY BUTTON (Pink) */}
-                      <button
-                        type="button"
-                        onClick={() => handleOddsSelection(match, sel, "lay", sel.lay)}
-                        className={cn(
-                          "w-14 sm:w-16 py-1.5 px-1 rounded-md text-center border transition-all cursor-pointer select-none active:scale-95",
-                          isSelectedLay
-                            ? "bg-pink-500 text-white border-pink-600 ring-2 ring-pink-300 shadow-sm"
-                            : "bg-[#FCE7F3] hover:bg-[#FBCFE8] text-pink-900 border-pink-200/80",
-                          sel.layTrend === "up" && "ring-2 ring-pink-400 animate-pulse"
-                        )}
-                        title={`Lay ${sel.name} at ${sel.lay}`}
-                      >
-                        <span className="block text-[8px] font-black uppercase text-pink-800/80 leading-none">Lay</span>
-                        <span className="text-xs sm:text-sm font-black font-mono leading-none mt-0.5 block text-slate-950">
-                          {sel.lay.toFixed(2)}
-                        </span>
-                      </button>
-                    </div>
+          return (
+            <div 
+              key={match.id}
+              className="border border-slate-200/90 rounded-2xl p-3.5 bg-gradient-to-b from-white to-slate-50/60 hover:border-slate-300 transition-all shadow-xs flex flex-col gap-2.5"
+            >
+              {/* Match Header: League + Title + Score */}
+              <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                <div className="flex flex-col min-w-0">
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs">{match.sportIcon}</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">{match.league}</span>
                   </div>
-                );
-              })}
-            </div>
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                    {match.team1} <span className="text-slate-400 font-normal">vs</span> {match.team2}
+                  </h4>
+                </div>
 
-            {/* Ball-by-ball commentary tick */}
-            <div className="mt-2 pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
-              <span className="truncate italic">{match.ballCommentary}</span>
-              <span className="font-bold text-slate-600 shrink-0 ml-2 font-mono">0% Commission</span>
+                <div className="text-right shrink-0">
+                  <div className="text-xs sm:text-sm font-black font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 inline-block">
+                    {match.score}
+                  </div>
+                  <div className="text-[9px] font-bold text-slate-500 tracking-tight mt-0.5">
+                    {match.liveStatus}
+                  </div>
+                </div>
+              </div>
+
+              {/* Live Win Probability & Momentum Bar */}
+              <div className="space-y-1">
+                <div className="flex justify-between items-center text-[10px] font-extrabold text-slate-600">
+                  <span>{match.team1Code}: <strong className="text-slate-900 font-mono">{match.winProbability1}%</strong></span>
+                  <span className="text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded text-[9px] font-bold flex items-center gap-0.5">
+                    <Flame className="w-3 h-3 text-amber-500" /> {match.momentumTeam}
+                  </span>
+                  <span>{match.team2Code}: <strong className="text-slate-900 font-mono">{100 - match.winProbability1}%</strong></span>
+                </div>
+                <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden flex">
+                  <div 
+                    className="bg-gradient-to-r from-sky-500 to-emerald-500 h-full transition-all duration-500"
+                    style={{ width: `${match.winProbability1}%` }}
+                  />
+                  <div 
+                    className="bg-gradient-to-r from-pink-500 to-rose-500 h-full transition-all duration-500"
+                    style={{ width: `${100 - match.winProbability1}%` }}
+                  />
+                </div>
+              </div>
+
+              {/* Match Odds Selections: Team 1 & Team 2 (Back & Lay) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {match.selections.map(sel => {
+                  const isSelectedBack = selectedBet?.matchId === match.id && selectedBet?.selectionName === sel.name && selectedBet?.type === "back";
+                  const isSelectedLay = selectedBet?.matchId === match.id && selectedBet?.selectionName === sel.name && selectedBet?.type === "lay";
+
+                  return (
+                    <div 
+                      key={sel.id}
+                      className="flex items-center justify-between bg-white border border-slate-200/90 rounded-xl p-2 shadow-xs hover:shadow-sm transition-all"
+                    >
+                      {/* Team Short Code */}
+                      <div className="flex items-center gap-2 min-w-0 pr-2">
+                        <span className="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center font-black text-[10px] text-slate-800 shrink-0 select-none">
+                          {sel.shortCode.substring(0, 3).toUpperCase()}
+                        </span>
+                        <span className="text-xs font-extrabold text-slate-900 truncate">
+                          {sel.shortCode}
+                        </span>
+                      </div>
+
+                      {/* Back & Lay Buttons with Indian Bhav support */}
+                      <div className="flex items-center gap-1 shrink-0">
+                        {/* BACK BUTTON (Lagai) */}
+                        <button
+                          type="button"
+                          onClick={() => handleOddsSelection(match, sel, "back", sel.back)}
+                          className={cn(
+                            "w-14 sm:w-16 py-1.5 px-1 rounded-lg text-center border transition-all cursor-pointer select-none active:scale-95",
+                            isSelectedBack
+                              ? "bg-emerald-500 text-white border-emerald-600 ring-2 ring-emerald-300 shadow-sm"
+                              : "bg-[#E0F2FE] hover:bg-[#BAE6FD] text-sky-900 border-sky-200/80",
+                            sel.backTrend === "up" && "ring-2 ring-emerald-400 animate-pulse"
+                          )}
+                          title={`Back ${sel.name}`}
+                        >
+                          <span className="block text-[8px] font-black uppercase text-sky-800/80 leading-none">Lagai / Back</span>
+                          <span className="text-xs sm:text-sm font-black font-mono leading-none mt-0.5 block text-slate-950">
+                            {formatOdds(sel.back)}
+                          </span>
+                        </button>
+
+                        {/* LAY BUTTON (Khayi) */}
+                        <button
+                          type="button"
+                          onClick={() => handleOddsSelection(match, sel, "lay", sel.lay)}
+                          className={cn(
+                            "w-14 sm:w-16 py-1.5 px-1 rounded-lg text-center border transition-all cursor-pointer select-none active:scale-95",
+                            isSelectedLay
+                              ? "bg-pink-500 text-white border-pink-600 ring-2 ring-pink-300 shadow-sm"
+                              : "bg-[#FCE7F3] hover:bg-[#FBCFE8] text-pink-900 border-pink-200/80",
+                            sel.layTrend === "up" && "ring-2 ring-pink-400 animate-pulse"
+                          )}
+                          title={`Lay ${sel.name}`}
+                        >
+                          <span className="block text-[8px] font-black uppercase text-pink-800/80 leading-none">Khayi / Lay</span>
+                          <span className="text-xs sm:text-sm font-black font-mono leading-none mt-0.5 block text-slate-950">
+                            {formatOdds(sel.lay)}
+                          </span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Fancy / Session Markets Collapsible Section (Cricket & Football) */}
+              {match.fancySessions && match.fancySessions.length > 0 && (
+                <div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setExpandedSessionsMatchId(isSessionsExpanded ? null : match.id);
+                      triggerHaptics();
+                    }}
+                    className="w-full py-1.5 px-3 rounded-lg bg-amber-50 hover:bg-amber-100/80 border border-amber-200/80 text-amber-900 flex items-center justify-between text-xs font-black transition-colors cursor-pointer"
+                  >
+                    <span className="flex items-center gap-1.5">
+                      <Zap className="w-3.5 h-3.5 text-amber-600 fill-amber-500" />
+                      Fancy Session Markets (6 Over, Lambi, Players)
+                    </span>
+                    <span className="text-[10px] bg-amber-200/60 px-1.5 py-0.2 rounded font-mono">
+                      {isSessionsExpanded ? "Hide ▲" : `${match.fancySessions.length} Markets ▼`}
+                    </span>
+                  </button>
+
+                  <AnimatePresence>
+                    {isSessionsExpanded && (
+                      <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: "auto" }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="space-y-1.5 mt-2 pt-2 border-t border-amber-200/50"
+                      >
+                        {match.fancySessions.map(session => (
+                          <div 
+                            key={session.id}
+                            className="flex items-center justify-between bg-white border border-slate-200 rounded-xl p-2 text-xs"
+                          >
+                            <span className="font-extrabold text-slate-800 truncate pr-2">
+                              {session.name}
+                            </span>
+
+                            <div className="flex items-center gap-1 shrink-0">
+                              {/* NO BUTTON (Khayi) */}
+                              <button
+                                type="button"
+                                onClick={() => handleSessionBet(match, session, "no")}
+                                className="w-16 py-1 bg-pink-50 hover:bg-pink-100 text-pink-900 border border-pink-200 rounded-md text-center cursor-pointer active:scale-95"
+                              >
+                                <span className="block text-[8px] font-black uppercase text-pink-700 leading-none">NO</span>
+                                <span className="text-xs font-black font-mono leading-none mt-0.5 block">{session.noRuns}</span>
+                              </button>
+
+                              {/* YES BUTTON (Lagai) */}
+                              <button
+                                type="button"
+                                onClick={() => handleSessionBet(match, session, "yes")}
+                                className="w-16 py-1 bg-emerald-50 hover:bg-emerald-100 text-emerald-900 border border-emerald-200 rounded-md text-center cursor-pointer active:scale-95"
+                              >
+                                <span className="block text-[8px] font-black uppercase text-emerald-700 leading-none">YES</span>
+                                <span className="text-xs font-black font-mono leading-none mt-0.5 block">{session.yesRuns}</span>
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              )}
+
+              {/* Ball-by-ball commentary tick */}
+              <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+                <span className="truncate italic">{match.ballCommentary}</span>
+                <span className="font-bold text-emerald-700 shrink-0 ml-2 font-mono">0% Commission</span>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ═══ PERSISTENT FLOATING / DOCKED MOBILE ACTIVE BETS BANNER ═══ */}
+      {positions.length > 0 && (
+        <div className="mt-3 bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 rounded-xl p-3 text-white flex items-center justify-between border border-slate-800 shadow-md">
+          <div className="flex items-center gap-2">
+            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping" />
+            <div>
+              <h5 className="text-xs font-black uppercase">
+                {positions.length} Active {positions.length === 1 ? "Bet" : "Bets"} Live
+              </h5>
+              <p className="text-[10px] text-slate-400 font-bold">
+                Instant In-Play Cash Out Available
+              </p>
             </div>
           </div>
-        ))}
-      </div>
+
+          <button
+            type="button"
+            onClick={() => {
+              window.dispatchEvent(new CustomEvent("open-positions-drawer"));
+              triggerHaptics();
+            }}
+            className="px-3.5 py-1.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-xs uppercase tracking-wider shadow-sm transition-all cursor-pointer active:scale-95"
+          >
+            ⚡ View & Cash Out
+          </button>
+        </div>
+      )}
 
       {/* ═══ BOTTOM-SHEET QUICK BET SLIP (MOBILE & DESKTOP DOCKED) ═══ */}
       <AnimatePresence>
@@ -539,7 +778,7 @@ export function LiveExchangeWidget() {
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
-              className="fixed bottom-0 left-0 right-0 z-[60] max-w-lg mx-auto bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl overflow-hidden pb-[env(safe-area-inset-bottom,16px)]"
+              className="fixed bottom-0 left-0 right-0 z-[60] max-w-lg mx-auto bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl overflow-hidden pb-[calc(1rem+env(safe-area-inset-bottom,16px))]"
             >
               {/* Slip Header */}
               <div className={cn(
@@ -554,10 +793,10 @@ export function LiveExchangeWidget() {
                   </span>
                   <div>
                     <h4 className="text-xs font-black uppercase tracking-wider leading-none">
-                      {selectedBet.type === "back" ? "Backing (Win Bet)" : "Laying (Against Bet)"}
+                      {selectedBet.type === "back" ? "Lagai (Backing to Win)" : "Khayi (Laying Against)"}
                     </h4>
                     <p className="text-[11px] font-bold text-white/90 truncate max-w-[260px] sm:max-w-xs mt-0.5">
-                      {selectedBet.selectionName} @ <span className="font-mono font-black text-yellow-300">{selectedBet.odds.toFixed(2)}</span>
+                      {selectedBet.selectionName} @ <span className="font-mono font-black text-yellow-300">{formatOdds(selectedBet.odds)}</span>
                     </p>
                   </div>
                 </div>
@@ -578,7 +817,7 @@ export function LiveExchangeWidget() {
                 <div className="flex items-center justify-between text-xs font-bold text-slate-700 bg-white p-2.5 rounded-xl border border-slate-200">
                   <span className="truncate">{selectedBet.matchTitle}</span>
                   <span className="text-[11px] font-black font-mono text-slate-900 bg-slate-100 px-2 py-0.5 rounded">
-                    Odds: {selectedBet.odds.toFixed(2)}
+                    Rate: {formatOdds(selectedBet.odds)}
                   </span>
                 </div>
 
@@ -586,9 +825,9 @@ export function LiveExchangeWidget() {
                 {betSuccess ? (
                   <div className="p-6 bg-emerald-50 border border-emerald-200 rounded-2xl flex flex-col items-center justify-center text-center">
                     <CheckCircle2 className="w-10 h-10 text-emerald-600 mb-2 animate-bounce" />
-                    <h4 className="text-base font-black text-emerald-900">Bet Placed & Matched!</h4>
+                    <h4 className="text-base font-black text-emerald-900">Bet Matched & Confirmed!</h4>
                     <p className="text-xs text-emerald-700 font-semibold mt-0.5">
-                      ₹{parsedStake.toLocaleString()} {selectedBet.type.toUpperCase()} on {selectedBet.shortCode} @ {selectedBet.odds.toFixed(2)}
+                      ₹{parsedStake.toLocaleString()} on {selectedBet.shortCode} @ {formatOdds(selectedBet.odds)}
                     </p>
                   </div>
                 ) : (
@@ -604,7 +843,7 @@ export function LiveExchangeWidget() {
                     {/* Stake Input */}
                     <div>
                       <div className="flex justify-between items-center text-[10px] font-black text-slate-500 uppercase tracking-wider mb-1 px-1">
-                        <span>Stake Amount</span>
+                        <span>Stake Amount (₹)</span>
                         <span>Balance: <span className="font-mono text-slate-900 font-black">₹{balance.toLocaleString()}</span></span>
                       </div>
 
@@ -704,7 +943,7 @@ export function LiveExchangeWidget() {
                         </span>
                       ) : (
                         <span>
-                          ⚡ PLACE {selectedBet.type.toUpperCase()} BET • ₹{parsedStake.toLocaleString()}
+                          ⚡ CONFIRM {selectedBet.type === "back" ? "LAGAI" : "KHAYI"} • ₹{parsedStake.toLocaleString()}
                         </span>
                       )}
                     </button>
