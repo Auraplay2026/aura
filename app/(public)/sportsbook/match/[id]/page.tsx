@@ -26,14 +26,24 @@ export default function MatchDetailPage({ params }: PageProps) {
   const [match, setMatch] = useState<DeepMatchInfo>(() => resolveDeepMatch(matchId));
   const scorecards = match.scorecards || [];
 
-  // Live real-time match sync with /api/sports/live
+  // Live real-time match sync with dedicated match API
   useEffect(() => {
     let isMounted = true;
     const fetchLiveMatch = async () => {
       try {
-        const res = await fetch("/api/sports/live?sport=all");
+        const res = await fetch(`/api/sports/match/${matchId}`);
         if (res.ok) {
           const data = await res.json();
+          if (data.success && data.match && isMounted) {
+            setMatch(data.match);
+            return;
+          }
+        }
+        
+        // Fallback to /api/sports/live
+        const liveRes = await fetch("/api/sports/live?sport=all");
+        if (liveRes.ok) {
+          const data = await liveRes.json();
           const liveList = Array.isArray(data) ? data : data.matches || [];
           const found = liveList.find((m: any) => String(m.id) === String(matchId) || m.id === parseInt(matchId));
           if (isMounted) {

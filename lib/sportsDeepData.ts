@@ -1104,6 +1104,8 @@ export const CREX_MATCHES_DATABASE: Record<string, DeepMatchInfo> = {
 // UNIVERSAL DYNAMIC MATCH RESOLVER (ZERO DUMMY DATA)
 // ═══════════════════════════════════════════════
 
+import { generateSanitizedMatch } from "./liveSportsService";
+
 export function resolveDeepMatch(matchId: string, liveMatchFeed?: any): DeepMatchInfo {
   const idStr = String(matchId).toLowerCase().trim();
 
@@ -1121,108 +1123,26 @@ export function resolveDeepMatch(matchId: string, liveMatchFeed?: any): DeepMatc
 
   // 3. Match from live feed object if provided
   if (liveMatchFeed) {
-    const t1 = liveMatchFeed.team1 || "Southern Brave Women";
-    const t2 = liveMatchFeed.team2 || "Sunrisers Leeds Women";
-    const sport = (liveMatchFeed.sport || "cricket").toLowerCase();
+    const t1 = liveMatchFeed.team1 || "Arsenal";
+    const t2 = liveMatchFeed.team2 || "Coventry City";
+    const sport = (liveMatchFeed.sport || "soccer").toLowerCase();
     const score = liveMatchFeed.score || "Live in-play";
     
-    // Check if team1 or team2 matches known verified teams
-    const t1Lower = t1.toLowerCase();
-    const t2Lower = t2.toLowerCase();
-
-    if (t1Lower.includes("southern brave") || t2Lower.includes("sunrisers")) {
-      return CREX_MATCHES_DATABASE["145357"];
-    }
-    if (t1Lower.includes("bangladesh") || t2Lower.includes("bangladesh")) {
-      return CREX_MATCHES_DATABASE["148316"];
-    }
-    if (t1Lower.includes("city") || t2Lower.includes("real madrid") || t1Lower.includes("arsenal") || t2Lower.includes("chelsea")) {
-      return CREX_MATCHES_DATABASE["201"];
-    }
-    if (t1Lower.includes("djokovic") || t2Lower.includes("alcaraz") || sport === "tennis") {
-      return CREX_MATCHES_DATABASE["301"];
-    }
-    if (t1Lower.includes("lakers") || t2Lower.includes("warriors") || sport === "basketball") {
-      return CREX_MATCHES_DATABASE["401"];
-    }
-
-    // Dynamic clean generation with real athletes
-    return {
-      id: String(liveMatchFeed.id || matchId),
-      series: liveMatchFeed.league || `${sport.toUpperCase()} Premier Championship 2026`,
-      title: `${t1} vs ${t2}`,
-      matchType: sport === "soccer" || sport === "football" ? "FOOTBALL" : sport === "tennis" ? "TENNIS" : sport === "basketball" ? "NBA" : "T20",
-      stage: "Live In-Play",
-      date: "Today",
-      timeIST: "Live Now",
-      status: score,
-      toss: `${t1} won the toss and elected to bat/serve`,
-      venue: {
-        stadium: `${t1} International Stadium`,
-        city: "Championship Arena",
-        country: "World Stage",
-        capacity: "35,000",
-        pitchReport: "Championship standard sporting surface with optimal performance balance.",
-        weather: {
-          temperature: "22°C",
-          condition: "Clear & Sunny",
-          humidity: "50%",
-          rainProbability: "0%"
-        }
-      },
-      officials: {
-        umpires: ["International Panel Official 1", "International Panel Official 2"],
-        thirdUmpire: "Lead Video Match Official",
-        matchReferee: "Official Match Commissioner"
-      },
-      team1: {
-        name: t1,
-        code: t1.slice(0, 3).toUpperCase(),
-        scoreSummary: score,
-        playingXI: ["virat-kohli", "danni-wyatt"],
-        bench: []
-      },
-      team2: {
-        name: t2,
-        code: t2.slice(0, 3).toUpperCase(),
-        scoreSummary: "Yet to Bat",
-        playingXI: ["pat-cummins", "grace-harris"],
-        bench: []
-      },
-      headToHead: {
-        totalPlayed: 8,
-        team1Wins: 4,
-        team2Wins: 4,
-        drawsOrTies: 0,
-        last5Matches: ["W", "L", "W", "W", "L"]
-      },
-      scorecards: [
-        {
-          teamName: t1,
-          teamCode: t1.slice(0, 3).toUpperCase(),
-          inningsNumber: 1,
-          totalScore: score,
-          runRate: "8.20",
-          batting: [
-            { playerId: "virat-kohli", name: "Virat Kohli", dismissal: "NOT OUT", runs: 58, balls: 36, fours: 6, sixes: 2, strikeRate: 161.11 },
-            { playerId: "danni-wyatt", name: "Danni Wyatt-Hodge", dismissal: "c Fielder b Bowler", runs: 44, balls: 28, fours: 5, sixes: 2, strikeRate: 157.14 }
-          ],
-          extras: { total: 8, breakdown: "b 1, lb 2, w 4, nb 1, p 0" },
-          bowling: [
-            { playerId: "pat-cummins", name: "Pat Cummins", overs: "3.4", maidens: 0, runs: 28, wickets: 2, economy: 7.63 }
-          ],
-          fallOfWickets: [
-            { batsmanName: "Danni Wyatt-Hodge", score: "64-1", over: "7.2" }
-          ],
-          partnerships: [
-            { batter1: { name: "Danni Wyatt-Hodge", runs: 44, balls: 28 }, batter2: { name: "Virat Kohli", runs: 20, balls: 16 }, wicket: "1st Wicket", totalRuns: 64, totalBalls: 44 }
-          ],
-          yetToBat: []
-        }
-      ]
-    };
+    return generateSanitizedMatch(
+      matchId,
+      t1,
+      t2,
+      score,
+      (sport === "football" ? "soccer" : sport) as any,
+      liveMatchFeed.venue ? { stadium: liveMatchFeed.venue } : undefined
+    );
   }
 
-  // 4. Default fallback to Match 145357 (Southern Brave Women vs Sunrisers Leeds Women)
+  // 4. Default fallback: If numeric ID starts with 4018/4019 (ESPN soccer ID), default to Arsenal vs Coventry City!
+  if (idStr.startsWith("4018") || idStr.startsWith("4019") || idStr.startsWith("20")) {
+    return CREX_MATCHES_DATABASE["201"] || generateSanitizedMatch(matchId, "Arsenal", "Coventry City", "Live In-Play", "soccer");
+  }
+
+  // 5. Default cricket fallback to Match 145357 (Southern Brave Women vs Sunrisers Leeds Women)
   return CREX_MATCHES_DATABASE["145357"];
 }
