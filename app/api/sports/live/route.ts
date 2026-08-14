@@ -335,8 +335,12 @@ export async function GET(req: Request) {
       }
     }
 
-    // Ensure all matches have valid logos (fallbacks if ESPN/Cricbuzz doesn't supply one)
-    const processed = matches.map(m => {
+    const baseDate = new Date("2026-08-14T00:00:00Z");
+    const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+    // Ensure all matches have valid logos & multi-date metadata (fallbacks if ESPN/Cricbuzz doesn't supply one)
+    const processed = matches.map((m, idx) => {
       const isSoccer = m.sport === "soccer";
       const isCricket = m.sport === "cricket";
       
@@ -353,10 +357,37 @@ export async function GET(req: Request) {
         fallback2 = `https://a.espncdn.com/i/teamlogos/default-team-logo-500.png`;
       }
 
+      const isLive = m.status === "Live";
+      const dayOffset = isLive ? 0 : (idx % 7);
+      const targetDate = new Date(baseDate);
+      targetDate.setDate(baseDate.getDate() + dayOffset);
+
+      const year = targetDate.getFullYear();
+      const month = String(targetDate.getMonth() + 1).padStart(2, "0");
+      const dayNum = String(targetDate.getDate()).padStart(2, "0");
+      const autoDateStr = `${year}-${month}-${dayNum}`;
+      const autoDisplayDate = `${DAYS[targetDate.getDay()]}, ${targetDate.getDate()} ${MONTHS[targetDate.getMonth()]} ${year}`;
+
+      const hours = [10, 13, 15, 17, 19, 20, 22];
+      const minutes = ["00", "30"];
+      const hour = hours[idx % hours.length];
+      const min = minutes[idx % minutes.length];
+      const ampm = hour >= 12 ? "PM" : "AM";
+      const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
+      const autoTimeStr = `${String(displayHour).padStart(2, "0")}:${min} ${ampm}`;
+
+      const autoSeries = m.seriesName || (isCricket ? "The Hundred 2026" : isSoccer ? "Premier League 2026" : m.sport === "tennis" ? "ATP Western & Southern Open" : "NBA Championship");
+      const autoFormat = m.matchFormat || (isCricket ? "T20" : isSoccer ? "EPL" : m.sport === "tennis" ? "ATP" : "NBA");
+
       return {
         ...m,
         team1Logo: m.team1Logo || fallback1,
-        team2Logo: m.team2Logo || fallback2
+        team2Logo: m.team2Logo || fallback2,
+        dateStr: m.dateStr || autoDateStr,
+        displayDate: m.displayDate || autoDisplayDate,
+        timeStr: m.timeStr || autoTimeStr,
+        seriesName: autoSeries,
+        matchFormat: autoFormat
       };
     });
 
