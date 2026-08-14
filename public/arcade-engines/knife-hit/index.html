@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Knife Hit Master</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f172a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 400px;
+      max-height: 650px;
+      background: #1e293b;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    #hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+      font-weight: 900;
+      font-size: 18px;
+      color: #f59e0b;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="hud">
+    <div>STAGE <span id="stage">1</span></div>
+    <div>KNIVES: <span id="knives-left">7</span></div>
+  </div>
+  <canvas id="knife-canvas"></canvas>
+</div>
+
+<script>
+  const canvas = document.getElementById('knife-canvas');
+  const ctx = canvas.getContext('2d');
+  const stageEl = document.getElementById('stage');
+  const knivesEl = document.getElementById('knives-left');
+
+  let width, height;
+  function resize() {
+    width = canvas.width = canvas.parentElement.clientWidth;
+    height = canvas.height = canvas.parentElement.clientHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let targetAngle = 0;
+  let targetSpeed = 0.03;
+  let stuckKnives = []; // angles
+  let flyingKnife = null;
+  let knivesToThrow = 7;
+  let stage = 1;
+  let gameOver = false;
+
+  function initStage() {
+    targetAngle = 0;
+    stuckKnives = [];
+    flyingKnife = null;
+    knivesToThrow = 6 + stage;
+    targetSpeed = (0.02 + stage * 0.005) * (Math.random() > 0.5 ? 1 : -1);
+    stageEl.innerText = stage;
+    knivesEl.innerText = knivesToThrow;
+  }
+
+  initStage();
+
+  function throwKnife() {
+    if (flyingKnife || knivesToThrow <= 0 || gameOver) return;
+    knivesToThrow--;
+    knivesEl.innerText = knivesToThrow;
+    flyingKnife = { y: height - 80, vy: -20 };
+  }
+
+  window.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    if (gameOver) {
+      gameOver = false;
+      stage = 1;
+      initStage();
+    } else {
+      throwKnife();
+    }
+  });
+
+  function loop() {
+    ctx.fillStyle = '#1e293b';
+    ctx.fillRect(0, 0, width, height);
+
+    const targetX = width / 2;
+    const targetY = height * 0.32;
+    const targetRad = 65;
+
+    // Rotate Target Log
+    targetAngle += targetSpeed;
+
+    // Draw Wooden Target
+    ctx.save();
+    ctx.translate(targetX, targetY);
+    ctx.rotate(targetAngle);
+
+    // Wood Trunk Circles
+    ctx.fillStyle = '#78350f';
+    ctx.beginPath();
+    ctx.arc(0, 0, targetRad, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#b45309';
+    ctx.lineWidth = 6;
+    ctx.stroke();
+
+    ctx.fillStyle = '#92400e';
+    ctx.beginPath();
+    ctx.arc(0, 0, targetRad * 0.65, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Draw Stuck Knives
+    for (const angle of stuckKnives) {
+      ctx.save();
+      ctx.rotate(angle);
+      // Blade
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(-4, targetRad - 10, 8, 35);
+      // Handle
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(-5, targetRad + 25, 10, 15);
+      ctx.restore();
+    }
+
+    ctx.restore();
+
+    // Update Flying Knife
+    if (flyingKnife) {
+      flyingKnife.y += flyingKnife.vy;
+
+      // Check Hit Target
+      if (flyingKnife.y <= targetY + targetRad + 15) {
+        // Compute hit angle relative to target
+        const hitAngle = -targetAngle + Math.PI / 2;
+
+        // Check Knife-on-Knife Collision
+        let collided = false;
+        for (const kAngle of stuckKnives) {
+          const diff = Math.abs((hitAngle - kAngle) % (Math.PI * 2));
+          if (diff < 0.22 || diff > Math.PI * 2 - 0.22) {
+            collided = true;
+            break;
+          }
+        }
+
+        if (collided) {
+          gameOver = true;
+        } else {
+          stuckKnives.push(hitAngle);
+          flyingKnife = null;
+
+          if (knivesToThrow === 0) {
+            stage++;
+            setTimeout(initStage, 300);
+          }
+        }
+      }
+
+      // Draw Flying Knife
+      if (flyingKnife) {
+        ctx.fillStyle = '#e2e8f0';
+        ctx.fillRect(targetX - 4, flyingKnife.y, 8, 35);
+        ctx.fillStyle = '#ef4444';
+        ctx.fillRect(targetX - 5, flyingKnife.y + 35, 10, 15);
+      }
+    } else if (knivesToThrow > 0) {
+      // Ready Knife at bottom
+      ctx.fillStyle = '#e2e8f0';
+      ctx.fillRect(targetX - 4, height - 80, 8, 35);
+      ctx.fillStyle = '#ef4444';
+      ctx.fillRect(targetX - 5, height - 45, 10, 15);
+    }
+
+    if (gameOver) {
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#ef4444';
+      ctx.font = '900 28px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('KNIFE DEFLECTED!', width / 2, height / 2);
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 16px monospace';
+      ctx.fillText('TAP TO RETRY', width / 2, height / 2 + 40);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+</script>
+</body>
+</html>

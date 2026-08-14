@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>React Tetris Elite</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f172a;
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    #game-layout {
+      display: flex;
+      gap: 16px;
+      padding: 12px;
+      background: #1e293b;
+      border-radius: 20px;
+      border: 2px solid #334155;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      max-width: 450px;
+      width: 100%;
+    }
+    #canvas-box {
+      position: relative;
+      background: #090d16;
+      border-radius: 12px;
+      border: 2px solid #334155;
+      overflow: hidden;
+    }
+    canvas { display: block; }
+    #side-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .stat-box {
+      background: #090d16;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      margin-bottom: 8px;
+    }
+    .stat-title { font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; letter-spacing: 1px; }
+    .stat-val { font-size: 18px; font-weight: 900; color: #38bdf8; font-family: monospace; }
+    #controls {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 12px;
+      width: 100%;
+    }
+    .ctl-btn {
+      background: #334155;
+      border: none;
+      color: #fff;
+      font-weight: 900;
+      font-size: 16px;
+      padding: 12px 0;
+      border-radius: 10px;
+      user-select: none;
+    }
+    .ctl-btn:active { background: #38bdf8; color: #000; }
+  </style>
+</head>
+<body>
+
+<div id="game-layout">
+  <div id="canvas-box">
+    <canvas id="tetris-canvas" width="200" height="400"></canvas>
+  </div>
+  <div id="side-panel">
+    <div>
+      <div class="stat-box">
+        <div class="stat-title">Score</div>
+        <div class="stat-val" id="score">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-title">Lines</div>
+        <div class="stat-val" id="lines">0</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-title">Level</div>
+        <div class="stat-val" id="level">1</div>
+      </div>
+    </div>
+    <button id="start-btn" class="ctl-btn" style="background: #38bdf8; color: #000;">START</button>
+  </div>
+</div>
+
+<div id="controls" style="max-width: 450px;">
+  <button class="ctl-btn" id="left">◀</button>
+  <button class="ctl-btn" id="rotate">↻</button>
+  <button class="ctl-btn" id="right">▶</button>
+  <button class="ctl-btn" id="down" style="grid-column: span 3; background: #0284c7;">⚡ HARD DROP</button>
+</div>
+
+<script>
+  const canvas = document.getElementById('tetris-canvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+  const linesEl = document.getElementById('lines');
+  const levelEl = document.getElementById('level');
+
+  const COLS = 10;
+  const ROWS = 20;
+  const BLOCK = 20;
+
+  const SHAPES = [
+    [[1,1,1,1]], // I
+    [[1,1],[1,1]], // O
+    [[0,1,0],[1,1,1]], // T
+    [[1,0,0],[1,1,1]], // L
+    [[0,0,1],[1,1,1]], // J
+    [[0,1,1],[1,1,0]], // S
+    [[1,1,0],[0,1,1]]  // Z
+  ];
+
+  const COLORS = ['#00f0f0', '#f0f000', '#a000f0', '#f0a000', '#0000f0', '#00f000', '#f00000'];
+
+  let grid = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
+  let piece = null;
+  let pieceX = 0;
+  let pieceY = 0;
+  let pieceColor = '';
+  let score = 0;
+  let lines = 0;
+  let level = 1;
+  let dropInterval = 800;
+  let lastDrop = Date.now();
+  let gameOver = false;
+  let isRunning = false;
+
+  function newPiece() {
+    const idx = Math.floor(Math.random() * SHAPES.length);
+    piece = SHAPES[idx];
+    pieceColor = COLORS[idx];
+    pieceX = Math.floor((COLS - piece[0].length) / 2);
+    pieceY = 0;
+
+    if (collide(pieceX, pieceY, piece)) {
+      gameOver = true;
+      isRunning = false;
+      alert(`GAME OVER! Final Score: ${score}`);
+    }
+  }
+
+  function collide(x, y, p) {
+    for (let r = 0; r < p.length; r++) {
+      for (let c = 0; c < p[r].length; c++) {
+        if (p[r][c]) {
+          let newX = x + c;
+          let newY = y + r;
+          if (newX < 0 || newX >= COLS || newY >= ROWS) return true;
+          if (newY >= 0 && grid[newY][newX]) return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  function merge() {
+    for (let r = 0; r < piece.length; r++) {
+      for (let c = 0; c < piece[r].length; c++) {
+        if (piece[r][c]) {
+          grid[pieceY + r][pieceX + c] = pieceColor;
+        }
+      }
+    }
+
+    // Clear lines
+    let cleared = 0;
+    for (let r = ROWS - 1; r >= 0; r--) {
+      if (grid[r].every(cell => cell !== 0)) {
+        grid.splice(r, 1);
+        grid.unshift(Array(COLS).fill(0));
+        cleared++;
+        r++;
+      }
+    }
+
+    if (cleared > 0) {
+      lines += cleared;
+      score += [0, 100, 300, 500, 800][cleared] * level;
+      level = Math.floor(lines / 10) + 1;
+      dropInterval = Math.max(100, 800 - (level - 1) * 70);
+      scoreEl.innerText = score;
+      linesEl.innerText = lines;
+      levelEl.innerText = level;
+    }
+
+    newPiece();
+  }
+
+  function rotate(p) {
+    return p[0].map((_, i) => p.map(row => row[i]).reverse());
+  }
+
+  function drop() {
+    if (!collide(pieceX, pieceY + 1, piece)) {
+      pieceY++;
+    } else {
+      merge();
+    }
+    lastDrop = Date.now();
+  }
+
+  function hardDrop() {
+    while (!collide(pieceX, pieceY + 1, piece)) {
+      pieceY++;
+      score += 2;
+    }
+    merge();
+    scoreEl.innerText = score;
+  }
+
+  function draw() {
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    // Draw Grid
+    for (let r = 0; r < ROWS; r++) {
+      for (let c = 0; c < COLS; c++) {
+        if (grid[r][c]) {
+          ctx.fillStyle = grid[r][c];
+          ctx.fillRect(c * BLOCK + 1, r * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+        }
+      }
+    }
+
+    // Draw Active Piece
+    if (piece) {
+      ctx.fillStyle = pieceColor;
+      for (let r = 0; r < piece.length; r++) {
+        for (let c = 0; c < piece[r].length; c++) {
+          if (piece[r][c]) {
+            ctx.fillRect((pieceX + c) * BLOCK + 1, (pieceY + r) * BLOCK + 1, BLOCK - 2, BLOCK - 2);
+          }
+        }
+      }
+    }
+  }
+
+  function update() {
+    if (!isRunning) return;
+    if (Date.now() - lastDrop > dropInterval) {
+      drop();
+    }
+    draw();
+    requestAnimationFrame(update);
+  }
+
+  document.getElementById('start-btn').addEventListener('click', () => {
+    grid = Array(ROWS).fill(null).map(() => Array(COLS).fill(0));
+    score = 0; lines = 0; level = 1; gameOver = false; isRunning = true;
+    scoreEl.innerText = '0'; linesEl.innerText = '0'; levelEl.innerText = '1';
+    newPiece();
+    update();
+  });
+
+  window.addEventListener('keydown', e => {
+    if (!isRunning) return;
+    if (e.key === 'ArrowLeft' && !collide(pieceX - 1, pieceY, piece)) pieceX--;
+    if (e.key === 'ArrowRight' && !collide(pieceX + 1, pieceY, piece)) pieceX++;
+    if (e.key === 'ArrowDown') drop();
+    if (e.key === 'ArrowUp') {
+      const rot = rotate(piece);
+      if (!collide(pieceX, pieceY, rot)) piece = rot;
+    }
+    if (e.key === ' ') hardDrop();
+    draw();
+  });
+
+  document.getElementById('left').onclick = () => { if (isRunning && !collide(pieceX - 1, pieceY, piece)) { pieceX--; draw(); }};
+  document.getElementById('right').onclick = () => { if (isRunning && !collide(pieceX + 1, pieceY, piece)) { pieceX++; draw(); }};
+  document.getElementById('rotate').onclick = () => { if (isRunning) { const rot = rotate(piece); if (!collide(pieceX, pieceY, rot)) { piece = rot; draw(); }}};
+  document.getElementById('down').onclick = () => { if (isRunning) { hardDrop(); draw(); }};
+
+  draw();
+</script>
+</body>
+</html>

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Hextris Rotator</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #090d16;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 500px;
+      max-height: 700px;
+      background: #0f172a;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    #hud {
+      position: absolute;
+      top: 15px;
+      left: 15px;
+      right: 15px;
+      display: flex;
+      justify-content: space-between;
+      font-family: monospace;
+      font-weight: 900;
+      font-size: 18px;
+      color: #38bdf8;
+      pointer-events: none;
+      z-index: 10;
+    }
+    #touch-zones {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      z-index: 5;
+    }
+    .touch-side { flex: 1; height: 100%; }
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="hud">
+    <div>SCORE: <span id="score">0</span></div>
+    <div>ROTATE: ◀ / ▶</div>
+  </div>
+  <canvas id="canvas"></canvas>
+  <div id="touch-zones">
+    <div class="touch-side" id="touch-left"></div>
+    <div class="touch-side" id="touch-right"></div>
+  </div>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+
+  let width, height;
+  function resize() {
+    width = canvas.width = canvas.parentElement.clientWidth;
+    height = canvas.height = canvas.parentElement.clientHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let hexAngle = 0;
+  let targetHexAngle = 0;
+  let blocks = [];
+  let score = 0;
+  let gameOver = false;
+
+  const COLORS = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6'];
+
+  function spawnBlock() {
+    if (Math.random() < 0.03) {
+      blocks.push({
+        lane: Math.floor(Math.random() * 6),
+        dist: Math.max(width, height) * 0.6,
+        speed: 2.5,
+        color: COLORS[Math.floor(Math.random() * COLORS.length)]
+      });
+    }
+  }
+
+  function rotateLeft() { targetHexAngle -= Math.PI / 3; }
+  function rotateRight() { targetHexAngle += Math.PI / 3; }
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' || e.key === 'a') rotateLeft();
+    if (e.key === 'ArrowRight' || e.key === 'd') rotateRight();
+  });
+
+  document.getElementById('touch-left').addEventListener('touchstart', e => { e.preventDefault(); rotateLeft(); });
+  document.getElementById('touch-right').addEventListener('touchstart', e => { e.preventDefault(); rotateRight(); });
+
+  function drawHexagon(x, y, r, angle) {
+    ctx.beginPath();
+    for (let i = 0; i < 6; i++) {
+      const a = angle + (i * Math.PI / 3);
+      const px = x + r * Math.cos(a);
+      const py = y + r * Math.sin(a);
+      if (i === 0) ctx.moveTo(px, py);
+      else ctx.lineTo(px, py);
+    }
+    ctx.closePath();
+  }
+
+  function loop() {
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(0, 0, width, height);
+
+    const cX = width / 2;
+    const cY = height / 2;
+    const coreR = 50;
+
+    // Smooth Hex Rotation
+    hexAngle += (targetHexAngle - hexAngle) * 0.25;
+
+    spawnBlock();
+
+    // Draw Hexagonal Core
+    ctx.save();
+    ctx.strokeStyle = '#38bdf8';
+    ctx.lineWidth = 4;
+    ctx.shadowColor = '#38bdf8';
+    ctx.shadowBlur = 15;
+    drawHexagon(cX, cY, coreR, hexAngle);
+    ctx.stroke();
+    ctx.restore();
+
+    // Update Blocks
+    for (let i = blocks.length - 1; i >= 0; i--) {
+      const b = blocks[i];
+      b.dist -= b.speed;
+
+      const angle = hexAngle + (b.lane * Math.PI / 3);
+      const px = cX + b.dist * Math.cos(angle);
+      const py = cY + b.dist * Math.sin(angle);
+
+      // Draw Approaching Bar
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.rotate(angle + Math.PI / 2);
+      ctx.fillStyle = b.color;
+      ctx.shadowColor = b.color;
+      ctx.shadowBlur = 10;
+      ctx.fillRect(-22, -6, 44, 12);
+      ctx.restore();
+
+      // Check Reach Core
+      if (b.dist <= coreR + 8) {
+        score += 15;
+        scoreEl.innerText = score;
+        blocks.splice(i, 1);
+      }
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+</script>
+</body>
+</html>

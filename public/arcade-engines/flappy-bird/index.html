@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Flappy Bird Pro HTML5</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 400px;
+      max-height: 600px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+      background: #70c5ce;
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    #score-hud {
+      position: absolute;
+      top: 20px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 900;
+      font-family: monospace;
+      color: #fff;
+      text-shadow: 0 3px 6px rgba(0,0,0,0.5);
+      z-index: 10;
+      pointer-events: none;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="score-hud"><span id="score">0</span></div>
+  <canvas id="flappy-canvas"></canvas>
+</div>
+
+<script>
+  const canvas = document.getElementById('flappy-canvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+
+  let width, height;
+  function resize() {
+    width = canvas.width = canvas.parentElement.clientWidth;
+    height = canvas.height = canvas.parentElement.clientHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  let state = "start"; // start, play, over
+  let bird = { x: 60, y: 200, vy: 0, rad: 14 };
+  let gravity = 0.25;
+  let jump = -5.5;
+  let pipes = [];
+  let score = 0;
+  let frame = 0;
+
+  function reset() {
+    bird.y = height * 0.4;
+    bird.vy = 0;
+    pipes = [];
+    score = 0;
+    scoreEl.innerText = '0';
+    state = "play";
+  }
+
+  function flap() {
+    if (state === "start" || state === "over") {
+      reset();
+    } else if (state === "play") {
+      bird.vy = jump;
+    }
+  }
+
+  window.addEventListener('keydown', e => { if (e.code === 'Space') flap(); });
+  window.addEventListener('touchstart', e => { e.preventDefault(); flap(); });
+  window.addEventListener('mousedown', flap);
+
+  function spawnPipe() {
+    const gap = 120;
+    const topH = 50 + Math.random() * (height - gap - 150);
+    pipes.push({
+      x: width,
+      top: topH,
+      bottom: height - topH - gap,
+      passed: false
+    });
+  }
+
+  function loop() {
+    frame++;
+
+    // Background Sky
+    ctx.fillStyle = '#70c5ce';
+    ctx.fillRect(0, 0, width, height);
+
+    // Cityscape / Clouds
+    ctx.fillStyle = '#c5e8eb';
+    ctx.beginPath();
+    ctx.arc(width * 0.3, height * 0.8, 80, 0, Math.PI * 2);
+    ctx.arc(width * 0.7, height * 0.82, 100, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Ground
+    ctx.fillStyle = '#ded895';
+    ctx.fillRect(0, height - 60, width, 60);
+    ctx.fillStyle = '#73bf2e';
+    ctx.fillRect(0, height - 60, width, 12);
+
+    if (state === "play") {
+      bird.vy += gravity;
+      bird.y += bird.vy;
+
+      if (frame % 90 === 0) spawnPipe();
+
+      for (let i = pipes.length - 1; i >= 0; i--) {
+        const p = pipes[i];
+        p.x -= 2.2;
+
+        // Draw Pipes
+        ctx.fillStyle = '#73bf2e';
+        ctx.strokeStyle = '#558022';
+        ctx.lineWidth = 3;
+
+        // Top Pipe
+        ctx.fillRect(p.x, 0, 50, p.top);
+        ctx.strokeRect(p.x, 0, 50, p.top);
+
+        // Bottom Pipe
+        ctx.fillRect(p.x, height - p.bottom, 50, p.bottom);
+        ctx.strokeRect(p.x, height - p.bottom, 50, p.bottom);
+
+        // Score increment
+        if (!p.passed && p.x + 50 < bird.x) {
+          p.passed = true;
+          score++;
+          scoreEl.innerText = score;
+        }
+
+        // Collision detection
+        if (
+          bird.x + bird.rad > p.x && bird.x - bird.rad < p.x + 50 &&
+          (bird.y - bird.rad < p.top || bird.y + bird.rad > height - p.bottom)
+        ) {
+          state = "over";
+        }
+
+        if (p.x < -60) pipes.splice(i, 1);
+      }
+
+      // Ground / Ceiling Collision
+      if (bird.y + bird.rad > height - 60 || bird.y - bird.rad < 0) {
+        state = "over";
+      }
+    }
+
+    // Draw Bird
+    ctx.save();
+    ctx.translate(bird.x, bird.y);
+    ctx.rotate(Math.min(Math.PI / 4, Math.max(-Math.PI / 4, bird.vy * 0.1)));
+
+    // Bird Body
+    ctx.fillStyle = '#facc15';
+    ctx.beginPath();
+    ctx.arc(0, 0, bird.rad, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.strokeStyle = '#ca8a04';
+    ctx.lineWidth = 2;
+    ctx.stroke();
+
+    // Eye
+    ctx.fillStyle = '#fff';
+    ctx.beginPath();
+    ctx.arc(5, -4, 4, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = '#000';
+    ctx.beginPath();
+    ctx.arc(6, -4, 2, 0, Math.PI * 2);
+    ctx.fill();
+
+    // Beak
+    ctx.fillStyle = '#ea580c';
+    ctx.beginPath();
+    ctx.moveTo(8, -1);
+    ctx.lineTo(16, 2);
+    ctx.lineTo(8, 5);
+    ctx.fill();
+
+    ctx.restore();
+
+    // Overlays
+    if (state === "start") {
+      ctx.fillStyle = 'rgba(0,0,0,0.4)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#fff';
+      ctx.font = '900 24px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('TAP TO FLY', width / 2, height / 2);
+    } else if (state === "over") {
+      ctx.fillStyle = 'rgba(0,0,0,0.5)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#ef4444';
+      ctx.font = '900 26px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('GAME OVER', width / 2, height * 0.45);
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 16px monospace';
+      ctx.fillText(`SCORE: ${score}`, width / 2, height * 0.52);
+      ctx.fillText('TAP TO RETRY', width / 2, height * 0.6);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+</script>
+</body>
+</html>

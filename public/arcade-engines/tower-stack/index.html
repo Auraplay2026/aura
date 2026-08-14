@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Tower Stack 3D</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0f172a;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      max-width: 400px;
+      max-height: 650px;
+      background: #090d16;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    #score-hud {
+      position: absolute;
+      top: 25px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-size: 32px;
+      font-weight: 900;
+      font-family: monospace;
+      color: #38bdf8;
+      pointer-events: none;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="score-hud"><span id="score">0</span></div>
+  <canvas id="canvas"></canvas>
+</div>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  const scoreEl = document.getElementById('score');
+
+  let width, height;
+  function resize() {
+    width = canvas.width = canvas.parentElement.clientWidth;
+    height = canvas.height = canvas.parentElement.clientHeight;
+  }
+  window.addEventListener('resize', resize);
+  resize();
+
+  const BLOCK_HEIGHT = 20;
+  let stack = [];
+  let current = null;
+  let score = 0;
+  let speed = 2.5;
+  let dir = 1;
+  let gameOver = false;
+
+  function getColor(index) {
+    const hue = (index * 15) % 360;
+    return `hsl(${hue}, 80%, 60%)`;
+  }
+
+  function initGame() {
+    stack = [];
+    score = 0;
+    scoreEl.innerText = score;
+    gameOver = false;
+    speed = 2.5;
+
+    // Base Block
+    const baseW = 160;
+    stack.push({
+      x: (width - baseW) / 2,
+      y: height - 100,
+      w: baseW,
+      color: getColor(0)
+    });
+
+    spawnBlock();
+  }
+
+  function spawnBlock() {
+    const prev = stack[stack.length - 1];
+    current = {
+      x: 0,
+      y: prev.y - BLOCK_HEIGHT,
+      w: prev.w,
+      color: getColor(stack.length)
+    };
+    dir = 1;
+  }
+
+  function placeBlock() {
+    if (gameOver) {
+      initGame();
+      return;
+    }
+
+    const prev = stack[stack.length - 1];
+    const diff = current.x - prev.x;
+
+    if (Math.abs(diff) >= current.w) {
+      // Complete Miss -> Game Over
+      gameOver = true;
+      return;
+    }
+
+    // Cut Overhang
+    if (diff > 0) {
+      current.w -= diff;
+    } else {
+      current.w += diff;
+      current.x = prev.x;
+    }
+
+    stack.push({ ...current });
+    score++;
+    scoreEl.innerText = score;
+    speed = Math.min(6, 2.5 + score * 0.1);
+
+    // Scroll down if stack reaches upper screen
+    if (current.y < height * 0.4) {
+      for (const b of stack) b.y += BLOCK_HEIGHT;
+    }
+
+    spawnBlock();
+  }
+
+  window.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    placeBlock();
+  });
+
+  initGame();
+
+  function loop() {
+    ctx.fillStyle = '#090d16';
+    ctx.fillRect(0, 0, width, height);
+
+    // Draw Stack
+    for (const b of stack) {
+      ctx.fillStyle = b.color;
+      ctx.beginPath();
+      ctx.roundRect(b.x, b.y, b.w, BLOCK_HEIGHT - 2, 4);
+      ctx.fill();
+    }
+
+    // Update & Draw Moving Block
+    if (!gameOver && current) {
+      current.x += speed * dir;
+      if (current.x <= 0 || current.x + current.w >= width) dir *= -1;
+
+      ctx.fillStyle = current.color;
+      ctx.beginPath();
+      ctx.roundRect(current.x, current.y, current.w, BLOCK_HEIGHT - 2, 4);
+      ctx.fill();
+    }
+
+    if (gameOver) {
+      ctx.fillStyle = 'rgba(0,0,0,0.6)';
+      ctx.fillRect(0, 0, width, height);
+      ctx.fillStyle = '#ef4444';
+      ctx.font = '900 28px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText('STACK COLLAPSED!', width / 2, height / 2);
+      ctx.fillStyle = '#fff';
+      ctx.font = '700 16px monospace';
+      ctx.fillText(`SCORE: ${score}`, width / 2, height / 2 + 40);
+      ctx.fillText('TAP TO RETRY', width / 2, height / 2 + 75);
+    }
+
+    requestAnimationFrame(loop);
+  }
+
+  loop();
+</script>
+</body>
+</html>
