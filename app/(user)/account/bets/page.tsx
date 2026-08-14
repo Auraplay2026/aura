@@ -100,14 +100,19 @@ export default function MyBetsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                   <div className="flex flex-col">
-                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Investment</span>
+                    <span className="text-[10px] font-bold text-slate-500 uppercase tracking-widest">Total Stake</span>
                     <span className="font-black text-slate-900 font-mono text-lg">₹{pos.investment.toFixed(2)}</span>
                   </div>
-                  <span className="text-[11px] font-bold text-emerald-600 bg-emerald-50 px-2.5 py-1 rounded-full">
-                    Live In-Play Tracking
-                  </span>
+                  <button 
+                    onClick={async () => {
+                      await useTradingStore.getState().cashOut(pos.id, pos.buyPrice);
+                    }}
+                    className="px-4 py-2 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-xs uppercase tracking-widest rounded-xl transition-all hover:scale-105 active:scale-95 cursor-pointer shadow-sm"
+                  >
+                    Cash Out (₹{(pos.investment * 0.95).toFixed(0)})
+                  </button>
                 </div>
               </div>
             ))

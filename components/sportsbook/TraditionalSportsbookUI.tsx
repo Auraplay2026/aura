@@ -131,14 +131,24 @@ export function TraditionalSportsbookUI() {
             ) : (
               <div className="space-y-3">
                 {positions.map(p => (
-                  <div key={p.id} className="bg-slate-50 p-4 rounded-lg flex justify-between items-center border border-slate-700">
+                  <div key={p.id} className="bg-slate-50 p-4 rounded-xl flex justify-between items-center border border-slate-200 hover:border-slate-300 transition-colors">
                     <div>
-                      <p className="text-xs text-slate-600 font-bold uppercase tracking-widest">{p.marketTitle}</p>
-                      <p className="text-slate-900 font-black text-lg">Picked {p.side.toUpperCase()}</p>
+                      <p className="text-xs text-slate-500 font-bold uppercase tracking-widest">{p.marketTitle}</p>
+                      <p className="text-slate-900 font-black text-base mt-0.5">Picked {p.side.toUpperCase()} @ {Number(p.buyPrice).toFixed(2)}</p>
                     </div>
-                    <div className="text-right">
-                      <p className="text-xs text-slate-600 font-bold uppercase tracking-widest mb-1">Stake</p>
-                      <p className="text-neon-green font-black">₹{p.investment.toLocaleString()}</p>
+                    <div className="flex items-center gap-4">
+                      <div className="text-right">
+                        <p className="text-xs text-slate-500 font-bold uppercase tracking-widest mb-0.5">Stake</p>
+                        <p className="text-emerald-600 font-black font-mono">₹{p.investment.toLocaleString()}</p>
+                      </div>
+                      <button
+                        onClick={async () => {
+                          await useTradingStore.getState().cashOut(p.id, p.buyPrice);
+                        }}
+                        className="px-3 py-1.5 bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 font-bold text-xs rounded-lg transition-all active:scale-95 cursor-pointer"
+                      >
+                        Cash Out (₹{(p.investment * 0.95).toFixed(0)})
+                      </button>
                     </div>
                   </div>
                 ))}

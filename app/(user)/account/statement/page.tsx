@@ -44,7 +44,11 @@ export default function AccountStatementPage() {
       } else if (filter === 'withdrawal') {
         matchesType = lowerDetails.includes('withdrawal');
       } else if (filter === 'bet') {
-        matchesType = lowerDetails.includes('bet') || lowerDetails.includes('played') || lowerDetails.includes('bought');
+        matchesType = tx.type === 'trade' || tx.type === 'cashout' || tx.type === 'casino' || 
+                      lowerDetails.includes('bet') || lowerDetails.includes('played') || 
+                      lowerDetails.includes('bought') || lowerDetails.includes('placed') || 
+                      lowerDetails.includes('lay') || lowerDetails.includes('back') || 
+                      lowerDetails.includes('cashed');
       }
     }
 

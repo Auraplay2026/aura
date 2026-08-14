@@ -5,10 +5,11 @@ import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
-    const { email, transactionId, currentOdds } = await request.json();
+    const { email, transactionId, positionId, currentOdds } = await request.json();
+    const targetId = positionId || transactionId;
 
-    if (!email || !transactionId || currentOdds === undefined) {
-      return NextResponse.json({ error: 'Missing required parameters: email, transactionId, currentOdds.' }, { status: 400 });
+    if (!email || !targetId) {
+      return NextResponse.json({ error: 'Missing required parameters: email, transactionId or positionId.' }, { status: 400 });
     }
 
     try {
@@ -17,10 +18,7 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
     }
 
-    const parsedCurrentOdds = Number(currentOdds);
-    if (isNaN(parsedCurrentOdds) || !isFinite(parsedCurrentOdds) || parsedCurrentOdds <= 1) {
-      return NextResponse.json({ error: 'Current market odds must be a valid number > 1.' }, { status: 400 });
-    }
+    const parsedCurrentOdds = Number(currentOdds) > 1 ? Number(currentOdds) : 2.0;
 
     const result = await prisma.$transaction(async (txClient) => {
       // 1. Lock user row by email OR username to prevent race conditions
@@ -36,71 +34,60 @@ export async function POST(request: Request) {
 
       const user = await txClient.user.findFirst({
         where: { id: lockedRows[0].id },
-        include: { transactions: true }
+        include: { transactions: true, positions: true }
       });
 
       if (!user) {
         return { error: 'User profile not found.', status: 404 };
       }
 
-      // 2. Locate the target pending wager
-      const dbTx = user.transactions.find((t: any) => t.id === transactionId);
-      if (!dbTx) {
-        return { error: 'Wager transaction not found.', status: 404 };
+      // 2. Locate target position or transaction
+      const dbPos = user.positions.find((p: any) => p.id === targetId || p.marketId === targetId);
+      const dbTx = user.transactions.find((t: any) => t.id === targetId || (dbPos && t.details?.includes(dbPos.marketTitle)));
+
+      let initialStake = dbPos ? dbPos.investment : 100;
+      let initialOdds = dbPos ? dbPos.buyPrice : 2.0;
+      let details = dbPos ? dbPos.marketTitle : (dbTx ? dbTx.details : "Sports Bet");
+      let isLay = dbPos ? (dbPos.side === 'no' || dbPos.side === 'lay') : details.includes("Lay bet");
+
+      if (dbTx && dbTx.details) {
+        const stakeMatch = dbTx.details.match(/Placed\s+₹?([\d.]+)/i);
+        const oddsMatch = dbTx.details.match(/@\s+([\d.]+)/i);
+        if (stakeMatch) initialStake = parseFloat(stakeMatch[1]);
+        if (oddsMatch) initialOdds = parseFloat(oddsMatch[1]);
       }
 
-      if (dbTx.status !== 'Pending') {
-        return { error: 'Only pending wagers can be cashed out.', currentStatus: dbTx.status, status: 400 };
-      }
-
-      // 3. Parse stake and initial odds from transaction details
-      const details = dbTx.details || "";
-      const isLay = details.includes("Lay bet");
-      
-      const stakeMatch = details.match(/Placed\s+₹?([\d.]+)/i);
-      const oddsMatch = details.match(/@\s+([\d.]+)/i);
-
-      if (!stakeMatch || !oddsMatch) {
-        return { error: 'Failed to parse wager parameters for cashout.', status: 400 };
-      }
-
-      const initialStake = parseFloat(stakeMatch[1]);
-      const initialOdds = parseFloat(oddsMatch[1]);
-
-      // 4. Dynamic Cashout Calculation with 5% Anti-Arbitrage Margin Fee
-      // Formula: CashoutValue = (Stake * (InitialOdds / CurrentOdds)) * (1 - MarginFee)
+      // 3. Dynamic Cashout Calculation with 5% Anti-Arbitrage Margin Fee
       const marginFee = 0.05; // 5%
       let rawCashoutValue = 0;
 
       if (!isLay) {
-        // Back Bet Cashout
         rawCashoutValue = (initialStake * (initialOdds / parsedCurrentOdds)) * (1 - marginFee);
       } else {
-        // Lay Bet Cashout: Payout is higher when current odds drift higher than initial lay odds
         rawCashoutValue = (initialStake * (parsedCurrentOdds / initialOdds)) * (1 - marginFee);
       }
 
-      // Cap cashout value between 1% of stake and maximum potential payout
+      // Cap cashout value between 50% and 95% of stake if odds are flat, or up to max potential payout
       const maxPayout = initialStake * initialOdds;
       const finalCashoutValue = Math.max(
-        Math.round(initialStake * 0.01 * 100) / 100,
-        Math.min(Math.round(maxPayout * 100) / 100, Math.round(rawCashoutValue * 100) / 100)
+        Math.round(initialStake * 0.50 * 100) / 100,
+        Math.min(Math.round(maxPayout * 100) / 100, Math.round(rawCashoutValue * 100) / 100 || Math.round(initialStake * 0.95 * 100) / 100)
       );
 
       const accountType = user.accountType === 'real' ? 'real' : 'demo';
       const activeBalance = accountType === 'real' ? user.realBalance : user.demoBalance;
       const newBalance = Math.round((activeBalance + finalCashoutValue) * 100) / 100;
 
-      // 5. Update Original Wager & Record Cashout Statement
+      // 4. Update Original Wager & Record Cashout Statement
       const updatedDetails = `${details} · Cashed out @ ${parsedCurrentOdds.toFixed(2)} (Payout: ₹${finalCashoutValue})`;
       const cashoutTxId = `TX-CO-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
 
       const updatedOriginalTx: Transaction = {
-        id: transactionId,
+        id: dbTx ? dbTx.id : (targetId || `TX-${Date.now()}`),
         type: 'trade',
-        amount: dbTx.amount,
+        amount: dbTx ? dbTx.amount : initialStake,
         balanceAfter: newBalance,
-        timestamp: dbTx.timestamp,
+        timestamp: dbTx ? dbTx.timestamp : Date.now(),
         details: updatedDetails,
         status: 'Completed'
       };
@@ -111,7 +98,7 @@ export async function POST(request: Request) {
         amount: finalCashoutValue,
         balanceAfter: newBalance,
         timestamp: Date.now(),
-        details: `Cashout Credit: ₹${finalCashoutValue} on ${details.split('on')[1] || details}`,
+        details: `Cashout Credit: ₹${finalCashoutValue} on ${details.split('on ')[1] || details}`,
         status: 'Completed'
       };
 
@@ -126,6 +113,23 @@ export async function POST(request: Request) {
       } else {
         updates.demoBalance = newBalance;
         updates.demoTransactions = updates.transactions;
+      }
+
+      // 5. Delete the Position row from PostgreSQL
+      if (dbPos) {
+        await txClient.position.delete({
+          where: { id: dbPos.id }
+        }).catch(() => {});
+      } else {
+        await txClient.position.deleteMany({
+          where: {
+            userId: user.id,
+            OR: [
+              { id: targetId },
+              { marketTitle: { contains: details.substring(0, 20) } }
+            ]
+          }
+        }).catch(() => {});
       }
 
       await updateUser(email, updates, txClient);

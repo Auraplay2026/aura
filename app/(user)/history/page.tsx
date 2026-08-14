@@ -10,18 +10,55 @@ const TABS = ["All Transactions", "Financial", "Trades"];
 
 export default function BetHistoryPage() {
   const [activeTab, setActiveTab] = useState("All Transactions");
-  const { transactions } = useTradingStore();
+  const { transactions, syncFromServer, currentUser } = useTradingStore();
+  const [searchTerm, setSearchTerm] = useState("");
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Hydration fix for localStorage
   const [isClient, setIsClient] = useState(false);
-  useEffect(() => setIsClient(true), []);
+  useEffect(() => {
+    setIsClient(true);
+    if (currentUser) {
+      syncFromServer().catch(() => {});
+    }
+  }, [currentUser, syncFromServer]);
 
   if (!isClient) return null;
 
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    await syncFromServer();
+    setTimeout(() => setIsRefreshing(false), 500);
+  };
+
   const filteredTransactions = transactions.filter(tx => {
-    if (activeTab === "Financial") return tx.type === 'deposit' || tx.type === 'withdraw';
-    if (activeTab === "Trades") return tx.type === 'trade' || tx.type === 'cashout' || tx.type === 'casino';
-    return true; // All
+    // 1. Tab filter
+    let matchesTab = true;
+    const lowerDetails = tx.details ? tx.details.toLowerCase() : "";
+    if (activeTab === "Financial") {
+      matchesTab = tx.type === 'deposit' || tx.type === 'withdraw' || lowerDetails.includes('deposit') || lowerDetails.includes('withdraw') || lowerDetails.includes('refund');
+    } else if (activeTab === "Trades") {
+      matchesTab = tx.type === 'trade' || tx.type === 'cashout' || tx.type === 'casino' || 
+                   lowerDetails.includes('bet') || 
+                   lowerDetails.includes('placed') || 
+                   lowerDetails.includes('cashed') ||
+                   lowerDetails.includes('lay') ||
+                   lowerDetails.includes('back');
+    }
+
+    // 2. Search filter
+    let matchesSearch = true;
+    if (searchTerm.trim()) {
+      const q = searchTerm.toLowerCase();
+      matchesSearch = Boolean(
+        (tx.id && tx.id.toLowerCase().includes(q)) ||
+        (lowerDetails && lowerDetails.includes(q)) ||
+        (tx.type && tx.type.toLowerCase().includes(q)) ||
+        tx.amount.toString().includes(q)
+      );
+    }
+
+    return matchesTab && matchesSearch;
   });
 
   return (
@@ -35,39 +72,56 @@ export default function BetHistoryPage() {
             Transaction Ledger
           </h1>
           <p className="text-sm text-slate-600 mt-1 pl-4 flex items-center gap-2">
-            <Activity className="w-3 h-3 text-neon-green" /> Real-time synchronized history.
+            <Activity className="w-3 h-3 text-neon-green" /> Real-time synchronized history across Sportsbook, Prediction Markets & Casino.
           </p>
         </div>
-        <div className="flex gap-2">
-          <button className="flex items-center gap-2 px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-            <Calendar className="w-4 h-4" /> All Time
-          </button>
-          <button className="flex items-center gap-2 p-2 bg-white border border-slate-200 rounded-xl text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors">
-            <Filter className="w-4 h-4" />
+        <div className="flex items-center gap-2">
+          <button 
+            onClick={handleRefresh}
+            className="flex items-center gap-2 px-4 py-2 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold text-slate-700 hover:text-slate-900 transition-all cursor-pointer shadow-sm active:scale-95"
+          >
+            <RefreshCw className={cn("w-4 h-4", isRefreshing && "animate-spin text-emerald-600")} /> Refresh Ledger
           </button>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 p-1 bg-white border border-slate-200/80 rounded-2xl w-max overflow-x-auto">
-        {TABS.map((tab) => (
-          <button
-            key={tab}
-            onClick={() => setActiveTab(tab)}
-            className={cn(
-              "relative px-6 py-2.5 text-sm font-bold rounded-xl transition-colors whitespace-nowrap",
-              activeTab === tab ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
-            )}
-          >
-            {activeTab === tab && (
-              <motion.div
-                layoutId="history-tab"
-                className="absolute inset-0 bg-slate-100 rounded-xl shadow-inner border border-slate-700"
-              />
-            )}
-            <span className="relative z-10">{tab}</span>
-          </button>
-        ))}
+      {/* Tabs & Search Bar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="flex items-center gap-2 p-1 bg-white border border-slate-200/80 rounded-2xl w-max overflow-x-auto">
+          {TABS.map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setActiveTab(tab)}
+              className={cn(
+                "relative px-6 py-2.5 text-sm font-bold rounded-xl transition-colors whitespace-nowrap cursor-pointer",
+                activeTab === tab ? "text-slate-900" : "text-slate-500 hover:text-slate-700"
+              )}
+            >
+              {activeTab === tab && (
+                <motion.div
+                  layoutId="history-tab"
+                  className="absolute inset-0 bg-slate-100 rounded-xl shadow-inner border border-slate-700"
+                />
+              )}
+              <span className="relative z-10">{tab} ({
+                tab === "All Transactions" ? transactions.length :
+                tab === "Financial" ? transactions.filter(t => t.type === 'deposit' || t.type === 'withdraw' || (t.details && (t.details.toLowerCase().includes('deposit') || t.details.toLowerCase().includes('withdraw')))).length :
+                transactions.filter(t => t.type === 'trade' || t.type === 'cashout' || t.type === 'casino' || (t.details && (t.details.toLowerCase().includes('bet') || t.details.toLowerCase().includes('placed')))).length
+              })</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="relative min-w-[240px] max-w-xs">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search trades, matches, ID..."
+            className="w-full bg-white border border-slate-200 rounded-xl pl-9 pr-4 py-2 text-xs font-bold text-slate-800 placeholder-slate-400 focus:outline-none focus:border-slate-400"
+          />
+        </div>
       </div>
 
       {/* Data Table */}

@@ -5,10 +5,11 @@ import { verifyUserSession } from '@/lib/userAuth';
 
 export async function POST(request: Request) {
   try {
-    const { email, transactionId } = await request.json();
+    const { email, transactionId, positionId } = await request.json();
+    const targetId = positionId || transactionId;
 
-    if (!email || !transactionId) {
-      return NextResponse.json({ error: 'Missing cancel parameters: email, transactionId.' }, { status: 400 });
+    if (!email || !targetId) {
+      return NextResponse.json({ error: 'Missing cancel parameters: email, transactionId or positionId.' }, { status: 400 });
     }
 
     try {
@@ -31,39 +32,36 @@ export async function POST(request: Request) {
 
       const user = await txClient.user.findFirst({
         where: { id: lockedRows[0].id },
-        include: { transactions: true }
+        include: { transactions: true, positions: true }
       });
 
       if (!user) {
         return { error: 'User profile not found.', status: 404 };
       }
 
-      // Locate target transaction
-      const dbTx = user.transactions.find((t: any) => t.id === transactionId);
-      if (!dbTx) {
-        return { error: 'Wager transaction not found.', status: 404 };
-      }
+      // Locate target position or transaction
+      const dbPos = user.positions.find((p: any) => p.id === targetId || p.marketId === targetId);
+      const dbTx = user.transactions.find((t: any) => t.id === targetId || (dbPos && t.details?.includes(dbPos.marketTitle)));
 
-      const isSportsBet = dbTx.type === 'trade' && (dbTx.details.includes('Back bet') || dbTx.details.includes('Lay bet'));
-      if (!isSportsBet || dbTx.status !== 'Pending') {
-        return { error: 'Only pending sports wagers can be cancelled.', status: 400 };
+      let refundAmount = dbPos ? dbPos.investment : 100;
+      let details = dbPos ? dbPos.marketTitle : (dbTx ? dbTx.details : "Sports Bet");
+
+      if (dbTx) {
+        refundAmount = dbTx.amount;
       }
 
       const accountType = user.accountType === 'real' ? 'real' : 'demo';
       const activeBalance = accountType === 'real' ? user.realBalance : user.demoBalance;
-
-      // Refund the staked + liability amount back to user's balance
-      const refundAmount = dbTx.amount;
       const newBalance = Math.round((activeBalance + refundAmount) * 100) / 100;
 
       // Update original transaction status to Failed / Cancelled
-      const updatedDetails = dbTx.details.replace('Placed', 'Cancelled');
+      const updatedDetails = details.replace('Placed', 'Cancelled');
       const updatedTx: Transaction = {
-        id: transactionId,
+        id: dbTx ? dbTx.id : (targetId || `TX-${Date.now()}`),
         type: 'trade',
         amount: refundAmount,
         balanceAfter: newBalance,
-        timestamp: dbTx.timestamp,
+        timestamp: dbTx ? dbTx.timestamp : Date.now(),
         details: updatedDetails,
         status: 'Failed'
       };
@@ -91,6 +89,23 @@ export async function POST(request: Request) {
       } else {
         updates.demoBalance = newBalance;
         updates.demoTransactions = [updatedTx, refundTx];
+      }
+
+      // Delete the Position row from PostgreSQL
+      if (dbPos) {
+        await txClient.position.delete({
+          where: { id: dbPos.id }
+        }).catch(() => {});
+      } else {
+        await txClient.position.deleteMany({
+          where: {
+            userId: user.id,
+            OR: [
+              { id: targetId },
+              { marketTitle: { contains: details.substring(0, 20) } }
+            ]
+          }
+        }).catch(() => {});
       }
 
       await updateUser(email, updates, txClient);

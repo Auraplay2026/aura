@@ -1204,29 +1204,83 @@ export const useTradingStore = create<TradingState>()(
         };
       }),
 
-      cashOut: async (positionId: string, currentMarketPrice: number) => {
+      cashOut: async (positionId: string, currentMarketPrice?: number) => {
         const state = useTradingStore.getState();
         if (!state.isLoggedIn || !state.currentUser) return;
 
+        const userIdentifier = state.currentUser.email || state.currentUser.username;
         const position = state.positions.find(p => p.id === positionId);
-        if (!position) return;
 
+        // 1. If this is a sports exchange position
+        if (position && (position.marketId.startsWith('SPORT-') || position.marketTitle.includes(':'))) {
+          try {
+            const currentOdds = typeof currentMarketPrice === 'number' && currentMarketPrice > 0 ? currentMarketPrice : position.buyPrice;
+            const res = await fetch('/api/sports/cashout', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                email: userIdentifier,
+                positionId: position.id,
+                transactionId: position.id,
+                currentOdds
+              })
+            });
+            const data = await res.json();
+            if (res.ok && data.success) {
+              await state.syncFromServer();
+              return;
+            } else {
+              // Fallback to sports cancel if odds calculate flat
+              const cancelRes = await fetch('/api/sports/cancel', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  email: userIdentifier,
+                  positionId: position.id,
+                  transactionId: position.id
+                })
+              });
+              const cancelData = await cancelRes.json();
+              if (cancelRes.ok && cancelData.success) {
+                await state.syncFromServer();
+                return;
+              }
+              alert(data.error || cancelData.error || "Failed to cash out sports position.");
+              return;
+            }
+          } catch (err) {
+            console.error("Failed to cash out sports bet", err);
+            return;
+          }
+        }
+
+        // 2. If position not in positions list, check pending transactions
+        if (!position) {
+          const pendingTx = state.transactions.find(t => t.id === positionId && t.status === 'Pending');
+          if (pendingTx) {
+            await state.cancelSportsBet(positionId);
+            return;
+          }
+          return;
+        }
+
+        // 3. Binary Prediction Cashout
         try {
-          const userIdentifier = state.currentUser.email || state.currentUser.username;
+          const parsedPrice = typeof currentMarketPrice === 'number' ? currentMarketPrice : 50;
           const res = await fetch('/api/predictions/cashout', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               email: userIdentifier,
               positionId,
-              currentMarketPrice
+              currentMarketPrice: parsedPrice
             })
           });
           const data = await res.json();
           if (res.ok && data.success) {
             await state.syncFromServer();
 
-            const currentValue = position.shares * (currentMarketPrice / 100);
+            const currentValue = position.shares * (parsedPrice / 100);
 
             if (state.currentUser?.accountType === 'real') {
               recordGameRound({

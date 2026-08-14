@@ -175,12 +175,15 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                   className="space-y-4 pt-4"
                 >
                   {positions.map((pos) => {
+                    const isSports = pos.marketId.startsWith('SPORT-') || pos.marketTitle.includes(':');
                     const liveMarket = liveMarkets.find(m => m.id === pos.marketId);
-                    const livePrice = liveMarket ? (pos.side === 'yes' ? liveMarket.yes : liveMarket.no) : pos.buyPrice;
+                    const livePrice = isSports ? pos.buyPrice : (liveMarket ? (pos.side === 'yes' ? liveMarket.yes : liveMarket.no) : pos.buyPrice);
                     
-                    const currentValue = pos.shares * (livePrice / 100);
+                    const currentValue = isSports 
+                      ? pos.shares * (pos.buyPrice > 1 ? pos.buyPrice : 1)
+                      : pos.shares * (livePrice / 100);
                     const pnl = currentValue - pos.investment;
-                    const pnlPercent = (pnl / pos.investment) * 100;
+                    const pnlPercent = pos.investment > 0 ? (pnl / pos.investment) * 100 : 0;
                     const isProfit = pnl >= 0;
 
                     return (
@@ -190,55 +193,66 @@ export function PortfolioSidebar({ isOpen, onClose }: { isOpen: boolean, onClose
                         
                         <div className="flex justify-between items-start mb-4 relative z-10">
                           <div className="flex-1 pr-4">
-                            <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest mb-1">Prediction</p>
+                            <p className="text-[10px] font-bold text-slate-700 uppercase tracking-widest mb-1">
+                              {isSports ? "Sports Exchange" : "Prediction"}
+                            </p>
                             <p className="text-sm font-black text-slate-900 leading-tight line-clamp-2">{pos.marketTitle}</p>
                           </div>
                           <div className={`flex flex-col items-end shrink-0`}>
                             <span className={`text-[10px] font-black px-3 py-1.5 rounded-full uppercase tracking-widest ${pos.side === 'yes' ? 'bg-green-500/20 text-green-600 border border-green-500/30' : 'bg-red-500/20 text-red-600 border border-red-500/30'}`}>
-                              {pos.side}
+                              {pos.side === 'no' ? 'LAY' : 'BACK'}
                             </span>
                             <span className="text-[10px] font-bold text-slate-700 mt-2">
-                              {pos.shares.toFixed(1)} Shares
+                              ₹{pos.investment.toFixed(0)} Stake
                             </span>
                           </div>
                         </div>
                         
                         <div className="flex items-center justify-between p-3 rounded-xl bg-white/60 border border-slate-200 mb-4 relative z-10 shadow-inner">
                           <div>
-                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">Buy Price</p>
-                            <p className="text-sm font-black text-slate-700 font-mono">{pos.buyPrice}¢</p>
+                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">
+                              {isSports ? "Odds" : "Buy Price"}
+                            </p>
+                            <p className="text-sm font-black text-slate-700 font-mono">
+                              {isSports ? Number(pos.buyPrice).toFixed(2) : `${pos.buyPrice}¢`}
+                            </p>
                           </div>
                           <div className="w-px h-8 bg-white/10" />
                           <div>
                             <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1 flex items-center gap-1">
-                              Current Price
+                              {isSports ? "Potential Return" : "Current Price"}
                             </p>
                             <p className="text-sm font-black text-slate-900 font-mono flex items-center gap-1.5">
-                              {livePrice}¢ <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse shadow-[0_0_5px_#34d399]" />
+                              {isSports ? `₹${currentValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}` : `${livePrice}¢`}
+                              <span className="w-1.5 h-1.5 rounded-full bg-neon-green animate-pulse shadow-[0_0_5px_#34d399]" />
                             </p>
                           </div>
                           <div className="w-px h-8 bg-white/10" />
                           <div className="text-right">
-                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">ROI</p>
-                            <p className={`text-sm font-black font-mono flex items-center gap-1 ${isProfit ? 'text-neon-green drop-shadow-[0_0_5px_rgba(52,211,153,0.5)]' : 'text-red-500 drop-shadow-[0_0_5px_rgba(239,68,68,0.5)]'}`}>
-                              {isProfit ? '+' : ''}{pnlPercent.toFixed(1)}%
+                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">Status</p>
+                            <p className="text-xs font-black font-mono text-emerald-600">
+                              Active
                             </p>
                           </div>
                         </div>
                         
                         <div className="flex items-center gap-4 relative z-10">
                           <div className="flex-1">
-                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">Current Value</p>
+                            <p className="text-[10px] text-slate-700 uppercase font-bold tracking-widest mb-1">
+                              {isSports ? "Est. Cashout Payout" : "Current Value"}
+                            </p>
                             <p className={`text-xl font-black font-mono tracking-tight ${isProfit ? 'text-slate-900' : 'text-slate-700'}`}>
-                              ₹{currentValue.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                              ₹{(isSports ? pos.investment * 0.95 : currentValue).toLocaleString(undefined, { maximumFractionDigits: 2 })}
                             </p>
                           </div>
                           <button 
-                            onClick={() => cashOut(pos.id, livePrice)}
-                            className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-slate-200 rounded-xl text-xs font-black text-slate-900 uppercase tracking-widest transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group/btn shadow-lg"
+                            onClick={async () => {
+                              await cashOut(pos.id, livePrice);
+                            }}
+                            className="px-6 py-3 bg-red-600/10 hover:bg-red-600/20 border border-red-600/30 rounded-xl text-xs font-black text-red-600 uppercase tracking-widest transition-all hover:scale-105 active:scale-95 flex items-center gap-2 group/btn shadow-lg cursor-pointer"
                           >
-                            <DollarSign className="w-4 h-4 text-slate-600 group-hover/btn:text-neon-green transition-colors" /> 
-                            Cash Out
+                            <DollarSign className="w-4 h-4 text-red-600 group-hover/btn:text-red-700 transition-colors" /> 
+                            Cash Out / Cancel
                           </button>
                         </div>
                       </motion.div>
