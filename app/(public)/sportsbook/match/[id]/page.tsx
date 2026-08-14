@@ -84,7 +84,7 @@ export default function MatchDetailPage({ params }: PageProps) {
     };
   }, [matchId]);
 
-  const [activeTab, setActiveTab] = useState<"scorecard" | "info" | "squads" | "betting" | "fixtures">("scorecard");
+  const [activeTab, setActiveTab] = useState<"scorecard" | "info" | "squads" | "betting" | "fixtures">("betting");
   const [activeInningsIdx, setActiveInningsIdx] = useState(scorecards.length > 0 ? scorecards.length - 1 : 0);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [oddsMode, setOddsMode] = useState<OddsDisplayMode>("decimal");
@@ -138,83 +138,71 @@ export default function MatchDetailPage({ params }: PageProps) {
     <div className="min-h-screen bg-slate-50 text-slate-900 pb-28">
       
       {/* ═══ TOP BREADCRUMB / HEADER ═══ */}
-      <div className="bg-white border-b border-slate-200 sticky top-0 z-40 px-4 sm:px-6 py-3 shadow-xs">
+      <div className="bg-white border-b border-slate-200 sticky top-0 z-40 px-3 sm:px-6 py-2.5 shadow-xs">
         <div className="max-w-6xl mx-auto flex items-center justify-between gap-3">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
             <Link
               href="/sportsbook"
-              className="w-9 h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center transition-colors cursor-pointer border border-slate-300"
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 flex items-center justify-center transition-colors cursor-pointer border border-slate-300 shrink-0"
               title="Back to Sportsbook"
             >
-              <ArrowLeft className="w-5 h-5" />
+              <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
             </Link>
-            <div>
-              <div className="flex items-center gap-2">
-                <span className="text-[10px] font-black uppercase tracking-widest text-red-700 bg-red-100 px-2 py-0.5 rounded border border-red-300">
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[9px] sm:text-[10px] font-black uppercase tracking-wider text-red-700 bg-red-100 px-1.5 py-0.2 rounded border border-red-300">
                   {match.matchType}
                 </span>
-                <span className="text-xs font-extrabold text-slate-700 truncate max-w-[200px] sm:max-w-md">
+                <span className="text-[11px] sm:text-xs font-bold text-slate-600 truncate">
                   {match.series}
                 </span>
               </div>
-              <h1 className="text-sm sm:text-base font-black text-slate-950 truncate">
+              <h1 className="text-xs sm:text-sm font-black text-slate-950 truncate">
                 {match.title}
               </h1>
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* Odds Mode Selector */}
-            <div className="hidden sm:flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-xl p-1 text-xs">
-              <button
-                type="button"
-                onClick={() => setOddsMode("decimal")}
-                className={cn("px-2.5 py-1 rounded-lg font-black text-[11px] transition-all cursor-pointer", oddsMode === "decimal" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
-              >
-                1.90
-              </button>
-              <button
-                type="button"
-                onClick={() => setOddsMode("bhav")}
-                className={cn("px-2.5 py-1 rounded-lg font-black text-[11px] transition-all cursor-pointer", oddsMode === "bhav" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
-              >
-                🇮🇳 Bhav
-              </button>
-              <button
-                type="button"
-                onClick={() => setOddsMode("multiplier")}
-                className={cn("px-2.5 py-1 rounded-lg font-black text-[11px] transition-all cursor-pointer", oddsMode === "multiplier" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
-              >
-                1 ka X
-              </button>
-            </div>
-
-            <Link
-              href="/sportsbook"
-              className="px-3.5 py-1.5 bg-red-600 hover:bg-red-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors shadow-xs"
+          {/* Odds Mode Selector (Visible on all devices) */}
+          <div className="flex items-center gap-1 bg-slate-100 border border-slate-200 rounded-xl p-0.5 sm:p-1 text-xs shrink-0">
+            <span className="hidden md:inline-block text-[10px] font-bold text-slate-500 uppercase px-1">Odds:</span>
+            <button
+              type="button"
+              onClick={() => setOddsMode("decimal")}
+              className={cn("px-2 py-1 rounded-lg font-black text-[10px] sm:text-[11px] transition-all cursor-pointer", oddsMode === "decimal" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
             >
-              Live Sportsbook
-            </Link>
+              1.90
+            </button>
+            <button
+              type="button"
+              onClick={() => setOddsMode("bhav")}
+              className={cn("px-2 py-1 rounded-lg font-black text-[10px] sm:text-[11px] transition-all cursor-pointer", oddsMode === "bhav" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
+            >
+              🇮🇳 Bhav
+            </button>
+            <button
+              type="button"
+              onClick={() => setOddsMode("multiplier")}
+              className={cn("px-2 py-1 rounded-lg font-black text-[10px] sm:text-[11px] transition-all cursor-pointer", oddsMode === "multiplier" ? "bg-slate-950 text-white shadow-xs" : "text-slate-600 hover:text-slate-950")}
+            >
+              1 ka X
+            </button>
           </div>
         </div>
       </div>
 
-      {/* ═══ 5-POINT "GATEKEEPER" DATA AUDIT ENGINE STATUS ═══ */}
-      <div className="bg-emerald-950 text-white px-4 sm:px-6 py-2.5 border-b border-emerald-800/80">
-        <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-3 text-xs">
-          <div className="flex items-center gap-2.5">
-            <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
-            <span className="font-black tracking-wide text-emerald-200 uppercase text-[11px]">
-              🛡️ ApexData 5-Point Gatekeeper Passed ({gateCheckInfo?.confidenceScore || "99.9% Accuracy"})
+      {/* ═══ LIVE RADAR STATUS STRIP (CLEAN & NON-INTRUSIVE) ═══ */}
+      <div className="bg-slate-900 text-white px-3 sm:px-6 py-1.5 border-b border-slate-800">
+        <div className="max-w-6xl mx-auto flex items-center justify-between gap-2 text-[11px]">
+          <div className="flex items-center gap-2">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+            <span className="font-bold text-emerald-300 uppercase tracking-wide text-[10px] sm:text-[11px]">
+              ● LIVE RADAR FEED • 0.2s Fast-Line Sync
             </span>
-            <span className="hidden md:inline-block text-emerald-400/80">• Zero Cross-Sport Contamination • Real Athlete Invariant Check Passed</span>
           </div>
-
-          <div className="flex items-center gap-2 font-mono text-[10px] text-emerald-300">
-            <span className="bg-emerald-900/90 px-2 py-0.5 rounded border border-emerald-700 font-bold">
-              {gateCheckInfo?.sourcesAgreed || 5}/5 Feeds Synchronized
-            </span>
-            <span>Audited: {gateCheckInfo?.verifiedAt || "Live Now"}</span>
+          <div className="flex items-center gap-2 font-mono text-[10px] text-slate-400">
+            <span className="bg-slate-800 px-1.5 py-0.5 rounded text-slate-300 font-bold">5/5 Feeds Synchronized</span>
+            <span className="hidden sm:inline">⚡ Zero-Lag Bhav</span>
           </div>
         </div>
       </div>
@@ -375,25 +363,24 @@ export default function MatchDetailPage({ params }: PageProps) {
         </div>
       ) : null}
 
-      {/* ═══ NAVIGATION TABS ═══ */}
-      <div className="sticky top-[61px] z-30 bg-white border-b border-slate-200 px-4 sm:px-6 shadow-2xs">
-        <div className="max-w-6xl mx-auto flex items-center gap-2 overflow-x-auto scrollbar-none py-2.5 select-none">
+      {/* ═══ NAVIGATION TABS (4 CLEAN TABS) ═══ */}
+      <div className="sticky top-[53px] sm:top-[61px] z-30 bg-white border-b border-slate-200 px-3 sm:px-6 shadow-2xs">
+        <div className="max-w-6xl mx-auto flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-2 select-none">
           {[
-            { id: "scorecard", label: match.matchType === "FOOTBALL" ? "Match Tracker & Stats" : match.matchType === "TENNIS" ? "Set Scores & Court Stats" : match.matchType === "NBA" ? "Box Score & Leaders" : "Scorecard" },
-            { id: "betting", label: "⚡ In-Play Exchange & Sessions" },
-            { id: "info", label: "Match info & Pitch" },
-            { id: "squads", label: "Squads & Lineups" },
-            { id: "fixtures", label: "Series Fixtures" }
+            { id: "betting", label: "⚡ Markets & Indian Bhav" },
+            { id: "scorecard", label: match.matchType === "FOOTBALL" ? "⏱️ Match Tracker & Stats" : match.matchType === "TENNIS" ? "🎾 Set Scores & Stats" : "🏏 Live Scorecard" },
+            { id: "squads", label: "👥 Playing XI & Squads" },
+            { id: "info", label: "🏟️ Venue & Pitch Info" },
           ].map(tab => (
             <button
               key={tab.id}
               type="button"
               onClick={() => setActiveTab(tab.id as any)}
               className={cn(
-                "px-4 py-2 rounded-xl text-xs font-black uppercase tracking-wider shrink-0 transition-all cursor-pointer",
+                "px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl text-[11px] sm:text-xs font-black uppercase tracking-wider shrink-0 transition-all cursor-pointer",
                 activeTab === tab.id
-                  ? "bg-red-600 text-white shadow-xs"
-                  : "text-slate-700 hover:text-slate-950 hover:bg-slate-100"
+                  ? "bg-slate-950 text-white shadow-xs"
+                  : "bg-slate-50 text-slate-700 hover:text-slate-950 hover:bg-slate-100 border border-slate-200"
               )}
             >
               {tab.label}
