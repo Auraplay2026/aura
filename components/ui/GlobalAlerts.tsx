@@ -83,8 +83,8 @@ export function GlobalAlerts() {
     };
   }, [pathname]);
 
-  // Hide win/jackpot alerts on admin routes or for administrators to prevent view obstruction
-  if (!pathname || pathname.startsWith("/admin") || currentUser?.role === 'admin') {
+  // Hide win/jackpot alerts on admin routes or match detail pages to prevent view obstruction
+  if (!pathname || pathname.startsWith("/admin") || pathname.startsWith("/sportsbook/match") || currentUser?.role === 'admin') {
     return null;
   }
 

@@ -130,7 +130,7 @@ export function SmartNotificationBanner() {
     }
   };
 
-  if (!visible || !bannerType || currentUser?.role === 'admin' || pathname?.startsWith('/admin')) return null;
+  if (!visible || !bannerType || currentUser?.role === 'admin' || pathname?.startsWith('/admin') || pathname?.startsWith('/sportsbook')) return null;
   const config = getBannerConfig();
 
   return (
@@ -146,23 +146,29 @@ export function SmartNotificationBanner() {
         initial={{ opacity: 0, y: -50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        className={`fixed top-24 right-4 z-40 w-[92%] max-w-sm bg-white/90 backdrop-blur-md border rounded-2xl p-4 shadow-xl ${config.color} pointer-events-auto cursor-grab active:cursor-grabbing select-none`}
+        className={`fixed top-20 right-4 z-40 w-[92%] max-w-sm bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-4 shadow-xl ${config.color} pointer-events-auto cursor-grab active:cursor-grabbing select-none`}
       >
+        <button
+          onClick={() => setVisible(false)}
+          className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
+        >
+          <X className="w-4 h-4" />
+        </button>
         <div className="flex gap-3">
-          <div className="shrink-0 w-10 h-10 rounded-xl bg-slate-50/80 border border-slate-700/50 flex items-center justify-center">
+          <div className="shrink-0 w-10 h-10 rounded-xl bg-slate-100 border border-slate-200 flex items-center justify-center">
             {config.icon}
           </div>
-          <div className="flex-1 min-w-0">
+          <div className="flex-1 min-w-0 pr-4">
             <h4 className="text-slate-900 font-extrabold text-sm leading-tight tracking-tight">
               {config.title}
             </h4>
-            <p className="text-slate-300 text-xs mt-1 leading-snug">
+            <p className="text-slate-600 text-xs mt-1 leading-snug">
               {config.desc}
             </p>
             <div className="mt-3 flex gap-2">
               <button
                 onClick={handleBannerAction}
-                className="px-4 py-1.5 rounded-lg bg-purple-600 hover:bg-purple-500 text-slate-900 font-black text-xs uppercase tracking-wider transition-colors cursor-pointer"
+                className="px-4 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs uppercase tracking-wider transition-colors cursor-pointer"
               >
                 {config.cta}
               </button>
