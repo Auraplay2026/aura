@@ -655,11 +655,14 @@ export function LiveExchangeWidget() {
                           type="button"
                           onClick={() => handleOddsSelection(match, sel, "back", sel.back)}
                           className={cn(
-                            "w-14 sm:w-16 py-1.5 px-1 rounded-lg text-center border transition-all cursor-pointer select-none active:scale-95",
+                            "w-14 sm:w-16 py-1.5 px-1 rounded-xl text-center border transition-all duration-200 cursor-pointer select-none active:scale-95",
                             isSelectedBack
-                              ? "bg-emerald-500 text-white border-emerald-600 ring-2 ring-emerald-300 shadow-sm"
-                              : "bg-[#E0F2FE] hover:bg-[#BAE6FD] text-sky-900 border-sky-200/80",
-                            sel.backTrend === "up" && "ring-2 ring-emerald-400 animate-pulse"
+                              ? "bg-sky-600 text-white border-sky-700 ring-2 ring-sky-300 shadow-md scale-105"
+                              : sel.backTrend === "up"
+                              ? "bg-emerald-100 border-emerald-400 text-emerald-950 ring-1 ring-emerald-400 animate-pulse"
+                              : sel.backTrend === "down"
+                              ? "bg-amber-100 border-amber-400 text-amber-950 ring-1 ring-amber-400"
+                              : "bg-[#E0F2FE] hover:bg-[#BAE6FD] text-sky-950 border-sky-200/90 shadow-2xs"
                           )}
                           title={`Back ${sel.name}`}
                         >
@@ -674,11 +677,14 @@ export function LiveExchangeWidget() {
                           type="button"
                           onClick={() => handleOddsSelection(match, sel, "lay", sel.lay)}
                           className={cn(
-                            "w-14 sm:w-16 py-1.5 px-1 rounded-lg text-center border transition-all cursor-pointer select-none active:scale-95",
+                            "w-14 sm:w-16 py-1.5 px-1 rounded-xl text-center border transition-all duration-200 cursor-pointer select-none active:scale-95",
                             isSelectedLay
-                              ? "bg-pink-500 text-white border-pink-600 ring-2 ring-pink-300 shadow-sm"
-                              : "bg-[#FCE7F3] hover:bg-[#FBCFE8] text-pink-900 border-pink-200/80",
-                            sel.layTrend === "up" && "ring-2 ring-pink-400 animate-pulse"
+                              ? "bg-pink-600 text-white border-pink-700 ring-2 ring-pink-300 shadow-md scale-105"
+                              : sel.layTrend === "up"
+                              ? "bg-pink-100 border-pink-400 text-pink-950 ring-1 ring-pink-400 animate-pulse"
+                              : sel.layTrend === "down"
+                              ? "bg-amber-100 border-amber-400 text-amber-950 ring-1 ring-amber-400"
+                              : "bg-[#FCE7F3] hover:bg-[#FBCFE8] text-pink-950 border-pink-200/90 shadow-2xs"
                           )}
                           title={`Lay ${sel.name}`}
                         >
