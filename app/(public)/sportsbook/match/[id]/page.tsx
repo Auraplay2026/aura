@@ -8,12 +8,13 @@ import {
   User, ChevronRight, Zap, Info, Users, Activity, Flame, Share2, Star, CheckCircle2, ChevronDown
 } from "lucide-react";
 import { 
-  DeepMatchInfo, CrexInningsScorecard, CREX_MATCHES_DATABASE, PLAYERS_DATABASE, PlayerDossier 
+  DeepMatchInfo, CrexInningsScorecard, CREX_MATCHES_DATABASE, PLAYERS_DATABASE, PlayerDossier, resolveDeepMatch 
 } from "@/lib/sportsDeepData";
 import { formatOddsByMode, OddsDisplayMode, convertDecimalToBhav, convertDecimalToMultiplier } from "@/lib/bhavEngine";
 import { PlayerProfileModal } from "@/components/sportsbook/PlayerProfileModal";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { useEffect } from "react";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -21,9 +22,37 @@ interface PageProps {
 
 export default function MatchDetailPage({ params }: PageProps) {
   const resolvedParams = use(params);
-  const matchId = resolvedParams.id || "aus-xi-vs-ban";
-  const match: DeepMatchInfo = CREX_MATCHES_DATABASE[matchId] || CREX_MATCHES_DATABASE["aus-xi-vs-ban"];
+  const matchId = resolvedParams.id || "145357";
+  
+  const [match, setMatch] = useState<DeepMatchInfo>(() => resolveDeepMatch(matchId));
   const scorecards = match.scorecards || [];
+
+  // Live real-time match sync with /api/sports/live
+  useEffect(() => {
+    let isMounted = true;
+    const fetchLiveMatch = async () => {
+      try {
+        const res = await fetch("/api/sports/live?sport=all");
+        if (res.ok) {
+          const data = await res.json();
+          const liveList = Array.isArray(data) ? data : data.matches || [];
+          const found = liveList.find((m: any) => String(m.id) === String(matchId) || m.id === parseInt(matchId));
+          if (isMounted) {
+            setMatch(resolveDeepMatch(matchId, found));
+          }
+        }
+      } catch (e) {
+        console.error("Live match sync error:", e);
+      }
+    };
+
+    fetchLiveMatch();
+    const interval = setInterval(fetchLiveMatch, 10000);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [matchId]);
 
   const [activeTab, setActiveTab] = useState<"scorecard" | "info" | "squads" | "betting" | "fixtures">("scorecard");
   const [activeInningsIdx, setActiveInningsIdx] = useState(scorecards.length > 0 ? scorecards.length - 1 : 0);
@@ -148,16 +177,16 @@ export default function MatchDetailPage({ params }: PageProps) {
             
             {/* Team 1 Score (Left) */}
             <div className="flex items-center gap-4 justify-start">
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-3xl shadow-md shrink-0">
-                🇧🇩
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-50 border-2 border-emerald-500 flex items-center justify-center text-2xl sm:text-3xl font-black text-emerald-900 shadow-md shrink-0">
+                {match.team1.code.includes("BAN") ? "🇧🇩" : match.team1.code.includes("AUS") ? "🇦🇺" : match.team1.code.includes("SB") ? "🔴" : match.team1.code.slice(0, 2)}
               </div>
               <div>
                 <div className="text-base sm:text-lg font-black text-slate-950 flex items-center gap-2">
-                  <span>{match.team1.code}</span>
-                  <span className="text-xs text-slate-600 font-bold">263 (75.5)</span>
+                  <span>{match.team1.name}</span>
+                  <span className="text-xs text-slate-500 font-bold">({match.team1.code})</span>
                 </div>
                 <div className="text-xl sm:text-2xl font-black font-mono text-emerald-800 tracking-tight">
-                  54-10 <span className="text-xs text-slate-600 font-bold">(22.0)</span>
+                  {match.team1.scoreSummary}
                 </div>
               </div>
             </div>
@@ -176,15 +205,15 @@ export default function MatchDetailPage({ params }: PageProps) {
             {/* Team 2 Score (Right) */}
             <div className="flex items-center gap-4 justify-start md:justify-end">
               <div className="text-left md:text-right order-2 md:order-1">
-                <div className="text-xl sm:text-2xl font-black font-mono text-slate-950 tracking-tight">
-                  355 <span className="text-xs text-slate-600 font-bold">(87.2)</span>
-                </div>
                 <div className="text-base sm:text-lg font-black text-slate-950">
-                  {match.team2.code}
+                  {match.team2.name} <span className="text-xs text-slate-500 font-bold">({match.team2.code})</span>
+                </div>
+                <div className="text-xl sm:text-2xl font-black font-mono text-slate-950 tracking-tight">
+                  {match.team2.scoreSummary}
                 </div>
               </div>
-              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-sky-50 border-2 border-sky-500 flex items-center justify-center text-3xl shadow-md shrink-0 order-1 md:order-2">
-                🇦🇺
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-sky-50 border-2 border-sky-500 flex items-center justify-center text-2xl sm:text-3xl font-black text-sky-900 shadow-md shrink-0 order-1 md:order-2">
+                {match.team2.code.includes("BAN") ? "🇧🇩" : match.team2.code.includes("AUS") ? "🇦🇺" : match.team2.code.includes("SL") ? "🟠" : match.team2.code.slice(0, 2)}
               </div>
             </div>
 
