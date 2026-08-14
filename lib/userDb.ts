@@ -78,11 +78,16 @@ export function sanitizeUserProfile(user: any): UserProfile {
   const realPositions = allPositions.filter((p: any) => p.walletType === 'real');
   const realTransactions = allTransactions.filter((t: any) => t.walletType === 'real');
 
+  const demoBalance = typeof user.demoBalance === 'number' ? user.demoBalance : (user.demoBalance !== null && user.demoBalance !== undefined ? Number(user.demoBalance) : 100000);
+  const realBalance = typeof user.realBalance === 'number' ? user.realBalance : (user.realBalance !== null && user.realBalance !== undefined ? Number(user.realBalance) : 0);
+
   return {
     ...user,
     email: user.email || user.username || "",
     accountType,
-    balance: accountType === 'real' ? (user.realBalance ?? 0) : (user.demoBalance ?? 100000),
+    balance: accountType === 'real' ? realBalance : demoBalance,
+    demoBalance,
+    realBalance,
     positions: accountType === 'real' ? realPositions : demoPositions,
     transactions: accountType === 'real' ? realTransactions : demoTransactions,
     demoPositions,

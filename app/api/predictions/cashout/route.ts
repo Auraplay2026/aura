@@ -72,8 +72,8 @@ export async function POST(request: Request) {
 
       // Update user balance
       const updateData = wallet === 'real' 
-        ? { realBalance: newBalance } 
-        : { demoBalance: newBalance };
+        ? { realBalance: newBalance, balance: newBalance } 
+        : { demoBalance: newBalance, balance: newBalance };
 
       await tx.user.update({
         where: { id: user.id },

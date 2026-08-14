@@ -1038,7 +1038,8 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      playCasino: (wager: number, payout: number, gameTitle: string, uuid?: string) => set((state) => {
+      playCasino: (wager: number, payout: number, gameTitle: string, uuid?: string) => {
+        const state = useTradingStore.getState();
         let safeBalance = state.balance;
         if (typeof safeBalance !== 'number') {
            const parsed = parseFloat(String(safeBalance));
@@ -1049,7 +1050,7 @@ export const useTradingStore = create<TradingState>()(
         if (uuid) {
           if (state.processedUuids && state.processedUuids.includes(uuid)) {
             console.warn(`[Idempotency Block] playCasino already processed for UUID: ${uuid}`);
-            return state;
+            return;
           }
         }
 
@@ -1084,16 +1085,16 @@ export const useTradingStore = create<TradingState>()(
 
         if (wager < 0 || payout < 0 || (wager === 0 && payout === 0)) {
           console.error("Invalid wager/payout parameters");
-          return state;
+          return;
         }
 
-        if (totalDeduction > safeBalance) {
+        if (totalDeduction > safeBalance && wager > 0) {
           console.error("Insufficient balance for wager and commission");
-          return state;
+          return;
         }
 
         const netChange = payout - totalDeduction;
-        const newBalance = safeBalance + netChange;
+        const newBalance = Math.max(0, Math.round((safeBalance + netChange) * 100) / 100);
 
         let newTotalWagered = state.currentUser?.totalWagered || 0;
         let newVipLevel: 'Bronze' | 'Silver' | 'Gold' | 'Platinum' | 'Diamond' = state.currentUser?.vipLevel || 'Bronze';
@@ -1106,8 +1107,9 @@ export const useTradingStore = create<TradingState>()(
           }
         }
 
+        const txId = uuid || `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
         const tx: Transaction = {
-          id: `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`,
+          id: txId,
           type: 'casino',
           amount: Math.abs(netChange),
           balanceAfter: newBalance,
@@ -1120,6 +1122,23 @@ export const useTradingStore = create<TradingState>()(
 
         const newTransactions = [tx, ...state.transactions];
         const syncedState = getSyncedStateAndSync(state, newBalance, newTransactions);
+
+        // Persist to PostgreSQL database atomically so losses/gains are permanently stored
+        if (state.isLoggedIn && state.currentUser) {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
+          fetch('/api/casino/record-wager', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              email: userIdentifier,
+              wager,
+              payout,
+              gameTitle,
+              commission,
+              uuid: txId
+            })
+          }).catch(err => console.error("Failed to persist casino wager to PostgreSQL database", err));
+        }
 
         // Achievement check logic
         const toUnlock = new Set<string>();
@@ -1178,21 +1197,19 @@ export const useTradingStore = create<TradingState>()(
               osc.connect(gainNode);
               gainNode.connect(audioCtx.destination);
               osc.type = 'sine';
-              osc.frequency.setValueAtTime(523.25, audioCtx.currentTime);
-              osc.frequency.setValueAtTime(659.25, audioCtx.currentTime + 0.1);
-              osc.frequency.setValueAtTime(783.99, audioCtx.currentTime + 0.2);
-              osc.frequency.setValueAtTime(1046.50, audioCtx.currentTime + 0.3);
-              gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
+              osc.frequency.setValueAtTime(587.33, audioCtx.currentTime); // D5
+              osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1); // A5
+              gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
               gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
               osc.start();
               osc.stop(audioCtx.currentTime + 0.5);
-            } catch(e) {}
-          }, 50);
+            } catch (e) {}
+          }, 100);
         }
 
         const nextProcessed = uuid ? [...(state.processedUuids || []), uuid].slice(-200) : (state.processedUuids || []);
 
-        return {
+        set({
           ...syncedState,
           processedUuids: nextProcessed,
           winStreakCount: newStreak,
@@ -1201,8 +1218,8 @@ export const useTradingStore = create<TradingState>()(
           points: (state.points || 0) + addedPoints,
           latestAchievementUnlocked: latestUnlocked || state.latestAchievementUnlocked,
           latestWinCelebration: payout >= 500 ? { amount: payout, gameTitle } : state.latestWinCelebration
-        };
-      }),
+        });
+      },
 
       cashOut: async (positionId: string, currentMarketPrice?: number) => {
         const state = useTradingStore.getState();
