@@ -81,6 +81,7 @@ async function seedAdmin() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
+  try {
     // Check if admin user already exists by email or username
     const existingByEmail = await prisma.user.findFirst({
       where: {
