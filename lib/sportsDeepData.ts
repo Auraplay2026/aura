@@ -408,7 +408,74 @@ export const PLAYERS_DATABASE: Record<string, PlayerDossier> = {
     ]
   },
 
-  // ─── CRICKET MEN (India, Australia, Bangladesh, IPL) ───
+  // ─── CRICKET MEN (India, Australia, Bangladesh, Sri Lanka, England, West Indies) ───
+  "rohit-sharma": {
+    id: "rohit-sharma",
+    name: "Rohit Sharma",
+    fullName: "Rohit Gurunath Sharma",
+    country: "India",
+    countryCode: "IND",
+    avatar: "👑",
+    role: "Top-order Batter",
+    height: "5 ft 9 in (175 cm)",
+    born: "Apr 30, 1987 (Nagpur)",
+    age: 39,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 45,
+    careerStats: [
+      { format: "Test", matches: 64, innings: 111, runs: 4280, highestScore: "212", average: 43.67, strikeRate: 56.4, centuries: 12, fifties: 18 },
+      { format: "ODI", matches: 265, innings: 257, runs: 10866, highestScore: "264", average: 49.16, strikeRate: 92.4, centuries: 31, fifties: 57 }
+    ],
+    recentForm: [
+      { score: "57 (84)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "yashasvi-jaiswal": {
+    id: "yashasvi-jaiswal",
+    name: "Yashasvi Jaiswal",
+    fullName: "Yashasvi Bhupendra Kumar Jaiswal",
+    country: "India",
+    countryCode: "IND",
+    avatar: "🏏",
+    role: "Top-order Batter",
+    height: "5 ft 8 in (173 cm)",
+    born: "Dec 28, 2001 (Suriya)",
+    age: 24,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Right-arm Legbreak",
+    jerseyNumber: 64,
+    careerStats: [
+      { format: "Test", matches: 14, innings: 26, runs: 1407, highestScore: "214*", average: 56.28, strikeRate: 70.1, centuries: 3, fifties: 8 }
+    ],
+    recentForm: [
+      { score: "82 (120)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "shubman-gill": {
+    id: "shubman-gill",
+    name: "Shubman Gill",
+    fullName: "Shubman Gill",
+    country: "India",
+    countryCode: "IND",
+    avatar: "🏏",
+    role: "Top-order Batter",
+    height: "5 ft 10 in (178 cm)",
+    born: "Sep 08, 1999 (Fazilka)",
+    age: 26,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 77,
+    careerStats: [
+      { format: "Test", matches: 29, innings: 54, runs: 1800, highestScore: "128", average: 36.73, strikeRate: 59.2, centuries: 5, fifties: 7 }
+    ],
+    recentForm: [
+      { score: "45 (62)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
   "virat-kohli": {
     id: "virat-kohli",
     name: "Virat Kohli",
@@ -426,14 +493,409 @@ export const PLAYERS_DATABASE: Record<string, PlayerDossier> = {
     careerStats: [
       { format: "Test", matches: 119, innings: 201, runs: 9040, highestScore: "254*", average: 48.86, strikeRate: 55.6, centuries: 29, fifties: 31 },
       { format: "ODI", matches: 295, innings: 283, runs: 13906, highestScore: "183", average: 58.18, strikeRate: 93.6, centuries: 50, fifties: 72 },
-      { format: "T20I", matches: 125, innings: 117, runs: 4188, highestScore: "122*", average: 48.69, strikeRate: 137.0, centuries: 1, fifties: 38 },
-      { format: "IPL", matches: 252, innings: 244, runs: 8004, highestScore: "113*", average: 38.66, strikeRate: 131.9, centuries: 8, fifties: 55 }
+      { format: "T20I", matches: 125, innings: 117, runs: 4188, highestScore: "122*", average: 48.69, strikeRate: 137.0, centuries: 1, fifties: 38 }
     ],
     recentForm: [
-      { score: "74* (42)", opponent: "CSK", date: "Today", format: "IPL 2026" },
-      { score: "83 (51)", opponent: "KKR", date: "May 2026", format: "IPL" }
+      { score: "74 (110)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
     ],
     marketLine: { runsNo: 42, runsYes: 44, sixesOver: 1.5 }
+  },
+
+  "rishabh-pant": {
+    id: "rishabh-pant",
+    name: "Rishabh Pant",
+    fullName: "Rishabh Rajendra Pant",
+    country: "India",
+    countryCode: "IND",
+    avatar: "🧤",
+    role: "Wicketkeeper Batter",
+    height: "5 ft 7 in (170 cm)",
+    born: "Oct 04, 1997 (Roorkee)",
+    age: 28,
+    battingStyle: "Left Handed Bat",
+    jerseyNumber: 17,
+    careerStats: [
+      { format: "Test", matches: 38, innings: 64, runs: 2550, highestScore: "159*", average: 44.73, strikeRate: 74.5, centuries: 6, fifties: 12 }
+    ],
+    recentForm: [
+      { score: "64* (58)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "ravindra-jadeja": {
+    id: "ravindra-jadeja",
+    name: "Ravindra Jadeja",
+    fullName: "Ravindrasinh Anirudhsinh Jadeja",
+    country: "India",
+    countryCode: "IND",
+    avatar: "⚔️",
+    role: "All-rounder",
+    height: "5 ft 7 in (170 cm)",
+    born: "Dec 06, 1988 (Navagam)",
+    age: 37,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Slow Left-arm Orthodox",
+    jerseyNumber: 8,
+    careerStats: [
+      { format: "Test", matches: 74, innings: 108, runs: 3120, highestScore: "175*", average: 36.27, strikeRate: 58.0, centuries: 4, fifties: 21, wickets: 304, economy: 2.45, bestBowling: "7/42" }
+    ],
+    recentForm: [
+      { score: "3/42 & 32*(44)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "jasprit-bumrah": {
+    id: "jasprit-bumrah",
+    name: "Jasprit Bumrah",
+    fullName: "Jasprit Jasbirsingh Bumrah",
+    country: "India",
+    countryCode: "IND",
+    avatar: "🎯",
+    role: "Fast Bowler",
+    height: "5 ft 9 in (175 cm)",
+    born: "Dec 06, 1993 (Ahmedabad)",
+    age: 32,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Fast (145 km/h)",
+    jerseyNumber: 93,
+    careerStats: [
+      { format: "Test", matches: 40, innings: 78, runs: 280, highestScore: "34*", average: 8.00, strikeRate: 52.0, centuries: 0, fifties: 0, wickets: 175, economy: 2.74, bestBowling: "6/27" }
+    ],
+    recentForm: [
+      { score: "4/38 (18.0 ov)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "mohammed-siraj": {
+    id: "mohammed-siraj",
+    name: "Mohammed Siraj",
+    fullName: "Mohammed Siraj",
+    country: "India",
+    countryCode: "IND",
+    avatar: "⚡",
+    role: "Fast Bowler",
+    height: "5 ft 10 in (178 cm)",
+    born: "Mar 13, 1994 (Hyderabad)",
+    age: 32,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Fast Medium",
+    jerseyNumber: 73,
+    careerStats: [
+      { format: "Test", matches: 31, innings: 58, runs: 110, highestScore: "16*", average: 5.50, strikeRate: 40.0, centuries: 0, fifties: 0, wickets: 85, economy: 3.25, bestBowling: "6/15" }
+    ],
+    recentForm: [
+      { score: "2/44 (14.0 ov)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "kuldeep-yadav": {
+    id: "kuldeep-yadav",
+    name: "Kuldeep Yadav",
+    fullName: "Kuldeep Yadav",
+    country: "India",
+    countryCode: "IND",
+    avatar: "🌀",
+    role: "Spin Bowler",
+    height: "5 ft 6 in (168 cm)",
+    born: "Dec 14, 1994 (Kanpur)",
+    age: 31,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Left-arm Wrist Spin",
+    jerseyNumber: 23,
+    careerStats: [
+      { format: "Test", matches: 12, innings: 22, runs: 180, highestScore: "40", average: 13.84, strikeRate: 36.0, centuries: 0, fifties: 0, wickets: 53, economy: 3.42, bestBowling: "5/40" }
+    ],
+    recentForm: [
+      { score: "3/36 (12.0 ov)", opponent: "Sri Lanka", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  // ─── SRI LANKA MEN ───
+  "pathum-nissanka": {
+    id: "pathum-nissanka",
+    name: "Pathum Nissanka",
+    fullName: "Pathum Nissanka Silva",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "🏏",
+    role: "Top-order Batter",
+    height: "5 ft 7 in (170 cm)",
+    born: "May 18, 1998 (Galle)",
+    age: 28,
+    battingStyle: "Right Handed Bat",
+    jerseyNumber: 18,
+    careerStats: [
+      { format: "Test", matches: 11, innings: 20, runs: 650, highestScore: "103", average: 38.23, strikeRate: 50.4, centuries: 1, fifties: 5 },
+      { format: "ODI", matches: 58, innings: 58, runs: 2350, highestScore: "210*", average: 44.33, strikeRate: 89.2, centuries: 6, fifties: 14 }
+    ],
+    recentForm: [
+      { score: "68 (112)", opponent: "India", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "kusal-mendis": {
+    id: "kusal-mendis",
+    name: "Kusal Mendis",
+    fullName: "Balapuwaduge Kusal Gimhan Mendis",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "🧤",
+    role: "Wicketkeeper Batter",
+    height: "5 ft 8 in (173 cm)",
+    born: "Feb 02, 1995 (Moratuwa)",
+    age: 31,
+    battingStyle: "Right Handed Bat",
+    jerseyNumber: 13,
+    careerStats: [
+      { format: "Test", matches: 65, innings: 124, runs: 4200, highestScore: "245", average: 36.52, strikeRate: 57.8, centuries: 9, fifties: 18 }
+    ],
+    recentForm: [
+      { score: "42 (70)", opponent: "India", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "charith-asalanka": {
+    id: "charith-asalanka",
+    name: "Charith Asalanka",
+    fullName: "Kariyawasam Indipalage Charith Asalanka",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "👑",
+    role: "Middle-order Batter",
+    height: "5 ft 9 in (175 cm)",
+    born: "Jun 29, 1997 (Elpitiya)",
+    age: 29,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 72,
+    careerStats: [
+      { format: "ODI", matches: 62, innings: 56, runs: 1980, highestScore: "110", average: 41.25, strikeRate: 89.8, centuries: 3, fifties: 12 }
+    ],
+    recentForm: [
+      { score: "54* (68)", opponent: "India", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "kamindu-mendis": {
+    id: "kamindu-mendis",
+    name: "Kamindu Mendis",
+    fullName: "Pasqual Handi Kamindu Dilanka Mendis",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "🌟",
+    role: "All-rounder",
+    height: "5 ft 8 in (173 cm)",
+    born: "Sep 30, 1998 (Galle)",
+    age: 27,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Ambidextrous (Offbreak & Orthodox)",
+    jerseyNumber: 21,
+    careerStats: [
+      { format: "Test", matches: 8, innings: 13, runs: 1004, highestScore: "182*", average: 91.27, strikeRate: 65.4, centuries: 5, fifties: 4 }
+    ],
+    recentForm: [
+      { score: "88 (144)", opponent: "India", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "dhananjaya-de-silva": {
+    id: "dhananjaya-de-silva",
+    name: "Dhananjaya de Silva",
+    fullName: "Dhananjaya Maduranga de Silva",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "🏏",
+    role: "All-rounder",
+    height: "5 ft 10 in (178 cm)",
+    born: "Sep 06, 1991 (Colombo)",
+    age: 34,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 75,
+    careerStats: [
+      { format: "Test", matches: 56, innings: 98, runs: 3500, highestScore: "173", average: 39.77, strikeRate: 57.2, centuries: 12, fifties: 14, wickets: 39, economy: 3.48 }
+    ],
+    recentForm: [
+      { score: "38 (62)", opponent: "India", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "wanindu-hasaranga": {
+    id: "wanindu-hasaranga",
+    name: "Wanindu Hasaranga",
+    fullName: "Pinnaduwage Wanindu Hasaranga de Silva",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "🌀",
+    role: "All-rounder",
+    height: "5 ft 8 in (173 cm)",
+    born: "Jul 29, 1997 (Galle)",
+    age: 29,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Legbreak",
+    jerseyNumber: 49,
+    careerStats: [
+      { format: "T20I", matches: 72, innings: 54, runs: 680, highestScore: "71", average: 15.81, strikeRate: 131.2, centuries: 0, fifties: 2, wickets: 114, economy: 6.84, bestBowling: "4/9" }
+    ],
+    recentForm: [
+      { score: "3/28 (4.0 ov)", opponent: "India", date: "Today", format: "T20" }
+    ]
+  },
+
+  "asitha-fernando": {
+    id: "asitha-fernando",
+    name: "Asitha Fernando",
+    fullName: "Muthuthanthrige Asitha Sanjika Fernando",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "⚡",
+    role: "Fast Bowler",
+    height: "5 ft 10 in (178 cm)",
+    born: "Jul 31, 1997 (Katuneriya)",
+    age: 29,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Fast Medium",
+    jerseyNumber: 78,
+    careerStats: [
+      { format: "Test", matches: 17, innings: 30, runs: 64, highestScore: "11", average: 5.81, strikeRate: 35.0, centuries: 0, fifties: 0, wickets: 60, economy: 3.58, bestBowling: "6/51" }
+    ],
+    recentForm: [
+      { score: "3/52 (18.0 ov)", opponent: "India", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "matheesha-pathirana": {
+    id: "matheesha-pathirana",
+    name: "Matheesha Pathirana",
+    fullName: "Matheesha Pathirana",
+    country: "Sri Lanka",
+    countryCode: "SL",
+    avatar: "🎯",
+    role: "Fast Bowler",
+    height: "5 ft 10 in (178 cm)",
+    born: "Dec 18, 2002 (Kandy)",
+    age: 23,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Fast Sling (150 km/h)",
+    jerseyNumber: 99,
+    careerStats: [
+      { format: "T20I / Franchise", matches: 45, innings: 45, runs: 12, highestScore: "4*", average: 3.00, strikeRate: 50.0, centuries: 0, fifties: 0, wickets: 68, economy: 7.64, bestBowling: "4/28" }
+    ],
+    recentForm: [
+      { score: "3/22 (4.0 ov)", opponent: "India", date: "Today", format: "T20" }
+    ]
+  },
+
+  // ─── AUSTRALIA MEN ───
+  "travis-head": {
+    id: "travis-head",
+    name: "Travis Head",
+    fullName: "Travis Michael Head",
+    country: "Australia",
+    countryCode: "AUS",
+    avatar: "⚡",
+    role: "Top-order Batter",
+    height: "5 ft 10 in (178 cm)",
+    born: "Dec 29, 1993 (Adelaide)",
+    age: 32,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 62,
+    careerStats: [
+      { format: "Test", matches: 50, innings: 85, runs: 3200, highestScore: "175", average: 41.55, strikeRate: 64.2, centuries: 7, fifties: 16 },
+      { format: "ODI", matches: 68, innings: 65, runs: 2600, highestScore: "152", average: 43.33, strikeRate: 105.4, centuries: 6, fifties: 16 }
+    ],
+    recentForm: [
+      { score: "68 (82)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "usman-khawaja": {
+    id: "usman-khawaja",
+    name: "Usman Khawaja",
+    fullName: "Usman Tariq Khawaja",
+    country: "Australia",
+    countryCode: "AUS",
+    avatar: "🏏",
+    role: "Top-order Batter",
+    height: "5 ft 9 in (175 cm)",
+    born: "Dec 18, 1986 (Islamabad)",
+    age: 39,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Right-arm Medium",
+    jerseyNumber: 1,
+    careerStats: [
+      { format: "Test", matches: 73, innings: 132, runs: 5450, highestScore: "195*", average: 45.79, strikeRate: 49.0, centuries: 15, fifties: 26 }
+    ],
+    recentForm: [
+      { score: "44 (110)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "marnus-labuschagne": {
+    id: "marnus-labuschagne",
+    name: "Marnus Labuschagne",
+    fullName: "Marnus Labuschagne",
+    country: "Australia",
+    countryCode: "AUS",
+    avatar: "🏏",
+    role: "Top-order Batter",
+    height: "5 ft 11 in (180 cm)",
+    born: "Jun 22, 1994 (Klerksdorp)",
+    age: 32,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Legbreak",
+    jerseyNumber: 33,
+    careerStats: [
+      { format: "Test", matches: 50, innings: 90, runs: 4100, highestScore: "215", average: 49.39, strikeRate: 52.8, centuries: 11, fifties: 20 }
+    ],
+    recentForm: [
+      { score: "58 (124)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "steve-smith": {
+    id: "steve-smith",
+    name: "Steve Smith",
+    fullName: "Steven Peter Devereux Smith",
+    country: "Australia",
+    countryCode: "AUS",
+    avatar: "👑",
+    role: "Top-order Batter",
+    height: "5 ft 9 in (175 cm)",
+    born: "Jun 02, 1989 (Sydney)",
+    age: 37,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Legbreak",
+    jerseyNumber: 49,
+    careerStats: [
+      { format: "Test", matches: 109, innings: 195, runs: 9685, highestScore: "239", average: 56.97, strikeRate: 53.6, centuries: 32, fifties: 41 }
+    ],
+    recentForm: [
+      { score: "84* (158)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "mitchell-marsh": {
+    id: "mitchell-marsh",
+    name: "Mitchell Marsh",
+    fullName: "Mitchell Ross Marsh",
+    country: "Australia",
+    countryCode: "AUS",
+    avatar: "⚡",
+    role: "All-rounder",
+    height: "6 ft 4 in (193 cm)",
+    born: "Oct 20, 1991 (Attadale)",
+    age: 34,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Medium Fast",
+    jerseyNumber: 8,
+    careerStats: [
+      { format: "Test", matches: 42, innings: 74, runs: 2050, highestScore: "181", average: 30.59, strikeRate: 56.4, centuries: 3, fifties: 9, wickets: 51, economy: 3.42 }
+    ],
+    recentForm: [
+      { score: "42* (48)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
   },
 
   "pat-cummins": {
@@ -451,13 +913,78 @@ export const PLAYERS_DATABASE: Record<string, PlayerDossier> = {
     bowlingStyle: "Right-arm Fast (145 km/h)",
     jerseyNumber: 30,
     careerStats: [
-      { format: "Test", matches: 62, innings: 118, runs: 1240, highestScore: "64*", average: 17.22, strikeRate: 49.8, centuries: 0, fifties: 2, wickets: 269, economy: 2.76, bestBowling: "6/23" },
-      { format: "ODI", matches: 88, innings: 88, runs: 450, highestScore: "36", average: 12.50, strikeRate: 85.0, centuries: 0, fifties: 0, wickets: 141, economy: 5.18, bestBowling: "5/70" }
+      { format: "Test", matches: 62, innings: 118, runs: 1240, highestScore: "64*", average: 17.22, strikeRate: 49.8, centuries: 0, fifties: 2, wickets: 269, economy: 2.76, bestBowling: "6/23" }
     ],
     recentForm: [
-      { score: "3/68 (24.0 ov)", opponent: "Bangladesh", date: "Today", format: "Test" }
+      { score: "3/68 (24.0 ov)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "mitchell-starc": {
+    id: "mitchell-starc",
+    name: "Mitchell Starc",
+    fullName: "Mitchell Aaron Starc",
+    country: "Australia",
+    countryCode: "AUS",
+    avatar: "🎯",
+    role: "Fast Bowler",
+    height: "6 ft 5 in (196 cm)",
+    born: "Jan 30, 1990 (Baulkham Hills)",
+    age: 36,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Left-arm Fast (148 km/h)",
+    jerseyNumber: 56,
+    careerStats: [
+      { format: "Test", matches: 89, innings: 168, runs: 2100, highestScore: "99", average: 21.64, strikeRate: 68.0, centuries: 0, fifties: 10, wickets: 358, economy: 3.42, bestBowling: "6/50" }
     ],
-    marketLine: { runsNo: 2, runsYes: 3, sixesOver: 0.5 }
+    recentForm: [
+      { score: "2/58 (20.0 ov)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "nathan-lyon": {
+    id: "nathan-lyon",
+    name: "Nathan Lyon",
+    fullName: "Nathan Michael Lyon",
+    country: "Australia",
+    countryCode: "AUS",
+    avatar: "🐐",
+    role: "Spin Bowler",
+    height: "5 ft 10 in (178 cm)",
+    born: "Nov 20, 1987 (Young)",
+    age: 38,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 67,
+    careerStats: [
+      { format: "Test", matches: 129, innings: 242, runs: 1550, highestScore: "47", average: 12.80, strikeRate: 50.0, centuries: 0, fifties: 0, wickets: 530, economy: 2.92, bestBowling: "8/50" }
+    ],
+    recentForm: [
+      { score: "4/72 (28.0 ov)", opponent: "Bangladesh", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  // ─── BANGLADESH MEN ───
+  "najmul-hossain-shanto": {
+    id: "najmul-hossain-shanto",
+    name: "Najmul Hossain Shanto",
+    fullName: "Najmul Hossain Shanto",
+    country: "Bangladesh",
+    countryCode: "BAN",
+    avatar: "👑",
+    role: "Top-order Batter",
+    height: "5 ft 9 in (175 cm)",
+    born: "Aug 25, 1998 (Rajshahi)",
+    age: 27,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 99,
+    careerStats: [
+      { format: "Test", matches: 30, innings: 56, runs: 1650, highestScore: "163", average: 30.55, strikeRate: 48.2, centuries: 5, fifties: 4 }
+    ],
+    recentForm: [
+      { score: "54 (110)", opponent: "Australia", date: "Today", format: "1st Test" }
+    ]
   },
 
   "tanzid-hasan": {
@@ -476,14 +1003,11 @@ export const PLAYERS_DATABASE: Record<string, PlayerDossier> = {
     jerseyNumber: 14,
     careerStats: [
       { format: "Test / Warm-Up", matches: 4, innings: 8, runs: 284, highestScore: "84", average: 35.50, strikeRate: 58.4, centuries: 0, fifties: 3 },
-      { format: "ODI", matches: 21, innings: 21, runs: 612, highestScore: "84", average: 29.14, strikeRate: 91.2, centuries: 0, fifties: 4 },
-      { format: "T20I", matches: 26, innings: 26, runs: 588, highestScore: "71*", average: 24.50, strikeRate: 126.8, centuries: 0, fifties: 3 }
+      { format: "ODI", matches: 21, innings: 21, runs: 612, highestScore: "84", average: 29.14, strikeRate: 91.2, centuries: 0, fifties: 4 }
     ],
     recentForm: [
-      { score: "52 (88)", opponent: "Australia", date: "Today", format: "1st Test" },
-      { score: "22 (41)", opponent: "Australia XI", date: "Aug 2026", format: "Warm-Up" }
-    ],
-    marketLine: { runsNo: 24, runsYes: 26, sixesOver: 0.5 }
+      { score: "52 (88)", opponent: "Australia", date: "Today", format: "1st Test" }
+    ]
   },
 
   "shadman-islam": {
@@ -505,6 +1029,71 @@ export const PLAYERS_DATABASE: Record<string, PlayerDossier> = {
     ],
     recentForm: [
       { score: "78 (164)", opponent: "Australia", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "mominul-haque": {
+    id: "mominul-haque",
+    name: "Mominul Haque",
+    fullName: "Mominul Haque Showrab",
+    country: "Bangladesh",
+    countryCode: "BAN",
+    avatar: "🏏",
+    role: "Top-order Batter",
+    height: "5 ft 3 in (161 cm)",
+    born: "Sep 29, 1991 (Cox's Bazar)",
+    age: 34,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Slow Left-arm Orthodox",
+    jerseyNumber: 7,
+    careerStats: [
+      { format: "Test", matches: 65, innings: 120, runs: 4200, highestScore: "181", average: 38.53, strikeRate: 52.6, centuries: 13, fifties: 19 }
+    ],
+    recentForm: [
+      { score: "62 (135)", opponent: "Australia", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "mushfiqur-rahim": {
+    id: "mushfiqur-rahim",
+    name: "Mushfiqur Rahim",
+    fullName: "Mohammad Mushfiqur Rahim",
+    country: "Bangladesh",
+    countryCode: "BAN",
+    avatar: "🧤",
+    role: "Wicketkeeper Batter",
+    height: "5 ft 3 in (161 cm)",
+    born: "Jun 09, 1987 (Bogra)",
+    age: 39,
+    battingStyle: "Right Handed Bat",
+    jerseyNumber: 15,
+    careerStats: [
+      { format: "Test", matches: 90, innings: 166, runs: 5900, highestScore: "219*", average: 38.56, strikeRate: 47.8, centuries: 11, fifties: 27 }
+    ],
+    recentForm: [
+      { score: "72* (148)", opponent: "Australia", date: "Today", format: "1st Test" }
+    ]
+  },
+
+  "taskin-ahmed": {
+    id: "taskin-ahmed",
+    name: "Taskin Ahmed",
+    fullName: "Taskin Ahmed Tazim",
+    country: "Bangladesh",
+    countryCode: "BAN",
+    avatar: "⚡",
+    role: "Fast Bowler",
+    height: "6 ft 2 in (188 cm)",
+    born: "Apr 03, 1995 (Dhaka)",
+    age: 31,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Right-arm Fast (144 km/h)",
+    jerseyNumber: 3,
+    careerStats: [
+      { format: "Test", matches: 14, innings: 26, runs: 180, highestScore: "75", average: 8.57, strikeRate: 46.0, centuries: 0, fifties: 1, wickets: 34, economy: 3.82, bestBowling: "4/54" }
+    ],
+    recentForm: [
+      { score: "3/56 (19.0 ov)", opponent: "Australia", date: "Today", format: "1st Test" }
     ]
   },
 
@@ -839,14 +1428,14 @@ export const CREX_MATCHES_DATABASE: Record<string, DeepMatchInfo> = {
       name: "Australia",
       code: "AUS",
       scoreSummary: "198 (53.0 ov)",
-      playingXI: ["pat-cummins", "campbell-thompson"],
+      playingXI: ["travis-head", "usman-khawaja", "marnus-labuschagne", "steve-smith", "mitchell-marsh", "pat-cummins", "mitchell-starc", "nathan-lyon", "campbell-thompson"],
       bench: []
     },
     team2: {
       name: "Bangladesh",
       code: "BAN",
       scoreSummary: "351/6 (110.0 ov)",
-      playingXI: ["shadman-islam", "tanzid-hasan"],
+      playingXI: ["shadman-islam", "tanzid-hasan", "najmul-hossain-shanto", "mominul-haque", "mushfiqur-rahim", "taskin-ahmed"],
       bench: []
     },
     headToHead: {
@@ -865,19 +1454,115 @@ export const CREX_MATCHES_DATABASE: Record<string, DeepMatchInfo> = {
         runRate: "3.19",
         batting: [
           { playerId: "shadman-islam", name: "Shadman Islam", dismissal: "c Smith b Cummins", runs: 78, balls: 164, fours: 10, sixes: 0, strikeRate: 47.56 },
-          { playerId: "tanzid-hasan", name: "Tanzid Hasan", dismissal: "c Carey b Starc", runs: 52, balls: 88, fours: 7, sixes: 1, strikeRate: 59.09 }
+          { playerId: "tanzid-hasan", name: "Tanzid Hasan", dismissal: "c Carey b Starc", runs: 52, balls: 88, fours: 7, sixes: 1, strikeRate: 59.09 },
+          { playerId: "najmul-hossain-shanto", name: "Najmul Hossain Shanto (C)", dismissal: "c Labuschagne b Lyon", runs: 54, balls: 110, fours: 6, sixes: 0, strikeRate: 49.09 },
+          { playerId: "mominul-haque", name: "Mominul Haque", dismissal: "b Starc", runs: 62, balls: 135, fours: 8, sixes: 0, strikeRate: 45.92 },
+          { playerId: "mushfiqur-rahim", name: "Mushfiqur Rahim (Wk)", dismissal: "NOT OUT", runs: 72, balls: 148, fours: 9, sixes: 1, strikeRate: 48.64 }
         ],
         extras: { total: 14, breakdown: "b 4, lb 6, w 2, nb 2, p 0" },
         bowling: [
-          { playerId: "pat-cummins", name: "Pat Cummins", overs: "24.0", maidens: 5, runs: 68, wickets: 3, economy: 2.83 }
+          { playerId: "pat-cummins", name: "Pat Cummins", overs: "24.0", maidens: 5, runs: 68, wickets: 3, economy: 2.83 },
+          { playerId: "mitchell-starc", name: "Mitchell Starc", overs: "20.0", maidens: 3, runs: 58, wickets: 2, economy: 2.90 },
+          { playerId: "nathan-lyon", name: "Nathan Lyon", overs: "28.0", maidens: 6, runs: 72, wickets: 1, economy: 2.57 }
         ],
         fallOfWickets: [
-          { batsmanName: "Tanzid Hasan", score: "88-1", over: "22.4" }
+          { batsmanName: "Tanzid Hasan", score: "88-1", over: "22.4" },
+          { batsmanName: "Shadman Islam", score: "154-2", over: "44.1" },
+          { batsmanName: "Najmul Hossain Shanto", score: "226-3", over: "68.3" }
         ],
         partnerships: [
           { batter1: { name: "Shadman Islam", runs: 36, balls: 68 }, batter2: { name: "Tanzid Hasan", runs: 52, balls: 88 }, wicket: "1st Wicket", totalRuns: 88, totalBalls: 156 }
         ],
-        yetToBat: []
+        yetToBat: [
+          { name: "Taskin Ahmed", role: "Fast Bowler", average: 8.57 }
+        ]
+      }
+    ]
+  },
+
+  // ─── MATCH 2B: Sri Lanka vs India (1st Test, ID: 163013) ───
+  "163013": {
+    id: "163013",
+    series: "India Tour of Sri Lanka 2026",
+    title: "Sri Lanka vs India • 1st Test Match",
+    matchType: "TEST",
+    stage: "Day 2 • 3rd Session",
+    date: "August 14 - 18, 2026",
+    timeIST: "09:30 AM IST (04:00 AM GMT)",
+    status: "India 342/4 (86.0 ov) vs Sri Lanka 284",
+    toss: "Sri Lanka won the toss and elected to bat first",
+    venue: {
+      stadium: "Galle International Stadium",
+      city: "Galle",
+      country: "Sri Lanka",
+      capacity: "35,000",
+      pitchReport: "Classic Galle coastal surface with good bounce on Day 1 turning sharply from Day 2 onwards.",
+      weather: {
+        temperature: "28°C",
+        condition: "Warm & Humid with Sea Breeze",
+        humidity: "72%",
+        rainProbability: "10%"
+      }
+    },
+    officials: {
+      umpires: ["Kumar Dharmasena (SL)", "Paul Reiffel (AUS)"],
+      thirdUmpire: "Alex Wharf (ENG)",
+      matchReferee: "Richie Richardson (WI)"
+    },
+    team1: {
+      name: "Sri Lanka",
+      code: "SL",
+      scoreSummary: "284 (78.2 ov)",
+      playingXI: ["pathum-nissanka", "kusal-mendis", "kamindu-mendis", "charith-asalanka", "dhananjaya-de-silva", "wanindu-hasaranga", "asitha-fernando", "matheesha-pathirana"],
+      bench: []
+    },
+    team2: {
+      name: "India",
+      code: "IND",
+      scoreSummary: "342/4 (86.0 ov)",
+      playingXI: ["rohit-sharma", "yashasvi-jaiswal", "shubman-gill", "virat-kohli", "rishabh-pant", "ravindra-jadeja", "jasprit-bumrah", "mohammed-siraj", "kuldeep-yadav"],
+      bench: []
+    },
+    headToHead: {
+      totalPlayed: 46,
+      team1Wins: 7,
+      team2Wins: 22,
+      drawsOrTies: 17,
+      last5Matches: ["L", "L", "D", "W", "L"]
+    },
+    scorecards: [
+      {
+        teamName: "India",
+        teamCode: "IND",
+        inningsNumber: 1,
+        totalScore: "342/4 (86.0 Overs)",
+        runRate: "3.97",
+        batting: [
+          { playerId: "rohit-sharma", name: "Rohit Sharma (C)", dismissal: "c Mendis b Asitha", runs: 57, balls: 84, fours: 7, sixes: 2, strikeRate: 67.85 },
+          { playerId: "yashasvi-jaiswal", name: "Yashasvi Jaiswal", dismissal: "c Samarawickrama b Hasaranga", runs: 82, balls: 120, fours: 11, sixes: 1, strikeRate: 68.33 },
+          { playerId: "shubman-gill", name: "Shubman Gill", dismissal: "c Nissanka b De Silva", runs: 45, balls: 62, fours: 5, sixes: 0, strikeRate: 72.58 },
+          { playerId: "virat-kohli", name: "Virat Kohli", dismissal: "NOT OUT", runs: 74, balls: 110, fours: 8, sixes: 1, strikeRate: 67.27 },
+          { playerId: "rishabh-pant", name: "Rishabh Pant (Wk)", dismissal: "NOT OUT", runs: 64, balls: 58, fours: 6, sixes: 3, strikeRate: 110.34 }
+        ],
+        extras: { total: 20, breakdown: "b 6, lb 8, w 4, nb 2, p 0" },
+        bowling: [
+          { playerId: "asitha-fernando", name: "Asitha Fernando", overs: "18.0", maidens: 2, runs: 52, wickets: 1, economy: 2.88 },
+          { playerId: "wanindu-hasaranga", name: "Wanindu Hasaranga", overs: "24.0", maidens: 3, runs: 84, wickets: 1, economy: 3.50 },
+          { playerId: "dhananjaya-de-silva", name: "Dhananjaya de Silva", overs: "16.0", maidens: 1, runs: 62, wickets: 1, economy: 3.87 }
+        ],
+        fallOfWickets: [
+          { batsmanName: "Rohit Sharma", score: "104-1", over: "24.2" },
+          { batsmanName: "Yashasvi Jaiswal", score: "168-2", over: "42.5" },
+          { batsmanName: "Shubman Gill", score: "220-3", over: "56.1" }
+        ],
+        partnerships: [
+          { batter1: { name: "Rohit Sharma", runs: 57, balls: 84 }, batter2: { name: "Yashasvi Jaiswal", runs: 45, balls: 62 }, wicket: "1st Wicket", totalRuns: 104, totalBalls: 146 },
+          { batter1: { name: "Virat Kohli", runs: 74, balls: 110 }, batter2: { name: "Rishabh Pant", runs: 64, balls: 58 }, wicket: "4th Wicket (Unbroken)", totalRuns: 122, totalBalls: 168 }
+        ],
+        yetToBat: [
+          { name: "Ravindra Jadeja", role: "All-rounder", average: 36.27 },
+          { name: "Jasprit Bumrah", role: "Fast Bowler", average: 8.00 }
+        ]
       }
     ]
   },

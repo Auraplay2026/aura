@@ -435,15 +435,51 @@ export function generateSanitizedMatch(
     };
   }
 
-  // 4. CRICKET RESOLVER (DEFAULT)
-  const p1 = r1?.players || ["danni-wyatt", "smriti-mandhana", "maia-bouchier", "chloe-tryon", "georgia-adams", "lauren-bell"];
-  const p2 = r2?.players || ["grace-harris", "alice-capsey", "kate-cross", "hannah-baker", "sophie-munro"];
+  // 4. CRICKET RESOLVER (DYNAMIC TEAM ROSTER RESOLUTION)
+  let p1 = r1?.players;
+  let p2 = r2?.players;
+
+  if (!p1) {
+    if (t1Key.includes("ind")) p1 = VERIFIED_ROSTERS["india"]?.players;
+    else if (t1Key.includes("sri") || t1Key.includes("sl")) p1 = VERIFIED_ROSTERS["sri lanka"]?.players;
+    else if (t1Key.includes("aus")) p1 = VERIFIED_ROSTERS["australia"]?.players;
+    else if (t1Key.includes("ban")) p1 = VERIFIED_ROSTERS["bangladesh"]?.players;
+    else if (t1Key.includes("brave")) p1 = VERIFIED_ROSTERS["southern brave women"]?.players;
+    else if (t1Key.includes("sunriser") || t1Key.includes("leeds")) p1 = VERIFIED_ROSTERS["sunrisers leeds women"]?.players;
+    else if (t1Key.includes("lucia")) p1 = VERIFIED_ROSTERS["saint lucia kings"]?.players;
+    else if (t1Key.includes("antigua") || t1Key.includes("barbuda")) p1 = VERIFIED_ROSTERS["antigua and barbuda falcons"]?.players;
+    else p1 = ["rohit-sharma", "yashasvi-jaiswal", "shubman-gill", "virat-kohli", "rishabh-pant", "ravindra-jadeja"];
+  }
+
+  if (!p2) {
+    if (t2Key.includes("ind")) p2 = VERIFIED_ROSTERS["india"]?.players;
+    else if (t2Key.includes("sri") || t2Key.includes("sl")) p2 = VERIFIED_ROSTERS["sri lanka"]?.players;
+    else if (t2Key.includes("aus")) p2 = VERIFIED_ROSTERS["australia"]?.players;
+    else if (t2Key.includes("ban")) p2 = VERIFIED_ROSTERS["bangladesh"]?.players;
+    else if (t2Key.includes("brave")) p2 = VERIFIED_ROSTERS["southern brave women"]?.players;
+    else if (t2Key.includes("sunriser") || t2Key.includes("leeds")) p2 = VERIFIED_ROSTERS["sunrisers leeds women"]?.players;
+    else if (t2Key.includes("lucia")) p2 = VERIFIED_ROSTERS["saint lucia kings"]?.players;
+    else if (t2Key.includes("antigua") || t2Key.includes("barbuda")) p2 = VERIFIED_ROSTERS["antigua and barbuda falcons"]?.players;
+    else p2 = ["pat-cummins", "mitchell-starc", "nathan-lyon", "steve-smith", "travis-head", "alex-carey"];
+  }
+
+  const getPlayerName = (pid: string, fallback: string) => PLAYERS_DATABASE[pid]?.name || fallback;
+
+  const b1Name = getPlayerName(p1[0], `${t1Clean} Opener 1`);
+  const b2Name = getPlayerName(p1[1], `${t1Clean} Opener 2`);
+  const b3Name = getPlayerName(p1[2], `${t1Clean} Batter 3`);
+  const b4Name = getPlayerName(p1[3], `${t1Clean} Striker`);
+  const b5Name = getPlayerName(p1[4], `${t1Clean} Non-Striker`);
+
+  const bowl1Name = getPlayerName(p2[0], `${t2Clean} Strike Bowler`);
+  const bowl2Name = getPlayerName(p2[1], `${t2Clean} Bowler 2`);
+  const bowl3Name = getPlayerName(p2[2], `${t2Clean} Bowler 3`);
 
   return {
     id: String(id),
     series: t1Key.includes("women") || t2Key.includes("women") ? "The Hundred Women's Competition 2026" : "International Cricket Championship 2026",
     title: `${t1Clean} vs ${t2Clean}`,
-    matchType: "T20",
+    matchType: t1Key.includes("test") || rawScore.includes("Stump") ? "TEST" : "T20",
     stage: "1st Innings • In-Play",
     date: "Today",
     timeIST: "Live Match Center",
@@ -454,7 +490,7 @@ export function generateSanitizedMatch(
       city: venueInfo?.city || r1?.city || "London",
       country: venueInfo?.country || r1?.country || "England",
       capacity: "25,000",
-      pitchReport: "True batting track offering consistent bounce and slight seam movement under lights. Avg 1st inn score: 154.",
+      pitchReport: "Championship cricket pitch offering optimal balance for pace, spin, and stroke play.",
       weather: {
         temperature: "21°C",
         condition: "Clear Sky",
@@ -463,9 +499,9 @@ export function generateSanitizedMatch(
       }
     },
     officials: {
-      umpires: ["Sue Redfern (ENG)", "Rob Bailey (ENG)"],
-      thirdUmpire: "Graham Lloyd (ENG)",
-      matchReferee: "Chris Broad (ENG)"
+      umpires: ["International Panel Umpire 1", "International Panel Umpire 2"],
+      thirdUmpire: "ICC TV Umpire",
+      matchReferee: "ICC Match Referee"
     },
     team1: {
       name: t1Clean,
@@ -496,29 +532,31 @@ export function generateSanitizedMatch(
         totalScore: rawScore || "148/4 (18.2 Overs)",
         runRate: "8.07",
         batting: [
-          { playerId: p1[0] || "danni-wyatt", name: "Danni Wyatt-Hodge", dismissal: "c Capsey b Cross", runs: 44, balls: 28, fours: 5, sixes: 2, strikeRate: 157.14 },
-          { playerId: p1[1] || "smriti-mandhana", name: "Smriti Mandhana", dismissal: "c Harris b Capsey", runs: 38, balls: 24, fours: 4, sixes: 1, strikeRate: 158.33 },
-          { playerId: p1[2] || "maia-bouchier", name: "Maia Bouchier", dismissal: "lbw b Cross", runs: 26, balls: 18, fours: 3, sixes: 0, strikeRate: 144.44 },
-          { playerId: p1[3] || "chloe-tryon", name: "Chloe Tryon", dismissal: "NOT OUT", runs: 22, balls: 14, fours: 2, sixes: 1, strikeRate: 157.14 },
-          { playerId: p1[4] || "georgia-adams", name: "Georgia Adams (C)", dismissal: "NOT OUT", runs: 12, balls: 8, fours: 1, sixes: 0, strikeRate: 150.00 }
+          { playerId: p1[0], name: b1Name, dismissal: `c ${p2[1] ? getPlayerName(p2[1], "Fielder") : "Fielder"} b ${bowl1Name}`, runs: 44, balls: 28, fours: 5, sixes: 2, strikeRate: 157.14 },
+          { playerId: p1[1], name: b2Name, dismissal: `c ${p2[0] ? getPlayerName(p2[0], "Fielder") : "Fielder"} b ${bowl2Name}`, runs: 38, balls: 24, fours: 4, sixes: 1, strikeRate: 158.33 },
+          { playerId: p1[2], name: b3Name, dismissal: `lbw b ${bowl1Name}`, runs: 26, balls: 18, fours: 3, sixes: 0, strikeRate: 144.44 },
+          { playerId: p1[3], name: b4Name, dismissal: "NOT OUT", runs: 22, balls: 14, fours: 2, sixes: 1, strikeRate: 157.14 },
+          { playerId: p1[4], name: b5Name, dismissal: "NOT OUT", runs: 12, balls: 8, fours: 1, sixes: 0, strikeRate: 150.00 }
         ],
         extras: { total: 6, breakdown: "b 0, lb 2, w 3, nb 1, p 0" },
         bowling: [
-          { playerId: p2[2] || "kate-cross", name: "Kate Cross", overs: "3.2", maidens: 0, runs: 26, wickets: 2, economy: 7.80 },
-          { playerId: p2[1] || "alice-capsey", name: "Alice Capsey", overs: "4.0", maidens: 0, runs: 32, wickets: 1, economy: 8.00 },
-          { playerId: p2[0] || "grace-harris", name: "Grace Harris", overs: "3.0", maidens: 0, runs: 24, wickets: 0, economy: 8.00 }
+          { playerId: p2[0], name: bowl1Name, overs: "3.2", maidens: 0, runs: 26, wickets: 2, economy: 7.80 },
+          { playerId: p2[1], name: bowl2Name, overs: "4.0", maidens: 0, runs: 32, wickets: 1, economy: 8.00 },
+          { playerId: p2[2], name: bowl3Name, overs: "3.0", maidens: 0, runs: 24, wickets: 0, economy: 8.00 }
         ],
         fallOfWickets: [
-          { batsmanName: "Danni Wyatt-Hodge", score: "64-1", over: "7.2" },
-          { batsmanName: "Smriti Mandhana", score: "98-2", over: "11.4" },
-          { batsmanName: "Maia Bouchier", score: "122-3", over: "14.5" }
+          { batsmanName: b1Name, score: "64-1", over: "7.2" },
+          { batsmanName: b2Name, score: "98-2", over: "11.4" },
+          { batsmanName: b3Name, score: "122-3", over: "14.5" }
         ],
         partnerships: [
-          { batter1: { name: "Danni Wyatt-Hodge", runs: 44, balls: 28 }, batter2: { name: "Smriti Mandhana", runs: 18, balls: 16 }, wicket: "1st Wicket", totalRuns: 64, totalBalls: 44 }
+          { batter1: { name: b1Name, runs: 44, balls: 28 }, batter2: { name: b2Name, runs: 18, balls: 16 }, wicket: "1st Wicket", totalRuns: 64, totalBalls: 44 }
         ],
-        yetToBat: [
-          { name: "Lauren Bell", role: "Bowler", average: 4.00 }
-        ]
+        yetToBat: p1.slice(5, 8).map(pid => ({
+          name: getPlayerName(pid, pid),
+          role: "Team Player",
+          average: 15.00
+        }))
       }
     ]
   };

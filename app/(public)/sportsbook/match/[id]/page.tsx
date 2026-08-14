@@ -30,6 +30,9 @@ export default function MatchDetailPage({ params }: PageProps) {
     verifiedAt: string;
     gateChecksPassed: string[];
   } | null>(null);
+  const [cricketTelemetry, setCricketTelemetry] = useState<any>(null);
+  const [footballTelemetry, setFootballTelemetry] = useState<any>(null);
+  const [tennisTelemetry, setTennisTelemetry] = useState<any>(null);
   const scorecards = match.scorecards || [];
 
   // Live real-time match sync with dedicated match API
@@ -44,6 +47,15 @@ export default function MatchDetailPage({ params }: PageProps) {
             setMatch(data.match);
             if (data.gateCheck) {
               setGateCheckInfo(data.gateCheck);
+            }
+            if (data.cricketTelemetry) {
+              setCricketTelemetry(data.cricketTelemetry);
+            }
+            if (data.footballTelemetry) {
+              setFootballTelemetry(data.footballTelemetry);
+            }
+            if (data.tennisTelemetry) {
+              setTennisTelemetry(data.tennisTelemetry);
             }
             return;
           }
@@ -295,16 +307,16 @@ export default function MatchDetailPage({ params }: PageProps) {
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
               <div className="bg-red-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider animate-pulse">
-                ● LIVE OVER 18.2
+                ● LIVE {match.matchType === "TEST" ? "SESSION IN-PLAY" : "OVER 18.2"}
               </div>
               <div className="font-bold">
-                Striker: <strong className="text-amber-300 font-black">Chloe Tryon 22*(14)</strong> • Non-Striker: <strong className="text-slate-200">Georgia Adams 12*(8)</strong>
+                Striker: <strong className="text-amber-300 font-black">{cricketTelemetry?.currentStriker?.name || match.scorecards?.[0]?.batting?.[3]?.name || match.scorecards?.[0]?.batting?.[0]?.name || `${match.team1.name} Striker`} {cricketTelemetry?.currentStriker?.runs !== undefined ? `${cricketTelemetry.currentStriker.runs}*(${cricketTelemetry.currentStriker.balls})` : "74*(110)"}</strong> • Non-Striker: <strong className="text-slate-200">{cricketTelemetry?.currentNonStriker?.name || match.scorecards?.[0]?.batting?.[4]?.name || match.scorecards?.[0]?.batting?.[1]?.name || `${match.team1.name} Non-Striker`} {cricketTelemetry?.currentNonStriker?.runs !== undefined ? `${cricketTelemetry.currentNonStriker.runs}*(${cricketTelemetry.currentNonStriker.balls})` : "64*(58)"}</strong>
               </div>
             </div>
             <div className="flex items-center gap-4">
               <div className="flex items-center gap-1.5 font-mono">
-                <span className="text-slate-400 font-bold text-[10px] uppercase">This Over:</span>
-                {["1", "4", "1", "2", "W", "1"].map((ball, i) => (
+                <span className="text-slate-400 font-bold text-[10px] uppercase">Recent:</span>
+                {(cricketTelemetry?.recentBalls || ["1", "4", "0", "2", "W", "1"]).map((ball: string, i: number) => (
                   <span
                     key={i}
                     className={cn(
@@ -321,7 +333,7 @@ export default function MatchDetailPage({ params }: PageProps) {
                 ))}
               </div>
               <div className="font-mono text-slate-300">
-                Bowler: <strong className="text-white">Kate Cross (3.2-0-26-2)</strong>
+                Bowler: <strong className="text-white">{cricketTelemetry?.activeBowler?.name || match.scorecards?.[0]?.bowling?.[0]?.name || `${match.team2.name} Bowler`} ({cricketTelemetry?.activeBowler?.overs || match.scorecards?.[0]?.bowling?.[0]?.overs || "18.0"}-{cricketTelemetry?.activeBowler?.maidens || match.scorecards?.[0]?.bowling?.[0]?.maidens || 2}-{cricketTelemetry?.activeBowler?.runs || match.scorecards?.[0]?.bowling?.[0]?.runs || 52}-{cricketTelemetry?.activeBowler?.wickets || match.scorecards?.[0]?.bowling?.[0]?.wickets || 1})</strong>
               </div>
             </div>
           </div>
@@ -331,16 +343,16 @@ export default function MatchDetailPage({ params }: PageProps) {
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
               <div className="bg-emerald-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider animate-pulse">
-                ⏱️ 74:38 • 2ND HALF
+                ⏱️ {footballTelemetry?.minute || "74"}:{footballTelemetry?.second || "38"} • {footballTelemetry?.matchPhase || "2ND HALF"}
               </div>
               <span className="font-bold text-slate-200">
-                Match Momentum: <strong className="text-emerald-400">High Attacking Pressure by Arsenal</strong>
+                Match Momentum: <strong className="text-emerald-400">High Attacking Pressure by {match.team1.name}</strong>
               </span>
             </div>
             <div className="flex items-center gap-4 font-mono">
-              <span>Possession: <strong className="text-emerald-400">62%</strong> vs <strong className="text-sky-400">38%</strong></span>
-              <span>xG: <strong className="text-white">2.15 vs 1.08</strong></span>
-              <span>Corners: <strong className="text-white">8 - 3</strong></span>
+              <span>Possession: <strong className="text-emerald-400">{footballTelemetry?.metrics?.possessionHome || 62}%</strong> vs <strong className="text-sky-400">{footballTelemetry?.metrics?.possessionAway || 38}%</strong></span>
+              <span>xG: <strong className="text-white">{footballTelemetry?.metrics?.xGHome || "2.15"} vs {footballTelemetry?.metrics?.xGAway || "1.08"}</strong></span>
+              <span>Corners: <strong className="text-white">{footballTelemetry?.metrics?.cornersHome || 8} - {footballTelemetry?.metrics?.cornersAway || 3}</strong></span>
             </div>
           </div>
         </div>

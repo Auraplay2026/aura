@@ -310,19 +310,24 @@ export class ApexDataEngine {
     let tennisTelemetry: TennisLivePointState | undefined;
 
     if (sport === "cricket") {
+      const bCard = match.scorecards?.[0];
+      const striker = bCard?.batting?.[3] || bCard?.batting?.[0] || { name: `${team1Name} Striker`, runs: 74, balls: 110, fours: 8, sixes: 1, strikeRate: 67.27 };
+      const nonStriker = bCard?.batting?.[4] || bCard?.batting?.[1] || { name: `${team1Name} Non-Striker`, runs: 64, balls: 58, fours: 6, sixes: 3, strikeRate: 110.34 };
+      const activeBowler = bCard?.bowling?.[0] || { name: `${team2Name} Strike Bowler`, overs: "18.0", maidens: 2, runs: 52, wickets: 1, economy: 2.88 };
+
       cricketTelemetry = {
         overNumber: 18,
         ballInOver: 2,
         legalBallCount: 2,
         isIllegalDelivery: false,
         isFreeHit: false,
-        currentStriker: { name: "Chloe Tryon", runs: 22, balls: 14, fours: 2, sixes: 1, strikeRate: 157.14 },
-        currentNonStriker: { name: "Georgia Adams", runs: 12, balls: 8, fours: 1, sixes: 0, strikeRate: 150.00 },
-        activeBowler: { name: "Kate Cross", overs: "3.2", maidens: 0, runs: 26, wickets: 2, economy: 7.80 },
-        recentBalls: ["1", "4", "1", "2", "W", "1"],
-        crr: 8.07,
+        currentStriker: { name: striker.name, runs: striker.runs, balls: striker.balls, fours: striker.fours, sixes: striker.sixes, strikeRate: striker.strikeRate },
+        currentNonStriker: { name: nonStriker.name, runs: nonStriker.runs, balls: nonStriker.balls, fours: nonStriker.fours, sixes: nonStriker.sixes, strikeRate: nonStriker.strikeRate },
+        activeBowler: { name: activeBowler.name, overs: activeBowler.overs, maidens: activeBowler.maidens, runs: activeBowler.runs, wickets: activeBowler.wickets, economy: activeBowler.economy },
+        recentBalls: ["1", "4", "0", "2", "W", "1"],
+        crr: parseFloat(bCard?.runRate || "3.97"),
         rrr: null,
-        projectedScore: 164,
+        projectedScore: 360,
         drsStatus: "available"
       };
     } else if (sport === "soccer") {
