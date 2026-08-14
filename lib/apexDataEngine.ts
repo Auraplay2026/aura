@@ -309,7 +309,12 @@ export class ApexDataEngine {
     let footballTelemetry: FootballLiveClockState | undefined;
     let tennisTelemetry: TennisLivePointState | undefined;
 
-    if (sport === "cricket") {
+    const isUpcoming = match.stage?.toLowerCase().includes("upcoming") || 
+                       match.status?.toLowerCase().includes("upcoming") || 
+                       !match.scorecards || 
+                       match.scorecards.length === 0;
+
+    if (sport === "cricket" && !isUpcoming) {
       const bCard = match.scorecards?.[0];
       const striker = bCard?.batting?.[3] || bCard?.batting?.[0] || { name: `${team1Name} Striker`, runs: 74, balls: 110, fours: 8, sixes: 1, strikeRate: 67.27 };
       const nonStriker = bCard?.batting?.[4] || bCard?.batting?.[1] || { name: `${team1Name} Non-Striker`, runs: 64, balls: 58, fours: 6, sixes: 3, strikeRate: 110.34 };
@@ -330,7 +335,7 @@ export class ApexDataEngine {
         projectedScore: 360,
         drsStatus: "available"
       };
-    } else if (sport === "soccer") {
+    } else if (sport === "soccer" && !isUpcoming) {
       footballTelemetry = {
         minute: 74,
         second: 38,

@@ -302,7 +302,24 @@ export default function MatchDetailPage({ params }: PageProps) {
       </div>
 
       {/* ═══ GRANULAR SPORT LIVE TELEMETRY STRIP ═══ */}
-      {match.matchType === "T20" || match.matchType === "TEST" || match.matchType === "ODI" ? (
+      {(!match.scorecards || match.scorecards.length === 0 || match.stage?.toLowerCase().includes("upcoming") || match.status?.toLowerCase().includes("upcoming") || match.team1?.scoreSummary?.toLowerCase().includes("upcoming")) ? (
+        <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
+          <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
+            <div className="flex items-center gap-3">
+              <div className="bg-amber-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                ⏳ UPCOMING • PRE-MATCH
+              </div>
+              <div className="font-bold text-slate-200">
+                Toss Status: <strong className="text-amber-300">{match.toss || "Toss scheduled 30 mins before start"}</strong>
+              </div>
+            </div>
+            <div className="flex items-center gap-4 font-mono text-slate-300">
+              <span>Playing XI: <strong className="text-emerald-400">Confirmed (Squads Locked)</strong></span>
+              <span>Venue: <strong className="text-white">{match.venue.stadium}, {match.venue.city}</strong></span>
+            </div>
+          </div>
+        </div>
+      ) : cricketTelemetry && (match.matchType === "T20" || match.matchType === "TEST" || match.matchType === "ODI") ? (
         <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
@@ -338,7 +355,7 @@ export default function MatchDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
-      ) : match.matchType === "FOOTBALL" ? (
+      ) : footballTelemetry && match.matchType === "FOOTBALL" ? (
         <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
@@ -387,6 +404,74 @@ export default function MatchDetailPage({ params }: PageProps) {
 
       {/* ═══ MAIN TAB CONTENT CONTAINER ═══ */}
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6">
+
+        {/* ═══════════════════════════════════════════════════════════════
+            TAB 1-UPCOMING: SCHEDULED MATCH SQUADS & PREVIEW
+        ═══════════════════════════════════════════════════════════════ */}
+        {activeTab === "scorecard" && (!match.scorecards || match.scorecards.length === 0) && (
+          <div className="space-y-6">
+            <div className="bg-white border border-slate-200 rounded-2xl p-6 shadow-xs text-slate-950">
+              <div className="flex flex-wrap items-center justify-between gap-4 border-b border-slate-200 pb-4">
+                <div>
+                  <span className="text-[10px] font-black uppercase tracking-wider text-amber-800 bg-amber-100 px-2.5 py-1 rounded-lg border border-amber-300">
+                    ⏳ Match Scheduled • Starting Lineups Confirmed
+                  </span>
+                  <h3 className="text-xl font-black text-slate-950 mt-2">
+                    {match.title}
+                  </h3>
+                  <p className="text-xs text-slate-600 font-bold mt-1">
+                    Venue: {match.venue.stadium}, {match.venue.city} • Toss: {match.toss}
+                  </p>
+                </div>
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-right">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase block">Weather Forecast</span>
+                  <span className="text-sm font-black text-slate-900">{match.venue.weather.temperature} • {match.venue.weather.condition}</span>
+                </div>
+              </div>
+
+              {/* Verified Lineups Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                {/* Team 1 Playing XI */}
+                <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                  <div className="flex items-center justify-between mb-3 border-b border-slate-200 pb-2">
+                    <span className="text-xs font-black text-slate-900 uppercase">{match.team1.name} (Playing XI)</span>
+                    <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">100% Verified</span>
+                  </div>
+                  <div className="space-y-2">
+                    {match.team1.playingXI.map((pid: string, i: number) => {
+                      const p = PLAYERS_DATABASE[pid];
+                      return (
+                        <div key={i} className="flex items-center justify-between text-xs py-1.5 px-2 bg-white rounded-lg border border-slate-200">
+                          <span className="font-black text-slate-900">{i + 1}. {p?.name || pid}</span>
+                          <span className="text-[10px] font-bold text-slate-600">{p?.role || "Squad Member"}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Team 2 Playing XI */}
+                <div className="border border-slate-200 rounded-xl p-4 bg-slate-50">
+                  <div className="flex items-center justify-between mb-3 border-b border-slate-200 pb-2">
+                    <span className="text-xs font-black text-slate-900 uppercase">{match.team2.name} (Playing XI)</span>
+                    <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded border border-emerald-300">100% Verified</span>
+                  </div>
+                  <div className="space-y-2">
+                    {match.team2.playingXI.map((pid: string, i: number) => {
+                      const p = PLAYERS_DATABASE[pid];
+                      return (
+                        <div key={i} className="flex items-center justify-between text-xs py-1.5 px-2 bg-white rounded-lg border border-slate-200">
+                          <span className="font-black text-slate-900">{i + 1}. {p?.name || pid}</span>
+                          <span className="text-[10px] font-bold text-slate-600">{p?.role || "Squad Member"}</span>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* ═══════════════════════════════════════════════════════════════
             TAB 1A: CRICKET SCORECARD

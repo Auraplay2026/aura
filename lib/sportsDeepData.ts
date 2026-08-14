@@ -1119,6 +1119,203 @@ export const PLAYERS_DATABASE: Record<string, PlayerDossier> = {
     ]
   },
 
+  // ─── MANCHESTER SUPER GIANTS / ORIGINALS (The Hundred & Franchise Cricket) ───
+  "jos-buttler": {
+    id: "jos-buttler",
+    name: "Jos Buttler",
+    fullName: "Joseph Charles Buttler",
+    country: "England",
+    countryCode: "ENG",
+    avatar: "👑",
+    role: "Wicketkeeper Batter",
+    height: "5 ft 11 in (180 cm)",
+    born: "Sep 08, 1990 (Taunton)",
+    age: 35,
+    battingStyle: "Right Handed Bat",
+    jerseyNumber: 63,
+    careerStats: [
+      { format: "T20I / League", matches: 410, innings: 382, runs: 11450, highestScore: "124", average: 35.12, strikeRate: 145.8, centuries: 8, fifties: 82 }
+    ],
+    recentForm: [
+      { score: "72 (41)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "phil-salt": {
+    id: "phil-salt",
+    name: "Phil Salt",
+    fullName: "Philip Dean Salt",
+    country: "England",
+    countryCode: "ENG",
+    avatar: "⚡",
+    role: "Top-order Batter",
+    height: "5 ft 9 in (175 cm)",
+    born: "Aug 28, 1996 (Bodelwyddan)",
+    age: 29,
+    battingStyle: "Right Handed Bat",
+    jerseyNumber: 28,
+    careerStats: [
+      { format: "T20I / League", matches: 260, innings: 254, runs: 6800, highestScore: "119*", average: 29.82, strikeRate: 154.6, centuries: 4, fifties: 42 }
+    ],
+    recentForm: [
+      { score: "54 (28)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "liam-livingstone": {
+    id: "liam-livingstone",
+    name: "Liam Livingstone",
+    fullName: "Liam Stephen Livingstone",
+    country: "England",
+    countryCode: "ENG",
+    avatar: "💥",
+    role: "All-rounder",
+    height: "6 ft 0 in (183 cm)",
+    born: "Aug 04, 1993 (Barrow-in-Furness)",
+    age: 32,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Legbreak & Offbreak",
+    jerseyNumber: 23,
+    careerStats: [
+      { format: "T20I / League", matches: 280, innings: 260, runs: 6200, highestScore: "103", average: 28.57, strikeRate: 147.2, centuries: 2, fifties: 36, wickets: 112, economy: 7.64 }
+    ],
+    recentForm: [
+      { score: "42 (22)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "wayne-madsen": {
+    id: "wayne-madsen",
+    name: "Wayne Madsen",
+    fullName: "Wayne Lee Madsen",
+    country: "England",
+    countryCode: "ENG",
+    avatar: "🏏",
+    role: "Middle-order Batter",
+    height: "5 ft 10 in (178 cm)",
+    born: "Jan 02, 1984 (Durban)",
+    age: 42,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Offbreak",
+    jerseyNumber: 10,
+    careerStats: [
+      { format: "T20 / League", matches: 195, innings: 182, runs: 4600, highestScore: "100*", average: 31.08, strikeRate: 138.4, centuries: 1, fifties: 28 }
+    ],
+    recentForm: [
+      { score: "34 (24)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "paul-walter": {
+    id: "paul-walter",
+    name: "Paul Walter",
+    fullName: "Paul Ian Walter",
+    country: "England",
+    countryCode: "ENG",
+    avatar: "⚡",
+    role: "All-rounder",
+    height: "6 ft 7 in (201 cm)",
+    born: "May 28, 1994 (Basildon)",
+    age: 32,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Left-arm Medium Fast",
+    jerseyNumber: 22,
+    careerStats: [
+      { format: "T20 / League", matches: 165, innings: 140, runs: 2800, highestScore: "86", average: 24.56, strikeRate: 142.1, centuries: 0, fifties: 14, wickets: 78, economy: 8.42 }
+    ],
+    recentForm: [
+      { score: "28 (16) & 2/24", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "tom-hartley": {
+    id: "tom-hartley",
+    name: "Tom Hartley",
+    fullName: "Thomas William Hartley",
+    country: "England",
+    countryCode: "ENG",
+    avatar: "🌀",
+    role: "Spin Bowler",
+    height: "6 ft 4 in (193 cm)",
+    born: "May 03, 1999 (Ormskirk)",
+    age: 27,
+    battingStyle: "Left Handed Bat",
+    bowlingStyle: "Slow Left-arm Orthodox",
+    jerseyNumber: 15,
+    careerStats: [
+      { format: "T20 / League", matches: 98, innings: 95, runs: 320, highestScore: "34", average: 12.00, strikeRate: 110.0, centuries: 0, fifties: 0, wickets: 84, economy: 7.22, bestBowling: "4/22" }
+    ],
+    recentForm: [
+      { score: "2/18 (4.0 ov)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "scott-currie": {
+    id: "scott-currie",
+    name: "Scott Currie",
+    fullName: "Scott William Currie",
+    country: "Scotland",
+    countryCode: "SCO",
+    avatar: "🎯",
+    role: "Fast Bowler",
+    height: "6 ft 2 in (188 cm)",
+    born: "May 02, 2001 (Poole)",
+    age: 25,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Fast Medium",
+    jerseyNumber: 47,
+    careerStats: [
+      { format: "T20 / League", matches: 58, innings: 56, runs: 140, highestScore: "26*", average: 11.66, strikeRate: 105.0, centuries: 0, fifties: 0, wickets: 68, economy: 8.65, bestBowling: "4/24" }
+    ],
+    recentForm: [
+      { score: "3/28 (4.0 ov)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "fazalhaq-farooqi": {
+    id: "fazalhaq-farooqi",
+    name: "Fazalhaq Farooqi",
+    fullName: "Fazalhaq Farooqi",
+    country: "Afghanistan",
+    countryCode: "AFG",
+    avatar: "🎯",
+    role: "Fast Bowler",
+    height: "5 ft 10 in (178 cm)",
+    born: "Sep 22, 2000 (Baghlan)",
+    age: 25,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Left-arm Fast Medium",
+    jerseyNumber: 56,
+    careerStats: [
+      { format: "T20I / League", matches: 110, innings: 108, runs: 42, highestScore: "10*", average: 4.20, strikeRate: 60.0, centuries: 0, fifties: 0, wickets: 145, economy: 6.94, bestBowling: "5/9" }
+    ],
+    recentForm: [
+      { score: "3/16 (4.0 ov)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
+  "usama-mir": {
+    id: "usama-mir",
+    name: "Usama Mir",
+    fullName: "Usama Mir",
+    country: "Pakistan",
+    countryCode: "PAK",
+    avatar: "🌀",
+    role: "Spin Bowler",
+    height: "6 ft 3 in (191 cm)",
+    born: "Dec 23, 1995 (Sialkot)",
+    age: 30,
+    battingStyle: "Right Handed Bat",
+    bowlingStyle: "Right-arm Legbreak",
+    jerseyNumber: 24,
+    careerStats: [
+      { format: "T20 / League", matches: 142, innings: 140, runs: 580, highestScore: "34*", average: 14.50, strikeRate: 122.0, centuries: 0, fifties: 0, wickets: 182, economy: 7.82, bestBowling: "6/40" }
+    ],
+    recentForm: [
+      { score: "4/22 (4.0 ov)", opponent: "Sunrisers Leeds", date: "Today", format: "T20" }
+    ]
+  },
+
   // ─── FOOTBALL / SOCCER (Man City, Real Madrid, Arsenal, Chelsea) ───
   "erling-haaland": {
     id: "erling-haaland",

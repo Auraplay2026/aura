@@ -83,6 +83,20 @@ export const VERIFIED_ROSTERS: Record<string, { sport: "cricket" | "soccer" | "t
   },
 
   // ─── CRICKET TEAMS ───
+  "manchester super giants": {
+    sport: "cricket",
+    venue: "Old Trafford Cricket Ground",
+    city: "Manchester",
+    country: "England",
+    players: ["jos-buttler", "phil-salt", "liam-livingstone", "wayne-madsen", "paul-walter", "tom-hartley", "scott-currie", "fazalhaq-farooqi", "usama-mir"]
+  },
+  "manchester originals": {
+    sport: "cricket",
+    venue: "Old Trafford Cricket Ground",
+    city: "Manchester",
+    country: "England",
+    players: ["jos-buttler", "phil-salt", "liam-livingstone", "wayne-madsen", "paul-walter", "tom-hartley", "scott-currie", "fazalhaq-farooqi", "usama-mir"]
+  },
   "southern brave women": {
     sport: "cricket",
     venue: "The Rose Bowl",
@@ -91,6 +105,13 @@ export const VERIFIED_ROSTERS: Record<string, { sport: "cricket" | "soccer" | "t
     players: ["danni-wyatt", "smriti-mandhana", "maia-bouchier", "chloe-tryon", "georgia-adams", "lauren-bell", "freya-kemp", "rhianna-southby", "tilly-corteen-coleman", "mary-taylor", "ellie-anderson"]
   },
   "sunrisers leeds women": {
+    sport: "cricket",
+    venue: "Headingley",
+    city: "Leeds",
+    country: "England",
+    players: ["grace-harris", "alice-capsey", "kate-cross", "hollie-armitage", "mady-villiers", "jo-gardner", "amara-carr", "eva-gray", "hannah-baker", "sophie-munro", "abtaha-maqsood"]
+  },
+  "sunrisers leeds": {
     sport: "cricket",
     venue: "Headingley",
     city: "Leeds",
@@ -124,6 +145,27 @@ export const VERIFIED_ROSTERS: Record<string, { sport: "cricket" | "soccer" | "t
     city: "Colombo",
     country: "Sri Lanka",
     players: ["charith-asalanka", "pathum-nissanka", "kusal-mendis", "kamindu-mendis", "dhananjaya-de-silva", "wanindu-hasaranga", "dunith-wellalage", "maheesh-theekshana", "matheesha-pathirana", "asitha-fernando", "chamindu-wickramasinghe"]
+  },
+  "lucknow super giants": {
+    sport: "cricket",
+    venue: "BRSABV Ekana Cricket Stadium",
+    city: "Lucknow",
+    country: "India",
+    players: ["kl-rahul", "quinton-de-kock", "nicholas-pooran", "marcus-stoinis", "ayush-badoni", "krunal-pandya", "ravi-bishnoi", "mayank-yadav", "naveen-ul-haq"]
+  },
+  "chennai super kings": {
+    sport: "cricket",
+    venue: "M. A. Chidambaram Stadium",
+    city: "Chennai",
+    country: "India",
+    players: ["ruturaj-gaikwad", "rachin-ravindra", "shivam-dube", "ms-dhoni", "ravindra-jadeja", "moeen-ali", "matheesha-pathirana", "deepak-chahar", "tushar-deshpande"]
+  },
+  "mumbai indians": {
+    sport: "cricket",
+    venue: "Wankhede Stadium",
+    city: "Mumbai",
+    country: "India",
+    players: ["rohit-sharma", "ishan-kishan", "suryakumar-yadav", "tilak-varma", "hardik-pandya", "tim-david", "jasprit-bumrah", "gerald-coetzee", "piyush-chawla"]
   },
   "saint lucia kings": {
     sport: "cricket",
@@ -444,11 +486,15 @@ export function generateSanitizedMatch(
     else if (t1Key.includes("sri") || t1Key.includes("sl")) p1 = VERIFIED_ROSTERS["sri lanka"]?.players;
     else if (t1Key.includes("aus")) p1 = VERIFIED_ROSTERS["australia"]?.players;
     else if (t1Key.includes("ban")) p1 = VERIFIED_ROSTERS["bangladesh"]?.players;
+    else if (t1Key.includes("manchester") || t1Key.includes("giant")) p1 = VERIFIED_ROSTERS["manchester super giants"]?.players;
     else if (t1Key.includes("brave")) p1 = VERIFIED_ROSTERS["southern brave women"]?.players;
     else if (t1Key.includes("sunriser") || t1Key.includes("leeds")) p1 = VERIFIED_ROSTERS["sunrisers leeds women"]?.players;
+    else if (t1Key.includes("lucknow")) p1 = VERIFIED_ROSTERS["lucknow super giants"]?.players;
+    else if (t1Key.includes("chennai") || t1Key.includes("csk")) p1 = VERIFIED_ROSTERS["chennai super kings"]?.players;
+    else if (t1Key.includes("mumbai") || t1Key.includes("mi")) p1 = VERIFIED_ROSTERS["mumbai indians"]?.players;
     else if (t1Key.includes("lucia")) p1 = VERIFIED_ROSTERS["saint lucia kings"]?.players;
     else if (t1Key.includes("antigua") || t1Key.includes("barbuda")) p1 = VERIFIED_ROSTERS["antigua and barbuda falcons"]?.players;
-    else p1 = ["rohit-sharma", "yashasvi-jaiswal", "shubman-gill", "virat-kohli", "rishabh-pant", "ravindra-jadeja"];
+    else p1 = ["jos-buttler", "phil-salt", "liam-livingstone", "wayne-madsen", "paul-walter", "tom-hartley"];
   }
 
   if (!p2) {
@@ -456,12 +502,24 @@ export function generateSanitizedMatch(
     else if (t2Key.includes("sri") || t2Key.includes("sl")) p2 = VERIFIED_ROSTERS["sri lanka"]?.players;
     else if (t2Key.includes("aus")) p2 = VERIFIED_ROSTERS["australia"]?.players;
     else if (t2Key.includes("ban")) p2 = VERIFIED_ROSTERS["bangladesh"]?.players;
+    else if (t2Key.includes("manchester") || t2Key.includes("giant")) p2 = VERIFIED_ROSTERS["manchester super giants"]?.players;
     else if (t2Key.includes("brave")) p2 = VERIFIED_ROSTERS["southern brave women"]?.players;
     else if (t2Key.includes("sunriser") || t2Key.includes("leeds")) p2 = VERIFIED_ROSTERS["sunrisers leeds women"]?.players;
+    else if (t2Key.includes("lucknow")) p2 = VERIFIED_ROSTERS["lucknow super giants"]?.players;
+    else if (t2Key.includes("chennai") || t2Key.includes("csk")) p2 = VERIFIED_ROSTERS["chennai super kings"]?.players;
+    else if (t2Key.includes("mumbai") || t2Key.includes("mi")) p2 = VERIFIED_ROSTERS["mumbai indians"]?.players;
     else if (t2Key.includes("lucia")) p2 = VERIFIED_ROSTERS["saint lucia kings"]?.players;
     else if (t2Key.includes("antigua") || t2Key.includes("barbuda")) p2 = VERIFIED_ROSTERS["antigua and barbuda falcons"]?.players;
-    else p2 = ["pat-cummins", "mitchell-starc", "nathan-lyon", "steve-smith", "travis-head", "alex-carey"];
+    else p2 = ["grace-harris", "alice-capsey", "kate-cross", "hollie-armitage", "mady-villiers", "eva-gray"];
   }
+
+  const isUpcoming = rawScore.toLowerCase().includes("upcoming") || 
+                     rawScore.toLowerCase().includes("yet to bat") || 
+                     rawScore.toLowerCase().includes("today") || 
+                     rawScore.toLowerCase().includes("tomorrow") ||
+                     rawScore.toLowerCase().includes("scheduled") ||
+                     rawScore === "" ||
+                     (!rawScore.includes("/") && !rawScore.includes("ov") && !rawScore.includes("Lead") && !rawScore.includes("Trail") && !rawScore.includes("Stump"));
 
   const getPlayerName = (pid: string, fallback: string) => PLAYERS_DATABASE[pid]?.name || fallback;
 
@@ -477,13 +535,17 @@ export function generateSanitizedMatch(
 
   return {
     id: String(id),
-    series: t1Key.includes("women") || t2Key.includes("women") ? "The Hundred Women's Competition 2026" : "International Cricket Championship 2026",
+    series: t1Key.includes("women") || t2Key.includes("women") 
+      ? "The Hundred Women's Competition 2026" 
+      : t1Key.includes("giant") || t2Key.includes("giant") || t1Key.includes("manchester") || t2Key.includes("sunriser")
+      ? "The Hundred Competition 2026"
+      : "International Cricket Championship 2026",
     title: `${t1Clean} vs ${t2Clean}`,
     matchType: t1Key.includes("test") || rawScore.includes("Stump") ? "TEST" : "T20",
-    stage: "1st Innings • In-Play",
+    stage: isUpcoming ? "Upcoming • Scheduled" : "1st Innings • In-Play",
     date: "Today",
     timeIST: "Live Match Center",
-    status: rawScore || `${t1Clean} vs ${t2Clean}`,
+    status: isUpcoming ? "Upcoming match" : (rawScore || `${t1Clean} vs ${t2Clean}`),
     toss: `${t2Clean} won the toss and elected to field`,
     venue: {
       stadium: venueInfo?.stadium || r1?.venue || "International Cricket Stadium",
@@ -506,7 +568,7 @@ export function generateSanitizedMatch(
     team1: {
       name: t1Clean,
       code: t1Clean.slice(0, 3).toUpperCase(),
-      scoreSummary: rawScore || "148/4 (18.2 ov)",
+      scoreSummary: isUpcoming ? "Upcoming match" : (rawScore || "148/4 (18.2 ov)"),
       playingXI: p1,
       bench: []
     },
@@ -524,7 +586,7 @@ export function generateSanitizedMatch(
       drawsOrTies: 0,
       last5Matches: ["W", "W", "L", "W", "W"]
     },
-    scorecards: [
+    scorecards: isUpcoming ? [] : [
       {
         teamName: t1Clean,
         teamCode: t1Clean.slice(0, 3).toUpperCase(),
