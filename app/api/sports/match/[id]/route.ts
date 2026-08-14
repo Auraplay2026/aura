@@ -1,6 +1,5 @@
 import { NextResponse } from "next/server";
-import { MultiSourceGateKeeper } from "@/lib/multiSourceGateKeeper";
-import { resolveDeepMatch } from "@/lib/sportsDeepData";
+import { ApexDataEngine } from "@/lib/apexDataEngine";
 
 export const dynamic = "force-dynamic";
 
@@ -27,8 +26,8 @@ export async function GET(
       console.warn("Could not fetch internal live feed for match", matchId);
     }
 
-    // 2. Execute 5-Source Gate-Check Verification
-    const gateCheckResult = await MultiSourceGateKeeper.executeGateCheck(
+    // 2. Execute ApexData-Engine 5-Source Ingestion & 5-Point Gatekeeper Audit
+    const apexPayload = await ApexDataEngine.getVerifiedMatch(
       matchId,
       liveMatch ? {
         team1: liveMatch.team1,
@@ -40,13 +39,27 @@ export async function GET(
 
     return NextResponse.json({
       success: true,
-      match: gateCheckResult.match,
-      gateCheck: gateCheckResult.gateCheck
+      match: apexPayload.match,
+      sport: apexPayload.sport,
+      ingest_ts_ms: apexPayload.ingest_ts_ms,
+      cricketTelemetry: apexPayload.cricketTelemetry,
+      footballTelemetry: apexPayload.footballTelemetry,
+      tennisTelemetry: apexPayload.tennisTelemetry,
+      gateCheck: {
+        passed: apexPayload.auditReport.overallPassed,
+        confidenceScore: `${apexPayload.auditReport.accuracyScore}%`,
+        sourcesQueried: 5,
+        sourcesAgreed: apexPayload.auditReport.layers.layer3_scoreQuorum.sourcesParticipated,
+        sportVerified: apexPayload.sport,
+        verifiedAt: new Date(apexPayload.ingest_ts_ms).toLocaleTimeString("en-IN", { hour: "2-digit", minute: "2-digit", second: "2-digit" }) + " IST",
+        latency_ms: apexPayload.auditReport.latency_ms,
+        layers: apexPayload.auditReport.layers
+      }
     });
   } catch (err: any) {
-    console.error("Match detail API error:", err);
+    console.error("ApexData Match API error:", err);
     return NextResponse.json(
-      { success: false, error: err?.message || "Failed to resolve match" },
+      { success: false, error: err?.message || "Failed to resolve match via ApexData-Engine" },
       { status: 500 }
     );
   }
