@@ -133,6 +133,17 @@ export async function POST(request: Request) {
         updates.demoTransactions = updates.transactions;
       }
 
+      // Delete the Position row from PostgreSQL
+      await txClient.position.deleteMany({
+        where: {
+          userId: user.id,
+          OR: [
+            { id: transactionId },
+            { marketTitle: { contains: (details.split('on ')[1] || details).substring(0, 20) } }
+          ]
+        }
+      }).catch(() => {});
+
       await updateUser(email, updates, txClient);
 
       return {

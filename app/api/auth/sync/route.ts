@@ -119,10 +119,24 @@ export async function POST(request: Request) {
         screenshotUrl: t.screenshotUrl
       }));
 
+    const serverPositions = (freshUser!.positions || [])
+      .map((p: any) => ({
+        id: p.id,
+        marketId: p.marketId,
+        marketTitle: p.marketTitle,
+        side: p.side,
+        shares: p.shares,
+        buyPrice: p.buyPrice,
+        investment: p.investment,
+        timestamp: p.timestamp,
+        walletType: p.walletType
+      }));
+
     return NextResponse.json({ 
       success: true, 
       balance: serverBalance,
-      transactions: serverTransactions
+      transactions: serverTransactions,
+      positions: serverPositions
     }, { status: 200 });
   } catch (err) {
     return NextResponse.json({ error: 'Failed to sync user state.' }, { status: 500 });

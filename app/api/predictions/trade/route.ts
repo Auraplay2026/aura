@@ -92,7 +92,7 @@ export async function POST(request: Request) {
         }
         if (resolvedVip !== updatedUser.vipLevel) {
           await tx.user.update({
-            where: { email },
+            where: { id: user.id },
             data: { vipLevel: resolvedVip }
           });
         }
