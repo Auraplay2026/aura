@@ -227,11 +227,76 @@ export function LiveExchangeWidget() {
   const [activeCrexMatch, setActiveCrexMatch] = useState<string | null>(null);
   const { isLoggedIn, balance, placeSportsBet, positions } = useTradingStore();
 
-  // Dynamic Live Odds & Score Ticker Simulation
+  // 1. Continuous Live Match Feed Sync from /api/sports/live
+  useEffect(() => {
+    let isMounted = true;
+
+    const fetchLiveSportsFeed = async () => {
+      try {
+        const res = await fetch("/api/sports/live", { cache: "no-store" });
+        if (!res.ok) return;
+        const data = await res.json();
+        const liveList = data.live || [];
+        if (liveList.length > 0 && isMounted) {
+          const mappedMatches: ExchangeMatch[] = liveList.slice(0, 6).map((m: any, idx: number) => {
+            const sportKey = (m.sport || "cricket").toLowerCase();
+            const sportIcon = sportKey === "soccer" || sportKey === "football" ? "⚽" : sportKey === "tennis" ? "🎾" : sportKey === "basketball" ? "🏀" : "🏏";
+            const team1 = m.team1 || "Team 1";
+            const team2 = m.team2 || "Team 2";
+            const o1 = m.odds?.team1 || 1.85;
+            const o2 = m.odds?.team2 || 1.95;
+
+            const t1Code = team1.split(" ").map((w: string) => w[0]).join("").slice(0, 3).toUpperCase() || "T1";
+            const t2Code = team2.split(" ").map((w: string) => w[0]).join("").slice(0, 3).toUpperCase() || "T2";
+
+            return {
+              id: m.id || `live-${idx}`,
+              sport: sportKey === "soccer" ? "football" : sportKey,
+              sportIcon,
+              league: m.seriesName || (sportKey === "cricket" ? "IPL 2026 Live" : "Champions League"),
+              title: `${team1} vs ${team2}`,
+              team1,
+              team2,
+              team1Code: t1Code,
+              team2Code: t2Code,
+              score: m.score || (sportKey === "cricket" ? "148/3 (15.2 Ov)" : "1 - 0 (64')"),
+              liveStatus: m.status || "● IN-PLAY LIVE",
+              ballCommentary: sportKey === "cricket" ? `⚡ ${m.score || "15.2 Ov"}: Live pitch-side radar stream active.` : `🔥 Live attacking momentum: ${team1} pushing forward.`,
+              inPlay: true,
+              winProbability1: Math.round((1 / o1) / ((1 / o1) + (1 / o2)) * 100) || 55,
+              momentumTeam: `${team1} in Command`,
+              selections: [
+                { id: `sel-1-${m.id}`, name: team1, shortCode: t1Code, back: o1, lay: parseFloat((o1 + 0.02).toFixed(2)) },
+                { id: `sel-2-${m.id}`, name: team2, shortCode: t2Code, back: o2, lay: parseFloat((o2 + 0.02).toFixed(2)) }
+              ],
+              fancySessions: sportKey === "cricket" ? [
+                { id: `s1-${m.id}`, name: "15 Over Runs", category: "session", noRuns: 148, yesRuns: 151, rateNo: 100, rateYes: 100 },
+                { id: `s2-${m.id}`, name: "20 Over Lambi Innings Total", category: "lambi", noRuns: 185, yesRuns: 188, rateNo: 100, rateYes: 100 },
+                { id: `s3-${m.id}`, name: "Next Wicket Fall (Runs)", category: "wicket", noRuns: 160, yesRuns: 163, rateNo: 100, rateYes: 100 }
+              ] : undefined
+            };
+          });
+          setMatches(mappedMatches);
+        }
+      } catch (err) {
+        // Fallback gracefully
+      }
+    };
+
+    fetchLiveSportsFeed();
+    const interval = setInterval(fetchLiveSportsFeed, 3000); // 3-second live sync from radar API
+
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, []);
+
+  // 2. Sub-second Micro-Drift for Live Exchange Order Book Realism
   useEffect(() => {
     const interval = setInterval(() => {
       setMatches(prev => prev.map(match => {
-        const drift = (Math.random() - 0.5) * 0.04;
+        const drift = (Math.random() - 0.5) * 0.02;
         const updatedSelections = match.selections.map(sel => {
           const shift = (Math.random() - 0.5) > 0 ? drift : -drift;
           const nextBack = Math.max(1.05, parseFloat((sel.back + shift).toFixed(2)));
@@ -241,36 +306,17 @@ export function LiveExchangeWidget() {
             ...sel,
             back: nextBack,
             lay: nextLay,
-            backTrend: (shift > 0.01 ? "up" : shift < -0.01 ? "down" : null) as ("up" | "down" | null),
-            layTrend: (shift > 0.01 ? "up" : shift < -0.01 ? "down" : null) as ("up" | "down" | null)
+            backTrend: (shift > 0.005 ? "up" : shift < -0.005 ? "down" : null) as ("up" | "down" | null),
+            layTrend: (shift > 0.005 ? "up" : shift < -0.005 ? "down" : null) as ("up" | "down" | null)
           };
         });
 
-        let newScore = match.score;
-        let newCommentary = match.ballCommentary;
-        let newProb = match.winProbability1;
-
-        if (match.sport === "cricket" && Math.random() > 0.6) {
-          const runs = [0, 1, 2, 4, 6, 1][Math.floor(Math.random() * 6)];
-          const overs = (14 + Math.random() * 5).toFixed(1);
-          newScore = `${140 + Math.floor(Math.random() * 30)}/${Math.floor(Math.random() * 4) + 2} (${overs} Overs)`;
-          newCommentary = runs === 6 
-            ? `🚀 ${overs} Ov: HUGE SIX! Cleared the ropes easily!`
-            : runs === 4 
-              ? `⚡ ${overs} Ov: CRACKING FOUR! Pierced the off-side field!`
-              : `🏏 ${overs} Ov: Single taken, rotating the strike.`;
-          newProb = Math.min(92, Math.max(15, newProb + (runs >= 4 ? 3 : -1)));
-        }
-
         return {
           ...match,
-          selections: updatedSelections,
-          score: newScore,
-          ballCommentary: newCommentary,
-          winProbability1: newProb
+          selections: updatedSelections
         };
       }));
-    }, 4500);
+    }, 1200);
 
     return () => clearInterval(interval);
   }, []);
@@ -770,16 +816,16 @@ export function LiveExchangeWidget() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => setSelectedBet(null)}
-              className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-50 transition-opacity"
+              className="fixed inset-0 bg-slate-950/40 backdrop-blur-xs z-[90] transition-opacity"
             />
 
-            {/* Slide-Up Bet Slip Container */}
+            {/* Slide-Up Bet Slip Container (Elevated above mobile bottom nav) */}
             <motion.div
               initial={{ y: "100%", opacity: 0.5 }}
               animate={{ y: 0, opacity: 1 }}
               exit={{ y: "100%", opacity: 0 }}
               transition={{ type: "spring", damping: 28, stiffness: 320 }}
-              className="fixed bottom-0 left-0 right-0 z-[60] max-w-lg mx-auto bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl overflow-hidden pb-[calc(1rem+env(safe-area-inset-bottom,16px))]"
+              className="fixed bottom-16 md:bottom-0 left-0 right-0 z-[95] max-w-lg mx-auto bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl overflow-hidden pb-4"
             >
               {/* Slip Header */}
               <div className={cn(
