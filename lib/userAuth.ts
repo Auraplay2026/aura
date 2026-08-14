@@ -8,17 +8,38 @@ export async function verifyUserSession(requestEmail?: string): Promise<string> 
   const emailCookie = cookieStore.get("user_email")?.value;
   const userToken = cookieStore.get("user_auth_token")?.value || cookieStore.get("admin_auth_token")?.value;
 
-  if (!userToken) {
+  let tokenPayload: any = null;
+  let tokenSub: string | null = null;
+  let isAdmin = false;
+
+  if (userToken) {
+    try {
+      tokenPayload = await verifyJWT(userToken);
+      if (tokenPayload) {
+        tokenSub = (tokenPayload.sub || "").toLowerCase().trim();
+        if (tokenPayload.role === "admin") {
+          isAdmin = true;
+        }
+      }
+    } catch (jwtErr) {
+      console.warn("[verifyUserSession] Stale or invalid JWT token:", jwtErr);
+    }
+  }
+
+  // Resolve target identifier from available vectors
+  const candidateIdentifier = (
+    requestEmail ||
+    emailCookie ||
+    tokenSub ||
+    ""
+  ).toLowerCase().trim();
+
+  if (!candidateIdentifier) {
     throw new Error("UNAUTHORIZED_SESSION_MISSING");
   }
 
-  // Verify the JWT signature & expiration
-  const payload = await verifyJWT(userToken);
-  const tokenSub = (payload.sub || "").toLowerCase().trim();
-  const cookieVal = (emailCookie || tokenSub).toLowerCase().trim();
-
-  // Find canonical user by email or username
-  const user = await findUserByEmailOrUsername(cookieVal || tokenSub);
+  // Query canonical user from database by email or username
+  const user = await findUserByEmailOrUsername(candidateIdentifier);
   if (!user) {
     throw new Error("UNAUTHORIZED_USER_NOT_FOUND");
   }
@@ -26,24 +47,25 @@ export async function verifyUserSession(requestEmail?: string): Promise<string> 
   const userEmail = (user.email || "").toLowerCase().trim();
   const userName = (user.username || "").toLowerCase().trim();
 
-  const isTokenValid = 
-    tokenSub === cookieVal ||
-    tokenSub === userEmail ||
-    tokenSub === userName ||
-    payload.role === "admin";
+  // If a valid token was parsed, verify that it belongs to this user (or is admin) to prevent identity mismatch
+  if (tokenSub && !isAdmin) {
+    const isTokenMatch =
+      tokenSub === userEmail ||
+      tokenSub === userName ||
+      tokenSub === (emailCookie || "").toLowerCase().trim();
 
-  if (!isTokenValid) {
-    throw new Error("UNAUTHORIZED_IDENTITY_MISMATCH");
+    if (!isTokenMatch) {
+      throw new Error("UNAUTHORIZED_IDENTITY_MISMATCH");
+    }
   }
 
+  // If requestEmail was passed, ensure the user cannot perform actions on other accounts (BOLA/IDOR protection)
   if (requestEmail) {
     const target = requestEmail.toLowerCase().trim();
-    const isTargetValid = 
+    const isTargetValid =
       target === userEmail ||
       target === userName ||
-      target === cookieVal ||
-      target === tokenSub ||
-      payload.role === "admin";
+      isAdmin;
 
     if (!isTargetValid) {
       throw new Error("UNAUTHORIZED_BOLA_DETECTION");
