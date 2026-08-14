@@ -108,10 +108,10 @@ export async function POST(request: Request) {
 
       const newBalance = Math.round((activeBalance - totalRequired) * 100) / 100;
 
-      // Format transaction details string
+      // Format transaction details string with immutable LOCKED stamp
       const detailsStr = side === 'no'
-        ? `Placed ₹${stake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
-        : `Placed ₹${stake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`;
+        ? `[LOCKED] Placed ₹${stake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
+        : `[LOCKED] Placed ₹${stake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`;
 
       const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       const tx: Transaction = {
@@ -121,7 +121,7 @@ export async function POST(request: Request) {
         balanceAfter: newBalance,
         timestamp: Date.now(),
         details: detailsStr,
-        status: 'Pending'
+        status: 'Locked' as any
       };
 
       const updates: any = {
@@ -153,7 +153,7 @@ export async function POST(request: Request) {
       }
 
       const marketIdGenerated = `SPORT-${(matchTitle || 'MATCH').replace(/[^a-zA-Z0-9]/g, '-').toUpperCase()}`;
-      const positionTitle = `${matchTitle}: ${selection} (${odds.toFixed(2)})`;
+      const positionTitle = `[LOCKED] ${matchTitle}: ${selection} (${odds.toFixed(2)})`;
       const sharesCount = side === 'no' ? stake : Math.round(stake * odds * 100) / 100;
 
       const createdPosition = await txClient.position.create({
@@ -177,7 +177,9 @@ export async function POST(request: Request) {
         transactionId: txId,
         newBalance,
         position: createdPosition,
-        tx
+        tx,
+        isLocked: true,
+        lockedAt: Date.now()
       };
     });
 

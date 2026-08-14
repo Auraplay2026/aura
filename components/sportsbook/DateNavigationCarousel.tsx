@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useEffect } from "react";
-import { ChevronLeft, ChevronRight, Calendar, Flame } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export interface DateItem {
@@ -41,7 +41,7 @@ export function DateNavigationCarousel({
     {
       id: "live",
       label: "Live (In-Play)",
-      dayOfWeek: "● LIVE",
+      dayOfWeek: "LIVE",
       dayAndMonth: "IN-PLAY",
       dateStr: "live",
       count: liveCount
@@ -72,8 +72,6 @@ export function DateNavigationCarousel({
     else if (offset === -1) dayOfWeekLabel = "YESTERDAY";
 
     const dayAndMonthLabel = `${d.getDate()} ${MONTHS_SHORT[d.getMonth()]}`;
-
-    // Count matches on this specific day
     const dayMatchCount = matches.filter(m => m.dateStr === formattedDateKey).length;
 
     dateItems.push({
@@ -88,7 +86,7 @@ export function DateNavigationCarousel({
 
   const scroll = (direction: "left" | "right") => {
     if (scrollContainerRef.current) {
-      const scrollAmount = direction === "left" ? -300 : 300;
+      const scrollAmount = direction === "left" ? -240 : 240;
       scrollContainerRef.current.scrollBy({ left: scrollAmount, behavior: "smooth" });
     }
   };
@@ -105,12 +103,12 @@ export function DateNavigationCarousel({
 
   return (
     <div className={cn("relative w-full bg-white border-b border-slate-200 select-none", className)}>
-      <div className="flex items-center px-1 sm:px-2 py-2">
+      <div className="flex items-center px-1.5 sm:px-3 py-1.5 sm:py-2">
         {/* Left Scroll Button */}
         <button
           type="button"
           onClick={() => scroll("left")}
-          className="hidden sm:flex items-center justify-center w-8 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors shrink-0 mr-1 shadow-2xs cursor-pointer"
+          className="hidden sm:flex items-center justify-center w-7 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors shrink-0 mr-1.5 cursor-pointer"
           aria-label="Scroll left"
         >
           <ChevronLeft className="w-4 h-4" />
@@ -119,7 +117,7 @@ export function DateNavigationCarousel({
         {/* Scrollable Date Ribbon */}
         <div
           ref={scrollContainerRef}
-          className="flex items-center gap-1.5 overflow-x-auto scrollbar-none scroll-smooth px-1 py-0.5"
+          className="flex items-center gap-1 sm:gap-1.5 overflow-x-auto scrollbar-none scroll-smooth px-0.5 py-0.5"
           style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
         >
           {dateItems.map((item) => {
@@ -134,55 +132,55 @@ export function DateNavigationCarousel({
                 type="button"
                 onClick={() => onSelectDate(item.id)}
                 className={cn(
-                  "flex flex-col items-center justify-center min-w-[76px] sm:min-w-[86px] px-3 py-2 rounded-xl transition-all text-center shrink-0 cursor-pointer border",
+                  "flex flex-col items-center justify-center min-w-[62px] sm:min-w-[80px] px-2 sm:px-3 py-1 sm:py-1.5 rounded-lg sm:rounded-xl transition-all text-center shrink-0 cursor-pointer border",
                   isSelected
                     ? isLiveItem
-                      ? "bg-red-600 text-white border-red-600 shadow-md ring-2 ring-red-300/60"
-                      : "bg-slate-900 text-white border-slate-900 shadow-md ring-2 ring-slate-400/40"
+                      ? "bg-red-600 text-white border-red-600 shadow-xs ring-1 ring-red-400"
+                      : "bg-slate-900 text-white border-slate-900 shadow-xs ring-1 ring-slate-400"
                     : isLiveItem
-                    ? "bg-red-50 text-red-700 border-red-200 hover:bg-red-100 hover:border-red-300"
+                    ? "bg-red-50/80 text-red-700 border-red-200 hover:bg-red-100"
                     : isAllItem
-                    ? "bg-blue-50 text-blue-800 border-blue-200 hover:bg-blue-100"
-                    : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100 hover:text-slate-950"
+                    ? "bg-blue-50/80 text-blue-800 border-blue-200 hover:bg-blue-100"
+                    : "bg-slate-50 text-slate-700 border-slate-200/90 hover:bg-slate-100 hover:text-slate-950"
                 )}
               >
-                {/* Day Header */}
-                <div className="flex items-center gap-1">
+                {/* Top Row: Day Name or Icon */}
+                <div className="flex items-center gap-1 leading-none">
                   {isLiveItem && (
-                    <span className="w-2 h-2 rounded-full bg-red-400 animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse shrink-0" />
                   )}
                   {isAllItem && (
-                    <Calendar className="w-3 h-3 text-blue-600" />
+                    <Calendar className="w-2.5 h-2.5 sm:w-3 sm:h-3 text-blue-600 shrink-0" />
                   )}
                   <span className={cn(
-                    "text-[10px] font-black tracking-wider uppercase",
+                    "text-[8.5px] sm:text-[9.5px] font-black tracking-wider uppercase",
                     isSelected ? "text-white" : isLiveItem ? "text-red-700" : isAllItem ? "text-blue-700" : "text-slate-500"
                   )}>
                     {item.dayOfWeek}
                   </span>
                 </div>
 
-                {/* Day & Month Number */}
-                <span className={cn(
-                  "text-xs sm:text-[13px] font-black tracking-tight mt-0.5",
-                  isSelected ? "text-white" : "text-slate-900"
-                )}>
-                  {item.dayAndMonth}
-                </span>
-
-                {/* Match Count Badge */}
-                <span className={cn(
-                  "text-[9px] font-bold px-1.5 py-0.2 rounded-full mt-1",
-                  isSelected
-                    ? "bg-white/20 text-white"
-                    : isLiveItem
-                    ? "bg-red-200/70 text-red-900"
-                    : isAllItem
-                    ? "bg-blue-100 text-blue-800"
-                    : "bg-slate-200 text-slate-600"
-                )}>
-                  {item.count} {item.count === 1 ? "Match" : "Matches"}
-                </span>
+                {/* Middle/Bottom: Date & Match Count in compact form */}
+                <div className="flex items-center gap-1 mt-0.5">
+                  <span className={cn(
+                    "text-[11px] sm:text-xs font-black tracking-tight leading-none",
+                    isSelected ? "text-white" : "text-slate-900"
+                  )}>
+                    {item.dayAndMonth}
+                  </span>
+                  <span className={cn(
+                    "text-[8px] sm:text-[9px] font-bold px-1 py-0.2 rounded-full leading-none",
+                    isSelected
+                      ? "bg-white/20 text-white"
+                      : isLiveItem
+                      ? "bg-red-100 text-red-800"
+                      : isAllItem
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-slate-200/80 text-slate-600"
+                  )}>
+                    {item.count}
+                  </span>
+                </div>
               </button>
             );
           })}
@@ -192,7 +190,7 @@ export function DateNavigationCarousel({
         <button
           type="button"
           onClick={() => scroll("right")}
-          className="hidden sm:flex items-center justify-center w-8 h-10 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors shrink-0 ml-1 shadow-2xs cursor-pointer"
+          className="hidden sm:flex items-center justify-center w-7 h-8 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 transition-colors shrink-0 ml-1.5 cursor-pointer"
           aria-label="Scroll right"
         >
           <ChevronRight className="w-4 h-4" />

@@ -115,13 +115,13 @@ export default function MatchDetailPage({ params }: PageProps) {
         selectedMarketBet.type as any
       );
       if (res?.success) {
-        setBetFeedback(`🎉 Bet Placed Successfully! Stake: ₹${quickBetStake.toLocaleString()}`);
+        setBetFeedback(`🔒 Bet Accepted & Locked! (Order #${res.transactionId ? res.transactionId.substring(0, 8) : 'BET'}). Frozen until match conclusion.`);
         setTimeout(() => {
           setSelectedMarketBet(null);
           setBetFeedback(null);
-        }, 2200);
+        }, 2800);
       } else {
-        setBetFeedback(res?.message || "Failed to place bet. Please verify balance.");
+        setBetFeedback(res?.error || "Failed to place bet. Please verify balance.");
         setTimeout(() => setBetFeedback(null), 3000);
       }
     } catch (e) {

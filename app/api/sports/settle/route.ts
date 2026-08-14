@@ -47,7 +47,7 @@ export async function POST(request: Request) {
         return { error: 'Wager transaction not found.', status: 404 };
       }
 
-      if (dbTx.status !== 'Pending') {
+      if (dbTx.status !== 'Pending' && dbTx.status !== 'Locked' && dbTx.status !== 'Accepted') {
         return { error: 'Wager is already settled or cancelled.', currentStatus: dbTx.status, status: 400 };
       }
 

@@ -939,7 +939,7 @@ export const useTradingStore = create<TradingState>()(
             const newPos: Position = data.position || {
               id: data.transactionId || `POS-${Date.now()}`,
               marketId: `SPORT-${(matchTitle || 'MATCH').replace(/[^a-zA-Z0-9]/g, '-').toUpperCase()}`,
-              marketTitle: `${matchTitle}: ${selection} (${Number(odds).toFixed(2)})`,
+              marketTitle: `[LOCKED] ${matchTitle}: ${selection} (${Number(odds).toFixed(2)})`,
               side: side || 'yes',
               shares: side === 'no' ? Number(stake) : Math.round(Number(stake) * Number(odds) * 100) / 100,
               buyPrice: Number(odds),
@@ -953,8 +953,8 @@ export const useTradingStore = create<TradingState>()(
               amount: Number(stake),
               balanceAfter: typeof data.newBalance === 'number' ? data.newBalance : state.balance - Number(stake),
               timestamp: Date.now(),
-              details: `Placed ₹${stake} ${side === 'no' ? 'Lay' : 'Back'} bet on ${selection} @ ${Number(odds).toFixed(2)} (${matchTitle})`,
-              status: 'Completed'
+              details: `[LOCKED] Placed ₹${stake} ${side === 'no' ? 'Lay' : 'Back'} bet on ${selection} @ ${Number(odds).toFixed(2)} (${matchTitle})`,
+              status: 'Locked' as any
             };
 
             const updatedPositions = [newPos, ...state.positions];
@@ -996,7 +996,8 @@ export const useTradingStore = create<TradingState>()(
               transactionId: data.transactionId,
               newBalance: updatedBalance,
               position: newPos,
-              tx: newTx
+              tx: newTx,
+              isLocked: true
             };
           } else {
             console.error(data.error || "Failed to place sports bet.");
@@ -1015,27 +1016,7 @@ export const useTradingStore = create<TradingState>()(
       },
 
       cancelSportsBet: async (transactionId: string) => {
-        const state = useTradingStore.getState();
-        if (!state.isLoggedIn || !state.currentUser) return;
-
-        try {
-          const res = await fetch('/api/sports/cancel', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: state.currentUser.username || state.currentUser.email,
-              transactionId
-            })
-          });
-          const data = await res.json();
-          if (res.ok && data.success) {
-            await state.syncFromServer();
-          } else {
-            console.error(data.error || "Failed to cancel sports bet.");
-          }
-        } catch (err) {
-          console.error("Failed to cancel sports bet", err);
-        }
+        console.warn("[IMMUTABLE_BET_POLICY] Accepted bets are locked and frozen until official match conclusion. Cancellation is prohibited.");
       },
 
       playCasino: (wager: number, payout: number, gameTitle: string, uuid?: string) => {
