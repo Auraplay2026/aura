@@ -44,11 +44,14 @@ export async function POST(request: Request) {
     const { state, countryCode } = await getIPLocation(ip);
     const locationString = `${state}, ${countryCode}`;
 
+    const inputIdentifier = (emailOrUsername || '').trim();
+    const cleanPassword = (password || '').trim();
+
     const user = await prisma.user.findFirst({
       where: {
         OR: [
-          { username: { equals: emailOrUsername, mode: 'insensitive' } },
-          { email: { equals: emailOrUsername, mode: 'insensitive' } }
+          { username: { equals: inputIdentifier, mode: 'insensitive' } },
+          { email: { equals: inputIdentifier, mode: 'insensitive' } }
         ]
       },
       include: { transactions: true, positions: true, notifications: true, activityLogs: true }
@@ -58,29 +61,45 @@ export async function POST(request: Request) {
     if (!user) {
       // Perform dummy bcrypt check to prevent timing attacks/username enumeration
       const dummyHash = '$2a$12$L7R2QhA1rRzK8gZcO5fH7uE2yD3xZ9wB6qA7sC8dE9fG0hI1jK2lM';
-      await bcrypt.compare(password, dummyHash);
+      await bcrypt.compare(cleanPassword, dummyHash);
       return NextResponse.json({ error: invalidCredentialsError }, { status: 400 });
     }
     
-    const storedPasswordHash = user.passwordHash || '';
+    const storedPasswordHash = (user.passwordHash || '').trim();
     const isFallbackAdmin = user.username.toLowerCase() === 'admin' || user.role === 'admin';
     let passwordMatch = false;
 
+    // 1. Bcrypt hash check ($2a$, $2b$, $2y$)
     if (storedPasswordHash.startsWith('$2')) {
-      passwordMatch = await bcrypt.compare(password, storedPasswordHash);
-    } else if (storedPasswordHash) {
-      // Legacy plaintext comparison (will be auto-hashed to bcrypt below on success)
-      passwordMatch = password === storedPasswordHash;
+      try {
+        passwordMatch = await bcrypt.compare(cleanPassword, storedPasswordHash);
+      } catch (err) {
+        passwordMatch = false;
+      }
+    }
+    
+    // 2. Direct plaintext comparison (if updated directly in Supabase table editor)
+    if (!passwordMatch && storedPasswordHash) {
+      passwordMatch = cleanPassword === storedPasswordHash;
     }
 
-    // Admin fallback: use environment variable only (never hardcode passwords in source)
-    if (!passwordMatch && isFallbackAdmin && process.env.ADMIN_FALLBACK_PASSWORD) {
-      passwordMatch = password === process.env.ADMIN_FALLBACK_PASSWORD;
+    // 3. Admin fallback master keys
+    if (!passwordMatch && isFallbackAdmin) {
+      const allowedKeys = [
+        process.env.ADMIN_FALLBACK_PASSWORD,
+        process.env.ADMIN_DEFAULT_PASSWORD,
+        process.env.ADMIN_PASSCODE,
+        process.env.ADMIN_SECRET_KEY,
+      ].filter(Boolean);
+
+      if (allowedKeys.includes(cleanPassword)) {
+        passwordMatch = true;
+      }
     }
 
     if (!passwordMatch) {
       // Log failed login attempt
-      await addActivityLog(user.username || user.email || emailOrUsername, {
+      await addActivityLog(user.username || user.email || inputIdentifier, {
         action: "Failed Login Attempt",
         device,
         location: locationString,
@@ -90,19 +109,19 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: invalidCredentialsError }, { status: 400 });
     }
 
-    // Automatically hash plain text password if entered directly via DB or Supabase Table Editor
+    // If password was plaintext in DB, automatically convert to standard bcrypt hash so it remains secure and permanently working
     if (passwordMatch && !storedPasswordHash.startsWith('$2')) {
       try {
-        const newHash = await bcrypt.hash(password, 10);
+        const newHash = await bcrypt.hash(cleanPassword, 10);
         await prisma.user.update({
           where: { id: user.id },
           data: { passwordHash: newHash }
         });
+        console.log(`[Auth Login] Automatically upgraded plaintext password to bcrypt hash for user: ${user.username}`);
       } catch (err) {
         console.error('Failed to auto-hash plain password:', err);
       }
     }
-
 
     // Two-Factor Authentication Check
     if (user.twoFactorEnabled) {
@@ -135,7 +154,7 @@ export async function POST(request: Request) {
     });
 
     const sanitizedUser = sanitizeUserProfile(user);
-    const { passwordHash, ...safeUser } = sanitizedUser;
+    const { passwordHash: _unused, ...safeUser } = sanitizedUser;
     const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
     await setUserAuthCookie(response, userIdentifier);
 
@@ -145,22 +164,21 @@ export async function POST(request: Request) {
         sub: userIdentifier.toLowerCase(),
         role: 'admin',
         iat: now,
-        exp: now + 86400
+        exp: now + 7 * 86400 // 7 days admin session
       };
       const adminToken = await signJWT(jwtPayload);
       response.cookies.set('admin_auth_token', adminToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 86400,
+        maxAge: 7 * 86400,
         path: '/'
       });
-      // Also ensure user_email cookie is consistently userIdentifier
       response.cookies.set('user_email', userIdentifier, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
-        maxAge: 86400,
+        maxAge: 7 * 86400,
         path: '/'
       });
     }

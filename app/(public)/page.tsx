@@ -901,17 +901,17 @@ export default function GlobalHomepage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-100 pb-5">
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] bg-rose-50 border border-rose-250 text-rose-700 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
+            <span className="text-[9px] bg-rose-50 border border-rose-200 text-rose-700 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
               <Star className="w-3 h-3 text-rose-600" /> CASCADE & CLUSTERS
             </span>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
               Premium <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-600 drop-shadow-sm">3D Slots</span>
             </h2>
-            <p className="text-[10px] text-slate-650 font-bold uppercase tracking-wider">
+            <p className="text-xs text-slate-600 font-semibold mt-1">
               Stunning visual effects, rolling multipliers, and huge free spin trigger potentials.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-600 hover:text-rose-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-700 hover:text-rose-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             All Slots <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -924,37 +924,37 @@ export default function GlobalHomepage() {
               <div key={game.id} className="relative group">
                 <Link 
                   href={`/casino/game/${game.id}`}
-                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-155 transition-all duration-500 hover:-translate-y-1.5 hover:border-pink-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
+                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-200 transition-all duration-500 hover:-translate-y-1.5 hover:border-pink-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
                 >
                   <img 
                     src={game.image} 
-                    alt={game.title}
+                    alt={game.title} 
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
                   <div className="absolute top-3 inset-x-3 flex justify-between items-center z-20 pointer-events-none">
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/80 border border-slate-200/80 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
-                      <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/90 border border-slate-200 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       {(game.players || 18000) > 1000 ? ((game.players || 18000) / 1000).toFixed(1) + 'k' : game.players} LIVE
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-250 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
                       RTP {game.rtp || 96.5}%
                     </span>
                   </div>
 
                   <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
-                    <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
+                    <span className={`text-[8px] font-black uppercase tracking-[0.2em] text-transparent bg-clip-text bg-gradient-to-r ${textGrad}`}>
                       VIDEO SLOT
                     </span>
                     <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-pink-600 transition-colors">
                       {game.title}
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-600 font-bold uppercase">3D RENDERED</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
-                        SPIN <Play className="w-1.5 h-1.5 fill-white" />
+                      <p className="text-[8px] text-slate-600 font-bold uppercase">3D RENDERED</p>
+                      <div className="flex items-center gap-0.5 px-2.5 py-1 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
+                        SPIN <Play className="w-2 h-2 fill-white ml-0.5" />
                       </div>
                     </div>
                   </div>
@@ -980,17 +980,17 @@ export default function GlobalHomepage() {
         {/* Header */}
         <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4 mb-8 relative z-10 border-b border-slate-100 pb-5">
           <div className="flex flex-col gap-1">
-            <span className="text-[9px] bg-amber-50 border border-amber-250 text-amber-700 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
+            <span className="text-[9px] bg-amber-50 border border-amber-200 text-amber-800 font-black tracking-[0.25em] uppercase px-3 py-1 rounded-full w-max flex items-center gap-1.5">
               <Radio className="w-3 h-3 text-amber-600" /> ULTRA-LOW LATENCY STREAM
             </span>
             <h2 className="text-xl md:text-2xl font-black text-slate-900 tracking-tight uppercase leading-none mt-2">
               Live <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-amber-600 drop-shadow-sm">VR Casino</span>
             </h2>
-            <p className="text-[10px] text-slate-650 font-bold uppercase tracking-wider">
+            <p className="text-xs text-slate-600 font-semibold mt-1">
               Interact with real dealers. 4K WebRTC feed broadcasts with physical table integrations.
             </p>
           </div>
-          <Link href="/casino" className="text-xs font-black text-slate-600 hover:text-amber-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
+          <Link href="/casino" className="text-xs font-black text-slate-700 hover:text-amber-600 uppercase tracking-widest flex items-center gap-1 transition-colors">
             Enter Live Arena <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -998,42 +998,41 @@ export default function GlobalHomepage() {
         {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 md:gap-5 relative z-10">
           {liveVR.slice(0, 5).map(game => {
-            const textGrad = "from-yellow-650 to-amber-600";
             return (
               <div key={game.id} className="relative group">
                 <Link 
                   href={`/casino/game/${game.id}`}
-                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-55 border border-slate-150 transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
+                  className="block w-full aspect-[4/5] rounded-[1.8rem] overflow-hidden bg-slate-50 border border-slate-200 transition-all duration-500 hover:-translate-y-1.5 hover:border-amber-400 hover:shadow-[0_10px_25px_rgba(0,0,0,0.05)] relative"
                 >
                   <img 
                     src={game.image} 
-                    alt={game.title}
+                    alt={game.title} 
                     loading="lazy"
                     className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
                   <div className="absolute top-3 inset-x-3 flex justify-between items-center z-20 pointer-events-none">
-                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/80 border border-slate-200/80 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
-                      <span className="w-1 h-1 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="flex items-center gap-1 px-2 py-0.5 bg-white/90 border border-slate-200 text-slate-800 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
                       {(game.players || 24000) > 1000 ? ((game.players || 24000) / 1000).toFixed(1) + 'k' : game.players} LIVE
                     </span>
-                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-250 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-sm">
+                    <span className="px-2 py-0.5 bg-emerald-50 border border-emerald-200 text-emerald-700 text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
                       RTP {game.rtp || 97.2}%
                     </span>
                   </div>
 
                   <div className="absolute bottom-0 inset-x-0 p-4 z-20 flex flex-col justify-end bg-gradient-to-t from-white via-white/95 to-transparent pt-8">
-                    <span className={`text-[7px] font-black uppercase tracking-[0.2em] text-slate-600`}>
+                    <span className={`text-[8px] font-black uppercase tracking-[0.2em] text-slate-600`}>
                       LIVE DEALER
                     </span>
                     <h4 className="text-slate-900 font-black text-xs sm:text-sm tracking-tight leading-tight line-clamp-1 mt-0.5 group-hover:text-amber-600 transition-colors">
                       {game.title}
                     </h4>
                     <div className="flex items-center justify-between mt-2 pt-2 border-t border-slate-100 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                      <p className="text-[7px] text-slate-600 font-bold uppercase">4K WebRTC</p>
-                      <div className="flex items-center gap-0.5 px-2 py-0.5 bg-white text-slate-900 text-[8px] font-black uppercase tracking-widest rounded-full">
-                        JOIN <Play className="w-1.5 h-1.5 fill-white" />
+                      <p className="text-[8px] text-slate-600 font-bold uppercase">4K WebRTC</p>
+                      <div className="flex items-center gap-0.5 px-2.5 py-1 bg-slate-900 text-white text-[8px] font-black uppercase tracking-widest rounded-full shadow-xs">
+                        JOIN <Play className="w-2 h-2 fill-white ml-0.5" />
                       </div>
                     </div>
                   </div>

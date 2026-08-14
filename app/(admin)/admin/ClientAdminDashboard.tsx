@@ -305,73 +305,75 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         ))}
       </div>
 
-      {/* Risk Suspension Banner */}
+      {/* Emergency Bet Pause Banner */}
       {isSuspended && (
         <div className="bg-rose-100 border border-rose-500/35 text-rose-800 p-5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 relative z-10 animate-pulse">
           <div className="flex items-center gap-3">
-            <AlertTriangle className="w-6 h-6 text-rose-650 shrink-0" />
+            <AlertTriangle className="w-6 h-6 text-rose-600 shrink-0" />
             <div>
-              <h4 className="text-sm font-black uppercase tracking-wider">Settlement Engine Suspended</h4>
+              <h4 className="text-sm font-black uppercase tracking-wider">Betting Temporarily Paused</h4>
               <p className="text-xs text-rose-700 mt-1">
-                {riskAlerts[0] || "System circuit breaker tripped due to abnormal wager velocity on an outcome selection."}
+                {riskAlerts[0] || "A safety pause was triggered due to an unusually high volume of bets on a single match or game."}
               </p>
             </div>
           </div>
           <button 
             onClick={handleResetBreaker}
             disabled={loading}
-            className="bg-rose-600 hover:bg-rose-700 text-slate-900 font-bold text-xs uppercase px-5 py-3 rounded-xl transition cursor-pointer shadow-lg active:scale-95 disabled:opacity-50 shrink-0"
+            className="bg-rose-600 hover:bg-rose-700 text-white font-bold text-xs uppercase px-5 py-3 rounded-xl transition cursor-pointer shadow-lg active:scale-95 disabled:opacity-50 shrink-0"
           >
-            Reset Circuit Breaker & Resume
+            Resume All Betting Now
           </button>
         </div>
       )}
+
       {/* Maintenance Mode Banner */}
       {isMaintenanceMode && (
         <div className="bg-amber-100 border border-amber-500/35 text-amber-900 p-5 rounded-2xl flex items-center gap-4 relative z-10 animate-pulse">
           <Shield className="w-6 h-6 text-amber-600 shrink-0" />
           <div>
-            <h4 className="text-sm font-black uppercase tracking-wider">Maintenance Mode (Global Kill Switch) is Active</h4>
+            <h4 className="text-sm font-black uppercase tracking-wider">Temporary Site Maintenance is Active</h4>
             <p className="text-xs text-amber-700 mt-1">
-              Public traffic is blocked. Standard users attempting to load casino games or sportsbooks are redirected. Admins retain full bypass access.
+              The website is currently closed to the public while you perform maintenance. You (Admin) can still view and use everything normally.
             </p>
           </div>
         </div>
       )}
 
-      {/* Dashboard Top bar */}
-      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-50/30 border border-slate-200/80 rounded-2xl p-4 sm:p-6 backdrop-blur-md relative z-10">
+      {/* Dashboard Top Bar */}
+      <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white border border-slate-200 rounded-2xl p-4 sm:p-6 shadow-sm relative z-10">
         <div>
           <div className="flex items-center gap-1.5 text-indigo-600 font-bold text-xs tracking-wider uppercase">
-            <Shield className="w-4 h-4" /> Command Center
+            <Shield className="w-4 h-4" /> Admin Control Hub
           </div>
-          <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1 tracking-tight">System Operations Hub</h1>
-          <p className="text-xs text-slate-600 mt-0.5">High-level financial summaries, platform ledger audits, and live user gameplay feeds.</p>
+          <h1 className="text-xl sm:text-2xl font-black text-slate-900 mt-1 tracking-tight">Daily Overview & Management</h1>
+          <p className="text-xs text-slate-600 mt-0.5">Check total company profits, approve user deposits, send withdrawals, and monitor live bets.</p>
         </div>
         
         <div className="flex items-center gap-3 sm:gap-4 shrink-0">
-          <div className="flex items-center gap-2 bg-white/60 border border-slate-200 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-mono text-[10px] text-slate-600">
-            <Clock className="w-4 h-4 text-indigo-600 shrink-0" /> <span className="hidden sm:inline">CLOCK:</span> <span className="text-slate-900 font-bold">{timeString || "00:00:00"}</span>
+          <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl font-mono text-[11px] text-slate-600">
+            <Clock className="w-4 h-4 text-indigo-600 shrink-0" /> <span className="hidden sm:inline">TIME:</span> <span className="text-slate-900 font-bold">{timeString || "00:00:00"}</span>
           </div>
           <button 
             onClick={fetchOperationsSummary}
-            className="p-3 rounded-xl bg-slate-50/50 hover:bg-slate-50 border border-slate-200 hover:border-slate-700 text-slate-700 hover:text-slate-900 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95"
-            aria-label="Refresh Operations Summary"
+            className="p-3 rounded-xl bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 hover:text-slate-900 transition cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center active:scale-95 shadow-sm"
+            aria-label="Refresh Dashboard Numbers"
+            title="Refresh All Numbers"
           >
             <RefreshCw className={`w-4 h-4 ${loading && 'animate-spin'}`} />
           </button>
         </div>
       </header>
 
-      {/* Financial Overviews Row */}
+      {/* Financial Overview Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
         {[
-          { label: "Net House Margin", val: netProfit, icon: Coins, color: "text-emerald-600", border: "border-emerald-500/20" },
-          { label: "Cumulative Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-600", border: "border-indigo-500/15" },
-          { label: "Cumulative Withdrawals", val: totalWithdrawals, icon: ArrowDownLeft, color: "text-pink-600", border: "border-pink-500/15" },
-          { label: "Platform Liabilities", val: totalUserBalances, icon: Users, color: "text-cyan-600", border: "border-cyan-500/15" },
+          { label: "Company Net Profit", val: netProfit, icon: Coins, color: "text-emerald-600", border: "border-emerald-200 bg-emerald-50/40" },
+          { label: "Total User Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-600", border: "border-indigo-200 bg-indigo-50/30" },
+          { label: "Total User Withdrawals", val: totalWithdrawals, icon: ArrowDownLeft, color: "text-pink-600", border: "border-pink-200 bg-pink-50/30" },
+          { label: "Total User Wallet Balances", val: totalUserBalances, icon: Users, color: "text-cyan-600", border: "border-cyan-200 bg-cyan-50/30" },
         ].map((card) => (
-          <div key={card.label} className={`bg-white/60 border ${card.border} p-5 rounded-2xl backdrop-blur-md`}>
+          <div key={card.label} className={`border ${card.border} p-5 rounded-2xl shadow-sm bg-white`}>
             <div className="flex items-center justify-between text-slate-600 text-[10px] font-black uppercase tracking-widest">
               <span>{card.label}</span>
               <card.icon className={`w-4 h-4 ${card.color}`} />
@@ -380,15 +382,15 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
           </div>
         ))}
 
-        {/* Live Hold % Dial Card */}
-        <div className={`bg-white/60 border p-5 rounded-2xl backdrop-blur-md transition-all duration-300 ${
+        {/* Profit Margin Dial Card */}
+        <div className={`border p-5 rounded-2xl shadow-sm transition-all duration-300 ${
           holdStats.deviationFlag 
-            ? 'border-rose-500 bg-rose-50/50 shadow-[0_0_15px_rgba(244,63,94,0.1)] animate-pulse' 
-            : 'border-indigo-500/15 bg-white/60'
+            ? 'border-rose-300 bg-rose-50' 
+            : 'border-slate-200 bg-white'
         }`}>
-          <div className="flex items-center justify-between text-slate-650 text-[10px] font-black uppercase tracking-widest">
-            <span>Platform Hold %</span>
-            <Activity className={`w-4 h-4 ${holdStats.deviationFlag ? 'text-rose-605 animate-spin' : 'text-indigo-600'}`} />
+          <div className="flex items-center justify-between text-slate-600 text-[10px] font-black uppercase tracking-widest">
+            <span>Profit Margin %</span>
+            <Activity className={`w-4 h-4 ${holdStats.deviationFlag ? 'text-rose-600 animate-spin' : 'text-indigo-600'}`} />
           </div>
           <div className="flex items-baseline gap-1.5 mt-3">
             <p className={`text-2xl font-black font-mono tracking-tight ${holdStats.deviationFlag ? 'text-rose-600' : 'text-slate-900'}`}>
@@ -396,71 +398,72 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
             </p>
             {holdStats.deviationFlag && (
               <span className="text-[8px] font-black bg-rose-100 text-rose-700 px-1.5 py-0.5 rounded uppercase leading-none">
-                RISK ALERT
+                ATTENTION
               </span>
             )}
           </div>
           {holdStats.deviationFlag ? (
             <p className="text-[9px] font-bold text-rose-700 mt-2 uppercase tracking-wider leading-none">
-              ⚠️ OUT OF BOUNDS! HUMAN REVIEW REQ
+              ⚠️ Unusual high payouts - check game win rates
             </p>
           ) : (
-            <p className="text-[9px] text-slate-500 font-bold mt-2 uppercase tracking-wider leading-none">
-              ✅ Optimal hold (Limit: 3% - 22%)
+            <p className="text-[9px] text-emerald-700 font-bold mt-2 uppercase tracking-wider leading-none">
+              ✅ Healthy profit margin (Standard: 5% - 20%)
             </p>
           )}
         </div>
       </section>
 
-      {/* Main Grid split */}
+      {/* Main Grid Split */}
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 items-stretch relative z-10">
         
-        {/* Left Side: Pending Task Summaries & Net Trend */}
+        {/* Left Side: Pending Tasks & Quick Tools */}
         <div className="xl:col-span-2 flex flex-col gap-6">
           
-          {/* Action Tasks Summary Widget */}
-          <div className="bg-white/45 border border-slate-200 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4">
-            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3">
-              📋 Operational Verification Backlog
+          {/* Pending Action Tasks */}
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col gap-4">
+            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3 flex items-center justify-between">
+              <span>📋 Pending Tasks (Needs Your Approval)</span>
+              <span className="text-[10px] font-bold text-slate-500 lowercase font-sans">click arrow to open page</span>
             </h3>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               
               {/* Deposits backlog */}
-              <div className="bg-white/[0.01] border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl border border-emerald-500/20 flex items-center justify-center">
-                    <ArrowDownLeft className="w-5 h-5 text-emerald-600" />
+                  <div className="w-10 h-10 bg-emerald-100 rounded-xl border border-emerald-200 flex items-center justify-center">
+                    <ArrowDownLeft className="w-5 h-5 text-emerald-700" />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Manual Deposits</h4>
-                    <p className="text-xs font-black text-slate-900 mt-0.5">{pendingDepositsCount} Awaiting Review</p>
+                    <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Deposit Requests</h4>
+                    <p className="text-xs font-black text-slate-900 mt-0.5">{pendingDepositsCount} Waiting for Approval</p>
                   </div>
                 </div>
                 <Link 
                   href="/admin/deposits" 
-                  className="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-600 hover:text-slate-950 p-2 rounded-lg transition"
-                  title="Open Deposits Queue"
+                  className="bg-emerald-600 hover:bg-emerald-700 text-white p-2.5 rounded-xl transition shadow-sm"
+                  title="Approve User Deposits"
                 >
                   <ArrowRight className="w-4 h-4" />
                 </Link>
               </div>
 
               {/* Withdrawals backlog */}
-              <div className="bg-white/[0.01] border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
+              <div className="bg-slate-50 border border-slate-200 p-4 rounded-xl flex items-center justify-between gap-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 bg-pink-500/10 rounded-xl border border-pink-500/20 flex items-center justify-center">
-                    <CreditCard className="w-5 h-5 text-pink-600" />
+                  <div className="w-10 h-10 bg-pink-100 rounded-xl border border-pink-200 flex items-center justify-center">
+                    <CreditCard className="w-5 h-5 text-pink-700" />
                   </div>
                   <div>
-                    <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Withdrawals Portal</h4>
-                    <p className="text-xs font-black text-slate-900 mt-0.5">{pendingWithdrawalsCount} Awaiting Disbursement</p>
+                    <h4 className="text-[11px] font-bold text-slate-700 uppercase tracking-wider">Withdrawal Requests</h4>
+                    <p className="text-xs font-black text-slate-900 mt-0.5">{pendingWithdrawalsCount} Ready to Pay Out</p>
                   </div>
                 </div>
                 <Link 
                   href="/admin/withdrawals" 
-                  className="bg-pink-500/10 hover:bg-pink-500 text-pink-600 hover:text-slate-900 p-2 rounded-lg transition"
-                  title="Open Withdrawals Queue"
+                  className="bg-pink-600 hover:bg-pink-700 text-white p-2.5 rounded-xl transition shadow-sm"
+                  title="Send Money to Users"
                 >
                   <ArrowRight className="w-4 h-4" />
                 </Link>
@@ -469,78 +472,76 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
             </div>
           </div>
 
-          {/* Platform System Controllers */}
-          <div className="bg-white/45 border border-indigo-500/10 p-6 rounded-2xl backdrop-blur-md flex flex-col gap-4 shadow-[0_0_20px_rgba(99,102,241,0.02)]">
-            <h3 className="text-xs font-black text-indigo-600 uppercase tracking-widest border-b border-slate-200 pb-3 flex items-center gap-2">
+          {/* Quick Management Tools */}
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col gap-4">
+            <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest border-b border-slate-200 pb-3 flex items-center gap-2">
               <Shield className="w-4 h-4 text-indigo-600" />
-              Platform System Controllers & Tools
+              Quick Management Shortcuts
             </h3>
             
-            <p className="text-[11px] text-slate-600">
-              Trigger live backend scrapers, inject simulated wagers to test analytics calculations, or sanitize demo activity from wagers databases.
+            <p className="text-xs text-slate-600">
+              Easily refresh match scores, manage game payout settings, send notices to players, or manage WhatsApp numbers.
             </p>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-2">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-1">
               
               {/* Sync Live Matches */}
               <button 
                 onClick={handleSportsSync}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-cyan-600/20 to-transparent hover:from-cyan-600/30 border border-cyan-500/20 hover:border-cyan-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+                className="flex items-center justify-center gap-2 bg-sky-50 hover:bg-sky-100 border border-sky-200 px-4 py-3.5 rounded-xl text-sky-800 font-bold transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50"
               >
-                <Activity className="w-4 h-4 text-cyan-600" />
-                <span className="text-xs uppercase tracking-wider">Sync Live Sports</span>
+                <Activity className="w-4 h-4 text-sky-600" />
+                <span className="text-xs uppercase tracking-wider">Refresh Match Odds</span>
               </button>
 
-              {/* Inject Random Bet */}
-              <button 
-                onClick={handleSimulateWager}
-                disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-violet-600/20 to-transparent hover:from-violet-600/30 border border-violet-500/20 hover:border-violet-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+              {/* Game Win Rates & RTP Settings */}
+              <Link 
+                href="/admin/rtp-monitor"
+                className="flex items-center justify-center gap-2 bg-amber-50 hover:bg-amber-100 border border-amber-200 px-4 py-3.5 rounded-xl text-amber-800 font-bold transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <Bell className="w-4 h-4 text-violet-600" />
-                <span className="text-xs uppercase tracking-wider">Inject Test Bet</span>
-              </button>
+                <Coins className="w-4 h-4 text-amber-600" />
+                <span className="text-xs uppercase tracking-wider">Game Win Rates</span>
+              </Link>
 
-              {/* Purge Simulated Wagers */}
-              <button 
-                onClick={handleClearActivity}
-                disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600/20 to-transparent hover:from-rose-600/30 border border-rose-500/20 hover:border-rose-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50"
+              {/* WhatsApp Payment Numbers */}
+              <Link 
+                href="/admin/whatsapp-settings"
+                className="flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-3.5 rounded-xl text-emerald-800 font-bold transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <RefreshCw className="w-4 h-4 text-rose-600" />
-                <span className="text-xs uppercase tracking-wider">Purge Demo Bets</span>
-              </button>
+                <CreditCard className="w-4 h-4 text-emerald-600" />
+                <span className="text-xs uppercase tracking-wider">WhatsApp Numbers</span>
+              </Link>
 
               {/* Broadcast Alert */}
               <button 
                 onClick={handleBroadcast}
                 disabled={loading}
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-emerald-600/20 to-transparent hover:from-emerald-600/30 border border-emerald-500/20 hover:border-emerald-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 disabled:opacity-50 sm:col-span-3"
+                className="flex items-center justify-center gap-2 bg-indigo-50 hover:bg-indigo-100 border border-indigo-200 px-4 py-3.5 rounded-xl text-indigo-800 font-bold transition-all cursor-pointer shadow-xs active:scale-95 disabled:opacity-50 sm:col-span-2"
               >
-                <Bell className="w-4 h-4 text-emerald-600" />
-                <span className="text-xs uppercase tracking-wider">Broadcast Global Alert</span>
+                <Bell className="w-4 h-4 text-indigo-600" />
+                <span className="text-xs uppercase tracking-wider">Send Notice to All Users</span>
               </button>
 
               {/* VIP Manager */}
               <Link 
                 href="/admin/vip"
-                className="flex items-center justify-center gap-2 bg-gradient-to-r from-amber-600/20 to-transparent hover:from-amber-600/30 border border-amber-500/20 hover:border-amber-500/40 px-5 py-4 rounded-xl text-slate-700 hover:text-slate-900 font-bold transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5 sm:col-span-3"
+                className="flex items-center justify-center gap-2 bg-purple-50 hover:bg-purple-100 border border-purple-200 px-4 py-3.5 rounded-xl text-purple-800 font-bold transition-all cursor-pointer shadow-xs active:scale-95"
               >
-                <Crown className="w-4 h-4 text-amber-600" />
-                <span className="text-xs uppercase tracking-wider">VIP System Manager</span>
+                <Crown className="w-4 h-4 text-purple-600" />
+                <span className="text-xs uppercase tracking-wider">VIP Level Rewards</span>
               </Link>
 
             </div>
           </div>
 
-          {/* Super Easy Quick Create User Tool */}
-          <div className="bg-white/60 border border-emerald-500/20 p-6 rounded-2xl backdrop-blur-md shadow-sm">
+          {/* Quick Create User Form */}
+          <div className="bg-white border border-emerald-200 p-6 rounded-2xl shadow-sm">
             <div className="flex items-center gap-2 border-b border-slate-200 pb-3 mb-4">
               <UserPlus className="w-4 h-4 text-emerald-600" />
               <div>
-                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Super Easy Quick User Creator</h3>
-                <p className="text-[10px] text-slate-500 mt-0.5">Instant 1-step client registration — enter username & password only</p>
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Create New Player Account</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Quickly register a user and give them an initial balance</p>
               </div>
             </div>
 
@@ -554,7 +555,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
                 setIsCreatingUser(true);
                 const res = await adminCreateUser(newUsername.trim(), newPassword.trim(), Number(newBalance) || 0, newWalletType);
                 if (res.success) {
-                  showToast(`User '${res.username}' created successfully!`, "success");
+                  showToast(`Player '${res.username}' created successfully!`, "success");
                   setNewUsername("");
                   setNewPassword("");
                   setNewBalance("0");
@@ -572,7 +573,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
                 <input
                   type="text"
                   required
-                  placeholder="e.g. john123"
+                  placeholder="e.g. rahul99"
                   value={newUsername}
                   onChange={(e) => setNewUsername(e.target.value)}
                   className="w-full bg-white border border-slate-200 rounded-xl px-3 py-2.5 text-xs text-slate-900 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500 font-bold"
@@ -592,7 +593,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               </div>
 
               <div>
-                <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Initial Credit (₹)</label>
+                <label className="block text-[10px] font-bold text-slate-600 mb-1 uppercase tracking-wider">Initial Money (₹)</label>
                 <input
                   type="number"
                   min="0"
@@ -607,24 +608,24 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
                 <button
                   type="submit"
                   disabled={isCreatingUser}
-                  className="w-full bg-emerald-600 hover:bg-emerald-500 active:bg-emerald-700 text-white font-black text-xs uppercase tracking-wider py-2.5 rounded-xl shadow transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-black text-xs uppercase tracking-wider py-2.5 rounded-xl shadow transition cursor-pointer flex items-center justify-center gap-1.5 disabled:opacity-50"
                 >
                   <UserPlus className="w-3.5 h-3.5" />
-                  <span>{isCreatingUser ? "Creating..." : "Create User Now"}</span>
+                  <span>{isCreatingUser ? "Creating..." : "Create Player"}</span>
                 </button>
               </div>
             </form>
           </div>
 
           {/* Area Chart Card */}
-          <div className="bg-white/45 border border-slate-200 p-6 rounded-2xl backdrop-blur-md flex flex-col justify-between flex-grow">
+          <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col justify-between flex-grow">
             <div className="flex items-center justify-between border-b border-slate-200 pb-3">
               <div>
-                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Platform Net Volume Trend</h3>
-                <p className="text-[9px] text-slate-600 font-bold uppercase tracking-wider mt-0.5">Calculated margin throughput over hours</p>
+                <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Today's Betting Activity Chart</h3>
+                <p className="text-xs text-slate-500 mt-0.5">Total bets placed by players hour by hour</p>
               </div>
-              <span className="text-[9px] text-indigo-600 bg-indigo-500/10 px-2 py-0.5 rounded border border-indigo-500/20 font-black tracking-widest uppercase">
-                Hourly Scanning
+              <span className="text-[10px] text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded border border-indigo-200 font-black tracking-wider uppercase">
+                Hourly Activity
               </span>
             </div>
             {renderAreaChart()}
@@ -633,28 +634,28 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         </div>
 
         {/* Right Side: Live Activity Feed */}
-        <div className="bg-white/45 border border-slate-200 p-6 rounded-2xl backdrop-blur-md flex flex-col h-full min-h-[400px]">
+        <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm flex flex-col h-full min-h-[400px]">
           <div className="flex items-center justify-between border-b border-slate-200 pb-3 mb-4 shrink-0">
             <div className="flex items-center gap-2">
-              <Activity className="w-4 h-4 text-violet-600 animate-pulse" />
-              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Live Activity Feed</h3>
+              <Activity className="w-4 h-4 text-indigo-600 animate-pulse" />
+              <h3 className="text-xs font-black text-slate-900 uppercase tracking-widest">Recent Player Activity</h3>
             </div>
-            <span className="w-2 h-2 bg-emerald-400 rounded-full animate-ping" />
+            <span className="w-2 h-2 bg-emerald-500 rounded-full animate-ping" />
           </div>
 
           <div className="flex-grow overflow-y-auto custom-scrollbar space-y-2.5 pr-1 max-h-[360px]">
             {globalTransactions.length === 0 ? (
-              <div className="h-full flex items-center justify-center text-slate-600 italic text-xs">No logs recorded yet.</div>
+              <div className="h-full flex items-center justify-center text-slate-500 italic text-xs">No activity recorded yet.</div>
             ) : (
               globalTransactions.slice(0, 15).map(tx => {
                 const isGain = tx.type === 'deposit' || (tx.type === 'casino' && !tx.details.toLowerCase().includes('payout') && !tx.details.toLowerCase().includes('win'));
                 return (
-                  <div key={tx.id} className="bg-white/[0.01] hover:bg-white/[0.02] border border-slate-200 p-3 rounded-xl flex items-center justify-between gap-3 text-[10px] transition">
+                  <div key={tx.id} className="bg-slate-50 hover:bg-slate-100 border border-slate-200 p-3 rounded-xl flex items-center justify-between gap-3 text-xs transition">
                     <div className="min-w-0">
-                      <span className="font-bold text-slate-900 truncate block">{tx.username}</span>
-                      <span className="text-slate-600 font-mono truncate block max-w-[170px] mt-0.5">{tx.details}</span>
+                      <span className="font-bold text-slate-900 truncate block">@{tx.username}</span>
+                      <span className="text-slate-500 font-mono truncate block max-w-[170px] mt-0.5 text-[11px]">{tx.details}</span>
                     </div>
-                    <span className={`font-mono font-black shrink-0 text-right ${isGain ? 'text-emerald-600' : 'text-pink-600'}`}>
+                    <span className={`font-mono font-black shrink-0 text-right ${isGain ? 'text-emerald-700' : 'text-pink-600'}`}>
                       {isGain ? '+' : '-'}₹{tx.amount.toLocaleString()}
                     </span>
                   </div>
@@ -666,23 +667,23 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
 
       </div>
 
-      {/* Forensic Audit Telemetry Feed Table */}
-      <section className="bg-white/60 border border-slate-200 p-6 rounded-2xl backdrop-blur-md relative z-10 flex flex-col gap-4">
+      {/* Live Bets & Wager History Table */}
+      <section className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm relative z-10 flex flex-col gap-4">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
           <div>
-            <div className="flex items-center gap-1.5 text-indigo-650 font-bold text-xs tracking-wider uppercase">
-              <Shield className="w-4 h-4 text-indigo-600" /> Channel A: Real-Time Forensic Settlement Telemetry
+            <div className="flex items-center gap-1.5 text-indigo-700 font-bold text-xs tracking-wider uppercase">
+              <Shield className="w-4 h-4 text-indigo-600" /> Live Player Bets & Wager History
             </div>
-            <p className="text-[10px] text-slate-500 mt-1">
-              Forensic audit logs streamed directly from secure daily GPG-encrypted log files.
+            <p className="text-xs text-slate-500 mt-1">
+              Live feed of bets placed by players across cricket, soccer, tennis, and casino games.
             </p>
           </div>
           <div className="flex items-center gap-6">
             <div className="text-right">
-              <span className="text-[9px] font-black text-slate-650 uppercase tracking-widest block leading-none mb-1">Liability Variance</span>
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block leading-none mb-1">Company Profit/Loss</span>
               <span className={`font-mono text-sm font-black ${
                 telemetryHistory.reduce((sum, item) => sum + (item.netProfitRupees || 0), 0) >= 0 
-                  ? 'text-emerald-600' 
+                  ? 'text-emerald-700' 
                   : 'text-rose-600'
               }`}>
                 {telemetryHistory.reduce((sum, item) => sum + (item.netProfitRupees || 0), 0) >= 0 ? '+' : ''}
@@ -690,8 +691,8 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               </span>
             </div>
             <div className="text-right">
-              <span className="text-[9px] font-black text-slate-650 uppercase tracking-widest block leading-none mb-1">Telemetry Volume</span>
-              <span className="font-mono text-sm font-black text-indigo-600">
+              <span className="text-[10px] font-black text-slate-500 uppercase tracking-widest block leading-none mb-1">Total Bet Volume</span>
+              <span className="font-mono text-sm font-black text-indigo-700">
                 ₹{telemetryHistory.reduce((sum, item) => sum + (item.stake || 0), 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
               </span>
             </div>
@@ -701,45 +702,45 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="border-b border-slate-200 text-slate-600 text-[10px] uppercase font-black tracking-wider">
-                <th className="py-2.5 px-3">Time</th>
-                <th className="py-2.5 px-3">Transaction ID</th>
-                <th className="py-2.5 px-3">User ID</th>
-                <th className="py-2.5 px-3">Market</th>
-                <th className="py-2.5 px-3">Selection</th>
-                <th className="py-2.5 px-3 text-right">Stake</th>
-                <th className="py-2.5 px-3 text-right">Odds</th>
-                <th className="py-2.5 px-3 text-right">Outcome</th>
-                <th className="py-2.5 px-3 text-center">Status</th>
+              <tr className="border-b border-slate-200 text-slate-600 text-[10px] uppercase font-black tracking-wider bg-slate-50">
+                <th className="py-3 px-3">Time</th>
+                <th className="py-3 px-3">Bet ID</th>
+                <th className="py-3 px-3">Player</th>
+                <th className="py-3 px-3">Match / Game</th>
+                <th className="py-3 px-3">Selection</th>
+                <th className="py-3 px-3 text-right">Bet Amount</th>
+                <th className="py-3 px-3 text-right">Odds / Rate</th>
+                <th className="py-3 px-3 text-right">Result</th>
+                <th className="py-3 px-3 text-center">Status</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100 font-mono text-[11px] text-slate-700">
+            <tbody className="divide-y divide-slate-100 font-mono text-xs text-slate-700">
               {telemetryHistory.length === 0 ? (
                 <tr>
-                  <td colSpan={9} className="py-8 text-center text-slate-600 italic">
-                    No active settlements recorded in the daily audit vault ledger.
+                  <td colSpan={9} className="py-8 text-center text-slate-500 italic">
+                    No bets placed today yet. All new player bets will appear here live.
                   </td>
                 </tr>
               ) : (
                 telemetryHistory.map((item, idx) => (
-                  <tr key={`${item.transactionId}-${idx}`} className="hover:bg-slate-50/50 transition">
+                  <tr key={`${item.transactionId}-${idx}`} className="hover:bg-slate-50 transition">
                     <td className="py-2.5 px-3 text-slate-600">{item.timestampStr || new Date(item.timestamp).toLocaleTimeString()}</td>
                     <td className="py-2.5 px-3 text-slate-600 font-bold">{item.transactionId}</td>
-                    <td className="py-2.5 px-3 text-slate-800 font-bold">{item.userId}</td>
-                    <td className="py-2.5 px-3 text-slate-800 font-bold">{item.marketName}</td>
+                    <td className="py-2.5 px-3 text-slate-900 font-bold">@{item.userId}</td>
+                    <td className="py-2.5 px-3 text-slate-900 font-bold">{item.marketName}</td>
                     <td className="py-2.5 px-3 text-slate-700">{item.selectionName}</td>
                     <td className="py-2.5 px-3 text-right text-slate-900 font-bold">₹{item.stake.toFixed(2)}</td>
                     <td className="py-2.5 px-3 text-right text-slate-600">{item.odds.toFixed(2)}</td>
                     <td className="py-2.5 px-3 text-right font-bold">
-                      <span className={item.outcome.toLowerCase() === 'won' || item.outcome.toLowerCase() === 'success' ? 'text-emerald-600' : 'text-slate-600'}>
+                      <span className={item.outcome.toLowerCase() === 'won' || item.outcome.toLowerCase() === 'success' ? 'text-emerald-700' : 'text-slate-600'}>
                         {item.outcome}
                       </span>
                     </td>
                     <td className="py-2.5 px-3 text-center">
                       <span className={`px-2 py-0.5 rounded text-[9px] font-black tracking-widest uppercase ${
                         item.status === 'SUCCESS' 
-                          ? 'bg-emerald-500/10 text-emerald-600 border border-emerald-500/20' 
-                          : 'bg-rose-500/10 text-rose-600 border border-rose-500/20'
+                          ? 'bg-emerald-100 text-emerald-700 border border-emerald-200' 
+                          : 'bg-rose-100 text-rose-700 border border-rose-200'
                       }`}>
                         {item.status}
                       </span>

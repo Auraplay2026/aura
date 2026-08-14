@@ -43,26 +43,23 @@ const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
 async function main() {
-  const crypto = require('crypto');
-  const adminPassword = 'AuraBetAdmin2026!';
-  const hashedPassword = 'AuraBetAdmin2026!';
-  console.log(`Using admin password: ${adminPassword}`);
-
-  // Elevate existing account
-  await prisma.user.updateMany({
-    where: { email: 'twintubrovquattro@gmail.com' },
-    data: { role: 'admin', passwordHash: 'AuraBetAdmin2026!' }
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
+        { username: { equals: 'admin', mode: 'insensitive' } }
+      ]
+    }
   });
-  console.log('Elevated twintubrovquattro@gmail.com to admin');
 
-  // Create twintubrovquattro@gmail.com
-  const existing = await prisma.user.findUnique({ where: { email: 'twintubrovquattro@gmail.com' } });
   if (!existing) {
+    const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'AuraBetAdmin2026!';
+    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
     await prisma.user.create({
       data: {
         username: 'admin',
         email: 'twintubrovquattro@gmail.com',
-        passwordHash: 'AuraBetAdmin2026!',
+        passwordHash: hashedPassword,
         accountType: 'real',
         balance: 100000,
         demoBalance: 100000,
@@ -71,13 +68,13 @@ async function main() {
         role: 'admin',
       }
     });
-    console.log('Created twintubrovquattro@gmail.com account');
+    console.log('[create_admin] Created initial admin account');
   } else {
     await prisma.user.update({
-      where: { email: 'twintubrovquattro@gmail.com' },
-      data: { role: 'admin', passwordHash: hashedPassword }
+      where: { id: existing.id },
+      data: { role: 'admin' }
     });
-    console.log('Updated twintubrovquattro@gmail.com account');
+    console.log(`[create_admin] Verified admin role for ${existing.email || existing.username} without changing password`);
   }
 }
 

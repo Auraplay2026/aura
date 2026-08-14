@@ -81,22 +81,21 @@ async function seedAdmin() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
-  try {
-    const crypto = require('crypto');
-    const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || process.env.ADMIN_SECRET_KEY || crypto.randomBytes(16).toString('hex');
-    const hashedPassword = await bcrypt.hash(adminPassword, 12);
-    console.log(`[Seeder] Using admin password: ${adminPassword === process.env.ADMIN_SECRET_KEY ? '[ADMIN_SECRET_KEY]' : adminPassword}`);
-
-    // Elevate twintubrovquattro@gmail.com
-    await prisma.user.updateMany({
-      where: { email: 'twintubrovquattro@gmail.com' },
-      data: { role: 'admin' }
+    // Check if admin user already exists by email or username
+    const existingByEmail = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
+          { username: { equals: 'admin', mode: 'insensitive' } }
+        ]
+      }
     });
-    console.log('[Seeder] Elevated twintubrovquattro@gmail.com to admin');
 
-    // Create or update twintubrovquattro@gmail.com
-    const existing = await prisma.user.findUnique({ where: { email: 'twintubrovquattro@gmail.com' } });
-    if (!existing) {
+    if (!existingByEmail) {
+      const crypto = require('crypto');
+      const adminPassword = process.env.ADMIN_DEFAULT_PASSWORD || process.env.ADMIN_SECRET_KEY || 'Admin@12345';
+      const hashedPassword = await bcrypt.hash(adminPassword, 10);
+      
       await prisma.user.create({
         data: {
           username: 'admin',
@@ -110,13 +109,14 @@ async function seedAdmin() {
           role: 'admin',
         }
       });
-      console.log('[Seeder] Created default twintubrovquattro@gmail.com account');
+      console.log('[Seeder] Initialized default admin account: twintubrovquattro@gmail.com / admin');
     } else {
+      // Ensure role is admin without overwriting their custom password
       await prisma.user.update({
-        where: { email: 'twintubrovquattro@gmail.com' },
-        data: { role: 'admin', passwordHash: hashedPassword }
+        where: { id: existingByEmail.id },
+        data: { role: 'admin' }
       });
-      console.log('[Seeder] Restored/Updated twintubrovquattro@gmail.com account configuration');
+      console.log(`[Seeder] Verified admin privileges for user: ${existingByEmail.email || existingByEmail.username} (password preserved)`);
     }
   } catch (err) {
     console.error('[Seeder ERROR] Failed to seed database admin credentials:', err.message);
