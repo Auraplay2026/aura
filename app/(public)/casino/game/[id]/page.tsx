@@ -896,19 +896,7 @@ export default function GamePlayerPage() {
     if (game.id === "orig-20" || game.title.toLowerCase().includes("blackjack pro")) {
       return <BlackjackVIPEngine isPlaying={isSpinning} onComplete={handleEngineComplete} gameId={game.id} gameTitle={game.title} />;
     }
-    if (game.id === "orig-22" || game.title.toLowerCase().includes("fusion")) {
-      return (
-        <LudoFusionEngine
-          isPlaying={isSpinning}
-          betAmount={betAmount}
-          onBetAmountChange={setBetAmount}
-          onStartGame={handlePlay}
-          onComplete={handleEngineComplete}
-          onLiveTick={handleLiveTick}
-        />
-      );
-    }
-    if (game.id === "orig-21" || game.title.toLowerCase().includes("ludo")) {
+    if (game.id === "orig-21" || game.id === "orig-22" || game.title.toLowerCase().includes("ludo")) {
       return (
         <LudoEngine
           isPlaying={isSpinning}

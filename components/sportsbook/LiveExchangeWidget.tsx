@@ -11,6 +11,7 @@ import {
 import { useTradingStore, Position } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { formatOddsByMode, OddsDisplayMode } from "@/lib/bhavEngine";
+import { CrexCricketMatchCenter } from "./CrexCricketMatchCenter";
 
 export type OddsFormatMode = OddsDisplayMode;
 
@@ -223,7 +224,7 @@ export function LiveExchangeWidget() {
   const [isPlacing, setIsPlacing] = useState(false);
   const [betSuccess, setBetSuccess] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
-
+  const [activeCrexMatch, setActiveCrexMatch] = useState<string | null>(null);
   const { isLoggedIn, balance, placeSportsBet, positions } = useTradingStore();
 
   // Dynamic Live Odds & Score Ticker Simulation
@@ -709,10 +710,19 @@ export function LiveExchangeWidget() {
                 </div>
               )}
 
-              {/* Ball-by-ball commentary tick */}
-              <div className="pt-1.5 border-t border-slate-100 flex items-center justify-between text-[10px] text-slate-500">
+              {/* Ball-by-ball commentary tick & CREX Scorecard Button */}
+              <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[10px] text-slate-500">
                 <span className="truncate italic">{match.ballCommentary}</span>
-                <span className="font-bold text-emerald-700 shrink-0 ml-2 font-mono">0% Commission</span>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setActiveCrexMatch("aus-xi-vs-ban")}
+                    className="px-2.5 py-1 rounded-lg bg-amber-50 hover:bg-amber-100 text-amber-900 border border-amber-300/80 font-black text-[10px] uppercase tracking-wider flex items-center gap-1 transition-all cursor-pointer"
+                  >
+                    <span>📋 CREX Scorecard & Pitch</span>
+                  </button>
+                  <span className="font-bold text-emerald-700 font-mono">0% Fee</span>
+                </div>
               </div>
             </div>
           );
@@ -940,6 +950,27 @@ export function LiveExchangeWidget() {
               </div>
             </motion.div>
           </>
+        )}
+      </AnimatePresence>
+
+      {/* ═══ CREX CRICKET MATCH CENTER MODAL ═══ */}
+      <AnimatePresence>
+        {activeCrexMatch && (
+          <div className="fixed inset-0 z-[85] flex items-center justify-center p-2 sm:p-4 overflow-y-auto">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setActiveCrexMatch(null)}
+              className="fixed inset-0 bg-slate-950/70 backdrop-blur-xs"
+            />
+            <div className="relative w-full max-w-4xl max-h-[92vh] overflow-y-auto z-10 my-4">
+              <CrexCricketMatchCenter
+                matchId={activeCrexMatch}
+                onClose={() => setActiveCrexMatch(null)}
+              />
+            </div>
+          </div>
         )}
       </AnimatePresence>
 
