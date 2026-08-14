@@ -63,32 +63,32 @@ const LIVE_MATCHES_DATA: LiveMatch[] = [
 const CAROUSEL_SLIDES = [
   {
     id: 1,
-    title: "AuraPlay Exchange",
-    subtitle: "Get Your Online ID",
-    accent: "5% BONUS ON FIRST DEPOSIT",
+    title: "AuraPlay Sovereign Exchange",
+    subtitle: "Direct Liquidity & Indian Bhav",
+    accent: "INSTANT 5% SOVEREIGN LIQUIDITY CREDIT",
     bgUrl: "https://images.unsplash.com/photo-1540747913346-19e32dc3e97e?q=80&w=2000&auto=format&fit=crop",
     gradient: "from-rose-100 via-rose-50 to-slate-50",
-    buttonText: "Register Now",
+    buttonText: "Claim Exchange Access",
     link: "/auth"
   },
   {
     id: 2,
-    title: "Live Sports Arena",
-    subtitle: "Unmatched Betting Margins",
-    accent: "BET LIVE ON CRICKET, SOCCER, & TENNIS",
+    title: "Global Sports Arena",
+    subtitle: "Zero-Commission Exchange Rails",
+    accent: "TRADE LIVE CRICKET, EPL & ATP TENNIS WITH 0.2S RADAR",
     bgUrl: "https://images.unsplash.com/photo-1518605368461-1e128014792c?q=80&w=2000&auto=format&fit=crop",
     gradient: "from-indigo-100 via-indigo-50 to-slate-50",
-    buttonText: "Enter Sportsbook",
+    buttonText: "Enter Sports Exchange",
     link: "/sportsbook"
   },
   {
     id: 3,
-    title: "Instant Arcade Hub",
-    subtitle: "Play Premium Games",
-    accent: "NEON SURFER, SUGAR CASCADE & ZEN ARCHERY",
+    title: "Provably Fair Arcade & Yield",
+    subtitle: "Cryptographically Audited Games",
+    accent: "NEON HORIZON, ZEN ARCHERY & CRASH MULTIPLIERS",
     bgUrl: "https://images.unsplash.com/photo-1511512578047-dfb367046420?q=80&w=2000&auto=format&fit=crop",
     gradient: "from-emerald-100 via-emerald-50 to-slate-50",
-    buttonText: "Play Instants",
+    buttonText: "Launch Verifiable Games",
     link: "/arcade"
   }
 ];
@@ -645,6 +645,49 @@ export default function GlobalHomepage() {
         >
           <ChevronRight className="w-5 h-5" />
         </button>
+      </div>
+
+      {/* ── SOVEREIGN PROOF OF LIQUIDITY & INSTITUTIONAL TRUST STRIP ── */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2.5 sm:gap-3 bg-white border border-slate-200/90 rounded-xl p-3 sm:p-4 shadow-xs">
+        <div className="flex items-center gap-2.5 p-1">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center shrink-0">
+            <Activity className="w-4 h-4 text-emerald-600" />
+          </div>
+          <div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">24h Liquid Volume</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">₹48.92 Cr+</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 p-1">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-sky-50 border border-sky-200 flex items-center justify-center shrink-0">
+            <Radio className="w-4 h-4 text-sky-600 animate-pulse" />
+          </div>
+          <div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Radar Execution</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">0.2s Pitch-Side</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 p-1">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-amber-50 border border-amber-200 flex items-center justify-center shrink-0">
+            <ShieldCheck className="w-4 h-4 text-amber-600" />
+          </div>
+          <div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Solvency Audit</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-emerald-700">100% Reserve Backed</div>
+          </div>
+        </div>
+
+        <div className="flex items-center gap-2.5 p-1">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 rounded-xl bg-purple-50 border border-purple-200 flex items-center justify-center shrink-0">
+            <Zap className="w-4 h-4 text-purple-600" />
+          </div>
+          <div>
+            <div className="text-[9.5px] sm:text-[10px] font-bold text-slate-500 uppercase tracking-wider">Exchange Margin</div>
+            <div className="text-xs sm:text-sm font-black font-mono text-slate-900">0% Commission Bhav</div>
+          </div>
+        </div>
       </div>
 
       {/* 2. SECOND ROW: SPORTS LIVE MATCHES (60%) & BLOG (40%) */}

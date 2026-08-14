@@ -1525,12 +1525,17 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         {betslip.length > 0 && (
           <div className="p-4 bg-slate-100 border-t border-exchange-border shrink-0 space-y-2 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-4">
             <div className="flex justify-between text-xs font-bold text-exchange-muted">
-              <span>Total Liability:</span>
-              <span className="text-red-600">₹{totalLiability.toFixed(2)}</span>
+              <span>Max Allocated Risk:</span>
+              <span className="text-red-600 font-mono font-black">₹{totalLiability.toFixed(2)}</span>
             </div>
             <div className="flex justify-between text-xs font-bold text-exchange-muted">
-              <span>Total Return:</span>
-              <span className="text-green-600">₹{totalPotentialReturn.toFixed(2)}</span>
+              <span>Target Net Return:</span>
+              <span className="text-emerald-700 font-mono font-black">₹{totalPotentialReturn.toFixed(2)}</span>
+            </div>
+            <div className="text-[10px] text-slate-500 font-bold flex items-center justify-center gap-1.5 py-1 bg-white rounded border border-slate-200">
+              <span>🔒 Immutable Bet Lock</span>
+              <span>•</span>
+              <span className="text-emerald-600">⚡ Zero-Slippage Execution</span>
             </div>
             <div className="flex gap-2 pt-1">
               <button
@@ -1578,9 +1583,10 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                     await useTradingStore.getState().syncFromServer();
                   }
                 }}
-                className="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold py-3 rounded-lg transition-all text-xs uppercase tracking-wider shadow-md active:scale-95 cursor-pointer"
+                className="flex-[2] bg-slate-950 hover:bg-slate-900 text-white font-extrabold py-3 rounded-lg transition-all text-xs uppercase tracking-wider shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
               >
-                Confirm Bets (₹{totalLiability.toFixed(0)})
+                <span>Execute Order</span>
+                <span className="font-mono text-emerald-400">₹{totalLiability.toFixed(0)}</span>
               </button>
             </div>
           </div>

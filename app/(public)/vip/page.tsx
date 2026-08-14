@@ -8,10 +8,10 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 
 const TIERS = [
-  { name: "Bronze", wagerReq: "₹0", wagerNum: 0, rakeback: "5%", bonus: "None", color: "text-amber-600", bg: "bg-amber-600/10", border: "border-amber-600/20", icon: Shield },
-  { name: "Silver", wagerReq: "₹5,00,000", wagerNum: 500000, rakeback: "10%", bonus: "Monthly", color: "text-slate-700", bg: "bg-slate-300/10", border: "border-slate-300/20", icon: Star },
-  { name: "Gold", wagerReq: "₹25,00,000", wagerNum: 2500000, rakeback: "15%", bonus: "Weekly", color: "text-yellow-600", bg: "bg-yellow-400/10", border: "border-yellow-400/20", icon: Crown },
-  { name: "Diamond", wagerReq: "₹1,00,00,000", wagerNum: 10000000, rakeback: "20%", bonus: "Daily + Weekly", color: "text-cyan-600", bg: "bg-cyan-400/10", border: "border-cyan-400/20", glow: "shadow-[0_0_30px_rgba(34,211,238,0.2)]", icon: Zap },
+  { name: "Sovereign Member", wagerReq: "₹0", wagerNum: 0, rakeback: "5%", bonus: "Instant Settlement", color: "text-amber-700", bg: "bg-amber-600/10", border: "border-amber-600/20", icon: Shield },
+  { name: "Platinum Guild", wagerReq: "₹5,00,000", wagerNum: 500000, rakeback: "10%", bonus: "Weekly Yield + Dedicated Host", color: "text-slate-800", bg: "bg-slate-300/10", border: "border-slate-300/20", icon: Star },
+  { name: "Obsidian Syndicate", wagerReq: "₹25,00,000", wagerNum: 2500000, rakeback: "15%", bonus: "Zero-Fee High Limit Rails", color: "text-yellow-600", bg: "bg-yellow-400/10", border: "border-yellow-400/20", icon: Crown },
+  { name: "Sovereign Founder", wagerReq: "₹1,00,00,000", wagerNum: 10000000, rakeback: "20%", bonus: "Custom Liquidity Node + 24/7 Private Banker", color: "text-cyan-700", bg: "bg-cyan-400/10", border: "border-cyan-400/20", glow: "shadow-[0_0_30px_rgba(34,211,238,0.2)]", icon: Zap },
 ];
 
 export default function VIPClubPage() {
