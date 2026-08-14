@@ -10,8 +10,9 @@ import {
 } from "lucide-react";
 import { useTradingStore, Position } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { formatOddsByMode, OddsDisplayMode } from "@/lib/bhavEngine";
 
-export type OddsFormatMode = "decimal" | "bhav" | "multiplier";
+export type OddsFormatMode = OddsDisplayMode;
 
 export interface FancySessionMarket {
   id: string;
@@ -279,21 +280,8 @@ export function LiveExchangeWidget() {
     }
   }, []);
 
-  // Format odds according to Indian Bhav / Multiplier / Decimal
-  const formatOdds = (odds: number) => {
-    if (oddsMode === "bhav") {
-      if (odds < 2.0) {
-        const paise = Math.round((odds - 1) * 100);
-        return `${paise}p`;
-      }
-      return `${(odds - 1).toFixed(2)}`;
-    }
-    if (oddsMode === "multiplier") {
-      const mult = odds % 1 === 0 ? odds.toFixed(0) : odds.toFixed(1);
-      return `1 ka ${mult}`;
-    }
-    return odds.toFixed(2);
-  };
+  // Format odds according to Indian Bhav / Multiplier / Decimal engine
+  const formatOdds = (odds: number) => formatOddsByMode(odds, oddsMode);
 
   const handleOddsSelection = (
     match: ExchangeMatch, 
