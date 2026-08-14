@@ -537,15 +537,18 @@ export function LiveExchangeWidget() {
             >
               {/* Match Header: League + Title + Score */}
               <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
-                <div className="flex flex-col min-w-0">
+                <Link
+                  href={`/sportsbook/match/${match.id || 'aus-xi-vs-ban'}`}
+                  className="flex flex-col min-w-0 group cursor-pointer"
+                >
                   <div className="flex items-center gap-1.5">
                     <span className="text-xs">{match.sportIcon}</span>
                     <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider truncate">{match.league}</span>
                   </div>
-                  <h4 className="text-xs sm:text-sm font-black text-slate-900 truncate">
+                  <h4 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors truncate">
                     {match.team1} <span className="text-slate-400 font-normal">vs</span> {match.team2}
                   </h4>
-                </div>
+                </Link>
 
                 <div className="text-right shrink-0">
                   <div className="text-xs sm:text-sm font-black font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200 inline-block">

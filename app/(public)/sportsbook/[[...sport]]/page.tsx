@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, use, useCallback } from "react";
+import Link from "next/link";
 import { Trophy, Activity, Clock, X, Menu, Receipt, ChevronDown, ChevronUp, TrendingUp, Zap, Calendar, Target } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/lib/store";
@@ -809,11 +810,11 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                   )}
                 >
 
-                  {/* Match Row */}
+                  {/* Match Row - Direct Link to Dedicated Match Center */}
                   <div className="flex flex-col lg:flex-row items-center justify-between">
-                    <div
-                      onClick={() => setExpandedMatchId(isExpanded ? null : match.id)}
-                      className="flex-1 w-full px-4 py-3 flex items-center gap-4 cursor-pointer select-none"
+                    <Link
+                      href={`/sportsbook/match/${match.id || 'aus-xi-vs-ban'}`}
+                      className="flex-1 w-full px-4 py-3 flex items-center gap-4 cursor-pointer select-none group"
                     >
                       <div className="flex flex-col gap-1 w-full">
                         <div className="flex flex-wrap items-center gap-2.5">
@@ -826,7 +827,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                 onError={(e) => { (e.target as any).style.display = 'none'; }}
                               />
                             )}
-                            <span className="text-sm font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">{match.team1}</span>
+                            <span className="text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors truncate max-w-[150px] sm:max-w-[200px]">{match.team1}</span>
                           </div>
                           <span className="text-xs text-slate-400 font-bold uppercase shrink-0">vs</span>
                           <div className="flex items-center gap-2">
@@ -838,10 +839,10 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                                 onError={(e) => { (e.target as any).style.display = 'none'; }}
                               />
                             )}
-                            <span className="text-sm font-bold text-slate-900 truncate max-w-[150px] sm:max-w-[200px]">{match.team2}</span>
+                            <span className="text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors truncate max-w-[150px] sm:max-w-[200px]">{match.team2}</span>
                           </div>
-                          <span className="text-slate-400 ml-1">
-                            {isExpanded ? <ChevronUp className="w-4 h-4 inline" /> : <ChevronDown className="w-4 h-4 inline" />}
+                          <span className="text-xs font-bold text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded ml-auto sm:ml-2 flex items-center gap-1 group-hover:bg-red-600 group-hover:text-white transition-all">
+                            Match Center ➔
                           </span>
                         </div>
 
@@ -872,7 +873,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </Link>
 
                     {/* Back/Lay Grid */}
                     <div className="flex items-center gap-px shrink-0 p-2 border-t lg:border-t-0 border-exchange-border w-full lg:w-auto justify-end bg-slate-50/50">
