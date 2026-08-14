@@ -10,6 +10,7 @@ import { OnboardingModal } from "@/components/ui/OnboardingModal";
 import { RightSidebarWrapper } from "@/components/layout/RightSidebarWrapper";
 import { BackToTop } from "@/components/ui/BackToTop";
 import MaintenanceOverlay from "@/components/ui/MaintenanceOverlay";
+import { WhatsAppFloatButton } from "@/components/ui/WhatsAppFloatButton";
 
 export default function PublicLayout({
   children,
@@ -24,6 +25,7 @@ export default function PublicLayout({
       <AIConcierge />
       <OnboardingModal />
       <BackToTop />
+      <WhatsAppFloatButton />
 
       {/* Animated Aurora Background Mesh (Safari Optimized) */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none -z-50 bg-white">

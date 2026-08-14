@@ -6,7 +6,8 @@ import Link from "next/link";
 import { 
   ArrowRight, Trophy, Zap, Gamepad2, TrendingUp, ShieldCheck, Flame, Star, 
   Activity, Crown, Percent, Gift, ChevronRight, ChevronLeft, X, CheckCircle2, AlertCircle,
-  Cpu, Monitor, Wifi, Radio, Layers, Gamepad, Play, Shield, Copy, RefreshCw, Terminal, Check
+  Cpu, Monitor, Wifi, Radio, Layers, Gamepad, Play, Shield, Copy, RefreshCw, Terminal, Check,
+  MessageCircle, Sparkles, SlidersHorizontal, HelpCircle
 } from "lucide-react";
 import { getGamesByCategory, GAMES } from "@/lib/games";
 import { ARCADE_GAMES } from "@/lib/arcade-games";
@@ -477,6 +478,19 @@ export default function GlobalHomepage() {
   // Carousel state
   const [currentSlide, setCurrentSlide] = useState(0);
   const [progressActive, setProgressActive] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState<string>("all");
+  const [jackpot, setJackpot] = useState(14892450.40);
+  const currentUser = useTradingStore(state => state.currentUser);
+  const switchAccountType = useTradingStore(state => state.switchAccountType);
+  const isLoggedIn = useTradingStore(state => state.isLoggedIn);
+  const accountType = currentUser?.accountType || 'real';
+
+  useEffect(() => {
+    const jInterval = setInterval(() => {
+      setJackpot(prev => prev + 0.45 + Math.random() * 0.85);
+    }, 1500);
+    return () => clearInterval(jInterval);
+  }, []);
   
   // Slide rotation
   useEffect(() => {
@@ -709,7 +723,6 @@ export default function GlobalHomepage() {
              </div>
           </div>
         </Link>
-
         {/* SmartSoft */}
         <Link href="/casino?provider=smartsoft" className="relative w-full rounded-md overflow-hidden aspect-[16/9] sm:aspect-[4/3] md:aspect-[16/10] bg-white group cursor-pointer shadow-sm hover:shadow-lg transition-shadow duration-300">
           <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1518331647614-7a1f04cd34ce?q=80&w=800&auto=format&fit=crop')] bg-cover bg-center group-hover:scale-105 transition-transform duration-700 opacity-50" />
@@ -721,17 +734,133 @@ export default function GlobalHomepage() {
              </div>
           </div>
         </Link>
+      </div>
+
+      {/* ── 5. INTERACTIVE GAME OPTIONS, PROGRESSIVE JACKPOT & WHATSAPP COORDINATOR STRIP ── */}
+      <div className="flex flex-col gap-4 mt-4">
+        
+        {/* Progressive Jackpot & WhatsApp Action Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+          
+          {/* Mega Jackpot Card */}
+          <div className="lg:col-span-2 bg-gradient-to-r from-amber-500 via-orange-500 to-red-600 rounded-3xl p-5 sm:p-6 text-white shadow-xl flex flex-col sm:flex-row items-center justify-between gap-4 border border-amber-300/40 relative overflow-hidden">
+            <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20 mix-blend-overlay pointer-events-none" />
+            <div className="flex items-center gap-4 text-center sm:text-left relative z-10">
+              <div className="w-14 h-14 rounded-2xl bg-white/20 border border-white/30 flex items-center justify-center shrink-0 backdrop-blur-md shadow-inner">
+                <Trophy className="w-7 h-7 text-yellow-200 animate-bounce" />
+              </div>
+              <div>
+                <div className="flex items-center justify-center sm:justify-start gap-2">
+                  <span className="text-[9px] font-black uppercase tracking-[0.2em] bg-black/25 px-2.5 py-0.5 rounded-full text-amber-100">
+                    🔥 LIVE PROGRESSIVE JACKPOT POOL
+                  </span>
+                  <span className="flex items-center gap-1 text-[9px] text-amber-100 font-bold">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> 14,208 Active Players
+                  </span>
+                </div>
+                <h3 className="text-2xl sm:text-4xl font-black font-mono tracking-tight text-white mt-1 drop-shadow-sm">
+                  ₹{jackpot.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+                </h3>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2.5 relative z-10 w-full sm:w-auto justify-center">
+              <Link 
+                href="/casino/game/orig-1"
+                className="px-5 py-3 bg-white text-slate-950 hover:bg-amber-50 font-black text-xs uppercase tracking-wider rounded-2xl shadow-lg transition-all transform hover:scale-105 active:scale-95 flex items-center gap-1.5 cursor-pointer"
+              >
+                <Play className="w-3.5 h-3.5 fill-slate-950" /> Play To Win
+              </Link>
+            </div>
+          </div>
+
+          {/* WhatsApp Direct VIP Coordinator Card */}
+          <div className="bg-gradient-to-br from-emerald-600 via-emerald-700 to-teal-800 rounded-3xl p-5 sm:p-6 text-white shadow-xl flex flex-col justify-between border border-emerald-400/40 relative overflow-hidden">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <MessageCircle className="w-5 h-5 fill-white text-emerald-600" />
+                <span className="text-xs font-black uppercase tracking-wider">VIP WhatsApp Desk</span>
+              </div>
+              <span className="text-[9px] bg-emerald-400/30 text-emerald-100 font-bold px-2.5 py-0.5 rounded-full border border-emerald-300/30 flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" /> Online
+              </span>
+            </div>
+            
+            <p className="text-[11px] text-emerald-100 font-medium my-2">
+              Coordinate directly on WhatsApp for manual player ID generation, instant UPI deposits & fast withdrawals.
+            </p>
+
+            <button
+              onClick={() => {
+                const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (659) 221-0661";
+                const cleanNumber = rawNumber.replace(/[^0-9]/g, "");
+                const msg = encodeURIComponent("Hi AuraPlay VIP Coordinator! I need assistance with my betting ID / account.");
+                window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
+              }}
+              className="w-full py-3 bg-white hover:bg-emerald-50 text-emerald-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:scale-[1.02] active:scale-95"
+            >
+              <MessageCircle className="w-4 h-4 fill-emerald-600 text-emerald-600" />
+              Chat On WhatsApp (+1 659 221-0661)
+            </button>
+          </div>
+
+        </div>
+
+        {/* Interactive Category Filter Tabs & Wallet Mode */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pt-2">
+          <div className="flex items-center gap-2 overflow-x-auto no-scrollbar py-1 w-full sm:w-auto">
+            {[
+              { id: "all", label: "🌟 All Games", count: "250+" },
+              { id: "desi", label: "🎴 Desi Teen Patti", count: "Hot" },
+              { id: "crash", label: "🚀 Turbo Crash", count: "99% RTP" },
+              { id: "slots", label: "🎰 3D Slots", count: "10,000x" },
+              { id: "rentals", label: "⚡ Cloud Rentals", count: "RTX 4090" }
+            ].map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedCategory(tab.id)}
+                className={`px-4 py-2.5 rounded-2xl text-xs font-black uppercase tracking-wider whitespace-nowrap transition-all duration-200 flex items-center gap-1.5 cursor-pointer ${
+                  selectedCategory === tab.id
+                    ? "bg-slate-900 text-white shadow-lg shadow-slate-900/20 scale-105"
+                    : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200/80 hover:text-slate-900"
+                }`}
+              >
+                <span>{tab.label}</span>
+                <span className={`text-[8px] px-2 py-0.5 rounded-full font-mono font-bold ${
+                  selectedCategory === tab.id ? "bg-white/20 text-white" : "bg-slate-100 text-slate-500"
+                }`}>
+                  {tab.count}
+                </span>
+              </button>
+            ))}
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider">Play Mode:</span>
+            <button
+              onClick={() => switchAccountType(accountType === 'real' ? 'demo' : 'real')}
+              className={`px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-wider transition-all flex items-center gap-1.5 border cursor-pointer ${
+                accountType === 'real' 
+                  ? 'bg-emerald-50 border-emerald-300 text-emerald-800' 
+                  : 'bg-blue-50 border-blue-300 text-blue-800'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${accountType === 'real' ? 'bg-emerald-500 animate-pulse' : 'bg-blue-500'}`} />
+              {accountType === 'real' ? 'Real Cash 🟢' : 'Practice Demo 🔵'}
+            </button>
+          </div>
+        </div>
 
       </div>
 
-      <div className="h-6" /> {/* Spacer */}
+      <div className="h-2" /> {/* Spacer */}
 
       {/* 4. PREMIUM 3D & AAA HIGH-MOTION LOBBY (TOP 1% OVERHAUL) */}
-       {/* 4. PREMIUM 3D & AAA HIGH-MOTION LOBBY (TOP 1% LIGHT OVERHAUL) */}
       
       {/* ========================================== */}
       {/* CATEGORY 1: AURA PLAY IN-HOUSE ORIGINALS */}
       {/* ========================================== */}
+      {(selectedCategory === "all" || selectedCategory === "crash") && (
       <motion.section 
         initial={{ opacity: 0, y: 20 }} 
         whileInView={{ opacity: 1, y: 0 }} 
@@ -816,7 +945,7 @@ export default function GlobalHomepage() {
                       src={game.image} 
                       alt={game.title}
                       loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
+                      className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-100 group-hover:opacity-90"
                     />
                     <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
@@ -850,10 +979,12 @@ export default function GlobalHomepage() {
         </div>
 
       </motion.section>
+      )}
 
       {/* ========================================== */}
       {/* CATEGORY 2: AAA CLOUD STREAMING RENTALS */}
       {/* ========================================== */}
+      {(selectedCategory === "all" || selectedCategory === "rentals") && (
       <motion.section 
         initial={{ opacity: 0, y: 20 }} 
         whileInView={{ opacity: 1, y: 0 }} 
@@ -893,9 +1024,9 @@ export default function GlobalHomepage() {
                 >
                   <img 
                     src={game.image} 
-                    alt={game.title}
+                    alt={game.title} 
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-100 group-hover:opacity-90"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
@@ -929,10 +1060,12 @@ export default function GlobalHomepage() {
           })}
         </div>
       </motion.section>
+      )}
 
       {/* ========================================== */}
       {/* CATEGORY 3: PREMIUM 3D SLOTS */}
       {/* ========================================== */}
+      {(selectedCategory === "all" || selectedCategory === "slots") && (
       <motion.section 
         initial={{ opacity: 0, y: 20 }} 
         whileInView={{ opacity: 1, y: 0 }} 
@@ -974,7 +1107,7 @@ export default function GlobalHomepage() {
                     src={game.image} 
                     alt={game.title} 
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-80 group-hover:opacity-45"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-100 group-hover:opacity-90"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
@@ -1008,10 +1141,12 @@ export default function GlobalHomepage() {
           })}
         </div>
       </motion.section>
+      )}
 
       {/* ========================================== */}
       {/* CATEGORY 4: DESI LIVE CLUB & TEEN PATTI LOUNGE */}
       {/* ========================================== */}
+      {(selectedCategory === "all" || selectedCategory === "desi") && (
       <motion.section 
         initial={{ opacity: 0, y: 20 }} 
         whileInView={{ opacity: 1, y: 0 }} 
@@ -1052,7 +1187,7 @@ export default function GlobalHomepage() {
                     src={game.image} 
                     alt={game.title} 
                     loading="lazy"
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-85 group-hover:opacity-50"
+                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 opacity-100 group-hover:opacity-90"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10" />
 
@@ -1086,6 +1221,7 @@ export default function GlobalHomepage() {
           })}
         </div>
       </motion.section>
+      )}
 
       {/* 8. LIVE ACTION FEED & ACTIVITY */}
       <motion.section initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-50px" }} transition={{ duration: 0.5, delay: 0.25 }} className="w-full mt-8 border-t border-slate-200 pt-8">

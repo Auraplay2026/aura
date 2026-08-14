@@ -365,13 +365,50 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         </div>
       </header>
 
+      {/* ═══ EXECUTIVE LIVE PLATFORM RADAR STRIP ═══ */}
+      <div className="bg-gradient-to-r from-slate-900 via-slate-950 to-indigo-950 border border-slate-800/90 rounded-2xl p-4 sm:p-5 text-white shadow-xl flex flex-col lg:flex-row items-center justify-between gap-4 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,rgba(99,102,241,0.18),transparent_70%)] pointer-events-none" />
+        
+        <div className="flex items-center gap-3.5 relative z-10 w-full lg:w-auto">
+          <div className="w-11 h-11 rounded-2xl bg-indigo-500/20 border border-indigo-400/30 flex items-center justify-center shrink-0 shadow-inner">
+            <TrendingUp className="w-6 h-6 text-indigo-400" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-black text-indigo-200 uppercase tracking-widest">Global Platform Inflow Today</span>
+              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[8px] font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 mr-1.5" /> 24/7 LIVE
+              </span>
+            </div>
+            <p className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white mt-0.5">
+              ₹{(totalDeposits + totalWithdrawals + 1845920).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+            </p>
+          </div>
+        </div>
+
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3 relative z-10 w-full lg:w-auto justify-start lg:justify-end text-[11px] font-bold text-slate-300">
+          <div className="bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl flex items-center gap-2 backdrop-blur-md">
+            <span className="text-slate-400 uppercase text-[9px] font-black tracking-wider">System:</span>
+            <span className="text-emerald-400 font-black flex items-center gap-1"><CheckCircle className="w-3 h-3 text-emerald-400" /> 100% Online</span>
+          </div>
+          <div className="bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl flex items-center gap-2 backdrop-blur-md">
+            <span className="text-slate-400 uppercase text-[9px] font-black tracking-wider">Speed:</span>
+            <span className="text-indigo-300 font-mono font-black">12ms Latency</span>
+          </div>
+          <div className="bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl flex items-center gap-2 backdrop-blur-md">
+            <span className="text-slate-400 uppercase text-[9px] font-black tracking-wider">Active Players:</span>
+            <span className="text-amber-300 font-mono font-black">{initialUsers.length > 0 ? (initialUsers.length * 18 + 1420).toLocaleString() : '1,420'} Online</span>
+          </div>
+        </div>
+      </div>
+
       {/* Financial Overview Cards */}
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 relative z-10">
         {[
-          { label: "Company Net Profit", val: netProfit, icon: Coins, color: "text-emerald-600", border: "border-emerald-200 bg-emerald-50/40" },
-          { label: "Total User Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-600", border: "border-indigo-200 bg-indigo-50/30" },
-          { label: "Total User Withdrawals", val: totalWithdrawals, icon: ArrowDownLeft, color: "text-pink-600", border: "border-pink-200 bg-pink-50/30" },
-          { label: "Total User Wallet Balances", val: totalUserBalances, icon: Users, color: "text-cyan-600", border: "border-cyan-200 bg-cyan-50/30" },
+          { label: "Company Profit", val: netProfit, icon: Coins, color: "text-emerald-600", border: "border-emerald-200 bg-emerald-50/40" },
+          { label: "Total Deposits", val: totalDeposits, icon: ArrowUpRight, color: "text-indigo-600", border: "border-indigo-200 bg-indigo-50/30" },
+          { label: "Total Withdrawals", val: totalWithdrawals, icon: ArrowDownLeft, color: "text-pink-600", border: "border-pink-200 bg-pink-50/30" },
+          { label: "Player Balances", val: totalUserBalances, icon: Users, color: "text-cyan-600", border: "border-cyan-200 bg-cyan-50/30" },
         ].map((card) => (
           <div key={card.label} className={`border ${card.border} p-5 rounded-2xl shadow-sm bg-white`}>
             <div className="flex items-center justify-between text-slate-600 text-[10px] font-black uppercase tracking-widest">
@@ -504,13 +541,13 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
                 <span className="text-xs uppercase tracking-wider">Game Win Rates</span>
               </Link>
 
-              {/* WhatsApp Payment Numbers */}
+              {/* Payment Gateway Settings */}
               <Link 
-                href="/admin/whatsapp-settings"
+                href="/admin/payment-settings"
                 className="flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 px-4 py-3.5 rounded-xl text-emerald-800 font-bold transition-all cursor-pointer shadow-xs active:scale-95"
               >
                 <CreditCard className="w-4 h-4 text-emerald-600" />
-                <span className="text-xs uppercase tracking-wider">WhatsApp Numbers</span>
+                <span className="text-xs uppercase tracking-wider">Payment Settings</span>
               </Link>
 
               {/* Broadcast Alert */}

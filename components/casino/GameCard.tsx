@@ -103,17 +103,17 @@ export function GameCard({ id, title, provider, image, isNew, rtp, players, hide
       {/* Card Info Content */}
       {!shouldHideTitle && (
         <div className="absolute bottom-0 w-full p-5 z-20 transform translate-y-2 group-hover:translate-y-0 transition-transform duration-500 ease-out">
-          <h3 className="text-slate-900 font-black text-lg sm:text-xl tracking-tight leading-tight line-clamp-2 drop-shadow-sm">
+          <h3 className="text-white font-black text-lg sm:text-xl tracking-tight leading-tight line-clamp-2 drop-shadow-md">
             {title}
           </h3>
           
           <div className="flex items-center justify-between mt-2">
-            <p className="text-slate-900/80 text-[10px] font-bold uppercase tracking-[0.15em] drop-shadow-sm">
+            <p className="text-white/90 text-[10px] font-bold uppercase tracking-[0.15em] drop-shadow-md">
               {provider}
             </p>
             {formattedPlayers && (
               <div className="flex items-center gap-1.5 text-slate-900 bg-white/90 px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition-all duration-400 delay-75 shadow-sm backdrop-blur-md">
-                <Users className="w-3 h-3 text-slate-500" />
+                <Users className="w-3 h-3 text-slate-700" />
                 <span className="text-[10px] font-black">{formattedPlayers}</span>
               </div>
             )}

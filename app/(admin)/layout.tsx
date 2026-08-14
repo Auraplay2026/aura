@@ -1,7 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Shield, Activity, CreditCard, BarChart3, LogOut, ArrowDownLeft, Bell, Users, Sliders, ShieldAlert, Coins, MessageSquare, MessageCircle, Menu, X } from "lucide-react";
+import { 
+  Shield, Activity, CreditCard, BarChart3, LogOut, ArrowDownLeft, 
+  Bell, Users, Sliders, ShieldAlert, Coins, MessageSquare, 
+  MessageCircle, Menu, X, Crown, LayoutDashboard, Wallet, UserCheck
+} from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -334,74 +338,74 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
   const menuItems = [
     {
-      name: "Operations Center",
+      name: "Overview",
       href: "/admin",
-      icon: Activity,
+      icon: LayoutDashboard,
       color: "from-indigo-500 to-cyan-500",
       glowColor: "rgba(99, 102, 241, 0.15)",
     },
     {
-      name: "Manual Deposits",
+      name: "Deposits",
       href: "/admin/deposits",
       icon: ArrowDownLeft,
       color: "from-emerald-500 to-teal-500",
       glowColor: "rgba(16, 185, 129, 0.15)",
     },
     {
-      name: "Withdrawals Queue",
+      name: "Withdrawals",
       href: "/admin/withdrawals",
       icon: CreditCard,
       color: "from-pink-500 to-rose-500",
       glowColor: "rgba(236, 72, 153, 0.15)",
     },
     {
-      name: "Player Intelligence",
+      name: "Players",
       href: "/admin/analytics",
       icon: Users,
       color: "from-violet-500 to-indigo-500",
       glowColor: "rgba(139, 92, 246, 0.15)",
     },
     {
-      name: "System Controls (RTP)",
+      name: "Game Win Rates",
       href: "/admin/rtp-monitor",
       icon: Sliders,
       color: "from-amber-500 to-orange-500",
       glowColor: "rgba(245, 158, 11, 0.15)",
     },
     {
-      name: "Affiliate Analytics",
+      name: "VIP Rewards",
+      href: "/admin/vip",
+      icon: Crown,
+      color: "from-purple-500 to-pink-500",
+      glowColor: "rgba(168, 85, 247, 0.15)",
+    },
+    {
+      name: "Affiliates & Partners",
       href: "/admin/affiliate",
-      icon: Users,
+      icon: UserCheck,
       color: "from-fuchsia-500 to-purple-500",
       glowColor: "rgba(217, 70, 239, 0.15)",
     },
     {
-      name: "Security Audit",
-      href: "/admin/audit",
-      icon: Shield,
-      color: "from-red-500 to-rose-500",
-      glowColor: "rgba(239, 68, 68, 0.15)",
-    },
-    {
-      name: "Gateway Settings",
+      name: "Payment Setup",
       href: "/admin/payment-settings",
       icon: Coins,
       color: "from-teal-500 to-emerald-500",
       glowColor: "rgba(20, 184, 166, 0.15)",
     },
     {
-      name: "WhatsApp Automation",
-      href: "/admin/whatsapp-settings",
-      icon: MessageCircle,
-      color: "from-emerald-500 to-teal-650",
-      glowColor: "rgba(16, 185, 129, 0.15)",
-    },
-    {
-      name: "AI Support Desk",
+      name: "Support Desk",
       href: "/admin/support",
       icon: MessageSquare,
       color: "from-yellow-500 to-amber-500",
       glowColor: "rgba(245, 158, 11, 0.15)",
+    },
+    {
+      name: "Security Logs",
+      href: "/admin/audit",
+      icon: Shield,
+      color: "from-red-500 to-rose-500",
+      glowColor: "rgba(239, 68, 68, 0.15)",
     },
   ];
 

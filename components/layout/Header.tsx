@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bell, Briefcase, Menu, Clock, Volume2, VolumeX } from "lucide-react";
+import { Search, Bell, Briefcase, Menu, Clock, Volume2, VolumeX, MessageCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { CashierModal } from "@/components/ui/CashierModal";
 import { UserMenu } from "@/components/UserMenu";
@@ -243,6 +243,21 @@ export function Header() {
                   {positions.length}
                 </span>
               )}
+            </button>
+
+            {/* WhatsApp VIP Support Quick Button */}
+            <button 
+              onClick={() => {
+                const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (659) 221-0661";
+                const cleanNumber = rawNumber.replace(/[^0-9]/g, "");
+                const msg = encodeURIComponent("Hi AuraPlay VIP Helpdesk! I need assistance with my account/deposit/ID.");
+                window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
+              }}
+              className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 text-emerald-800 font-black text-[10px] uppercase tracking-wider transition-all duration-200 shadow-xs cursor-pointer group shrink-0"
+              title="24/7 VIP WhatsApp Assistance (+1 659 221-0661)"
+            >
+              <MessageCircle className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600 group-hover:scale-110 transition-transform" />
+              <span className="font-extrabold">WhatsApp VIP</span>
             </button>
             {/* Notification Bell */}
             <div className="relative shrink-0">

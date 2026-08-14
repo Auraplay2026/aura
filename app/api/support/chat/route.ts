@@ -209,20 +209,23 @@ function getMockResponse(query: string): string {
   const lower = query.toLowerCase();
 
   if (lower.includes("deposit") || lower.includes("money") || lower.includes("pay")) {
-    return "To deposit funds securely to AuraPlay, click on your Wallet/Cashier icon in the header. We accept local UPI (Instant approval), direct Bank Transfers (IMPS/NEFT), and Bitcoin. If you've submitted a transaction reference, our verification team approves it manually within 10-15 minutes. Let me know if you would like me to connect you with a cashier supervisor.";
+    return "To deposit funds securely to AuraPlay, click on your Wallet/Cashier icon in the header. We accept local UPI (Instant approval), direct Bank Transfers (IMPS/NEFT), and USDT/Crypto. If you've submitted a transaction reference, our verification team approves it manually within 10-15 minutes. For immediate manual coordination or custom ID creation, you can also reach our VIP desk on WhatsApp at +1 (659) 221-0661.";
+  }
+  if (lower.includes("id") || lower.includes("register") || lower.includes("account") || lower.includes("create")) {
+    return "You can play online directly, or if you prefer a customized Master Betting ID created manually by our team, message our VIP WhatsApp Coordinator at +1 (659) 221-0661 and we will set up your ID instantly.";
   }
   if (lower.includes("rent") || lower.includes("cloud") || lower.includes("stream") || lower.includes("game")) {
-    return "Our premium Cloud Gaming platform allows you to rent high-end gaming hardware streaming at 60 FPS directly to your browser. Presets start from 1 hour to custom limits. Demo users receive 3 free trials, after which a real account activation (with a real deposit) is required. Do you need help selecting a game, or should I transfer you to our Gaming Ops agent?";
+    return "Our premium Cloud Gaming platform allows you to rent high-end gaming hardware streaming at 60 FPS directly to your browser. Presets start from 1 hour to custom limits. Demo users receive 3 free trials, after which real account activation is required. Do you need help selecting a game, or should I transfer you to our live desk?";
   }
   if (lower.includes("withdraw") || lower.includes("cashout")) {
-    return "Withdrawals are processed securely via UPI and Bank Transfer. Real accounts must complete simple verification before requesting a cashout. Our typical withdrawal processing times range from 1 to 4 hours. If you are experiencing a delay, please ask me to transfer you to a withdrawals manager.";
+    return "Withdrawals are processed securely via UPI and Bank Transfer. Our typical withdrawal processing times range from 15 seconds to a few minutes. If you are experiencing any delay, please let me know or message our WhatsApp VIP desk at +1 (659) 221-0661.";
   }
-  if (lower.includes("kyc") || lower.includes("verify") || lower.includes("account")) {
-    return "Account verification ensures platform security. You can submit your documents under Account Settings -> KYC. Submissions are reviewed within 2 hours. If you want an immediate review, tell me to connect you with an admin helper.";
+  if (lower.includes("kyc") || lower.includes("verify")) {
+    return "Account verification ensures platform security. You can submit your documents under Account Settings -> KYC. Submissions are reviewed quickly. If you want an immediate review, tell me to connect you with an agent.";
   }
   if (lower.includes("hello") || lower.includes("hi") || lower.includes("hey")) {
-    return "Welcome to the AuraPlay Elite VIP Support Desk. I am your automated concierge. I can assist you with game renting rates, cashier deposits, or instant KYC steps. If you require specialized human assistance at any point, simply type 'connect me to support' and I will transfer you.";
+    return "Welcome to the AuraPlay Elite VIP Support Desk. I am your automated concierge. I can resolve queries about UPI cashier verification, cricket Bhav, ID creation, or games. If you require human assistance, type 'talk to agent' or connect directly on WhatsApp at +1 (659) 221-0661.";
   }
 
-  return "I understand your request. As an automated concierge, I can answer common queries about cloud game rentals, UPI cashier verification, or game modes. If you need account-specific help or would like to discuss with a human support agent, type 'talk to agent' and I will instantly transfer you to our live admin support center.";
+  return "I understand your request. As your automated concierge, I can answer questions about games, UPI cashier verification, or account settings. If you need specialized human help, type 'talk to agent' or connect directly with our WhatsApp team at +1 (659) 221-0661.";
 }

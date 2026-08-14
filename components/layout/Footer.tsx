@@ -132,6 +132,46 @@ export function Footer() {
           </div>
         </div>
 
+        {/* ── 24/7 WHATSAPP VIP COORDINATION HUB ── */}
+        <div className="mb-16 p-6 md:p-8 rounded-3xl bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 text-white shadow-xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-6 border border-emerald-500/30">
+          <div className="absolute -right-10 -bottom-10 w-60 h-60 bg-white/5 rounded-full blur-2xl pointer-events-none" />
+          
+          <div className="flex items-center gap-4 relative z-10 text-center md:text-left">
+            <div className="w-14 h-14 rounded-2xl bg-white/10 border border-white/20 flex items-center justify-center shrink-0 backdrop-blur-md">
+              <MessageCircle className="w-8 h-8 fill-white text-emerald-600" />
+            </div>
+            <div>
+              <div className="flex items-center justify-center md:justify-start gap-2">
+                <span className="text-[9px] font-black uppercase tracking-widest bg-white/20 px-2.5 py-0.5 rounded-full">Official Coordinator Desk</span>
+                <span className="flex items-center gap-1 text-[9px] text-emerald-200 font-bold">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse" /> 24/7 Live
+                </span>
+              </div>
+              <h3 className="text-xl sm:text-2xl font-black uppercase tracking-tight mt-1">
+                Need Instant Help? Coordinate On WhatsApp
+              </h3>
+              <p className="text-xs text-emerald-100 font-medium mt-0.5">
+                Instant UPI verification, cricket match IDs, ₹10,000 bonus claims, and direct manager support.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3 relative z-10">
+            <button
+              onClick={() => {
+                const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (659) 221-0661";
+                const cleanNumber = rawNumber.replace(/[^0-9]/g, "");
+                const msg = encodeURIComponent("Hi AuraPlay VIP Coordinator! I would like assistance with my account and ID creation.");
+                window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
+              }}
+              className="px-6 py-3.5 bg-white hover:bg-emerald-50 text-emerald-900 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
+            >
+              <MessageCircle className="w-4 h-4 fill-emerald-600 text-emerald-600" />
+              Chat On WhatsApp (+1 659 221-0661)
+            </button>
+          </div>
+        </div>
+
         {/* Links Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-6 mb-16">
           

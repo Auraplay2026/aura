@@ -16,7 +16,8 @@ import {
   AlertTriangle,
   Clock,
   CheckCircle2,
-  RefreshCw
+  RefreshCw,
+  MessageCircle
 } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 
@@ -426,14 +427,27 @@ export default function SupportPage() {
 
               {/* Chat transfer notice drawer if bot */}
               {chatStatus === 'bot' && (
-                <div className="my-2 p-2.5 bg-purple-500/5 border border-purple-500/10 rounded-xl flex justify-between items-center shrink-0">
-                  <span className="text-[9px] text-slate-600 font-medium pl-1">Need a human helper instead?</span>
-                  <button 
-                    onClick={handleRequestAgent}
-                    className="px-2.5 py-1 bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 border border-purple-500/20 rounded-lg text-[8px] font-bold uppercase transition-all"
-                  >
-                    Request Agent
-                  </button>
+                <div className="my-2 p-2.5 bg-emerald-500/10 border border-emerald-500/20 rounded-xl flex flex-col sm:flex-row gap-2 justify-between items-center shrink-0">
+                  <span className="text-[9px] text-emerald-900 font-bold pl-1">Need human VIP coordinator?</span>
+                  <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
+                    <button 
+                      onClick={() => {
+                        const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (659) 221-0661";
+                        const cleanNumber = rawNumber.replace(/[^0-9]/g, "");
+                        const msg = encodeURIComponent(`Hi AuraPlay Team, I need live VIP support on WhatsApp (${chatEmail || 'Player'}).`);
+                        window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
+                      }}
+                      className="px-2.5 py-1 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-[8px] font-black uppercase tracking-wider transition-all flex items-center gap-1 cursor-pointer shadow-xs"
+                    >
+                      <MessageCircle className="w-2.5 h-2.5 fill-white" /> WhatsApp
+                    </button>
+                    <button 
+                      onClick={handleRequestAgent}
+                      className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-[8px] font-bold uppercase transition-all cursor-pointer"
+                    >
+                      Live Desk
+                    </button>
+                  </div>
                 </div>
               )}
 
