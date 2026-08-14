@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>3D Neon Billiards Pro</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #0f172a;
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    #hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      padding: 10px 16px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .hud-title { font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; }
+    .hud-val { font-size: 24px; font-weight: 900; color: #10b981; font-family: monospace; }
+    #cue-power-panel {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      z-index: 10;
+    }
+    #power-btn {
+      background: linear-gradient(135deg, #10b981, #059669);
+      border: none;
+      color: #fff;
+      font-size: 16px;
+      font-weight: 900;
+      padding: 14px 40px;
+      border-radius: 30px;
+      box-shadow: 0 10px 25px rgba(16,185,129,0.4);
+      cursor: pointer;
+      user-select: none;
+    }
+    #power-btn:active { transform: scale(0.95); }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="hud">
+    <div class="hud-card">
+      <div class="hud-title">Balls Pocketed</div>
+      <div class="hud-val"><span id="pocketed">0</span>/7</div>
+    </div>
+    <div class="hud-card" style="text-align: right;">
+      <div class="hud-title">Score</div>
+      <div class="hud-val" id="score">0</div>
+    </div>
+  </div>
+
+  <div id="cue-power-panel">
+    <button id="power-btn">STRIKE CUE BALL 🎱</button>
+  </div>
+</div>
+
+<script>
+  // ── THREE.JS 3D SCENE SETUP ──
+  const container = document.getElementById('game-container');
+  const scene = new THREE.Scene();
+
+  const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 1000);
+  camera.position.set(0, 35, 25);
+  camera.lookAt(0, 0, 0);
+
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.shadowMap.enabled = true;
+  container.appendChild(renderer.domElement);
+
+  // ── LIGHTING ──
+  const ambient = new THREE.AmbientLight(0xffffff, 1.2);
+  scene.add(ambient);
+
+  const tableLight = new THREE.PointLight(0x10b981, 2, 80);
+  tableLight.position.set(0, 20, 0);
+  tableLight.castShadow = true;
+  scene.add(tableLight);
+
+  // ── 3D POOL TABLE ──
+  const TABLE_W = 20;
+  const TABLE_L = 36;
+
+  // Green Felt Cloth
+  const feltGeo = new THREE.BoxGeometry(TABLE_W, 1, TABLE_L);
+  const feltMat = new THREE.MeshStandardMaterial({ color: 0x064e3b, roughness: 0.8 });
+  const tableFelt = new THREE.Mesh(feltGeo, feltMat);
+  tableFelt.position.y = -0.5;
+  tableFelt.receiveShadow = true;
+  scene.add(tableFelt);
+
+  // Wooden Cushions / Borders
+  const borderMat = new THREE.MeshStandardMaterial({ color: 0x1e293b, roughness: 0.3, metalness: 0.5 });
+  const topCushion = new THREE.Mesh(new THREE.BoxGeometry(TABLE_W + 3, 2, 1.5), borderMat);
+  topCushion.position.set(0, 0.5, TABLE_L / 2 + 0.75);
+  const botCushion = new THREE.Mesh(new THREE.BoxGeometry(TABLE_W + 3, 2, 1.5), borderMat);
+  botCushion.position.set(0, 0.5, -TABLE_L / 2 - 0.75);
+  const leftCushion = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2, TABLE_L), borderMat);
+  leftCushion.position.set(-TABLE_W / 2 - 0.75, 0.5, 0);
+  const rightCushion = new THREE.Mesh(new THREE.BoxGeometry(1.5, 2, TABLE_L), borderMat);
+  rightCushion.position.set(TABLE_W / 2 + 0.75, 0.5, 0);
+  scene.add(topCushion, botCushion, leftCushion, rightCushion);
+
+  // 6 Pockets
+  const pocketGeo = new THREE.CylinderGeometry(1.4, 1.4, 1.2, 16);
+  const pocketMat = new THREE.MeshBasicMaterial({ color: 0x020617 });
+  const pocketPositions = [
+    [-TABLE_W / 2, 0.1, -TABLE_L / 2], [TABLE_W / 2, 0.1, -TABLE_L / 2],
+    [-TABLE_W / 2, 0.1, 0], [TABLE_W / 2, 0.1, 0],
+    [-TABLE_W / 2, 0.1, TABLE_L / 2], [TABLE_W / 2, 0.1, TABLE_L / 2]
+  ];
+  pocketPositions.forEach(p => {
+    const pocket = new THREE.Mesh(pocketGeo, pocketMat);
+    pocket.position.set(...p);
+    scene.add(pocket);
+  });
+
+  // ── 3D BALLS ──
+  const BALL_RAD = 0.8;
+  const ballGeo = new THREE.SphereGeometry(BALL_RAD, 24, 24);
+
+  const balls = [];
+  const ballColors = [0xef4444, 0x3b82f6, 0xf59e0b, 0x8b5cf6, 0xec4899, 0x10b981, 0x06b6d4];
+
+  // Target Balls in Triangle
+  let ballIdx = 0;
+  for (let r = 0; r < 4; r++) {
+    for (let c = 0; c <= r; c++) {
+      if (ballIdx >= 7) break;
+      const bMat = new THREE.MeshStandardMaterial({ color: ballColors[ballIdx], metalness: 0.3, roughness: 0.1 });
+      const ball = new THREE.Mesh(ballGeo, bMat);
+      ball.position.set((c - r / 2) * (BALL_RAD * 2.2), BALL_RAD, 6 + r * (BALL_RAD * 2));
+      ball.vx = 0;
+      ball.vz = 0;
+      ball.active = true;
+      ball.castShadow = true;
+      scene.add(ball);
+      balls.push(ball);
+      ballIdx++;
+    }
+  }
+
+  // White Cue Ball
+  const cueMat = new THREE.MeshStandardMaterial({ color: 0xffffff, metalness: 0.2, roughness: 0.1 });
+  const cueBall = new THREE.Mesh(ballGeo, cueMat);
+  cueBall.position.set(0, BALL_RAD, -10);
+  cueBall.vx = 0;
+  cueBall.vz = 0;
+  cueBall.active = true;
+  cueBall.castShadow = true;
+  scene.add(cueBall);
+
+  // Cue Stick Aim Line
+  let aimAngle = 0;
+  const lineGeo = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(0, 0, 0), new THREE.Vector3(0, 0, 8)]);
+  const lineMat = new THREE.LineDashedMaterial({ color: 0x38bdf8, dashSize: 0.5, gapSize: 0.5 });
+  const aimLine = new THREE.Line(lineGeo, lineMat);
+  aimLine.computeLineDistances();
+  scene.add(aimLine);
+
+  let pocketedCount = 0;
+  let score = 0;
+
+  const pocketedEl = document.getElementById('pocketed');
+  const scoreEl = document.getElementById('score');
+
+  // Aim Rotation
+  window.addEventListener('pointermove', e => {
+    const rect = renderer.domElement.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+    aimAngle = Math.atan2(x, -y);
+  });
+
+  // Strike Action
+  document.getElementById('power-btn').addEventListener('click', () => {
+    if (Math.hypot(cueBall.vx, cueBall.vz) < 0.05) {
+      cueBall.vx = Math.sin(aimAngle) * 1.8;
+      cueBall.vz = Math.cos(aimAngle) * 1.8;
+    }
+  });
+
+  // ── PHYSICS LOOP ──
+  function animate() {
+    requestAnimationFrame(animate);
+
+    // Update Aim Line
+    aimLine.position.copy(cueBall.position);
+    aimLine.rotation.y = aimAngle;
+
+    const allBalls = [cueBall, ...balls];
+
+    // Move Balls
+    allBalls.forEach(b => {
+      if (!b.active) return;
+      b.position.x += b.vx;
+      b.position.z += b.vz;
+      b.vx *= 0.985; // Felt friction
+      b.vz *= 0.985;
+
+      // Cushion Bounces
+      const halfW = TABLE_W / 2 - BALL_RAD;
+      const halfL = TABLE_L / 2 - BALL_RAD;
+
+      if (b.position.x > halfW || b.position.x < -halfW) {
+        b.vx = -b.vx * 0.9;
+        b.position.x = Math.max(-halfW, Math.min(halfW, b.position.x));
+      }
+      if (b.position.z > halfL || b.position.z < -halfL) {
+        b.vz = -b.vz * 0.9;
+        b.position.z = Math.max(-halfL, Math.min(halfL, b.position.z));
+      }
+
+      // Pocket Detection
+      pocketPositions.forEach(p => {
+        const dist = Math.hypot(b.position.x - p[0], b.position.z - p[2]);
+        if (dist < 1.5) {
+          if (b === cueBall) {
+            // Scratch! Reset cue ball
+            cueBall.position.set(0, BALL_RAD, -10);
+            cueBall.vx = 0;
+            cueBall.vz = 0;
+          } else {
+            b.active = false;
+            scene.remove(b);
+            pocketedCount++;
+            score += 100;
+            pocketedEl.innerText = pocketedCount;
+            scoreEl.innerText = score;
+          }
+        }
+      });
+    });
+
+    // Ball-to-Ball Elastic Collisions
+    for (let i = 0; i < allBalls.length; i++) {
+      for (let j = i + 1; j < allBalls.length; j++) {
+        const b1 = allBalls[i];
+        const b2 = allBalls[j];
+        if (!b1.active || !b2.active) continue;
+
+        const dx = b2.position.x - b1.position.x;
+        const dz = b2.position.z - b1.position.z;
+        const dist = Math.hypot(dx, dz);
+
+        if (dist < BALL_RAD * 2) {
+          // Normal vector
+          const nx = dx / dist;
+          const nz = dz / dist;
+
+          // Relative velocity
+          const kx = b1.vx - b2.vx;
+          const kz = b1.vz - b2.vz;
+          const p = 2 * (nx * kx + nz * kz) / 2;
+
+          b1.vx -= p * nx;
+          b1.vz -= p * nz;
+          b2.vx += p * nx;
+          b2.vz += p * nz;
+
+          // Separate balls
+          const overlap = BALL_RAD * 2 - dist;
+          b1.position.x -= nx * overlap * 0.5;
+          b1.position.z -= nz * overlap * 0.5;
+          b2.position.x += nx * overlap * 0.5;
+          b2.position.z += nz * overlap * 0.5;
+        }
+      }
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  animate();
+</script>
+</body>
+</html>

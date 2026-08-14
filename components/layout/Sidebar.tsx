@@ -54,21 +54,6 @@ const NAV_SECTIONS = [
       { name: "Strategy & Coop", href: "/casino/puzzle", emoji: "🧩", isSub: true },
       { name: "Cozy & Chill", href: "/casino/boring", emoji: "🌾", isSub: true },
     ]
-  },
-  {
-    title: "Account & Data",
-    items: [
-      { name: "My Profile", href: "/account", icon: Zap, color: "text-slate-500" },
-      { name: "Balance & Funds", href: "/account/balance", icon: BarChart3, color: "text-slate-500" },
-      { name: "Account Statement", href: "/account/statement", icon: BarChart3, color: "text-slate-500" },
-      { name: "My Bets", href: "/account/bets", icon: Sword, color: "text-slate-500" },
-      { name: "Profit & Loss", href: "/account/pnl", icon: LineChart, color: "text-slate-500" },
-      { name: "Activity Log", href: "/account/activity", icon: Zap, color: "text-slate-500" },
-      { name: "Refer & Earn", href: "/refer", icon: Gift, color: "text-slate-500" },
-      { name: "Provably Fair", href: "/casino/verify", icon: Shield, color: "text-indigo-400" },
-      { name: "Safe Play", href: "/rg", icon: Shield, color: "text-slate-500" },
-      { name: "Support Desk", href: "/support", icon: HeadphonesIcon, color: "text-slate-500" },
-    ]
   }
 ];
 

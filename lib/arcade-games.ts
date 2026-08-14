@@ -15,30 +15,78 @@ export interface ArcadeGame {
 }
 
 export const ARCADE_GAMES: ArcadeGame[] = [
-  // ── 3D RACING & ACTION (DISTINCT ENGINES) ──
+  // ── 3D RACING & SIMULATION (THREE.JS WEBGL ENGINES) ──
   {
-    id: "neon-racer",
-    title: "Neon Horizon 3D Turbo",
-    provider: "AURA WebGL",
-    description: "High-speed 3D synthwave highway racer. Dodge traffic, collect nitro boosts, and test your top speed.",
+    id: "drift-city-3d",
+    title: "Drift Horizon 3D: Cyber City",
+    provider: "AURA WebGL 3D",
+    description: "High-performance Three.js 3D physics drifting simulator through a neon-lit cyberpunk metropolis. Real skidmarks, slipstream boost, and drift multipliers.",
     thumbnail: "/games/two_stunt_supercars.png",
     categories: ["racing", "3d", "action"],
-    url: "/arcade-engines/neon-racer/index.html",
+    url: "/arcade-engines/drift-city-3d/index.html",
+    isNew: true,
+    orientation: "landscape",
+    rating: 4.9
+  },
+  {
+    id: "asteroid-3d",
+    title: "Asteroid Zero-G 3D Fighter",
+    provider: "AURA WebGL 3D",
+    description: "Deep space 3D starship combat simulator. Navigate through dense asteroid belts, dogfight alien interceptors, and blast threats with dual plasma lasers.",
+    thumbnail: "/games/space_miner_cover.png",
+    categories: ["action", "3d", "arcade"],
+    url: "/arcade-engines/asteroid-3d/index.html",
+    isNew: true,
+    orientation: "landscape",
+    rating: 4.9
+  },
+  {
+    id: "cyber-runner-3d",
+    title: "Cyber Katana: Neo Tokyo 3D",
+    provider: "AURA WebGL 3D",
+    description: "Ultra-fast 3D cyberpunk rooftop parkour runner. Execute wall runs, double jumps, energy katana strikes, and collect hyper-speed energy orbs.",
+    thumbnail: "/games/action_thumbnail_1780932122747.png",
+    categories: ["runner", "3d", "action"],
+    url: "/arcade-engines/cyber-runner-3d/index.html",
     isNew: true,
     orientation: "portrait",
     rating: 4.9
   },
   {
-    id: "hexgl",
-    title: "HexGL 3D Racing",
-    provider: "BKCore / Three.js",
-    description: "Futuristic Wipeout-style high-speed 3D hovering craft racer built in HTML5 and WebGL.",
-    thumbnail: "/games/hexgl.png",
-    categories: ["racing", "3d", "action"],
-    url: "https://hexgl.bkcore.com/play/",
+    id: "billiards-3d",
+    title: "3D Neon Billiards Pro",
+    provider: "AURA Physics 3D",
+    description: "Authentic 3D physics 8-ball pool table with cue angle adjustments, ball-to-ball elastic collisions, cushion banks, and illuminated neon pockets.",
+    thumbnail: "/games/neon_billiards_cover.png",
+    categories: ["sports", "3d", "physics", "board"],
+    url: "/arcade-engines/billiards-3d/index.html",
     isNew: true,
     orientation: "landscape",
     rating: 4.9
+  },
+  {
+    id: "bowling-3d",
+    title: "Strike 3D Cyber Bowling",
+    provider: "AURA Physics 3D",
+    description: "Realistic 10-pin cyber bowling alley with polished lane reflections, spin curve trajectory, dynamic pin collision physics, and instant strike replays.",
+    thumbnail: "/games/hilo_thumbnail.png",
+    categories: ["sports", "3d", "physics", "arcade"],
+    url: "/arcade-engines/bowling-3d/index.html",
+    isNew: true,
+    orientation: "portrait",
+    rating: 4.8
+  },
+  {
+    id: "neon-racer",
+    title: "Neon Horizon Turbo",
+    provider: "AURA Arcade",
+    description: "High-speed 3D synthwave highway racer. Dodge traffic, collect nitro boosts, and test your top speed against the clock.",
+    thumbnail: "/games/racing_thumbnail_1780932108929.png",
+    categories: ["racing", "3d", "action"],
+    url: "/arcade-engines/neon-racer/index.html",
+    isNew: true,
+    orientation: "portrait",
+    rating: 4.8
   },
 
   // ── BLOCK & STACKING PHYSICS ──
@@ -150,53 +198,6 @@ export const ARCADE_GAMES: ArcadeGame[] = [
     categories: ["action", "arcade"],
     url: "/arcade-engines/space-invaders/index.html",
     orientation: "portrait",
-    rating: 4.8
-  },
-  {
-    id: "pacman",
-    title: "Pac-Man HTML5",
-    provider: "Platzh1rsch",
-    description: "The ultimate arcade classic. Eat the dots, avoid the ghosts, and grab glowing power pellets.",
-    thumbnail: "/games/pacman.png",
-    categories: ["action", "arcade"],
-    url: "https://pacman.platzh1rsch.ch/",
-    orientation: "landscape",
-    rating: 4.9
-  },
-  {
-    id: "clumsy-bird",
-    title: "Clumsy Bird MelonJS",
-    provider: "Ellison Leao",
-    description: "MelonJS physics runner. Help the clumsy bird fly through the enchanted forest obstacles.",
-    thumbnail: "/games/clumsy-bird.png",
-    categories: ["runner", "action"],
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    orientation: "landscape",
-    rating: 4.5
-  },
-
-  // ── GRANDMASTER STRATEGY & CARDS ──
-  {
-    id: "chess-web",
-    title: "Chess Master AI",
-    provider: "Stockfish / Lichess",
-    description: "Grandmaster chess with Stockfish AI, valid move calculation, and board analysis.",
-    thumbnail: "/games/orig_cover_mines.png",
-    categories: ["board", "strategy"],
-    url: "https://lichess.org/tv/frame?theme=brown&bg=light",
-    isNew: true,
-    orientation: "portrait",
-    rating: 4.9
-  },
-  {
-    id: "solitaire-pro",
-    title: "Solitaire Klondike Pro",
-    provider: "World of Solitaire",
-    description: "Smooth drag-and-drop Klondike Solitaire with Draw-1 and Draw-3 game modes.",
-    thumbnail: "/games/blackjack_pro_cover.png",
-    categories: ["board", "strategy"],
-    url: "https://worldofsolitaire.com/",
-    orientation: "landscape",
     rating: 4.8
   }
 ];

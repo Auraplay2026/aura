@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>Cyber Katana: Neo Tokyo 3D</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #020617;
+      color: #fff;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      width: 100vw;
+    }
+    #game-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      background: #000;
+    }
+    canvas { display: block; width: 100%; height: 100%; }
+    #hud {
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      right: 20px;
+      display: flex;
+      justify-content: space-between;
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-card {
+      background: rgba(15, 23, 42, 0.85);
+      border: 1px solid #334155;
+      padding: 10px 16px;
+      border-radius: 12px;
+      backdrop-filter: blur(8px);
+    }
+    .hud-title { font-size: 10px; font-weight: 900; color: #94a3b8; text-transform: uppercase; }
+    .hud-val { font-size: 24px; font-weight: 900; color: #ec4899; font-family: monospace; }
+    #touch-screen {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+    }
+  </style>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+<div id="game-container">
+  <div id="hud">
+    <div class="hud-card">
+      <div class="hud-title">Distance</div>
+      <div class="hud-val" style="color: #38bdf8;"><span id="distance">0</span>m</div>
+    </div>
+    <div class="hud-card" style="text-align: right;">
+      <div class="hud-title">Energy Orbs</div>
+      <div class="hud-val" id="score">0</div>
+    </div>
+  </div>
+
+  <div id="touch-screen"></div>
+</div>
+
+<script>
+  // ── THREE.JS 3D SCENE SETUP ──
+  const container = document.getElementById('game-container');
+  const scene = new THREE.Scene();
+  scene.fog = new THREE.FogExp2(0x0a051b, 0.012);
+
+  const camera = new THREE.PerspectiveCamera(65, window.innerWidth / window.innerHeight, 0.1, 1000);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
+  renderer.setSize(window.innerWidth, window.innerHeight);
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  container.appendChild(renderer.domElement);
+
+  // ── LIGHTING ──
+  const ambient = new THREE.AmbientLight(0x38184c, 1.8);
+  scene.add(ambient);
+
+  const neonPink = new THREE.PointLight(0xec4899, 3, 200);
+  neonPink.position.set(0, 30, 20);
+  scene.add(neonPink);
+
+  const neonCyan = new THREE.PointLight(0x06b6d4, 3, 200);
+  neonCyan.position.set(0, 30, 80);
+  scene.add(neonCyan);
+
+  // ── 3D RUNWAY TRACK & ROOFTOPS ──
+  const trackGeo = new THREE.BoxGeometry(16, 2, 2000);
+  const trackMat = new THREE.MeshStandardMaterial({ color: 0x0f172a, roughness: 0.4, metalness: 0.8 });
+  const track = new THREE.Mesh(trackGeo, trackMat);
+  track.position.set(0, -1, 900);
+  scene.add(track);
+
+  // Neon Edge Lines
+  const lineMat = new THREE.MeshBasicMaterial({ color: 0x06b6d4 });
+  const leftLine = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 2000), lineMat);
+  leftLine.position.set(-8, 0.1, 900);
+  const rightLine = new THREE.Mesh(new THREE.BoxGeometry(0.4, 0.2, 2000), lineMat);
+  rightLine.position.set(8, 0.1, 900);
+  scene.add(leftLine, rightLine);
+
+  // ── 3D RUNNER HERO ──
+  const runner = new THREE.Group();
+
+  // Body
+  const bodyGeo = new THREE.BoxGeometry(1.2, 2.2, 0.8);
+  const bodyMat = new THREE.MeshStandardMaterial({ color: 0xec4899, roughness: 0.2, metalness: 0.9 });
+  const runnerBody = new THREE.Mesh(bodyGeo, bodyMat);
+  runnerBody.position.y = 1.1;
+  runner.add(runnerBody);
+
+  // Glowing Katana on back
+  const swordGeo = new THREE.BoxGeometry(0.1, 3, 0.15);
+  const swordMat = new THREE.MeshBasicMaterial({ color: 0x38bdf8 });
+  const sword = new THREE.Mesh(swordGeo, swordMat);
+  sword.position.set(0.4, 1.8, -0.5);
+  sword.rotation.z = -Math.PI / 6;
+  runner.add(sword);
+
+  scene.add(runner);
+
+  // ── OBSTACLES & ENERGY ORBS ──
+  const LANES = [-4.5, 0, 4.5];
+  let currentLane = 1; // 0, 1, 2
+  let runnerY = 0;
+  let runnerVY = 0;
+  let isGrounded = true;
+  let score = 0;
+  let distance = 0;
+
+  const obstacles = [];
+  const orbs = [];
+
+  const obsGeo = new THREE.BoxGeometry(3.5, 3, 1.5);
+  const obsMat = new THREE.MeshStandardMaterial({ color: 0xef4444, emissive: 0x991b1b, roughness: 0.3 });
+
+  const orbGeo = new THREE.SphereGeometry(0.8, 16, 16);
+  const orbMat = new THREE.MeshBasicMaterial({ color: 0xfacc15 });
+
+  function spawnWorldObjects(zPos) {
+    // Spawn Obstacle
+    if (Math.random() < 0.6) {
+      const lane = LANES[Math.floor(Math.random() * 3)];
+      const obs = new THREE.Mesh(obsGeo, obsMat);
+      obs.position.set(lane, 1.5, zPos);
+      scene.add(obs);
+      obstacles.push(obs);
+    }
+
+    // Spawn Orbs
+    const orbLane = LANES[Math.floor(Math.random() * 3)];
+    const orb = new THREE.Mesh(orbGeo, orbMat);
+    orb.position.set(orbLane, 1.2, zPos + 15);
+    scene.add(orb);
+    orbs.push(orb);
+  }
+
+  for (let z = 50; z < 800; z += 35) {
+    spawnWorldObjects(z);
+  }
+
+  // ── CONTROLS: SWIPE & ARROWS ──
+  function moveLeft() { if (currentLane > 0) currentLane--; }
+  function moveRight() { if (currentLane < 2) currentLane++; }
+  function jump() {
+    if (isGrounded) {
+      runnerVY = 0.55;
+      isGrounded = false;
+    }
+  }
+
+  window.addEventListener('keydown', e => {
+    if (e.key === 'ArrowLeft' || e.key === 'a') moveLeft();
+    if (e.key === 'ArrowRight' || e.key === 'd') moveRight();
+    if (e.key === 'ArrowUp' || e.key === 'w' || e.key === ' ') jump();
+  });
+
+  let startX = 0, startY = 0;
+  const touchArea = document.getElementById('touch-screen');
+  touchArea.addEventListener('touchstart', e => {
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+  });
+  touchArea.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].clientX - startX;
+    const dy = e.changedTouches[0].clientY - startY;
+    if (Math.abs(dx) > Math.abs(dy)) {
+      if (dx > 30) moveRight();
+      else if (dx < -30) moveLeft();
+    } else {
+      if (dy < -30) jump();
+    }
+  });
+
+  const distEl = document.getElementById('distance');
+  const scoreEl = document.getElementById('score');
+
+  // ── GAME LOOP ──
+  let speed = 0.9;
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    // Forward Progression
+    runner.position.z += speed;
+    distance = Math.floor(runner.position.z);
+    distEl.innerText = distance;
+
+    // Smooth Lateral Lane Movement
+    const targetX = LANES[currentLane];
+    runner.position.x += (targetX - runner.position.x) * 0.2;
+
+    // Jump Physics
+    if (!isGrounded) {
+      runnerY += runnerVY;
+      runnerVY -= 0.025; // gravity
+      if (runnerY <= 0) {
+        runnerY = 0;
+        runnerVY = 0;
+        isGrounded = true;
+      }
+    }
+    runner.position.y = runnerY;
+
+    // Camera Chase
+    camera.position.set(runner.position.x * 0.5, runner.position.y + 6, runner.position.z - 12);
+    camera.lookAt(runner.position.x, runner.position.y + 2, runner.position.z + 15);
+
+    // Obstacle Collision
+    for (let i = obstacles.length - 1; i >= 0; i--) {
+      const obs = obstacles[i];
+      if (
+        Math.abs(obs.position.z - runner.position.z) < 1.5 &&
+        Math.abs(obs.position.x - runner.position.x) < 1.8 &&
+        runner.position.y < 2
+      ) {
+        alert(`HIT BARRIER! Distance: ${distance}m`);
+        runner.position.set(0, 0, 0);
+        currentLane = 1;
+        score = 0;
+        scoreEl.innerText = '0';
+        break;
+      }
+    }
+
+    // Orb Collection
+    for (let i = orbs.length - 1; i >= 0; i--) {
+      const orb = orbs[i];
+      orb.rotation.y += 0.05;
+
+      if (
+        Math.abs(orb.position.z - runner.position.z) < 2 &&
+        Math.abs(orb.position.x - runner.position.x) < 2
+      ) {
+        scene.remove(orb);
+        orbs.splice(i, 1);
+        score += 50;
+        scoreEl.innerText = score;
+      }
+    }
+
+    // Spawn new obstacles forward
+    if (obstacles.length < 30) {
+      const lastZ = obstacles[obstacles.length - 1]?.position.z || runner.position.z + 200;
+      spawnWorldObjects(lastZ + 35);
+    }
+
+    renderer.render(scene, camera);
+  }
+
+  window.addEventListener('resize', () => {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
+  });
+
+  animate();
+</script>
+</body>
+</html>

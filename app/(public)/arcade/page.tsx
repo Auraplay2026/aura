@@ -1,107 +1,171 @@
-import { ARCADE_GAMES } from "@/lib/arcade-games";
+"use client";
+
+import { useState, useMemo } from "react";
+import { ARCADE_GAMES, ArcadeCategoryId } from "@/lib/arcade-games";
 import Link from "next/link";
-import { Gamepad2, TrendingUp, Sparkles, Play } from "lucide-react";
+import { Gamepad2, TrendingUp, Sparkles, Play, Search, Flame, Trophy, Cpu, Gauge } from "lucide-react";
+
+const CATEGORY_TABS: { id: string; label: string; filter?: ArcadeCategoryId }[] = [
+  { id: "all", label: "All Arcade" },
+  { id: "3d", label: "3D Next-Gen WebGL", filter: "3d" },
+  { id: "racing", label: "Racing & Sports", filter: "racing" },
+  { id: "action", label: "Action & Shooters", filter: "action" },
+  { id: "puzzle", label: "Puzzle & Physics", filter: "puzzle" }
+];
 
 export default function ArcadeHubPage() {
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+
+  const filteredGames = useMemo(() => {
+    return ARCADE_GAMES.filter(game => {
+      const matchesSearch = game.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            game.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                            game.provider.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!matchesSearch) return false;
+      if (selectedCategory === "all") return true;
+      if (selectedCategory === "3d") return game.categories.includes("3d");
+      if (selectedCategory === "racing") return game.categories.includes("racing") || game.categories.includes("sports");
+      if (selectedCategory === "action") return game.categories.includes("action") || game.categories.includes("runner");
+      if (selectedCategory === "puzzle") return game.categories.includes("puzzle") || game.categories.includes("physics");
+      return true;
+    });
+  }, [selectedCategory, searchQuery]);
+
   return (
-    <div className="min-h-[100dvh] bg-white text-slate-900 p-4 sm:p-6 lg:p-8 pb-32">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <div className="min-h-[100dvh] bg-slate-50 text-slate-900 p-4 sm:p-6 lg:p-8 pb-32">
+      <div className="max-w-7xl mx-auto space-y-10">
         
-        {/* Header Section */}
-        <div className="flex flex-col gap-2">
-          <div className="flex items-center gap-3 text-red-600 mb-2">
-            <Gamepad2 className="w-6 h-6" />
-            <span className="text-xs font-black uppercase tracking-widest">Instant Play Hub</span>
+        {/* Hero Header Section */}
+        <div className="relative overflow-hidden bg-gradient-to-br from-slate-900 via-slate-950 to-indigo-950 text-white rounded-3xl p-6 sm:p-10 border border-slate-800 shadow-2xl">
+          <div className="absolute top-0 right-0 w-96 h-96 bg-red-500/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
+          <div className="absolute bottom-0 left-1/3 w-80 h-80 bg-cyan-500/10 rounded-full blur-3xl pointer-events-none" />
+
+          <div className="relative z-10 max-w-3xl space-y-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-red-500/20 border border-red-500/30 text-red-400 text-xs font-black uppercase tracking-widest">
+              <Cpu className="w-3.5 h-3.5" />
+              <span>Native WebGL 60 FPS Engine Suite</span>
+            </div>
+
+            <h1 className="text-3xl sm:text-5xl font-black tracking-tight text-white leading-tight">
+              Next-Gen <span className="bg-gradient-to-r from-red-400 via-orange-400 to-amber-300 bg-clip-text text-transparent">Arcade & 3D</span> Arena
+            </h1>
+
+            <p className="text-sm sm:text-base text-slate-300 font-medium leading-relaxed">
+              Experience zero-latency, high-end 3D WebGL drifting, zero-G dogfighting, cyber parkour, and physics simulations running directly in your browser with zero plugins or external downloads.
+            </p>
+
+            <div className="pt-2 flex flex-wrap items-center gap-4 text-xs font-bold text-slate-300">
+              <div className="flex items-center gap-1.5">
+                <Gauge className="w-4 h-4 text-emerald-400" />
+                <span>60 FPS Hardware Acceleration</span>
+              </div>
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+              <div className="flex items-center gap-1.5">
+                <Flame className="w-4 h-4 text-orange-400" />
+                <span>100% Unique Game Mechanics</span>
+              </div>
+              <div className="w-1.5 h-1.5 rounded-full bg-slate-700" />
+              <div className="flex items-center gap-1.5">
+                <Trophy className="w-4 h-4 text-yellow-400" />
+                <span>Zero Broken Iframes Guaranteed</span>
+              </div>
+            </div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900">
-            Arcade & Casual
-          </h1>
-          <p className="text-sm text-slate-500 max-w-2xl leading-relaxed font-medium mt-2">
-            High-performance WebGL titles that render instantly in your browser. Switch seamlessly between Demo practice modes and Real money execution contexts without plugin downloads.
-          </p>
         </div>
 
-        {/* Featured / Filters row */}
-        <div className="flex items-center justify-between border-b border-slate-100 pb-4">
-          <div className="flex flex-wrap items-center gap-x-6 gap-y-2 pb-2">
-            <button className="text-sm font-bold text-slate-900 relative whitespace-nowrap">
-              All Games
-              <span className="absolute -bottom-4.5 left-0 w-full h-0.5 bg-red-600 rounded-t-full" />
-            </button>
-            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
-              Action & Arcade
-            </button>
-            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
-              Puzzle & Logic
-            </button>
-            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
-              Racing & Sports
-            </button>
-            <button className="text-sm font-bold text-slate-400 hover:text-slate-600 transition-colors whitespace-nowrap">
-              Strategy & Board
-            </button>
+        {/* Filters & Search Row */}
+        <div className="flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 border-b border-slate-200/80 pb-4">
+          <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-2 md:pb-0">
+            {CATEGORY_TABS.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setSelectedCategory(tab.id)}
+                className={`px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all duration-200 whitespace-nowrap ${
+                  selectedCategory === tab.id
+                    ? "bg-slate-900 text-white shadow-md shadow-slate-900/20"
+                    : "bg-white text-slate-600 hover:text-slate-900 border border-slate-200 hover:border-slate-300"
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </div>
+
+          {/* Search Box */}
+          <div className="relative min-w-[240px]">
+            <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+            <input
+              type="text"
+              placeholder="Search games..."
+              value={searchQuery}
+              onChange={e => setSearchQuery(e.target.value)}
+              className="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-xs font-medium text-slate-900 focus:outline-none focus:border-red-500 transition-colors shadow-sm"
+            />
           </div>
         </div>
 
-        {/* Game Grid - Minimalist approach */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {ARCADE_GAMES.map((game) => (
+        {/* Game Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {filteredGames.map((game) => (
             <Link href={`/arcade/game/${game.id}`} key={game.id} className="group block">
-              <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden hover:border-slate-300 transition-all duration-300 flex flex-col h-full">
-                <div className="relative aspect-video overflow-hidden bg-slate-50">
-                  {/* Fallback image style since we use generic external images */}
+              <div className="bg-white border border-slate-200/90 rounded-2xl overflow-hidden hover:border-red-300 hover:shadow-xl transition-all duration-300 flex flex-col h-full">
+                
+                {/* Thumbnail Container */}
+                <div className="relative aspect-video overflow-hidden bg-slate-900">
                   <img 
                     src={game.thumbnail} 
                     alt={game.title} 
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                   />
-                  <div className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors duration-300" />
+                  <div className="absolute inset-0 bg-slate-950/20 group-hover:bg-slate-950/0 transition-colors duration-300" />
                   
-                  {game.isNew && (
-                    <div className="absolute top-3 right-3 px-2 py-1 bg-white/90 backdrop-blur border border-slate-200 text-slate-900 text-[9px] font-black uppercase tracking-widest rounded shadow-sm">
-                      New
+                  {/* Badges */}
+                  <div className="absolute top-3 left-3 flex items-center gap-1.5">
+                    {game.categories.includes("3d") && (
+                      <span className="px-2 py-0.5 bg-cyan-500/90 backdrop-blur text-slate-950 text-[9px] font-black uppercase tracking-wider rounded shadow-sm">
+                        3D WebGL
+                      </span>
+                    )}
+                  </div>
+
+                  {game.rating && (
+                    <div className="absolute top-3 right-3 px-2 py-0.5 bg-slate-900/80 backdrop-blur text-yellow-400 text-[10px] font-black uppercase tracking-wider rounded border border-slate-700/80 flex items-center gap-1">
+                      <span>★</span> {game.rating}
                     </div>
                   )}
 
                   {/* Play Overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="w-14 h-14 bg-white/90 backdrop-blur rounded-full flex items-center justify-center shadow-xl text-red-600 transform scale-90 group-hover:scale-100 transition-transform duration-300">
-                      <Play className="w-6 h-6 ml-1" />
+                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-slate-950/30 backdrop-blur-[2px]">
+                    <div className="w-12 h-12 bg-red-600 rounded-full flex items-center justify-center shadow-2xl text-white transform scale-90 group-hover:scale-100 transition-transform duration-300">
+                      <Play className="w-5 h-5 ml-0.5 fill-white" />
                     </div>
                   </div>
                 </div>
 
-                <div className="p-5 flex flex-col flex-1">
-                  <div className="flex items-start justify-between gap-4 mb-2">
-                    <div>
-                      <h3 className="text-lg font-black text-slate-900 tracking-tight group-hover:text-red-600 transition-colors">
-                        {game.title}
-                      </h3>
-                      <p className="text-[11px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
-                        {game.provider}
-                      </p>
-                    </div>
+                {/* Content */}
+                <div className="p-4 sm:p-5 flex flex-col flex-1">
+                  <div className="mb-2">
+                    <h3 className="text-base font-black text-slate-900 tracking-tight group-hover:text-red-600 transition-colors line-clamp-1">
+                      {game.title}
+                    </h3>
+                    <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mt-0.5">
+                      {game.provider}
+                    </p>
                   </div>
                   
-                  <p className="text-xs text-slate-500 font-medium leading-relaxed mt-2 flex-1">
+                  <p className="text-xs text-slate-500 font-medium leading-relaxed flex-1 line-clamp-2">
                     {game.description}
                   </p>
 
-                  <div className="mt-6 flex items-center justify-between border-t border-slate-100 pt-4">
-                    <div className="flex items-center gap-2">
-                      <div className="flex -space-x-1">
-                        <div className="w-5 h-5 rounded-full bg-red-100 border border-white flex items-center justify-center">
-                          <Sparkles className="w-2.5 h-2.5 text-red-600" />
-                        </div>
-                        <div className="w-5 h-5 rounded-full bg-emerald-100 border border-white flex items-center justify-center">
-                          <TrendingUp className="w-2.5 h-2.5 text-emerald-600" />
-                        </div>
-                      </div>
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest ml-1">Optimized</span>
-                    </div>
+                  <div className="mt-4 flex items-center justify-between border-t border-slate-100 pt-3">
+                    <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                      Instant Load
+                    </span>
                     
-                    <span className="text-[10px] font-bold text-red-600 uppercase tracking-widest group-hover:underline underline-offset-2">
-                      Play Now
+                    <span className="text-[10px] font-extrabold text-red-600 uppercase tracking-widest group-hover:translate-x-0.5 transition-transform flex items-center gap-1">
+                      Play <Play className="w-2.5 h-2.5 fill-red-600" />
                     </span>
                   </div>
                 </div>
@@ -109,6 +173,14 @@ export default function ArcadeHubPage() {
             </Link>
           ))}
         </div>
+
+        {filteredGames.length === 0 && (
+          <div className="text-center py-20 bg-white rounded-2xl border border-slate-200">
+            <Gamepad2 className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+            <h3 className="text-base font-bold text-slate-700">No arcade games found</h3>
+            <p className="text-xs text-slate-400 mt-1">Try switching categories or searching for a different title.</p>
+          </div>
+        )}
 
       </div>
     </div>
