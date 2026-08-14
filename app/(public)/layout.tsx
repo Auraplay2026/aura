@@ -36,7 +36,7 @@ export default function PublicLayout({
       <div className="flex-1 flex flex-col relative min-w-0 h-[100dvh] overflow-hidden z-10">
         <Header />
         
-        <main className="flex-1 overflow-y-auto custom-scrollbar relative">
+        <main className="flex-1 overflow-y-auto custom-scrollbar relative pb-16 md:pb-0">
           {children}
           <LiveWinTicker />
           <Footer />

@@ -1245,9 +1245,10 @@ export default function GamePlayerPage() {
                                         <span>Chip Selector</span>
                                         <span>Double click to 2x</span>
                                       </div>
-                                      <div className="flex flex-wrap items-center justify-between gap-2 mt-1.5 py-1.5">
+                                      <div className="flex flex-wrap items-center justify-between gap-1.5 mt-1.5 py-1.5">
                                         {[
-                                          { amount: 10, label: "10", color: "from-slate-400 to-slate-500 border-slate-400" },
+                                          { amount: 5, label: "5", color: "from-slate-400 to-slate-500 border-slate-300" },
+                                          { amount: 10, label: "10", color: "from-slate-500 to-slate-600 border-slate-400" },
                                           { amount: 50, label: "50", color: "from-blue-500 to-blue-600 border-blue-450" },
                                           { amount: 100, label: "100", color: "from-red-650 to-red-700 border-red-500" },
                                           { amount: 500, label: "500", color: "from-teal-650 to-teal-700 border-teal-500" },
@@ -1262,7 +1263,7 @@ export default function GamePlayerPage() {
                                               onClick={() => { setBetAmount(chip.amount); playGameSound('click'); }}
                                               onDoubleClick={() => { setBetAmount(chip.amount * 2); playGameSound('click'); }}
                                               className={cn(
-                                                chip.amount === 1000 ? "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-950 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none" : "relative w-10 h-10 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-900 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none",
+                                                chip.amount === 1000 ? "relative w-9 h-9 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-950 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none" : "relative w-9 h-9 sm:w-11 sm:h-11 rounded-full flex-shrink-0 flex items-center justify-center font-black text-slate-900 shadow-md transition-all duration-300 transform cursor-pointer border-[1.5px] border-white/90 select-none",
 
                                                 isSelected ? "scale-110 ring-2 ring-slate-100 ring-offset-1 ring-offset-white z-10 opacity-100" : "hover:scale-105 opacity-80 hover:opacity-100",
                                                 `bg-gradient-to-br ${chip.color}`
@@ -1744,7 +1745,7 @@ export default function GamePlayerPage() {
 
                     {/* ═══════ INLINE BETTING PANEL ═══════ */}
                     {!isCloudRenting && (
-                      <div className="relative w-full z-30 bg-white border-t border-slate-200 shadow-inner flex flex-col">
+                      <div className="relative w-full z-30 bg-white border-t border-slate-200 shadow-inner flex flex-col mb-16 md:mb-0">
                         {!currentUser ? (
                           <div className="flex flex-col sm:flex-row items-center justify-between gap-4 p-4 md:p-6 bg-white text-slate-900">
                             <div className="flex items-center gap-3">
@@ -1771,9 +1772,9 @@ export default function GamePlayerPage() {
                           </div>
                         ) : (
                           <>
-                        {/* Row 1: Bet input + BET button */}
-                        <div className="flex items-stretch gap-2 px-3 pt-3 pb-2 md:px-5">
-                          {/* Bet Amount */}
+                        {/* Row 1: Bet input + Target Selector + BET button */}
+                        <div className="flex items-stretch gap-2 px-3 pt-3 pb-1.5 md:px-5">
+                          {/* Bet Amount Input */}
                           <div className="flex items-center bg-slate-50 border border-slate-200 rounded-xl overflow-hidden shrink-0 h-12 focus-within:border-slate-300 transition-all">
                             <div className="px-3 border-r border-slate-200 h-full flex items-center">
                               <span className="text-slate-650 font-black text-lg leading-none">₹</span>
@@ -1879,9 +1880,10 @@ export default function GamePlayerPage() {
                           )}
                         </div>
 
-                        {/* Row 2: Chips + mobile extras + balance */}
-                        <div className="flex items-center gap-1.5 px-3 pb-3 md:px-5 md:pb-4 w-full overflow-x-auto flex-nowrap touch-pan-x scrollbar-none">
+                        {/* Row 2: Elevated Chips Selector (5, 10, 50, 100, 500, 1k, 5k) + mobile extras */}
+                        <div className="flex items-center gap-1.5 px-3 pb-3 md:px-5 md:pb-3.5 w-full overflow-x-auto flex-nowrap touch-pan-x scrollbar-none">
                           {[
+                            {amount:5, label:"₹5", color:"from-slate-400 to-slate-500"},
                             {amount:10, label:"₹10", color:"from-slate-500 to-slate-600"},
                             {amount:50, label:"₹50", color:"from-blue-500 to-blue-600"},
                             {amount:100, label:"₹100", color:"from-red-600 to-red-700"},
@@ -1906,8 +1908,8 @@ export default function GamePlayerPage() {
                                 }} 
                                 disabled={isSpinning}
                                 className={`h-8 px-2.5 sm:px-3 rounded-lg shrink-0 text-[10px] transition-all border bg-gradient-to-br ${chip.color} ${chip.amount === 1000 ? 'text-slate-950 font-black' : 'text-white font-black'} ${
-                                  isSelected ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-white scale-105 opacity-100 border-white/30' : 'opacity-55 hover:opacity-85 border-white/15'
-                                } disabled:opacity-20`}
+                                  isSelected ? 'ring-2 ring-white/60 ring-offset-1 ring-offset-white scale-105 opacity-100 border-white/30' : 'opacity-65 hover:opacity-90 border-white/15'
+                                } disabled:opacity-20 cursor-pointer`}
                               >
                                 {chip.label}
                               </button>

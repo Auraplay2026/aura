@@ -167,7 +167,7 @@ const GAME_CONFIGS: Record<string, {
   }
 };
 
-const COIN_VALUES = [10, 50, 100, 500, 1000, 5000];
+const COIN_VALUES = [5, 10, 50, 100, 500, 1000, 5000];
 
 // Simulated live player avatars for social proof (tiny face circles)
 const LIVE_PLAYERS = [
@@ -1879,6 +1879,7 @@ setPlacedChips([]);
         <div className="flex items-center gap-2 sm:gap-3">
           {COIN_VALUES.map(val => {
             const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
+              5: { bg: "from-slate-400 to-slate-600", border: "border-slate-300", text: "text-slate-900", shadow: "shadow-slate-400/40" },
               10: { bg: "from-slate-500 to-slate-700", border: "border-slate-350", text: "text-slate-900", shadow: "shadow-slate-500/40" },
               50: { bg: "from-blue-500 to-blue-700", border: "border-blue-350", text: "text-slate-900", shadow: "shadow-blue-500/40" },
               100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-slate-900", shadow: "shadow-sky-500/40" },
@@ -2330,6 +2331,7 @@ setPlacedChips([]);
         <div className="flex items-center justify-between gap-1 bg-white/40 p-2 border border-slate-200 rounded-xl overflow-x-auto select-none">
           {COIN_VALUES.map(val => {
             const styles: Record<number, { bg: string, border: string, text: string, shadow: string }> = {
+              5: { bg: "from-slate-400 to-slate-600", border: "border-slate-300", text: "text-slate-900", shadow: "shadow-slate-400/40" },
               10: { bg: "from-slate-500 to-slate-700", border: "border-slate-350", text: "text-slate-900", shadow: "shadow-slate-500/40" },
               50: { bg: "from-blue-500 to-blue-700", border: "border-blue-350", text: "text-slate-900", shadow: "shadow-blue-500/40" },
               100: { bg: "from-sky-500 to-sky-700", border: "border-sky-350", text: "text-slate-900", shadow: "shadow-sky-500/40" },

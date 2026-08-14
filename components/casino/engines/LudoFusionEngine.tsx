@@ -1063,6 +1063,7 @@ export function LudoFusionEngine({
                 {/* Stake Presets Chip layout */}
                 <div className="flex items-center justify-between gap-1.5 mt-4 overflow-x-auto py-1 scrollbar-none">
                   {[
+                    { amount: 5, label: "5", color: "from-slate-400 to-slate-500 border-slate-400" },
                     { amount: 10, label: "10", color: "from-slate-500 to-slate-600 border-slate-500" },
                     { amount: 50, label: "50", color: "from-blue-600 to-blue-700 border-blue-500" },
                     { amount: 100, label: "100", color: "from-purple-600 to-indigo-700 border-purple-500" },
