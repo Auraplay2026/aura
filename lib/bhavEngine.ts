@@ -198,3 +198,75 @@ export function calculateEqualizerCashout(
     canEqualize: guaranteedProfit > 0
   };
 }
+
+/**
+ * Formats a Back/Lay decimal odds pair into an authentic Indian Bhav spread string.
+ * Example: (1.80, 1.82) -> "80 - 82"
+ * Example: (1.45, 1.47) -> "45 - 47"
+ * Example: (2.40, 2.44) -> "1.40 - 1.44"
+ */
+export function formatBhavPair(backOdds: number, layOdds: number): string {
+  const formatSingle = (val: number) => {
+    if (val < 2.0) {
+      return `${Math.round((val - 1.0) * 100)}`;
+    }
+    return (val - 1.0).toFixed(2);
+  };
+  return `${formatSingle(backOdds)} - ${formatSingle(layOdds)}`;
+}
+
+/**
+ * Calculates Indian Cricket Meter / Index Market PnL.
+ * In meter markets, users bet ₹X per run scored above/below the strike run rate.
+ */
+export function calculateMeterExposure(
+  strikeRuns: number,
+  actualRuns: number,
+  stakePerRun: number,
+  type: "over" | "under",
+  maxCapMultiplier: number = 10
+): {
+  runDifference: number;
+  grossPnL: number;
+  cappedPnL: number;
+  isWin: boolean;
+} {
+  const diff = type === "over" ? actualRuns - strikeRuns : strikeRuns - actualRuns;
+  const maxLiability = stakePerRun * maxCapMultiplier;
+  const rawPnL = diff * stakePerRun;
+  const cappedPnL = Math.max(-maxLiability, Math.min(maxLiability, rawPnL));
+
+  return {
+    runDifference: diff,
+    grossPnL: parseFloat(rawPnL.toFixed(2)),
+    cappedPnL: parseFloat(cappedPnL.toFixed(2)),
+    isWin: cappedPnL > 0
+  };
+}
+
+/**
+ * Multi-outcome Dutching Calculator.
+ * Calculates optimal stake distribution across multiple selections to return an identical profit.
+ */
+export function calculateDutching(
+  totalBudget: number,
+  selections: { id: string; name: string; odds: number }[]
+): { id: string; name: string; odds: number; stake: number; return: number }[] {
+  if (selections.length === 0 || totalBudget <= 0) return [];
+  const sumInverse = selections.reduce((sum, s) => sum + (s.odds > 1 ? 1 / s.odds : 0), 0);
+  if (sumInverse === 0) return [];
+
+  return selections.map(s => {
+    const rawStake = (totalBudget * (1 / s.odds)) / sumInverse;
+    const stake = parseFloat(rawStake.toFixed(2));
+    const potentialReturn = parseFloat((stake * s.odds).toFixed(2));
+    return {
+      id: s.id,
+      name: s.name,
+      odds: s.odds,
+      stake,
+      return: potentialReturn
+    };
+  });
+}
+
