@@ -6,7 +6,7 @@ import {
   ArrowLeft, Calendar, MapPin, Wind, Droplets, Trophy, 
   TrendingUp, Shield, Clock, Award, Check, AlertCircle, 
   User, ChevronRight, Zap, Info, Users, Activity, Flame, Share2, CheckCircle2, ChevronDown,
-  Pin, Settings, PlayCircle, Lock, Tv, RefreshCw, X, Receipt, ChevronUp, SlidersHorizontal, Gamepad2, Wallet
+  Pin, Settings, Lock, RefreshCw, X, Receipt, ChevronUp, SlidersHorizontal, Gamepad2, Wallet
 } from "lucide-react";
 import { 
   DeepMatchInfo, CrexInningsScorecard, CREX_MATCHES_DATABASE, PLAYERS_DATABASE, PlayerDossier, resolveDeepMatch 
@@ -32,7 +32,6 @@ export default function MatchDetailPage({ params }: PageProps) {
   // Tabs & Views (Matching Video Reference)
   const [activeTab, setActiveTab] = useState<"exchange" | "scorecard" | "commentary" | "squads" | "info">("exchange");
   const [fancyCategory, setFancyCategory] = useState<"all" | "fancy" | "ballbyball" | "khadda" | "lottery" | "oddeven">("all");
-  const [isTVExpanded, setIsTVExpanded] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
 
   // Quick Bet & Bet Slip State
@@ -231,17 +230,6 @@ export default function MatchDetailPage({ params }: PageProps) {
 
           <div className="flex items-center gap-2">
             <button
-              onClick={() => setIsTVExpanded(!isTVExpanded)}
-              className={cn(
-                "px-3 py-1.5 rounded-md text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]",
-                isTVExpanded ? "bg-red-600 text-white" : "bg-[#122e22] text-emerald-200 hover:bg-[#255740] border border-[#2d5a45]"
-              )}
-            >
-              <Tv className="w-3.5 h-3.5 text-red-400" />
-              <span>Live TV</span>
-            </button>
-
-            <button
               onClick={() => setIsPinned(!isPinned)}
               className={cn(
                 "p-2 rounded-md border transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center",
@@ -328,14 +316,6 @@ export default function MatchDetailPage({ params }: PageProps) {
             </div>
 
           </div>
-
-          {/* Expandable Live TV */}
-          {isTVExpanded && (
-            <div className="mt-2 rounded-xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-slate-300">
-              <PlayCircle className="w-12 h-12 text-red-500 animate-pulse mb-1" />
-              <span className="text-xs font-mono font-bold text-slate-200">Live Fast-Stream Active</span>
-            </div>
-          )}
 
         </div>
       </div>
