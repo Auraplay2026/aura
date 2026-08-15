@@ -30,6 +30,7 @@ export default function MatchDetailPage({ params }: PageProps) {
     verifiedAt: string;
     gateChecksPassed: string[];
   } | null>(null);
+  const [winProbability, setWinProbability] = useState<{ team1: number; team2: number }>({ team1: 50, team2: 50 });
   const [cricketTelemetry, setCricketTelemetry] = useState<any>(null);
   const [footballTelemetry, setFootballTelemetry] = useState<any>(null);
   const [tennisTelemetry, setTennisTelemetry] = useState<any>(null);
@@ -45,52 +46,79 @@ export default function MatchDetailPage({ params }: PageProps) {
     drawLay: match.odds?.drawLay
   };
 
-  // Live real-time match sync with dedicated match API
+  // Live real-time match sync with EventSource SSE Stream & fallback polling
   useEffect(() => {
     let isMounted = true;
-    const fetchLiveMatch = async () => {
+    let eventSource: EventSource | null = null;
+    let fallbackInterval: any = null;
+
+    const applyMatchPayload = (data: any) => {
+      if (!isMounted || !data) return;
+      if (data.match) setMatch(data.match);
+      if (data.gateCheck) setGateCheckInfo(data.gateCheck);
+      if (data.cricketTelemetry) setCricketTelemetry(data.cricketTelemetry);
+      if (data.footballTelemetry) setFootballTelemetry(data.footballTelemetry);
+      if (data.tennisTelemetry) setTennisTelemetry(data.tennisTelemetry);
+      if (data.winProbability) setWinProbability(data.winProbability);
+    };
+
+    const fetchLiveMatchFallback = async () => {
       try {
         const res = await fetch(`/api/sports/match/${matchId}`);
         if (res.ok) {
           const data = await res.json();
           if (data.success && data.match && isMounted) {
-            setMatch(data.match);
-            if (data.gateCheck) {
-              setGateCheckInfo(data.gateCheck);
-            }
-            if (data.cricketTelemetry) {
-              setCricketTelemetry(data.cricketTelemetry);
-            }
-            if (data.footballTelemetry) {
-              setFootballTelemetry(data.footballTelemetry);
-            }
-            if (data.tennisTelemetry) {
-              setTennisTelemetry(data.tennisTelemetry);
-            }
+            applyMatchPayload(data);
             return;
           }
         }
         
-        // Fallback to /api/sports/live
+        // Secondary fallback to /api/sports/live
         const liveRes = await fetch("/api/sports/live?sport=all");
         if (liveRes.ok) {
           const data = await liveRes.json();
           const liveList = Array.isArray(data) ? data : data.matches || [];
           const found = liveList.find((m: any) => String(m.id) === String(matchId) || m.id === parseInt(matchId));
-          if (isMounted) {
+          if (isMounted && found) {
             setMatch(resolveDeepMatch(matchId, found));
           }
         }
       } catch (e) {
-        console.error("Live match sync error:", e);
+        console.warn("Live match fallback sync error:", e);
       }
     };
 
-    fetchLiveMatch();
-    const interval = setInterval(fetchLiveMatch, 10000);
+    // 1. Initial snapshot fetch
+    fetchLiveMatchFallback();
+
+    // 2. Connect persistent SSE Stream
+    try {
+      eventSource = new EventSource(`/api/sports/stream?matchId=${matchId}`);
+      eventSource.onmessage = (event) => {
+        if (!isMounted) return;
+        try {
+          const parsed = JSON.parse(event.data);
+          if (parsed.type === "MATCH_TELEMETRY" && parsed.match) {
+            applyMatchPayload(parsed);
+          }
+        } catch (e) {
+          // ignore heartbeat parse errors
+        }
+      };
+
+      eventSource.onerror = () => {
+        if (!fallbackInterval && isMounted) {
+          fallbackInterval = setInterval(fetchLiveMatchFallback, 6000);
+        }
+      };
+    } catch (sseErr) {
+      fallbackInterval = setInterval(fetchLiveMatchFallback, 6000);
+    }
+
     return () => {
       isMounted = false;
-      clearInterval(interval);
+      if (eventSource) eventSource.close();
+      if (fallbackInterval) clearInterval(fallbackInterval);
     };
   }, [matchId]);
 
@@ -293,6 +321,31 @@ export default function MatchDetailPage({ params }: PageProps) {
 
             <div className="text-[11px] text-slate-700 font-bold">
               Toss / Kickoff: <strong className="text-slate-950">{match.toss}</strong>
+            </div>
+          </div>
+
+          {/* Live Win Probability & Momentum Gauge */}
+          <div className="mt-4 pt-3 border-t border-slate-100">
+            <div className="flex items-center justify-between text-[11px] font-black uppercase tracking-wider mb-1.5">
+              <span className="text-emerald-700 flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                {match.team1.name}: {winProbability.team1}%
+              </span>
+              <span className="text-slate-400 font-bold text-[10px]">● LIVE WIN PROBABILITY</span>
+              <span className="text-sky-700 flex items-center gap-1">
+                {winProbability.team2}% :{match.team2.name}
+                <span className="w-2 h-2 rounded-full bg-sky-500 animate-pulse" />
+              </span>
+            </div>
+            <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden flex border border-slate-200 shadow-inner">
+              <div
+                style={{ width: `${winProbability.team1}%` }}
+                className="bg-emerald-500 transition-all duration-500 h-full"
+              />
+              <div
+                style={{ width: `${winProbability.team2}%` }}
+                className="bg-sky-500 transition-all duration-500 h-full"
+              />
             </div>
           </div>
 

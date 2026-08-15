@@ -415,55 +415,97 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     }
   }, [unwrappedParams.sport, sportQuery]);
 
-  // Fetch real matches and track authentic odds trends
+  // Real-time EventSource SSE Stream with fallback SWR polling
   useEffect(() => {
     let active = true;
-    const fetchMatches = async () => {
+    let eventSource: EventSource | null = null;
+    let fallbackInterval: any = null;
+
+    const rawKey = activeSport.toLowerCase();
+    const sportKey = (rawKey === 'all' || rawKey === 'all sports') ? 'all' : (rawKey === 'football' ? 'soccer' : rawKey);
+
+    const processIncomingMatches = (incoming: any[]) => {
+      setMatches(prevMatches => {
+        return incoming.map((m: any) => {
+          const prev = prevMatches.find((p: any) => p.id === m.id);
+          let trend1: 'up' | 'down' | 'none' = 'none';
+          let trend2: 'up' | 'down' | 'none' = 'none';
+          let trendDraw: 'up' | 'down' | 'none' | null = m.odds?.draw ? 'none' : null;
+          if (prev && prev.odds && m.odds) {
+            if (m.odds.team1 > prev.odds.team1) trend1 = 'up';
+            else if (m.odds.team1 < prev.odds.team1) trend1 = 'down';
+
+            if (m.odds.team2 > prev.odds.team2) trend2 = 'up';
+            else if (m.odds.team2 < prev.odds.team2) trend2 = 'down';
+
+            if (m.odds.draw && prev.odds.draw) {
+              if (m.odds.draw > prev.odds.draw) trendDraw = 'up';
+              else if (m.odds.draw < prev.odds.draw) trendDraw = 'down';
+            }
+          }
+          return {
+            ...m,
+            trend: m.trend || { team1: trend1, draw: trendDraw, team2: trend2 }
+          };
+        });
+      });
+      setStreamTime(Date.now());
+      setIsLoading(false);
+    };
+
+    const fetchFallback = async () => {
       try {
-        const rawKey = activeSport.toLowerCase();
-        const sportKey = (rawKey === 'all' || rawKey === 'all sports') ? 'all' : (rawKey === 'football' ? 'soccer' : rawKey);
         const res = await fetch(`/api/sports/live?sport=${sportKey}`);
-        if (!res.ok) throw new Error("API error");
-        const data = await res.json();
-        if (data.success && active) {
-          setMatches(prevMatches => {
-            const incoming = data.matches || [];
-            return incoming.map((m: any) => {
-              const prev = prevMatches.find((p: any) => p.id === m.id);
-              let trend1: 'up' | 'down' | 'none' = 'none';
-              let trend2: 'up' | 'down' | 'none' = 'none';
-              let trendDraw: 'up' | 'down' | 'none' | null = m.odds?.draw ? 'none' : null;
-              if (prev && prev.odds && m.odds) {
-                if (m.odds.team1 > prev.odds.team1) trend1 = 'up';
-                else if (m.odds.team1 < prev.odds.team1) trend1 = 'down';
-
-                if (m.odds.team2 > prev.odds.team2) trend2 = 'up';
-                else if (m.odds.team2 < prev.odds.team2) trend2 = 'down';
-
-                if (m.odds.draw && prev.odds.draw) {
-                  if (m.odds.draw > prev.odds.draw) trendDraw = 'up';
-                  else if (m.odds.draw < prev.odds.draw) trendDraw = 'down';
-                }
-              }
-              return {
-                ...m,
-                trend: { team1: trend1, draw: trendDraw, team2: trend2 }
-              };
-            });
-          });
-          setStreamTime(Date.now());
+        if (res.ok) {
+          const data = await res.json();
+          if (data.success && active && Array.isArray(data.matches)) {
+            processIncomingMatches(data.matches);
+          }
         }
-      } catch (err) {
-        console.error("Failed to fetch sports matches:", err);
-      } finally {
-        if (active) setIsLoading(false);
+      } catch (e) {
+        console.warn("Sportsbook fallback fetch error:", e);
       }
     };
 
     setIsLoading(true);
-    fetchMatches();
-    const listInterval = setInterval(fetchMatches, 10000);
-    return () => { active = false; clearInterval(listInterval); };
+
+    // 1. Initial snapshot fetch
+    fetchFallback();
+
+    // 2. Connect high-throughput SSE EventSource
+    try {
+      eventSource = new EventSource(`/api/sports/stream?sport=${sportKey}`);
+      eventSource.onmessage = (event) => {
+        if (!active) return;
+        try {
+          const parsed = JSON.parse(event.data);
+          if (parsed.type === "LISTING_UPDATE" && Array.isArray(parsed.matches)) {
+            processIncomingMatches(parsed.matches);
+          }
+        } catch (err) {
+          // ignore heartbeat parse errors
+        }
+      };
+
+      eventSource.onerror = () => {
+        // SSE disconnected or unsupported in environment; activate resilient interval polling
+        if (!fallbackInterval && active) {
+          fallbackInterval = setInterval(fetchFallback, 8000);
+        }
+      };
+    } catch (sseErr) {
+      fallbackInterval = setInterval(fetchFallback, 8000);
+    }
+
+    return () => {
+      active = false;
+      if (eventSource) {
+        eventSource.close();
+      }
+      if (fallbackInterval) {
+        clearInterval(fallbackInterval);
+      }
+    };
   }, [activeSport]);
 
   // Bet slip helpers
