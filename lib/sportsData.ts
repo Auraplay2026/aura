@@ -1,3 +1,5 @@
+import { CricketOddsEngine } from "./cricketOddsEngine";
+
 export type Match = {
   id: number;
   team1: string;
@@ -48,6 +50,59 @@ const TEAMS = {
   ]
 };
 
+const TOURNAMENTS_BY_SPORT: Record<string, string[]> = {
+  cricket: [
+    "Assam Premier League",
+    "Big Bash League",
+    "Delhi Premier League",
+    "German Super League T10",
+    "ICC Cricket World Cup Challenge League",
+    "ICC Men's T20 WC Europe Qualifier",
+    "Indian Premier League SRL",
+    "International Twenty20 Matches",
+    "Metro Bank Womens One Day Cup",
+    "Netherlands Topklasse T20",
+    "One Day Internationals",
+    "Pakistan Super League SRL",
+    "Ranji Trophy",
+    "SA20 SRL",
+    "Super Smash SRL",
+    "T20 International SRL",
+    "Tamil Nadu Premier League",
+    "Test Matches",
+    "The Hundred 2026"
+  ],
+  soccer: [
+    "English Premier League",
+    "Spanish La Liga",
+    "Italian Serie A",
+    "German Bundesliga",
+    "French Ligue 1",
+    "UEFA Champions League",
+    "Portuguese Primeira Liga",
+    "Austrian Bundesliga",
+    "Belgian Pro League",
+    "Brazilian Serie A",
+    "CONMEBOL Copa Libertadores",
+    "English Sky Bet Championship"
+  ],
+  tennis: [
+    "ATP Cincinnati 2026",
+    "WTA Cincinnati 2026",
+    "Asiago Challenger 2026",
+    "Bloomsburg Challenger 2026",
+    "Hamburg Challenger 2026",
+    "Men's Wimbledon 2027",
+    "Women's Wimbledon 2027",
+    "US Open 2026"
+  ],
+  esports: [
+    "GT Sports Leagues",
+    "Battle Champions League",
+    "Volta e-Tournaments"
+  ]
+};
+
 // Seeded random number generator
 let seed = 12345;
 function random() {
@@ -65,7 +120,7 @@ function shuffle(array: any[]) {
 }
 
 export function generateMatches(sportName: string, count: number): Match[] {
-  const key = sportName.toLowerCase();
+  const key = sportName.toLowerCase() === "all" ? "cricket" : sportName.toLowerCase() === "football" ? "soccer" : sportName.toLowerCase();
   
   let teamList = (TEAMS as any)[key];
   if (!teamList) {
@@ -81,40 +136,15 @@ export function generateMatches(sportName: string, count: number): Match[] {
 
   let idCounter = seed * 10;
   let teamIndex = 0;
-
   const baseDate = new Date("2026-08-14T00:00:00Z");
 
-  const SERIES_BY_SPORT: Record<string, string[]> = {
-    cricket: [
-      "Ranji Trophy 2026", 
-      "Tamil Nadu Premier League 2026", 
-      "Delhi Premier League 2026", 
-      "Syed Mushtaq Ali Trophy 2026",
-      "Big Bash League 2026",
-      "Indian Premier League SRL",
-      "One Day Internationals",
-      "ICC World Test Championship"
-    ],
-    soccer: ["Premier League 2026", "UEFA Champions League 2026", "La Liga 2026", "ISL 2026", "FA Cup 2026"],
-    football: ["Premier League 2026", "UEFA Champions League 2026", "La Liga 2026", "ISL 2026", "FA Cup 2026"],
-    basketball: ["NBA Regular Season 2026", "EuroLeague 2026", "FIBA World Tour 2026"],
-    tennis: ["ATP Masters 1000 Cincinnati", "WTA 1000 Cincinnati", "US Open Series 2026"],
-    esports: ["VCT Champions 2026", "League of Legends Worlds 2026", "CS2 Major 2026"]
-  };
-
-  const FORMATS_BY_SPORT: Record<string, string[]> = {
-    cricket: ["T20", "TEST", "ODI", "100B"],
-    soccer: ["EPL", "UCL", "Cup"],
-    football: ["EPL", "UCL", "Cup"],
-    basketball: ["NBA", "Euro"],
-    tennis: ["ATP", "WTA"],
-    esports: ["BO3", "BO5"]
-  };
+  const tournamentList = TOURNAMENTS_BY_SPORT[key] || TOURNAMENTS_BY_SPORT.cricket;
+  const targetCount = Math.max(count, tournamentList.length * 2);
 
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < targetCount; i++) {
     if (teamIndex + 1 >= shuffledTeams.length) {
       teamIndex = 0; 
       shuffle(shuffledTeams);
@@ -124,10 +154,11 @@ export function generateMatches(sportName: string, count: number): Match[] {
     const team2 = shuffledTeams[teamIndex + 1];
     teamIndex += 2;
 
-    const isLive = i < Math.min(3, count) && random() > 0.4;
+    const seriesName = tournamentList[i % tournamentList.length];
+    const isLive = i < Math.floor(tournamentList.length * 0.7); // Guarantee active live coverage across top leagues
     
     // Distribute upcoming matches across Days 0 to 7
-    const dayOffset = isLive ? 0 : (i % 7);
+    const dayOffset = isLive ? 0 : (i % 3);
     const targetDate = new Date(baseDate);
     targetDate.setDate(baseDate.getDate() + dayOffset);
 
@@ -145,35 +176,53 @@ export function generateMatches(sportName: string, count: number): Match[] {
     const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
     const timeStr = `${String(displayHour).padStart(2, "0")}:${min} ${ampm}`;
 
-    const seriesPool = SERIES_BY_SPORT[key] || SERIES_BY_SPORT.soccer;
-    const seriesName = seriesPool[i % seriesPool.length];
-    const formatPool = FORMATS_BY_SPORT[key] || ["PRO"];
-    const matchFormat = formatPool[i % formatPool.length];
-
-    const odds1 = 1.15 + (random() * 3.5);
-    const odds2 = 1.15 + (random() * 3.5);
-    const oddsDraw = supportsDraw ? (2.2 + (random() * 2.8)) : null;
-
-    const trends = ['up', 'down', 'none'] as const;
-    const trend1 = trends[Math.floor(random() * 3)];
-    const trend2 = trends[Math.floor(random() * 3)];
-    const trendDraw = supportsDraw ? trends[Math.floor(random() * 3)] : null;
+    let matchFormat = "T20";
+    if (seriesName.toLowerCase().includes("test") || seriesName.toLowerCase().includes("ranji")) matchFormat = "TEST";
+    else if (seriesName.toLowerCase().includes("one day") || seriesName.toLowerCase().includes("odi")) matchFormat = "ODI";
+    else if (seriesName.toLowerCase().includes("t10")) matchFormat = "T10";
+    else if (seriesName.toLowerCase().includes("hundred")) matchFormat = "100_BALL";
 
     let score = "";
+    let odds1 = 2.10;
+    let odds2 = 2.30;
+    let oddsDraw: number | null = supportsDraw ? 3.20 : null;
+
     if (isLive) {
-      if (key === "soccer" || key === "football") {
+      if (key === "cricket") {
+        const oversVal = parseFloat((Math.floor(random() * 15) + 3 + (Math.floor(random() * 6) / 10)).toFixed(1));
+        const runsVal = Math.floor(oversVal * 7.8) + Math.floor(random() * 20);
+        const wicketsVal = Math.floor(random() * 4) + 1;
+        score = `${runsVal}/${wicketsVal} (${oversVal} ov)`;
+
+        const calculated = CricketOddsEngine.calculateOdds({
+          format: matchFormat as any,
+          inningsNumber: 1,
+          battingTeamName: team1,
+          bowlingTeamName: team2,
+          runs: runsVal,
+          wickets: wicketsVal,
+          overs: oversVal,
+          totalOvers: matchFormat === "TEST" ? 90 : matchFormat === "ODI" ? 50 : 20
+        });
+
+        odds1 = calculated.team1Back;
+        odds2 = calculated.team2Back;
+        oddsDraw = matchFormat === "TEST" ? 3.60 : null;
+      } else if (key === "soccer" || key === "football") {
         score = `${Math.floor(random() * 3)} - ${Math.floor(random() * 2)} (${Math.floor(random() * 75) + 10}')`;
-      } else if (key === "tennis" || key === "table tennis") {
+        odds1 = parseFloat((1.4 + random() * 2).toFixed(2));
+        odds2 = parseFloat((1.8 + random() * 3).toFixed(2));
+      } else if (key === "tennis") {
         score = `Set ${Math.floor(random() * 3) + 1} (${Math.floor(random() * 6)}-${Math.floor(random() * 6)})`;
-      } else if (key === "basketball") {
-        score = `Q${Math.floor(random() * 4) + 1} ${Math.floor(random() * 40) + 60}-${Math.floor(random() * 40) + 55}`;
-      } else if (key === "cricket") {
-        score = `${Math.floor(random() * 120) + 80}/${Math.floor(random() * 5)} (${Math.floor(random() * 16) + 3}.${Math.floor(random() * 6)} ov)`;
+        odds1 = parseFloat((1.3 + random() * 2).toFixed(2));
+        odds2 = parseFloat((1.5 + random() * 2.5).toFixed(2));
       } else {
         score = `${Math.floor(random() * 5)} - ${Math.floor(random() * 5)}`;
       }
     } else {
       score = dayOffset === 0 ? `Today, ${timeStr}` : dayOffset === 1 ? `Tomorrow, ${timeStr}` : `${displayDate}, ${timeStr}`;
+      odds1 = parseFloat((1.6 + random() * 1.5).toFixed(2));
+      odds2 = parseFloat((1.6 + random() * 1.5).toFixed(2));
     }
 
     matches.push({
@@ -183,11 +232,11 @@ export function generateMatches(sportName: string, count: number): Match[] {
       status: isLive ? "Live" : "Upcoming",
       score,
       odds: { 
-        team1: parseFloat(odds1.toFixed(2)), 
-        draw: oddsDraw ? parseFloat(oddsDraw.toFixed(2)) : null, 
-        team2: parseFloat(odds2.toFixed(2)) 
+        team1: odds1, 
+        draw: oddsDraw, 
+        team2: odds2 
       },
-      trend: { team1: trend1, draw: trendDraw, team2: trend2 },
+      trend: { team1: 'none', draw: oddsDraw ? 'none' : null, team2: 'none' },
       dateStr,
       displayDate,
       timeStr,

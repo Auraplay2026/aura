@@ -237,9 +237,17 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     }
   };
 
-  // Filter matches
+  // Filter matches with active Tournament selection
   const filteredMatches = matches.filter(m => {
     if (selectedDateTab === "inplay" && m.status !== "Live") return false;
+    
+    // Check specific tournament sidebar selection
+    if (selectedLeague && !selectedLeague.startsWith("All ")) {
+      const lClean = selectedLeague.toLowerCase().replace(/20\d\d|srl/g, "").trim();
+      const mSeries = (m.seriesName || "").toLowerCase();
+      if (!mSeries.includes(lClean)) return false;
+    }
+
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchText = `${m.team1} ${m.team2} ${m.seriesName || ""}`.toLowerCase();
@@ -277,6 +285,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                   else if (tab.id === "Cricket" || tab.id === "Soccer" || tab.id === "Tennis") {
                     setActiveSport(tab.id);
                     setSelectedSportFilter(tab.id);
+                    setSelectedLeague(`All ${tab.id}`);
                   }
                 }}
                 className={cn(
@@ -407,19 +416,39 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         {/* ── CENTER STAGE: 6-BOX MATCHED EXCHANGE GRID (6 COLS) ── */}
         <main className="col-span-1 lg:col-span-6 space-y-2.5">
           
-          {/* Promotional Banner Carousel (Exact from Video) */}
-          <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-emerald-900 via-teal-800 to-slate-900 border border-emerald-700/60 p-4 shadow-lg flex items-center justify-between">
-            <div className="space-y-1">
-              <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded uppercase">Featured</span>
-              <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">INTERNATIONAL CASINO & CRICKET</h2>
-              <p className="text-xs text-emerald-200 font-medium">Instant Settlements • Zero Latency Live Feeds • 100% Verified Bhav</p>
+          {/* Dynamic League Header Skin or Promotional Carousel */}
+          {selectedLeague && !selectedLeague.startsWith("All ") ? (
+            <div className="bg-gradient-to-r from-[#1c3a2b] via-[#162e22] to-[#12221b] border border-emerald-700/60 rounded-xl p-4 shadow-md flex items-center justify-between">
+              <div className="space-y-1">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-300 uppercase">
+                  <span>{activeSport}</span>
+                  <ChevronRight className="w-3 h-3 text-slate-500" />
+                  <span className="text-amber-400 font-black">{selectedLeague}</span>
+                </div>
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">{selectedLeague}</h2>
+                <p className="text-xs text-emerald-200 font-medium">Official Tournament Workspace • {filteredMatches.length} Fixtures Active</p>
+              </div>
+              <button
+                onClick={() => setSelectedLeague(`All ${activeSport}`)}
+                className="px-3 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+              >
+                View All
+              </button>
             </div>
-            <div className="hidden sm:flex items-center gap-1">
-              <span className="w-2 h-2 rounded-full bg-white" />
-              <span className="w-2 h-2 rounded-full bg-white/40" />
-              <span className="w-2 h-2 rounded-full bg-white/40" />
+          ) : (
+            <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-emerald-900 via-teal-800 to-slate-900 border border-emerald-700/60 p-4 shadow-lg flex items-center justify-between">
+              <div className="space-y-1">
+                <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded uppercase">Featured</span>
+                <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">INTERNATIONAL CASINO & CRICKET</h2>
+                <p className="text-xs text-emerald-200 font-medium">Instant Settlements • Zero Latency Live Feeds • 100% Verified Bhav</p>
+              </div>
+              <div className="hidden sm:flex items-center gap-1">
+                <span className="w-2 h-2 rounded-full bg-white" />
+                <span className="w-2 h-2 rounded-full bg-white/40" />
+                <span className="w-2 h-2 rounded-full bg-white/40" />
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Time Filter Tabs & Mobile League Accordion Button */}
           <div className="bg-[#162734] border border-slate-800 rounded-xl p-1.5 flex items-center justify-between gap-2 shadow-sm">
@@ -492,7 +521,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
             
             {/* Table Header */}
             <div className="bg-[#1f384d] border-b border-slate-700 px-3 py-2 flex items-center justify-between text-[11px] font-black text-slate-200 uppercase tracking-wider">
-              <div className="flex-1">Sports Highlights</div>
+              <div className="flex-1">{selectedLeague.startsWith("All ") ? "Sports Highlights" : selectedLeague}</div>
               <div className="hidden sm:flex items-center gap-1 w-[260px] justify-end">
                 <div className="w-16 text-center text-[#72bbef]">1 Back</div>
                 <div className="w-16 text-center text-[#faa9ba]">1 Lay</div>
@@ -511,8 +540,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
               ) : filteredMatches.length === 0 ? (
                 <div className="p-12 text-center text-slate-400">
                   <Trophy className="w-10 h-10 text-slate-600 mx-auto mb-2 opacity-60" />
-                  <p className="text-sm font-black uppercase text-slate-200">No Matches in this View</p>
-                  <p className="text-xs text-slate-400 mt-1">Switch to Today or All Sports</p>
+                  <p className="text-sm font-black uppercase text-slate-200">No Matches for {selectedLeague}</p>
+                  <p className="text-xs text-slate-400 mt-1">Switch to All Cricket or Today</p>
                 </div>
               ) : (
                 filteredMatches.map(m => {
