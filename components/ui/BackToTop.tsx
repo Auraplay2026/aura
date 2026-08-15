@@ -41,7 +41,7 @@ export function BackToTop() {
           type="button"
           aria-label="Back to top"
           className={cn(
-            "fixed bottom-6 right-6 z-50",
+            "fixed bottom-24 md:bottom-6 left-4 md:left-6 z-30",
             "flex items-center justify-center w-10 h-10 rounded-full",
             "bg-white/90 backdrop-blur-md border border-slate-200/85 text-slate-600 hover:text-blue-600 hover:border-blue-300",
             "shadow-[0_8px_30px_rgb(0,0,0,0.08)] hover:shadow-[0_8px_30px_rgba(37,99,235,0.15)]",

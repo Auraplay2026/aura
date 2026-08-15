@@ -164,7 +164,7 @@ export function GlobalHypeFeed() {
   }
 
   return (
-    <div className="fixed bottom-6 left-6 z-[100] pointer-events-none flex flex-col justify-end">
+    <div className="fixed bottom-20 md:bottom-6 left-4 md:left-6 z-[100] pointer-events-none flex flex-col justify-end">
       <AnimatePresence mode="popLayout">
         {currentMessage && (
           <motion.div

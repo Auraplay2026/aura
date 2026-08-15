@@ -46,7 +46,7 @@ export function AIConcierge() {
   if (!isClient) return null;
 
   return (
-    <div className={`fixed ${isCasinoGame ? "bottom-24 right-4" : "bottom-[138px] md:bottom-6"} z-[42] flex flex-col items-end gap-4 transition-all duration-300 pointer-events-none ${isSportsbook ? "right-4 sm:right-6 md:right-24 lg:right-[424px]" : "right-4 sm:right-6 md:right-24"}`}>
+    <div className={`fixed ${isCasinoGame ? "bottom-24 right-4" : "bottom-[204px] md:bottom-6"} z-[42] flex flex-col items-end gap-4 transition-all duration-300 pointer-events-none ${isSportsbook ? "right-4 sm:right-6 md:right-56 lg:right-[480px]" : "right-4 sm:right-6 md:right-56"}`}>
       <AnimatePresence>
         {isOpen && (
           <motion.div
