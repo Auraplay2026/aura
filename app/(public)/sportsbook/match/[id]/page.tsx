@@ -35,7 +35,7 @@ export default function MatchDetailPage({ params }: PageProps) {
   const [activeTab, setActiveTab] = useState<"exchange" | "scorecard" | "commentary" | "squads" | "info">("exchange");
   const [fancyCategory, setFancyCategory] = useState<"all" | "fancy" | "ballbyball" | "khadda" | "lottery" | "oddeven">("all");
   const [isPinned, setIsPinned] = useState(false);
-  const [showLiveStream, setShowLiveStream] = useState(false);
+  const [showLiveStream, setShowLiveStream] = useState(true);
 
   // Quick Bet & Bet Slip State
   const [oneClickBet, setOneClickBet] = useState(false);
