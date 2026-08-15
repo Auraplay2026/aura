@@ -35,9 +35,12 @@ const TEAMS = {
     "T1", "Gen.G", "Sentinels", "Paper Rex", "Fnatic"
   ],
   cricket: [
-    "Sri Lanka", "India", "Australia", "Bangladesh", "Manchester Super Giants",
-    "Sunrisers Leeds", "Southern Brave Women", "Sunrisers Leeds Women", "Saint Lucia Kings", "Antigua & Barbuda Falcons",
-    "Chennai Super Kings", "Mumbai Indians", "Royal Challengers Bengaluru", "Kolkata Knight Riders", "Lucknow Super Giants"
+    "Mumbai", "Tamil Nadu", "Karnataka", "Delhi", "Saurashtra", "Bengal", "Baroda", "Vidarbha", 
+    "Dindigul Dragons", "Chepauk Super Gillies", "Lyca Kovai Kings", "Nellai Royal Kings", "Siechem Madurai Panthers",
+    "East Delhi Riders", "South Delhi Superstarz", "Central Delhi Kings", "North Delhi Strikers", "Purani Dilli 6",
+    "Chennai Super Kings", "Mumbai Indians", "Royal Challengers Bengaluru", "Kolkata Knight Riders", "Gujarat Titans",
+    "Rajasthan Royals", "Sunrisers Hyderabad", "Delhi Capitals", "Punjab Kings", "Lucknow Super Giants",
+    "India", "Australia", "England", "South Africa", "Pakistan", "New Zealand", "Sri Lanka", "Afghanistan"
   ],
   "table tennis": [
     "Sharath Kamal", "Sathiyan Gnanasekaran", "Harmeet Desai", "Manav Thakkar", "Sanil Shetty",
@@ -82,7 +85,16 @@ export function generateMatches(sportName: string, count: number): Match[] {
   const baseDate = new Date("2026-08-14T00:00:00Z");
 
   const SERIES_BY_SPORT: Record<string, string[]> = {
-    cricket: ["The Hundred 2026", "India Tour of Sri Lanka 2026", "Bangladesh Tour of Australia 2026", "Caribbean Premier League 2026", "ICC Men's T20 Qualifier 2026"],
+    cricket: [
+      "Ranji Trophy 2026", 
+      "Tamil Nadu Premier League 2026", 
+      "Delhi Premier League 2026", 
+      "Syed Mushtaq Ali Trophy 2026",
+      "Big Bash League 2026",
+      "Indian Premier League SRL",
+      "One Day Internationals",
+      "ICC World Test Championship"
+    ],
     soccer: ["Premier League 2026", "UEFA Champions League 2026", "La Liga 2026", "ISL 2026", "FA Cup 2026"],
     football: ["Premier League 2026", "UEFA Champions League 2026", "La Liga 2026", "ISL 2026", "FA Cup 2026"],
     basketball: ["NBA Regular Season 2026", "EuroLeague 2026", "FIBA World Tour 2026"],

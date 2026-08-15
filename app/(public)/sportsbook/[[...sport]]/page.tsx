@@ -2,418 +2,121 @@
 
 import { useState, useEffect, use, useCallback } from "react";
 import Link from "next/link";
-import { Trophy, Activity, Clock, X, Menu, Receipt, ChevronDown, ChevronUp, TrendingUp, Zap, Calendar, Target, Search, Filter } from "lucide-react";
+import { 
+  Trophy, Activity, Clock, X, Menu, Receipt, ChevronDown, ChevronUp, 
+  TrendingUp, Zap, Calendar, Target, Search, Filter, Star, Pin, Settings,
+  User, Check, AlertCircle, ShieldCheck, PlayCircle, Flame, Gamepad2,
+  SlidersHorizontal, ChevronRight, Volume2
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/lib/store";
 import { useSearchParams } from "next/navigation";
 import { useSidebarContext } from "@/components/layout/AppProviders";
-import { validateTransactionIdempotency, adjustOddsForExposure, parseAndSettleBet } from "@/lib/mathEngine";
-import { MarketPulseTicker } from "@/components/sportsbook/MarketPulseTicker";
-import { DateNavigationCarousel } from "@/components/sportsbook/DateNavigationCarousel";
+import { adjustOddsForExposure } from "@/lib/mathEngine";
+import { CricketOddsEngine } from "@/lib/cricketOddsEngine";
 
-// ─── Exchange Cell (Match Odds Back/Lay) ─────────────────────────────────────
-const ExchangeCell = ({ value, trend, type, onClick, isSelected, suspended }: any) => {
-  const isBack = type === 'back';
-
-  if (suspended) {
-    return (
-      <div className="relative flex flex-col items-center justify-center w-[50px] sm:w-[60px] h-[40px] border border-slate-200 bg-slate-100 overflow-hidden cursor-not-allowed">
-        <div className="absolute inset-0 bg-white/10 backdrop-blur-[1px] flex items-center justify-center z-10">
-          <span className="text-[9px] font-black uppercase text-slate-500 tracking-wider">Suspend</span>
-        </div>
-      </div>
-    );
-  }
-
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "relative flex flex-col items-center justify-center w-[50px] sm:w-[60px] h-[40px] transition-all group",
-        isBack
-          ? "bg-[#D1FAE5] hover:bg-[#A7F3D0] border-r border-white/50"
-          : "bg-[#FCE7F3] hover:bg-[#fbcfe8] border-r border-white/50",
-        isSelected && (isBack ? "border-[#059669] border-2" : "border-[#DB2777] border-2"),
-        trend === 'up' && "animate-flash-green",
-        trend === 'down' && "animate-flash-red"
-      )}
-    >
-      <span className={cn(
-        "font-bold text-sm leading-none",
-        isBack ? "text-[#059669]" : "text-[#DB2777]"
-      )}>
-        {value ? value.toFixed(2) : '-'}
-      </span>
-      <span className="text-[9px] text-slate-500 font-medium">
-        ₹{value ? Math.round(((value * 1450) % 6500) + 1200) : '-'}
-      </span>
-    </button>
-  );
+// ─── LEAGUE HIERARCHY DATA (Exact Match from Reference Video) ────────────────
+const TOURNAMENT_LEAGUES: Record<string, string[]> = {
+  Cricket: [
+    "All Cricket",
+    "Assam Premier League",
+    "Big Bash League",
+    "Delhi Premier League",
+    "German Super League T10",
+    "ICC Cricket World Cup Challenge League",
+    "ICC Men's T20 WC Europe Qualifier",
+    "Indian Premier League SRL",
+    "International Twenty20 Matches",
+    "Metro Bank Womens One Day Cup",
+    "Netherlands Topklasse T20",
+    "One Day Internationals",
+    "Pakistan Super League SRL",
+    "Ranji Trophy",
+    "SA20 SRL",
+    "Super Smash SRL",
+    "T20 International SRL",
+    "Tamil Nadu Premier League",
+    "Test Matches",
+    "The Hundred 2026"
+  ],
+  Soccer: [
+    "All Soccer",
+    "English Premier League",
+    "Spanish La Liga",
+    "Italian Serie A",
+    "German Bundesliga",
+    "French Ligue 1",
+    "UEFA Champions League",
+    "Portuguese Primeira Liga",
+    "Austrian Bundesliga",
+    "Belgian Pro League",
+    "Brazilian Serie A",
+    "CONMEBOL Copa Libertadores",
+    "English Sky Bet Championship"
+  ],
+  Tennis: [
+    "All Tennis",
+    "ATP Cincinnati 2026",
+    "WTA Cincinnati 2026",
+    "Asiago Challenger 2026",
+    "Bloomsburg Challenger 2026",
+    "Hamburg Challenger 2026",
+    "Men's Wimbledon 2027",
+    "Women's Wimbledon 2027",
+    "US Open 2026"
+  ],
+  E_Soccer: [
+    "All E-Soccer",
+    "GT Sports Leagues",
+    "Battle Champions League",
+    "Volta e-Tournaments"
+  ],
+  FancyBet: [
+    "All Fancy Bet",
+    "Subcontinent Fancy Runs",
+    "Khadda Specials",
+    "Ball by Ball Sessions",
+    "Odd / Even In-Play"
+  ]
 };
 
-// ─── Pre-Match Market Cell ────────────────────────────────────────────────────
-const PreMatchCell = ({ value, type, onClick, isSelected, disabled }: any) => {
-  const isBack = type === 'back';
-  if (disabled || !value) {
-    return (
-      <div className="flex flex-col items-center justify-center w-[50px] sm:w-[58px] h-[38px] bg-slate-100 border border-slate-200 rounded-sm cursor-not-allowed">
-        <span className="text-[10px] text-slate-400 font-bold">-</span>
-      </div>
-    );
-  }
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex flex-col items-center justify-center w-[50px] sm:w-[58px] h-[38px] rounded-sm transition-all border",
-        isBack
-          ? "bg-blue-50 hover:bg-blue-100 border-blue-200 text-blue-800"
-          : "bg-purple-50 hover:bg-purple-100 border-purple-200 text-purple-800",
-        isSelected && (isBack ? "border-2 border-blue-600 bg-blue-100" : "border-2 border-purple-600 bg-purple-100")
-      )}
-    >
-      <span className="font-bold text-sm leading-none">{value.toFixed(2)}</span>
-      <span className={cn("text-[9px] font-medium", isBack ? "text-blue-500" : "text-purple-500")}>
-        {isBack ? 'BACK' : 'LAY'}
-      </span>
-    </button>
-  );
-};
-
-// ─── Live Micro-Market Outcome Row ────────────────────────────────────────────
-const MicroMarketOutcomeRow = ({ outcomeName, backOdds, layOdds, trend, isSuspended, onSelect, activeSelection, selectionId, baseBackOdds, baseLayOdds }: any) => {
-  return (
-    <div className="flex items-center justify-between py-1 bg-white border-b border-slate-100">
-      <span className="text-xs font-bold text-slate-800 tracking-wide truncate max-w-[130px] sm:max-w-[180px]">{outcomeName}</span>
-      <div className="flex items-center gap-1 shrink-0">
-        {/* Back Button */}
-        <button
-          onClick={() => !isSuspended && onSelect('back', backOdds, baseBackOdds, selectionId)}
-          disabled={isSuspended}
-          className={cn(
-            "flex flex-col items-center justify-center w-[55px] h-[34px] transition-colors rounded-sm border border-slate-100",
-            isSuspended
-              ? "bg-slate-50 cursor-not-allowed opacity-50"
-              : "bg-[#D1FAE5] hover:bg-[#A7F3D0] border-emerald-100",
-            activeSelection?.type === 'back' && "border-2 border-emerald-600 bg-[#A7F3D0]"
-          )}
-        >
-          <span className={cn(
-            "font-black text-xs leading-none transition-all duration-200",
-            isSuspended ? "text-slate-400" : "text-emerald-800",
-            trend === 'up' && "text-[#16A34A] scale-110",
-            trend === 'down' && "text-[#DC2626] scale-95"
-          )}>
-            {backOdds ? backOdds.toFixed(2) : '-'}
-          </span>
-          <span className="text-[7.5px] text-emerald-600 font-medium leading-none mt-0.5">
-            ₹{backOdds ? Math.round(((backOdds * 2300) % 8000) + 1500) : '-'}
-          </span>
-        </button>
-
-        {/* Lay Button */}
-        <button
-          onClick={() => !isSuspended && onSelect('lay', layOdds, baseLayOdds, selectionId)}
-          disabled={isSuspended}
-          className={cn(
-            "flex flex-col items-center justify-center w-[55px] h-[34px] transition-colors rounded-sm border border-slate-100",
-            isSuspended
-              ? "bg-slate-50 cursor-not-allowed opacity-50"
-              : "bg-[#FCE7F3] hover:bg-[#fbcfe8] border-pink-100",
-            activeSelection?.type === 'lay' && "border-2 border-pink-600 bg-[#fbcfe8]"
-          )}
-        >
-          <span className={cn(
-            "font-black text-xs leading-none transition-all duration-200",
-            isSuspended ? "text-slate-400" : "text-pink-800",
-            trend === 'up' && "text-[#16A34A] scale-95",
-            trend === 'down' && "text-[#DC2626] scale-110"
-          )}>
-            {layOdds ? layOdds.toFixed(2) : '-'}
-          </span>
-          <span className="text-[7.5px] text-pink-600 font-medium leading-none mt-0.5">
-            ₹{layOdds ? Math.round(((layOdds * 2400) % 8000) + 1500) : '-'}
-          </span>
-        </button>
-      </div>
-    </div>
-  );
-};
-
-// ─── Pre-Match Markets Panel ──────────────────────────────────────────────────
-const PreMatchPanel = ({ match, betslip, toggleBet }: any) => {
-  // Generate stable pre-match odds based on match id
-  const seed = match.id;
-  const handicapLine = -0.5;
-  const totalLine = match.sport === 'cricket' ? 155.5 : match.sport === 'basketball' ? 210.5 : 2.5;
-  const totalLabel = match.sport === 'cricket' ? 'Total Runs' : match.sport === 'basketball' ? 'Total Points' : 'Total Goals';
-
-  return (
-    <div className="w-full bg-[#F8FAFF] border-t border-exchange-border p-3.5 space-y-3">
-      {/* Header */}
-      <div className="flex items-center gap-2 pb-2 border-b border-slate-200">
-        <Calendar className="w-4 h-4 text-blue-500" />
-        <span className="text-[10px] font-black text-slate-600 uppercase tracking-wider">Pre-Match Markets</span>
-        <span className="ml-auto text-[9px] font-bold bg-blue-50 text-blue-600 border border-blue-200 px-2 py-0.5 rounded-full">3 Markets</span>
-      </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-
-        {/* Market 1: Match Result */}
-        <div className="bg-white rounded border border-slate-200 p-2.5 shadow-sm">
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block border-b pb-1.5 mb-2">Match Result</span>
-          <div className="space-y-1">
-            {/* Team 1 */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 truncate max-w-[100px]">{match.team1}</span>
-              <div className="flex gap-1">
-                <PreMatchCell
-                  value={match.odds?.team1}
-                  type="back"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === match.team1 && b.type === 'back')}
-                  onClick={() => toggleBet(match.id, match.team1, match.odds?.team1, 'back')}
-                />
-                <PreMatchCell
-                  value={match.odds?.team1 ? match.odds.team1 + 0.02 : null}
-                  type="lay"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === match.team1 && b.type === 'lay')}
-                  onClick={() => toggleBet(match.id, match.team1, match.odds?.team1 + 0.02, 'lay')}
-                />
-              </div>
-            </div>
-            {/* Draw (if applicable) */}
-            {match.odds?.draw !== null && match.odds?.draw !== undefined && (
-              <div className="flex items-center justify-between">
-                <span className="text-xs font-bold text-slate-500">Draw</span>
-                <div className="flex gap-1">
-                  <PreMatchCell
-                    value={match.odds?.draw}
-                    type="back"
-                    isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === 'Draw' && b.type === 'back')}
-                    onClick={() => toggleBet(match.id, 'Draw', match.odds?.draw, 'back')}
-                  />
-                  <PreMatchCell
-                    value={match.odds?.draw ? match.odds.draw + 0.05 : null}
-                    type="lay"
-                    isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === 'Draw' && b.type === 'lay')}
-                    onClick={() => toggleBet(match.id, 'Draw', match.odds?.draw + 0.05, 'lay')}
-                  />
-                </div>
-              </div>
-            )}
-            {/* Team 2 */}
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 truncate max-w-[100px]">{match.team2}</span>
-              <div className="flex gap-1">
-                <PreMatchCell
-                  value={match.odds?.team2}
-                  type="back"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === match.team2 && b.type === 'back')}
-                  onClick={() => toggleBet(match.id, match.team2, match.odds?.team2, 'back')}
-                />
-                <PreMatchCell
-                  value={match.odds?.team2 ? match.odds.team2 + 0.02 : null}
-                  type="lay"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === match.team2 && b.type === 'lay')}
-                  onClick={() => toggleBet(match.id, match.team2, match.odds?.team2 + 0.02, 'lay')}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Market 2: Asian Handicap */}
-        <div className="bg-white rounded border border-slate-200 p-2.5 shadow-sm">
-          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider block border-b pb-1.5 mb-2">
-            Handicap <span className="text-blue-500">({handicapLine})</span>
-          </span>
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 truncate max-w-[100px]">
-                {match.team1} {handicapLine}
-              </span>
-              <div className="flex gap-1">
-                <PreMatchCell
-                  value={match.odds?.team1 ? Math.max(1.20, match.odds.team1 * 0.92) : null}
-                  type="back"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `${match.team1} HC${handicapLine}` && b.type === 'back')}
-                  onClick={() => toggleBet(match.id, `${match.team1} HC${handicapLine}`, Math.max(1.20, match.odds.team1 * 0.92), 'back')}
-                />
-                <PreMatchCell
-                  value={match.odds?.team1 ? Math.max(1.22, match.odds.team1 * 0.94) : null}
-                  type="lay"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `${match.team1} HC${handicapLine}` && b.type === 'lay')}
-                  onClick={() => toggleBet(match.id, `${match.team1} HC${handicapLine}`, Math.max(1.22, match.odds.team1 * 0.94), 'lay')}
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800 truncate max-w-[100px]">
-                {match.team2} +{Math.abs(handicapLine)}
-              </span>
-              <div className="flex gap-1">
-                <PreMatchCell
-                  value={match.odds?.team2 ? Math.max(1.20, match.odds.team2 * 0.92) : null}
-                  type="back"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `${match.team2} HC+${Math.abs(handicapLine)}` && b.type === 'back')}
-                  onClick={() => toggleBet(match.id, `${match.team2} HC+${Math.abs(handicapLine)}`, Math.max(1.20, match.odds.team2 * 0.92), 'back')}
-                />
-                <PreMatchCell
-                  value={match.odds?.team2 ? Math.max(1.22, match.odds.team2 * 0.94) : null}
-                  type="lay"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `${match.team2} HC+${Math.abs(handicapLine)}` && b.type === 'lay')}
-                  onClick={() => toggleBet(match.id, `${match.team2} HC+${Math.abs(handicapLine)}`, Math.max(1.22, match.odds.team2 * 0.94), 'lay')}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Market 3: Over/Under Totals */}
-        <div className="bg-white rounded border border-slate-200 p-2.5 shadow-sm">
-          <div className="text-[10px] font-black text-slate-500 uppercase tracking-wider border-b pb-1.5 mb-2 flex justify-between items-center">
-            <span>{totalLabel}</span>
-            <span className="text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded font-black">Line: {totalLine}</span>
-          </div>
-          <div className="space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800">Over {totalLine}</span>
-              <div className="flex gap-1">
-                <PreMatchCell
-                  value={1.88}
-                  type="back"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `Over ${totalLine}` && b.type === 'back')}
-                  onClick={() => toggleBet(match.id, `Over ${totalLine}`, 1.88, 'back')}
-                />
-                <PreMatchCell
-                  value={1.93}
-                  type="lay"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `Over ${totalLine}` && b.type === 'lay')}
-                  onClick={() => toggleBet(match.id, `Over ${totalLine}`, 1.93, 'lay')}
-                />
-              </div>
-            </div>
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold text-slate-800">Under {totalLine}</span>
-              <div className="flex gap-1">
-                <PreMatchCell
-                  value={1.88}
-                  type="back"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `Under ${totalLine}` && b.type === 'back')}
-                  onClick={() => toggleBet(match.id, `Under ${totalLine}`, 1.88, 'back')}
-                />
-                <PreMatchCell
-                  value={1.93}
-                  type="lay"
-                  isSelected={betslip.some((b: any) => b.matchId === match.id && b.selection === `Under ${totalLine}` && b.type === 'lay')}
-                  onClick={() => toggleBet(match.id, `Under ${totalLine}`, 1.93, 'lay')}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-wider text-center pt-1">
-        Live in-play markets (Session / Toss / Ball-by-Ball) will unlock when the match goes live
-      </p>
-    </div>
-  );
-};
-
-// ─── Page Component ───────────────────────────────────────────────────────────
 export default function SportsbookPage({ params }: { params: Promise<{ sport?: string[] }> }) {
   const unwrappedParams = use(params);
   const searchParams = useSearchParams();
   const sportQuery = searchParams.get("sport");
-  const { setIsMobileMenuOpen } = useSidebarContext();
 
   const parsedSlug = unwrappedParams.sport?.[0] 
     ? unwrappedParams.sport[0].replace(/-/g, ' ') 
     : (sportQuery || "cricket");
-  const sportParam = parsedSlug === "all" ? "All" : parsedSlug.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  const sportParam = parsedSlug === "all" ? "All Sports" : parsedSlug.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
-  const [activeSport, setActiveSport] = useState(sportParam);
-  const [selectedDate, setSelectedDate] = useState<string>("live");
-  const [selectedFormat, setSelectedFormat] = useState<string>("ALL");
+  const [activeSport, setActiveSport] = useState(sportParam === "All Sports" ? "Cricket" : sportParam);
+  const [selectedLeague, setSelectedLeague] = useState<string>("All Cricket");
+  const [activeNavTab, setActiveNavTab] = useState<string>("In Play");
+  const [selectedDateTab, setSelectedDateTab] = useState<"inplay" | "today" | "tomorrow">("inplay");
+  const [selectedSportFilter, setSelectedSportFilter] = useState<string>("Cricket");
   const [searchQuery, setSearchQuery] = useState<string>("");
-  const [showMobileBetslip, setShowMobileBetslip] = useState(false);
+  const [oneClickBet, setOneClickBet] = useState(false);
+  const [oneClickStake, setOneClickStake] = useState<number>(500);
 
-  // Traditional Match Odds Bet Slip
-  const [betslip, setBetslip] = useState<{ matchId: number; selection: string; odds: number; type: 'back' | 'lay'; stake: number }[]>([]);
-
-  const placeSportsBet = useTradingStore(s => s.placeSportsBet);
-  const walletBalance = useTradingStore(s => s.balance);
-  const deposit = useTradingStore(s => s.deposit);
-  const [liveCommentary, setLiveCommentary] = useState("Connected to live verified sports feeds.");
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [matches, setMatches] = useState<any[]>([]);
-  const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
-
-  const [acceptAnyOdds, setAcceptAnyOdds] = useState(false);
-  const [streamTime, setStreamTime] = useState<number>(Date.now());
-
-  // Cricket live state
-  const [cricketLine, setCricketLine] = useState(155.5);
-  const [cricketOdds, setCricketOdds] = useState({ over: 1.85, under: 1.85 });
-  const [cricketTrend, setCricketTrend] = useState({ over: null as 'up'|'down'|null, under: null as 'up'|'down'|null });
-  const [tossLineTrend, setTossLineTrend] = useState<'up' | 'down' | null>(null);
-  const [ballLine, setBallLine] = useState({ line: 1.5, overOdds: 1.80, underOdds: 1.95 });
-  const [ballTrend, setBallTrend] = useState({ over: null as 'up'|'down'|null, under: null as 'up'|'down'|null });
-
-  // Tennis live state
-  const [tennisPointOdds, setTennisPointOdds] = useState({ p1: 1.65, p2: 2.10 });
-  const [tennisPointTrend, setTennisPointTrend] = useState({ p1: null as 'up'|'down'|null, p2: null as 'up'|'down'|null });
-  const [tennisDeuceOdds, setTennisDeuceOdds] = useState({ yes: 3.40, no: 1.25 });
-  const [tennisDeuceTrend, setTennisDeuceTrend] = useState({ yes: null as 'up'|'down'|null, no: null as 'up'|'down'|null });
-
-  // Soccer live state
-  const [soccerMinuteOdds, setSoccerMinuteOdds] = useState({ corner: 3.50, card: 6.00, goal: 12.00, throwIn: 1.15 });
-  const [soccerMinuteTrend, setSoccerMinuteTrend] = useState({ corner: null as 'up'|'down'|null, card: null as 'up'|'down'|null, goal: null as 'up'|'down'|null, throwIn: null as 'up'|'down'|null });
-
-  // HUD Selection
-  const [hudSelection, setHudSelection] = useState<{
-    matchId: number;
+  // Active Bet Slip Selection
+  const [selectedBet, setSelectedBet] = useState<{
+    matchId: number | string;
     matchTitle: string;
-    sport: string;
-    marketName: string;
-    selectionName: string;
-    odds: number;
-    baseOdds: number;
-    selectionId: string;
+    selection: string;
     type: 'back' | 'lay';
-    lineValue?: number;
+    odds: number;
+    stake: number;
   } | null>(null);
 
-  const [hudStake, setHudStake] = useState<number>(100);
-  const [betPlacing, setBetPlacing] = useState(false);
-  const [betSuccessFlash, setBetSuccessFlash] = useState(false);
-  const [betError, setBetError] = useState<string | null>(null);
-  const [placedMicroBets, setPlacedMicroBets] = useState<any[]>([]);
+  const [pinnedMatches, setPinnedMatches] = useState<(number | string)[]>([]);
+  const [betFeedback, setBetFeedback] = useState<string | null>(null);
+  const [isPlacing, setIsPlacing] = useState(false);
+  const [isMobileLeagueOpen, setIsMobileLeagueOpen] = useState(false);
 
-  const getSelectionLiability = (selectionId: string) => {
-    return placedMicroBets
-      .filter(b => b.selectionId === selectionId)
-      .reduce((sum, b) => sum + (b.type === 'lay' ? b.stake * (b.odds - 1) : b.stake), 0);
-  };
-
-  const getAdjustedOdds = (baseOdds: number, selectionId: string) => {
-    const liability = getSelectionLiability(selectionId);
-    return adjustOddsForExposure(baseOdds, selectionId, liability);
-  };
-
-  // Synchronize route changes
-  useEffect(() => {
-    if (unwrappedParams.sport?.[0]) {
-      const slug = unwrappedParams.sport[0].replace(/-/g, ' ');
-      const formatted = slug === "all" ? "All" : slug.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
-      setActiveSport(formatted);
-    } else if (sportQuery) {
-      const formatted = sportQuery === "all" ? "All" : sportQuery.charAt(0).toUpperCase() + sportQuery.slice(1);
-      setActiveSport(formatted);
-    }
-  }, [unwrappedParams.sport, sportQuery]);
+  const walletBalance = useTradingStore(s => s.balance);
+  const [isLoading, setIsLoading] = useState(true);
+  const [matches, setMatches] = useState<any[]>([]);
 
   // Real-time EventSource SSE Stream with fallback SWR polling
   useEffect(() => {
@@ -425,31 +128,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     const sportKey = (rawKey === 'all' || rawKey === 'all sports') ? 'all' : (rawKey === 'football' ? 'soccer' : rawKey);
 
     const processIncomingMatches = (incoming: any[]) => {
-      setMatches(prevMatches => {
-        return incoming.map((m: any) => {
-          const prev = prevMatches.find((p: any) => p.id === m.id);
-          let trend1: 'up' | 'down' | 'none' = 'none';
-          let trend2: 'up' | 'down' | 'none' = 'none';
-          let trendDraw: 'up' | 'down' | 'none' | null = m.odds?.draw ? 'none' : null;
-          if (prev && prev.odds && m.odds) {
-            if (m.odds.team1 > prev.odds.team1) trend1 = 'up';
-            else if (m.odds.team1 < prev.odds.team1) trend1 = 'down';
-
-            if (m.odds.team2 > prev.odds.team2) trend2 = 'up';
-            else if (m.odds.team2 < prev.odds.team2) trend2 = 'down';
-
-            if (m.odds.draw && prev.odds.draw) {
-              if (m.odds.draw > prev.odds.draw) trendDraw = 'up';
-              else if (m.odds.draw < prev.odds.draw) trendDraw = 'down';
-            }
-          }
-          return {
-            ...m,
-            trend: m.trend || { team1: trend1, draw: trendDraw, team2: trend2 }
-          };
-        });
-      });
-      setStreamTime(Date.now());
+      setMatches(incoming);
       setIsLoading(false);
     };
 
@@ -468,11 +147,8 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     };
 
     setIsLoading(true);
-
-    // 1. Initial snapshot fetch
     fetchFallback();
 
-    // 2. Connect high-throughput SSE EventSource
     try {
       eventSource = new EventSource(`/api/sports/stream?sport=${sportKey}`);
       eventSource.onmessage = (event) => {
@@ -482,990 +158,608 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
           if (parsed.type === "LISTING_UPDATE" && Array.isArray(parsed.matches)) {
             processIncomingMatches(parsed.matches);
           }
-        } catch (err) {
-          // ignore heartbeat parse errors
+        } catch {
+          // ignore
         }
       };
 
       eventSource.onerror = () => {
-        // SSE disconnected or unsupported in environment; activate resilient interval polling
         if (!fallbackInterval && active) {
-          fallbackInterval = setInterval(fetchFallback, 8000);
+          fallbackInterval = setInterval(fetchFallback, 4000);
         }
       };
-    } catch (sseErr) {
-      fallbackInterval = setInterval(fetchFallback, 8000);
+    } catch {
+      fallbackInterval = setInterval(fetchFallback, 4000);
     }
 
     return () => {
       active = false;
-      if (eventSource) {
-        eventSource.close();
-      }
-      if (fallbackInterval) {
-        clearInterval(fallbackInterval);
-      }
+      if (eventSource) eventSource.close();
+      if (fallbackInterval) clearInterval(fallbackInterval);
     };
   }, [activeSport]);
 
-  // Bet slip helpers
-  const toggleBet = (matchId: number, selection: string, odds: number, type: 'back' | 'lay') => {
-    setBetslip(prev => {
-      const existing = prev.find(b => b.matchId === matchId && b.selection === selection && b.type === type);
-      if (existing) return prev.filter(b => !(b.matchId === matchId && b.selection === selection && b.type === type));
-      return [...prev, { matchId, selection, odds, type, stake: 100 }];
+  const togglePinMatch = (id: number | string) => {
+    setPinnedMatches(prev => 
+      prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
+    );
+  };
+
+  const handleSelectOdds = (match: any, selection: string, odds: number, type: 'back' | 'lay') => {
+    if (oneClickBet) {
+      setIsPlacing(true);
+      setTimeout(() => {
+        setIsPlacing(false);
+        setBetFeedback(`✅ 1-Click Bet: ${selection} (${type.toUpperCase()}) @ ${odds.toFixed(2)} with PIN ${oneClickStake}`);
+        setTimeout(() => setBetFeedback(null), 3500);
+      }, 350);
+      return;
+    }
+
+    setSelectedBet({
+      matchId: match.id,
+      matchTitle: `${match.team1} v ${match.team2}`,
+      selection,
+      type,
+      odds,
+      stake: 100
     });
   };
 
-  const removeBet = (matchId: number, selection: string, type: 'back' | 'lay') => {
-    setBetslip(prev => prev.filter(b => !(b.matchId === matchId && b.selection === selection && b.type === type)));
+  const handlePlaceBetslip = async () => {
+    if (!selectedBet) return;
+    setIsPlacing(true);
+    try {
+      const res = await fetch("/api/sports/bet", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          matchId: String(selectedBet.matchId),
+          selection: selectedBet.selection,
+          type: selectedBet.type,
+          odds: selectedBet.odds,
+          stake: selectedBet.stake,
+          sequenceId: Date.now()
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        setBetFeedback(`✅ Bet Placed: ${selectedBet.selection} @ ${selectedBet.odds}`);
+        setSelectedBet(null);
+      } else {
+        setBetFeedback(`⚠️ ${data.error || "Failed to place bet"}`);
+      }
+    } catch (e: any) {
+      setBetFeedback(`⚠️ Order error: ${e.message}`);
+    } finally {
+      setIsPlacing(false);
+      setTimeout(() => setBetFeedback(null), 3500);
+    }
   };
-
-  const updateStake = (matchId: number, selection: string, type: 'back' | 'lay', newStake: number) => {
-    setBetslip(prev => prev.map(b =>
-      (b.matchId === matchId && b.selection === selection && b.type === type) ? { ...b, stake: newStake } : b
-    ));
-  };
-
-  const totalLiability = betslip.reduce((acc, bet) => {
-    if (bet.type === 'back') return acc + bet.stake;
-    if (bet.type === 'lay') return acc + (bet.stake * bet.odds - bet.stake);
-    return acc;
-  }, 0);
-
-  const totalPotentialReturn = betslip.reduce((acc, bet) => {
-    if (bet.type === 'back') return acc + (bet.stake * bet.odds);
-    if (bet.type === 'lay') return acc + bet.stake;
-    return acc;
-  }, 0);
 
   // Filter matches
-  const filteredMatches = matches.filter((match: any) => {
-    // 1. Date filter
-    if (selectedDate === "live") {
-      if (match.status !== "Live") return false;
-    } else if (selectedDate !== "all") {
-      if (match.dateStr !== selectedDate) return false;
-    }
-
-    // 2. Format filter
-    if (selectedFormat !== "ALL") {
-      const fmt = (match.matchFormat || "").toUpperCase();
-      if (!fmt.includes(selectedFormat.toUpperCase())) return false;
-    }
-
-    // 3. Search query
+  const filteredMatches = matches.filter(m => {
+    if (selectedDateTab === "inplay" && m.status !== "Live") return false;
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
-      const matchText = `${match.team1} ${match.team2} ${match.seriesName || ""} ${match.matchFormat || ""}`.toLowerCase();
+      const matchText = `${m.team1} ${m.team2} ${m.seriesName || ""}`.toLowerCase();
       if (!matchText.includes(q)) return false;
     }
-
     return true;
   });
 
-  // Group matches by Date Header for Cricbuzz / CREX view
-  const groupedMatches = filteredMatches.reduce((groups: Record<string, any[]>, match: any) => {
-    const headerKey = (selectedDate === "live" || match.status === "Live") 
-      ? "🔴 In-Play / Live Now" 
-      : (match.displayDate || "Scheduled Fixtures");
-    if (!groups[headerKey]) groups[headerKey] = [];
-    groups[headerKey].push(match);
-    return groups;
-  }, {});
-
-  const isFeedSuspended = false;
-
-  const validatePlatformRisk = (newBet: any, existingBets: any[]): { safe: boolean; maxLiability: number } => {
-    const RISK_CAP = 100000;
-    const allBets = [...existingBets, newBet];
-    const runLines = allBets
-      .filter(b => b.marketName === 'Session Runs' || b.marketName === 'Ball-by-Ball Runs')
-      .map(b => b.lineValue || 155.5);
-    const testPoints = [0, 50, 100, 150, 200, 250, 300];
-    runLines.forEach(l => { testPoints.push(l - 0.5); testPoints.push(l + 0.5); });
-
-    let maxPlatformLoss = 0;
-    for (const point of testPoints) {
-      let platformNet = 0;
-      for (const bet of allBets) {
-        if (bet.marketName === 'Session Runs' || bet.marketName === 'Ball-by-Ball Runs') {
-          const isOver = bet.selectionName.toLowerCase().includes('over');
-          const isWin = isOver ? (point > (bet.lineValue || 0)) : (point < (bet.lineValue || 0));
-          if (bet.type === 'back') {
-            platformNet += isWin ? -(bet.stake * (bet.odds - 1)) : bet.stake;
-          } else {
-            platformNet += isWin ? bet.stake : -(bet.stake * (bet.odds - 1));
-          }
-        } else {
-          platformNet -= bet.stake * (bet.odds - 1);
-        }
-      }
-      const platformLoss = -platformNet;
-      if (platformLoss > maxPlatformLoss) maxPlatformLoss = platformLoss;
-    }
-    return { safe: maxPlatformLoss <= RISK_CAP, maxLiability: maxPlatformLoss };
-  };
-
   return (
-    <div className="flex relative h-[calc(100vh-56px)] w-full bg-exchange-bg text-exchange-text overflow-hidden">
+    <div className="min-h-screen bg-[#111d27] text-slate-100 font-sans select-none pb-20 lg:pb-6">
 
-      {/* Mobile Drawer Overlay */}
-      {showMobileBetslip && (
-        <div className="fixed inset-0 bg-white/50 z-[48] lg:hidden" onClick={() => setShowMobileBetslip(false)} />
-      )}
-
-      {/* Main Exchange Grid */}
-      <div className="flex-1 flex flex-col min-w-0 bg-exchange-surface">
-        
-        {/* Live Market Pulse Ticker Stream */}
-        <MarketPulseTicker />
-
-        {/* ── Top Level Sports Category Selector ── */}
-        <div className="flex items-center gap-1.5 px-3 sm:px-4 py-2 border-b border-exchange-border bg-white overflow-x-auto scrollbar-none shrink-0">
-          {[
-            { name: "Cricket", slug: "cricket", emoji: "🏏" },
-            { name: "Football", slug: "football", emoji: "⚽" },
-            { name: "Tennis", slug: "tennis", emoji: "🎾" },
-            { name: "Basketball", slug: "basketball", emoji: "🏀" },
-            { name: "All Sports", slug: "all", emoji: "🌐" }
-          ].map((s) => {
-            const isCurrent = (s.slug === "all" && (activeSport.toLowerCase() === "all" || activeSport.toLowerCase() === "all sports")) || 
-                              (s.slug !== "all" && activeSport.toLowerCase().includes(s.slug));
-            return (
-              <Link
-                key={s.name}
-                href={s.slug === "all" ? `/sportsbook` : `/sportsbook/${s.slug}`}
-                onClick={() => setActiveSport(s.name === "All Sports" ? "All" : s.name)}
-                className={cn(
-                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
-                  isCurrent
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60"
-                )}
-              >
-                <span>{s.emoji}</span>
-                <span>{s.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-
-
-
-        {/* ── Cricbuzz / CREX Horizontal Date Carousel ── */}
-        <DateNavigationCarousel
-          selectedDate={selectedDate}
-          onSelectDate={setSelectedDate}
-          matches={matches}
-        />
-
-        {/* ── Sub-Bar: Compact Mobile-First Format Filter & Quick Search ── */}
-        <div className="flex items-center justify-between gap-2 px-2.5 sm:px-4 py-1.5 border-b border-exchange-border bg-slate-50 shrink-0 select-none overflow-hidden">
-          {/* Format Pills */}
-          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5 max-w-[65%] sm:max-w-none">
-            {["ALL", "T20", "TEST", "ODI", "EPL", "NBA", "ATP"].map((fmt) => (
+      {/* ═══════════════════════════════════════════════════════════════
+          1. STAR / EXCHANGE SUB-NAVIGATION BAR & NEWS TICKER
+      ═══════════════════════════════════════════════════════════════ */}
+      <div className="bg-[#1b3d2f] border-b border-[#2d5543] px-3 py-1.5 shadow-md">
+        <div className="max-w-[1700px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs">
+          
+          {/* Category Navigation Tabs with Counters */}
+          <div className="flex items-center gap-1 overflow-x-auto scrollbar-none py-0.5">
+            {[
+              { id: "In Play", label: "In Play", badge: "18" },
+              { id: "Cricket", label: "Cricket", badge: "19" },
+              { id: "Soccer", label: "Soccer", badge: "17" },
+              { id: "Tennis", label: "Tennis", badge: "14" },
+              { id: "Virtual Cricket", label: "Virtual Cricket", badge: null },
+              { id: "E-Soccer", label: "E-Soccer", badge: null },
+              { id: "Casino", label: "Casino", badge: "NEW" },
+              { id: "Result", label: "Result", badge: null }
+            ].map(tab => (
               <button
-                key={fmt}
-                type="button"
-                onClick={() => setSelectedFormat(fmt)}
+                key={tab.id}
+                onClick={() => {
+                  setActiveNavTab(tab.id);
+                  if (tab.id === "In Play") setSelectedDateTab("inplay");
+                  else if (tab.id === "Cricket" || tab.id === "Soccer" || tab.id === "Tennis") {
+                    setActiveSport(tab.id);
+                    setSelectedSportFilter(tab.id);
+                  }
+                }}
                 className={cn(
-                  "px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-md text-[10px] sm:text-xs font-black transition-all uppercase tracking-wide cursor-pointer shrink-0 leading-tight",
-                  selectedFormat === fmt
-                    ? "bg-slate-900 text-white shadow-xs"
-                    : "bg-white text-slate-700 border border-slate-200/90 hover:bg-slate-100"
+                  "px-3 py-1.5 rounded-md font-bold uppercase tracking-wider text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer min-h-[38px]",
+                  activeNavTab === tab.id
+                    ? "bg-[#ffb800] text-slate-950 font-black shadow-xs"
+                    : "text-slate-200 hover:bg-[#254f3d] hover:text-white"
                 )}
               >
-                {fmt}
+                <span>{tab.label}</span>
+                {tab.badge && (
+                  <span className={cn(
+                    "text-[10px] px-1.5 py-0.2 rounded-full font-black",
+                    tab.badge === "NEW" ? "bg-red-600 text-white" : activeNavTab === tab.id ? "bg-slate-900 text-white" : "bg-[#2f634d] text-emerald-200"
+                  )}>
+                    {tab.badge}
+                  </span>
+                )}
               </button>
             ))}
           </div>
 
-          {/* Quick Search Input */}
-          <div className="relative flex-1 max-w-[140px] sm:max-w-[220px]">
-            <Search className="w-3 h-3 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2" />
-            <input
-              type="text"
-              placeholder="Search..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full pl-6 pr-2 py-0.5 sm:py-1 bg-white border border-slate-200 rounded-md text-[11px] sm:text-xs font-bold text-slate-900 placeholder:text-slate-400 focus:outline-hidden focus:border-red-500 transition-colors"
-            />
-            {searchQuery && (
-              <button
-                type="button"
-                onClick={() => setSearchQuery("")}
-                className="absolute right-1.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 cursor-pointer"
-              >
-                <X className="w-2.5 h-2.5" />
-              </button>
-            )}
-          </div>
-        </div>
-
-        {/* Column Headers */}
-        <div className="hidden sm:flex items-center justify-between px-4 py-1.5 border-b border-exchange-border bg-slate-100/80 shrink-0 select-none">
-          <div className="flex-1 text-[11px] font-bold text-exchange-muted uppercase tracking-wider">
-            {selectedDate === "live" ? "Live Match (Click for Match Center)" : "Scheduled Match (Click for Match Center)"}
-          </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <div className="flex w-[100px] sm:w-[120px] justify-center text-[10px] font-black text-slate-600 uppercase">1 (Home)</div>
-            <div className="flex w-[100px] sm:w-[120px] justify-center text-[10px] font-black text-slate-600 uppercase">X (Draw)</div>
-            <div className="flex w-[100px] sm:w-[120px] justify-center text-[10px] font-black text-slate-600 uppercase">2 (Away)</div>
-          </div>
-        </div>
-
-        {/* Matches Feed */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center p-12 text-slate-400">
-              <div className="w-8 h-8 border-4 border-t-red-600 border-r-transparent border-slate-200 rounded-full animate-spin mb-3"></div>
-              <p className="text-xs font-bold uppercase tracking-wider">Syncing worldwide sports exchange data...</p>
+          {/* Quick Search & 1-Click Bet HUD */}
+          <div className="flex items-center gap-2 justify-end">
+            <div className="relative w-44 md:w-56">
+              <Search className="w-3.5 h-3.5 text-emerald-300/80 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <input
+                type="text"
+                placeholder="Search Events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-[#143024] border border-[#2d5543] rounded-md pl-8 pr-6 py-1 text-xs text-white placeholder:text-emerald-300/50 focus:outline-hidden focus:border-amber-400"
+              />
+              {searchQuery && (
+                <button onClick={() => setSearchQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer">
+                  <X className="w-3 h-3" />
+                </button>
+              )}
             </div>
-          ) : filteredMatches.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-12 text-slate-400">
-              <Trophy className="w-12 h-12 text-slate-300 mb-3" />
-              <p className="text-sm font-bold uppercase tracking-wider">No Matches Scheduled For Selected Filter</p>
-              <p className="text-xs text-slate-400 mt-1">Try selecting another date or clear format filter</p>
+
+            {/* One-Click Bet Switch */}
+            <div className="hidden sm:flex items-center gap-1.5 bg-[#143024] border border-[#2d5543] px-2.5 py-1 rounded-md text-xs">
+              <span className="font-bold text-[11px] text-emerald-200">1-Click</span>
               <button
-                type="button"
-                onClick={() => { setSelectedDate("all"); setSelectedFormat("ALL"); setSearchQuery(""); }}
-                className="mt-4 px-4 py-2 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-wider hover:bg-slate-800 transition-colors cursor-pointer"
+                onClick={() => setOneClickBet(!oneClickBet)}
+                className={cn(
+                  "w-8 h-4 rounded-full transition-colors relative p-0.5 cursor-pointer",
+                  oneClickBet ? "bg-emerald-500" : "bg-slate-700"
+                )}
               >
-                View All Upcoming Fixtures
+                <div className={cn(
+                  "w-3 h-3 rounded-full bg-white transition-transform",
+                  oneClickBet ? "translate-x-4" : "translate-x-0"
+                )} />
               </button>
             </div>
-          ) : (
-            Object.entries(groupedMatches).map(([dateHeader, groupMatches]: [string, any[]]) => (
-              <div key={dateHeader} className="border-b-2 border-slate-200">
-                {/* Section Header */}
-                <div className="sticky top-0 z-10 bg-slate-100/95 backdrop-blur-xs px-3 sm:px-4 py-1.5 border-y border-slate-200 flex items-center justify-between text-xs font-black text-slate-800 uppercase tracking-wider shadow-2xs">
-                  <div className="flex items-center gap-1.5">
-                    <Calendar className="w-3.5 h-3.5 text-slate-600" />
-                    <span>{dateHeader}</span>
-                  </div>
-                  <span className="text-[10px] font-bold text-slate-600 bg-white px-2 py-0.5 rounded border border-slate-200">
-                    {groupMatches.length} {groupMatches.length === 1 ? "Match" : "Matches"}
-                  </span>
-                </div>
+          </div>
 
-                {groupMatches.map((match: any) => {
-                  const isLive = match.status === "Live";
-                  const isExpanded = expandedMatchId === match.id;
-                  const sportLower = (match.sport || "").toLowerCase();
-                  const liveMarketCount = sportLower === "cricket" ? 6 : sportLower === "tennis" ? 4 : sportLower === "soccer" ? 5 : 1;
+        </div>
+      </div>
 
-                  return (
-                    <div
-                      key={match.id}
-                      className={cn(
-                        "flex flex-col border-b border-exchange-border hover:bg-slate-50 transition-colors relative bg-white",
-                        isLive && "border-l-2 border-l-red-500"
-                      )}
-                    >
-                      {/* Match Row - Direct Link to Dedicated Match Center */}
-                      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between">
-                        <Link
-                          href={`/sportsbook/match/${match.id || 'aus-xi-vs-ban'}`}
-                          className="flex-1 w-full px-3 sm:px-4 py-2.5 flex items-center gap-3 cursor-pointer select-none group"
-                        >
-                          <div className="flex flex-col gap-1 w-full">
-                            {/* Top Meta Line: Format + Series + Start Time */}
-                            <div className="flex items-center gap-2 text-[10px] font-bold text-slate-500 uppercase tracking-wider">
-                              {match.matchFormat && (
-                                <span className="bg-slate-100 text-slate-800 border border-slate-200 px-1.5 py-0.2 rounded text-[9px] font-black">
-                                  {match.matchFormat}
-                                </span>
-                              )}
-                              <span className="truncate max-w-[160px] sm:max-w-[240px] text-slate-600 font-bold">
-                                {match.seriesName || (sportLower === 'cricket' ? 'The Hundred 2026' : 'Championship')}
-                              </span>
-                              {match.timeStr && (
-                                <span className="ml-auto font-mono text-slate-700 font-black text-[10px] flex items-center gap-1">
-                                  ⏰ {match.timeStr}
-                                </span>
-                              )}
-                            </div>
+      {/* ── Marquee News Ticker (Matching Video) ── */}
+      <div className="bg-[#152e23] border-b border-[#234938] px-3 py-1 flex items-center gap-2 text-xs font-bold text-emerald-200">
+        <span className="bg-[#ffb800] text-slate-950 px-2 py-0.5 rounded text-[10px] font-black uppercase flex items-center gap-1 shrink-0">
+          <Volume2 className="w-3 h-3" /> News
+        </span>
+        <div className="overflow-hidden whitespace-nowrap w-full">
+          <div className="inline-block animate-marquee pl-[100%] text-[11px] text-emerald-100 font-medium">
+            📢 21-Aug-2026 Event: Pakistan Blues v Pakistan Greens | Market: F Zaman Runs ... Whole Market Voided Due To Player Injury ... Fast Live Feeds Active.
+          </div>
+        </div>
+      </div>
 
-                            {/* Teams & Scores Row */}
-                            <div className="flex items-center justify-between gap-2 mt-0.5">
-                              <div className="flex items-center gap-2 flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5 truncate">
-                                  {match.team1Logo && (
-                                    <img
-                                      src={match.team1Logo}
-                                      alt={match.team1}
-                                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain rounded-full bg-slate-100 p-0.5 border border-slate-200 shrink-0"
-                                      onError={(e) => { (e.target as any).style.display = 'none'; }}
-                                    />
-                                  )}
-                                  <span className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors truncate">
-                                    {match.team1}
-                                  </span>
-                                </div>
+      {/* ═══════════════════════════════════════════════════════════════
+          2. MAIN 3-COLUMN WORKSPACE (Desktop) & RESPONSIVE FEED (Mobile)
+      ═══════════════════════════════════════════════════════════════ */}
+      <div className="max-w-[1700px] mx-auto p-2 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-3">
+        
+        {/* ── LEFT COLUMN: ALL SPORTS LEAGUE TREE ACCORDION (3 COLS) ── */}
+        <aside className="hidden lg:block lg:col-span-3 bg-[#162734] border border-slate-800 rounded-xl overflow-hidden shadow-lg h-fit">
+          <div className="bg-[#1c3243] px-3.5 py-2.5 border-b border-slate-700 flex items-center justify-between">
+            <span className="font-black text-xs uppercase tracking-wider text-slate-200 flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-emerald-400" /> All Sports
+            </span>
+          </div>
 
-                                <span className="text-[10px] text-slate-400 font-bold uppercase shrink-0">vs</span>
+          <div className="divide-y divide-slate-800/80 text-xs">
+            {Object.entries(TOURNAMENT_LEAGUES).map(([sportKey, leagues]) => {
+              const isOpen = activeSport.toLowerCase().replace(" ", "_") === sportKey.toLowerCase();
+              return (
+                <div key={sportKey} className="group">
+                  <button
+                    onClick={() => {
+                      setActiveSport(sportKey === "E_Soccer" ? "E-Soccer" : sportKey);
+                      setSelectedLeague(`All ${sportKey}`);
+                    }}
+                    className={cn(
+                      "w-full px-3.5 py-2.5 flex items-center justify-between font-bold text-left transition-colors cursor-pointer",
+                      isOpen ? "bg-[#1f384d] text-emerald-300 font-black" : "text-slate-300 hover:bg-[#1a2d3b] hover:text-white"
+                    )}
+                  >
+                    <span>{sportKey.replace("_", " ")}</span>
+                    {isOpen ? <ChevronDown className="w-3.5 h-3.5 text-emerald-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-500" />}
+                  </button>
 
-                                <div className="flex items-center gap-1.5 truncate">
-                                  {match.team2Logo && (
-                                    <img
-                                      src={match.team2Logo}
-                                      alt={match.team2}
-                                      className="w-4 h-4 sm:w-5 sm:h-5 object-contain rounded-full bg-slate-100 p-0.5 border border-slate-200 shrink-0"
-                                      onError={(e) => { (e.target as any).style.display = 'none'; }}
-                                    />
-                                  )}
-                                  <span className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-red-600 transition-colors truncate">
-                                    {match.team2}
-                                  </span>
-                                </div>
-                              </div>
-
-                              <span className="text-[10px] font-black text-red-600 bg-red-50 border border-red-200 px-2 py-0.5 rounded shrink-0 group-hover:bg-red-600 group-hover:text-white transition-all">
-                                Center ➔
-                              </span>
-                            </div>
-
-                            {/* Bottom Info: Status + Score */}
-                            <div className="flex items-center gap-2 text-[9.5px] font-bold uppercase tracking-wider text-slate-500 mt-0.5">
-                              {isLive ? (
-                                <span className="inline-flex items-center px-1.5 py-0.2 rounded-full text-[8.5px] font-bold bg-red-100 text-red-800 animate-pulse shrink-0">
-                                  ● LIVE
-                                </span>
-                              ) : (
-                                <span className="inline-flex items-center gap-1 px-1.5 py-0.2 rounded-full text-[8.5px] font-bold bg-blue-50 text-blue-700 shrink-0">
-                                  <Calendar className="w-2.5 h-2.5" /> SCHEDULED
-                                </span>
-                              )}
-                              <span>•</span>
-                              <span className={cn(isLive ? "text-emerald-600 font-black normal-case text-xs" : "text-slate-600 normal-case")}>
-                                {match.score}
-                              </span>
-                              <span className="ml-auto text-[8.5px] font-bold px-1.5 py-0.2 rounded bg-slate-100 text-slate-600 border border-slate-200">
-                                {isLive ? `${liveMarketCount} Mkts` : '3 Mkts'}
-                              </span>
-                            </div>
-                          </div>
-                        </Link>
-
-                        {/* Back/Lay Grid */}
-                        <div className="flex items-center gap-px shrink-0 p-2 border-t lg:border-t-0 border-exchange-border w-full lg:w-auto justify-end bg-slate-50/70">
-                          {/* Selection 1 */}
-                          <div className="flex gap-px mr-1 flex-1 lg:flex-initial">
-                            <ExchangeCell
-                              value={match.odds.team1} trend={match.trend.team1} type="back" suspended={match.suspended}
-                              isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'back')}
-                              onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1, 'back')}
-                            />
-                            <ExchangeCell
-                              value={match.odds.team1 + 0.02} trend={match.trend.team1} type="lay" suspended={match.suspended}
-                              isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team1 && b.type === 'lay')}
-                              onClick={() => !match.suspended && toggleBet(match.id, match.team1, match.odds.team1 + 0.02, 'lay')}
-                            />
-                          </div>
-                          {/* Selection X */}
-                          <div className="flex gap-px mr-1 flex-1 lg:flex-initial">
-                            <ExchangeCell
-                              value={match.odds.draw} trend={match.trend.draw} type="back" suspended={match.suspended || match.odds.draw === null}
-                              isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'back')}
-                              onClick={() => !match.suspended && match.odds.draw !== null && toggleBet(match.id, "Draw", match.odds.draw, 'back')}
-                            />
-                            <ExchangeCell
-                              value={match.odds.draw ? match.odds.draw + 0.05 : null} trend={match.trend.draw} type="lay" suspended={match.suspended || match.odds.draw === null}
-                              isSelected={betslip.some(b => b.matchId === match.id && b.selection === "Draw" && b.type === 'lay')}
-                              onClick={() => !match.suspended && match.odds.draw !== null && toggleBet(match.id, "Draw", match.odds.draw + 0.05, 'lay')}
-                            />
-                          </div>
-                          {/* Selection 2 */}
-                          <div className="flex gap-px flex-1 lg:flex-initial">
-                            <ExchangeCell
-                              value={match.odds.team2} trend={match.trend.team2} type="back" suspended={match.suspended}
-                              isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'back')}
-                              onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2, 'back')}
-                            />
-                            <ExchangeCell
-                              value={match.odds.team2 + 0.02} trend={match.trend.team2} type="lay" suspended={match.suspended}
-                              isSelected={betslip.some(b => b.matchId === match.id && b.selection === match.team2 && b.type === 'lay')}
-                              onClick={() => !match.suspended && toggleBet(match.id, match.team2, match.odds.team2 + 0.02, 'lay')}
-                            />
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* ── UPCOMING: Pre-Match Panel ── */}
-                      {isExpanded && !isLive && (
-                        <PreMatchPanel match={match} betslip={betslip} toggleBet={toggleBet} />
-                      )}
-
-                      {/* ── LIVE: Full Micro-Market HUD ── */}
-                  {isExpanded && isLive && (
-                    <div className="w-full bg-[#FFFFFF] border-t border-exchange-border p-3.5 space-y-4">
-
-                      {/* Controls Banner */}
-                      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-slate-50 p-3 rounded border border-slate-200 shadow-sm">
-                        <div className="flex flex-col">
-                          <div className="flex items-center gap-2">
-                            <Activity className="w-4 h-4 text-[#16A34A] animate-pulse" />
-                            <span className="text-xs font-black uppercase text-slate-800 tracking-wider">
-                              Live Micro-Market &amp; Session Betting
-                            </span>
-                          </div>
-                          <p className="text-[10px] text-slate-500 font-bold mt-0.5">
-                            High-velocity binary session options. Platform Risk Cap: ₹100,000 max liability.
-                          </p>
-                        </div>
-
-                        <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
-                          <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black text-slate-600 uppercase">Stream Status:</span>
-                            <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded leading-none bg-emerald-100 text-[#16A34A] flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                              0.2s FAST-FEED
-                            </span>
-                          </div>
-
-                          <label className="flex items-center gap-1.5 cursor-pointer">
-                            <input
-                              type="checkbox" checked={acceptAnyOdds}
-                              onChange={(e) => setAcceptAnyOdds(e.target.checked)}
-                              className="w-3.5 h-3.5 accent-[#16A34A] rounded border-slate-300"
-                            />
-                            <span className="text-[10px] font-black text-slate-700 uppercase select-none">Accept Any Odds</span>
-                          </label>
-                        </div>
-                      </div>
-
-                      {/* Suspension Warning */}
-                      {isFeedSuspended && (
-                        <div className="bg-red-50 border border-red-200 rounded p-2.5 flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <Clock className="w-4 h-4 text-[#DC2626] animate-spin" />
-                            <span className="text-[10px] font-black text-[#DC2626] uppercase tracking-wide">
-                              Data Stream Suspended (Market Feed Locked)
-                            </span>
-                          </div>
-                          <span className="text-[9px] font-bold text-red-500 uppercase">Enable &quot;Accept Any Odds&quot; to override</span>
-                        </div>
-                      )}
-
-                      {/* Live Commentary Ticker */}
-                      <div className="bg-white text-slate-900 rounded p-2.5 flex items-center justify-between text-xs font-black uppercase tracking-wider">
-                        <div className="flex items-center gap-2">
-                          <span className="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
-                          <span className="text-red-400">Live Feed:</span>
-                          <span className="text-slate-200">{liveCommentary}</span>
-                        </div>
-                        <span className="text-[10px] text-slate-400 font-bold hidden sm:block">Autopilot Settlement Active</span>
-                      </div>
-
-                      {/* Live Markets Grid */}
-                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-
-                        {/* ─── Cricket Live Markets ─── */}
-                        {sportLower === 'cricket' && (
-                          <>
-                            {/* Toss Winner */}
-                            <div className="bg-white rounded border border-slate-200 p-3 flex flex-col gap-1.5 shadow-sm">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">Toss Winner</span>
-                              <MicroMarketOutcomeRow
-                                outcomeName={match.team1}
-                                backOdds={getAdjustedOdds(1.91, `cricket-toss-${match.team1}`)}
-                                layOdds={getAdjustedOdds(1.96, `cricket-toss-${match.team1}`)}
-                                trend={tossLineTrend} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Cricket', marketName: 'Toss Winner', selectionName: match.team1, odds, baseOdds, selectionId, type })}
-                                activeSelection={hudSelection?.marketName === 'Toss Winner' && hudSelection?.selectionName === match.team1 ? hudSelection : null}
-                                selectionId={`cricket-toss-${match.team1}`} baseBackOdds={1.91} baseLayOdds={1.96}
-                              />
-                              <MicroMarketOutcomeRow
-                                outcomeName={match.team2}
-                                backOdds={getAdjustedOdds(1.91, `cricket-toss-${match.team2}`)}
-                                layOdds={getAdjustedOdds(1.96, `cricket-toss-${match.team2}`)}
-                                trend={tossLineTrend} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Cricket', marketName: 'Toss Winner', selectionName: match.team2, odds, baseOdds, selectionId, type })}
-                                activeSelection={hudSelection?.marketName === 'Toss Winner' && hudSelection?.selectionName === match.team2 ? hudSelection : null}
-                                selectionId={`cricket-toss-${match.team2}`} baseBackOdds={1.91} baseLayOdds={1.96}
-                              />
-                            </div>
-
-                            {/* Session Runs */}
-                            <div className="bg-white rounded border border-slate-200 p-3 flex flex-col gap-1.5 shadow-sm">
-                              <div className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5 flex justify-between items-center">
-                                <span>Session Runs (1st Inn. 20 Ov)</span>
-                                <span className="text-[#DC2626] font-black animate-pulse bg-red-50 px-1 py-0.5 rounded">Line: {cricketLine}</span>
-                              </div>
-                              <MicroMarketOutcomeRow
-                                outcomeName={`Over ${cricketLine}`}
-                                backOdds={getAdjustedOdds(cricketOdds.over, `cricket-session-over`)}
-                                layOdds={getAdjustedOdds(cricketOdds.over + 0.05, `cricket-session-over`)}
-                                trend={cricketTrend.over} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Cricket', marketName: 'Session Runs', selectionName: `Over ${cricketLine}`, odds, baseOdds, selectionId, type, lineValue: cricketLine })}
-                                activeSelection={hudSelection?.marketName === 'Session Runs' && hudSelection?.selectionName.includes('Over') ? hudSelection : null}
-                                selectionId={`cricket-session-over`} baseBackOdds={cricketOdds.over} baseLayOdds={cricketOdds.over + 0.05}
-                              />
-                              <MicroMarketOutcomeRow
-                                outcomeName={`Under ${cricketLine}`}
-                                backOdds={getAdjustedOdds(cricketOdds.under, `cricket-session-under`)}
-                                layOdds={getAdjustedOdds(cricketOdds.under + 0.05, `cricket-session-under`)}
-                                trend={cricketTrend.under} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Cricket', marketName: 'Session Runs', selectionName: `Under ${cricketLine}`, odds, baseOdds, selectionId, type, lineValue: cricketLine })}
-                                activeSelection={hudSelection?.marketName === 'Session Runs' && hudSelection?.selectionName.includes('Under') ? hudSelection : null}
-                                selectionId={`cricket-session-under`} baseBackOdds={cricketOdds.under} baseLayOdds={cricketOdds.under + 0.05}
-                              />
-                            </div>
-
-                            {/* Ball-by-Ball */}
-                            <div className="bg-white rounded border border-slate-200 p-3 flex flex-col gap-1.5 shadow-sm">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">
-                                Ball-by-Ball (19th Over - 5th Ball)
-                              </span>
-                              <MicroMarketOutcomeRow
-                                outcomeName={`Over ${ballLine.line} Runs`}
-                                backOdds={getAdjustedOdds(ballLine.overOdds, `cricket-ball-over`)}
-                                layOdds={getAdjustedOdds(ballLine.overOdds + 0.05, `cricket-ball-over`)}
-                                trend={ballTrend.over} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Cricket', marketName: 'Ball-by-Ball Runs', selectionName: `Over ${ballLine.line}`, odds, baseOdds, selectionId, type, lineValue: ballLine.line })}
-                                activeSelection={hudSelection?.marketName === 'Ball-by-Ball Runs' && hudSelection?.selectionName.includes('Over') ? hudSelection : null}
-                                selectionId={`cricket-ball-over`} baseBackOdds={ballLine.overOdds} baseLayOdds={ballLine.overOdds + 0.05}
-                              />
-                              <MicroMarketOutcomeRow
-                                outcomeName={`Under ${ballLine.line} Runs`}
-                                backOdds={getAdjustedOdds(ballLine.underOdds, `cricket-ball-under`)}
-                                layOdds={getAdjustedOdds(ballLine.underOdds + 0.05, `cricket-ball-under`)}
-                                trend={ballTrend.under} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Cricket', marketName: 'Ball-by-Ball Runs', selectionName: `Under ${ballLine.line}`, odds, baseOdds, selectionId, type, lineValue: ballLine.line })}
-                                activeSelection={hudSelection?.marketName === 'Ball-by-Ball Runs' && hudSelection?.selectionName.includes('Under') ? hudSelection : null}
-                                selectionId={`cricket-ball-under`} baseBackOdds={ballLine.underOdds} baseLayOdds={ballLine.underOdds + 0.05}
-                              />
-                            </div>
-                          </>
-                        )}
-
-                        {/* ─── Tennis Live Markets ─── */}
-                        {sportLower === 'tennis' && (
-                          <>
-                            <div className="bg-white rounded border border-slate-200 p-3 flex flex-col gap-1.5 shadow-sm">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">Point Winner (Curr Game)</span>
-                              <MicroMarketOutcomeRow
-                                outcomeName={match.team1}
-                                backOdds={getAdjustedOdds(tennisPointOdds.p1, `tennis-point-p1`)}
-                                layOdds={getAdjustedOdds(tennisPointOdds.p1 + 0.05, `tennis-point-p1`)}
-                                trend={tennisPointTrend.p1} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Tennis', marketName: 'Point Winner', selectionName: match.team1, odds, baseOdds, selectionId, type })}
-                                activeSelection={hudSelection?.marketName === 'Point Winner' && hudSelection?.selectionName === match.team1 ? hudSelection : null}
-                                selectionId={`tennis-point-p1`} baseBackOdds={tennisPointOdds.p1} baseLayOdds={tennisPointOdds.p1 + 0.05}
-                              />
-                              <MicroMarketOutcomeRow
-                                outcomeName={match.team2}
-                                backOdds={getAdjustedOdds(tennisPointOdds.p2, `tennis-point-p2`)}
-                                layOdds={getAdjustedOdds(tennisPointOdds.p2 + 0.05, `tennis-point-p2`)}
-                                trend={tennisPointTrend.p2} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Tennis', marketName: 'Point Winner', selectionName: match.team2, odds, baseOdds, selectionId, type })}
-                                activeSelection={hudSelection?.marketName === 'Point Winner' && hudSelection?.selectionName === match.team2 ? hudSelection : null}
-                                selectionId={`tennis-point-p2`} baseBackOdds={tennisPointOdds.p2} baseLayOdds={tennisPointOdds.p2 + 0.05}
-                              />
-                            </div>
-
-                            <div className="bg-white rounded border border-slate-200 p-3 flex flex-col gap-1.5 shadow-sm">
-                              <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">Will game reach Deuce (40-40)?</span>
-                              <MicroMarketOutcomeRow
-                                outcomeName="Yes (Deuce)"
-                                backOdds={getAdjustedOdds(tennisDeuceOdds.yes, `tennis-deuce-yes`)}
-                                layOdds={getAdjustedOdds(tennisDeuceOdds.yes + 0.10, `tennis-deuce-yes`)}
-                                trend={tennisDeuceTrend.yes} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Tennis', marketName: 'Deuce Status', selectionName: 'Yes', odds, baseOdds, selectionId, type })}
-                                activeSelection={hudSelection?.marketName === 'Deuce Status' && hudSelection?.selectionName === 'Yes' ? hudSelection : null}
-                                selectionId={`tennis-deuce-yes`} baseBackOdds={tennisDeuceOdds.yes} baseLayOdds={tennisDeuceOdds.yes + 0.10}
-                              />
-                              <MicroMarketOutcomeRow
-                                outcomeName="No (Deuce)"
-                                backOdds={getAdjustedOdds(tennisDeuceOdds.no, `tennis-deuce-no`)}
-                                layOdds={getAdjustedOdds(tennisDeuceOdds.no + 0.05, `tennis-deuce-no`)}
-                                trend={tennisDeuceTrend.no} isSuspended={isFeedSuspended}
-                                onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Tennis', marketName: 'Deuce Status', selectionName: 'No', odds, baseOdds, selectionId, type })}
-                                activeSelection={hudSelection?.marketName === 'Deuce Status' && hudSelection?.selectionName === 'No' ? hudSelection : null}
-                                selectionId={`tennis-deuce-no`} baseBackOdds={tennisDeuceOdds.no} baseLayOdds={tennisDeuceOdds.no + 0.05}
-                              />
-                            </div>
-                          </>
-                        )}
-
-                        {/* ─── Soccer Live Markets ─── */}
-                        {sportLower === 'soccer' && (
-                          <div className="bg-white rounded border border-slate-200 p-3 flex flex-col gap-1.5 shadow-sm md:col-span-2 lg:col-span-3">
-                            <span className="text-[10px] font-black text-slate-400 uppercase tracking-wider border-b pb-1.5">
-                              Soccer In-Play Flash (Next 1-Minute Event Tracker)
-                            </span>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                              {[
-                                { name: 'Corner Kick', selName: 'Corner', odds: soccerMinuteOdds.corner, layOdds: soccerMinuteOdds.corner + 0.1, trend: soccerMinuteTrend.corner, id: 'soccer-corner' },
-                                { name: 'Booking Card', selName: 'Card', odds: soccerMinuteOdds.card, layOdds: soccerMinuteOdds.card + 0.2, trend: soccerMinuteTrend.card, id: 'soccer-card' },
-                                { name: 'Goal Scored', selName: 'Goal', odds: soccerMinuteOdds.goal, layOdds: soccerMinuteOdds.goal + 0.5, trend: soccerMinuteTrend.goal, id: 'soccer-goal' },
-                                { name: 'Throw-In', selName: 'Throw-In', odds: soccerMinuteOdds.throwIn, layOdds: soccerMinuteOdds.throwIn + 0.02, trend: soccerMinuteTrend.throwIn, id: 'soccer-throwin' },
-                              ].map(ev => (
-                                <div key={ev.id} className="border border-slate-100 rounded p-1.5 bg-slate-50/50">
-                                  <MicroMarketOutcomeRow
-                                    outcomeName={ev.name}
-                                    backOdds={getAdjustedOdds(ev.odds, ev.id)}
-                                    layOdds={getAdjustedOdds(ev.layOdds, ev.id)}
-                                    trend={ev.trend} isSuspended={isFeedSuspended}
-                                    onSelect={(type: any, odds: any, baseOdds: number, selectionId: string) => setHudSelection({ matchId: match.id, matchTitle: `${match.team1} vs ${match.team2}`, sport: 'Soccer', marketName: '1-Min Event', selectionName: ev.selName, odds, baseOdds, selectionId, type })}
-                                    activeSelection={hudSelection?.marketName === '1-Min Event' && hudSelection?.selectionName === ev.selName ? hudSelection : null}
-                                    selectionId={ev.id} baseBackOdds={ev.odds} baseLayOdds={ev.layOdds}
-                                  />
-                                </div>
-                              ))}
-                            </div>
-                          </div>
-                        )}
-
-                        {/* Fallback for other sports */}
-                        {sportLower !== 'cricket' && sportLower !== 'tennis' && sportLower !== 'soccer' && (
-                          <div className="bg-white rounded border border-slate-200 p-4 text-center md:col-span-2 lg:col-span-3">
-                            <p className="text-xs text-slate-400 font-bold uppercase tracking-wider">
-                              Live Micro-Markets are currently supported for Cricket, Tennis, and Soccer.
-                            </p>
-                          </div>
-                        )}
-                      </div>
-
-                      {/* Inline Stake HUD */}
-                      {hudSelection && hudSelection.matchId === match.id && (
-                        <div className={cn(
-                          "bg-white rounded border p-3.5 flex flex-col gap-3 transition-all duration-300 shadow-md",
-                          betSuccessFlash ? "border-[#16A34A] bg-[#D1FAE5]/20" : "border-slate-300"
-                        )}>
-                          <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                            <div className="flex flex-col">
-                              <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider">
-                                Target Market: {hudSelection.marketName}
-                              </span>
-                              <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
-                                {hudSelection.selectionName}
-                                {hudSelection.type === 'lay' ? (
-                                  <span className="text-pink-700 bg-pink-50 px-1 py-0.5 rounded text-[9px] font-black uppercase">LAY</span>
-                                ) : (
-                                  <span className="text-emerald-700 bg-emerald-50 px-1 py-0.5 rounded text-[9px] font-black uppercase">BACK</span>
-                                )}
-                                @ {hudSelection.odds.toFixed(2)}
-                              </span>
-                            </div>
-                            <button onClick={() => setHudSelection(null)} className="text-slate-400 hover:text-slate-600 transition-colors">
-                              <X className="w-4 h-4" />
-                            </button>
-                          </div>
-
-                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                            <div className="flex flex-col gap-1.5">
-                              <div className="flex items-center gap-2">
-                                <span className="text-[10px] font-black text-slate-600 uppercase tracking-wide">Stake (₹):</span>
-                                <input
-                                  type="number" value={hudStake}
-                                  onChange={(e) => setHudStake(Math.max(0, parseInt(e.target.value) || 0))}
-                                  className="w-24 border border-slate-300 rounded px-2.5 py-1 text-xs font-black focus:outline-none focus:border-emerald-600"
-                                />
-                              </div>
-                              <div className="flex items-center gap-1">
-                                {[100, 500, 1000, 5000, 10000].map(val => (
-                                  <button
-                                    key={val} onClick={() => setHudStake(val)}
-                                    className="bg-slate-100 hover:bg-slate-200 border border-slate-200 text-slate-700 font-black py-1 px-1.5 rounded text-[9.5px] leading-none transition-colors"
-                                  >
-                                    ₹{val.toLocaleString('en-IN')}
-                                  </button>
-                                ))}
-                              </div>
-                            </div>
-
-                            <div className="flex items-center gap-4 text-xs font-black text-slate-600 shrink-0">
-                              <div className="flex flex-col items-end">
-                                <span className="text-[9px] text-slate-400 uppercase tracking-wider leading-none">Exposure/Liability</span>
-                                <span className="text-[#DC2626] font-black text-sm mt-0.5">
-                                  ₹{hudSelection.type === 'back' ? hudStake : Math.round(hudStake * (hudSelection.odds - 1))}
-                                </span>
-                              </div>
-                              <div className="flex flex-col items-end">
-                                <span className="text-[9px] text-slate-400 uppercase tracking-wider leading-none">Potential Profit</span>
-                                <span className="text-[#16A34A] font-black text-sm mt-0.5">
-                                  ₹{hudSelection.type === 'back' ? Math.round(hudStake * (hudSelection.odds - 1)) : hudStake}
-                                </span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {betError && (
-                            <div className="bg-red-50 border border-red-200 text-[#DC2626] text-[10px] font-black uppercase tracking-wider p-2 rounded">
-                              ⚠️ {betError}
-                            </div>
+                  {isOpen && (
+                    <div className="bg-[#12202b] py-1 border-t border-slate-800/60 max-h-72 overflow-y-auto custom-scrollbar">
+                      {leagues.map(league => (
+                        <button
+                          key={league}
+                          onClick={() => setSelectedLeague(league)}
+                          className={cn(
+                            "w-full text-left px-5 py-1.5 text-xs truncate transition-colors cursor-pointer",
+                            selectedLeague === league ? "text-amber-300 font-black bg-amber-500/10" : "text-slate-400 hover:text-white hover:bg-slate-800/50"
                           )}
-
-                          <button
-                            disabled={betPlacing}
-                            onClick={() => {
-                              setBetPlacing(true);
-                              setBetError(null);
-                              setTimeout(async () => {
-                                const T_user = Date.now();
-                                const deltaT = T_user - streamTime;
-                                if (deltaT > 350 && !acceptAnyOdds) {
-                                  setBetError(`LATENCY EXCEEDED (${deltaT}ms > 350ms). Odds are stale. Bet suspended.`);
-                                  setBetPlacing(false);
-                                  return;
-                                }
-                                const currentAdjustedOdds = getAdjustedOdds(hudSelection.baseOdds, hudSelection.selectionId);
-                                const newBet = {
-                                  marketName: hudSelection.marketName,
-                                  selectionName: hudSelection.selectionName,
-                                  lineValue: hudSelection.lineValue,
-                                  stake: hudStake,
-                                  odds: currentAdjustedOdds,
-                                  baseOdds: hudSelection.baseOdds,
-                                  selectionId: hudSelection.selectionId,
-                                  type: hudSelection.type,
-                                  status: 'Pending' as const,
-                                  payout: 0,
-                                  id: ""
-                                };
-                                const riskCheck = validatePlatformRisk(newBet, placedMicroBets);
-                                if (!riskCheck.safe) {
-                                  setBetError(`RISK CAP EXCEEDED. Platform liability limit is ₹100,000. Potential platform loss: ₹${Math.round(riskCheck.maxLiability)}.`);
-                                  setBetPlacing(false);
-                                  return;
-                                }
-                                const validation = validateTransactionIdempotency(walletBalance, hudStake, currentAdjustedOdds, hudSelection.type);
-                                if (!validation.success) {
-                                  setBetError(validation.error || "INSUFFICIENT BALANCE FOR STAKE + LIABILITY");
-                                  setBetPlacing(false);
-                                  return;
-                                }
-                                const betRes = await placeSportsBet(
-                                  hudSelection.matchTitle,
-                                  `${hudSelection.marketName}: ${hudSelection.selectionName} ${hudSelection.lineValue ? '(' + hudSelection.lineValue + ')' : ''}`,
-                                  currentAdjustedOdds, hudStake,
-                                  hudSelection.type === 'back' ? 'yes' : 'no',
-                                  `MICRO-${Date.now()}-${Math.random().toString(36).substring(2, 7).toUpperCase()}`
-                                );
-                                if (betRes && betRes.success) {
-                                  const confirmedBet = {
-                                    ...newBet,
-                                    id: betRes.transactionId
-                                  };
-                                  setPlacedMicroBets(prev => [...prev, confirmedBet]);
-                                  setBetSuccessFlash(true);
-                                  setBetPlacing(false);
-                                  setTimeout(() => setBetSuccessFlash(false), 1500);
-                                } else {
-                                  setBetError(betRes?.error || "Failed to place bet on server.");
-                                  setBetPlacing(false);
-                                }
-                              }, 300);
-                            }}
-                            className={cn(
-                              "w-full py-2.5 rounded text-slate-900 font-bold text-xs uppercase tracking-wide transition-all shadow-sm flex items-center justify-center gap-1.5",
-                              betSuccessFlash ? "bg-emerald-600 hover:bg-emerald-700" : "bg-white hover:bg-slate-50",
-                              betPlacing && "opacity-60 cursor-wait"
-                            )}
-                          >
-                            <Zap className="w-3.5 h-3.5" />
-                            {betPlacing ? "Processing Transaction..." : betSuccessFlash ? "Bet Placed Successfully! ✓" : "Place Instant Bet"}
-                          </button>
-                        </div>
-                      )}
-
-                      {/* Active Session Bets Ledger */}
-                      {placedMicroBets.length > 0 && (
-                        <div className="bg-white rounded border border-slate-200 p-3 flex flex-col gap-1.5 shadow-sm">
-                          <span className="text-[9px] font-black text-slate-400 uppercase tracking-wider border-b pb-1">
-                            Active Session Bets ({placedMicroBets.length})
-                          </span>
-                          <div className="flex flex-col gap-1 max-h-32 overflow-y-auto">
-                            {placedMicroBets.map((bet, idx) => (
-                              <div key={idx} className="flex justify-between items-center text-[10px] font-bold border-b border-slate-100 py-1.5">
-                                <span className="text-slate-800 font-bold">
-                                  {bet.marketName}: {bet.selectionName} @ {bet.odds.toFixed(2)}
-                                </span>
-                                <div className="flex items-center gap-3">
-                                  <span className={cn(
-                                    "px-1.5 py-0.5 rounded text-[8.5px] font-black uppercase leading-none",
-                                    bet.type === 'back' ? "text-emerald-700 bg-emerald-50" : "text-pink-700 bg-pink-50"
-                                  )}>
-                                    {bet.type === 'back' ? 'Back' : 'Lay'} (₹{bet.stake})
-                                  </span>
-                                  <span className={cn(
-                                    "font-extrabold uppercase text-[9px] px-1.5 py-0.5 rounded",
-                                    (bet.status === 'Pending' || bet.status === 'Locked' as any) && "text-slate-800 bg-amber-100 border border-amber-300 flex items-center gap-1",
-                                    bet.status === 'Won' && "text-emerald-700 bg-emerald-50 border border-emerald-200",
-                                    bet.status === 'Lost' && "text-slate-500 bg-slate-100 border border-slate-200"
-                                  )}>
-                                    {(bet.status === 'Pending' || bet.status === 'Locked' as any) ? '🔒 Locked' : bet.status === 'Won' ? `Won (+₹${bet.payout})` : bet.status}
-                                  </span>
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-                        </div>
-                      )}
+                        >
+                          {league}
+                        </button>
+                      ))}
                     </div>
                   )}
-
                 </div>
               );
             })}
           </div>
-        ))
-      )}
-        </div>
-      </div>
+        </aside>
 
-      {/* Right Bet Slip Sidebar */}
-      <div className={cn(
-        "flex flex-col w-[320px] max-w-[85vw] bg-exchange-surface border-l border-exchange-border shrink-0 z-[60] lg:z-40 shadow-[-4px_0_15px_rgba(0,0,0,0.03)] transition-transform duration-300",
-        "fixed top-14 bottom-0 right-0 h-[calc(100vh-56px)] lg:top-0 lg:relative lg:translate-x-0 lg:h-full",
-        showMobileBetslip ? "translate-x-0" : "translate-x-full"
-      )}>
-        <div className="p-4 border-b border-exchange-border bg-slate-50 flex justify-between items-center">
-          <h2 className="font-bold text-sm text-exchange-text uppercase tracking-wider">Bet Slip</h2>
-          <button className="lg:hidden text-exchange-muted hover:text-exchange-text" onClick={() => setShowMobileBetslip(false)}>
-            <X className="w-5 h-5" />
-          </button>
-        </div>
-
-        <div className="flex-1 overflow-y-auto custom-scrollbar bg-slate-50">
-          {betslip.length === 0 ? (
-            <div className="p-8 text-center flex flex-col items-center justify-center h-full opacity-50">
-              <Target className="w-10 h-10 text-slate-300 mb-3" />
-              <span className="text-exchange-muted text-sm font-medium">Click on odds to add selections to your bet slip.</span>
+        {/* ── CENTER STAGE: 6-BOX MATCHED EXCHANGE GRID (6 COLS) ── */}
+        <main className="col-span-1 lg:col-span-6 space-y-2.5">
+          
+          {/* Promotional Banner Carousel (Exact from Video) */}
+          <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-emerald-900 via-teal-800 to-slate-900 border border-emerald-700/60 p-4 shadow-lg flex items-center justify-between">
+            <div className="space-y-1">
+              <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded uppercase">Featured</span>
+              <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">INTERNATIONAL CASINO & CRICKET</h2>
+              <p className="text-xs text-emerald-200 font-medium">Instant Settlements • Zero Latency Live Feeds • 100% Verified Bhav</p>
             </div>
-          ) : (
-            <div className="p-3 space-y-3">
-              {betslip.map(bet => {
-                const betMatch = matches.find(m => m.id === bet.matchId);
-                const isBack = bet.type === 'back';
-                return (
-                  <div key={`${bet.matchId}-${bet.selection}-${bet.type}`} className={cn(
-                    "border rounded-sm bg-white overflow-hidden shadow-sm relative group",
-                    isBack ? "border-[#a7f3d0]" : "border-[#fbcfe8]"
-                  )}>
-                    <div className={cn("px-3 py-1.5 text-[10px] font-bold text-slate-900 uppercase flex items-center justify-between", isBack ? "bg-[#D1FAE5]" : "bg-[#FCE7F3]")}>
-                      <span>{isBack ? "Back" : "Lay"}</span>
-                      <button onClick={() => removeBet(bet.matchId, bet.selection, bet.type)} className="hover:bg-white/10 rounded-full p-0.5">
-                        <X className="w-3 h-3" />
-                      </button>
-                    </div>
-                    <div className="p-3">
-                      <div className="text-[10px] text-exchange-muted uppercase tracking-wide truncate mb-1">
-                        {betMatch?.team1} vs {betMatch?.team2}
-                      </div>
-                      <div className="text-sm font-bold text-exchange-text mb-3">{bet.selection}</div>
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1">
-                          <label className="text-[10px] text-exchange-muted font-bold uppercase block mb-1">Odds</label>
-                          <div className="bg-slate-50 border border-exchange-border rounded-sm px-2 py-1.5 text-sm font-black text-center">
-                            {bet.odds.toFixed(2)}
-                          </div>
-                        </div>
-                        <div className="flex-[2]">
-                          <label className="text-[10px] text-exchange-muted font-bold uppercase block mb-1">Stake (₹)</label>
-                          <input
-                            type="number" value={bet.stake}
-                            onChange={(e) => updateStake(bet.matchId, bet.selection, bet.type, parseInt(e.target.value) || 0)}
-                            className="w-full border border-exchange-border rounded-sm px-2 py-1.5 text-sm font-black focus:outline-none focus:border-red-600"
-                          />
-                        </div>
-                      </div>
-
-                      <div className="mt-4 pt-3 border-t border-exchange-border">
-                        <div className="flex items-center justify-between text-[10px] font-bold mb-1">
-                          <span className="text-exchange-muted uppercase">Risk Slider</span>
-                          <span className={cn(isBack ? "text-emerald-600" : "text-pink-600")}>₹{bet.stake}</span>
-                        </div>
-                        <input
-                          type="range" min="10" max="1000" step="10" value={bet.stake}
-                          onChange={(e) => updateStake(bet.matchId, bet.selection, bet.type, parseInt(e.target.value))}
-                          className="w-full accent-emerald-600 h-1 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                        />
-                        <div className="flex justify-between mt-2 text-[10px] font-bold">
-                          <span className="text-slate-500">Liability: <span className="text-red-600">₹{isBack ? bet.stake : (bet.stake * bet.odds - bet.stake).toFixed(2)}</span></span>
-                          <span className="text-slate-500">Profit: <span className="text-green-600">₹{isBack ? (bet.stake * bet.odds - bet.stake).toFixed(2) : bet.stake}</span></span>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          )}
-        </div>
-
-        {betslip.length > 0 && (
-          <div className="p-4 bg-slate-100 border-t border-exchange-border shrink-0 space-y-2 pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] lg:pb-4">
-            <div className="flex justify-between text-xs font-bold text-exchange-muted">
-              <span>Max Allocated Risk:</span>
-              <span className="text-red-600 font-mono font-black">₹{totalLiability.toFixed(2)}</span>
-            </div>
-            <div className="flex justify-between text-xs font-bold text-exchange-muted">
-              <span>Target Net Return:</span>
-              <span className="text-emerald-700 font-mono font-black">₹{totalPotentialReturn.toFixed(2)}</span>
-            </div>
-            <div className="text-[10px] text-slate-500 font-bold flex items-center justify-center gap-1.5 py-1 bg-white rounded border border-slate-200">
-              <span>🔒 Immutable Bet Lock</span>
-              <span>•</span>
-              <span className="text-emerald-600">⚡ Zero-Slippage Execution</span>
-            </div>
-            <div className="flex gap-2 pt-1">
-              <button
-                onClick={() => setBetslip([])}
-                className="flex-1 border border-slate-300 text-slate-600 hover:bg-slate-200 font-bold py-3 rounded-lg transition-colors text-xs uppercase tracking-wide cursor-pointer"
-              >
-                Clear All
-              </button>
-              <button
-                onClick={async () => {
-                  if (betslip.length === 0) return;
-                  let placedCount = 0;
-                  let lastError = "";
-
-                  for (const bet of betslip) {
-                    const betMatch = matches.find(m => m.id === bet.matchId);
-                    const matchTitle = betMatch ? `${betMatch.team1} vs ${betMatch.team2}` : 'Sports Match';
-                    const side = bet.type === 'lay' ? 'no' : 'yes';
-
-                    const res = await placeSportsBet(
-                      matchTitle,
-                      bet.selection,
-                      bet.odds,
-                      bet.stake,
-                      side
-                    );
-
-                    if (res && res.success) {
-                      placedCount++;
-                    } else {
-                      lastError = res?.error || "Failed to place bet.";
-                      break;
-                    }
-                  }
-
-                  if (placedCount === betslip.length) {
-                    setBetslip([]);
-                    setShowMobileBetslip(false);
-                    if (typeof navigator !== 'undefined' && navigator.vibrate) {
-                      navigator.vibrate([20, 40]);
-                    }
-                    await useTradingStore.getState().syncFromServer();
-                  } else {
-                    alert(lastError || "Some bets could not be placed.");
-                    await useTradingStore.getState().syncFromServer();
-                  }
-                }}
-                className="flex-[2] bg-slate-950 hover:bg-slate-900 text-white font-extrabold py-3 rounded-lg transition-all text-xs uppercase tracking-wider shadow-md active:scale-95 cursor-pointer flex items-center justify-center gap-1.5"
-              >
-                <span>Execute Order</span>
-                <span className="font-mono text-emerald-400">₹{totalLiability.toFixed(0)}</span>
-              </button>
+            <div className="hidden sm:flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-white" />
+              <span className="w-2 h-2 rounded-full bg-white/40" />
+              <span className="w-2 h-2 rounded-full bg-white/40" />
             </div>
           </div>
-        )}
+
+          {/* Time Filter Tabs & Mobile League Accordion Button */}
+          <div className="bg-[#162734] border border-slate-800 rounded-xl p-1.5 flex items-center justify-between gap-2 shadow-sm">
+            <div className="flex items-center gap-1">
+              {[
+                { id: "inplay", label: "In-Play" },
+                { id: "today", label: "Today" },
+                { id: "tomorrow", label: "Tomorrow" }
+              ].map(t => (
+                <button
+                  key={t.id}
+                  onClick={() => setSelectedDateTab(t.id as any)}
+                  className={cn(
+                    "px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer min-h-[36px]",
+                    selectedDateTab === t.id
+                      ? "bg-[#ffb800] text-slate-950 shadow-xs"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                  )}
+                >
+                  {t.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Mobile League Selector Toggle */}
+            <button
+              onClick={() => setIsMobileLeagueOpen(!isMobileLeagueOpen)}
+              className="lg:hidden flex items-center gap-1 bg-slate-800 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-200 cursor-pointer min-h-[36px]"
+            >
+              <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="truncate max-w-[100px]">{selectedLeague.replace("All ", "")}</span>
+              <ChevronDown className="w-3 h-3 text-slate-400" />
+            </button>
+          </div>
+
+          {/* Collapsible Mobile League Drawer */}
+          {isMobileLeagueOpen && (
+            <div className="lg:hidden bg-[#162734] border border-slate-800 rounded-xl p-2 shadow-xl animate-in slide-in-from-top-2">
+              <span className="text-[10px] font-black uppercase text-slate-400 px-2 block mb-1">Select Tournament</span>
+              <div className="grid grid-cols-2 gap-1 max-h-48 overflow-y-auto custom-scrollbar">
+                {(TOURNAMENT_LEAGUES[activeSport] || TOURNAMENT_LEAGUES.Cricket).map(lg => (
+                  <button
+                    key={lg}
+                    onClick={() => {
+                      setSelectedLeague(lg);
+                      setIsMobileLeagueOpen(false);
+                    }}
+                    className={cn(
+                      "text-left px-2.5 py-2 rounded-lg text-xs font-bold truncate transition-colors min-h-[38px] flex items-center",
+                      selectedLeague === lg ? "bg-emerald-600 text-white font-black" : "text-slate-300 hover:bg-slate-800"
+                    )}
+                  >
+                    {lg}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Feedback Banner */}
+          {betFeedback && (
+            <div className="bg-emerald-950 border border-emerald-500/80 text-emerald-300 px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center justify-between shadow-lg">
+              <span>{betFeedback}</span>
+              <button onClick={() => setBetFeedback(null)} className="text-slate-400 hover:text-white cursor-pointer"><X className="w-3.5 h-3.5" /></button>
+            </div>
+          )}
+
+          {/* 6-BOX MATCHED EXCHANGE TABLE (Matching Video) */}
+          <div className="bg-[#162734] border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+            
+            {/* Table Header */}
+            <div className="bg-[#1f384d] border-b border-slate-700 px-3 py-2 flex items-center justify-between text-[11px] font-black text-slate-200 uppercase tracking-wider">
+              <div className="flex-1">Sports Highlights</div>
+              <div className="hidden sm:flex items-center gap-1 w-[260px] justify-end">
+                <div className="w-16 text-center text-[#72bbef]">1 Back</div>
+                <div className="w-16 text-center text-[#faa9ba]">1 Lay</div>
+                <div className="w-16 text-center text-[#72bbef]">2 Back</div>
+                <div className="w-16 text-center text-[#faa9ba]">2 Lay</div>
+              </div>
+            </div>
+
+            {/* Table Body */}
+            <div className="divide-y divide-slate-800/70 text-xs">
+              {isLoading ? (
+                <div className="p-12 text-center text-slate-400 flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-xs font-bold uppercase tracking-wider">Syncing live verified feeds...</span>
+                </div>
+              ) : filteredMatches.length === 0 ? (
+                <div className="p-12 text-center text-slate-400">
+                  <Trophy className="w-10 h-10 text-slate-600 mx-auto mb-2 opacity-60" />
+                  <p className="text-sm font-black uppercase text-slate-200">No Matches in this View</p>
+                  <p className="text-xs text-slate-400 mt-1">Switch to Today or All Sports</p>
+                </div>
+              ) : (
+                filteredMatches.map(m => {
+                  const isPinned = pinnedMatches.includes(m.id);
+                  const isLive = m.status === "Live";
+                  const o1 = m.odds?.team1 || 2.10;
+                  const o2 = m.odds?.team2 || 2.30;
+                  const lay1 = parseFloat((o1 + 0.02).toFixed(2));
+                  const lay2 = parseFloat((o2 + 0.02).toFixed(2));
+
+                  return (
+                    <div key={m.id} className="p-3 hover:bg-[#1a2d3b] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                      
+                      {/* Match Meta & Names (Clickable Link) */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <button
+                            onClick={() => togglePinMatch(m.id)}
+                            className={cn("p-1 rounded cursor-pointer transition-colors", isPinned ? "text-amber-400" : "text-slate-500 hover:text-slate-300")}
+                          >
+                            <Pin className="w-3.5 h-3.5" />
+                          </button>
+
+                          {isLive ? (
+                            <span className="bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.2 rounded text-[9px] font-black uppercase flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" /> Live
+                            </span>
+                          ) : (
+                            <span className="bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded text-[9px] font-black">
+                              {m.timeStr || "SCHEDULED"}
+                            </span>
+                          )}
+
+                          <span className="text-[10px] text-slate-400 font-bold uppercase truncate">{m.seriesName || "Exchange Market"}</span>
+                        </div>
+
+                        <Link href={`/sportsbook/match/${m.id}`} className="block group">
+                          <div className="font-black text-sm text-slate-100 group-hover:text-emerald-400 transition-colors truncate">
+                            {m.team1} v {m.team2}
+                          </div>
+                          {m.score && (
+                            <div className="text-xs font-mono font-bold text-emerald-400 mt-0.5">
+                              {m.score}
+                            </div>
+                          )}
+                        </Link>
+
+                        <div className="text-[10px] text-slate-500 font-mono mt-1">
+                          Matched: PIN 592,746,458.20
+                        </div>
+                      </div>
+
+                      {/* 6-Box Back/Lay Action Cells (Desktop Grid / Mobile Touch Targets) */}
+                      <div className="grid grid-cols-4 sm:flex items-center gap-1.5 shrink-0">
+                        {/* Team 1 Back */}
+                        <button
+                          onClick={() => handleSelectOdds(m, m.team1, o1, 'back')}
+                          className="w-full sm:w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                        >
+                          <span className="text-[8px] opacity-75 font-bold uppercase">Back</span>
+                          <span className="text-sm font-black">{o1.toFixed(2)}</span>
+                        </button>
+
+                        {/* Team 1 Lay */}
+                        <button
+                          onClick={() => handleSelectOdds(m, m.team1, lay1, 'lay')}
+                          className="w-full sm:w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                        >
+                          <span className="text-[8px] opacity-75 font-bold uppercase">Lay</span>
+                          <span className="text-sm font-black">{lay1.toFixed(2)}</span>
+                        </button>
+
+                        {/* Team 2 Back */}
+                        <button
+                          onClick={() => handleSelectOdds(m, m.team2, o2, 'back')}
+                          className="w-full sm:w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                        >
+                          <span className="text-[8px] opacity-75 font-bold uppercase">Back</span>
+                          <span className="text-sm font-black">{o2.toFixed(2)}</span>
+                        </button>
+
+                        {/* Team 2 Lay */}
+                        <button
+                          onClick={() => handleSelectOdds(m, m.team2, lay2, 'lay')}
+                          className="w-full sm:w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                        >
+                          <span className="text-[8px] opacity-75 font-bold uppercase">Lay</span>
+                          <span className="text-sm font-black">{lay2.toFixed(2)}</span>
+                        </button>
+                      </div>
+
+                    </div>
+                  );
+                })
+              )}
+            </div>
+
+          </div>
+
+        </main>
+
+        {/* ── RIGHT COLUMN: STICKY BET SLIP WORKSPACE (3 COLS) ── */}
+        <aside className="hidden lg:block lg:col-span-3 space-y-3">
+          <div className="bg-[#162734] border border-slate-800 rounded-xl overflow-hidden shadow-lg sticky top-3">
+            
+            <div className="bg-[#1c3243] px-3.5 py-2.5 border-b border-slate-700 flex items-center justify-between">
+              <span className="font-black text-xs uppercase tracking-wider text-slate-200 flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-amber-400" /> Bet Slip
+              </span>
+              <span className="text-[10px] text-slate-400 font-mono">PIN: {(walletBalance || 25400).toLocaleString()}</span>
+            </div>
+
+            {selectedBet ? (
+              <div className="p-3 space-y-3">
+                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                  <div>
+                    <span className="font-black text-sm text-white">{selectedBet.selection}</span>
+                    <span className="text-[10px] text-slate-400 font-bold block">{selectedBet.matchTitle}</span>
+                  </div>
+                  <button onClick={() => setSelectedBet(null)} className="text-slate-400 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 block uppercase">Odds</label>
+                    <input
+                      type="number"
+                      step="0.01"
+                      value={selectedBet.odds}
+                      onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 font-mono font-black text-xs text-white"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[10px] font-bold text-slate-400 block uppercase">Stake</label>
+                    <input
+                      type="number"
+                      value={selectedBet.stake}
+                      onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
+                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 font-mono font-black text-xs text-white"
+                    />
+                  </div>
+                </div>
+
+                {/* Quick Stake Buttons (Exact from Video) */}
+                <div className="grid grid-cols-4 gap-1">
+                  {[100, 500, 1000, 5000, 10000, 25000, 50000, 100000].map(val => (
+                    <button
+                      key={val}
+                      onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
+                      className="py-1.5 bg-slate-800 hover:bg-slate-700 text-[10px] font-mono font-bold text-slate-200 rounded-md cursor-pointer transition-colors"
+                    >
+                      +{val >= 1000 ? `${val / 1000}k` : val}
+                    </button>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between text-xs font-bold pt-1 border-t border-slate-800">
+                  <span className="text-slate-400">Potential Return:</span>
+                  <strong className="text-emerald-400 font-mono">
+                    PIN {Math.round(selectedBet.stake * (selectedBet.odds - 1)).toLocaleString()}
+                  </strong>
+                </div>
+
+                <button
+                  disabled={isPlacing || selectedBet.stake <= 0}
+                  onClick={handlePlaceBetslip}
+                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:brightness-110 font-black text-xs uppercase tracking-wider rounded-lg shadow-md cursor-pointer transition-all"
+                >
+                  {isPlacing ? "Placing Order..." : "Place Bet"}
+                </button>
+              </div>
+            ) : (
+              <div className="p-8 text-center text-slate-400 text-xs">
+                <Receipt className="w-8 h-8 mx-auto text-slate-600 mb-2 opacity-50" />
+                <p className="font-bold">Click any odd to create a bet</p>
+              </div>
+            )}
+
+          </div>
+        </aside>
+
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          3. SLIDING QUICK BET BOTTOM SHEET (Mobile Only)
+      ═══════════════════════════════════════════════════════════════ */}
+      {selectedBet && (
+        <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 p-3 max-w-md mx-auto animate-in slide-in-from-bottom-6">
+          <div className="bg-[#111d27] border-2 border-emerald-500/80 rounded-2xl p-4 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div>
+                <span className="font-black text-sm text-white">{selectedBet.selection}</span>
+                <span className="text-[10px] text-slate-400 font-bold block">{selectedBet.matchTitle}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={cn("px-2 py-0.5 rounded text-[10px] uppercase font-black", selectedBet.type === 'back' ? "bg-[#72bbef] text-[#002b49]" : "bg-[#faa9ba] text-[#4a0011]")}>
+                  {selectedBet.type.toUpperCase()}
+                </span>
+                <button onClick={() => setSelectedBet(null)} className="p-1 text-slate-400 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 block uppercase">Odds</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={selectedBet.odds}
+                  onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white min-h-[44px]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 block uppercase">Stake</label>
+                <input
+                  type="number"
+                  value={selectedBet.stake}
+                  onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white min-h-[44px]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-1.5">
+              {[100, 500, 1000, 5000].map(val => (
+                <button
+                  key={val}
+                  onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
+                  className="py-2 bg-slate-800 text-xs font-mono font-bold text-slate-200 rounded-xl cursor-pointer min-h-[36px]"
+                >
+                  +{val >= 1000 ? `${val / 1000}k` : val}
+                </button>
+              ))}
+            </div>
+
+            <button
+              disabled={isPlacing || selectedBet.stake <= 0}
+              onClick={handlePlaceBetslip}
+              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-500 font-black text-sm uppercase tracking-wider rounded-xl cursor-pointer shadow-lg min-h-[48px]"
+            >
+              {isPlacing ? "Placing Order..." : "Confirm & Place Bet"}
+            </button>
+          </div>
+        </div>
+      )}
 
     </div>
   );
