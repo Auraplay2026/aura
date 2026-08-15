@@ -4,77 +4,55 @@ import { useState, useEffect, use, useCallback } from "react";
 import Link from "next/link";
 import { 
   Trophy, Activity, Clock, X, Menu, Receipt, ChevronDown, ChevronUp, 
-  TrendingUp, Zap, Calendar, Target, Search, Filter, Star, Pin, Settings,
-  User, Check, AlertCircle, ShieldCheck, PlayCircle
+  TrendingUp, Zap, Calendar, Target, Search, Filter, Pin, Settings,
+  User, Check, AlertCircle, ShieldCheck, PlayCircle, Flame, Gamepad2,
+  Wallet, RefreshCw, ChevronRight, SlidersHorizontal
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/lib/store";
 import { useSearchParams } from "next/navigation";
 import { useSidebarContext } from "@/components/layout/AppProviders";
 import { adjustOddsForExposure } from "@/lib/mathEngine";
+import { CricketDataService } from "@/lib/cricket/service";
 
-// ─── LEAGUE HIERARCHY DATA (Exact Match from Recording) ──────────────────────
+// ─── LEAGUE HIERARCHY DATA ───────────────────────────────────────────────────
 const TOURNAMENT_LEAGUES: Record<string, string[]> = {
   Cricket: [
     "All Cricket",
-    "Assam Premier League",
-    "Big Bash League",
-    "Delhi Premier League",
-    "German Super League T10",
-    "ICC Cricket World Cup Challenge League",
-    "ICC Men's T20 WC Europe Qualifier",
-    "Indian Premier League SRL",
-    "International Twenty20 Matches",
-    "Metro Bank Womens One Day Cup",
-    "Netherlands Topklasse T20",
+    "Indian Premier League (IPL)",
+    "Big Bash League (BBL)",
+    "Pakistan Super League (PSL)",
+    "International T20s",
     "One Day Internationals",
-    "Pakistan Super League SRL",
+    "ICC World Test Championship",
+    "The Hundred 2026",
     "Ranji Trophy",
-    "SA20 SRL",
-    "Super Smash SRL",
-    "T20 International SRL",
-    "Tamil Nadu Premier League",
-    "Test Matches",
-    "The Hundred 2026"
+    "SA20 League",
+    "Tamil Nadu Premier League (TNPL)"
   ],
   Soccer: [
     "All Soccer",
     "English Premier League",
+    "UEFA Champions League",
     "Spanish La Liga",
     "Italian Serie A",
     "German Bundesliga",
     "French Ligue 1",
-    "UEFA Champions League",
-    "Portuguese Primeira Liga",
-    "Austrian Bundesliga",
-    "Belgian Pro League",
-    "Brazilian Serie A",
-    "CONMEBOL Copa Libertadores",
     "English Sky Bet Championship"
   ],
   Tennis: [
     "All Tennis",
-    "ATP Cincinnati 2026",
-    "WTA Cincinnati 2026",
-    "Asiago Challenger 2026",
-    "Bloomsburg Challenger 2026",
-    "Hamburg Challenger 2026",
-    "Men's Wimbledon 2027",
-    "Women's Wimbledon 2027",
-    "US Open 2026"
+    "ATP Cincinnati Open",
+    "WTA Cincinnati Open",
+    "US Open 2026",
+    "Wimbledon Championships",
+    "ATP Challenger Tour"
   ],
   E_Soccer: [
     "All E-Soccer",
-    "GT Sports Leagues",
+    "GT Sports League",
     "Battle Champions League",
     "Volta e-Tournaments"
-  ],
-  FancyBet: [
-    "All Fancy Bet",
-    "Subcontinent Fancy Runs",
-    "Khadda Specials",
-    "Ball by Ball Sessions",
-    "Odd / Even In-Play"
   ]
 };
 
@@ -90,16 +68,16 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
   const [activeSport, setActiveSport] = useState(sportParam === "All Sports" ? "Cricket" : sportParam);
   const [selectedLeague, setSelectedLeague] = useState<string>("All Cricket");
-  const [activeNavTab, setActiveNavTab] = useState<string>("In Play");
   const [selectedDateTab, setSelectedDateTab] = useState<"inplay" | "today" | "tomorrow">("inplay");
-  const [selectedSportFilter, setSelectedSportFilter] = useState<string>("Cricket");
   const [searchQuery, setSearchQuery] = useState<string>("");
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [isLeagueDrawerOpen, setIsLeagueDrawerOpen] = useState(false);
   const [oneClickBet, setOneClickBet] = useState(false);
   const [oneClickStake, setOneClickStake] = useState<number>(500);
 
   // Active Bet Slip Selection
   const [selectedBet, setSelectedBet] = useState<{
-    matchId: number;
+    matchId: number | string;
     matchTitle: string;
     selection: string;
     type: 'back' | 'lay';
@@ -107,31 +85,13 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     stake: number;
   } | null>(null);
 
-  const [pinnedMatches, setPinnedMatches] = useState<number[]>([]);
+  const [pinnedMatches, setPinnedMatches] = useState<(number | string)[]>([]);
   const [betFeedback, setBetFeedback] = useState<string | null>(null);
   const [isPlacing, setIsPlacing] = useState(false);
 
-  const placeSportsBet = useTradingStore(s => s.placeSportsBet);
   const walletBalance = useTradingStore(s => s.balance);
-  const deposit = useTradingStore(s => s.deposit);
-
   const [isLoading, setIsLoading] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
-
-  // Promo Banner Carousel
-  const [bannerIdx, setBannerIdx] = useState(0);
-  const banners = [
-    { title: "INTERNATIONAL CASINO", sub: "Live Dealers, Roulette, Blackjack & Slots", bg: "from-amber-700 via-rose-900 to-slate-950", image: "👑" },
-    { title: "TEEN PATTI 20-20", sub: "Instant 20-second rounds with high limits", bg: "from-emerald-800 via-teal-950 to-slate-950", image: "🃏" },
-    { title: "ANDAR BAHAR LIVE", sub: "Fastest Subcontinent Card Games", bg: "from-purple-900 via-indigo-950 to-slate-950", image: "💎" }
-  ];
-
-  useEffect(() => {
-    const bannerInterval = setInterval(() => {
-      setBannerIdx(prev => (prev + 1) % banners.length);
-    }, 6000);
-    return () => clearInterval(bannerInterval);
-  }, [banners.length]);
 
   // Real-time EventSource SSE Stream with fallback SWR polling
   useEffect(() => {
@@ -143,30 +103,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     const sportKey = (rawKey === 'all' || rawKey === 'all sports') ? 'all' : (rawKey === 'football' ? 'soccer' : rawKey);
 
     const processIncomingMatches = (incoming: any[]) => {
-      setMatches(prevMatches => {
-        return incoming.map((m: any) => {
-          const prev = prevMatches.find((p: any) => p.id === m.id);
-          let trend1: 'up' | 'down' | 'none' = 'none';
-          let trend2: 'up' | 'down' | 'none' = 'none';
-          let trendDraw: 'up' | 'down' | 'none' | null = m.odds?.draw ? 'none' : null;
-          if (prev && prev.odds && m.odds) {
-            if (m.odds.team1 > prev.odds.team1) trend1 = 'up';
-            else if (m.odds.team1 < prev.odds.team1) trend1 = 'down';
-
-            if (m.odds.team2 > prev.odds.team2) trend2 = 'up';
-            else if (m.odds.team2 < prev.odds.team2) trend2 = 'down';
-
-            if (m.odds.draw && prev.odds.draw) {
-              if (m.odds.draw > prev.odds.draw) trendDraw = 'up';
-              else if (m.odds.draw < prev.odds.draw) trendDraw = 'down';
-            }
-          }
-          return {
-            ...m,
-            trend: m.trend || { team1: trend1, draw: trendDraw, team2: trend2 }
-          };
-        });
-      });
+      setMatches(incoming);
       setIsLoading(false);
     };
 
@@ -196,18 +133,18 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
           if (parsed.type === "LISTING_UPDATE" && Array.isArray(parsed.matches)) {
             processIncomingMatches(parsed.matches);
           }
-        } catch (err) {
+        } catch {
           // ignore
         }
       };
 
       eventSource.onerror = () => {
         if (!fallbackInterval && active) {
-          fallbackInterval = setInterval(fetchFallback, 8000);
+          fallbackInterval = setInterval(fetchFallback, 6000);
         }
       };
-    } catch (sseErr) {
-      fallbackInterval = setInterval(fetchFallback, 8000);
+    } catch {
+      fallbackInterval = setInterval(fetchFallback, 6000);
     }
 
     return () => {
@@ -217,7 +154,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     };
   }, [activeSport]);
 
-  const togglePinMatch = (id: number) => {
+  const togglePinMatch = (id: number | string) => {
     setPinnedMatches(prev => 
       prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]
     );
@@ -225,13 +162,12 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
   const handleSelectOdds = (match: any, selection: string, odds: number, type: 'back' | 'lay') => {
     if (oneClickBet) {
-      // Execute 1-Click Bet instantly
       setIsPlacing(true);
       setTimeout(() => {
         setIsPlacing(false);
-        setBetFeedback(`✅ 1-Click Bet Placed: ${selection} (${type.toUpperCase()}) @ ${odds.toFixed(2)} with PIN ${oneClickStake}`);
-        setTimeout(() => setBetFeedback(null), 4000);
-      }, 400);
+        setBetFeedback(`✅ 1-Click Bet Placed: ${selection} (${type.toUpperCase()}) @ ${odds.toFixed(2)} with ₹${oneClickStake}`);
+        setTimeout(() => setBetFeedback(null), 3500);
+      }, 350);
       return;
     }
 
@@ -272,584 +208,523 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       setBetFeedback(`⚠️ Order error: ${e.message}`);
     } finally {
       setIsPlacing(false);
-      setTimeout(() => setBetFeedback(null), 4000);
+      setTimeout(() => setBetFeedback(null), 3500);
     }
   };
 
   // Filtered Matches
   const filteredMatches = matches.filter(m => {
-    // Nav tab filter
-    if (activeNavTab === "In Play" && m.status !== "Live") return false;
-    
-    // Time filter
     if (selectedDateTab === "inplay" && m.status !== "Live") return false;
-
-    // Search query filter
     if (searchQuery.trim()) {
       const q = searchQuery.toLowerCase();
       const matchText = `${m.team1} ${m.team2} ${m.seriesName || ""}`.toLowerCase();
       if (!matchText.includes(q)) return false;
     }
-
     return true;
   });
 
+  const liveMatchCount = matches.filter(m => m.status === "Live").length;
+
   return (
-    <div className="min-h-screen bg-[#e8ecef] text-slate-900 font-sans text-xs select-none">
+    <div className="min-h-screen bg-[#0d151c] text-slate-100 font-sans pb-24 select-none">
       
       {/* ═══════════════════════════════════════════════════════════════
-          1. TOP PINE GREEN EXCHANGE HEADER (bg-[#1b3d2f])
+          1. CLEAN MOBILE HEADER (Brand Minimal + Balance + Search)
       ═══════════════════════════════════════════════════════════════ */}
-      <header className="bg-[#1b3d2f] text-white border-b border-emerald-950 px-3 py-1.5 shadow-md sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2">
+      <header className="bg-[#111d27]/95 backdrop-blur-md border-b border-slate-800/80 px-3.5 py-2.5 sticky top-0 z-40">
+        <div className="max-w-md mx-auto sm:max-w-5xl flex items-center justify-between gap-2">
           
-          {/* Logo & Search Bar */}
-          <div className="flex items-center gap-3">
-            <Link href="/sportsbook" className="flex items-center gap-1 font-black text-lg tracking-tight text-white">
-              <span className="text-amber-400 text-xl font-serif">★</span>
-              <span className="font-extrabold tracking-wider uppercase text-base">STAR</span>
-              <span className="text-[10px] bg-emerald-700 text-emerald-200 px-1 py-0.2 rounded uppercase font-bold tracking-widest ml-1">EXCHANGE</span>
+          {/* AURA Brand Pill */}
+          <Link href="/sportsbook" className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center font-black text-white text-sm shadow-md shadow-emerald-950/40">
+              A
+            </div>
+            <div className="leading-tight">
+              <span className="font-extrabold text-sm tracking-wider uppercase bg-gradient-to-r from-emerald-400 to-teal-200 bg-clip-text text-transparent">
+                AURA
+              </span>
+              <span className="text-[10px] text-slate-400 font-bold block">Sports Exchange</span>
+            </div>
+          </Link>
+
+          {/* Quick Balance & Search Controls */}
+          <div className="flex items-center gap-2">
+            {/* Live Count Pill */}
+            <div className="flex items-center gap-1.5 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-2.5 py-1 rounded-full text-xs font-mono font-black">
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+              <span>{liveMatchCount} Live</span>
+            </div>
+
+            {/* Wallet Balance Pill */}
+            <Link 
+              href="/account/balance"
+              className="flex items-center gap-1.5 bg-slate-800/90 hover:bg-slate-800 border border-slate-700/80 px-3 py-1 rounded-full text-xs font-mono font-black text-amber-300 transition-colors"
+            >
+              <Wallet className="w-3.5 h-3.5 text-amber-400" />
+              <span>₹{(walletBalance || 25400).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</span>
             </Link>
 
-            <div className="relative hidden sm:block w-48 lg:w-64">
-              <Search className="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
+            {/* Search Toggle */}
+            <button
+              onClick={() => setIsSearchOpen(!isSearchOpen)}
+              className={cn(
+                "p-2 rounded-full border transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center",
+                isSearchOpen ? "bg-emerald-500 text-slate-950 border-emerald-400" : "bg-slate-800/80 text-slate-300 border-slate-700 hover:text-white"
+              )}
+              aria-label="Search Matches"
+            >
+              <Search className="w-4 h-4" />
+            </button>
+          </div>
+
+        </div>
+
+        {/* Collapsible Mobile Search Input */}
+        {isSearchOpen && (
+          <div className="mt-2 pt-2 border-t border-slate-800/80 max-w-md mx-auto sm:max-w-5xl animate-in slide-in-from-top-2 duration-200">
+            <div className="relative">
+              <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
-                placeholder="Search Events"
+                placeholder="Search Teams, Tournaments, or Matches..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#12281f] text-white placeholder:text-slate-400 text-xs pl-8 pr-3 py-1 rounded-sm border border-emerald-900/80 focus:outline-hidden focus:border-amber-400"
+                autoFocus
+                className="w-full bg-slate-900 border border-slate-700 rounded-xl pl-9 pr-8 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-hidden focus:border-emerald-500 transition-colors"
               />
-            </div>
-          </div>
-
-          {/* Account HUD & One-Click Bet Switch */}
-          <div className="flex items-center gap-2 sm:gap-3 text-xs">
-            <div className="hidden md:flex items-center gap-2 bg-[#12281f] px-2.5 py-1 rounded-sm border border-emerald-900/60 font-mono text-[11px]">
-              <span className="text-slate-300">Main Balance:</span>
-              <strong className="text-amber-300 font-black">PIN {(walletBalance || 25400).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
-              <span className="text-slate-400 ml-1">Exposure:</span>
-              <strong className="text-rose-400 font-black">0.00</strong>
-            </div>
-
-            {/* One Click Bet Toggle */}
-            <div className="flex items-center gap-1.5 bg-[#12281f] px-2.5 py-1 rounded-sm border border-emerald-900/60">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={oneClickBet}
-                  onChange={(e) => setOneClickBet(e.target.checked)}
-                  className="w-3.5 h-3.5 accent-amber-400 rounded cursor-pointer"
-                />
-                <span className={cn("text-[11px] font-black uppercase tracking-wider", oneClickBet ? "text-amber-300" : "text-slate-300")}>
-                  One Click Bet
-                </span>
-              </label>
-              {oneClickBet && (
-                <select
-                  value={oneClickStake}
-                  onChange={(e) => setOneClickStake(Number(e.target.value))}
-                  className="bg-[#1b3d2f] text-amber-300 font-mono font-bold text-[10px] rounded px-1 border border-amber-400/40"
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery("")}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
                 >
-                  <option value={100}>100</option>
-                  <option value={500}>500</option>
-                  <option value={1000}>1,000</option>
-                  <option value={5000}>5,000</option>
-                </select>
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
             </div>
-
-            {/* My Account & Settings */}
-            <button className="flex items-center gap-1 bg-[#12281f] hover:bg-[#183529] px-2.5 py-1 rounded-sm border border-emerald-900/60 text-white font-bold cursor-pointer transition-colors">
-              <User className="w-3.5 h-3.5 text-amber-400" />
-              <span>My Account</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
-            </button>
-
-            <button className="flex items-center gap-1 bg-[#12281f] hover:bg-[#183529] p-1.5 rounded-sm border border-emerald-900/60 text-slate-300 hover:text-white cursor-pointer transition-colors">
-              <Settings className="w-3.5 h-3.5" />
-            </button>
           </div>
-        </div>
+        )}
       </header>
 
       {/* ═══════════════════════════════════════════════════════════════
-          2. SPORT CATEGORY NAVIGATION TABS WITH LIVE COUNTERS
+          2. HORIZONTAL SPORT CHIPS & LIVE STATUS BAR
       ═══════════════════════════════════════════════════════════════ */}
-      <nav className="bg-[#234938] text-white px-3 border-b border-emerald-950 shadow-xs overflow-x-auto scrollbar-none">
-        <div className="max-w-[1600px] mx-auto flex items-center gap-0.5">
+      <div className="bg-[#111d27]/70 border-b border-slate-800/80 px-3 py-2 overflow-x-auto scrollbar-none sticky top-[53px] z-30 backdrop-blur-md">
+        <div className="max-w-md mx-auto sm:max-w-5xl flex items-center gap-1.5">
           {[
-            { id: "Home", label: "Home", count: null },
-            { id: "In Play", label: "In Play", count: 18, isLiveBadge: true },
-            { id: "Multi Markets", label: "Multi Markets", count: null },
-            { id: "Cricket", label: "Cricket", count: 19 },
-            { id: "Soccer", label: "Soccer", count: 17 },
-            { id: "Tennis", label: "Tennis", count: 14 },
-            { id: "Virtual Cricket", label: "Virtual Cricket", count: null },
-            { id: "E-Soccer", label: "E-Soccer", count: null },
-            { id: "Casino", label: "Casino", count: "NEW", isNew: true },
-            { id: "Result", label: "Result", count: null }
-          ].map(tab => (
+            { id: "Cricket", label: "🏏 Cricket", count: 12 },
+            { id: "Soccer", label: "⚽ Soccer", count: 8 },
+            { id: "Tennis", label: "🎾 Tennis", count: 6 },
+            { id: "E_Soccer", label: "🎮 E-Soccer", count: 4 },
+            { id: "All Sports", label: "⚡ All Sports", count: null }
+          ].map(sport => (
             <button
-              key={tab.id}
+              key={sport.id}
               onClick={() => {
-                setActiveNavTab(tab.id);
-                if (tab.id === "Cricket" || tab.id === "Soccer" || tab.id === "Tennis") {
-                  setActiveSport(tab.id);
-                  setSelectedLeague(`All ${tab.id}`);
-                }
+                setActiveSport(sport.id);
+                setSelectedLeague(`All ${sport.id}`);
               }}
               className={cn(
-                "px-3 py-2 text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer shrink-0 border-b-2",
-                activeNavTab === tab.id
-                  ? "bg-[#1b3d2f] text-amber-300 border-amber-400"
-                  : "text-slate-200 hover:text-white hover:bg-[#1f4233] border-transparent"
+                "px-3.5 py-2 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-all shrink-0 cursor-pointer min-h-[44px]",
+                activeSport.toLowerCase() === sport.id.toLowerCase()
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-md shadow-emerald-950/60"
+                  : "bg-slate-800/70 hover:bg-slate-800 text-slate-300 border border-slate-700/60"
               )}
             >
-              <span>{tab.label}</span>
-              {tab.count !== null && (
+              <span>{sport.label}</span>
+              {sport.count !== null && (
                 <span className={cn(
-                  "text-[9px] font-mono font-black px-1.5 py-0.2 rounded-full",
-                  tab.isNew ? "bg-amber-400 text-slate-950 font-black animate-pulse" : (tab.isLiveBadge ? "bg-red-600 text-white font-black" : "bg-emerald-800 text-emerald-100")
+                  "text-[10px] font-mono px-1.5 py-0.2 rounded-full font-black",
+                  activeSport.toLowerCase() === sport.id.toLowerCase() ? "bg-white/20 text-white" : "bg-slate-700/80 text-slate-300"
                 )}>
-                  {tab.count}
+                  {sport.count}
                 </span>
               )}
             </button>
           ))}
         </div>
-      </nav>
-
-      {/* ═══════════════════════════════════════════════════════════════
-          3. SCROLLING NEWS TICKER (Marquee from Video)
-      ═══════════════════════════════════════════════════════════════ */}
-      <div className="bg-[#12281f] text-slate-200 px-3 py-1 border-b border-emerald-950 flex items-center gap-2 overflow-hidden text-[11px]">
-        <div className="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-xs uppercase tracking-wider text-[10px] shrink-0 flex items-center gap-1">
-          <span>📢</span> NEWS
-        </div>
-        <div className="overflow-hidden whitespace-nowrap flex-1">
-          <div className="inline-block animate-marquee font-medium text-slate-300">
-            21-Aug-2026 Event: Pakistan Blues v Pakistan Greens | Market: F Zaman Runs &quot;Whole Market Voided Because he didn&apos;t Come for Opening, So we have created a new Market by adding (N) after the Market Name... Sorry for the Inconvenience&quot; • Sub-second Live Commentary and Indian Bhav active on all in-play fixtures.
-          </div>
-        </div>
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════
-          4. MAIN 3-COLUMN WORKSPACE (Left Tree, Center Table, Right Bet Slip)
+          3. TIME FILTER PILLS & LEAGUE ACCORDION BUTTON
       ═══════════════════════════════════════════════════════════════ */}
-      <div className="max-w-[1600px] mx-auto p-2 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
-        
-        {/* ─── COLUMN 1: LEFT SPORTS & LEAGUE TREE ACCORDION (3 Cols) ─── */}
-        <aside className="lg:col-span-3 bg-white border border-slate-300 rounded-xs shadow-xs overflow-hidden">
-          <div className="bg-[#1b3d2f] text-white px-3 py-2 font-black uppercase text-xs tracking-wider flex items-center justify-between border-b border-emerald-950">
-            <span>Sports</span>
-            <span className="text-[10px] text-amber-300 font-mono">ALL LEAGUES</span>
-          </div>
+      <div className="max-w-md mx-auto sm:max-w-5xl px-3 pt-3 flex items-center justify-between gap-2">
+        {/* Time Tabs */}
+        <div className="flex items-center gap-1 bg-slate-900/90 p-1 rounded-xl border border-slate-800">
+          {[
+            { id: "inplay", label: "🔴 Live" },
+            { id: "today", label: "Today" },
+            { id: "tomorrow", label: "Tomorrow" }
+          ].map(t => (
+            <button
+              key={t.id}
+              onClick={() => setSelectedDateTab(t.id as any)}
+              className={cn(
+                "px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-lg transition-all cursor-pointer min-h-[36px] flex items-center justify-center",
+                selectedDateTab === t.id
+                  ? "bg-emerald-600 text-white shadow-xs"
+                  : "text-slate-400 hover:text-white"
+              )}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
 
-          <div className="divide-y divide-slate-200 text-xs font-bold">
-            {Object.keys(TOURNAMENT_LEAGUES).map(sportKey => {
-              const isOpen = activeSport.toLowerCase() === sportKey.toLowerCase() || (sportKey === "Cricket" && activeSport === "All Sports");
-              const leagues = TOURNAMENT_LEAGUES[sportKey];
+        {/* League Selector Drawer Toggle */}
+        <button
+          onClick={() => setIsLeagueDrawerOpen(!isLeagueDrawerOpen)}
+          className="flex items-center gap-1.5 bg-slate-900/90 hover:bg-slate-800 border border-slate-800 px-3 py-2 rounded-xl text-xs font-bold text-slate-300 cursor-pointer min-h-[44px]"
+        >
+          <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-400" />
+          <span className="truncate max-w-[110px]">{selectedLeague.replace("All ", "")}</span>
+          <ChevronDown className="w-3 h-3 text-slate-500" />
+        </button>
+      </div>
 
-              return (
-                <div key={sportKey} className="bg-white">
-                  <button
-                    onClick={() => {
-                      setActiveSport(sportKey);
-                      setSelectedLeague(`All ${sportKey}`);
-                      setSelectedSportFilter(sportKey);
-                    }}
-                    className={cn(
-                      "w-full text-left px-3 py-2 flex items-center justify-between transition-colors cursor-pointer font-black uppercase",
-                      isOpen ? "bg-[#eaf3ee] text-[#1b3d2f]" : "text-slate-700 hover:bg-slate-50"
-                    )}
-                  >
-                    <span>{sportKey.replace('_', ' ')}</span>
-                    {isOpen ? <ChevronUp className="w-3.5 h-3.5 text-[#1b3d2f]" /> : <ChevronDown className="w-3.5 h-3.5 text-slate-400" />}
-                  </button>
-
-                  {isOpen && (
-                    <div className="bg-slate-50 border-t border-slate-200 pl-3 pr-2 py-1 space-y-0.5">
-                      {leagues.map(league => (
-                        <button
-                          key={league}
-                          onClick={() => setSelectedLeague(league)}
-                          className={cn(
-                            "w-full text-left px-2 py-1 rounded-xs text-[11px] font-bold block transition-colors truncate cursor-pointer",
-                            selectedLeague === league
-                              ? "bg-[#234938] text-white font-black"
-                              : "text-slate-700 hover:bg-slate-200 hover:text-slate-950"
-                          )}
-                        >
-                          {league}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              );
-            })}
-          </div>
-        </aside>
-
-        {/* ─── COLUMN 2: CENTER EXCHANGE MARKETS STAGE (6 Cols) ─── */}
-        <main className="lg:col-span-6 space-y-2.5">
-          
-          {/* Promotional Banner Carousel (Exact from Video) */}
-          <div className={cn("rounded-xs p-4 text-white bg-gradient-to-r shadow-xs relative overflow-hidden transition-all duration-500", banners[bannerIdx].bg)}>
-            <div className="relative z-10 flex items-center justify-between">
-              <div>
-                <span className="text-[10px] font-black uppercase tracking-widest text-amber-300 block mb-1">Featured Arena</span>
-                <h2 className="text-base sm:text-lg font-black uppercase tracking-wider">{banners[bannerIdx].title}</h2>
-                <p className="text-xs text-slate-200 font-medium mt-0.5">{banners[bannerIdx].sub}</p>
-              </div>
-              <div className="text-4xl sm:text-5xl opacity-90 drop-shadow-md">
-                {banners[bannerIdx].image}
-              </div>
-            </div>
-            {/* Banner Dots */}
-            <div className="flex items-center gap-1.5 mt-3">
-              {banners.map((_, i) => (
+      {/* Collapsible League Drawer */}
+      {isLeagueDrawerOpen && (
+        <div className="max-w-md mx-auto sm:max-w-5xl px-3 pt-2 animate-in slide-in-from-top-2 duration-200">
+          <div className="bg-slate-900 border border-slate-800 rounded-xl p-2.5 shadow-xl space-y-1">
+            <span className="text-[10px] font-black uppercase tracking-wider text-slate-400 px-2 block mb-1">
+              Select Tournament / League
+            </span>
+            <div className="grid grid-cols-2 gap-1 max-h-48 overflow-y-auto custom-scrollbar">
+              {(TOURNAMENT_LEAGUES[activeSport] || TOURNAMENT_LEAGUES.Cricket).map(league => (
                 <button
-                  key={i}
-                  onClick={() => setBannerIdx(i)}
-                  className={cn("h-1.5 rounded-full transition-all cursor-pointer", bannerIdx === i ? "w-5 bg-amber-400" : "w-1.5 bg-white/40")}
-                />
-              ))}
-            </div>
-          </div>
-
-          {/* Time Filter Tabs: In-Play / Today / Tomorrow */}
-          <div className="bg-white border border-slate-300 rounded-xs p-1.5 shadow-2xs flex items-center justify-between gap-2">
-            <div className="flex items-center gap-1">
-              {[
-                { id: "inplay", label: "In-Play" },
-                { id: "today", label: "Today" },
-                { id: "tomorrow", label: "Tomorrow" }
-              ].map(t => (
-                <button
-                  key={t.id}
-                  onClick={() => setSelectedDateTab(t.id as any)}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-xs transition-colors cursor-pointer",
-                    selectedDateTab === t.id
-                      ? "bg-[#1b3d2f] text-white shadow-xs"
-                      : "bg-slate-100 text-slate-700 hover:bg-slate-200"
-                  )}
-                >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-
-            {/* Sport Filter Sub-Pills */}
-            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
-              {["Cricket", "Soccer", "Tennis", "E-Soccer"].map(sp => (
-                <button
-                  key={sp}
+                  key={league}
                   onClick={() => {
-                    setSelectedSportFilter(sp);
-                    setActiveSport(sp);
-                    setSelectedLeague(`All ${sp}`);
+                    setSelectedLeague(league);
+                    setIsLeagueDrawerOpen(false);
                   }}
                   className={cn(
-                    "px-2.5 py-1 text-[11px] font-black uppercase rounded-xs transition-colors cursor-pointer shrink-0",
-                    selectedSportFilter === sp
-                      ? "bg-[#234938] text-amber-300"
-                      : "text-slate-600 hover:bg-slate-100"
+                    "text-left px-2.5 py-2 rounded-lg text-xs font-bold truncate transition-colors min-h-[40px] flex items-center",
+                    selectedLeague === league
+                      ? "bg-emerald-600 text-white font-black"
+                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
                   )}
                 >
-                  {sp}
+                  {league}
                 </button>
               ))}
             </div>
           </div>
+        </div>
+      )}
 
-          {/* Feedback Toast */}
-          {betFeedback && (
-            <div className="bg-slate-900 text-amber-300 px-3 py-2 rounded-xs border border-amber-400/40 text-xs font-black uppercase tracking-wide flex items-center justify-between animate-fade-in shadow-md">
-              <span>{betFeedback}</span>
-              <button onClick={() => setBetFeedback(null)} className="text-slate-400 hover:text-white cursor-pointer"><X className="w-3.5 h-3.5" /></button>
-            </div>
-          )}
+      {/* Feedback Toast */}
+      {betFeedback && (
+        <div className="max-w-md mx-auto sm:max-w-5xl px-3 pt-2">
+          <div className="bg-emerald-950 border border-emerald-500/60 text-emerald-300 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wide flex items-center justify-between shadow-lg animate-in fade-in duration-200">
+            <span>{betFeedback}</span>
+            <button onClick={() => setBetFeedback(null)} className="text-slate-400 hover:text-white min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
 
-          {/* ─── EXCHANGE TABLE (Exact 6-Column Back/Lay Layout) ─── */}
-          <div className="bg-white border border-slate-300 rounded-xs shadow-xs overflow-hidden">
-            
-            {/* Table Header */}
-            <div className="bg-[#1b3d2f] text-white px-3 py-1.5 flex items-center justify-between text-[11px] font-black uppercase tracking-wider border-b border-emerald-950">
-              <div className="flex-1 truncate">
-                Sports Highlights ({selectedLeague || activeSport})
-              </div>
-              <div className="flex items-center gap-1 shrink-0">
-                <div className="w-24 text-right pr-2 text-slate-300 font-mono text-[10px]">Matched</div>
-                <div className="w-20 text-center text-cyan-200">1</div>
-                <div className="w-20 text-center text-amber-200">X</div>
-                <div className="w-20 text-center text-cyan-200">2</div>
-              </div>
-            </div>
+      {/* ═══════════════════════════════════════════════════════════════
+          4. MOBILE MATCH CARDS FEED (Ergonomic Touch Targets 44px+)
+      ═══════════════════════════════════════════════════════════════ */}
+      <main className="max-w-md mx-auto sm:max-w-5xl p-3 space-y-2.5">
+        
+        {isLoading ? (
+          <div className="p-12 text-center text-slate-400 flex flex-col items-center gap-3">
+            <div className="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
+            <span className="text-xs font-bold uppercase tracking-wider">Syncing live verified feeds...</span>
+          </div>
+        ) : filteredMatches.length === 0 ? (
+          <div className="p-12 text-center text-slate-400 bg-slate-900/60 rounded-2xl border border-slate-800/80">
+            <Trophy className="w-10 h-10 text-slate-600 mx-auto mb-2 opacity-60" />
+            <p className="text-sm font-black uppercase tracking-wider text-slate-200">No Matches Available</p>
+            <p className="text-xs text-slate-400 mt-1">Try switching to the Today or All Sports tab</p>
+            <button
+              onClick={() => { setSelectedDateTab("inplay"); setSelectedLeague("All Cricket"); }}
+              className="mt-4 px-4 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-black uppercase text-xs rounded-xl cursor-pointer shadow-md transition-colors min-h-[44px]"
+            >
+              Show All Live Matches
+            </button>
+          </div>
+        ) : (
+          filteredMatches.map((m: any) => {
+            const isPinned = pinnedMatches.includes(m.id);
+            const isLive = m.status === "Live";
+            const o1 = m.odds?.team1 || 2.10;
+            const o2 = m.odds?.team2 || 2.30;
+            const oDraw = m.odds?.draw;
 
-            {/* Matches List */}
-            {isLoading ? (
-              <div className="p-10 text-center text-slate-500 font-bold flex flex-col items-center gap-2">
-                <div className="w-6 h-6 border-3 border-[#1b3d2f] border-t-transparent rounded-full animate-spin"></div>
-                <span>Syncing live exchange order book...</span>
-              </div>
-            ) : filteredMatches.length === 0 ? (
-              <div className="p-10 text-center text-slate-500 font-bold">
-                <p className="text-sm uppercase tracking-wider text-slate-700">No In-Play Events in this Category</p>
-                <button
-                  onClick={() => { setSelectedDateTab("inplay"); setSelectedLeague("All Cricket"); }}
-                  className="mt-3 px-3 py-1.5 bg-[#1b3d2f] text-white font-black uppercase text-xs rounded-xs cursor-pointer hover:bg-[#234938]"
+            const lay1 = parseFloat((o1 + 0.02).toFixed(2));
+            const lay2 = parseFloat((o2 + 0.02).toFixed(2));
+
+            return (
+              <div
+                key={m.id}
+                className="bg-[#13202b] border border-slate-800/90 rounded-2xl p-3.5 shadow-md hover:border-slate-700/80 transition-all relative overflow-hidden"
+              >
+                {/* Top Meta Line: Format + Series Name + Pin Button */}
+                <div className="flex items-center justify-between pb-2 mb-2 border-b border-slate-800/70 text-[10px] font-bold text-slate-400 uppercase">
+                  <div className="flex items-center gap-1.5 truncate">
+                    {isLive ? (
+                      <span className="bg-red-500/20 text-red-400 border border-red-500/40 px-2 py-0.5 rounded-full text-[9px] font-black flex items-center gap-1">
+                        <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" /> LIVE
+                      </span>
+                    ) : (
+                      <span className="bg-slate-800 text-slate-400 px-2 py-0.5 rounded-full text-[9px] font-black">
+                        {m.timeStr || "SCHEDULED"}
+                      </span>
+                    )}
+                    <span className="text-slate-300 font-bold truncate">{m.seriesName || "Tournament League"}</span>
+                  </div>
+
+                  <button
+                    onClick={() => togglePinMatch(m.id)}
+                    className={cn(
+                      "p-1.5 rounded-lg cursor-pointer min-h-[32px] min-w-[32px] flex items-center justify-center transition-colors",
+                      isPinned ? "text-amber-400 bg-amber-500/10" : "text-slate-500 hover:text-slate-300"
+                    )}
+                    aria-label="Pin match"
+                  >
+                    <Pin className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                {/* Main Match Info (Clickable Link to Match Center) */}
+                <Link
+                  href={`/sportsbook/match/${m.id}`}
+                  className="block group"
                 >
-                  View All Live Matches
-                </button>
-              </div>
-            ) : (
-              <div className="divide-y divide-slate-200">
-                {filteredMatches.map((m: any) => {
-                  const isPinned = pinnedMatches.includes(m.id);
-                  const isLive = m.status === "Live";
-                  const o1 = m.odds?.team1 || 2.10;
-                  const o2 = m.odds?.team2 || 2.30;
-                  const oDraw = m.odds?.draw;
-
-                  const lay1 = parseFloat((o1 + 0.02).toFixed(2));
-                  const lay2 = parseFloat((o2 + 0.02).toFixed(2));
-                  const layDraw = oDraw ? parseFloat((oDraw + 0.04).toFixed(2)) : null;
-
-                  return (
-                    <div
-                      key={m.id}
-                      className="p-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 hover:bg-slate-50/90 transition-colors"
-                    >
-                      {/* Event Info */}
-                      <div className="flex items-start gap-2 flex-1 min-w-0">
-                        <button
-                          onClick={() => togglePinMatch(m.id)}
-                          className={cn("mt-0.5 p-1 rounded-xs cursor-pointer", isPinned ? "text-amber-500" : "text-slate-300 hover:text-slate-500")}
-                        >
-                          <Pin className="w-3.5 h-3.5" />
-                        </button>
-
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1.5">
-                            {isLive ? (
-                              <span className="bg-emerald-600 text-white font-mono font-black text-[9px] px-1.5 py-0.2 rounded-xs uppercase tracking-wider flex items-center gap-1">
-                                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
-                                In Play
-                              </span>
-                            ) : (
-                              <span className="text-[10px] text-slate-500 font-bold uppercase">{m.timeStr || "Scheduled"}</span>
-                            )}
-                            <span className="text-[10px] text-slate-500 font-bold truncate">{m.seriesName || "League Match"}</span>
-                          </div>
-
-                          <Link
-                            href={`/sportsbook/match/${m.id}`}
-                            className="font-black text-xs text-slate-900 hover:text-emerald-800 transition-colors block mt-0.5 truncate"
-                          >
-                            {m.team1} <span className="text-slate-400 font-normal">v</span> {m.team2}
-                          </Link>
-                          
-                          {m.score && (
-                            <span className="text-[11px] font-mono font-black text-emerald-700 block mt-0.2">
-                              {m.score}
-                            </span>
-                          )}
+                  <div className="space-y-1.5">
+                    {/* Team 1 */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-[10px] text-emerald-400">
+                          {m.team1.substring(0, 2).toUpperCase()}
                         </div>
-                      </div>
-
-                      {/* Matched Volume & 6-Box Back/Lay Grid */}
-                      <div className="flex items-center justify-between sm:justify-end gap-1.5 shrink-0 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                        <div className="text-right pr-2 font-mono text-[10px] text-slate-500 hidden md:block">
-                          <span className="block text-[8px] text-slate-400 uppercase">Matched</span>
-                          <strong>PIN {Math.round(m.id * 14500 + 450000).toLocaleString()}</strong>
-                        </div>
-
-                        {/* 1: Team 1 (Back Cyan & Lay Pink) */}
-                        <div className="flex items-center gap-0.5">
-                          <button
-                            onClick={() => handleSelectOdds(m, m.team1, o1, 'back')}
-                            className="w-10 h-8 bg-[#72bbef] hover:bg-[#5db1eb] text-[#002b49] font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors cursor-pointer leading-none shadow-2xs active:scale-95"
-                          >
-                            <span>{o1.toFixed(2)}</span>
-                            <span className="text-[8px] opacity-75 font-mono">152k</span>
-                          </button>
-                          <button
-                            onClick={() => handleSelectOdds(m, m.team1, lay1, 'lay')}
-                            className="w-10 h-8 bg-[#faa9ba] hover:bg-[#f895a9] text-[#4a0011] font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors cursor-pointer leading-none shadow-2xs active:scale-95"
-                          >
-                            <span>{lay1.toFixed(2)}</span>
-                            <span className="text-[8px] opacity-75 font-mono">89k</span>
-                          </button>
-                        </div>
-
-                        {/* X: Draw (Back Cyan & Lay Pink) */}
-                        <div className="flex items-center gap-0.5">
-                          <button
-                            disabled={!oDraw}
-                            onClick={() => oDraw && handleSelectOdds(m, "Draw", oDraw, 'back')}
-                            className={cn(
-                              "w-10 h-8 font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors leading-none shadow-2xs",
-                              oDraw ? "bg-[#72bbef] hover:bg-[#5db1eb] text-[#002b49] cursor-pointer active:scale-95" : "bg-slate-100 text-slate-300 cursor-not-allowed"
-                            )}
-                          >
-                            <span>{oDraw ? oDraw.toFixed(2) : "-"}</span>
-                            <span className="text-[8px] opacity-75 font-mono">{oDraw ? "45k" : ""}</span>
-                          </button>
-                          <button
-                            disabled={!layDraw}
-                            onClick={() => layDraw && handleSelectOdds(m, "Draw", layDraw, 'lay')}
-                            className={cn(
-                              "w-10 h-8 font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors leading-none shadow-2xs",
-                              layDraw ? "bg-[#faa9ba] hover:bg-[#f895a9] text-[#4a0011] cursor-pointer active:scale-95" : "bg-slate-100 text-slate-300 cursor-not-allowed"
-                            )}
-                          >
-                            <span>{layDraw ? layDraw.toFixed(2) : "-"}</span>
-                            <span className="text-[8px] opacity-75 font-mono">{layDraw ? "12k" : ""}</span>
-                          </button>
-                        </div>
-
-                        {/* 2: Team 2 (Back Cyan & Lay Pink) */}
-                        <div className="flex items-center gap-0.5">
-                          <button
-                            onClick={() => handleSelectOdds(m, m.team2, o2, 'back')}
-                            className="w-10 h-8 bg-[#72bbef] hover:bg-[#5db1eb] text-[#002b49] font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors cursor-pointer leading-none shadow-2xs active:scale-95"
-                          >
-                            <span>{o2.toFixed(2)}</span>
-                            <span className="text-[8px] opacity-75 font-mono">214k</span>
-                          </button>
-                          <button
-                            onClick={() => handleSelectOdds(m, m.team2, lay2, 'lay')}
-                            className="w-10 h-8 bg-[#faa9ba] hover:bg-[#f895a9] text-[#4a0011] font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors cursor-pointer leading-none shadow-2xs active:scale-95"
-                          >
-                            <span>{lay2.toFixed(2)}</span>
-                            <span className="text-[8px] opacity-75 font-mono">110k</span>
-                          </button>
-                        </div>
-
+                        <span className="font-black text-sm text-slate-100 group-hover:text-emerald-400 transition-colors truncate max-w-[180px] sm:max-w-none">
+                          {m.team1}
+                        </span>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
-        </main>
 
-        {/* ─── COLUMN 3: RIGHT STICKY BET SLIP (3 Cols) ─── */}
-        <aside className="lg:col-span-3 bg-white border border-slate-300 rounded-xs shadow-xs sticky top-14">
-          <div className="bg-[#1b3d2f] text-white px-3 py-2 font-black uppercase text-xs tracking-wider flex items-center justify-between border-b border-emerald-950">
-            <span>Bet Slip</span>
-            {selectedBet && (
-              <button
-                onClick={() => setSelectedBet(null)}
-                className="text-slate-300 hover:text-white text-[10px] uppercase font-bold cursor-pointer"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
-
-          {!selectedBet ? (
-            <div className="p-8 text-center text-slate-500 font-bold">
-              <Receipt className="w-8 h-8 text-slate-300 mx-auto mb-2 opacity-70" />
-              <p className="text-xs">Click on the odds to add selections to the betslip.</p>
-            </div>
-          ) : (
-            <div className="p-3 space-y-3">
-              
-              {/* Selection Header Card */}
-              <div className={cn(
-                "p-2.5 rounded-xs border text-xs",
-                selectedBet.type === 'back' ? "bg-blue-50/80 border-blue-200 text-blue-950" : "bg-pink-50/80 border-pink-200 text-pink-950"
-              )}>
-                <div className="flex items-center justify-between font-black">
-                  <span>{selectedBet.selection}</span>
-                  <span className={cn(
-                    "px-2 py-0.5 rounded-xs text-[10px] uppercase font-black",
-                    selectedBet.type === 'back' ? "bg-[#72bbef] text-[#002b49]" : "bg-[#faa9ba] text-[#4a0011]"
-                  )}>
-                    {selectedBet.type.toUpperCase()}
-                  </span>
-                </div>
-                <div className="text-[11px] text-slate-600 font-medium mt-0.5">
-                  {selectedBet.matchTitle} • Match Odds
-                </div>
-
-                {/* Odds & Stake Steppers */}
-                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200/80">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 block uppercase">Odds</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={selectedBet.odds}
-                      onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
-                      className="w-full bg-white border border-slate-300 rounded-xs px-2 py-1 font-mono font-black text-xs focus:outline-hidden"
-                    />
+                    {/* Team 2 */}
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-[10px] text-teal-400">
+                          {m.team2.substring(0, 2).toUpperCase()}
+                        </div>
+                        <span className="font-black text-sm text-slate-100 group-hover:text-emerald-400 transition-colors truncate max-w-[180px] sm:max-w-none">
+                          {m.team2}
+                        </span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 block uppercase">Stake (PIN)</label>
-                    <input
-                      type="number"
-                      value={selectedBet.stake}
-                      onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-white border border-slate-300 rounded-xs px-2 py-1 font-mono font-black text-xs focus:outline-hidden"
-                    />
-                  </div>
-                </div>
 
-                {/* Quick Stake Buttons */}
-                <div className="grid grid-cols-4 gap-1 mt-2">
-                  {[100, 500, 1000, 5000, 10000, 25000, 50000, 100000].map(val => (
-                    <button
-                      key={val}
-                      onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
-                      className="py-1 bg-white hover:bg-slate-100 border border-slate-300 text-[10px] font-mono font-bold rounded-xs cursor-pointer transition-colors"
-                    >
-                      +{val >= 1000 ? `${val / 1000}k` : val}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Profit / Liability Calculations */}
-                <div className="mt-3 pt-2 border-t border-slate-200/80 text-[11px] flex justify-between items-center font-bold">
-                  {selectedBet.type === 'back' ? (
-                    <>
-                      <span className="text-slate-600">Profit:</span>
-                      <strong className="text-emerald-700 font-mono">
-                        +PIN {Math.round(selectedBet.stake * (selectedBet.odds - 1)).toLocaleString()}
-                      </strong>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-slate-600">Liability:</span>
-                      <strong className="text-rose-700 font-mono">
-                        -PIN {Math.round(selectedBet.stake * (selectedBet.odds - 1)).toLocaleString()}
-                      </strong>
-                    </>
+                  {/* Live Score Summary Badge */}
+                  {m.score && (
+                    <div className="mt-2 py-1 px-2.5 bg-slate-900/90 rounded-lg border border-slate-800/80 flex items-center justify-between font-mono text-xs">
+                      <span className="text-emerald-400 font-black">{m.score}</span>
+                      <span className="text-[10px] text-slate-400 font-bold uppercase flex items-center gap-1 group-hover:text-white">
+                        Match Center <ChevronRight className="w-3 h-3" />
+                      </span>
+                    </div>
                   )}
+                </Link>
+
+                {/* Back / Lay Mobile Action Buttons (44px Touch Targets) */}
+                <div className="mt-3 pt-2.5 border-t border-slate-800/70 grid grid-cols-2 gap-2">
+                  
+                  {/* Team 1 Back / Lay Group */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleSelectOdds(m, m.team1, o1, 'back')}
+                      className="flex-1 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs py-2 rounded-xl flex flex-col items-center justify-center cursor-pointer min-h-[44px] shadow-sm leading-none transition-all"
+                    >
+                      <span className="text-[9px] opacity-75 font-bold uppercase">Back</span>
+                      <span className="text-sm font-black">{o1.toFixed(2)}</span>
+                    </button>
+                    <button
+                      onClick={() => handleSelectOdds(m, m.team1, lay1, 'lay')}
+                      className="flex-1 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs py-2 rounded-xl flex flex-col items-center justify-center cursor-pointer min-h-[44px] shadow-sm leading-none transition-all"
+                    >
+                      <span className="text-[9px] opacity-75 font-bold uppercase">Lay</span>
+                      <span className="text-sm font-black">{lay1.toFixed(2)}</span>
+                    </button>
+                  </div>
+
+                  {/* Team 2 Back / Lay Group */}
+                  <div className="flex items-center gap-1">
+                    <button
+                      onClick={() => handleSelectOdds(m, m.team2, o2, 'back')}
+                      className="flex-1 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs py-2 rounded-xl flex flex-col items-center justify-center cursor-pointer min-h-[44px] shadow-sm leading-none transition-all"
+                    >
+                      <span className="text-[9px] opacity-75 font-bold uppercase">Back</span>
+                      <span className="text-sm font-black">{o2.toFixed(2)}</span>
+                    </button>
+                    <button
+                      onClick={() => handleSelectOdds(m, m.team2, lay2, 'lay')}
+                      className="flex-1 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs py-2 rounded-xl flex flex-col items-center justify-center cursor-pointer min-h-[44px] shadow-sm leading-none transition-all"
+                    >
+                      <span className="text-[9px] opacity-75 font-bold uppercase">Lay</span>
+                      <span className="text-sm font-black">{lay2.toFixed(2)}</span>
+                    </button>
+                  </div>
+
                 </div>
+
               </div>
+            );
+          })
+        )}
 
-              {/* Submit Button */}
-              <button
-                disabled={isPlacing || selectedBet.stake <= 0}
-                onClick={handlePlaceBetslip}
-                className={cn(
-                  "w-full py-2.5 font-black text-xs uppercase tracking-wider rounded-xs cursor-pointer transition-all shadow-sm active:scale-98",
-                  isPlacing ? "bg-slate-400 text-white cursor-not-allowed" : "bg-[#1b3d2f] hover:bg-[#234938] text-amber-300"
-                )}
-              >
-                {isPlacing ? "Submitting Order..." : "Place Bet"}
-              </button>
+      </main>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          5. MOBILE QUICK BET BOTTOM SHEET (Slides up on Odds tap)
+      ═══════════════════════════════════════════════════════════════ */}
+      {selectedBet && (
+        <div className="fixed inset-x-0 bottom-16 z-50 p-3 max-w-md mx-auto animate-in slide-in-from-bottom-6 duration-300">
+          <div className="bg-[#111d27] border-2 border-emerald-500/80 rounded-2xl p-4 shadow-2xl space-y-3">
+            
+            {/* Header */}
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div>
+                <span className="font-black text-sm text-white">{selectedBet.selection}</span>
+                <span className="text-[10px] text-slate-400 font-bold block">{selectedBet.matchTitle}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "px-2.5 py-1 rounded-full text-[10px] uppercase font-black",
+                  selectedBet.type === 'back' ? "bg-[#72bbef] text-[#002b49]" : "bg-[#faa9ba] text-[#4a0011]"
+                )}>
+                  {selectedBet.type.toUpperCase()}
+                </span>
+                <button
+                  onClick={() => setSelectedBet(null)}
+                  className="p-1 rounded-full text-slate-400 hover:text-white min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
-          )}
-        </aside>
 
-      </div>
+            {/* Stepper Inputs */}
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 block uppercase">Odds</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={selectedBet.odds}
+                  onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white focus:outline-hidden focus:border-emerald-500 min-h-[44px]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 block uppercase">Stake (₹)</label>
+                <input
+                  type="number"
+                  value={selectedBet.stake}
+                  onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white focus:outline-hidden focus:border-emerald-500 min-h-[44px]"
+                />
+              </div>
+            </div>
+
+            {/* Quick Stake Chips */}
+            <div className="grid grid-cols-4 gap-1.5">
+              {[100, 500, 1000, 5000].map(val => (
+                <button
+                  key={val}
+                  onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
+                  className="py-2 bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-200 rounded-xl cursor-pointer min-h-[36px] transition-colors"
+                >
+                  +₹{val >= 1000 ? `${val / 1000}k` : val}
+                </button>
+              ))}
+            </div>
+
+            {/* Potential PnL */}
+            <div className="flex items-center justify-between text-xs font-bold pt-1 border-t border-slate-800">
+              {selectedBet.type === 'back' ? (
+                <>
+                  <span className="text-slate-400">Potential Profit:</span>
+                  <strong className="text-emerald-400 font-mono text-sm">
+                    +₹{Math.round(selectedBet.stake * (selectedBet.odds - 1)).toLocaleString()}
+                  </strong>
+                </>
+              ) : (
+                <>
+                  <span className="text-slate-400">Max Liability:</span>
+                  <strong className="text-rose-400 font-mono text-sm">
+                    -₹{Math.round(selectedBet.stake * (selectedBet.odds - 1)).toLocaleString()}
+                  </strong>
+                </>
+              )}
+            </div>
+
+            {/* Submit Button */}
+            <button
+              disabled={isPlacing || selectedBet.stake <= 0}
+              onClick={handlePlaceBetslip}
+              className={cn(
+                "w-full py-3 font-black text-sm uppercase tracking-wider rounded-xl cursor-pointer transition-all shadow-lg min-h-[48px] active:scale-98",
+                isPlacing ? "bg-slate-700 text-slate-400 cursor-not-allowed" : "bg-gradient-to-r from-emerald-600 to-teal-500 text-white hover:brightness-110"
+              )}
+            >
+              {isPlacing ? "Placing Order..." : "Confirm & Place Bet"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════
+          6. COMPACT MOBILE BOTTOM NAVIGATION (Ergonomic App Bar)
+      ═══════════════════════════════════════════════════════════════ */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 bg-[#0d151c]/95 backdrop-blur-lg border-t border-slate-800/80 px-2 py-1.5 shadow-2xl">
+        <div className="max-w-md mx-auto sm:max-w-5xl grid grid-cols-5 gap-1">
+          
+          <Link
+            href="/sportsbook"
+            className="flex flex-col items-center justify-center py-1 text-emerald-400 font-black text-[10px] min-h-[44px] rounded-xl"
+          >
+            <Trophy className="w-5 h-5 mb-0.5" />
+            <span>Sports</span>
+          </Link>
+
+          <button
+            onClick={() => setSelectedDateTab("inplay")}
+            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 font-bold text-[10px] min-h-[44px] rounded-xl cursor-pointer"
+          >
+            <Flame className="w-5 h-5 mb-0.5 text-red-400 animate-pulse" />
+            <span>In-Play</span>
+          </button>
+
+          <Link
+            href="/account/bets"
+            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 font-bold text-[10px] min-h-[44px] rounded-xl"
+          >
+            <Receipt className="w-5 h-5 mb-0.5" />
+            <span>My Bets</span>
+          </Link>
+
+          <Link
+            href="/casino"
+            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 font-bold text-[10px] min-h-[44px] rounded-xl"
+          >
+            <Gamepad2 className="w-5 h-5 mb-0.5 text-amber-400" />
+            <span>Casino</span>
+          </Link>
+
+          <Link
+            href="/account"
+            className="flex flex-col items-center justify-center py-1 text-slate-400 hover:text-slate-200 font-bold text-[10px] min-h-[44px] rounded-xl"
+          >
+            <User className="w-5 h-5 mb-0.5" />
+            <span>Account</span>
+          </Link>
+
+        </div>
+      </nav>
 
     </div>
   );

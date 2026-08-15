@@ -5,16 +5,16 @@ import Link from "next/link";
 import { 
   ArrowLeft, Calendar, MapPin, Wind, Droplets, Trophy, 
   TrendingUp, Shield, Clock, Award, Check, AlertCircle, 
-  User, ChevronRight, Zap, Info, Users, Activity, Flame, Share2, Star, CheckCircle2, ChevronDown,
-  Pin, Settings, PlayCircle, Lock, Tv, RefreshCw, X, Receipt
+  User, ChevronRight, Zap, Info, Users, Activity, Flame, Share2, CheckCircle2, ChevronDown,
+  Pin, Settings, PlayCircle, Lock, Tv, RefreshCw, X, Receipt, ChevronUp, SlidersHorizontal, Gamepad2, Wallet
 } from "lucide-react";
 import { 
   DeepMatchInfo, CrexInningsScorecard, CREX_MATCHES_DATABASE, PLAYERS_DATABASE, PlayerDossier, resolveDeepMatch 
 } from "@/lib/sportsDeepData";
 import { formatOddsByMode, OddsDisplayMode, convertDecimalToBhav } from "@/lib/bhavEngine";
-import { PlayerProfileModal } from "@/components/sportsbook/PlayerProfileModal";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { CricketDataValidator } from "@/lib/cricket/validator";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -30,14 +30,13 @@ export default function MatchDetailPage({ params }: PageProps) {
   const [cricketTelemetry, setCricketTelemetry] = useState<any>(null);
 
   // Tabs & Views
-  const [activeCenterTab, setActiveCenterTab] = useState<"betting" | "scorecard" | "commentary" | "squads" | "info">("betting");
-  const [fancyCategory, setFancyCategory] = useState<"all" | "fancy" | "ballbyball" | "khadda" | "lottery" | "oddeven">("all");
-  const [selectedPlayer, setSelectedPlayer] = useState<PlayerDossier | null>(null);
-  const [isPlayerModalOpen, setIsPlayerModalOpen] = useState(false);
-  const [isPinned, setIsPinned] = useState(false);
+  const [activeTab, setActiveTab] = useState<"odds" | "fancy" | "scorecard" | "commentary" | "info">("odds");
+  const [fancyCategory, setFancyCategory] = useState<"all" | "fancy" | "ballbyball" | "khadda" | "oddeven">("all");
+  const [isGraphExpanded, setIsGraphExpanded] = useState(false);
   const [isTVExpanded, setIsTVExpanded] = useState(false);
+  const [isPinned, setIsPinned] = useState(false);
 
-  // One Click Bet & Bet Slip State
+  // Quick Bet & Bet Slip State
   const [oneClickBet, setOneClickBet] = useState(false);
   const [oneClickStake, setOneClickStake] = useState(500);
   const [selectedBet, setSelectedBet] = useState<{
@@ -51,10 +50,9 @@ export default function MatchDetailPage({ params }: PageProps) {
 
   const [betFeedback, setBetFeedback] = useState<string | null>(null);
   const [isPlacing, setIsPlacing] = useState(false);
-
   const walletBalance = useTradingStore(s => s.balance);
 
-  // Live real-time match sync with EventSource SSE Stream & fallback polling
+  // Real-time Match Telemetry Sync
   useEffect(() => {
     let isMounted = true;
     let eventSource: EventSource | null = null;
@@ -94,18 +92,18 @@ export default function MatchDetailPage({ params }: PageProps) {
           if (parsed.type === "TELEMETRY_UPDATE") {
             applyMatchPayload(parsed);
           }
-        } catch (err) {
+        } catch {
           // ignore
         }
       };
 
       eventSource.onerror = () => {
         if (!fallbackInterval && isMounted) {
-          fallbackInterval = setInterval(fetchLiveMatchFallback, 4000);
+          fallbackInterval = setInterval(fetchLiveMatchFallback, 3000);
         }
       };
-    } catch (sseErr) {
-      fallbackInterval = setInterval(fetchLiveMatchFallback, 4000);
+    } catch {
+      fallbackInterval = setInterval(fetchLiveMatchFallback, 3000);
     }
 
     return () => {
@@ -120,9 +118,9 @@ export default function MatchDetailPage({ params }: PageProps) {
       setIsPlacing(true);
       setTimeout(() => {
         setIsPlacing(false);
-        setBetFeedback(`✅ 1-Click Bet: ${selection} (${type.toUpperCase()}) @ ${odds} | PIN ${oneClickStake}`);
-        setTimeout(() => setBetFeedback(null), 4000);
-      }, 400);
+        setBetFeedback(`✅ 1-Click Bet: ${selection} (${type.toUpperCase()}) @ ${odds} | ₹${oneClickStake}`);
+        setTimeout(() => setBetFeedback(null), 3500);
+      }, 350);
       return;
     }
 
@@ -163,691 +161,569 @@ export default function MatchDetailPage({ params }: PageProps) {
       setBetFeedback(`⚠️ Order error: ${e.message}`);
     } finally {
       setIsPlacing(false);
-      setTimeout(() => setBetFeedback(null), 4000);
+      setTimeout(() => setBetFeedback(null), 3500);
     }
   };
 
   const isLive = match.status?.toLowerCase().includes("live") || match.status?.toLowerCase().includes("opt to") || match.status?.toLowerCase().includes("need");
 
-  // Fancy Bet Rows (Exact Format from User Video)
+  // Fancy Bet Rows
   const fancyMarkets = [
-    { id: "f1", cat: "fancy", label: `20 Over ${match.team2.code || "AFG"} Total`, noRuns: 153, noRate: 100, yesRuns: 154, yesRate: 100, status: "active", min: 63, max: 125000 },
-    { id: "f2", cat: "fancy", label: `28 Over ${match.team2.code || "AFG"}`, noRuns: 201, noRate: 100, yesRuns: 202, yesRate: 100, status: "active", min: 63, max: 62500 },
-    { id: "f3", cat: "fancy", label: `28.3 Over ${match.team2.code || "AFG"}`, noRuns: 0, noRate: 0, yesRuns: 0, yesRate: 0, status: "suspended", min: 63, max: 62500 },
-    { id: "f4", cat: "khadda", label: `1st Wkt 4Wk ${match.team2.code || "AFG"}`, noRuns: 217, noRate: 110, yesRuns: 217, yesRate: 90, status: "active", min: 63, max: 125000 },
-    { id: "f5", cat: "khadda", label: `3rd Wkt AFG Rah Bhav`, noRuns: 140, noRate: 110, yesRuns: 140, yesRate: 90, status: "active", min: 63, max: 15625 },
-    { id: "f6", cat: "ballbyball", label: `28.1 Ball Run ${match.team2.code || "AFG"}`, noRuns: 1, noRate: 100, yesRuns: 2, yesRate: 100, status: "ball_running", min: 63, max: 31250 },
-    { id: "f7", cat: "ballbyball", label: `28.2 Ball Run ${match.team2.code || "AFG"}`, noRuns: 1, noRate: 100, yesRuns: 2, yesRate: 100, status: "active", min: 63, max: 31250 },
-    { id: "f8", cat: "fancy", label: `S Atal Runs`, noRuns: 14, noRate: 100, yesRuns: 15, yesRate: 100, status: "active", min: 63, max: 31250 },
-    { id: "f9", cat: "oddeven", label: `20 Over Total Odd/Even`, noRuns: "ODD", noRate: 95, yesRuns: "EVEN", yesRate: 95, status: "active", min: 63, max: 50000 }
+    { id: "f1", cat: "fancy", label: `20 Over ${match.team2.code || "AFG"} Total`, noRuns: 153, noRate: 100, yesRuns: 154, yesRate: 100, status: "active", min: 100, max: 100000 },
+    { id: "f2", cat: "fancy", label: `28 Over ${match.team2.code || "AFG"}`, noRuns: 201, noRate: 100, yesRuns: 202, yesRate: 100, status: "active", min: 100, max: 50000 },
+    { id: "f3", cat: "fancy", label: `28.3 Over ${match.team2.code || "AFG"}`, noRuns: 0, noRate: 0, yesRuns: 0, yesRate: 0, status: "suspended", min: 100, max: 50000 },
+    { id: "f4", cat: "khadda", label: `1st Wkt ${match.team2.code || "AFG"} Runs`, noRuns: 45, noRate: 110, yesRuns: 45, yesRate: 90, status: "active", min: 100, max: 100000 },
+    { id: "f5", cat: "ballbyball", label: `Current Over Ball Run`, noRuns: 1, noRate: 100, yesRuns: 2, yesRate: 100, status: "ball_running", min: 100, max: 25000 },
+    { id: "f6", cat: "fancy", label: `Top Batter Runs (Match)`, noRuns: 38, noRate: 100, yesRuns: 39, yesRate: 100, status: "active", min: 100, max: 50000 },
+    { id: "f7", cat: "oddeven", label: `20 Over Total Odd/Even`, noRuns: "ODD", noRate: 95, yesRuns: "EVEN", yesRate: 95, status: "active", min: 100, max: 50000 }
   ];
 
   const filteredFancy = fancyMarkets.filter(f => fancyCategory === "all" || f.cat === fancyCategory);
 
   return (
-    <div className="min-h-screen bg-[#e8ecef] text-slate-900 font-sans text-xs select-none">
+    <div className="min-h-screen bg-[#0d151c] text-slate-100 font-sans pb-24 select-none">
       
       {/* ═══════════════════════════════════════════════════════════════
-          1. TOP PINE GREEN EXCHANGE HEADER (bg-[#1b3d2f])
+          1. CLEAN MOBILE MATCH HEADER
       ═══════════════════════════════════════════════════════════════ */}
-      <header className="bg-[#1b3d2f] text-white border-b border-emerald-950 px-3 py-1.5 shadow-md sticky top-0 z-50">
-        <div className="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2">
+      <header className="bg-[#111d27]/95 backdrop-blur-md border-b border-slate-800/80 px-3.5 py-2.5 sticky top-0 z-40">
+        <div className="max-w-md mx-auto sm:max-w-5xl flex items-center justify-between gap-2">
           
-          <div className="flex items-center gap-3">
-            <Link href="/sportsbook" className="flex items-center gap-1 font-black text-lg tracking-tight text-white">
-              <span className="text-amber-400 text-xl font-serif">★</span>
-              <span className="font-extrabold tracking-wider uppercase text-base">STAR</span>
-              <span className="text-[10px] bg-emerald-700 text-emerald-200 px-1 py-0.2 rounded uppercase font-bold tracking-widest ml-1">EXCHANGE</span>
+          <div className="flex items-center gap-2">
+            <Link
+              href="/sportsbook"
+              className="p-2 rounded-full bg-slate-800/80 hover:bg-slate-800 text-slate-300 hover:text-white transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
             </Link>
-
-            <Link href="/sportsbook" className="flex items-center gap-1 text-slate-300 hover:text-white font-bold text-xs bg-[#12281f] px-2 py-1 rounded-sm border border-emerald-900/60">
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to In-Play
-            </Link>
+            <div className="truncate">
+              <h1 className="font-extrabold text-xs text-white uppercase tracking-wider truncate">
+                {match.team1.code || match.team1.name} vs {match.team2.code || match.team2.name}
+              </h1>
+              <span className="text-[10px] text-slate-400 font-bold block truncate">
+                {match.series || "International Cricket Series"}
+              </span>
+            </div>
           </div>
 
-          {/* Account HUD & One-Click Switch */}
-          <div className="flex items-center gap-2 sm:gap-3 text-xs">
-            <div className="hidden md:flex items-center gap-2 bg-[#12281f] px-2.5 py-1 rounded-sm border border-emerald-900/60 font-mono text-[11px]">
-              <span className="text-slate-300">Main Balance:</span>
-              <strong className="text-amber-300 font-black">PIN {(walletBalance || 25400).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</strong>
-              <span className="text-slate-400 ml-1">Exposure:</span>
-              <strong className="text-rose-400 font-black">0.00</strong>
-            </div>
-
-            <div className="flex items-center gap-1.5 bg-[#12281f] px-2.5 py-1 rounded-sm border border-emerald-900/60">
-              <label className="flex items-center gap-1.5 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={oneClickBet}
-                  onChange={(e) => setOneClickBet(e.target.checked)}
-                  className="w-3.5 h-3.5 accent-amber-400 rounded cursor-pointer"
-                />
-                <span className={cn("text-[11px] font-black uppercase tracking-wider", oneClickBet ? "text-amber-300" : "text-slate-300")}>
-                  One Click Bet
-                </span>
-              </label>
-              {oneClickBet && (
-                <select
-                  value={oneClickStake}
-                  onChange={(e) => setOneClickStake(Number(e.target.value))}
-                  className="bg-[#1b3d2f] text-amber-300 font-mono font-bold text-[10px] rounded px-1 border border-amber-400/40"
-                >
-                  <option value={100}>100</option>
-                  <option value={500}>500</option>
-                  <option value={1000}>1,000</option>
-                  <option value={5000}>5,000</option>
-                </select>
+          <div className="flex items-center gap-2">
+            {/* TV Button */}
+            <button
+              onClick={() => setIsTVExpanded(!isTVExpanded)}
+              className={cn(
+                "px-2.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider flex items-center gap-1 min-h-[44px] transition-colors cursor-pointer",
+                isTVExpanded ? "bg-red-600 text-white" : "bg-slate-800 text-slate-300 hover:text-white border border-slate-700"
               )}
-            </div>
+            >
+              <Tv className="w-3.5 h-3.5 text-red-400" />
+              <span>Live TV</span>
+            </button>
 
-            <button className="flex items-center gap-1 bg-[#12281f] hover:bg-[#183529] px-2.5 py-1 rounded-sm border border-emerald-900/60 text-white font-bold cursor-pointer transition-colors">
-              <User className="w-3.5 h-3.5 text-amber-400" />
-              <span>My Account</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+            {/* Pin Button */}
+            <button
+              onClick={() => setIsPinned(!isPinned)}
+              className={cn(
+                "p-2 rounded-full border transition-colors cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center",
+                isPinned ? "bg-amber-500/20 text-amber-400 border-amber-500/40" : "bg-slate-800 text-slate-400 border-slate-700"
+              )}
+            >
+              <Pin className="w-4 h-4" />
             </button>
           </div>
+
         </div>
       </header>
 
       {/* ═══════════════════════════════════════════════════════════════
-          2. MAIN 3-COLUMN MATCH CENTER WORKSPACE
+          2. MOBILE LIVE TV SCOREBOARD & MOMENTUM HUD
       ═══════════════════════════════════════════════════════════════ */}
-      <div className="max-w-[1600px] mx-auto p-2 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
-        
-        {/* ─── COLUMN 1: LEFT MATCH & LEAGUE SELECTOR (2 Cols) ─── */}
-        <aside className="lg:col-span-2 bg-white border border-slate-300 rounded-xs shadow-xs overflow-hidden">
-          <div className="bg-[#1b3d2f] text-white px-3 py-2 font-black uppercase text-xs tracking-wider border-b border-emerald-950">
-            Sports Tree
-          </div>
-          <div className="p-2 space-y-1 text-[11px] font-bold">
-            <Link href="/sportsbook" className="block px-2 py-1 text-slate-700 hover:bg-slate-100 rounded-xs">
-              All Sports
-            </Link>
-            <div className="pl-2 border-l-2 border-emerald-700 space-y-1">
-              <span className="text-[#1b3d2f] font-black uppercase block">{(match as any).sport || "Cricket"}</span>
-              <span className="text-slate-600 truncate block text-[10px]">{match.series || "One Day Internationals"}</span>
-              <span className="text-amber-800 font-black truncate block bg-amber-50 px-1 py-0.5 rounded-xs border border-amber-200">
-                {match.team1.code || match.team1.name} v {match.team2.code || match.team2.name}
+      <div className="max-w-md mx-auto sm:max-w-5xl px-3 pt-3">
+        <div className="bg-gradient-to-b from-[#162734] to-[#0f1b24] border border-slate-800 rounded-2xl p-4 shadow-xl relative overflow-hidden">
+          
+          {/* Match State & Freshness Indicator */}
+          <div className="flex items-center justify-between pb-2 border-b border-slate-800/80 text-[10px] font-bold">
+            <div className="flex items-center gap-2">
+              <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-2.5 py-0.5 rounded-full font-mono font-black flex items-center gap-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                {isLive ? "LIVE IN-PLAY" : "SCHEDULED"}
+              </span>
+              <span className="text-slate-400 font-mono">
+                {match.matchType || "T20"}
               </span>
             </div>
-          </div>
-        </aside>
 
-        {/* ─── COLUMN 2: CENTER MATCH HUB & MARKETS (7 Cols) ─── */}
-        <main className="lg:col-span-7 space-y-2.5">
-          
-          {/* ─── A. TV SCOREBOARD & LIVE RUN RATE MOMENTUM GRAPH HUD (Exact from Video) ─── */}
-          <div className="bg-gradient-to-b from-[#1b3d2f] to-[#0f2119] text-white rounded-xs shadow-sm p-3 border border-emerald-900">
-            
-            {/* Header Series & TV Button */}
-            <div className="flex items-center justify-between border-b border-emerald-800/60 pb-2 mb-2">
+            <div className="text-right text-slate-400 font-mono">
+              CRR: <strong className="text-white">8.67</strong> | RRR: <strong className="text-amber-400">23.00</strong>
+            </div>
+          </div>
+
+          {/* Teams Score Grid */}
+          <div className="grid grid-cols-2 gap-3 py-3 items-center">
+            {/* Team 1 */}
+            <div className="space-y-1">
               <div className="flex items-center gap-2">
-                <span className="bg-amber-400 text-slate-950 text-[9px] font-black uppercase px-1.5 py-0.2 rounded-xs">
-                  {match.matchType || "ODI"}
-                </span>
-                <span className="text-[11px] font-bold text-slate-200 truncate">{match.series || "International Cricket Series"}</span>
+                <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-emerald-400">
+                  {match.team1.code ? match.team1.code.substring(0, 2) : "T1"}
+                </div>
+                <span className="font-black text-sm text-white truncate">{match.team1.name}</span>
               </div>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={() => setIsTVExpanded(!isTVExpanded)}
-                  className="bg-red-600 hover:bg-red-500 text-white text-[10px] font-black uppercase px-2 py-0.5 rounded-xs flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
-                >
-                  <Tv className="w-3 h-3" /> Live 📺
-                </button>
-                <button
-                  onClick={() => setIsPinned(!isPinned)}
-                  className={cn("p-1 rounded-xs cursor-pointer", isPinned ? "text-amber-400" : "text-slate-400 hover:text-white")}
-                >
-                  <Pin className="w-3.5 h-3.5" />
-                </button>
+              <div className="font-mono text-lg font-black text-amber-300 pl-9">
+                {match.team1.scoreSummary || "244/10"}
               </div>
             </div>
 
-            {/* Teams & Scores Row */}
-            <div className="grid grid-cols-12 items-center gap-2 py-1">
-              
-              {/* Team 1 */}
-              <div className="col-span-4 flex items-center gap-2">
-                <div className="w-7 h-7 rounded-full bg-slate-800 border border-emerald-600/60 flex items-center justify-center font-black text-xs text-amber-300">
-                  {match.team1.code ? match.team1.code.substring(0, 2) : "T1"}
-                </div>
-                <div>
-                  <h3 className="font-black text-sm text-white truncate">{match.team1.name}</h3>
-                  <span className="font-mono text-base font-black text-amber-300 block">
-                    {match.team1.scoreSummary || (match.team1 as any).score || "244/10"}
-                  </span>
-                </div>
-              </div>
-
-              {/* Center Match Status & Over Details */}
-              <div className="col-span-4 text-center">
-                <span className="bg-emerald-800/80 text-emerald-200 font-mono font-black text-[10px] px-2 py-0.5 rounded-full uppercase tracking-wider inline-block">
-                  {match.status || "Live - 2nd Innings"}
-                </span>
-                <div className="text-[10px] text-slate-300 font-mono font-bold mt-1">
-                  CRR: <strong className="text-white">8.67</strong> | RRR: <strong className="text-amber-300">23.00</strong>
-                </div>
-              </div>
-
-              {/* Team 2 */}
-              <div className="col-span-4 flex items-center justify-end gap-2 text-right">
-                <div>
-                  <h3 className="font-black text-sm text-white truncate">{match.team2.name}</h3>
-                  <span className="font-mono text-base font-black text-emerald-400 block">
-                    {match.team2.scoreSummary || (match.team2 as any).score || "130/2 (15.0 ov)"}
-                  </span>
-                </div>
-                <div className="w-7 h-7 rounded-full bg-slate-800 border border-emerald-600/60 flex items-center justify-center font-black text-xs text-emerald-300">
+            {/* Team 2 */}
+            <div className="space-y-1 text-right">
+              <div className="flex items-center justify-end gap-2">
+                <span className="font-black text-sm text-white truncate">{match.team2.name}</span>
+                <div className="w-7 h-7 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center font-black text-xs text-teal-400">
                   {match.team2.code ? match.team2.code.substring(0, 2) : "T2"}
                 </div>
               </div>
-
-            </div>
-
-            {/* ── LIVE RUN RATE MOMENTUM CHART (SVG Graph from Video 00:14) ── */}
-            <div className="mt-3 pt-2 border-t border-emerald-800/60">
-              <div className="flex items-center justify-between text-[9px] font-mono text-slate-300 uppercase mb-1">
-                <span>Run Rate Curve (0 to 50 Overs)</span>
-                <span className="text-amber-300 font-bold">Target: 245 Runs</span>
+              <div className="font-mono text-lg font-black text-emerald-400 pr-9">
+                {match.team2.scoreSummary || "130/2 (15.0 ov)"}
               </div>
-              <div className="h-14 w-full bg-[#12281f] rounded-xs p-1.5 relative flex items-end">
+            </div>
+          </div>
+
+          {/* Status Note & Graph Collapse Button */}
+          <div className="pt-2 border-t border-slate-800/80 flex items-center justify-between text-xs">
+            <span className="font-bold text-slate-300 text-[11px] truncate max-w-[240px]">
+              {match.status || "Live - 2nd Innings Target: 245"}
+            </span>
+
+            <button
+              onClick={() => setIsGraphExpanded(!isGraphExpanded)}
+              className="text-[10px] font-black uppercase text-emerald-400 flex items-center gap-1 p-1 cursor-pointer"
+            >
+              <span>{isGraphExpanded ? "Hide Graph" : "Run Graph"}</span>
+              {isGraphExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+            </button>
+          </div>
+
+          {/* Expandable Run Rate SVG Momentum Graph */}
+          {isGraphExpanded && (
+            <div className="mt-3 pt-3 border-t border-slate-800/80 animate-in slide-in-from-top-2 duration-200">
+              <div className="h-16 w-full bg-slate-900/90 rounded-xl p-2 relative">
                 <svg className="w-full h-full overflow-visible" viewBox="0 0 500 50">
-                  {/* Grid Lines */}
-                  <line x1="0" y1="12" x2="500" y2="12" stroke="#1f4233" strokeDasharray="3 3" />
-                  <line x1="0" y1="25" x2="500" y2="25" stroke="#1f4233" strokeDasharray="3 3" />
-                  <line x1="0" y1="38" x2="500" y2="38" stroke="#1f4233" strokeDasharray="3 3" />
-                  
-                  {/* Team 1 Score Trajectory (Red Line) */}
+                  <line x1="0" y1="12" x2="500" y2="12" stroke="#334155" strokeDasharray="3 3" />
+                  <line x1="0" y1="25" x2="500" y2="25" stroke="#334155" strokeDasharray="3 3" />
                   <path
                     d="M 0,50 L 50,46 L 100,40 L 150,35 L 200,31 L 250,26 L 300,20 L 350,16 L 400,12 L 450,8 L 500,4"
-                    fill="none"
-                    stroke="#f87171"
-                    strokeWidth="1.5"
+                    fill="none" stroke="#f87171" strokeWidth="1.5"
                   />
-                  
-                  {/* Team 2 Live Chase Curve (Cyan Line) */}
                   <path
                     d="M 0,50 L 30,44 L 60,37 L 90,30 L 120,22 L 150,15"
-                    fill="none"
-                    stroke="#38bdf8"
-                    strokeWidth="2.5"
+                    fill="none" stroke="#38bdf8" strokeWidth="2.5"
                   />
-                  
-                  {/* Current Active Ball Pulse Dot */}
                   <circle cx="150" cy="15" r="3.5" fill="#38bdf8" className="animate-ping" />
                   <circle cx="150" cy="15" r="3" fill="#ffffff" />
                 </svg>
               </div>
             </div>
+          )}
 
-            {/* Live TV Video Stream (Expandable) */}
-            {isTVExpanded && (
-              <div className="mt-3 rounded-xs overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-emerald-700">
-                <PlayCircle className="w-12 h-12 text-red-500 animate-pulse mb-2" />
-                <span className="text-xs font-mono font-bold text-slate-300">Live TV Stream Feed Active (Zero Latency)</span>
-              </div>
-            )}
-
-          </div>
-
-          {/* ─── B. MATCH CENTER NAVIGATION TABS ─── */}
-          <div className="bg-white border border-slate-300 rounded-xs p-1 shadow-2xs flex items-center justify-between">
-            <div className="flex items-center gap-1">
-              {[
-                { id: "betting", label: "Exchange & Fancy" },
-                { id: "scorecard", label: "Full Scorecard" },
-                { id: "commentary", label: "Ball Commentary" },
-                { id: "squads", label: "Squads" },
-                { id: "info", label: "Pitch & Info" }
-              ].map(tb => (
-                <button
-                  key={tb.id}
-                  onClick={() => setActiveCenterTab(tb.id as any)}
-                  className={cn(
-                    "px-3 py-1.5 text-xs font-black uppercase tracking-wider rounded-xs transition-colors cursor-pointer",
-                    activeCenterTab === tb.id
-                      ? "bg-[#1b3d2f] text-amber-300 shadow-xs"
-                      : "text-slate-700 hover:bg-slate-100"
-                  )}
-                >
-                  {tb.label}
-                </button>
-              ))}
-            </div>
-
-            <div className="text-[11px] font-mono font-bold text-slate-500 pr-2 hidden sm:block">
-              Matched: <strong className="text-[#1b3d2f]">PIN 1,578,901,631.00</strong>
-            </div>
-          </div>
-
-          {/* Feedback Toast */}
-          {betFeedback && (
-            <div className="bg-slate-900 text-amber-300 px-3 py-2 rounded-xs border border-amber-400/40 text-xs font-black uppercase tracking-wide flex items-center justify-between animate-fade-in shadow-md">
-              <span>{betFeedback}</span>
-              <button onClick={() => setBetFeedback(null)} className="text-slate-400 hover:text-white cursor-pointer"><X className="w-3.5 h-3.5" /></button>
+          {/* Expandable Live TV Video */}
+          {isTVExpanded && (
+            <div className="mt-3 rounded-xl overflow-hidden bg-black aspect-video flex flex-col items-center justify-center border border-slate-800">
+              <PlayCircle className="w-10 h-10 text-red-500 animate-pulse mb-1" />
+              <span className="text-xs font-mono font-bold text-slate-300">Live Video Feed Connected</span>
             </div>
           )}
 
-          {/* ─── TAB 1: BETTING (MATCH ODDS + BOOKMAKER + FANCY BET) ─── */}
-          {activeCenterTab === "betting" && (
-            <div className="space-y-3">
-              
-              {/* 1. MATCH ODDS (3-Depth Back/Lay Ladder) */}
-              <div className="bg-white border border-slate-300 rounded-xs shadow-xs overflow-hidden">
-                <div className="bg-[#1b3d2f] text-white px-3 py-1.5 flex items-center justify-between text-[11px] font-black uppercase tracking-wider">
-                  <div className="flex items-center gap-1.5">
-                    <span>Match Odds</span>
-                    <span className="bg-emerald-700 text-emerald-100 text-[9px] px-1.5 py-0.2 rounded-xs">In Play</span>
-                  </div>
-                  <div className="flex items-center gap-1 text-[10px] font-mono text-slate-300">
-                    <span>Min: 100.00</span> | <span>Max: 15,62,500.00</span>
-                  </div>
-                </div>
+        </div>
+      </div>
 
-                {/* Ladder Headers */}
-                <div className="bg-slate-100 border-b border-slate-200 px-3 py-1 flex items-center justify-between text-[10px] font-black text-slate-600 uppercase">
-                  <div>2 Selections</div>
-                  <div className="flex items-center gap-1 text-center">
-                    <div className="w-32 text-cyan-800 bg-[#72bbef]/30 py-0.5 rounded-xs">Back All</div>
-                    <div className="w-32 text-rose-800 bg-[#faa9ba]/30 py-0.5 rounded-xs">Lay All</div>
-                  </div>
-                </div>
-
-                {/* Team Rows */}
-                <div className="divide-y divide-slate-200">
-                  {[
-                    { name: match.team1.name, backs: [{ o: 2.44, v: "237k" }, { o: 2.46, v: "2.01M" }, { o: 2.48, v: "352k" }], lays: [{ o: 2.50, v: "95.3k" }, { o: 2.52, v: "46k" }, { o: 2.54, v: "187k" }] },
-                    { name: match.team2.name, backs: [{ o: 1.64, v: "408k" }, { o: 1.65, v: "15.7k" }, { o: 1.66, v: "50.8k" }], lays: [{ o: 1.67, v: "1.61M" }, { o: 1.68, v: "294k" }, { o: 1.69, v: "340k" }] }
-                  ].map(teamRow => (
-                    <div key={teamRow.name} className="p-2.5 flex items-center justify-between gap-2 hover:bg-slate-50">
-                      <span className="font-black text-xs text-slate-900 truncate flex-1">{teamRow.name}</span>
-                      
-                      {/* 3 Back Columns */}
-                      <div className="flex items-center gap-0.5">
-                        {teamRow.backs.map((b, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleSelectOdds("Match Odds", teamRow.name, b.o, 'back')}
-                            className={cn(
-                              "w-10 h-8 font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors cursor-pointer leading-none shadow-2xs active:scale-95",
-                              idx === 2 ? "bg-[#72bbef] hover:bg-[#5db1eb] text-[#002b49]" : "bg-[#a6d8f7] text-[#002b49]"
-                            )}
-                          >
-                            <span>{b.o.toFixed(2)}</span>
-                            <span className="text-[8px] opacity-75 font-mono">{b.v}</span>
-                          </button>
-                        ))}
-                      </div>
-
-                      {/* 3 Lay Columns */}
-                      <div className="flex items-center gap-0.5">
-                        {teamRow.lays.map((l, idx) => (
-                          <button
-                            key={idx}
-                            onClick={() => handleSelectOdds("Match Odds", teamRow.name, l.o, 'lay')}
-                            className={cn(
-                              "w-10 h-8 font-black text-xs flex flex-col items-center justify-center rounded-xs transition-colors cursor-pointer leading-none shadow-2xs active:scale-95",
-                              idx === 0 ? "bg-[#faa9ba] hover:bg-[#f895a9] text-[#4a0011]" : "bg-[#fcc5d1] text-[#4a0011]"
-                            )}
-                          >
-                            <span>{l.o.toFixed(2)}</span>
-                            <span className="text-[8px] opacity-75 font-mono">{l.v}</span>
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* 2. BOOKMAKER MARKET (Zero Commission) */}
-              <div className="bg-white border border-slate-300 rounded-xs shadow-xs overflow-hidden">
-                <div className="bg-[#1b3d2f] text-white px-3 py-1.5 flex items-center justify-between text-[11px] font-black uppercase tracking-wider">
-                  <span>Bookmaker Market (Zero Commission)</span>
-                  <div className="flex items-center gap-1 text-[10px] font-mono text-slate-300">
-                    <span>Min: 100.00</span> | <span>Max: 15,62,500.00</span>
-                  </div>
-                </div>
-
-                <div className="bg-slate-100 border-b border-slate-200 px-3 py-1 flex items-center justify-between text-[10px] font-black text-slate-600 uppercase">
-                  <div>Indian Bhav</div>
-                  <div className="flex items-center gap-1 text-center pr-1">
-                    <div className="w-12 text-cyan-800 bg-[#72bbef]/30 py-0.5 rounded-xs">Back</div>
-                    <div className="w-12 text-rose-800 bg-[#faa9ba]/30 py-0.5 rounded-xs">Lay</div>
-                  </div>
-                </div>
-
-                <div className="divide-y divide-slate-200">
-                  <div className="p-2.5 flex items-center justify-between">
-                    <span className="font-black text-xs text-slate-900">{match.team1.name}</span>
-                    <span className="bg-amber-100 text-amber-800 font-black text-[10px] px-3 py-1 rounded-xs uppercase tracking-wider">
-                      Suspended
-                    </span>
-                  </div>
-                  <div className="p-2.5 flex items-center justify-between">
-                    <span className="font-black text-xs text-slate-900">{match.team2.name}</span>
-                    <div className="flex items-center gap-1">
-                      <button
-                        onClick={() => handleSelectOdds("Bookmaker", match.team2.name, 66, 'back')}
-                        className="w-12 h-8 bg-[#72bbef] hover:bg-[#5db1eb] text-[#002b49] font-black text-xs rounded-xs flex items-center justify-center cursor-pointer"
-                      >
-                        66
-                      </button>
-                      <button
-                        onClick={() => handleSelectOdds("Bookmaker", match.team2.name, 67, 'lay')}
-                        className="w-12 h-8 bg-[#faa9ba] hover:bg-[#f895a9] text-[#4a0011] font-black text-xs rounded-xs flex items-center justify-center cursor-pointer"
-                      >
-                        67
-                      </button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* 3. FANCY BET TABBED MATRIX (Exact from Video 00:17 - 00:20) */}
-              <div className="bg-white border border-slate-300 rounded-xs shadow-xs overflow-hidden">
-                <div className="bg-[#1b3d2f] text-white px-3 py-1.5 flex items-center justify-between text-[11px] font-black uppercase tracking-wider">
-                  <div className="flex items-center gap-1.5">
-                    <span>★ Fancy Bet</span>
-                    <span className="bg-amber-400 text-slate-950 font-black text-[9px] px-1.5 py-0.2 rounded-xs">Premium Cricket</span>
-                  </div>
-                </div>
-
-                {/* Fancy Category Sub-Tabs */}
-                <div className="bg-slate-100 border-b border-slate-200 p-1 flex items-center gap-1 overflow-x-auto scrollbar-none">
-                  {[
-                    { id: "all", label: "Fancy" },
-                    { id: "ballbyball", label: "Ball by Ball" },
-                    { id: "khadda", label: "Khadda" },
-                    { id: "lottery", label: "Lottery" },
-                    { id: "oddeven", label: "Odd/Even" }
-                  ].map(fc => (
-                    <button
-                      key={fc.id}
-                      onClick={() => setFancyCategory(fc.id as any)}
-                      className={cn(
-                        "px-2.5 py-1 text-[11px] font-black uppercase rounded-xs transition-colors cursor-pointer",
-                        fancyCategory === fc.id
-                          ? "bg-[#234938] text-amber-300 shadow-xs"
-                          : "text-slate-700 hover:bg-slate-200"
-                      )}
-                    >
-                      {fc.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* Fancy Table Headers */}
-                <div className="bg-slate-50 border-b border-slate-200 px-3 py-1 flex items-center justify-between text-[10px] font-black text-slate-600 uppercase">
-                  <div>Market Description</div>
-                  <div className="flex items-center gap-1 text-center">
-                    <div className="w-14 text-rose-800 bg-[#faa9ba]/40 py-0.5 rounded-xs">No</div>
-                    <div className="w-14 text-cyan-800 bg-[#72bbef]/40 py-0.5 rounded-xs">Yes</div>
-                  </div>
-                </div>
-
-                {/* Fancy Session Rows */}
-                <div className="divide-y divide-slate-200">
-                  {filteredFancy.map(item => (
-                    <div key={item.id} className="p-2.5 flex items-center justify-between gap-2 hover:bg-slate-50/80">
-                      <div className="flex-1 min-w-0">
-                        <span className="font-black text-xs text-slate-900 block truncate">{item.label}</span>
-                        <span className="text-[10px] text-slate-500 font-mono block">
-                          Min/Max: PIN {item.min} / {item.max.toLocaleString()}
-                        </span>
-                      </div>
-
-                      {item.status === "suspended" ? (
-                        <div className="bg-amber-100 text-amber-800 font-black text-[10px] px-4 py-1.5 rounded-xs uppercase tracking-wider">
-                          Suspended
-                        </div>
-                      ) : item.status === "ball_running" ? (
-                        <div className="bg-rose-100 text-rose-800 font-black text-[10px] px-4 py-1.5 rounded-xs uppercase tracking-wider flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-rose-600 animate-ping" /> Ball Running
-                        </div>
-                      ) : (
-                        <div className="flex items-center gap-1 shrink-0">
-                          {/* NO Button (Pink) */}
-                          <button
-                            onClick={() => handleSelectOdds(item.label, `NO ${item.noRuns}`, item.noRate, 'lay', typeof item.noRuns === 'number' ? item.noRuns : undefined)}
-                            className="w-14 h-8 bg-[#faa9ba] hover:bg-[#f895a9] text-[#4a0011] font-black text-xs rounded-xs flex flex-col items-center justify-center cursor-pointer shadow-2xs leading-none"
-                          >
-                            <span>{item.noRuns}</span>
-                            <span className="text-[8px] opacity-75 font-mono">{item.noRate}</span>
-                          </button>
-
-                          {/* YES Button (Cyan) */}
-                          <button
-                            onClick={() => handleSelectOdds(item.label, `YES ${item.yesRuns}`, item.yesRate, 'back', typeof item.yesRuns === 'number' ? item.yesRuns : undefined)}
-                            className="w-14 h-8 bg-[#72bbef] hover:bg-[#5db1eb] text-[#002b49] font-black text-xs rounded-xs flex flex-col items-center justify-center cursor-pointer shadow-2xs leading-none"
-                          >
-                            <span>{item.yesRuns}</span>
-                            <span className="text-[8px] opacity-75 font-mono">{item.yesRate}</span>
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-            </div>
-          )}
-
-          {/* ─── TAB 2: FULL SCORECARD ─── */}
-          {activeCenterTab === "scorecard" && (
-            <div className="bg-white border border-slate-300 rounded-xs p-4 shadow-xs space-y-4">
-              <h3 className="font-black text-sm text-slate-900 uppercase tracking-wide border-b pb-2">Full Match Scorecard</h3>
-              {(match.scorecards || []).length === 0 ? (
-                <p className="text-slate-500 font-bold">Detailed scorecard will update once innings concludes.</p>
-              ) : (
-                (match.scorecards || []).map((sc, i) => (
-                  <div key={i} className="border border-slate-200 rounded-xs overflow-hidden">
-                    <div className="bg-[#1b3d2f] text-white px-3 py-1.5 font-black uppercase text-xs flex justify-between">
-                      <span>{sc.teamName} Innings</span>
-                      <span>{sc.totalScore || `${(sc as any).runs || 0}/${(sc as any).wickets || 0}`} (RR: {sc.runRate || "N/A"})</span>
-                    </div>
-                    <div className="divide-y divide-slate-100 text-xs">
-                      {sc.batting?.map((b: any, idx: number) => (
-                        <div key={idx} className="p-2 flex justify-between font-bold">
-                          <span>{b.name}</span>
-                          <span className="font-mono">{b.runs} ({b.balls}b, {b.fours}x4, {b.sixes}x6)</span>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ))
+      {/* ═══════════════════════════════════════════════════════════════
+          3. PROGRESSIVE DISCLOSURE TABS (Odds, Fancy, Scorecard, Comm)
+      ═══════════════════════════════════════════════════════════════ */}
+      <div className="max-w-md mx-auto sm:max-w-5xl px-3 pt-3">
+        <div className="bg-slate-900/90 p-1 rounded-xl border border-slate-800 flex items-center justify-between gap-1 overflow-x-auto scrollbar-none">
+          {[
+            { id: "odds", label: "Exchange Odds" },
+            { id: "fancy", label: "Fancy Bet" },
+            { id: "scorecard", label: "Scorecard" },
+            { id: "commentary", label: "Commentary" },
+            { id: "info", label: "Pitch Info" }
+          ].map(tb => (
+            <button
+              key={tb.id}
+              onClick={() => setActiveTab(tb.id as any)}
+              className={cn(
+                "px-3 py-2 text-xs font-black uppercase tracking-wider rounded-lg transition-all shrink-0 cursor-pointer min-h-[40px] flex items-center justify-center",
+                activeTab === tb.id
+                  ? "bg-gradient-to-r from-emerald-600 to-teal-600 text-white shadow-xs"
+                  : "text-slate-400 hover:text-white"
               )}
-            </div>
-          )}
+            >
+              {tb.label}
+            </button>
+          ))}
+        </div>
+      </div>
 
-          {/* ─── TAB 3: BALL BY BALL COMMENTARY ─── */}
-          {activeCenterTab === "commentary" && (
-            <div className="bg-white border border-slate-300 rounded-xs p-4 shadow-xs space-y-3">
-              <div className="flex items-center justify-between border-b pb-2">
-                <h3 className="font-black text-sm text-slate-900 uppercase">Live Ball Commentary</h3>
-                <span className="text-emerald-700 font-bold font-mono text-[10px] flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" /> Fast Sync
-                </span>
+      {/* Feedback Toast */}
+      {betFeedback && (
+        <div className="max-w-md mx-auto sm:max-w-5xl px-3 pt-2">
+          <div className="bg-emerald-950 border border-emerald-500/60 text-emerald-300 px-3 py-2 rounded-xl text-xs font-black uppercase tracking-wide flex items-center justify-between shadow-lg animate-in fade-in duration-200">
+            <span>{betFeedback}</span>
+            <button onClick={() => setBetFeedback(null)} className="text-slate-400 hover:text-white min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer">
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════
+          4. TAB CONTENTS
+      ═══════════════════════════════════════════════════════════════ */}
+      <main className="max-w-md mx-auto sm:max-w-5xl p-3 space-y-3">
+        
+        {/* ── TAB 1: EXCHANGE ODDS ── */}
+        {activeTab === "odds" && (
+          <div className="space-y-3">
+            
+            {/* Match Odds Market Card */}
+            <div className="bg-[#13202b] border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-xs font-black uppercase">
+                <span className="text-white">Match Odds (Exchange)</span>
+                <span className="text-[10px] text-slate-400 font-mono">Zero Platform Delay</span>
               </div>
+
               <div className="space-y-2">
-                {(match.commentary || [
-                  { over: "14.6", text: "FOUR! Driven through the covers with immense timing.", runs: 4 },
-                  { over: "14.5", text: "Single taken down to long on.", runs: 1 },
-                  { over: "14.4", text: "DOT ball. Defended back to the bowler.", runs: 0 },
-                  { over: "14.3", text: "SIX! Smashed over deep midwicket into the stands!", runs: 6 }
-                ]).map((comm: any, i: number) => (
-                  <div key={i} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xs flex items-start gap-2.5">
-                    <span className="bg-[#1b3d2f] text-amber-300 font-mono font-black text-xs px-2 py-1 rounded-xs shrink-0">
-                      {comm.over}
-                    </span>
-                    <p className="text-xs font-medium text-slate-800 flex-1">{comm.text}</p>
+                {[
+                  { name: match.team1.name, back: 2.48, lay: 2.50 },
+                  { name: match.team2.name, back: 1.66, lay: 1.68 }
+                ].map(row => (
+                  <div key={row.name} className="flex items-center justify-between gap-2 p-2 bg-slate-900/60 rounded-xl border border-slate-800/80">
+                    <span className="font-black text-sm text-slate-100 truncate flex-1">{row.name}</span>
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handleSelectOdds("Match Odds", row.name, row.back, 'back')}
+                        className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-xl flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                      >
+                        <span className="text-[8px] opacity-75 font-bold uppercase">Back</span>
+                        <span className="text-sm font-black">{row.back.toFixed(2)}</span>
+                      </button>
+                      <button
+                        onClick={() => handleSelectOdds("Match Odds", row.name, row.lay, 'lay')}
+                        className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-xl flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                      >
+                        <span className="text-[8px] opacity-75 font-bold uppercase">Lay</span>
+                        <span className="text-sm font-black">{row.lay.toFixed(2)}</span>
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
             </div>
-          )}
 
-          {/* ─── TAB 4: SQUADS ─── */}
-          {activeCenterTab === "squads" && (
-            <div className="bg-white border border-slate-300 rounded-xs p-4 shadow-xs space-y-3">
-              <h3 className="font-black text-sm text-slate-900 uppercase border-b pb-2">Playing XI Squads</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div className="border border-slate-200 rounded-xs p-3">
-                  <h4 className="font-black text-xs text-[#1b3d2f] uppercase mb-2">{match.team1.name} XI</h4>
-                  <ul className="space-y-1 text-xs text-slate-700 font-bold">
-                    {(match.team1.playingXI || (match as any).team1Squad || ["Player 1", "Player 2", "Player 3", "Player 4", "Player 5"]).map((p: any, i: number) => (
-                      <li key={i} className="p-1 hover:bg-slate-50 rounded-xs">{typeof p === 'string' ? p : p.name}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className="border border-slate-200 rounded-xs p-3">
-                  <h4 className="font-black text-xs text-[#1b3d2f] uppercase mb-2">{match.team2.name} XI</h4>
-                  <ul className="space-y-1 text-xs text-slate-700 font-bold">
-                    {(match.team2.playingXI || (match as any).team2Squad || ["Player A", "Player B", "Player C", "Player D", "Player E"]).map((p: any, i: number) => (
-                      <li key={i} className="p-1 hover:bg-slate-50 rounded-xs">{typeof p === 'string' ? p : p.name}</li>
-                    ))}
-                  </ul>
-                </div>
+            {/* Bookmaker Market (Indian Bhav) */}
+            <div className="bg-[#13202b] border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-800 text-xs font-black uppercase">
+                <span className="text-white">Bookmaker (Zero Commission)</span>
+                <span className="text-[10px] text-amber-400 font-mono">Indian Bhav</span>
               </div>
-            </div>
-          )}
 
-          {/* ─── TAB 5: VENUE & PITCH INFO ─── */}
-          {activeCenterTab === "info" && (
-            <div className="bg-white border border-slate-300 rounded-xs p-4 shadow-xs space-y-3">
-              <h3 className="font-black text-sm text-slate-900 uppercase border-b pb-2">Venue & Match Intelligence</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                <div className="p-2.5 bg-slate-50 border rounded-xs">
-                  <span className="text-slate-500 font-bold block">Venue</span>
-                  <strong className="text-slate-900 text-sm">
-                    {typeof match.venue === 'string' ? match.venue : `${match.venue?.stadium || "Civil Service Cricket Club"}, ${match.venue?.city || "Belfast"}`}
-                  </strong>
-                </div>
-                <div className="p-2.5 bg-slate-50 border rounded-xs">
-                  <span className="text-slate-500 font-bold block">Pitch Type</span>
-                  <strong className="text-slate-900 text-sm">
-                    {typeof match.venue === 'object' ? match.venue?.pitchReport : "Balanced / Batting Paradise (Avg 1st Inn 265)"}
-                  </strong>
-                </div>
-              </div>
-            </div>
-          )}
-
-        </main>
-
-        {/* ─── COLUMN 3: RIGHT STICKY BET SLIP (3 Cols) ─── */}
-        <aside className="lg:col-span-3 bg-white border border-slate-300 rounded-xs shadow-xs sticky top-14">
-          <div className="bg-[#1b3d2f] text-white px-3 py-2 font-black uppercase text-xs tracking-wider flex items-center justify-between border-b border-emerald-950">
-            <span>Bet Slip</span>
-            {selectedBet && (
-              <button
-                onClick={() => setSelectedBet(null)}
-                className="text-slate-300 hover:text-white text-[10px] uppercase font-bold cursor-pointer"
-              >
-                Clear All
-              </button>
-            )}
-          </div>
-
-          {!selectedBet ? (
-            <div className="p-8 text-center text-slate-500 font-bold">
-              <Receipt className="w-8 h-8 text-slate-300 mx-auto mb-2 opacity-70" />
-              <p className="text-xs">Click on the odds to add selections to the betslip.</p>
-            </div>
-          ) : (
-            <div className="p-3 space-y-3">
-              
-              {/* Selection Header Card */}
-              <div className={cn(
-                "p-2.5 rounded-xs border text-xs",
-                selectedBet.type === 'back' ? "bg-blue-50/80 border-blue-200 text-blue-950" : "bg-pink-50/80 border-pink-200 text-pink-950"
-              )}>
-                <div className="flex items-center justify-between font-black">
-                  <span>{selectedBet.selection}</span>
-                  <span className={cn(
-                    "px-2 py-0.5 rounded-xs text-[10px] uppercase font-black",
-                    selectedBet.type === 'back' ? "bg-[#72bbef] text-[#002b49]" : "bg-[#faa9ba] text-[#4a0011]"
-                  )}>
-                    {selectedBet.type.toUpperCase()}
+              <div className="space-y-2">
+                <div className="flex items-center justify-between p-2 bg-slate-900/60 rounded-xl border border-slate-800/80">
+                  <span className="font-black text-sm text-slate-100">{match.team1.name}</span>
+                  <span className="bg-amber-500/20 text-amber-400 font-black text-[10px] px-3 py-1.5 rounded-lg uppercase">
+                    Suspended
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-600 font-medium mt-0.5">
-                  {match.team1.name} v {match.team2.name} • {selectedBet.marketName}
-                </div>
 
-                {/* Odds & Stake Steppers */}
-                <div className="grid grid-cols-2 gap-2 mt-2 pt-2 border-t border-slate-200/80">
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 block uppercase">Odds / Rate</label>
-                    <input
-                      type="number"
-                      step="0.01"
-                      value={selectedBet.odds}
-                      onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
-                      className="w-full bg-white border border-slate-300 rounded-xs px-2 py-1 font-mono font-black text-xs focus:outline-hidden"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-bold text-slate-500 block uppercase">Stake (PIN)</label>
-                    <input
-                      type="number"
-                      value={selectedBet.stake}
-                      onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-white border border-slate-300 rounded-xs px-2 py-1 font-mono font-black text-xs focus:outline-hidden"
-                    />
-                  </div>
-                </div>
-
-                {/* Quick Stake Buttons */}
-                <div className="grid grid-cols-4 gap-1 mt-2">
-                  {[100, 500, 1000, 5000, 10000, 25000, 50000, 100000].map(val => (
+                <div className="flex items-center justify-between p-2 bg-slate-900/60 rounded-xl border border-slate-800/80">
+                  <span className="font-black text-sm text-slate-100">{match.team2.name}</span>
+                  <div className="flex items-center gap-1.5">
                     <button
-                      key={val}
-                      onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
-                      className="py-1 bg-white hover:bg-slate-100 border border-slate-300 text-[10px] font-mono font-bold rounded-xs cursor-pointer transition-colors"
+                      onClick={() => handleSelectOdds("Bookmaker", match.team2.name, 66, 'back')}
+                      className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-xl flex items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
                     >
-                      +{val >= 1000 ? `${val / 1000}k` : val}
+                      66
                     </button>
-                  ))}
-                </div>
-
-                {/* Profit / Liability Calculations */}
-                <div className="mt-3 pt-2 border-t border-slate-200/80 text-[11px] flex justify-between items-center font-bold">
-                  {selectedBet.type === 'back' ? (
-                    <>
-                      <span className="text-slate-600">Profit:</span>
-                      <strong className="text-emerald-700 font-mono">
-                        +PIN {Math.round(selectedBet.stake * (selectedBet.odds > 10 ? (selectedBet.odds / 100) : (selectedBet.odds - 1))).toLocaleString()}
-                      </strong>
-                    </>
-                  ) : (
-                    <>
-                      <span className="text-slate-600">Liability:</span>
-                      <strong className="text-rose-700 font-mono">
-                        -PIN {Math.round(selectedBet.stake * (selectedBet.odds > 10 ? (selectedBet.odds / 100) : (selectedBet.odds - 1))).toLocaleString()}
-                      </strong>
-                    </>
-                  )}
+                    <button
+                      onClick={() => handleSelectOdds("Bookmaker", match.team2.name, 67, 'lay')}
+                      className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-xl flex items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                    >
+                      67
+                    </button>
+                  </div>
                 </div>
               </div>
-
-              {/* Submit Button */}
-              <button
-                disabled={isPlacing || selectedBet.stake <= 0}
-                onClick={handlePlaceBetslip}
-                className={cn(
-                  "w-full py-2.5 font-black text-xs uppercase tracking-wider rounded-xs cursor-pointer transition-all shadow-sm active:scale-98",
-                  isPlacing ? "bg-slate-400 text-white cursor-not-allowed" : "bg-[#1b3d2f] hover:bg-[#234938] text-amber-300"
-                )}
-              >
-                {isPlacing ? "Submitting Order..." : "Place Bet"}
-              </button>
             </div>
-          )}
-        </aside>
 
-      </div>
+          </div>
+        )}
+
+        {/* ── TAB 2: FANCY BET MATRIX ── */}
+        {activeTab === "fancy" && (
+          <div className="bg-[#13202b] border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-3">
+            
+            {/* Category Sub-Pills */}
+            <div className="flex items-center gap-1 overflow-x-auto scrollbar-none pb-2 border-b border-slate-800">
+              {[
+                { id: "all", label: "All Fancy" },
+                { id: "ballbyball", label: "Ball by Ball" },
+                { id: "khadda", label: "Khadda" },
+                { id: "oddeven", label: "Odd/Even" }
+              ].map(fc => (
+                <button
+                  key={fc.id}
+                  onClick={() => setFancyCategory(fc.id as any)}
+                  className={cn(
+                    "px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider shrink-0 transition-colors cursor-pointer min-h-[36px]",
+                    fancyCategory === fc.id ? "bg-emerald-600 text-white" : "bg-slate-800 text-slate-400 hover:text-white"
+                  )}
+                >
+                  {fc.label}
+                </button>
+              ))}
+            </div>
+
+            {/* Session Rows */}
+            <div className="space-y-2">
+              {filteredFancy.map(item => (
+                <div key={item.id} className="p-3 bg-slate-900/60 rounded-xl border border-slate-800/80 flex items-center justify-between gap-2">
+                  <div className="flex-1 min-w-0">
+                    <span className="font-black text-xs text-white block truncate">{item.label}</span>
+                    <span className="text-[10px] text-slate-400 font-mono block mt-0.5">
+                      Max: ₹{item.max.toLocaleString()}
+                    </span>
+                  </div>
+
+                  {item.status === "suspended" ? (
+                    <div className="bg-amber-500/20 text-amber-400 font-black text-[10px] px-3 py-2 rounded-xl uppercase">
+                      Suspended
+                    </div>
+                  ) : item.status === "ball_running" ? (
+                    <div className="bg-rose-500/20 text-rose-400 font-black text-[10px] px-3 py-2 rounded-xl uppercase flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-rose-400 animate-ping" /> Ball Running
+                    </div>
+                  ) : (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        onClick={() => handleSelectOdds(item.label, `NO ${item.noRuns}`, item.noRate, 'lay', typeof item.noRuns === 'number' ? item.noRuns : undefined)}
+                        className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-xl flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                      >
+                        <span className="text-[9px] opacity-75 font-bold uppercase">No</span>
+                        <span className="text-xs font-black">{item.noRuns}</span>
+                      </button>
+                      <button
+                        onClick={() => handleSelectOdds(item.label, `YES ${item.yesRuns}`, item.yesRate, 'back', typeof item.yesRuns === 'number' ? item.yesRuns : undefined)}
+                        className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-xl flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                      >
+                        <span className="text-[9px] opacity-75 font-bold uppercase">Yes</span>
+                        <span className="text-xs font-black">{item.yesRuns}</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+          </div>
+        )}
+
+        {/* ── TAB 3: FULL SCORECARD ── */}
+        {activeTab === "scorecard" && (
+          <div className="bg-[#13202b] border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-3">
+            <h3 className="font-black text-xs text-white uppercase tracking-wider pb-2 border-b border-slate-800">
+              Verified Innings Scorecard
+            </h3>
+            {(match.scorecards || []).length === 0 ? (
+              <p className="text-xs text-slate-400 font-bold py-4 text-center">Scorecard will populate as innings concludes.</p>
+            ) : (
+              (match.scorecards || []).map((sc, i) => (
+                <div key={i} className="border border-slate-800 rounded-xl overflow-hidden">
+                  <div className="bg-slate-800/80 px-3 py-2 text-xs font-black uppercase flex justify-between">
+                    <span>{sc.teamName}</span>
+                    <span className="font-mono text-emerald-400">{sc.totalScore || "In-Play"}</span>
+                  </div>
+                  <div className="divide-y divide-slate-800/50 text-xs">
+                    {sc.batting?.map((b: any, idx: number) => (
+                      <div key={idx} className="p-2.5 flex justify-between font-bold text-slate-300">
+                        <span>{b.name}</span>
+                        <span className="font-mono text-white">{b.runs} ({b.balls}b, {b.fours}x4, {b.sixes}x6)</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+        )}
+
+        {/* ── TAB 4: COMMENTARY ── */}
+        {activeTab === "commentary" && (
+          <div className="bg-[#13202b] border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-2.5">
+            <h3 className="font-black text-xs text-white uppercase tracking-wider pb-2 border-b border-slate-800">
+              Ball-by-Ball Live Stream
+            </h3>
+            <div className="space-y-2">
+              {(match.commentary || [
+                { over: "14.6", text: "FOUR! Driven through the covers with immense timing.", runs: 4 },
+                { over: "14.5", text: "Single taken down to long on.", runs: 1 },
+                { over: "14.4", text: "DOT ball. Defended back to the bowler.", runs: 0 },
+                { over: "14.3", text: "SIX! Smashed over deep midwicket into the stands!", runs: 6 }
+              ]).map((comm: any, i: number) => (
+                <div key={i} className="p-2.5 bg-slate-900/60 border border-slate-800 rounded-xl flex items-start gap-2.5">
+                  <span className="bg-emerald-600 text-white font-mono font-black text-xs px-2 py-1 rounded-lg shrink-0">
+                    {comm.over}
+                  </span>
+                  <p className="text-xs text-slate-200 font-medium flex-1">{comm.text}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* ── TAB 5: PITCH & VENUE INFO ── */}
+        {activeTab === "info" && (
+          <div className="bg-[#13202b] border border-slate-800 rounded-2xl p-3.5 shadow-md space-y-3">
+            <h3 className="font-black text-xs text-white uppercase tracking-wider pb-2 border-b border-slate-800">
+              Venue & Pitch Intelligence
+            </h3>
+            <div className="space-y-2 text-xs">
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                <span className="text-slate-400 font-bold block mb-0.5">Stadium Venue</span>
+                <strong className="text-white text-sm">
+                  {typeof match.venue === 'string' ? match.venue : `${match.venue?.stadium || "Civil Service Cricket Club"}, ${match.venue?.city || "Belfast"}`}
+                </strong>
+              </div>
+              <div className="p-3 bg-slate-900/60 rounded-xl border border-slate-800">
+                <span className="text-slate-400 font-bold block mb-0.5">Pitch Behavior</span>
+                <strong className="text-emerald-400 text-sm">
+                  {typeof match.venue === 'object' ? match.venue?.pitchReport : "Balanced / Batting Paradise (Avg 1st Inn 265)"}
+                </strong>
+              </div>
+            </div>
+          </div>
+        )}
+
+      </main>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          5. MOBILE QUICK BET BOTTOM SHEET
+      ═══════════════════════════════════════════════════════════════ */}
+      {selectedBet && (
+        <div className="fixed inset-x-0 bottom-16 z-50 p-3 max-w-md mx-auto animate-in slide-in-from-bottom-6 duration-300">
+          <div className="bg-[#111d27] border-2 border-emerald-500/80 rounded-2xl p-4 shadow-2xl space-y-3">
+            
+            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+              <div>
+                <span className="font-black text-sm text-white">{selectedBet.selection}</span>
+                <span className="text-[10px] text-slate-400 font-bold block">{selectedBet.marketName}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <span className={cn(
+                  "px-2.5 py-1 rounded-full text-[10px] uppercase font-black",
+                  selectedBet.type === 'back' ? "bg-[#72bbef] text-[#002b49]" : "bg-[#faa9ba] text-[#4a0011]"
+                )}>
+                  {selectedBet.type.toUpperCase()}
+                </span>
+                <button
+                  onClick={() => setSelectedBet(null)}
+                  className="p-1 rounded-full text-slate-400 hover:text-white min-h-[32px] min-w-[32px] flex items-center justify-center cursor-pointer"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 block uppercase">Odds / Rate</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  value={selectedBet.odds}
+                  onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white focus:outline-hidden focus:border-emerald-500 min-h-[44px]"
+                />
+              </div>
+              <div>
+                <label className="text-[10px] font-bold text-slate-400 block uppercase">Stake (₹)</label>
+                <input
+                  type="number"
+                  value={selectedBet.stake}
+                  onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
+                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white focus:outline-hidden focus:border-emerald-500 min-h-[44px]"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-4 gap-1.5">
+              {[100, 500, 1000, 5000].map(val => (
+                <button
+                  key={val}
+                  onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
+                  className="py-2 bg-slate-800 hover:bg-slate-700 text-xs font-mono font-bold text-slate-200 rounded-xl cursor-pointer min-h-[36px] transition-colors"
+                >
+                  +₹{val >= 1000 ? `${val / 1000}k` : val}
+                </button>
+              ))}
+            </div>
+
+            <div className="flex items-center justify-between text-xs font-bold pt-1 border-t border-slate-800">
+              {selectedBet.type === 'back' ? (
+                <>
+                  <span className="text-slate-400">Potential Return:</span>
+                  <strong className="text-emerald-400 font-mono text-sm">
+                    +₹{Math.round(selectedBet.stake * (selectedBet.odds > 10 ? (selectedBet.odds / 100) : (selectedBet.odds - 1))).toLocaleString()}
+                  </strong>
+                </>
+              ) : (
+                <>
+                  <span className="text-slate-400">Max Liability:</span>
+                  <strong className="text-rose-400 font-mono text-sm">
+                    -₹{Math.round(selectedBet.stake * (selectedBet.odds > 10 ? (selectedBet.odds / 100) : (selectedBet.odds - 1))).toLocaleString()}
+                  </strong>
+                </>
+              )}
+            </div>
+
+            <button
+              disabled={isPlacing || selectedBet.stake <= 0}
+              onClick={handlePlaceBetslip}
+              className={cn(
+                "w-full py-3 font-black text-sm uppercase tracking-wider rounded-xl cursor-pointer transition-all shadow-lg min-h-[48px] active:scale-98",
+                isPlacing ? "bg-slate-700 text-slate-400 cursor-not-allowed" : "bg-gradient-to-r from-emerald-600 to-teal-500 text-white hover:brightness-110"
+              )}
+            >
+              {isPlacing ? "Placing Order..." : "Confirm & Place Bet"}
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ═══════════════════════════════════════════════════════════════
+          6. COMPACT MOBILE BOTTOM NAVIGATION
+      ═══════════════════════════════════════════════════════════════ */}
+      <nav className="fixed inset-x-0 bottom-0 z-40 bg-[#0d151c]/95 backdrop-blur-lg border-t border-slate-800/80 px-2 py-1.5 shadow-2xl">
+        <div className="max-w-md mx-auto sm:max-w-5xl grid grid-cols-5 gap-1">
+          <Link href="/sportsbook" className="flex flex-col items-center justify-center py-1 text-emerald-400 font-black text-[10px] min-h-[44px]">
+            <Trophy className="w-5 h-5 mb-0.5" />
+            <span>Sports</span>
+          </Link>
+          <Link href="/sportsbook?sport=inplay" className="flex flex-col items-center justify-center py-1 text-slate-400 font-bold text-[10px] min-h-[44px]">
+            <Flame className="w-5 h-5 mb-0.5 text-red-400" />
+            <span>In-Play</span>
+          </Link>
+          <Link href="/account/bets" className="flex flex-col items-center justify-center py-1 text-slate-400 font-bold text-[10px] min-h-[44px]">
+            <Receipt className="w-5 h-5 mb-0.5" />
+            <span>My Bets</span>
+          </Link>
+          <Link href="/casino" className="flex flex-col items-center justify-center py-1 text-slate-400 font-bold text-[10px] min-h-[44px]">
+            <Gamepad2 className="w-5 h-5 mb-0.5 text-amber-400" />
+            <span>Casino</span>
+          </Link>
+          <Link href="/account" className="flex flex-col items-center justify-center py-1 text-slate-400 font-bold text-[10px] min-h-[44px]">
+            <User className="w-5 h-5 mb-0.5" />
+            <span>Account</span>
+          </Link>
+        </div>
+      </nav>
 
     </div>
   );
