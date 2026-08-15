@@ -254,6 +254,11 @@ export function generateSanitizedMatch(
     const p1List = r1?.players || ["erling-haaland", "kevin-de-bruyne", "phil-foden", "rodri", "bernardo-silva"];
     const p2List = r2?.players || ["vinicius-jr", "jude-bellingham", "kylian-mbappe", "rodrygo", "federico-valverde"];
 
+    const cleanScore = rawScore.replace(/\(.*?\)/g, '').trim();
+    const scoreParts = cleanScore.split('-');
+    const s1 = scoreParts[0]?.trim() || "0";
+    const s2 = scoreParts[1]?.trim() || "0";
+
     return {
       id: String(id),
       series: t1Key.includes("arsenal") || t1Key.includes("city") || t1Key.includes("coventry") ? "English Premier League 2026" : "UEFA Champions League 2026",
@@ -285,14 +290,14 @@ export function generateSanitizedMatch(
       team1: {
         name: t1Clean,
         code: t1Clean.slice(0, 3).toUpperCase(),
-        scoreSummary: rawScore.split('(')[0].trim() || "0",
+        scoreSummary: s1,
         playingXI: p1List,
         bench: []
       },
       team2: {
         name: t2Clean,
         code: t2Clean.slice(0, 3).toUpperCase(),
-        scoreSummary: rawScore.split('-')[1]?.trim() || "0",
+        scoreSummary: s2,
         playingXI: p2List,
         bench: []
       },

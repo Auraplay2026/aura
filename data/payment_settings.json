@@ -2,9 +2,18 @@
   "upiId": "aurabet@okaxis",
   "gpayId": "aurabet.gpay@okaxis",
   "phonepeId": "aurabet.ybl@okaxis",
-  "btcAddress": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
   "bankName": "State Bank of India",
   "bankAccountNo": "999888777666",
   "bankIfsc": "SBIN0001234",
-  "bankHolderName": "AuraBet Operations Pvt Ltd"
+  "bankHolderName": "AuraBet Operations Pvt Ltd",
+  "btcAddresses": [
+    {
+      "id": "btc_1",
+      "label": "Escrow Storage",
+      "address": "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
+      "isActive": true
+    }
+  ],
+  "upiQrType": "custom",
+  "upiQrImageUrl": ""
 }

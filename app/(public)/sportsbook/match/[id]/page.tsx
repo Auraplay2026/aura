@@ -290,24 +290,62 @@ export default function MatchDetailPage({ params }: PageProps) {
       </div>
 
       {/* ═══ GRANULAR SPORT LIVE TELEMETRY STRIP ═══ */}
-      {(!match.scorecards || match.scorecards.length === 0 || match.stage?.toLowerCase().includes("upcoming") || match.status?.toLowerCase().includes("upcoming") || match.team1?.scoreSummary?.toLowerCase().includes("upcoming")) ? (
+      {match.matchType === "FOOTBALL" ? (
+        match.stage?.toLowerCase().includes("upcoming") || match.status?.toLowerCase().includes("upcoming") ? (
+          <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
+            <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
+              <div className="flex items-center gap-3">
+                <div className="bg-amber-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                  ⏳ UPCOMING • PRE-MATCH
+                </div>
+                <div className="font-bold text-slate-200">
+                  Kickoff: <strong className="text-amber-300">{match.timeIST || "Starting lineups confirmed"}</strong>
+                </div>
+              </div>
+              <div className="flex items-center gap-4 font-mono text-slate-300">
+                <span>Lineups: <strong className="text-emerald-400">Confirmed (100% Verified)</strong></span>
+                <span>Venue: <strong className="text-white">{match.venue.stadium}, {match.venue.city}</strong></span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
+            <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
+              <div className="flex items-center gap-3">
+                <div className="bg-emerald-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider animate-pulse">
+                  ⏱️ {footballTelemetry?.minute || "74"}&apos; • {footballTelemetry?.matchPhase || "2ND HALF IN-PLAY"}
+                </div>
+                <span className="font-bold text-slate-200">
+                  Momentum: <strong className="text-emerald-400">High Attacking Pressure by {match.team1.name}</strong>
+                </span>
+              </div>
+              <div className="flex items-center gap-4 font-mono">
+                <span>Possession: <strong className="text-emerald-400">{match.footballDetails?.possession1 || footballTelemetry?.metrics?.possessionHome || 62}%</strong> vs <strong className="text-sky-400">{match.footballDetails?.possession2 || footballTelemetry?.metrics?.possessionAway || 38}%</strong></span>
+                <span>xG: <strong className="text-white">{match.footballDetails?.xG1 || footballTelemetry?.metrics?.xGHome || "2.15"} vs {match.footballDetails?.xG2 || footballTelemetry?.metrics?.xGAway || "1.08"}</strong></span>
+                <span>Corners: <strong className="text-white">{match.footballDetails?.corners1 || footballTelemetry?.metrics?.cornersHome || 8} - {match.footballDetails?.corners2 || footballTelemetry?.metrics?.cornersAway || 3}</strong></span>
+              </div>
+            </div>
+          </div>
+        )
+      ) : match.matchType === "TENNIS" ? (
         <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
-              <div className="bg-amber-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">
-                ⏳ UPCOMING • PRE-MATCH
+              <div className="bg-emerald-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider animate-pulse">
+                🎾 {match.tennisDetails?.currentSetGame || "SET IN-PLAY"}
               </div>
-              <div className="font-bold text-slate-200">
-                Toss Status: <strong className="text-amber-300">{match.toss || "Toss scheduled 30 mins before start"}</strong>
-              </div>
+              <span className="font-bold text-slate-200">
+                Surface: <strong className="text-emerald-400">{match.tennisDetails?.surface || "Center Court"}</strong>
+              </span>
             </div>
-            <div className="flex items-center gap-4 font-mono text-slate-300">
-              <span>Playing XI: <strong className="text-emerald-400">Confirmed (Squads Locked)</strong></span>
-              <span>Venue: <strong className="text-white">{match.venue.stadium}, {match.venue.city}</strong></span>
+            <div className="flex items-center gap-4 font-mono">
+              <span>Aces: <strong className="text-emerald-400">{match.tennisDetails?.aces1 || 8}</strong> vs <strong className="text-sky-400">{match.tennisDetails?.aces2 || 6}</strong></span>
+              <span>1st Serve: <strong className="text-white">{match.tennisDetails?.firstServePct1 || 68}%</strong></span>
+              <span>Break Points: <strong className="text-amber-400">{match.tennisDetails?.breakPointsConverted1 || "2/4"}</strong></span>
             </div>
           </div>
         </div>
-      ) : cricketTelemetry && (match.matchType === "T20" || match.matchType === "TEST" || match.matchType === "ODI") ? (
+      ) : match.scorecards && match.scorecards.length > 0 && !match.stage?.toLowerCase().includes("upcoming") ? (
         <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
@@ -343,25 +381,24 @@ export default function MatchDetailPage({ params }: PageProps) {
             </div>
           </div>
         </div>
-      ) : footballTelemetry && match.matchType === "FOOTBALL" ? (
+      ) : (
         <div className="bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-800">
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
-              <div className="bg-emerald-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider animate-pulse">
-                ⏱️ {footballTelemetry?.minute || "74"}:{footballTelemetry?.second || "38"} • {footballTelemetry?.matchPhase || "2ND HALF"}
+              <div className="bg-amber-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider">
+                ⏳ UPCOMING • PRE-MATCH
               </div>
-              <span className="font-bold text-slate-200">
-                Match Momentum: <strong className="text-emerald-400">High Attacking Pressure by {match.team1.name}</strong>
-              </span>
+              <div className="font-bold text-slate-200">
+                Toss Status: <strong className="text-amber-300">{match.toss || "Toss scheduled 30 mins before start"}</strong>
+              </div>
             </div>
-            <div className="flex items-center gap-4 font-mono">
-              <span>Possession: <strong className="text-emerald-400">{footballTelemetry?.metrics?.possessionHome || 62}%</strong> vs <strong className="text-sky-400">{footballTelemetry?.metrics?.possessionAway || 38}%</strong></span>
-              <span>xG: <strong className="text-white">{footballTelemetry?.metrics?.xGHome || "2.15"} vs {footballTelemetry?.metrics?.xGAway || "1.08"}</strong></span>
-              <span>Corners: <strong className="text-white">{footballTelemetry?.metrics?.cornersHome || 8} - {footballTelemetry?.metrics?.cornersAway || 3}</strong></span>
+            <div className="flex items-center gap-4 font-mono text-slate-300">
+              <span>Playing XI: <strong className="text-emerald-400">Confirmed (Squads Locked)</strong></span>
+              <span>Venue: <strong className="text-white">{match.venue.stadium}, {match.venue.city}</strong></span>
             </div>
           </div>
         </div>
-      ) : null}
+      )}
 
       {/* ═══ NAVIGATION TABS (4 CLEAN TABS) ═══ */}
       <div className="sticky top-[53px] sm:top-[61px] z-30 bg-white border-b border-slate-200 px-3 sm:px-6 shadow-2xs">

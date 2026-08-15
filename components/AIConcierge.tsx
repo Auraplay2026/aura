@@ -46,14 +46,14 @@ export function AIConcierge() {
   if (!isClient) return null;
 
   return (
-    <div className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-20 md:bottom-6"} z-[42] flex flex-col items-end gap-4 transition-all duration-300 pointer-events-none ${isSportsbook ? "right-4 sm:right-6 lg:right-[344px]" : "right-4 sm:right-6"}`}>
+    <div className={`fixed ${isCasinoGame ? "bottom-24 right-4" : "bottom-[138px] md:bottom-6"} z-[42] flex flex-col items-end gap-4 transition-all duration-300 pointer-events-none ${isSportsbook ? "right-4 sm:right-6 md:right-24 lg:right-[424px]" : "right-4 sm:right-6 md:right-24"}`}>
       <AnimatePresence>
         {isOpen && (
           <motion.div
             initial={{ opacity: 0, y: 20, scale: 0.9 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="w-80 bg-white/95 backdrop-blur-xl border border-red-200 rounded-2xl p-5 shadow-2xl origin-bottom-right pointer-events-auto"
+            className="w-80 bg-white/95 backdrop-blur-xl border border-red-200 rounded-2xl p-5 shadow-2xl origin-bottom-right pointer-events-auto mb-2"
           >
             <div className="flex justify-between items-start mb-4">
               <div className="flex items-center gap-3">
@@ -98,15 +98,15 @@ export function AIConcierge() {
 
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className={`w-16 h-16 rounded-full bg-white border border-slate-200 flex items-center justify-center relative group shadow-xl pointer-events-auto ${isCasinoGame ? "hidden" : "flex"}`}
+        className={`w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-white border border-slate-200 flex items-center justify-center relative group shadow-xl pointer-events-auto ${isCasinoGame ? "hidden" : "flex"} cursor-pointer`}
       >
         {/* Pulsing Aura */}
-        <div className="absolute inset-[-10px] rounded-full bg-red-100 blur-xl opacity-40 group-hover:opacity-80 transition-opacity animate-pulse pointer-events-none" />
+        <div className="absolute inset-[-6px] rounded-full bg-red-100 blur-md opacity-40 group-hover:opacity-80 transition-opacity animate-pulse pointer-events-none" />
         
         {/* Core Orb */}
-        <div className="absolute inset-[2px] rounded-full bg-white border border-red-100 flex items-center justify-center z-10 overflow-hidden shadow-sm">
-           <div className="absolute top-0 right-0 w-8 h-8 bg-red-50 blur-md rounded-full" />
-           <Sparkles className="w-6 h-6 text-red-600" />
+        <div className="absolute inset-[2px] rounded-full bg-white border border-red-100 flex items-center justify-center z-10 overflow-hidden shadow-xs">
+           <div className="absolute top-0 right-0 w-6 h-6 bg-red-50 blur-sm rounded-full" />
+           <Sparkles className="w-5 h-5 text-red-600" />
         </div>
       </button>
     </div>

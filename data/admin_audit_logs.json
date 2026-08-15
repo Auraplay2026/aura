@@ -1,5 +1,29 @@
 [
   {
+    "id": "log_1786784304075_MN50",
+    "adminEmail": "twintubrovquattro@gmail.com",
+    "action": "UPDATE_PAYMENT_SETTINGS",
+    "targetUser": "SYSTEM",
+    "details": "Updated dynamic payment methods/QR details.",
+    "timestamp": 1786784304075
+  },
+  {
+    "id": "log_1786784062670_T8BN",
+    "adminEmail": "twintubrovquattro@gmail.com",
+    "action": "UPDATE_PAYMENT_SETTINGS",
+    "targetUser": "SYSTEM",
+    "details": "Updated dynamic payment methods/QR details.",
+    "timestamp": 1786784062670
+  },
+  {
+    "id": "log_1786784059112_PFGX",
+    "adminEmail": "twintubrovquattro@gmail.com",
+    "action": "UPLOAD_PAYMENT_QR",
+    "targetUser": "SYSTEM",
+    "details": "Uploaded payment QR code image: /uploads/upi-qr-1786784059101-3ke9qm.png",
+    "timestamp": 1786784059112
+  },
+  {
     "id": "log_1781118358431_IVFK",
     "adminEmail": "twintubrovquattro@gmail.com",
     "action": "BROADCAST_GLOBAL_ALERT",
