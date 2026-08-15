@@ -82,8 +82,8 @@ export async function GET(
           if (liveMatch.matchFormat) {
             match.matchType = liveMatch.matchFormat.toUpperCase() as any;
           }
-          // Synchronize score status from listing
-          if (liveMatch.score) {
+          // Synchronize score status only if Cricbuzz returned empty or generic status
+          if (liveMatch.score && (!match.status || match.status === "Live in-play" || match.status === "Upcoming Match")) {
             match.status = liveMatch.score;
           }
         }
