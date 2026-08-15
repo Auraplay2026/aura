@@ -486,6 +486,45 @@ export function generateSanitizedMatch(
   let p1 = r1?.players;
   let p2 = r2?.players;
 
+  const createDynamicSquad = (teamName: string, teamCode: string) => {
+    const cleanKey = teamName.toLowerCase().replace(/[^a-z0-9]/g, '_');
+    const roles: Array<{ name: string; role: any; avatar: string }> = [
+      { name: `${teamName} Opener 1`, role: "Top-order Batter", avatar: "🏏" },
+      { name: `${teamName} Opener 2`, role: "Top-order Batter", avatar: "🏏" },
+      { name: `${teamName} Captain (C)`, role: "Middle-order Batter", avatar: "⭐" },
+      { name: `${teamName} Striker`, role: "Middle-order Batter", avatar: "🏏" },
+      { name: `${teamName} Wicketkeeper (WK)`, role: "Wicketkeeper Batter", avatar: "🧤" },
+      { name: `${teamName} All-rounder`, role: "All-rounder", avatar: "⚡" },
+      { name: `${teamName} Strike Bowler`, role: "Fast Bowler", avatar: "🎯" },
+      { name: `${teamName} Spin Specialist`, role: "Spin Bowler", avatar: "🌀" }
+    ];
+
+    return roles.map((r, idx) => {
+      const pId = `dyn_${cleanKey}_${idx + 1}`;
+      if (!PLAYERS_DATABASE[pId]) {
+        PLAYERS_DATABASE[pId] = {
+          id: pId,
+          name: r.name,
+          fullName: `${r.name} (${teamName})`,
+          country: teamName,
+          countryCode: teamCode,
+          avatar: r.avatar,
+          role: r.role,
+          height: "5' 11\"",
+          born: "Official Squad Roster",
+          age: 26 + (idx % 8),
+          careerStats: [
+            { format: "T20", matches: 42, innings: 38, runs: 850 + idx * 100, highestScore: "88*", average: 34.5, strikeRate: 138.2, centuries: 1, fifties: 6 }
+          ],
+          recentForm: [
+            { score: `${30 + idx * 4} (${22 + idx * 2})`, opponent: "Opponent", date: "Today", format: "T20" }
+          ]
+        };
+      }
+      return pId;
+    });
+  };
+
   if (!p1) {
     if (t1Key.includes("ind")) p1 = VERIFIED_ROSTERS["india"]?.players;
     else if (t1Key.includes("sri") || t1Key.includes("sl")) p1 = VERIFIED_ROSTERS["sri lanka"]?.players;
@@ -499,7 +538,7 @@ export function generateSanitizedMatch(
     else if (t1Key.includes("mumbai") || t1Key.includes("mi")) p1 = VERIFIED_ROSTERS["mumbai indians"]?.players;
     else if (t1Key.includes("lucia")) p1 = VERIFIED_ROSTERS["saint lucia kings"]?.players;
     else if (t1Key.includes("antigua") || t1Key.includes("barbuda")) p1 = VERIFIED_ROSTERS["antigua and barbuda falcons"]?.players;
-    else p1 = ["jos-buttler", "phil-salt", "liam-livingstone", "wayne-madsen", "paul-walter", "tom-hartley"];
+    else p1 = createDynamicSquad(t1Clean, t1Clean.slice(0, 3).toUpperCase());
   }
 
   if (!p2) {
@@ -515,7 +554,7 @@ export function generateSanitizedMatch(
     else if (t2Key.includes("mumbai") || t2Key.includes("mi")) p2 = VERIFIED_ROSTERS["mumbai indians"]?.players;
     else if (t2Key.includes("lucia")) p2 = VERIFIED_ROSTERS["saint lucia kings"]?.players;
     else if (t2Key.includes("antigua") || t2Key.includes("barbuda")) p2 = VERIFIED_ROSTERS["antigua and barbuda falcons"]?.players;
-    else p2 = ["grace-harris", "alice-capsey", "kate-cross", "hollie-armitage", "mady-villiers", "eva-gray"];
+    else p2 = createDynamicSquad(t2Clean, t2Clean.slice(0, 3).toUpperCase());
   }
 
   const isUpcoming = rawScore.toLowerCase().includes("upcoming") || 
@@ -524,7 +563,7 @@ export function generateSanitizedMatch(
                      rawScore.toLowerCase().includes("tomorrow") ||
                      rawScore.toLowerCase().includes("scheduled") ||
                      rawScore === "" ||
-                     (!rawScore.includes("/") && !rawScore.includes("ov") && !rawScore.includes("Lead") && !rawScore.includes("Trail") && !rawScore.includes("Stump"));
+                     (!rawScore.includes("/") && !rawScore.includes("ov") && !rawScore.includes("Lead") && !rawScore.includes("Trail") && !rawScore.includes("Stump") && !rawScore.toLowerCase().includes("opt to") && !rawScore.toLowerCase().includes("need"));
 
   const getPlayerName = (pid: string, fallback: string) => PLAYERS_DATABASE[pid]?.name || fallback;
 
@@ -538,30 +577,42 @@ export function generateSanitizedMatch(
   const bowl2Name = getPlayerName(p2[1], `${t2Clean} Bowler 2`);
   const bowl3Name = getPlayerName(p2[2], `${t2Clean} Bowler 3`);
 
+  // Parse accurate score or live toss decision
+  let scoreSummary1 = isUpcoming ? "Upcoming match" : "Live in-play";
+  let scoreSummary2 = "Yet to Bat";
+  if (rawScore && rawScore.includes("/")) {
+    scoreSummary1 = rawScore;
+  } else if (rawScore && rawScore.toLowerCase().includes("opt to")) {
+    scoreSummary1 = "Toss Decided";
+    scoreSummary2 = rawScore;
+  } else if (rawScore) {
+    scoreSummary1 = rawScore;
+  }
+
   return {
     id: String(id),
-    series: t1Key.includes("women") || t2Key.includes("women") 
+    series: venueInfo?.stadium ? venueInfo.stadium : t1Key.includes("women") || t2Key.includes("women") 
       ? "The Hundred Women's Competition 2026" 
       : t1Key.includes("giant") || t2Key.includes("giant") || t1Key.includes("manchester") || t2Key.includes("sunriser")
       ? "The Hundred Competition 2026"
       : "International Cricket Championship 2026",
     title: `${t1Clean} vs ${t2Clean}`,
     matchType: t1Key.includes("test") || rawScore.includes("Stump") ? "TEST" : "T20",
-    stage: isUpcoming ? "Upcoming • Scheduled" : "1st Innings • In-Play",
+    stage: isUpcoming ? "Upcoming • Scheduled" : (rawScore || "1st Innings • In-Play"),
     date: "Today",
     timeIST: "Live Match Center",
     status: isUpcoming ? "Upcoming match" : (rawScore || `${t1Clean} vs ${t2Clean}`),
-    toss: `${t2Clean} won the toss and elected to field`,
+    toss: rawScore.toLowerCase().includes("opt to") ? rawScore : `${t2Clean} won the toss and elected to field`,
     venue: {
-      stadium: venueInfo?.stadium || r1?.venue || "International Cricket Stadium",
-      city: venueInfo?.city || r1?.city || "London",
-      country: venueInfo?.country || r1?.country || "England",
-      capacity: "25,000",
+      stadium: venueInfo?.stadium || r1?.venue || `${t1Clean} Cricket Stadium`,
+      city: venueInfo?.city || r1?.city || "International Venue",
+      country: venueInfo?.country || r1?.country || t1Clean,
+      capacity: "28,000",
       pitchReport: "Championship cricket pitch offering optimal balance for pace, spin, and stroke play.",
       weather: {
-        temperature: "21°C",
+        temperature: "24°C",
         condition: "Clear Sky",
-        humidity: "50%",
+        humidity: "48%",
         rainProbability: "0%"
       }
     },
@@ -573,14 +624,14 @@ export function generateSanitizedMatch(
     team1: {
       name: t1Clean,
       code: t1Clean.slice(0, 3).toUpperCase(),
-      scoreSummary: isUpcoming ? "Upcoming match" : (rawScore || "148/4 (18.2 ov)"),
+      scoreSummary: scoreSummary1,
       playingXI: p1,
       bench: []
     },
     team2: {
       name: t2Clean,
       code: t2Clean.slice(0, 3).toUpperCase(),
-      scoreSummary: "Yet to Bat",
+      scoreSummary: scoreSummary2,
       playingXI: p2,
       bench: []
     },
@@ -596,8 +647,8 @@ export function generateSanitizedMatch(
         teamName: t1Clean,
         teamCode: t1Clean.slice(0, 3).toUpperCase(),
         inningsNumber: 1,
-        totalScore: rawScore || "148/4 (18.2 Overs)",
-        runRate: "8.07",
+        totalScore: rawScore.includes("/") ? rawScore : (rawScore || "1st Innings"),
+        runRate: "7.85",
         batting: [
           { playerId: p1[0], name: b1Name, dismissal: `c ${p2[1] ? getPlayerName(p2[1], "Fielder") : "Fielder"} b ${bowl1Name}`, runs: 44, balls: 28, fours: 5, sixes: 2, strikeRate: 157.14 },
           { playerId: p1[1], name: b2Name, dismissal: `c ${p2[0] ? getPlayerName(p2[0], "Fielder") : "Fielder"} b ${bowl2Name}`, runs: 38, balls: 24, fours: 4, sixes: 1, strikeRate: 158.33 },

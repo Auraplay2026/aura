@@ -662,98 +662,109 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
   }
 }
 
-// 5. Cricbuzz RapidAPI Gateway (Authenticated)
+// 5. Cricbuzz RapidAPI Gateway (Authenticated Multi-Category Ingestion)
 async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
   const apiKey = process.env.RAPIDAPI_KEY || "5da27ecf52msh8ee940bf053e076p19ec35jsne5919afdb333";
   const apiHost = process.env.RAPIDAPI_CRICBUZZ_HOST || "cricbuzz-cricket.p.rapidapi.com";
+  
   try {
-    const res = await fetch("https://cricbuzz-cricket.p.rapidapi.com/matches/v1/live", {
-      headers: {
-        "x-rapidapi-key": apiKey,
-        "x-rapidapi-host": apiHost,
-        "User-Agent": "AuraPlay-CricbuzzRapidEngine/2.0"
-      },
-      next: { revalidate: 30 }
-    });
-    if (!res.ok) return [];
-
-    const data = await res.json();
-    if (!Array.isArray(data.typeMatches)) return [];
+    const endpoints = ["/matches/v1/live", "/matches/v1/upcoming", "/matches/v1/recent"];
+    const responses = await Promise.all(
+      endpoints.map(ep => 
+        fetch(`https://${apiHost}${ep}`, {
+          headers: {
+            "x-rapidapi-key": apiKey,
+            "x-rapidapi-host": apiHost,
+            "User-Agent": "AuraPlay-CricbuzzRapidEngine/3.0"
+          },
+          next: { revalidate: 30 }
+        }).then(r => r.ok ? r.json() : null).catch(() => null)
+      )
+    );
 
     const parsed: ExtendedMatch[] = [];
+    const seenIds = new Set<number>();
 
-    for (const tm of data.typeMatches) {
-      if (!Array.isArray(tm.seriesMatches)) continue;
-      for (const sm of tm.seriesMatches) {
-        const wrapper = sm.seriesAdWrapper;
-        if (!wrapper || !Array.isArray(wrapper.matches)) continue;
-        for (const m of wrapper.matches) {
-          const info = m.matchInfo;
-          const score = m.matchScore;
-          if (!info) continue;
+    for (const data of responses) {
+      if (!data || !Array.isArray(data.typeMatches)) continue;
 
-          const team1 = info.team1?.teamName || info.team1?.teamSName || "Team 1";
-          const team2 = info.team2?.teamName || info.team2?.teamSName || "Team 2";
+      for (const tm of data.typeMatches) {
+        if (!Array.isArray(tm.seriesMatches)) continue;
+        for (const sm of tm.seriesMatches) {
+          const wrapper = sm.seriesAdWrapper;
+          if (!wrapper || !Array.isArray(wrapper.matches)) continue;
+          for (const m of wrapper.matches) {
+            const info = m.matchInfo;
+            const score = m.matchScore;
+            if (!info) continue;
 
-          const t1Logo = info.team1?.imageId ? `https://static.cricbuzz.com/a/img/v1/72x72/i1/c${info.team1.imageId}/flag.jpg` : `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`;
-          const t2Logo = info.team2?.imageId ? `https://static.cricbuzz.com/a/img/v1/72x72/i1/c${info.team2.imageId}/flag.jpg` : `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`;
+            const matchId = Number(info.matchId) || Math.floor(Math.random() * 900000) + 100000;
+            if (seenIds.has(matchId)) continue;
+            seenIds.add(matchId);
 
-          const isLive = info.state === "In Progress" || info.state === "Toss" || info.status?.toLowerCase().includes("opt to") || info.status?.toLowerCase().includes("need");
-          const status: "Live" | "Upcoming" = isLive ? "Live" : "Upcoming";
+            const team1 = info.team1?.teamName || info.team1?.teamSName || "Team 1";
+            const team2 = info.team2?.teamName || info.team2?.teamSName || "Team 2";
 
-          let scoreText = info.status || "Upcoming Match";
-          if (score) {
-            const sc1 = score.team1Score?.inngs1;
-            const sc2 = score.team2Score?.inngs1;
-            if (sc1 && sc2) {
-              scoreText = `${sc1.runs}/${sc1.wickets || 0} (${sc1.overs} ov) vs ${sc2.runs}/${sc2.wickets || 0} (${sc2.overs} ov)`;
-            } else if (sc1) {
-              scoreText = `${sc1.runs}/${sc1.wickets || 0} (${sc1.overs} ov)`;
+            const t1Logo = info.team1?.imageId ? `https://static.cricbuzz.com/a/img/v1/72x72/i1/c${info.team1.imageId}/flag.jpg` : `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`;
+            const t2Logo = info.team2?.imageId ? `https://static.cricbuzz.com/a/img/v1/72x72/i1/c${info.team2.imageId}/flag.jpg` : `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`;
+
+            const isLive = info.state === "In Progress" || info.state === "Toss" || info.state === "Stumps" || info.status?.toLowerCase().includes("opt to") || info.status?.toLowerCase().includes("need") || info.status?.toLowerCase().includes("in-play");
+            const status: "Live" | "Upcoming" = isLive ? "Live" : "Upcoming";
+
+            let scoreText = info.status || (isLive ? "Live match in-play" : "Upcoming Match");
+            if (score) {
+              const sc1 = score.team1Score?.inngs1;
+              const sc2 = score.team2Score?.inngs1;
+              if (sc1 && sc2) {
+                scoreText = `${sc1.runs}/${sc1.wickets || 0} (${sc1.overs} ov) vs ${sc2.runs}/${sc2.wickets || 0} (${sc2.overs} ov)`;
+              } else if (sc1) {
+                scoreText = `${sc1.runs}/${sc1.wickets || 0} (${sc1.overs} ov)`;
+              }
             }
+
+            const h1 = Math.abs(team1.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
+            const h2 = Math.abs(team2.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
+            const total = h1 + h2 + 60;
+            const p1 = (h1 + 30) / total;
+            const p2 = (h2 + 30) / total;
+
+            const o1 = Math.max(1.15, Math.min(10.5, 1.05 / p1));
+            const o2 = Math.max(1.15, Math.min(10.5, 1.05 / p2));
+
+            const matchDateObj = info.startDate ? new Date(parseInt(info.startDate)) : new Date();
+            const dateStr = matchDateObj.toISOString().split("T")[0];
+            const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+            const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const displayDate = `${DAYS[matchDateObj.getDay()]}, ${matchDateObj.getDate()} ${MONTHS[matchDateObj.getMonth()]} ${matchDateObj.getFullYear()}`;
+            
+            const hr = matchDateObj.getHours();
+            const mn = String(matchDateObj.getMinutes()).padStart(2, "0");
+            const ampm = hr >= 12 ? "PM" : "AM";
+            const displayHr = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr;
+            const timeStr = `${String(displayHr).padStart(2, "0")}:${mn} ${ampm}`;
+
+            parsed.push({
+              id: matchId,
+              team1,
+              team2,
+              team1Logo: t1Logo,
+              team2Logo: t2Logo,
+              status,
+              score: scoreText,
+              odds: {
+                team1: parseFloat(o1.toFixed(2)),
+                draw: null,
+                team2: parseFloat(o2.toFixed(2))
+              },
+              trend: { team1: 'none', draw: null, team2: 'none' },
+              dateStr,
+              displayDate,
+              timeStr,
+              seriesName: info.seriesName || wrapper.seriesName || (tm.matchType ? `${tm.matchType} Series` : "Cricket Championship"),
+              matchFormat: info.matchFormat || "T20",
+              sport: "cricket"
+            });
           }
-
-          const h1 = Math.abs(team1.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-          const h2 = Math.abs(team2.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-          const total = h1 + h2 + 60;
-          const p1 = (h1 + 30) / total;
-          const p2 = (h2 + 30) / total;
-
-          const o1 = Math.max(1.15, Math.min(10.5, 1.05 / p1));
-          const o2 = Math.max(1.15, Math.min(10.5, 1.05 / p2));
-
-          const matchDateObj = info.startDate ? new Date(parseInt(info.startDate)) : new Date();
-          const dateStr = matchDateObj.toISOString().split("T")[0];
-          const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-          const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-          const displayDate = `${DAYS[matchDateObj.getDay()]}, ${matchDateObj.getDate()} ${MONTHS[matchDateObj.getMonth()]} ${matchDateObj.getFullYear()}`;
-          
-          const hr = matchDateObj.getHours();
-          const mn = String(matchDateObj.getMinutes()).padStart(2, "0");
-          const ampm = hr >= 12 ? "PM" : "AM";
-          const displayHr = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr;
-          const timeStr = `${String(displayHr).padStart(2, "0")}:${mn} ${ampm}`;
-
-          parsed.push({
-            id: info.matchId || Math.floor(Math.random() * 900000) + 100000,
-            team1,
-            team2,
-            team1Logo: t1Logo,
-            team2Logo: t2Logo,
-            status,
-            score: scoreText,
-            odds: {
-              team1: parseFloat(o1.toFixed(2)),
-              draw: null,
-              team2: parseFloat(o2.toFixed(2))
-            },
-            trend: { team1: 'none', draw: null, team2: 'none' },
-            dateStr,
-            displayDate,
-            timeStr,
-            seriesName: info.seriesName || wrapper.seriesName || "International Series",
-            matchFormat: info.matchFormat || "T20",
-            sport: "cricket"
-          });
         }
       }
     }
@@ -924,17 +935,17 @@ export async function fetchTennisMatches(): Promise<ExtendedMatch[]> {
 }
 
 export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
-  // 1. Primary A: Official Authenticated CricketData.org API
-  const officialCricket = await fetchCricketDataOrgMatches();
-  if (officialCricket.length > 0) return officialCricket;
+  // 1. Primary A: Cricbuzz RapidAPI Multi-Category Ingestion (Deep Domestic, TNPL, DPL, International, Tests, ODIs, T20Is)
+  const cricbuzzApi = await fetchCricbuzzRapidApiMatches();
+  if (cricbuzzApi.length > 0) return cricbuzzApi;
 
-  // 1. Primary B: The Odds API (Betfair / BetOnline Cricket Odds)
+  // 1. Primary B: The Odds API (Betfair / BetOnline Live Cricket Odds)
   const oddsApiMatches = await fetchTheOddsApiMatches("cricket");
   if (oddsApiMatches.length > 0) return oddsApiMatches;
 
-  // 2. Secondary: Cricbuzz RapidAPI JSON Gateway
-  const cricbuzzApi = await fetchCricbuzzRapidApiMatches();
-  if (cricbuzzApi.length > 0) return cricbuzzApi;
+  // 2. Secondary: Official CricketData.org API
+  const officialCricket = await fetchCricketDataOrgMatches();
+  if (officialCricket.length > 0) return officialCricket;
 
   // 3. Tertiary: Cricbuzz Direct Scraper
   const scraped = await fetchCricbuzzScrapeMatches();

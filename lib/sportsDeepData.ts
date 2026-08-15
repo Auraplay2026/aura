@@ -2009,7 +2009,7 @@ export function resolveDeepMatch(matchId: string, liveMatchFeed?: any): DeepMatc
   if (liveMatchFeed && (liveMatchFeed.team1 || liveMatchFeed.team2)) {
     const t1 = liveMatchFeed.team1 || "Team 1";
     const t2 = liveMatchFeed.team2 || "Team 2";
-    const rawSport = (liveMatchFeed.sport || "soccer").toLowerCase();
+    const rawSport = (liveMatchFeed.sport || "cricket").toLowerCase();
     const sport = rawSport === "football" ? "soccer" : rawSport;
     const score = liveMatchFeed.score || (liveMatchFeed.status === "Upcoming" ? "Upcoming match" : "Live in-play");
     
@@ -2023,19 +2023,26 @@ export function resolveDeepMatch(matchId: string, liveMatchFeed?: any): DeepMatc
     );
   }
 
-  // 4. Deterministic sport prefix detection
-  if (idStr.startsWith("cric") || idStr.startsWith("14") || idStr.includes("cricket") || idStr.includes("brave") || idStr.includes("sunrisers")) {
-    return CREX_MATCHES_DATABASE["145357"] || CREX_MATCHES_DATABASE["aus-xi-vs-ban"];
+  // 4. Parse slug if it contains '-vs-' or ' vs '
+  if (idStr.includes("-vs-") || idStr.includes(" vs ")) {
+    const parts = idStr.includes("-vs-") ? idStr.split("-vs-") : idStr.split(" vs ");
+    const cleanT1 = parts[0].split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ").trim();
+    const cleanT2 = parts[1].split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ").trim();
+    return generateSanitizedMatch(
+      matchId,
+      cleanT1 || "Team 1",
+      cleanT2 || "Team 2",
+      "Live match in-play",
+      "cricket"
+    );
   }
 
-  if (idStr.startsWith("ten") || idStr.startsWith("30") || idStr.includes("tennis") || idStr.includes("djokovic") || idStr.includes("alcaraz")) {
-    return CREX_MATCHES_DATABASE["301"] || CREX_MATCHES_DATABASE["djokovic-vs-alcaraz"];
-  }
-
-  if (idStr.startsWith("soc") || idStr.startsWith("foot") || idStr.startsWith("20") || idStr.startsWith("401") || idStr.includes("arsenal") || idStr.includes("city")) {
-    return CREX_MATCHES_DATABASE["201"] || CREX_MATCHES_DATABASE["arsenal-vs-coventry"];
-  }
-
-  // 5. Default fallback to flagship Southern Brave Women vs Sunrisers Leeds Women match
-  return CREX_MATCHES_DATABASE["145357"] || Object.values(CREX_MATCHES_DATABASE)[0];
+  // 5. Default generic dynamic match for unmatched ID
+  return generateSanitizedMatch(
+    matchId,
+    `Live Match Team A`,
+    `Live Match Team B`,
+    "Match In-Play",
+    "cricket"
+  );
 }

@@ -350,10 +350,10 @@ export default function MatchDetailPage({ params }: PageProps) {
           <div className="max-w-6xl mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
             <div className="flex items-center gap-3">
               <div className="bg-red-600 font-mono font-black text-xs px-2.5 py-1 rounded-lg uppercase tracking-wider animate-pulse">
-                ● LIVE {match.matchType === "TEST" ? "SESSION IN-PLAY" : "OVER 18.2"}
+                ● LIVE {match.matchType === "TEST" ? "SESSION IN-PLAY" : (cricketTelemetry?.overNumber !== undefined ? `OVER ${cricketTelemetry.overNumber}.${cricketTelemetry.ballInOver}` : "IN-PLAY")}
               </div>
               <div className="font-bold">
-                Striker: <strong className="text-amber-300 font-black">{cricketTelemetry?.currentStriker?.name || match.scorecards?.[0]?.batting?.[3]?.name || match.scorecards?.[0]?.batting?.[0]?.name || `${match.team1.name} Striker`} {cricketTelemetry?.currentStriker?.runs !== undefined ? `${cricketTelemetry.currentStriker.runs}*(${cricketTelemetry.currentStriker.balls})` : "74*(110)"}</strong> • Non-Striker: <strong className="text-slate-200">{cricketTelemetry?.currentNonStriker?.name || match.scorecards?.[0]?.batting?.[4]?.name || match.scorecards?.[0]?.batting?.[1]?.name || `${match.team1.name} Non-Striker`} {cricketTelemetry?.currentNonStriker?.runs !== undefined ? `${cricketTelemetry.currentNonStriker.runs}*(${cricketTelemetry.currentNonStriker.balls})` : "64*(58)"}</strong>
+                Striker: <strong className="text-amber-300 font-black">{cricketTelemetry?.currentStriker?.name || match.scorecards?.[0]?.batting?.[0]?.name || `${match.team1.name} Striker`} {cricketTelemetry?.currentStriker?.runs !== undefined ? `${cricketTelemetry.currentStriker.runs}*(${cricketTelemetry.currentStriker.balls})` : (match.scorecards?.[0]?.batting?.[0]?.runs ? `${match.scorecards[0].batting[0].runs}*(${match.scorecards[0].batting[0].balls})` : "")}</strong> • Non-Striker: <strong className="text-slate-200">{cricketTelemetry?.currentNonStriker?.name || match.scorecards?.[0]?.batting?.[1]?.name || `${match.team1.name} Non-Striker`} {cricketTelemetry?.currentNonStriker?.runs !== undefined ? `${cricketTelemetry.currentNonStriker.runs}*(${cricketTelemetry.currentNonStriker.balls})` : (match.scorecards?.[0]?.batting?.[1]?.runs ? `${match.scorecards[0].batting[1].runs}*(${match.scorecards[0].batting[1].balls})` : "")}</strong>
               </div>
             </div>
             <div className="flex items-center gap-4">
@@ -376,7 +376,7 @@ export default function MatchDetailPage({ params }: PageProps) {
                 ))}
               </div>
               <div className="font-mono text-slate-300">
-                Bowler: <strong className="text-white">{cricketTelemetry?.activeBowler?.name || match.scorecards?.[0]?.bowling?.[0]?.name || `${match.team2.name} Bowler`} ({cricketTelemetry?.activeBowler?.overs || match.scorecards?.[0]?.bowling?.[0]?.overs || "18.0"}-{cricketTelemetry?.activeBowler?.maidens || match.scorecards?.[0]?.bowling?.[0]?.maidens || 2}-{cricketTelemetry?.activeBowler?.runs || match.scorecards?.[0]?.bowling?.[0]?.runs || 52}-{cricketTelemetry?.activeBowler?.wickets || match.scorecards?.[0]?.bowling?.[0]?.wickets || 1})</strong>
+                Bowler: <strong className="text-white">{cricketTelemetry?.activeBowler?.name || match.scorecards?.[0]?.bowling?.[0]?.name || `${match.team2.name} Bowler`} ({cricketTelemetry?.activeBowler?.overs || match.scorecards?.[0]?.bowling?.[0]?.overs || "0.0"}-{cricketTelemetry?.activeBowler?.maidens ?? match.scorecards?.[0]?.bowling?.[0]?.maidens ?? 0}-{cricketTelemetry?.activeBowler?.runs ?? match.scorecards?.[0]?.bowling?.[0]?.runs ?? 0}-{cricketTelemetry?.activeBowler?.wickets ?? match.scorecards?.[0]?.bowling?.[0]?.wickets ?? 0})</strong>
               </div>
             </div>
           </div>
