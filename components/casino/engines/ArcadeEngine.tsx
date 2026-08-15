@@ -17,8 +17,8 @@ interface ArcadeEngineProps {
 
 // ─────────────────────────────────────────────────────────────
 // GAME URL MASTER MANIFEST  
-// Strategy: Map each game to the highest-quality free WebGL
-// equivalent. The cloud-gaming wrapper makes it feel premium.
+// Strategy: Map every Cloud Hub & Arcade game to 100% local,
+// zero-dependency hardware-accelerated WebGL / HTML5 engines.
 // ─────────────────────────────────────────────────────────────
 const GAME_MANIFEST: Record<string, {
   url: string;
@@ -31,69 +31,69 @@ const GAME_MANIFEST: Record<string, {
 }> = {
   // ── FPS & SHOOTERS ─────────────────────────────────────────
   "fps-1": {
-    url: "https://cykod.github.io/AlienInvasion/",
-    genre: "Space Shooter", resolution: "1920×1080", serverNode: "MUM-NODE-07",
+    url: "/arcade-engines/cyber-dungeon-3d/index.html",
+    genre: "3D FPS Combat", resolution: "1920×1080", serverNode: "MUM-NODE-07",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Left/Right Arrow — Move", "Space — Shoot & Destroy"]
+    controls: ["WASD / Touch — Move", "Space / Fire — Plasma Cannon", "Mouse — Aim"]
   },
   "fps-2": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D FPS", resolution: "1920×1080", serverNode: "DEL-NODE-03",
+    url: "/arcade-engines/cyber-dungeon-3d/index.html",
+    genre: "3D Tactical FPS", resolution: "1920×1080", serverNode: "DEL-NODE-03",
     nodeCity: "Delhi", gpuTier: "RTX 4080",
-    controls: ["WASD — Move", "Mouse — Aim & Shoot", "R — Reload", "Space — Jump"]
+    controls: ["WASD — Move", "Click — Shoot", "Mouse — Look"]
   },
   "fps-3": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "Combat Arena", resolution: "1920×1080", serverNode: "BLR-NODE-12",
+    url: "/arcade-engines/cyber-stealth-3d/index.html",
+    genre: "Tactical Arena", resolution: "1920×1080", serverNode: "BLR-NODE-12",
     nodeCity: "Bengaluru", gpuTier: "RTX 4070 Ti",
-    controls: ["WASD — Move", "Mouse — Look & Shoot"]
+    controls: ["WASD — Infiltrate", "E / Hack — Hack Terminals"]
   },
   "fps-4": {
-    url: "https://cykod.github.io/AlienInvasion/",
-    genre: "Retro Arcade", resolution: "1920×1080", serverNode: "HYD-NODE-04",
+    url: "/arcade-engines/asteroid-3d/index.html",
+    genre: "3D Zero-G Fighter", resolution: "1920×1080", serverNode: "HYD-NODE-04",
     nodeCity: "Hyderabad", gpuTier: "RTX 4080",
-    controls: ["Left/Right Arrow — Move", "Space — Fire"]
+    controls: ["WASD / Arrows — Steer", "Space — Dual Plasma Lasers"]
   },
   "fps-5": {
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    genre: "Pixel Runner", resolution: "1920×1080", serverNode: "CHE-NODE-08",
+    url: "/arcade-engines/cyber-stealth-3d/index.html",
+    genre: "Cyber Infiltration", resolution: "1920×1080", serverNode: "CHE-NODE-08",
     nodeCity: "Chennai", gpuTier: "RTX 3090",
-    controls: ["Space / Click — Fly up"]
+    controls: ["WASD — Move", "Space — Execute Hack"]
   },
   "fps-6": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D Sci-Fi FPS", resolution: "1920×1080", serverNode: "MUM-NODE-01",
+    url: "/arcade-engines/cyber-dungeon-3d/index.html",
+    genre: "3D Arena FPS", resolution: "1920×1080", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim & Fire", "R — Reload"]
+    controls: ["WASD — Move", "Click — Blast", "Mouse — Aim"]
   },
 
   // ── RACING & DRIVING ───────────────────────────────────────
   "driving-1": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D Fast Racer", resolution: "2560×1440", serverNode: "MUM-NODE-11",
+    url: "/arcade-engines/drift-city-3d/index.html",
+    genre: "3D Drift Sim", resolution: "2560×1440", serverNode: "MUM-NODE-11",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Arrow Keys / WASD — Steer & Accelerate"]
+    controls: ["Arrow Keys / WASD — Steer & Accelerate", "Brake — Drift"]
   },
   "driving-2": {
-    url: "https://hexgl.bkcore.com/play/",
+    url: "/arcade-engines/drift-city-3d/index.html",
     genre: "3D Hyper Stunt", resolution: "1920×1080", serverNode: "PUN-NODE-05",
     nodeCity: "Pune", gpuTier: "RTX 4080",
-    controls: ["WASD — Steer & Drive", "Space — Handbrake"]
+    controls: ["WASD — Steer & Drive", "Brake — Handbrake Drift"]
   },
   "driving-3": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D Track Racer", resolution: "1920×1080", serverNode: "KOL-NODE-02",
+    url: "/arcade-engines/neon-racer/index.html",
+    genre: "3D Synthwave Racer", resolution: "1920×1080", serverNode: "KOL-NODE-02",
     nodeCity: "Kolkata", gpuTier: "RTX 4070",
-    controls: ["Arrow Keys — Drive"]
+    controls: ["Arrow Keys / Touch — Steer & Nitro"]
   },
   "driving-4": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D Drift Sim", resolution: "1920×1080", serverNode: "DEL-NODE-06",
+    url: "/arcade-engines/neon-racer/index.html",
+    genre: "3D Turbo Highway", resolution: "1920×1080", serverNode: "DEL-NODE-06",
     nodeCity: "Delhi", gpuTier: "RTX 3080",
-    controls: ["WASD — Steer", "Space — Handbrake"]
+    controls: ["Left/Right — Change Lane", "Nitro — Boost"]
   },
   "driving-5": {
-    url: "https://hexgl.bkcore.com/play/",
+    url: "/arcade-engines/drift-city-3d/index.html",
     genre: "3D Motorsport", resolution: "2560×1440", serverNode: "MUM-NODE-07",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["Arrow Keys — Steer & Speed"]
@@ -101,239 +101,179 @@ const GAME_MANIFEST: Record<string, {
 
   // ── ACTION & OPEN-WORLD ───────────────────────────────────
   "action-1": {
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    genre: "Casual Action", resolution: "1920×1080", serverNode: "MUM-NODE-03",
+    url: "/arcade-engines/drift-city-3d/index.html",
+    genre: "3D Open World Drifter", resolution: "1920×1080", serverNode: "MUM-NODE-03",
     nodeCity: "Mumbai", gpuTier: "RTX 4080",
-    controls: ["Click/Space — Flap wings"]
+    controls: ["WASD — Drive", "Space — Drift"]
   },
   "action-2": {
-    url: "https://cykod.github.io/AlienInvasion/",
-    genre: "Arcade Adventure", resolution: "1920×1080", serverNode: "HYD-NODE-09",
+    url: "/arcade-engines/knife-hit/index.html",
+    genre: "Target Timing", resolution: "1920×1080", serverNode: "HYD-NODE-09",
     nodeCity: "Hyderabad", gpuTier: "RTX 3090",
-    controls: ["Arrow Keys — Move", "Space — Action"]
+    controls: ["Click / Tap — Throw Blade"]
   },
   "action-3": {
-    url: "https://hextris.github.io/hextris/",
-    genre: "Hex Matcher", resolution: "1920×1080", serverNode: "BLR-NODE-01",
+    url: "/arcade-engines/fruit-slicer/index.html",
+    genre: "Katana Slicer", resolution: "1920×1080", serverNode: "BLR-NODE-01",
     nodeCity: "Bengaluru", gpuTier: "RTX 3090",
-    controls: ["Left/Right Arrow — Rotate Hexagon"]
+    controls: ["Swipe / Mouse Drag — Slice"]
   },
   "action-4": {
-    url: "https://chvin.github.io/react-tetris/",
-    genre: "Classic Tetris", resolution: "1920×1080", serverNode: "CHE-NODE-11",
+    url: "/arcade-engines/hextris-core/index.html",
+    genre: "Hex Matcher", resolution: "1920×1080", serverNode: "CHE-NODE-11",
     nodeCity: "Chennai", gpuTier: "RTX 4070",
-    controls: ["Arrow Keys — Rotate & Move blocks"]
+    controls: ["Left/Right Arrow — Rotate Core"]
   },
   "action-5": {
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    genre: "Retro Runner", resolution: "1920×1080", serverNode: "MUM-NODE-05",
+    url: "/arcade-engines/cyber-runner-3d/index.html",
+    genre: "3D Rooftop Parkour", resolution: "1920×1080", serverNode: "MUM-NODE-05",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Click — Flap"]
+    controls: ["Left/Right — Switch Lane", "Up / Swipe — Jump"]
   },
 
   // ── AAA TITLES ─────────────────────────────────────────────
   "aaa-1": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D AAA Racer", resolution: "2560×1440", serverNode: "MUM-NODE-01",
+    url: "/arcade-engines/drift-city-3d/index.html",
+    genre: "3D Cyber Drifter", resolution: "2560×1440", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
     controls: ["Arrow Keys / WASD — Drive"]
   },
   "aaa-2": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D AAA RPG", resolution: "2560×1440", serverNode: "BLR-NODE-08",
+    url: "/arcade-engines/cyber-runner-3d/index.html",
+    genre: "3D Soul Combat", resolution: "2560×1440", serverNode: "BLR-NODE-08",
     nodeCity: "Bengaluru", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim"]
+    controls: ["WASD / Touch — Run", "Space — Leap"]
   },
   "aaa-3": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D AAA Adventure", resolution: "2560×1440", serverNode: "DEL-NODE-01",
+    url: "/arcade-engines/cyber-runner-3d/index.html",
+    genre: "3D Mythic Runner", resolution: "2560×1440", serverNode: "DEL-NODE-01",
     nodeCity: "Delhi", gpuTier: "RTX 4090",
-    controls: ["Arrow Keys — Steer"]
+    controls: ["Arrows / Swipe — Parkour"]
   },
   "aaa-4": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D AAA Action", resolution: "2560×1440", serverNode: "MUM-NODE-02",
+    url: "/arcade-engines/cyber-runner-3d/index.html",
+    genre: "3D Web Parkour", resolution: "2560×1440", serverNode: "MUM-NODE-02",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Shoot"]
+    controls: ["WASD — Move", "Space — Jump"]
   },
   "aaa-5": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D Sci-Fi Shooter", resolution: "2560×1440", serverNode: "MUM-NODE-06",
+    url: "/arcade-engines/cyber-stealth-3d/index.html",
+    genre: "3D Tactical Infiltration", resolution: "2560×1440", serverNode: "MUM-NODE-06",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim"]
+    controls: ["WASD — Sneak", "E — Hack"]
   },
   "aaa-6": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D Stunt Sim", resolution: "2560×1440", serverNode: "MUM-NODE-04",
+    url: "/arcade-engines/drift-city-3d/index.html",
+    genre: "3D Street Racer", resolution: "2560×1440", serverNode: "MUM-NODE-04",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Arrow Keys — Steer"]
+    controls: ["Arrow Keys — Steer & Nitro"]
+  },
+  "aaa-7": {
+    url: "/arcade-engines/drift-city-3d/index.html",
+    genre: "3D Open World Racer", resolution: "2560×1440", serverNode: "MUM-NODE-07",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["Arrow Keys / WASD — Drive"]
+  },
+  "aaa-8": {
+    url: "/arcade-engines/cyber-stealth-3d/index.html",
+    genre: "3D Shinobi Stealth", resolution: "2560×1440", serverNode: "BLR-NODE-08",
+    nodeCity: "Bengaluru", gpuTier: "RTX 4090",
+    controls: ["WASD — Infiltrate", "E — Hack Security"]
+  },
+  "aaa-9": {
+    url: "/arcade-engines/cyber-runner-3d/index.html",
+    genre: "3D Witcher Combat", resolution: "2560×1440", serverNode: "DEL-NODE-01",
+    nodeCity: "Delhi", gpuTier: "RTX 4090",
+    controls: ["WASD — Move", "Space — Jump"]
+  },
+  "aaa-10": {
+    url: "/arcade-engines/cyber-dungeon-3d/index.html",
+    genre: "3D Doom Arena", resolution: "2560×1440", serverNode: "MUM-NODE-02",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["WASD — Move", "Space / Click — Blast", "Mouse — Aim"]
+  },
+  "aaa-11": {
+    url: "/arcade-engines/drift-city-3d/index.html",
+    genre: "3D Cyber Drifter", resolution: "2560×1440", serverNode: "MUM-NODE-06",
+    nodeCity: "Mumbai", gpuTier: "RTX 4090",
+    controls: ["Arrow Keys / WASD — Drive"]
   },
 
   // ── PUZZLE & STRATEGY ─────────────────────────────────────
   "puzzle-1": {
-    url: "https://gabrielecirulli.github.io/2048/",
+    url: "/arcade-engines/2048-neon/index.html",
     genre: "Slide Puzzle", resolution: "1920×1080", serverNode: "PUN-NODE-03",
     nodeCity: "Pune", gpuTier: "RTX 3080",
     controls: ["Arrow Keys — Slide tiles"]
   },
   "puzzle-2": {
-    url: "https://hextris.github.io/hextris/",
-    genre: "Hex Matcher", resolution: "1920×1080", serverNode: "KOL-NODE-07",
+    url: "/arcade-engines/tetris-pro/index.html",
+    genre: "Block Matrix", resolution: "1920×1080", serverNode: "KOL-NODE-07",
     nodeCity: "Kolkata", gpuTier: "RTX 3070",
-    controls: ["Left/Right Arrow — Rotate"]
+    controls: ["Arrow Keys — Rotate & Drop"]
   },
   "puzzle-3": {
-    url: "https://chvin.github.io/react-tetris/",
-    genre: "Block Puzzle", resolution: "1920×1080", serverNode: "HYD-NODE-02",
+    url: "/arcade-engines/hextris-core/index.html",
+    genre: "Hex Logic", resolution: "1920×1080", serverNode: "HYD-NODE-02",
     nodeCity: "Hyderabad", gpuTier: "RTX 3070",
-    controls: ["Arrow Keys — Rotate Block"]
+    controls: ["Arrow Keys — Rotate Core"]
   },
 
-  // ── CASUAL ────────────────────────────────────────────────
+  // ── CASUAL & CHILL ────────────────────────────────────────
   "boring-1": {
-    url: "https://gabrielecirulli.github.io/2048/",
-    genre: "Chill Board Game", resolution: "1920×1080", serverNode: "CHE-NODE-06",
+    url: "/arcade-engines/tower-stack/index.html",
+    genre: "Tower Stacking", resolution: "1920×1080", serverNode: "CHE-NODE-06",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Arrow Keys — Slide numbers"]
+    controls: ["Click / Tap — Drop Block"]
   },
   "casual-1": {
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    genre: "Flap Physics", resolution: "1920×1080", serverNode: "CHE-NODE-04",
+    url: "/arcade-engines/flappy-bird/index.html",
+    genre: "Physics Tap", resolution: "1920×1080", serverNode: "CHE-NODE-04",
     nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Space / Click — Flap wings"]
+    controls: ["Space / Click — Flap"]
   },
 
-  // --- NEW 20 HIGH-END PREMIUM GAMES ---
+  // ── 3D SPORTS & BILLIARDS ORIGINALS ───────────────────────
   "orig-16": {
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    genre: "Sports/Casual", resolution: "1920×1080", serverNode: "MUM-NODE-01",
+    url: "/arcade-engines/bowling-3d/index.html",
+    genre: "3D Cyber Bowling", resolution: "1920×1080", serverNode: "MUM-NODE-01",
     nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Space / Click — Action"]
+    controls: ["Aim with Cursor — Click Roll"]
   },
   "orig-17": {
-    url: "https://gabrielecirulli.github.io/2048/",
-    genre: "Board Game", resolution: "1920×1080", serverNode: "DEL-NODE-03",
+    url: "/arcade-engines/billiards-3d/index.html",
+    genre: "3D Neon Billiards", resolution: "1920×1080", serverNode: "DEL-NODE-03",
     nodeCity: "Delhi", gpuTier: "RTX 4080",
-    controls: ["Arrow Keys — Play"]
+    controls: ["Aim Cue — Click Strike"]
   },
   "orig-18": {
-    url: "https://chvin.github.io/react-tetris/",
-    genre: "Casual/Puzzle", resolution: "1920×1080", serverNode: "BLR-NODE-12",
+    url: "/arcade-engines/asteroid-3d/index.html",
+    genre: "3D Space Combat", resolution: "1920×1080", serverNode: "BLR-NODE-12",
     nodeCity: "Bengaluru", gpuTier: "RTX 4070 Ti",
-    controls: ["Arrow Keys — Drop blocks"]
+    controls: ["WASD — Steer", "Space — Plasma"]
   },
   "orig-19": {
-    url: "https://hextris.github.io/hextris/",
-    genre: "Table Game", resolution: "1920×1080", serverNode: "HYD-NODE-04",
+    url: "/arcade-engines/hextris-core/index.html",
+    genre: "Hexagon Core", resolution: "1920×1080", serverNode: "HYD-NODE-04",
     nodeCity: "Hyderabad", gpuTier: "RTX 4080",
     controls: ["Arrow Keys — Spin"]
   },
   "orig-20": {
-    url: "https://chvin.github.io/react-tetris/",
-    genre: "Table Game", resolution: "1920×1080", serverNode: "CHE-NODE-08",
+    url: "/arcade-engines/tetris-pro/index.html",
+    genre: "Tetris Elite", resolution: "1920×1080", serverNode: "CHE-NODE-08",
     nodeCity: "Chennai", gpuTier: "RTX 3090",
     controls: ["Arrow Keys — Play"]
-  },
-  "aaa-7": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D AAA Racer", resolution: "2560×1440", serverNode: "MUM-NODE-07",
-    nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Arrow Keys / WASD — Drive"]
-  },
-  "aaa-8": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D AAA Stealth", resolution: "2560×1440", serverNode: "BLR-NODE-08",
-    nodeCity: "Bengaluru", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim"]
-  },
-  "aaa-9": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D AAA RPG", resolution: "2560×1440", serverNode: "DEL-NODE-01",
-    nodeCity: "Delhi", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Aim"]
-  },
-  "aaa-10": {
-    url: "https://playcanv.as/p/JH5cr9rL/",
-    genre: "3D AAA Action", resolution: "2560×1440", serverNode: "MUM-NODE-02",
-    nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["WASD — Move", "Mouse — Shoot"]
-  },
-  "aaa-11": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "3D AAA Racer", resolution: "2560×1440", serverNode: "MUM-NODE-06",
-    nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Arrow Keys / WASD — Drive"]
-  },
-  "slot-20": {
-    url: "https://gabrielecirulli.github.io/2048/",
-    genre: "Casino Slot", resolution: "1920×1080", serverNode: "PUN-NODE-03",
-    nodeCity: "Pune", gpuTier: "RTX 3080",
-    controls: ["Mouse — Spin"]
-  },
-  "slot-21": {
-    url: "https://hextris.github.io/hextris/",
-    genre: "Casino Slot", resolution: "1920×1080", serverNode: "KOL-NODE-07",
-    nodeCity: "Kolkata", gpuTier: "RTX 3070",
-    controls: ["Mouse — Spin"]
-  },
-  "slot-22": {
-    url: "https://chvin.github.io/react-tetris/",
-    genre: "Casino Slot", resolution: "1920×1080", serverNode: "HYD-NODE-02",
-    nodeCity: "Hyderabad", gpuTier: "RTX 3070",
-    controls: ["Mouse — Spin"]
-  },
-  "slot-23": {
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    genre: "Casino Slot", resolution: "1920×1080", serverNode: "CHE-NODE-06",
-    nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Mouse — Spin"]
-  },
-  "slot-24": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "Casino Slot", resolution: "1920×1080", serverNode: "CHE-NODE-04",
-    nodeCity: "Chennai", gpuTier: "RTX 3060",
-    controls: ["Mouse — Spin"]
-  },
-  "live-8": {
-    url: "https://gabrielecirulli.github.io/2048/",
-    genre: "Live Game Show", resolution: "1920×1080", serverNode: "MUM-NODE-01",
-    nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Mouse — Wager"]
-  },
-  "live-9": {
-    url: "https://hextris.github.io/hextris/",
-    genre: "Live Table", resolution: "1920×1080", serverNode: "BLR-NODE-08",
-    nodeCity: "Bengaluru", gpuTier: "RTX 4090",
-    controls: ["Mouse — Play"]
-  },
-  "live-10": {
-    url: "https://chvin.github.io/react-tetris/",
-    genre: "Live Card Game", resolution: "1920×1080", serverNode: "DEL-NODE-01",
-    nodeCity: "Delhi", gpuTier: "RTX 4090",
-    controls: ["Mouse — Wager"]
-  },
-  "live-11": {
-    url: "https://ellisonleao.github.io/clumsy-bird/",
-    genre: "Live Game Show", resolution: "1920×1080", serverNode: "MUM-NODE-02",
-    nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Mouse — Wager"]
-  },
-  "live-12": {
-    url: "https://hexgl.bkcore.com/play/",
-    genre: "Live Table", resolution: "1920×1080", serverNode: "MUM-NODE-06",
-    nodeCity: "Mumbai", gpuTier: "RTX 4090",
-    controls: ["Mouse — Play"]
   },
 };
 
 // Fallback by category
 function getGameUrl(gameId: string, categories: string[]): string {
-  if (GAME_MANIFEST[gameId]) return GAME_MANIFEST[gameId].url;
-  if (categories.includes("fps") || categories.includes("action")) return "https://playcanv.as/p/JH5cr9rL/";
-  if (categories.includes("driving") || categories.includes("racing")) return "https://hexgl.bkcore.com/play/";
-  if (categories.includes("aaa") || categories.includes("3d")) return "https://hexgl.bkcore.com/play/";
-  if (categories.includes("puzzle")) return "https://hextris.github.io/hextris/";
-  return "https://gabrielecirulli.github.io/2048/";
+  if (GAME_MANIFEST[gameId]?.url) return GAME_MANIFEST[gameId].url;
+  if (categories.includes("driving") || categories.includes("racing")) return "/arcade-engines/drift-city-3d/index.html";
+  if (categories.includes("fps") || categories.includes("3d")) return "/arcade-engines/cyber-dungeon-3d/index.html";
+  if (categories.includes("action") || categories.includes("runner") || categories.includes("aaa")) return "/arcade-engines/cyber-runner-3d/index.html";
+  if (categories.includes("puzzle")) return "/arcade-engines/tetris-pro/index.html";
+  return "/arcade-engines/2048-neon/index.html";
 }
 
 // ─────────────────────────────────────────────────────────────
