@@ -223,24 +223,26 @@ html {
 }
 
 :root {
-  --background: #fdfbf7; /* Premium warm organic cream */
-  --foreground: #191919; /* Rich charcoal */
+  --background: #f8fafc; /* Ultra-clean crisp light slate */
+  --foreground: #0f172a; /* High-contrast rich charcoal navy */
   color-scheme: light;
 }
 
-/* Design tokens - Light-first system */
+/* Design tokens - Psychological Light Betting Engine */
 :root {
-  --surface: #ffffff; /* primary card / panel surface */
-  --surface-2: #faf8f5; /* elevated warm cream */
-  --surface-3: #f3efe6; /* warm accent card surface */
-  --muted: #6e6e6e; /* premium warm muted text */
-  --border: #e9e2d3; /* elegant warm border */
-  --accent: #e0573e; /* Claude-like deep coral terracotta accent */
-  --accent-600: #c24732;
-  --success: #0f766e; /* Rich teal emerald */
-  --warning: #d97706; /* Rich warm amber */
-  --info: #2563eb; /* Sapphire blue */
-  --shadow-1: 0 1px 3px rgba(224,87,62,0.02), 0 8px 30px rgba(224,87,62,0.05), inset 0 1px 0 rgba(255,255,255,1);
+  --surface: #ffffff; /* pure white card / panel surface */
+  --surface-2: #f1f5f9; /* elevated cool slate */
+  --surface-3: #e2e8f0; /* subtle accent surface */
+  --muted: #64748b; /* readable slate muted text */
+  --border: #e2e8f0; /* crisp light border */
+  --accent: #059669; /* Luck & money emerald green */
+  --accent-600: #047857; /* Deep rich pine green */
+  --success: #10b981; /* Winning emerald */
+  --warning: #d97706; /* Dopamine amber gold */
+  --info: #0284c7; /* Exchange Cyan Back */
+  --danger: #e11d48; /* Exchange Pink/Rose Lay */
+  --shadow-1: 0 1px 3px rgba(15, 23, 42, 0.04), 0 4px 12px rgba(15, 23, 42, 0.03);
+  --shadow-2: 0 4px 6px -1px rgba(15, 23, 42, 0.06), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
 }
 
 /* Utility surface classes to standardize light visuals */

@@ -12,7 +12,6 @@ import { cn } from "@/lib/utils";
 import { useTradingStore } from "@/lib/store";
 import { useSearchParams } from "next/navigation";
 import { useSidebarContext } from "@/components/layout/AppProviders";
-import { adjustOddsForExposure } from "@/lib/mathEngine";
 import { CricketOddsEngine } from "@/lib/cricketOddsEngine";
 
 // ─── LEAGUE HIERARCHY DATA (Exact Match from Reference Video) ────────────────
@@ -257,12 +256,12 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   });
 
   return (
-    <div className="min-h-screen bg-[#111d27] text-slate-100 font-sans select-none pb-20 lg:pb-6">
+    <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans select-none pb-20 lg:pb-6">
 
       {/* ═══════════════════════════════════════════════════════════════
-          1. STAR / EXCHANGE SUB-NAVIGATION BAR & NEWS TICKER
+          1. SIGNATURE PINE GREEN NAVIGATION RIBBON & NEWS TICKER
       ═══════════════════════════════════════════════════════════════ */}
-      <div className="bg-[#1b3d2f] border-b border-[#2d5543] px-3 py-1.5 shadow-md">
+      <div className="bg-[#1b4332] border-b border-[#2d5a45] px-3 py-1.5 shadow-md">
         <div className="max-w-[1700px] mx-auto flex flex-col md:flex-row md:items-center justify-between gap-2 text-xs">
           
           {/* Category Navigation Tabs with Counters */}
@@ -291,15 +290,15 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                 className={cn(
                   "px-3 py-1.5 rounded-md font-bold uppercase tracking-wider text-xs whitespace-nowrap transition-all flex items-center gap-1.5 cursor-pointer min-h-[38px]",
                   activeNavTab === tab.id
-                    ? "bg-[#ffb800] text-slate-950 font-black shadow-xs"
-                    : "text-slate-200 hover:bg-[#254f3d] hover:text-white"
+                    ? "bg-[#ffb800] text-slate-950 font-black shadow-sm"
+                    : "text-emerald-100 hover:bg-[#255740] hover:text-white"
                 )}
               >
                 <span>{tab.label}</span>
                 {tab.badge && (
                   <span className={cn(
                     "text-[10px] px-1.5 py-0.2 rounded-full font-black",
-                    tab.badge === "NEW" ? "bg-red-600 text-white" : activeNavTab === tab.id ? "bg-slate-900 text-white" : "bg-[#2f634d] text-emerald-200"
+                    tab.badge === "NEW" ? "bg-red-600 text-white" : activeNavTab === tab.id ? "bg-slate-900 text-white" : "bg-[#2f634d] text-emerald-100"
                   )}>
                     {tab.badge}
                   </span>
@@ -311,13 +310,13 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
           {/* Quick Search & 1-Click Bet HUD */}
           <div className="flex items-center gap-2 justify-end">
             <div className="relative w-44 md:w-56">
-              <Search className="w-3.5 h-3.5 text-emerald-300/80 absolute left-2.5 top-1/2 -translate-y-1/2" />
+              <Search className="w-3.5 h-3.5 text-emerald-300 absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 type="text"
                 placeholder="Search Events..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#143024] border border-[#2d5543] rounded-md pl-8 pr-6 py-1 text-xs text-white placeholder:text-emerald-300/50 focus:outline-hidden focus:border-amber-400"
+                className="w-full bg-[#122e22] border border-[#2d5a45] rounded-md pl-8 pr-6 py-1 text-xs text-white placeholder:text-emerald-300/60 focus:outline-hidden focus:border-amber-400"
               />
               {searchQuery && (
                 <button onClick={() => setSearchQuery("")} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white cursor-pointer">
@@ -327,13 +326,13 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
             </div>
 
             {/* One-Click Bet Switch */}
-            <div className="hidden sm:flex items-center gap-1.5 bg-[#143024] border border-[#2d5543] px-2.5 py-1 rounded-md text-xs">
+            <div className="hidden sm:flex items-center gap-1.5 bg-[#122e22] border border-[#2d5a45] px-2.5 py-1 rounded-md text-xs">
               <span className="font-bold text-[11px] text-emerald-200">1-Click</span>
               <button
                 onClick={() => setOneClickBet(!oneClickBet)}
                 className={cn(
                   "w-8 h-4 rounded-full transition-colors relative p-0.5 cursor-pointer",
-                  oneClickBet ? "bg-emerald-500" : "bg-slate-700"
+                  oneClickBet ? "bg-emerald-500" : "bg-slate-600"
                 )}
               >
                 <div className={cn(
@@ -348,12 +347,12 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       </div>
 
       {/* ── Marquee News Ticker (Matching Video) ── */}
-      <div className="bg-[#152e23] border-b border-[#234938] px-3 py-1 flex items-center gap-2 text-xs font-bold text-emerald-200">
+      <div className="bg-[#133827] border-b border-[#234938] px-3 py-1 flex items-center gap-2 text-xs font-bold text-emerald-100">
         <span className="bg-[#ffb800] text-slate-950 px-2 py-0.5 rounded text-[10px] font-black uppercase flex items-center gap-1 shrink-0">
           <Volume2 className="w-3 h-3" /> News
         </span>
         <div className="overflow-hidden whitespace-nowrap w-full">
-          <div className="inline-block animate-marquee pl-[100%] text-[11px] text-emerald-100 font-medium">
+          <div className="inline-block animate-marquee pl-[100%] text-[11px] text-emerald-50 font-medium">
             📢 21-Aug-2026 Event: Pakistan Blues v Pakistan Greens | Market: F Zaman Runs ... Whole Market Voided Due To Player Injury ... Fast Live Feeds Active.
           </div>
         </div>
@@ -365,14 +364,14 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       <div className="max-w-[1700px] mx-auto p-2 sm:p-3 grid grid-cols-1 lg:grid-cols-12 gap-3">
         
         {/* ── LEFT COLUMN: ALL SPORTS LEAGUE TREE ACCORDION (3 COLS) ── */}
-        <aside className="hidden lg:block lg:col-span-3 bg-[#162734] border border-slate-800 rounded-xl overflow-hidden shadow-lg h-fit">
-          <div className="bg-[#1c3243] px-3.5 py-2.5 border-b border-slate-700 flex items-center justify-between">
-            <span className="font-black text-xs uppercase tracking-wider text-slate-200 flex items-center gap-2">
-              <Trophy className="w-4 h-4 text-emerald-400" /> All Sports
+        <aside className="hidden lg:block lg:col-span-3 bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm h-fit">
+          <div className="bg-slate-50 px-3.5 py-2.5 border-b border-slate-200 flex items-center justify-between">
+            <span className="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
+              <Trophy className="w-4 h-4 text-emerald-600" /> All Sports
             </span>
           </div>
 
-          <div className="divide-y divide-slate-800/80 text-xs">
+          <div className="divide-y divide-slate-100 text-xs">
             {Object.entries(TOURNAMENT_LEAGUES).map(([sportKey, leagues]) => {
               const isOpen = activeSport.toLowerCase().replace(" ", "_") === sportKey.toLowerCase();
               return (
@@ -384,22 +383,22 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                     }}
                     className={cn(
                       "w-full px-3.5 py-2.5 flex items-center justify-between font-bold text-left transition-colors cursor-pointer",
-                      isOpen ? "bg-[#1f384d] text-emerald-300 font-black" : "text-slate-300 hover:bg-[#1a2d3b] hover:text-white"
+                      isOpen ? "bg-emerald-50/80 text-emerald-800 font-black" : "text-slate-700 hover:bg-slate-50 hover:text-slate-950"
                     )}
                   >
                     <span>{sportKey.replace("_", " ")}</span>
-                    {isOpen ? <ChevronDown className="w-3.5 h-3.5 text-emerald-400" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-500" />}
+                    {isOpen ? <ChevronDown className="w-3.5 h-3.5 text-emerald-700" /> : <ChevronRight className="w-3.5 h-3.5 text-slate-400" />}
                   </button>
 
                   {isOpen && (
-                    <div className="bg-[#12202b] py-1 border-t border-slate-800/60 max-h-72 overflow-y-auto custom-scrollbar">
+                    <div className="bg-slate-50/60 py-1 border-t border-slate-100 max-h-72 overflow-y-auto custom-scrollbar">
                       {leagues.map(league => (
                         <button
                           key={league}
                           onClick={() => setSelectedLeague(league)}
                           className={cn(
                             "w-full text-left px-5 py-1.5 text-xs truncate transition-colors cursor-pointer",
-                            selectedLeague === league ? "text-amber-300 font-black bg-amber-500/10" : "text-slate-400 hover:text-white hover:bg-slate-800/50"
+                            selectedLeague === league ? "text-emerald-800 font-black bg-emerald-100/60" : "text-slate-600 hover:text-slate-950 hover:bg-slate-100/50"
                           )}
                         >
                           {league}
@@ -416,31 +415,31 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         {/* ── CENTER STAGE: 6-BOX MATCHED EXCHANGE GRID (6 COLS) ── */}
         <main className="col-span-1 lg:col-span-6 space-y-2.5">
           
-          {/* Dynamic League Header Skin or Promotional Carousel */}
+          {/* Dynamic League Header Skin or Featured Hero */}
           {selectedLeague && !selectedLeague.startsWith("All ") ? (
-            <div className="bg-gradient-to-r from-[#1c3a2b] via-[#162e22] to-[#12221b] border border-emerald-700/60 rounded-xl p-4 shadow-md flex items-center justify-between">
+            <div className="bg-gradient-to-r from-emerald-800 via-teal-800 to-slate-900 border border-emerald-700 rounded-xl p-4 shadow-sm flex items-center justify-between text-white">
               <div className="space-y-1">
-                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-300 uppercase">
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-emerald-200 uppercase">
                   <span>{activeSport}</span>
-                  <ChevronRight className="w-3 h-3 text-slate-500" />
-                  <span className="text-amber-400 font-black">{selectedLeague}</span>
+                  <ChevronRight className="w-3 h-3 text-emerald-400" />
+                  <span className="text-amber-300 font-black">{selectedLeague}</span>
                 </div>
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">{selectedLeague}</h2>
-                <p className="text-xs text-emerald-200 font-medium">Official Tournament Workspace • {filteredMatches.length} Fixtures Active</p>
+                <p className="text-xs text-emerald-100 font-medium">Official Tournament Workspace • {filteredMatches.length} Fixtures Active</p>
               </div>
               <button
                 onClick={() => setSelectedLeague(`All ${activeSport}`)}
-                className="px-3 py-1.5 bg-emerald-600/30 hover:bg-emerald-600/50 text-emerald-200 border border-emerald-500/40 rounded-lg text-xs font-bold transition-colors cursor-pointer"
+                className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white border border-white/20 rounded-lg text-xs font-bold transition-colors cursor-pointer"
               >
                 View All
               </button>
             </div>
           ) : (
-            <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-emerald-900 via-teal-800 to-slate-900 border border-emerald-700/60 p-4 shadow-lg flex items-center justify-between">
+            <div className="relative rounded-xl overflow-hidden bg-gradient-to-r from-emerald-800 via-teal-700 to-slate-900 border border-emerald-600/40 p-4 shadow-sm flex items-center justify-between text-white">
               <div className="space-y-1">
                 <span className="bg-amber-400 text-slate-950 text-[10px] font-black px-2 py-0.5 rounded uppercase">Featured</span>
                 <h2 className="text-base sm:text-lg font-black text-white uppercase tracking-wider">INTERNATIONAL CASINO & CRICKET</h2>
-                <p className="text-xs text-emerald-200 font-medium">Instant Settlements • Zero Latency Live Feeds • 100% Verified Bhav</p>
+                <p className="text-xs text-emerald-100 font-medium">Instant Settlements • Zero Latency Live Feeds • 100% Verified Bhav</p>
               </div>
               <div className="hidden sm:flex items-center gap-1">
                 <span className="w-2 h-2 rounded-full bg-white" />
@@ -451,7 +450,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
           )}
 
           {/* Time Filter Tabs & Mobile League Accordion Button */}
-          <div className="bg-[#162734] border border-slate-800 rounded-xl p-1.5 flex items-center justify-between gap-2 shadow-sm">
+          <div className="bg-white border border-slate-200 rounded-xl p-1.5 flex items-center justify-between gap-2 shadow-xs">
             <div className="flex items-center gap-1">
               {[
                 { id: "inplay", label: "In-Play" },
@@ -465,7 +464,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                     "px-3.5 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all cursor-pointer min-h-[36px]",
                     selectedDateTab === t.id
                       ? "bg-[#ffb800] text-slate-950 shadow-xs"
-                      : "text-slate-300 hover:bg-slate-800 hover:text-white"
+                      : "text-slate-600 hover:bg-slate-100 hover:text-slate-900"
                   )}
                 >
                   {t.label}
@@ -476,18 +475,18 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
             {/* Mobile League Selector Toggle */}
             <button
               onClick={() => setIsMobileLeagueOpen(!isMobileLeagueOpen)}
-              className="lg:hidden flex items-center gap-1 bg-slate-800 border border-slate-700 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-200 cursor-pointer min-h-[36px]"
+              className="lg:hidden flex items-center gap-1 bg-slate-100 border border-slate-300 px-2.5 py-1.5 rounded-lg text-xs font-bold text-slate-800 cursor-pointer min-h-[36px]"
             >
-              <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-400" />
+              <SlidersHorizontal className="w-3.5 h-3.5 text-emerald-600" />
               <span className="truncate max-w-[100px]">{selectedLeague.replace("All ", "")}</span>
-              <ChevronDown className="w-3 h-3 text-slate-400" />
+              <ChevronDown className="w-3 h-3 text-slate-500" />
             </button>
           </div>
 
           {/* Collapsible Mobile League Drawer */}
           {isMobileLeagueOpen && (
-            <div className="lg:hidden bg-[#162734] border border-slate-800 rounded-xl p-2 shadow-xl animate-in slide-in-from-top-2">
-              <span className="text-[10px] font-black uppercase text-slate-400 px-2 block mb-1">Select Tournament</span>
+            <div className="lg:hidden bg-white border border-slate-200 rounded-xl p-2 shadow-lg animate-in slide-in-from-top-2">
+              <span className="text-[10px] font-black uppercase text-slate-500 px-2 block mb-1">Select Tournament</span>
               <div className="grid grid-cols-2 gap-1 max-h-48 overflow-y-auto custom-scrollbar">
                 {(TOURNAMENT_LEAGUES[activeSport] || TOURNAMENT_LEAGUES.Cricket).map(lg => (
                   <button
@@ -498,7 +497,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                     }}
                     className={cn(
                       "text-left px-2.5 py-2 rounded-lg text-xs font-bold truncate transition-colors min-h-[38px] flex items-center",
-                      selectedLeague === lg ? "bg-emerald-600 text-white font-black" : "text-slate-300 hover:bg-slate-800"
+                      selectedLeague === lg ? "bg-emerald-700 text-white font-black" : "text-slate-700 hover:bg-slate-100"
                     )}
                   >
                     {lg}
@@ -510,38 +509,38 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
           {/* Feedback Banner */}
           {betFeedback && (
-            <div className="bg-emerald-950 border border-emerald-500/80 text-emerald-300 px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center justify-between shadow-lg">
+            <div className="bg-emerald-50 border border-emerald-400 text-emerald-900 px-3 py-2 rounded-xl text-xs font-black uppercase flex items-center justify-between shadow-xs">
               <span>{betFeedback}</span>
-              <button onClick={() => setBetFeedback(null)} className="text-slate-400 hover:text-white cursor-pointer"><X className="w-3.5 h-3.5" /></button>
+              <button onClick={() => setBetFeedback(null)} className="text-slate-500 hover:text-slate-900 cursor-pointer"><X className="w-3.5 h-3.5" /></button>
             </div>
           )}
 
           {/* 6-BOX MATCHED EXCHANGE TABLE (Matching Video) */}
-          <div className="bg-[#162734] border border-slate-800 rounded-xl overflow-hidden shadow-lg">
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
             
             {/* Table Header */}
-            <div className="bg-[#1f384d] border-b border-slate-700 px-3 py-2 flex items-center justify-between text-[11px] font-black text-slate-200 uppercase tracking-wider">
+            <div className="bg-slate-100/80 border-b border-slate-200 px-3 py-2 flex items-center justify-between text-[11px] font-black text-slate-700 uppercase tracking-wider">
               <div className="flex-1">{selectedLeague.startsWith("All ") ? "Sports Highlights" : selectedLeague}</div>
               <div className="hidden sm:flex items-center gap-1 w-[260px] justify-end">
-                <div className="w-16 text-center text-[#72bbef]">1 Back</div>
-                <div className="w-16 text-center text-[#faa9ba]">1 Lay</div>
-                <div className="w-16 text-center text-[#72bbef]">2 Back</div>
-                <div className="w-16 text-center text-[#faa9ba]">2 Lay</div>
+                <div className="w-16 text-center text-[#0284c7] font-black">1 Back</div>
+                <div className="w-16 text-center text-[#e11d48] font-black">1 Lay</div>
+                <div className="w-16 text-center text-[#0284c7] font-black">2 Back</div>
+                <div className="w-16 text-center text-[#e11d48] font-black">2 Lay</div>
               </div>
             </div>
 
             {/* Table Body */}
-            <div className="divide-y divide-slate-800/70 text-xs">
+            <div className="divide-y divide-slate-100 text-xs">
               {isLoading ? (
-                <div className="p-12 text-center text-slate-400 flex flex-col items-center gap-3">
-                  <div className="w-8 h-8 border-3 border-emerald-500 border-t-transparent rounded-full animate-spin"></div>
-                  <span className="text-xs font-bold uppercase tracking-wider">Syncing live verified feeds...</span>
+                <div className="p-12 text-center text-slate-500 flex flex-col items-center gap-3">
+                  <div className="w-8 h-8 border-3 border-emerald-600 border-t-transparent rounded-full animate-spin"></div>
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-600">Syncing live verified feeds...</span>
                 </div>
               ) : filteredMatches.length === 0 ? (
-                <div className="p-12 text-center text-slate-400">
-                  <Trophy className="w-10 h-10 text-slate-600 mx-auto mb-2 opacity-60" />
-                  <p className="text-sm font-black uppercase text-slate-200">No Matches for {selectedLeague}</p>
-                  <p className="text-xs text-slate-400 mt-1">Switch to All Cricket or Today</p>
+                <div className="p-12 text-center text-slate-500">
+                  <Trophy className="w-10 h-10 text-slate-400 mx-auto mb-2 opacity-60" />
+                  <p className="text-sm font-black uppercase text-slate-800">No Matches for {selectedLeague}</p>
+                  <p className="text-xs text-slate-500 mt-1">Switch to All Cricket or Today</p>
                 </div>
               ) : (
                 filteredMatches.map(m => {
@@ -553,43 +552,43 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                   const lay2 = parseFloat((o2 + 0.02).toFixed(2));
 
                   return (
-                    <div key={m.id} className="p-3 hover:bg-[#1a2d3b] transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                    <div key={m.id} className="p-3 hover:bg-slate-50 transition-colors flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
                       
                       {/* Match Meta & Names (Clickable Link) */}
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <button
                             onClick={() => togglePinMatch(m.id)}
-                            className={cn("p-1 rounded cursor-pointer transition-colors", isPinned ? "text-amber-400" : "text-slate-500 hover:text-slate-300")}
+                            className={cn("p-1 rounded cursor-pointer transition-colors", isPinned ? "text-amber-500" : "text-slate-400 hover:text-slate-700")}
                           >
                             <Pin className="w-3.5 h-3.5" />
                           </button>
 
                           {isLive ? (
-                            <span className="bg-red-500/20 text-red-400 border border-red-500/40 px-1.5 py-0.2 rounded text-[9px] font-black uppercase flex items-center gap-1">
-                              <span className="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse" /> Live
+                            <span className="bg-red-50 text-red-700 border border-red-200 px-1.5 py-0.2 rounded text-[9px] font-black uppercase flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" /> Live
                             </span>
                           ) : (
-                            <span className="bg-slate-800 text-slate-400 px-1.5 py-0.2 rounded text-[9px] font-black">
+                            <span className="bg-slate-100 text-slate-600 border border-slate-200 px-1.5 py-0.2 rounded text-[9px] font-black">
                               {m.timeStr || "SCHEDULED"}
                             </span>
                           )}
 
-                          <span className="text-[10px] text-slate-400 font-bold uppercase truncate">{m.seriesName || "Exchange Market"}</span>
+                          <span className="text-[10px] text-slate-500 font-bold uppercase truncate">{m.seriesName || "Exchange Market"}</span>
                         </div>
 
                         <Link href={`/sportsbook/match/${m.id}`} className="block group">
-                          <div className="font-black text-sm text-slate-100 group-hover:text-emerald-400 transition-colors truncate">
+                          <div className="font-black text-sm text-slate-900 group-hover:text-emerald-700 transition-colors truncate">
                             {m.team1} v {m.team2}
                           </div>
                           {m.score && (
-                            <div className="text-xs font-mono font-bold text-emerald-400 mt-0.5">
+                            <div className="text-xs font-mono font-bold text-emerald-700 mt-0.5">
                               {m.score}
                             </div>
                           )}
                         </Link>
 
-                        <div className="text-[10px] text-slate-500 font-mono mt-1">
+                        <div className="text-[10px] text-slate-400 font-mono mt-1">
                           Matched: PIN 592,746,458.20
                         </div>
                       </div>
@@ -599,7 +598,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                         {/* Team 1 Back */}
                         <button
                           onClick={() => handleSelectOdds(m, m.team1, o1, 'back')}
-                          className="w-full sm:w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                          className="w-full sm:w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
                         >
                           <span className="text-[8px] opacity-75 font-bold uppercase">Back</span>
                           <span className="text-sm font-black">{o1.toFixed(2)}</span>
@@ -608,7 +607,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                         {/* Team 1 Lay */}
                         <button
                           onClick={() => handleSelectOdds(m, m.team1, lay1, 'lay')}
-                          className="w-full sm:w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                          className="w-full sm:w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
                         >
                           <span className="text-[8px] opacity-75 font-bold uppercase">Lay</span>
                           <span className="text-sm font-black">{lay1.toFixed(2)}</span>
@@ -617,7 +616,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                         {/* Team 2 Back */}
                         <button
                           onClick={() => handleSelectOdds(m, m.team2, o2, 'back')}
-                          className="w-full sm:w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                          className="w-full sm:w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
                         >
                           <span className="text-[8px] opacity-75 font-bold uppercase">Back</span>
                           <span className="text-sm font-black">{o2.toFixed(2)}</span>
@@ -626,7 +625,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                         {/* Team 2 Lay */}
                         <button
                           onClick={() => handleSelectOdds(m, m.team2, lay2, 'lay')}
-                          className="w-full sm:w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-sm min-h-[44px]"
+                          className="w-full sm:w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-xs rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
                         >
                           <span className="text-[8px] opacity-75 font-bold uppercase">Lay</span>
                           <span className="text-sm font-black">{lay2.toFixed(2)}</span>
@@ -645,43 +644,43 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
         {/* ── RIGHT COLUMN: STICKY BET SLIP WORKSPACE (3 COLS) ── */}
         <aside className="hidden lg:block lg:col-span-3 space-y-3">
-          <div className="bg-[#162734] border border-slate-800 rounded-xl overflow-hidden shadow-lg sticky top-3">
+          <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-sm sticky top-3">
             
-            <div className="bg-[#1c3243] px-3.5 py-2.5 border-b border-slate-700 flex items-center justify-between">
-              <span className="font-black text-xs uppercase tracking-wider text-slate-200 flex items-center gap-2">
-                <Receipt className="w-4 h-4 text-amber-400" /> Bet Slip
+            <div className="bg-slate-50 px-3.5 py-2.5 border-b border-slate-200 flex items-center justify-between">
+              <span className="font-black text-xs uppercase tracking-wider text-slate-800 flex items-center gap-2">
+                <Receipt className="w-4 h-4 text-amber-500" /> Bet Slip
               </span>
-              <span className="text-[10px] text-slate-400 font-mono">PIN: {(walletBalance || 25400).toLocaleString()}</span>
+              <span className="text-[10px] text-slate-500 font-mono">PIN: {(walletBalance || 25400).toLocaleString()}</span>
             </div>
 
             {selectedBet ? (
               <div className="p-3 space-y-3">
-                <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+                <div className="flex items-center justify-between border-b border-slate-100 pb-2">
                   <div>
-                    <span className="font-black text-sm text-white">{selectedBet.selection}</span>
-                    <span className="text-[10px] text-slate-400 font-bold block">{selectedBet.matchTitle}</span>
+                    <span className="font-black text-sm text-slate-900">{selectedBet.selection}</span>
+                    <span className="text-[10px] text-slate-500 font-bold block">{selectedBet.matchTitle}</span>
                   </div>
-                  <button onClick={() => setSelectedBet(null)} className="text-slate-400 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
+                  <button onClick={() => setSelectedBet(null)} className="text-slate-400 hover:text-slate-700 cursor-pointer"><X className="w-4 h-4" /></button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-2">
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 block uppercase">Odds</label>
+                    <label className="text-[10px] font-bold text-slate-500 block uppercase">Odds</label>
                     <input
                       type="number"
                       step="0.01"
                       value={selectedBet.odds}
                       onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 font-mono font-black text-xs text-white"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 font-mono font-black text-xs text-slate-900"
                     />
                   </div>
                   <div>
-                    <label className="text-[10px] font-bold text-slate-400 block uppercase">Stake</label>
+                    <label className="text-[10px] font-bold text-slate-500 block uppercase">Stake</label>
                     <input
                       type="number"
                       value={selectedBet.stake}
                       onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
-                      className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2 py-1.5 font-mono font-black text-xs text-white"
+                      className="w-full bg-slate-50 border border-slate-200 rounded-lg px-2 py-1.5 font-mono font-black text-xs text-slate-900"
                     />
                   </div>
                 </div>
@@ -692,16 +691,16 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                     <button
                       key={val}
                       onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
-                      className="py-1.5 bg-slate-800 hover:bg-slate-700 text-[10px] font-mono font-bold text-slate-200 rounded-md cursor-pointer transition-colors"
+                      className="py-1.5 bg-slate-100 hover:bg-slate-200 text-[10px] font-mono font-bold text-slate-800 rounded-md cursor-pointer transition-colors"
                     >
                       +{val >= 1000 ? `${val / 1000}k` : val}
                     </button>
                   ))}
                 </div>
 
-                <div className="flex items-center justify-between text-xs font-bold pt-1 border-t border-slate-800">
-                  <span className="text-slate-400">Potential Return:</span>
-                  <strong className="text-emerald-400 font-mono">
+                <div className="flex items-center justify-between text-xs font-bold pt-1 border-t border-slate-100">
+                  <span className="text-slate-500">Potential Return:</span>
+                  <strong className="text-emerald-700 font-mono">
                     PIN {Math.round(selectedBet.stake * (selectedBet.odds - 1)).toLocaleString()}
                   </strong>
                 </div>
@@ -709,15 +708,15 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                 <button
                   disabled={isPlacing || selectedBet.stake <= 0}
                   onClick={handlePlaceBetslip}
-                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-500 hover:brightness-110 font-black text-xs uppercase tracking-wider rounded-lg shadow-md cursor-pointer transition-all"
+                  className="w-full py-2.5 bg-gradient-to-r from-emerald-600 to-teal-600 hover:brightness-105 font-black text-xs text-white uppercase tracking-wider rounded-lg shadow-sm cursor-pointer transition-all"
                 >
                   {isPlacing ? "Placing Order..." : "Place Bet"}
                 </button>
               </div>
             ) : (
               <div className="p-8 text-center text-slate-400 text-xs">
-                <Receipt className="w-8 h-8 mx-auto text-slate-600 mb-2 opacity-50" />
-                <p className="font-bold">Click any odd to create a bet</p>
+                <Receipt className="w-8 h-8 mx-auto text-slate-300 mb-2 opacity-60" />
+                <p className="font-bold text-slate-600">Click any odd to create a bet</p>
               </div>
             )}
 
@@ -731,38 +730,38 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       ═══════════════════════════════════════════════════════════════ */}
       {selectedBet && (
         <div className="lg:hidden fixed inset-x-0 bottom-0 z-50 p-3 max-w-md mx-auto animate-in slide-in-from-bottom-6">
-          <div className="bg-[#111d27] border-2 border-emerald-500/80 rounded-2xl p-4 shadow-2xl space-y-3">
-            <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+          <div className="bg-white border-2 border-emerald-600 rounded-2xl p-4 shadow-2xl space-y-3">
+            <div className="flex items-center justify-between border-b border-slate-100 pb-2">
               <div>
-                <span className="font-black text-sm text-white">{selectedBet.selection}</span>
-                <span className="text-[10px] text-slate-400 font-bold block">{selectedBet.matchTitle}</span>
+                <span className="font-black text-sm text-slate-900">{selectedBet.selection}</span>
+                <span className="text-[10px] text-slate-500 font-bold block">{selectedBet.matchTitle}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className={cn("px-2 py-0.5 rounded text-[10px] uppercase font-black", selectedBet.type === 'back' ? "bg-[#72bbef] text-[#002b49]" : "bg-[#faa9ba] text-[#4a0011]")}>
                   {selectedBet.type.toUpperCase()}
                 </span>
-                <button onClick={() => setSelectedBet(null)} className="p-1 text-slate-400 hover:text-white cursor-pointer"><X className="w-4 h-4" /></button>
+                <button onClick={() => setSelectedBet(null)} className="p-1 text-slate-400 hover:text-slate-700 cursor-pointer"><X className="w-4 h-4" /></button>
               </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <label className="text-[10px] font-bold text-slate-400 block uppercase">Odds</label>
+                <label className="text-[10px] font-bold text-slate-500 block uppercase">Odds</label>
                 <input
                   type="number"
                   step="0.01"
                   value={selectedBet.odds}
                   onChange={(e) => setSelectedBet({ ...selectedBet, odds: parseFloat(e.target.value) || 1.01 })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white min-h-[44px]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-black text-sm text-slate-900 min-h-[44px]"
                 />
               </div>
               <div>
-                <label className="text-[10px] font-bold text-slate-400 block uppercase">Stake</label>
+                <label className="text-[10px] font-bold text-slate-500 block uppercase">Stake</label>
                 <input
                   type="number"
                   value={selectedBet.stake}
                   onChange={(e) => setSelectedBet({ ...selectedBet, stake: parseInt(e.target.value) || 0 })}
-                  className="w-full bg-slate-900 border border-slate-700 rounded-xl px-3 py-2 font-mono font-black text-sm text-white min-h-[44px]"
+                  className="w-full bg-slate-50 border border-slate-200 rounded-xl px-3 py-2 font-mono font-black text-sm text-slate-900 min-h-[44px]"
                 />
               </div>
             </div>
@@ -772,7 +771,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                 <button
                   key={val}
                   onClick={() => setSelectedBet({ ...selectedBet, stake: val })}
-                  className="py-2 bg-slate-800 text-xs font-mono font-bold text-slate-200 rounded-xl cursor-pointer min-h-[36px]"
+                  className="py-2 bg-slate-100 hover:bg-slate-200 text-xs font-mono font-bold text-slate-800 rounded-xl cursor-pointer min-h-[36px]"
                 >
                   +{val >= 1000 ? `${val / 1000}k` : val}
                 </button>
@@ -782,7 +781,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
             <button
               disabled={isPlacing || selectedBet.stake <= 0}
               onClick={handlePlaceBetslip}
-              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-500 font-black text-sm uppercase tracking-wider rounded-xl cursor-pointer shadow-lg min-h-[48px]"
+              className="w-full py-3 bg-gradient-to-r from-emerald-600 to-teal-600 font-black text-sm text-white uppercase tracking-wider rounded-xl cursor-pointer shadow-md min-h-[48px]"
             >
               {isPlacing ? "Placing Order..." : "Confirm & Place Bet"}
             </button>
