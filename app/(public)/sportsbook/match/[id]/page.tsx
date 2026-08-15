@@ -1223,66 +1223,93 @@ export default function MatchDetailPage({ params }: PageProps) {
               </div>
 
               {/* Controls Row: Stake Input + Quick Presets + Financials + Submit Button */}
-              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
-                
-                {/* Stake Presets and Input */}
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-1 bg-slate-50 border border-slate-300 rounded-xl px-2 py-1">
-                    <span className="text-xs font-black text-slate-600">₹</span>
-                    <input
-                      type="number"
-                      value={quickBetStake}
-                      onChange={(e) => setQuickBetStake(Math.max(10, parseInt(e.target.value) || 0))}
-                      className="w-20 sm:w-24 text-xs sm:text-sm font-black font-mono text-slate-900 bg-transparent focus:outline-none"
-                    />
-                  </div>
+              {(() => {
+                const platformFee = Math.round(quickBetStake * 0.15 * 100) / 100;
+                const isLayOrNo = selectedMarketBet.type === "lay" || selectedMarketBet.type === "no";
+                const liability = isLayOrNo ? Math.round(quickBetStake * (selectedMarketBet.odds - 1) * 100) / 100 : 0;
+                const totalCharged = Math.round((quickBetStake + liability + platformFee) * 100) / 100;
+                const winPayout = isLayOrNo ? quickBetStake : Math.round(quickBetStake * selectedMarketBet.odds * 100) / 100;
+                const netProfit = isLayOrNo ? quickBetStake : Math.round((winPayout - totalCharged) * 100) / 100;
 
-                  <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
-                    {[100, 500, 1000, 5000].map(amt => (
-                      <button
-                        key={amt}
-                        type="button"
-                        onClick={() => setQuickBetStake(amt)}
-                        className={cn(
-                          "px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black font-mono transition-all cursor-pointer shrink-0",
-                          quickBetStake === amt
-                            ? "bg-slate-950 text-white shadow-xs"
-                            : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                return (
+                  <>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2.5">
+                      {/* Stake Presets and Input */}
+                      <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 bg-slate-50 border border-slate-300 rounded-xl px-2 py-1">
+                          <span className="text-xs font-black text-slate-600">₹</span>
+                          <input
+                            type="number"
+                            value={quickBetStake}
+                            onChange={(e) => setQuickBetStake(Math.max(10, parseInt(e.target.value) || 0))}
+                            className="w-20 sm:w-24 text-xs sm:text-sm font-black font-mono text-slate-900 bg-transparent focus:outline-none"
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-1 overflow-x-auto scrollbar-none">
+                          {[100, 500, 1000, 5000].map(amt => (
+                            <button
+                              key={amt}
+                              type="button"
+                              onClick={() => setQuickBetStake(amt)}
+                              className={cn(
+                                "px-2 sm:px-2.5 py-1 rounded-lg text-xs font-black font-mono transition-all cursor-pointer shrink-0",
+                                quickBetStake === amt
+                                  ? "bg-slate-950 text-white shadow-xs"
+                                  : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200"
+                              )}
+                            >
+                              ₹{amt >= 1000 ? `${amt / 1000}k` : amt}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Financial Summary & Place Bet Button */}
+                      <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                        <div className="flex flex-col text-left sm:text-right">
+                          <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
+                            {isLayOrNo ? "Max Liability" : "Estimated Payout (Win)"}
+                          </span>
+                          <span className={cn(
+                            "font-black font-mono text-xs sm:text-sm",
+                            isLayOrNo ? "text-pink-600" : "text-emerald-700"
+                          )}>
+                            ₹{winPayout.toLocaleString()}
+                          </span>
+                        </div>
+
+                        <button
+                          type="button"
+                          disabled={isPlacing}
+                          onClick={handlePlaceBet}
+                          className="flex-1 sm:flex-initial px-5 sm:px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
+                        >
+                          {isPlacing ? "Placing..." : `Place Bet ₹${totalCharged.toLocaleString()}`}
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Transparent Fee & Itemized Cost Breakdown */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 flex flex-wrap items-center justify-between gap-2 text-[10px] font-mono">
+                      <div className="flex items-center gap-3 text-slate-600">
+                        <span>Base Stake: <strong className="text-slate-900">₹{quickBetStake.toLocaleString()}</strong></span>
+                        <span>•</span>
+                        <span>Service Fee (15%): <strong className="text-amber-700">₹{platformFee.toLocaleString()}</strong></span>
+                        {liability > 0 && (
+                          <>
+                            <span>•</span>
+                            <span>Lay Liability: <strong className="text-pink-700">₹{liability.toLocaleString()}</strong></span>
+                          </>
                         )}
-                      >
-                        ₹{amt >= 1000 ? `${amt / 1000}k` : amt}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Financial Summary & Place Bet Button */}
-                <div className="flex items-center justify-between sm:justify-end gap-3 pt-1 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                  <div className="flex flex-col text-left sm:text-right">
-                    <span className="text-[9px] font-bold text-slate-400 uppercase tracking-wider">
-                      {selectedMarketBet.type === "lay" || selectedMarketBet.type === "no" ? "Max Liability" : "Potential Profit"}
-                    </span>
-                    <span className={cn(
-                      "font-black font-mono text-xs sm:text-sm",
-                      selectedMarketBet.type === "lay" || selectedMarketBet.type === "no" ? "text-pink-600" : "text-emerald-700"
-                    )}>
-                      ₹{selectedMarketBet.type === "lay" || selectedMarketBet.type === "no"
-                        ? Math.round(quickBetStake * (selectedMarketBet.odds - 1)).toLocaleString()
-                        : Math.round(quickBetStake * (selectedMarketBet.odds - 1)).toLocaleString()}
-                    </span>
-                  </div>
-
-                  <button
-                    type="button"
-                    disabled={isPlacing}
-                    onClick={handlePlaceBet}
-                    className="flex-1 sm:flex-initial px-5 sm:px-6 py-2.5 bg-red-600 hover:bg-red-700 text-white font-black rounded-xl text-xs sm:text-sm uppercase tracking-wider transition-all shadow-md active:scale-95 disabled:opacity-50 cursor-pointer flex items-center justify-center gap-1.5"
-                  >
-                    {isPlacing ? "Placing..." : `Place Bet ₹${quickBetStake.toLocaleString()}`}
-                  </button>
-                </div>
-
-              </div>
+                      </div>
+                      <div className="font-bold text-slate-800">
+                        Total Deducted: <span className="text-red-700 font-black">₹{totalCharged.toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </>
+                );
+              })()}
 
               {betFeedback && (
                 <div className="text-center text-xs font-black text-emerald-900 bg-emerald-50 border border-emerald-300 p-2 rounded-xl animate-in fade-in">

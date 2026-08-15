@@ -947,19 +947,20 @@ export const useTradingStore = create<TradingState>()(
               timestamp: Date.now()
             };
 
+            const chargedAmount = typeof data.totalCharged === 'number' ? data.totalCharged : Number(stake);
             const newTx: Transaction = data.tx || {
               id: data.transactionId || `TX-${Date.now()}`,
               type: 'trade',
-              amount: Number(stake),
-              balanceAfter: typeof data.newBalance === 'number' ? data.newBalance : state.balance - Number(stake),
+              amount: chargedAmount,
+              balanceAfter: typeof data.newBalance === 'number' ? data.newBalance : Math.round((state.balance - chargedAmount) * 100) / 100,
               timestamp: Date.now(),
-              details: `[LOCKED] Placed ₹${stake} ${side === 'no' ? 'Lay' : 'Back'} bet on ${selection} @ ${Number(odds).toFixed(2)} (${matchTitle})`,
+              details: `[LOCKED] Placed ₹${stake} ${side === 'no' ? 'Lay' : 'Back'} bet on ${selection} @ ${Number(odds).toFixed(2)} (${matchTitle}) [Includes 15% Platform Fee: ₹${(Number(stake) * 0.15).toFixed(2)}]`,
               status: 'Locked' as any
             };
 
             const updatedPositions = [newPos, ...state.positions];
             const updatedTransactions = [newTx, ...state.transactions];
-            const updatedBalance = typeof data.newBalance === 'number' ? data.newBalance : Math.round((state.balance - Number(stake)) * 100) / 100;
+            const updatedBalance = typeof data.newBalance === 'number' ? data.newBalance : Math.round((state.balance - chargedAmount) * 100) / 100;
 
             const isReal = state.currentUser.accountType === 'real';
             const updatedUser: UserProfile = {

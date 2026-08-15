@@ -19,7 +19,8 @@ import {
   Landmark,
   Copy,
   Trash2,
-  Info
+  Info,
+  MessageCircle
 } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
@@ -114,6 +115,7 @@ interface PaymentSettingsState {
   upiId: string;
   gpayId: string;
   phonepeId: string;
+  whatsappNumber?: string;
   upiQrType?: 'dynamic' | 'custom';
   upiQrImageUrl?: string;
   btcAddress?: string;
@@ -129,6 +131,7 @@ interface PaymentSettingsState {
     upiId: "aurabet@okaxis",
     gpayId: "aurabet.gpay@okaxis",
     phonepeId: "aurabet.ybl@okaxis",
+    whatsappNumber: "+919876543210",
     upiQrType: "dynamic",
     upiQrImageUrl: "",
     btcAddress: "bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh",
@@ -654,6 +657,28 @@ const compressImage = (base64Str: string): Promise<string> => {
                                 </div>
                               </div>
                             </div>
+
+                            {/* 0% Deposit Fee Guarantee Badge */}
+                            <div className="flex items-center justify-between p-3 bg-emerald-500/10 border border-emerald-500/25 rounded-2xl text-xs text-emerald-900 shadow-2xs">
+                              <div className="flex items-center gap-2">
+                                <ShieldCheck className="w-4 h-4 text-emerald-600 shrink-0" />
+                                <span className="font-bold text-[11px]">0% Deposit Fee Guarantee</span>
+                              </div>
+                              <span className="font-black font-mono text-[11px] bg-white px-2 py-0.5 rounded-lg border border-emerald-300 text-emerald-700">
+                                ₹{amount.toLocaleString()} Credited (100%)
+                              </span>
+                            </div>
+
+                            {/* 1-Tap WhatsApp Direct Connect Button */}
+                            <a
+                              href={`https://wa.me/${(paymentSettings.whatsappNumber || "919876543210").replace(/\D/g, '')}?text=${encodeURIComponent(`Hi Admin, I am depositing ₹${amount.toLocaleString()} on AuraBet.\n\n👤 Username/Email: ${currentUser?.username || currentUser?.email}\n💰 Amount: ₹${amount.toLocaleString()}\n\nKindly verify and release my funds to my account.`)}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="w-full py-2.5 px-4 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#075E54] border border-[#25D366]/40 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer active:scale-98"
+                            >
+                              <MessageCircle className="w-4 h-4 text-[#25D366]" />
+                              <span>💬 Chat & Submit Proof on WhatsApp (Instant Verification)</span>
+                            </a>
 
                             {/* 1-Tap App Launcher Row */}
                             <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-xs">

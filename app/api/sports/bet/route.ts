@@ -98,9 +98,11 @@ export async function POST(request: Request) {
       const accountType = user.accountType === 'real' ? 'real' : 'demo';
       const activeBalance = accountType === 'real' ? user.realBalance : user.demoBalance;
 
-      // Calculate total required amount (Lay bet liability: Stake * (Odds - 1))
-      const potentialLiability = side === 'no' ? stake * (odds - 1) : 0;
-      const totalRequired = stake + potentialLiability;
+      // Calculate 15% Platform Service Fee & Liability (Lay bet liability: Stake * (Odds - 1))
+      const baseStake = Number(stake);
+      const platformFee = Math.round(baseStake * 0.15 * 100) / 100; // 15% platform service fee
+      const potentialLiability = side === 'no' ? baseStake * (odds - 1) : 0;
+      const totalRequired = Math.round((baseStake + potentialLiability + platformFee) * 100) / 100;
 
       if (activeBalance < totalRequired) {
         return { error: 'INSUFFICIENT_FUNDS', required: totalRequired, available: activeBalance, status: 400 };
@@ -108,10 +110,10 @@ export async function POST(request: Request) {
 
       const newBalance = Math.round((activeBalance - totalRequired) * 100) / 100;
 
-      // Format transaction details string with immutable LOCKED stamp
+      // Format transaction details string with immutable LOCKED stamp and transparent fee itemization
       const detailsStr = side === 'no'
-        ? `[LOCKED] Placed ₹${stake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
-        : `[LOCKED] Placed ₹${stake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`;
+        ? `[LOCKED] Placed ₹${baseStake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)} + 15% Fee: ₹${platformFee.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
+        : `[LOCKED] Placed ₹${baseStake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle}) [Includes 15% Platform Fee: ₹${platformFee.toFixed(2)}]`;
 
       const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       const tx: Transaction = {
@@ -200,7 +202,10 @@ export async function POST(request: Request) {
       transactionId: result.transactionId,
       newBalance: result.newBalance,
       position: result.position,
-      tx: result.tx
+      tx: result.tx,
+      baseStake: (result as any).baseStake,
+      platformFee: (result as any).platformFee,
+      totalCharged: (result as any).totalCharged
     }, { status: 200 });
 
   } catch (err: any) {

@@ -13,6 +13,7 @@ export interface PaymentSettings {
   upiId: string;
   gpayId: string;
   phonepeId: string;
+  whatsappNumber?: string;
   upiQrType: 'dynamic' | 'custom';
   upiQrImageUrl?: string;
   btcAddresses: BtcAddressConfig[];
@@ -29,6 +30,7 @@ const DEFAULT_SETTINGS: PaymentSettings = {
   upiId: "aurabet@okaxis",
   gpayId: "aurabet.gpay@okaxis",
   phonepeId: "aurabet.ybl@okaxis",
+  whatsappNumber: "+919876543210",
   upiQrType: "dynamic",
   upiQrImageUrl: "",
   btcAddresses: [
