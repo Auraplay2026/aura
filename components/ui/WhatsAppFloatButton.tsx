@@ -71,7 +71,7 @@ export function WhatsAppFloatButton() {
   return (
     <>
       {/* Floating Trigger Button */}
-      <div className={`fixed ${isCasinoGame ? "bottom-24" : "bottom-[140px] md:bottom-6"} z-40 flex items-center gap-3 pointer-events-auto transition-all duration-300 ${isSportsbook ? "right-4 sm:right-6 md:right-20 lg:right-[410px]" : "right-4 sm:right-6 md:right-20"}`}>
+      <div className={`fixed ${isCasinoGame ? "bottom-24 right-4" : "bottom-[140px] right-4 md:bottom-6 md:right-20"} z-40 flex items-center gap-3 pointer-events-auto transition-all duration-300`}>
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}

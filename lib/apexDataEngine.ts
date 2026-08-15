@@ -7,7 +7,7 @@
  * runs the 5-Point Gatekeeper Data Audit, and produces sub-second certified payloads.
  */
 
-import { DeepMatchInfo, PLAYERS_DATABASE } from "./sportsDeepData";
+import { DeepMatchInfo, PLAYERS_DATABASE, resolveDeepMatch } from "./sportsDeepData";
 import { VERIFIED_ROSTERS, generateSanitizedMatch } from "./liveSportsService";
 
 // ═══════════════════════════════════════════════
@@ -281,25 +281,34 @@ export class ApexDataEngine {
     const startMs = Date.now();
     const idStr = String(matchId).toLowerCase().trim();
 
-    // 1. Identify sport type
+    // 1. Resolve match directly from database or live feed
+    const resolvedDbMatch = resolveDeepMatch(matchId, hint);
     let sport: SportType = "soccer";
-    if (idStr.includes("145357") || idStr.includes("148316") || idStr.includes("aus-xi") || idStr.includes("cricket") || hint?.sport === "cricket") {
+    const mt = resolvedDbMatch.matchType;
+    if (mt === "T20" || mt === "TEST" || mt === "ODI" || hint?.sport === "cricket") {
       sport = "cricket";
-    } else if (idStr.includes("301") || idStr.includes("djokovic") || hint?.sport === "tennis") {
+    } else if (mt === "TENNIS" || hint?.sport === "tennis") {
       sport = "tennis";
-    } else if (idStr.includes("401") || idStr.includes("lakers") || hint?.sport === "basketball") {
+    } else if (mt === "FOOTBALL" || hint?.sport === "soccer" || hint?.sport === "football") {
+      sport = "soccer";
+    } else if (mt === "NBA" || hint?.sport === "basketball") {
       sport = "basketball";
     }
 
-    // 2. Ingest 5 sources concurrently
+    // 2. Ingest sources concurrently
     await this.ingest5Sources(matchId, sport);
 
     // 3. Resolve clean match data
-    const team1Name = hint?.team1 || (sport === "cricket" ? "Southern Brave Women" : sport === "tennis" ? "Novak Djokovic" : sport === "basketball" ? "Miami Heat" : "Arsenal");
-    const team2Name = hint?.team2 || (sport === "cricket" ? "Sunrisers Leeds Women" : sport === "tennis" ? "Carlos Alcaraz" : sport === "basketball" ? "Toronto Raptors" : "Coventry City");
-    const score = hint?.score || (sport === "cricket" ? "148/4 (18.2 ov)" : sport === "tennis" ? "6-4, 4-6, 5-4* (40-30)" : sport === "basketball" ? "108 - 104" : "2 - 1 (74')");
-
-    const match = generateSanitizedMatch(matchId, team1Name, team2Name, score, sport);
+    let match: DeepMatchInfo = resolvedDbMatch;
+    if (hint && hint.team1 && hint.team2) {
+      match = generateSanitizedMatch(
+        matchId,
+        hint.team1,
+        hint.team2,
+        hint.score || resolvedDbMatch.status || "Live in-play",
+        sport
+      );
+    }
 
     // 4. Run 5-Point Gatekeeper Data Audit
     const auditReport = this.runGatekeeperAudit(matchId, sport, match, startMs);
@@ -316,9 +325,11 @@ export class ApexDataEngine {
 
     if (sport === "cricket" && !isUpcoming) {
       const bCard = match.scorecards?.[0];
-      const striker = bCard?.batting?.[3] || bCard?.batting?.[0] || { name: `${team1Name} Striker`, runs: 74, balls: 110, fours: 8, sixes: 1, strikeRate: 67.27 };
-      const nonStriker = bCard?.batting?.[4] || bCard?.batting?.[1] || { name: `${team1Name} Non-Striker`, runs: 64, balls: 58, fours: 6, sixes: 3, strikeRate: 110.34 };
-      const activeBowler = bCard?.bowling?.[0] || { name: `${team2Name} Strike Bowler`, overs: "18.0", maidens: 2, runs: 52, wickets: 1, economy: 2.88 };
+      const t1Name = match.team1?.name || "Team 1";
+      const t2Name = match.team2?.name || "Team 2";
+      const striker = bCard?.batting?.[3] || bCard?.batting?.[0] || { name: `${t1Name} Striker`, runs: 74, balls: 110, fours: 8, sixes: 1, strikeRate: 67.27 };
+      const nonStriker = bCard?.batting?.[4] || bCard?.batting?.[1] || { name: `${t1Name} Non-Striker`, runs: 64, balls: 58, fours: 6, sixes: 3, strikeRate: 110.34 };
+      const activeBowler = bCard?.bowling?.[0] || { name: `${t2Name} Strike Bowler`, overs: "18.0", maidens: 2, runs: 52, wickets: 1, economy: 2.88 };
 
       cricketTelemetry = {
         overNumber: 18,

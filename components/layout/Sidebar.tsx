@@ -15,10 +15,10 @@ const NAV_SECTIONS = [
     title: "Exchange Markets",
     items: [
       { name: "Sportsbook Exchange", href: "/sportsbook", icon: LineChart, color: "text-rose-500", badge: "" },
-      { name: "Cricket (In-Play)", href: "/sportsbook?sport=cricket", emoji: "🏏", isSub: true },
-      { name: "Tennis (Sets)", href: "/sportsbook?sport=tennis", emoji: "🎾", isSub: true },
-      { name: "Football / Soccer (FIFA)", href: "/sportsbook?sport=football", emoji: "⚽", isSub: true },
-      { name: "Basketball (Full Time)", href: "/sportsbook?sport=basketball", emoji: "🏀", isSub: true },
+      { name: "Cricket (In-Play)", href: "/sportsbook/cricket", emoji: "🏏", isSub: true },
+      { name: "Tennis (Sets)", href: "/sportsbook/tennis", emoji: "🎾", isSub: true },
+      { name: "Football / Soccer (FIFA)", href: "/sportsbook/football", emoji: "⚽", isSub: true },
+      { name: "Basketball (Full Time)", href: "/sportsbook/basketball", emoji: "🏀", isSub: true },
     ]
   },
   {

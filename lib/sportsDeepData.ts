@@ -1991,40 +1991,51 @@ import { generateSanitizedMatch } from "./liveSportsService";
 export function resolveDeepMatch(matchId: string, liveMatchFeed?: any): DeepMatchInfo {
   const idStr = String(matchId).toLowerCase().trim();
 
-  // 1. Direct ID / slug matches in our database
+  // 1. Direct exact ID lookup in verified database
   if (CREX_MATCHES_DATABASE[idStr]) {
     return CREX_MATCHES_DATABASE[idStr];
   }
 
-  // 2. Fuzzy slug match
-  for (const key of Object.keys(CREX_MATCHES_DATABASE)) {
-    if (idStr.includes(key) || key.includes(idStr)) {
-      return CREX_MATCHES_DATABASE[key];
+  // 2. Strict exact slug comparison (ignoring non-alphanumeric separators)
+  const normalizedSearchId = idStr.replace(/[^a-z0-9]/g, "");
+  for (const [key, match] of Object.entries(CREX_MATCHES_DATABASE)) {
+    const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (normalizedKey === normalizedSearchId) {
+      return match;
     }
   }
 
   // 3. Match from live feed object if provided
-  if (liveMatchFeed) {
-    const t1 = liveMatchFeed.team1 || "Arsenal";
-    const t2 = liveMatchFeed.team2 || "Coventry City";
-    const sport = (liveMatchFeed.sport || "soccer").toLowerCase();
-    const score = liveMatchFeed.score || "Live in-play";
+  if (liveMatchFeed && (liveMatchFeed.team1 || liveMatchFeed.team2)) {
+    const t1 = liveMatchFeed.team1 || "Team 1";
+    const t2 = liveMatchFeed.team2 || "Team 2";
+    const rawSport = (liveMatchFeed.sport || "soccer").toLowerCase();
+    const sport = rawSport === "football" ? "soccer" : rawSport;
+    const score = liveMatchFeed.score || (liveMatchFeed.status === "Upcoming" ? "Upcoming match" : "Live in-play");
     
     return generateSanitizedMatch(
       matchId,
       t1,
       t2,
       score,
-      (sport === "football" ? "soccer" : sport) as any,
+      sport as any,
       liveMatchFeed.venue ? { stadium: liveMatchFeed.venue } : undefined
     );
   }
 
-  // 4. Default fallback: If numeric ID starts with 4018/4019 (ESPN soccer ID), default to Arsenal vs Coventry City!
-  if (idStr.startsWith("4018") || idStr.startsWith("4019") || idStr.startsWith("20")) {
-    return CREX_MATCHES_DATABASE["201"] || generateSanitizedMatch(matchId, "Arsenal", "Coventry City", "Live In-Play", "soccer");
+  // 4. Deterministic sport prefix detection
+  if (idStr.startsWith("cric") || idStr.startsWith("14") || idStr.includes("cricket") || idStr.includes("brave") || idStr.includes("sunrisers")) {
+    return CREX_MATCHES_DATABASE["145357"] || CREX_MATCHES_DATABASE["aus-xi-vs-ban"];
   }
 
-  // 5. Default cricket fallback to Match 145357 (Southern Brave Women vs Sunrisers Leeds Women)
-  return CREX_MATCHES_DATABASE["145357"];
+  if (idStr.startsWith("ten") || idStr.startsWith("30") || idStr.includes("tennis") || idStr.includes("djokovic") || idStr.includes("alcaraz")) {
+    return CREX_MATCHES_DATABASE["301"] || CREX_MATCHES_DATABASE["djokovic-vs-alcaraz"];
+  }
+
+  if (idStr.startsWith("soc") || idStr.startsWith("foot") || idStr.startsWith("20") || idStr.startsWith("401") || idStr.includes("arsenal") || idStr.includes("city")) {
+    return CREX_MATCHES_DATABASE["201"] || CREX_MATCHES_DATABASE["arsenal-vs-coventry"];
+  }
+
+  // 5. Default fallback to flagship Southern Brave Women vs Sunrisers Leeds Women match
+  return CREX_MATCHES_DATABASE["145357"] || Object.values(CREX_MATCHES_DATABASE)[0];
 }

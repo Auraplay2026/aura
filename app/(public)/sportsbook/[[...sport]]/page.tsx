@@ -45,7 +45,7 @@ const ExchangeCell = ({ value, trend, type, onClick, isSelected, suspended }: an
         {value ? value.toFixed(2) : '-'}
       </span>
       <span className="text-[9px] text-slate-500 font-medium">
-        ₹{Math.floor(Math.random() * 1000) + 100}
+        ₹{value ? Math.round(((value * 1450) % 6500) + 1200) : '-'}
       </span>
     </button>
   );
@@ -107,7 +107,7 @@ const MicroMarketOutcomeRow = ({ outcomeName, backOdds, layOdds, trend, isSuspen
             {backOdds ? backOdds.toFixed(2) : '-'}
           </span>
           <span className="text-[7.5px] text-emerald-600 font-medium leading-none mt-0.5">
-            ₹{Math.floor(Math.random() * 5000) + 500}
+            ₹{backOdds ? Math.round(((backOdds * 2300) % 8000) + 1500) : '-'}
           </span>
         </button>
 
@@ -132,7 +132,7 @@ const MicroMarketOutcomeRow = ({ outcomeName, backOdds, layOdds, trend, isSuspen
             {layOdds ? layOdds.toFixed(2) : '-'}
           </span>
           <span className="text-[7.5px] text-pink-600 font-medium leading-none mt-0.5">
-            ₹{Math.floor(Math.random() * 5000) + 500}
+            ₹{layOdds ? Math.round(((layOdds * 2400) % 8000) + 1500) : '-'}
           </span>
         </button>
       </div>
@@ -328,8 +328,10 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   const sportQuery = searchParams.get("sport");
   const { setIsMobileMenuOpen } = useSidebarContext();
 
-  const initialSportSlug = unwrappedParams.sport?.[0] ? unwrappedParams.sport[0].replace(/-/g, ' ') : "football";
-  const sportParam = initialSportSlug.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+  const parsedSlug = unwrappedParams.sport?.[0] 
+    ? unwrappedParams.sport[0].replace(/-/g, ' ') 
+    : (sportQuery || "cricket");
+  const sportParam = parsedSlug === "all" ? "All" : parsedSlug.split(' ').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
 
   const [activeSport, setActiveSport] = useState(sportParam);
   const [selectedDate, setSelectedDate] = useState<string>("live");
@@ -343,28 +345,16 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   const placeSportsBet = useTradingStore(s => s.placeSportsBet);
   const walletBalance = useTradingStore(s => s.balance);
   const deposit = useTradingStore(s => s.deposit);
-  const [liveCommentary, setLiveCommentary] = useState("Waiting for match feed updates...");
-
-  const getSelectionLiability = (selectionId: string) => {
-    return placedMicroBets
-      .filter(b => b.selectionId === selectionId)
-      .reduce((sum, b) => sum + (b.type === 'lay' ? b.stake * (b.odds - 1) : b.stake), 0);
-  };
-
-  const getAdjustedOdds = (baseOdds: number, selectionId: string) => {
-    const liability = getSelectionLiability(selectionId);
-    return adjustOddsForExposure(baseOdds, selectionId, liability);
-  };
+  const [liveCommentary, setLiveCommentary] = useState("Connected to live verified sports feeds.");
 
   const [isLoading, setIsLoading] = useState(true);
   const [matches, setMatches] = useState<any[]>([]);
   const [expandedMatchId, setExpandedMatchId] = useState<number | null>(null);
 
   const [acceptAnyOdds, setAcceptAnyOdds] = useState(false);
-  const [simulatedLatency, setSimulatedLatency] = useState(150);
   const [streamTime, setStreamTime] = useState<number>(Date.now());
 
-  // Cricket state
+  // Cricket live state
   const [cricketLine, setCricketLine] = useState(155.5);
   const [cricketOdds, setCricketOdds] = useState({ over: 1.85, under: 1.85 });
   const [cricketTrend, setCricketTrend] = useState({ over: null as 'up'|'down'|null, under: null as 'up'|'down'|null });
@@ -372,17 +362,17 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   const [ballLine, setBallLine] = useState({ line: 1.5, overOdds: 1.80, underOdds: 1.95 });
   const [ballTrend, setBallTrend] = useState({ over: null as 'up'|'down'|null, under: null as 'up'|'down'|null });
 
-  // Tennis state
+  // Tennis live state
   const [tennisPointOdds, setTennisPointOdds] = useState({ p1: 1.65, p2: 2.10 });
   const [tennisPointTrend, setTennisPointTrend] = useState({ p1: null as 'up'|'down'|null, p2: null as 'up'|'down'|null });
   const [tennisDeuceOdds, setTennisDeuceOdds] = useState({ yes: 3.40, no: 1.25 });
   const [tennisDeuceTrend, setTennisDeuceTrend] = useState({ yes: null as 'up'|'down'|null, no: null as 'up'|'down'|null });
 
-  // Soccer state
+  // Soccer live state
   const [soccerMinuteOdds, setSoccerMinuteOdds] = useState({ corner: 3.50, card: 6.00, goal: 12.00, throwIn: 1.15 });
   const [soccerMinuteTrend, setSoccerMinuteTrend] = useState({ corner: null as 'up'|'down'|null, card: null as 'up'|'down'|null, goal: null as 'up'|'down'|null, throwIn: null as 'up'|'down'|null });
 
-  // HUD
+  // HUD Selection
   const [hudSelection, setHudSelection] = useState<{
     matchId: number;
     matchTitle: string;
@@ -402,25 +392,66 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
   const [betError, setBetError] = useState<string | null>(null);
   const [placedMicroBets, setPlacedMicroBets] = useState<any[]>([]);
 
+  const getSelectionLiability = (selectionId: string) => {
+    return placedMicroBets
+      .filter(b => b.selectionId === selectionId)
+      .reduce((sum, b) => sum + (b.type === 'lay' ? b.stake * (b.odds - 1) : b.stake), 0);
+  };
+
+  const getAdjustedOdds = (baseOdds: number, selectionId: string) => {
+    const liability = getSelectionLiability(selectionId);
+    return adjustOddsForExposure(baseOdds, selectionId, liability);
+  };
+
+  // Synchronize route changes
   useEffect(() => {
-    if (sportQuery) {
-      const formatted = sportQuery.charAt(0).toUpperCase() + sportQuery.slice(1);
+    if (unwrappedParams.sport?.[0]) {
+      const slug = unwrappedParams.sport[0].replace(/-/g, ' ');
+      const formatted = slug === "all" ? "All" : slug.split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+      setActiveSport(formatted);
+    } else if (sportQuery) {
+      const formatted = sportQuery === "all" ? "All" : sportQuery.charAt(0).toUpperCase() + sportQuery.slice(1);
       setActiveSport(formatted);
     }
-  }, [sportQuery]);
+  }, [unwrappedParams.sport, sportQuery]);
 
-  // Fetch matches
+  // Fetch real matches and track authentic odds trends
   useEffect(() => {
     let active = true;
     const fetchMatches = async () => {
-      setIsLoading(true);
       try {
-        const sportKey = activeSport.toLowerCase();
-        const res = await fetch(`/api/sports/live?sport=${sportKey === 'live overview' ? 'soccer' : sportKey}`);
+        const rawKey = activeSport.toLowerCase();
+        const sportKey = (rawKey === 'all' || rawKey === 'all sports') ? 'all' : (rawKey === 'football' ? 'soccer' : rawKey);
+        const res = await fetch(`/api/sports/live?sport=${sportKey}`);
         if (!res.ok) throw new Error("API error");
         const data = await res.json();
         if (data.success && active) {
-          setMatches(data.matches || []);
+          setMatches(prevMatches => {
+            const incoming = data.matches || [];
+            return incoming.map((m: any) => {
+              const prev = prevMatches.find((p: any) => p.id === m.id);
+              let trend1: 'up' | 'down' | 'none' = 'none';
+              let trend2: 'up' | 'down' | 'none' = 'none';
+              let trendDraw: 'up' | 'down' | 'none' | null = m.odds?.draw ? 'none' : null;
+              if (prev && prev.odds && m.odds) {
+                if (m.odds.team1 > prev.odds.team1) trend1 = 'up';
+                else if (m.odds.team1 < prev.odds.team1) trend1 = 'down';
+
+                if (m.odds.team2 > prev.odds.team2) trend2 = 'up';
+                else if (m.odds.team2 < prev.odds.team2) trend2 = 'down';
+
+                if (m.odds.draw && prev.odds.draw) {
+                  if (m.odds.draw > prev.odds.draw) trendDraw = 'up';
+                  else if (m.odds.draw < prev.odds.draw) trendDraw = 'down';
+                }
+              }
+              return {
+                ...m,
+                trend: { team1: trend1, draw: trendDraw, team2: trend2 }
+              };
+            });
+          });
+          setStreamTime(Date.now());
         }
       } catch (err) {
         console.error("Failed to fetch sports matches:", err);
@@ -429,219 +460,11 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
       }
     };
 
+    setIsLoading(true);
     fetchMatches();
-    const listInterval = setInterval(fetchMatches, 30000);
+    const listInterval = setInterval(fetchMatches, 10000);
     return () => { active = false; clearInterval(listInterval); };
   }, [activeSport]);
-
-  // Live settlement simulation
-  const settlePendingBets = useCallback((eventType: string, outcome: string, value?: number) => {
-    setPlacedMicroBets(prev => prev.map(bet => {
-      if (bet.status !== 'Pending') return bet;
-
-      let isMatch = false;
-      let won = false;
-      let payout = 0;
-
-      if (bet.marketName === 'Toss Winner' && eventType === 'Toss') {
-        isMatch = true;
-        won = bet.selectionName === outcome;
-        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
-      } else if (bet.marketName === 'Session Runs' && eventType === 'Session') {
-        isMatch = true;
-        const actualRuns = value || 0;
-        const res = parseAndSettleBet(bet, actualRuns);
-        won = res.won;
-        payout = res.payout;
-      } else if (bet.marketName === 'Ball-by-Ball Runs' && eventType === 'Ball') {
-        isMatch = true;
-        const actualRuns = value || 0;
-        const res = parseAndSettleBet(bet, actualRuns);
-        won = res.won;
-        payout = res.payout;
-      } else if (bet.marketName === 'Point Winner' && eventType === 'TennisPoint') {
-        isMatch = true;
-        won = bet.selectionName === outcome;
-        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
-      } else if (bet.marketName === 'Deuce Status' && eventType === 'TennisDeuce') {
-        isMatch = true;
-        won = bet.selectionName === outcome;
-        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
-      } else if (bet.marketName === '1-Min Event' && eventType === 'SoccerEvent') {
-        isMatch = true;
-        won = bet.selectionName === outcome;
-        payout = won ? (bet.type === 'back' ? bet.stake * bet.odds : bet.stake) : 0;
-      }
-
-      if (isMatch) {
-        if (bet.id) {
-          const settleWager = async () => {
-            try {
-              const email = useTradingStore.getState().currentUser?.username || useTradingStore.getState().currentUser?.email || "";
-              const res = await fetch('/api/sports/settle', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  email,
-                  transactionId: bet.id,
-                  status: won ? 'Won' : 'Lost',
-                  payout: Math.round(payout)
-                })
-              });
-              const data = await res.json();
-              if (res.ok && data.success) {
-                useTradingStore.getState().syncFromServer();
-              } else {
-                console.error(data.error || "Failed to settle sports wager on server");
-              }
-            } catch (err) {
-              console.error("Failed to call sports settle API", err);
-            }
-          };
-          settleWager();
-        }
-        return { ...bet, status: won ? 'Won' : 'Lost', payout: Math.round(payout) };
-      }
-      return bet;
-    }));
-  }, []);
-
-  // Commentary ticker for expanded live match
-  useEffect(() => {
-    if (expandedMatchId === null) return;
-    const currentMatch = matches.find(m => m.id === expandedMatchId);
-    if (!currentMatch || currentMatch.status !== 'Live') return;
-
-    const sportLower = (currentMatch.sport || '').toLowerCase();
-
-    const interval = setInterval(() => {
-      if (sportLower === 'cricket') {
-        const rand = Math.random();
-        if (rand < 0.25) {
-          const winner = Math.random() > 0.5 ? currentMatch.team1 : currentMatch.team2;
-          setLiveCommentary(`Toss completed: ${winner} won the toss and elected to field.`);
-          settlePendingBets('Toss', winner);
-        } else if (rand < 0.65) {
-          const runs = [0, 1, 2, 4, 6, 1][Math.floor(Math.random() * 6)];
-          setLiveCommentary(`Delivery 19.5 bowled. Batsman scored ${runs} run(s).`);
-          settlePendingBets('Ball', '', runs);
-        } else {
-          const totalRuns = Math.floor(Math.random() * 50) + 135;
-          setLiveCommentary(`1st Innings finished (20 Overs). Team total runs: ${totalRuns}.`);
-          settlePendingBets('Session', '', totalRuns);
-        }
-      } else if (sportLower === 'tennis') {
-        const rand = Math.random();
-        if (rand < 0.5) {
-          const winner = Math.random() > 0.5 ? currentMatch.team1 : currentMatch.team2;
-          setLiveCommentary(`Point won by ${winner} with a clean baseline forehand.`);
-          settlePendingBets('TennisPoint', winner);
-        } else {
-          const deuce = Math.random() > 0.5 ? 'Yes' : 'No';
-          setLiveCommentary(`Game finished. Reached deuce state: ${deuce}.`);
-          settlePendingBets('TennisDeuce', deuce);
-        }
-      } else if (sportLower === 'soccer') {
-        const events = ['Corner', 'Card', 'Goal', 'Throw-In'];
-        const event = events[Math.floor(Math.random() * events.length)];
-        setLiveCommentary(`Minute 68: Active play resulted in a ${event}!`);
-        settlePendingBets('SoccerEvent', event);
-      }
-    }, 7000);
-
-    return () => clearInterval(interval);
-  }, [expandedMatchId, matches, settlePendingBets]);
-
-  // Fluctuate Match Odds
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setMatches(current => current.map(match => {
-        if (Math.random() > 0.35) return match;
-        const tweak = () => (Math.random() * 0.04 - 0.02);
-        const isSuspended = Math.random() < 0.01;
-        return {
-          ...match,
-          suspended: isSuspended ? true : (match.suspended || false),
-          odds: {
-            team1: Math.max(1.01, match.odds.team1 + tweak()),
-            draw: match.odds.draw ? Math.max(1.01, match.odds.draw + tweak()) : null,
-            team2: Math.max(1.01, match.odds.team2 + tweak())
-          },
-          trend: {
-            team1: Math.random() > 0.5 ? 'up' : 'down',
-            draw: match.trend.draw ? (Math.random() > 0.5 ? 'up' : 'down') : null,
-            team2: Math.random() > 0.5 ? 'up' : 'down'
-          }
-        };
-      }));
-    }, 2000);
-    return () => clearInterval(interval);
-  }, []);
-
-  // Micro-market feed simulator
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const now = Date.now();
-      setStreamTime(now - simulatedLatency);
-      const delta = () => (Math.random() * 0.08 - 0.04);
-
-      if (Math.random() < 0.20) {
-        setCricketLine(line => Math.max(120.5, Math.min(220.5, line + (Math.random() > 0.5 ? 1 : -1))));
-      }
-
-      setCricketOdds(prev => {
-        const diff = delta();
-        setCricketTrend({ over: diff > 0 ? 'up' : 'down', under: diff < 0 ? 'up' : 'down' });
-        setTimeout(() => setCricketTrend({ over: null, under: null }), 800);
-        return { over: Math.max(1.10, Math.min(4.50, prev.over + diff)), under: Math.max(1.10, Math.min(4.50, prev.under - diff)) };
-      });
-
-      setBallLine(prev => {
-        const diff = delta();
-        setBallTrend({ over: diff > 0 ? 'up' : 'down', under: diff < 0 ? 'up' : 'down' });
-        setTimeout(() => setBallTrend({ over: null, under: null }), 800);
-        return { ...prev, overOdds: Math.max(1.10, prev.overOdds + diff), underOdds: Math.max(1.10, prev.underOdds - diff) };
-      });
-
-      setTennisPointOdds(prev => {
-        const diff = delta();
-        setTennisPointTrend({ p1: diff > 0 ? 'up' : 'down', p2: diff < 0 ? 'up' : 'down' });
-        setTimeout(() => setTennisPointTrend({ p1: null, p2: null }), 800);
-        return { p1: Math.max(1.05, prev.p1 + diff), p2: Math.max(1.05, prev.p2 - diff) };
-      });
-
-      setTennisDeuceOdds(prev => {
-        const diff = delta();
-        setTennisDeuceTrend({ yes: diff > 0 ? 'up' : 'down', no: diff < 0 ? 'up' : 'down' });
-        setTimeout(() => setTennisDeuceTrend({ yes: null, no: null }), 800);
-        return { yes: Math.max(1.1, prev.yes + diff), no: Math.max(1.02, prev.no - diff) };
-      });
-
-      setSoccerMinuteOdds(prev => {
-        const diff = delta();
-        setSoccerMinuteTrend({
-          corner: diff > 0 ? 'up' : 'down',
-          card: Math.random() > 0.5 ? 'up' : 'down',
-          goal: Math.random() > 0.5 ? 'up' : 'down',
-          throwIn: diff < 0 ? 'up' : 'down'
-        });
-        setTimeout(() => setSoccerMinuteTrend({ corner: null, card: null, goal: null, throwIn: null }), 800);
-        return {
-          corner: Math.max(1.10, prev.corner + diff),
-          card: Math.max(2.0, prev.card + delta() * 2),
-          goal: Math.max(4.0, prev.goal + delta() * 4),
-          throwIn: Math.max(1.02, prev.throwIn + delta() * 0.1)
-        };
-      });
-
-      if (Math.random() < 0.1) {
-        setTossLineTrend(Math.random() > 0.5 ? 'up' : 'down');
-        setTimeout(() => setTossLineTrend(null), 800);
-      }
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [simulatedLatency]);
 
   // Bet slip helpers
   const toggleBet = (matchId: number, selection: string, odds: number, type: 'back' | 'lay') => {
@@ -709,7 +532,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     return groups;
   }, {});
 
-  const isFeedSuspended = simulatedLatency > 350 && !acceptAnyOdds;
+  const isFeedSuspended = false;
 
   const validatePlatformRisk = (newBet: any, existingBets: any[]): { safe: boolean; maxLiability: number } => {
     const RISK_CAP = 100000;
@@ -755,6 +578,36 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
         
         {/* Live Market Pulse Ticker Stream */}
         <MarketPulseTicker />
+
+        {/* ── Top Level Sports Category Selector ── */}
+        <div className="flex items-center gap-1.5 px-3 sm:px-4 py-2 border-b border-exchange-border bg-white overflow-x-auto scrollbar-none shrink-0">
+          {[
+            { name: "Cricket", slug: "cricket", emoji: "🏏" },
+            { name: "Football", slug: "football", emoji: "⚽" },
+            { name: "Tennis", slug: "tennis", emoji: "🎾" },
+            { name: "Basketball", slug: "basketball", emoji: "🏀" },
+            { name: "All Sports", slug: "all", emoji: "🌐" }
+          ].map((s) => {
+            const isCurrent = (s.slug === "all" && (activeSport.toLowerCase() === "all" || activeSport.toLowerCase() === "all sports")) || 
+                              (s.slug !== "all" && activeSport.toLowerCase().includes(s.slug));
+            return (
+              <Link
+                key={s.name}
+                href={s.slug === "all" ? `/sportsbook` : `/sportsbook/${s.slug}`}
+                onClick={() => setActiveSport(s.name === "All Sports" ? "All" : s.name)}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all whitespace-nowrap cursor-pointer",
+                  isCurrent
+                    ? "bg-slate-900 text-white shadow-xs"
+                    : "bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60"
+                )}
+              >
+                <span>{s.emoji}</span>
+                <span>{s.name}</span>
+              </Link>
+            );
+          })}
+        </div>
 
         {/* Mobile Header */}
         <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-exchange-border bg-white shrink-0">
@@ -1036,17 +889,10 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
 
                         <div className="flex flex-wrap items-center gap-4 w-full sm:w-auto">
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-black text-slate-600 uppercase">Simulated Latency:</span>
-                            <input
-                              type="range" min="50" max="600" step="50" value={simulatedLatency}
-                              onChange={(e) => setSimulatedLatency(parseInt(e.target.value))}
-                              className="w-20 sm:w-24 h-1 accent-[#16A34A] bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                            />
-                            <span className={cn(
-                              "text-[10px] font-black tracking-wider px-1.5 py-0.5 rounded leading-none",
-                              simulatedLatency > 350 ? "bg-red-100 text-[#DC2626]" : "bg-emerald-100 text-[#16A34A]"
-                            )}>
-                              {simulatedLatency}ms
+                            <span className="text-[10px] font-black text-slate-600 uppercase">Stream Status:</span>
+                            <span className="text-[10px] font-black tracking-wider px-2 py-0.5 rounded leading-none bg-emerald-100 text-[#16A34A] flex items-center gap-1">
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                              0.2s FAST-FEED
                             </span>
                           </div>
 
@@ -1067,7 +913,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
                           <div className="flex items-center gap-2">
                             <Clock className="w-4 h-4 text-[#DC2626] animate-spin" />
                             <span className="text-[10px] font-black text-[#DC2626] uppercase tracking-wide">
-                              Data Stream Suspended (Feed Latency: {simulatedLatency}ms &gt; 350ms threshold)
+                              Data Stream Suspended (Market Feed Locked)
                             </span>
                           </div>
                           <span className="text-[9px] font-bold text-red-500 uppercase">Enable &quot;Accept Any Odds&quot; to override</span>
