@@ -609,21 +609,7 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
           })}
         </div>
 
-        {/* Mobile Header */}
-        <div className="md:hidden flex items-center justify-between px-4 py-3 border-b border-exchange-border bg-white shrink-0">
-          <button onClick={() => setIsMobileMenuOpen(true)} className="flex items-center gap-2 font-bold text-sm">
-            <Menu className="w-5 h-5 text-exchange-muted" />
-            <span className="uppercase text-exchange-text">{activeSport}</span>
-          </button>
-          <button onClick={() => setShowMobileBetslip(true)} className="relative flex items-center gap-2 font-bold text-sm text-exchange-muted hover:text-exchange-text">
-            <Receipt className="w-5 h-5" />
-            {betslip.length > 0 && (
-              <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-600 text-slate-900 rounded-full text-[10px] flex items-center justify-center">
-                {betslip.length}
-              </span>
-            )}
-          </button>
-        </div>
+
 
         {/* ── Cricbuzz / CREX Horizontal Date Carousel ── */}
         <DateNavigationCarousel
