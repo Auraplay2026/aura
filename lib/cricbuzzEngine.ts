@@ -81,7 +81,7 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
   const team1Code = miniData.team1.teamsname || team1Name.slice(0, 3).toUpperCase();
   const team2Code = miniData.team2.teamsname || team2Name.slice(0, 3).toUpperCase();
 
-  const seriesName = miniData.seriesname || "International Cricket Championship 2026";
+  const seriesName = miniData.seriesname || "";
   const matchDesc = miniData.matchdesc || miniData.matchformat || "T20 Match";
   const matchFormat = (miniData.matchformat || "T20").toUpperCase();
   const status = miniData.status || miniData.shortstatus || "Live in-play";
@@ -89,9 +89,9 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
 
   // Venue & Officials
   const venue = {
-    stadium: miniData.venueinfo?.ground || "International Cricket Stadium",
-    city: miniData.venueinfo?.city || "New Delhi",
-    country: miniData.venueinfo?.country || "India",
+    stadium: miniData.venueinfo?.ground || "",
+    city: miniData.venueinfo?.city || "",
+    country: miniData.venueinfo?.country || "",
     capacity: miniData.venueinfo?.capacity || "45,000",
     pitchReport: `Authentic ${matchFormat} surface with balanced carry and true bounce. Optimal conditions for batsman and spin variation.`,
     weather: {

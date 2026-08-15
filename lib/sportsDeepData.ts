@@ -192,6 +192,7 @@ export interface DeepMatchInfo {
     last5Matches: ("W" | "L" | "D")[];
   };
   scorecards?: CrexInningsScorecard[];
+  odds?: { team1Back: number; team1Lay: number; team2Back: number; team2Lay: number; drawBack?: number; drawLay?: number };
   footballDetails?: FootballMatchDetails;
   tennisDetails?: TennisMatchDetails;
   basketballDetails?: BasketballMatchDetails;

@@ -35,6 +35,16 @@ export default function MatchDetailPage({ params }: PageProps) {
   const [tennisTelemetry, setTennisTelemetry] = useState<any>(null);
   const scorecards = match.scorecards || [];
 
+  // Derived live odds - synchronized from listing page SWR cache
+  const liveOdds = {
+    team1Back: match.odds?.team1Back ?? 1.50,
+    team1Lay: match.odds?.team1Lay ?? 1.52,
+    team2Back: match.odds?.team2Back ?? 2.50,
+    team2Lay: match.odds?.team2Lay ?? 2.52,
+    drawBack: match.odds?.drawBack,
+    drawLay: match.odds?.drawLay
+  };
+
   // Live real-time match sync with dedicated match API
   useEffect(() => {
     let isMounted = true;
@@ -267,17 +277,17 @@ export default function MatchDetailPage({ params }: PageProps) {
               <span className="text-[11px] font-black uppercase tracking-wider text-slate-700">Match Odds:</span>
               <button
                 type="button"
-                onClick={() => setSelectedMarketBet({ name: `${match.team1.name} To Win`, type: "back", odds: 1.83 })}
+                onClick={() => setSelectedMarketBet({ name: `${match.team1.name} To Win`, type: "back", odds: liveOdds.team1Back })}
                 className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-950 border border-emerald-300 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                {match.team1.code}: <span className="font-mono text-emerald-800 font-black">{formatOddsByMode(1.83, oddsMode)}</span>
+                {match.team1.code}: <span className="font-mono text-emerald-800 font-black">{formatOddsByMode(liveOdds.team1Back, oddsMode)}</span>
               </button>
               <button
                 type="button"
-                onClick={() => setSelectedMarketBet({ name: `${match.team2.name} To Win`, type: "back", odds: 1.95 })}
+                onClick={() => setSelectedMarketBet({ name: `${match.team2.name} To Win`, type: "back", odds: liveOdds.team2Back })}
                 className="px-3 py-1.5 bg-sky-50 hover:bg-sky-100 text-sky-950 border border-sky-300 rounded-xl text-xs font-black cursor-pointer transition-all active:scale-95 shadow-2xs"
               >
-                {match.team2.code}: <span className="font-mono text-sky-800 font-black">{formatOddsByMode(1.95, oddsMode)}</span>
+                {match.team2.code}: <span className="font-mono text-sky-800 font-black">{formatOddsByMode(liveOdds.team2Back, oddsMode)}</span>
               </button>
             </div>
 
@@ -892,19 +902,19 @@ export default function MatchDetailPage({ params }: PageProps) {
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Lagai/Back)`, type: "back", odds: 1.83 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Lagai/Back)`, type: "back", odds: liveOdds.team1Back })}
                       className="w-20 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-emerald-800">BACK</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.83, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(liveOdds.team1Back, oddsMode)}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Khayi/Lay)`, type: "lay", odds: 1.85 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team1.name} (Khayi/Lay)`, type: "lay", odds: liveOdds.team1Lay })}
                       className="w-20 py-2 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-pink-800">LAY</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.85, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(liveOdds.team1Lay, oddsMode)}</span>
                     </button>
                   </div>
                 </div>
@@ -915,19 +925,19 @@ export default function MatchDetailPage({ params }: PageProps) {
                   <div className="flex items-center gap-1.5">
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Lagai/Back)`, type: "back", odds: 1.95 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Lagai/Back)`, type: "back", odds: liveOdds.team2Back })}
                       className="w-20 py-2 bg-emerald-100 hover:bg-emerald-200 text-emerald-950 border border-emerald-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-emerald-800">BACK</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.95, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(liveOdds.team2Back, oddsMode)}</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Khayi/Lay)`, type: "lay", odds: 1.98 })}
+                      onClick={() => setSelectedMarketBet({ name: `${match.team2.name} (Khayi/Lay)`, type: "lay", odds: liveOdds.team2Lay })}
                       className="w-20 py-2 bg-pink-100 hover:bg-pink-200 text-pink-950 border border-pink-300 rounded-xl text-center cursor-pointer transition-all active:scale-95 shadow-2xs"
                     >
                       <span className="block text-[8px] font-black uppercase text-pink-800">LAY</span>
-                      <span className="text-xs font-black font-mono">{formatOddsByMode(1.98, oddsMode)}</span>
+                      <span className="text-xs font-black font-mono">{formatOddsByMode(liveOdds.team2Lay, oddsMode)}</span>
                     </button>
                   </div>
                 </div>
