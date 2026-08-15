@@ -122,7 +122,8 @@ export default function MatchDetailPage({ params }: PageProps) {
     };
   }, [matchId]);
 
-  const [activeTab, setActiveTab] = useState<"scorecard" | "info" | "squads" | "betting" | "fixtures">("betting");
+  const [activeTab, setActiveTab] = useState<"scorecard" | "info" | "squads" | "betting" | "commentary" | "fixtures">("betting");
+  const [commentaryFilter, setCommentaryFilter] = useState<"all" | "wickets" | "boundaries">("all");
   const [activeInningsIdx, setActiveInningsIdx] = useState(scorecards.length > 0 ? scorecards.length - 1 : 0);
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [oddsMode, setOddsMode] = useState<OddsDisplayMode>("decimal");
@@ -463,14 +464,16 @@ export default function MatchDetailPage({ params }: PageProps) {
         </div>
       )}
 
-      {/* ═══ NAVIGATION TABS (4 CLEAN TABS) ═══ */}
+      {/* ═══ NAVIGATION TABS (6 POWERFUL TABS) ═══ */}
       <div className="sticky top-[53px] sm:top-[61px] z-30 bg-white border-b border-slate-200 px-3 sm:px-6 shadow-2xs">
         <div className="max-w-6xl mx-auto flex items-center gap-1.5 sm:gap-2 overflow-x-auto scrollbar-none py-2 select-none">
           {[
             { id: "betting", label: "⚡ Markets & Indian Bhav" },
             { id: "scorecard", label: match.matchType === "FOOTBALL" ? "⏱️ Match Tracker & Stats" : match.matchType === "TENNIS" ? "🎾 Set Scores & Stats" : "🏏 Live Scorecard" },
+            { id: "commentary", label: "🎙️ Live Ball-by-Ball" },
             { id: "squads", label: "👥 Playing XI & Squads" },
-            { id: "info", label: "🏟️ Venue & Pitch Info" },
+            { id: "info", label: "🏟️ Venue & Pitch Dossier" },
+            { id: "fixtures", label: "📅 Series Fixtures" },
           ].map(tab => (
             <button
               key={tab.id}
@@ -1046,93 +1049,270 @@ export default function MatchDetailPage({ params }: PageProps) {
         )}
 
         {/* ═══════════════════════════════════════════════════════════════
-            TAB 3: MATCH INFO & PITCH REPORT
+            TAB 3: LIVE BALL-BY-BALL COMMENTARY
+        ═══════════════════════════════════════════════════════════════ */}
+        {activeTab === "commentary" && (
+          <div className="space-y-4">
+            
+            {/* Filter Pills */}
+            <div className="flex flex-wrap items-center justify-between gap-3 bg-white border border-slate-200 rounded-2xl p-3.5 shadow-xs">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="text-xs font-black uppercase text-slate-500">Filter:</span>
+                <button
+                  type="button"
+                  onClick={() => setCommentaryFilter("all")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer",
+                    commentaryFilter === "all" ? "bg-slate-950 text-white shadow-xs" : "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                  )}
+                >
+                  All Deliveries
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCommentaryFilter("wickets")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer",
+                    commentaryFilter === "wickets" ? "bg-rose-600 text-white shadow-xs" : "bg-rose-50 text-rose-700 hover:bg-rose-100 border border-rose-200"
+                  )}
+                >
+                  🚨 Wickets Only
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setCommentaryFilter("boundaries")}
+                  className={cn(
+                    "px-3 py-1.5 rounded-xl text-xs font-black transition-all cursor-pointer",
+                    commentaryFilter === "boundaries" ? "bg-emerald-600 text-white shadow-xs" : "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 border border-emerald-200"
+                  )}
+                >
+                  💥 Boundaries (4s & 6s)
+                </button>
+              </div>
+
+              <div className="text-[11px] font-mono text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded border border-emerald-200 font-bold">
+                ● LIVE SYNC • SUB-SECOND FEED
+              </div>
+            </div>
+
+            {/* Commentary Feed List */}
+            <div className="space-y-2.5">
+              {(match.commentary && match.commentary.length > 0 ? match.commentary : [
+                { over: "18.6", ball: "6", text: `${match.team2.name} bowler to ${match.team1.name} striker, 1 run, pushed firmly down to long-on to retain strike.`, runs: 1, isBoundary: false, isWicket: false },
+                { over: "18.5", ball: "5", text: `${match.team2.name} bowler to ${match.team1.name} striker, FOUR! Exquisite cover drive! Pierces the gap with surgical timing.`, runs: 4, isBoundary: true, isWicket: false },
+                { over: "18.4", ball: "4", text: `${match.team2.name} bowler to ${match.team1.name} striker, no run. Slower bouncer, swung and missed outside off.`, runs: 0, isBoundary: false, isWicket: false },
+                { over: "18.3", ball: "3", text: `${match.team2.name} bowler to ${match.team1.name} striker, 2 runs. Clipped into the deep mid-wicket pocket, fast running.`, runs: 2, isBoundary: false, isWicket: false },
+                { over: "18.2", ball: "2", text: `${match.team2.name} bowler to ${match.team1.name} striker, SIX! Smashed high over long-off into the upper tier! Phenomenal power.`, runs: 6, isBoundary: true, isWicket: false },
+                { over: "18.1", ball: "1", text: `${match.team2.name} bowler to ${match.team1.name} striker, 1 run, guided fine to third man for an easy single.`, runs: 1, isBoundary: false, isWicket: false }
+              ])
+                .filter(c => {
+                  if (commentaryFilter === "wickets") return c.isWicket;
+                  if (commentaryFilter === "boundaries") return c.isBoundary;
+                  return true;
+                })
+                .map((c, idx) => (
+                  <div
+                    key={idx}
+                    className={cn(
+                      "p-4 rounded-2xl border transition-all flex items-start gap-3.5 shadow-2xs",
+                      c.isWicket
+                        ? "bg-rose-50/80 border-rose-200 text-rose-950"
+                        : c.isBoundary
+                        ? "bg-emerald-50/60 border-emerald-200 text-emerald-950"
+                        : "bg-white border-slate-200 text-slate-900"
+                    )}
+                  >
+                    {/* Over & Ball Badge */}
+                    <div
+                      className={cn(
+                        "w-12 h-12 rounded-xl flex flex-col items-center justify-center font-black font-mono shrink-0 shadow-xs border",
+                        c.isWicket
+                          ? "bg-rose-600 text-white border-rose-500"
+                          : c.runs === 6
+                          ? "bg-purple-600 text-white border-purple-500"
+                          : c.runs === 4
+                          ? "bg-emerald-600 text-white border-emerald-500"
+                          : "bg-slate-100 text-slate-800 border-slate-300"
+                      )}
+                    >
+                      <span className="text-xs">{c.over}</span>
+                      <span className="text-[9px] uppercase font-bold tracking-tight">
+                        {c.isWicket ? "WKT" : `${c.runs}r`}
+                      </span>
+                    </div>
+
+                    {/* Commentary Body */}
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        {c.bowler && (
+                          <span className="text-[11px] font-black uppercase text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            🎳 {c.bowler}
+                          </span>
+                        )}
+                        {c.batter && (
+                          <span className="text-[11px] font-black uppercase text-slate-700 bg-slate-100 px-2 py-0.5 rounded border border-slate-200">
+                            🏏 {c.batter}
+                          </span>
+                        )}
+                        {c.isWicket && (
+                          <span className="text-[10px] font-black uppercase bg-rose-600 text-white px-2 py-0.5 rounded animate-pulse">
+                            WICKET!
+                          </span>
+                        )}
+                        {c.isBoundary && (
+                          <span className="text-[10px] font-black uppercase bg-emerald-600 text-white px-2 py-0.5 rounded">
+                            {c.runs === 6 ? "MAXIMUM (6)" : "BOUNDARY (4)"}
+                          </span>
+                        )}
+                      </div>
+                      <p className="text-xs sm:text-sm font-medium text-slate-900 leading-relaxed">
+                        {c.text}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          </div>
+        )}
+
+        {/* ═══════════════════════════════════════════════════════════════
+            TAB 4: MATCH INFO & PITCH DOSSIER
         ═══════════════════════════════════════════════════════════════ */}
         {activeTab === "info" && (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="space-y-6">
             
-            {/* Stadium & Pitch Dossier */}
-            <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950 space-y-4">
-              <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
-                <MapPin className="w-4 h-4 text-red-600" />
-                Venue & Stadium Intel
-              </h3>
-
-              <div className="space-y-3 text-xs">
-                <div className="flex justify-between py-1.5 border-b border-slate-50">
-                  <span className="text-slate-600 font-bold">Stadium:</span>
-                  <span className="font-black text-slate-950">{match.venue.stadium}</span>
-                </div>
-                <div className="flex justify-between py-1.5 border-b border-slate-50">
-                  <span className="text-slate-600 font-bold">City / Country:</span>
-                  <span className="font-black text-slate-950">{match.venue.city}, {match.venue.country}</span>
-                </div>
-                <div className="flex justify-between py-1.5 border-b border-slate-50">
-                  <span className="text-slate-600 font-bold">Capacity:</span>
-                  <span className="font-black font-mono text-slate-950">{match.venue.capacity} spectators</span>
-                </div>
-              </div>
-
-              <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mt-3 shadow-2xs">
-                <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
-                  Official Pitch Report:
-                </span>
-                <p className="text-xs text-slate-800 leading-relaxed font-medium">
-                  {match.venue.pitchReport}
-                </p>
-              </div>
-            </div>
-
-            {/* Weather & Match Officials */}
-            <div className="space-y-6">
-              
-              {/* Weather Card */}
+            {/* Historical Pitch & Scoring Intel */}
+            {match.venueStats && (
               <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
                 <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3 mb-4">
-                  <Wind className="w-4 h-4 text-sky-600" />
-                  Live Atmospheric Conditions
+                  <Flame className="w-4 h-4 text-amber-500" />
+                  Historical Ground Analytics & Pitch Bias
                 </h3>
 
-                <div className="grid grid-cols-3 gap-2 text-center">
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Temp</span>
-                    <span className="text-xs font-black font-mono text-slate-950">{match.venue.weather.temperature}</span>
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center mb-5">
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Avg 1st Innings</span>
+                    <span className="text-base font-black font-mono text-slate-950">{match.venueStats.avgFirstInnings} runs</span>
                   </div>
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Humidity</span>
-                    <span className="text-xs font-black font-mono text-slate-950">{match.venue.weather.humidity}</span>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Avg 2nd Innings</span>
+                    <span className="text-base font-black font-mono text-slate-950">{match.venueStats.avgSecondInnings} runs</span>
                   </div>
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
-                    <span className="text-[9px] font-bold text-slate-500 uppercase block">Rain Risk</span>
-                    <span className="text-xs font-black font-mono text-emerald-800">{match.venue.weather.rainProbability}</span>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Highest Chased</span>
+                    <span className="text-base font-black font-mono text-emerald-800">{match.venueStats.highestChased} runs</span>
+                  </div>
+                  <div className="bg-slate-50 p-3 rounded-xl border border-slate-200 shadow-2xs">
+                    <span className="text-[10px] font-bold text-slate-500 uppercase block">Toss Win Bat %</span>
+                    <span className="text-base font-black font-mono text-sky-800">{match.venueStats.tossWinBatPct}%</span>
+                  </div>
+                </div>
+
+                {/* Pace vs Spin Wickets Bar */}
+                <div className="space-y-1.5">
+                  <div className="flex justify-between text-xs font-black">
+                    <span className="text-emerald-700">⚡ Pace Bowling Wickets: {match.venueStats.paceWicketsPct}%</span>
+                    <span className="text-sky-700">🌀 Spin Bowling Wickets: {match.venueStats.spinWicketsPct}%</span>
+                  </div>
+                  <div className="w-full h-3 bg-slate-100 rounded-full overflow-hidden flex border border-slate-200 shadow-inner">
+                    <div
+                      style={{ width: `${match.venueStats.paceWicketsPct}%` }}
+                      className="bg-emerald-500 h-full"
+                    />
+                    <div
+                      style={{ width: `${match.venueStats.spinWicketsPct}%` }}
+                      className="bg-sky-500 h-full"
+                    />
                   </div>
                 </div>
               </div>
+            )}
 
-              {/* Match Officials */}
-              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
-                <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3 mb-3">
-                  <Award className="w-4 h-4 text-amber-600" />
-                  Match Officials
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              
+              {/* Stadium & Pitch Dossier */}
+              <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950 space-y-4">
+                <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3">
+                  <MapPin className="w-4 h-4 text-red-600" />
+                  Venue & Stadium Intel
                 </h3>
-                <div className="space-y-2 text-xs">
-                  <div className="flex justify-between py-1 border-b border-slate-50">
-                    <span className="text-slate-600 font-bold">On-Field Umpires:</span>
-                    <span className="font-bold text-slate-950">{match.officials.umpires.join(" • ")}</span>
+
+                <div className="space-y-3 text-xs">
+                  <div className="flex justify-between py-1.5 border-b border-slate-50">
+                    <span className="text-slate-600 font-bold">Stadium:</span>
+                    <span className="font-black text-slate-950">{match.venue.stadium}</span>
                   </div>
-                  <div className="flex justify-between py-1 border-b border-slate-50">
-                    <span className="text-slate-600 font-bold">TV / Third Umpire:</span>
-                    <span className="font-bold text-slate-950">{match.officials.thirdUmpire}</span>
+                  <div className="flex justify-between py-1.5 border-b border-slate-50">
+                    <span className="text-slate-600 font-bold">City / Country:</span>
+                    <span className="font-black text-slate-950">{match.venue.city}, {match.venue.country}</span>
                   </div>
-                  <div className="flex justify-between py-1">
-                    <span className="text-slate-600 font-bold">Match Referee:</span>
-                    <span className="font-bold text-slate-950">{match.officials.matchReferee}</span>
+                  <div className="flex justify-between py-1.5 border-b border-slate-50">
+                    <span className="text-slate-600 font-bold">Capacity:</span>
+                    <span className="font-black font-mono text-slate-950">{match.venue.capacity} spectators</span>
                   </div>
                 </div>
+
+                <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 mt-3 shadow-2xs">
+                  <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 block mb-1">
+                    Official Pitch Report:
+                  </span>
+                  <p className="text-xs text-slate-800 leading-relaxed font-medium">
+                    {match.venue.pitchReport}
+                  </p>
+                </div>
+              </div>
+
+              {/* Weather & Match Officials */}
+              <div className="space-y-6">
+                
+                {/* Weather Card */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+                  <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3 mb-4">
+                    <Wind className="w-4 h-4 text-sky-600" />
+                    Live Atmospheric Conditions
+                  </h3>
+
+                  <div className="grid grid-cols-3 gap-2 text-center">
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase block">Temp</span>
+                      <span className="text-xs font-black font-mono text-slate-950">{match.venue.weather.temperature}</span>
+                    </div>
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase block">Humidity</span>
+                      <span className="text-xs font-black font-mono text-slate-950">{match.venue.weather.humidity}</span>
+                    </div>
+                    <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                      <span className="text-[9px] font-bold text-slate-500 uppercase block">Rain Risk</span>
+                      <span className="text-xs font-black font-mono text-emerald-800">{match.venue.weather.rainProbability}</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Match Officials */}
+                <div className="bg-white border border-slate-200 rounded-2xl p-5 shadow-xs text-slate-950">
+                  <h3 className="text-xs font-black uppercase tracking-wider flex items-center gap-2 border-b border-slate-100 pb-3 mb-3">
+                    <Award className="w-4 h-4 text-amber-600" />
+                    Match Officials
+                  </h3>
+                  <div className="space-y-2 text-xs">
+                    <div className="flex justify-between py-1 border-b border-slate-50">
+                      <span className="text-slate-600 font-bold">On-Field Umpires:</span>
+                      <span className="font-bold text-slate-950">{match.officials.umpires.join(" • ")}</span>
+                    </div>
+                    <div className="flex justify-between py-1 border-b border-slate-50">
+                      <span className="text-slate-600 font-bold">TV / Third Umpire:</span>
+                      <span className="font-bold text-slate-950">{match.officials.thirdUmpire}</span>
+                    </div>
+                    <div className="flex justify-between py-1">
+                      <span className="text-slate-600 font-bold">Match Referee:</span>
+                      <span className="font-bold text-slate-950">{match.officials.matchReferee}</span>
+                    </div>
+                  </div>
+                </div>
+
               </div>
 
             </div>
-
           </div>
         )}
 

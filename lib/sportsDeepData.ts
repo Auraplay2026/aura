@@ -193,6 +193,29 @@ export interface DeepMatchInfo {
   };
   scorecards?: CrexInningsScorecard[];
   odds?: { team1Back: number; team1Lay: number; team2Back: number; team2Lay: number; drawBack?: number; drawLay?: number };
+  commentary?: Array<{
+    over: string;
+    ball: string;
+    text: string;
+    runs: number;
+    isBoundary: boolean;
+    isWicket: boolean;
+    bowler?: string;
+    batter?: string;
+  }>;
+  venueStats?: {
+    avgFirstInnings: number;
+    avgSecondInnings: number;
+    highestChased: number;
+    paceWicketsPct: number;
+    spinWicketsPct: number;
+    tossWinBatPct: number;
+  };
+  winProbabilityTimeline?: Array<{
+    over: number;
+    team1Pct: number;
+    team2Pct: number;
+  }>;
   footballDetails?: FootballMatchDetails;
   tennisDetails?: TennisMatchDetails;
   basketballDetails?: BasketballMatchDetails;
