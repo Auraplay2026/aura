@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Outfit } from "next/font/google";
 import "./globals.css";
 import { AppProviders } from "@/components/layout/AppProviders";
 import { GlobalAlerts } from "@/components/ui/GlobalAlerts";
@@ -11,8 +10,6 @@ import { WinCelebration } from "@/components/ui/WinCelebration";
 import { SmartNotificationBanner } from "@/components/ui/SmartNotificationBanner";
 
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
-
-const outfit = Outfit({ subsets: ["latin"], display: 'swap', weight: ['300', '400', '500', '600', '700', '800', '900'], preload: false });
 
 export const viewport = {
   themeColor: "#f8fafc",
@@ -59,6 +56,9 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link rel="manifest" href="/manifest.json" />
         <script
           dangerouslySetInnerHTML={{
@@ -72,7 +72,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body suppressHydrationWarning className={`${outfit.className} antialiased selection:bg-red-200/50 selection:text-red-900 pb-20 md:pb-0`}>
+      <body suppressHydrationWarning className="antialiased selection:bg-red-200/50 selection:text-red-900 pb-20 md:pb-0" style={{ fontFamily: "'Outfit', sans-serif" }}>
         <AppProviders>
           <GlobalAlerts />
           <GlobalHypeFeed />
