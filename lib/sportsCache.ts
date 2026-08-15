@@ -713,12 +713,14 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
 
             let scoreText = info.status || (isLive ? "Live match in-play" : "Upcoming Match");
             if (score) {
-              const sc1 = score.team1Score?.inngs1;
-              const sc2 = score.team2Score?.inngs1;
+              const sc1 = score.team1Score?.inngs2 || score.team1Score?.inngs1;
+              const sc2 = score.team2Score?.inngs2 || score.team2Score?.inngs1;
               if (sc1 && sc2) {
                 scoreText = `${sc1.runs}/${sc1.wickets || 0} (${sc1.overs} ov) vs ${sc2.runs}/${sc2.wickets || 0} (${sc2.overs} ov)`;
               } else if (sc1) {
                 scoreText = `${sc1.runs}/${sc1.wickets || 0} (${sc1.overs} ov)`;
+              } else if (sc2) {
+                scoreText = `${sc2.runs}/${sc2.wickets || 0} (${sc2.overs} ov)`;
               }
             }
 

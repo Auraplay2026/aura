@@ -297,20 +297,49 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
     };
   }
 
-  // Summary scores for Hero Scorecard
-  let team1ScoreSummary = isUpcoming ? "Upcoming match" : "Live in-play";
+  // Summary scores for Hero Scorecard (properly mapped to team1 vs team2 by team identity)
+  let team1ScoreSummary = isUpcoming ? "Upcoming match" : "Yet to Bat";
   let team2ScoreSummary = isUpcoming ? "Upcoming match" : "Yet to Bat";
 
-  if (scorecards.length >= 2) {
-    team1ScoreSummary = scorecards[0].totalScore;
-    team2ScoreSummary = scorecards[1].totalScore;
-  } else if (scorecards.length === 1) {
-    team1ScoreSummary = scorecards[0].totalScore;
-    team2ScoreSummary = "Yet to Bat";
-  } else if (mini?.inningsscores?.inningsscore?.[0]) {
-    const sc = mini.inningsscores.inningsscore[0];
-    team1ScoreSummary = `${sc.runs}/${sc.wickets || 0} (${sc.overs} ov)`;
-    team2ScoreSummary = "Yet to Bat";
+  const t1Scores = scorecards.filter(sc => 
+    sc.teamName.toLowerCase().includes(team1Name.toLowerCase()) || 
+    team1Name.toLowerCase().includes(sc.teamName.toLowerCase()) ||
+    sc.teamCode.toLowerCase() === team1Code.toLowerCase()
+  );
+  const t2Scores = scorecards.filter(sc => 
+    sc.teamName.toLowerCase().includes(team2Name.toLowerCase()) || 
+    team2Name.toLowerCase().includes(sc.teamName.toLowerCase()) ||
+    sc.teamCode.toLowerCase() === team2Code.toLowerCase()
+  );
+
+  if (t1Scores.length > 0) {
+    team1ScoreSummary = t1Scores.map(s => s.totalScore).join(" & ");
+  }
+  if (t2Scores.length > 0) {
+    team2ScoreSummary = t2Scores.map(s => s.totalScore).join(" & ");
+  }
+
+  // If scorecards were empty or not yet completed, check miniscore inningsscores
+  if (team1ScoreSummary === "Yet to Bat" && team2ScoreSummary === "Yet to Bat" && !isUpcoming) {
+    const rawInnings = Array.isArray(mini?.inningsscores?.inningsscore) 
+      ? mini.inningsscores.inningsscore 
+      : (mini?.inningsscores?.inningsscore ? [mini.inningsscores.inningsscore] : []);
+
+    for (const sc of rawInnings) {
+      const batId = String(sc.batteamid || sc.batTeamId || "");
+      const isT1 = batId === String(miniData.team1?.teamid || miniData.team1?.id || "") || sc.inningsid === 1;
+      const scoreStr = `${sc.runs}/${sc.wickets || 0} (${sc.overs} ov)`;
+      if (isT1 && team1ScoreSummary === "Yet to Bat") {
+        team1ScoreSummary = scoreStr;
+      } else if (!isT1 && team2ScoreSummary === "Yet to Bat") {
+        team2ScoreSummary = scoreStr;
+      }
+    }
+    
+    // Fallback if still unassigned
+    if (team1ScoreSummary === "Yet to Bat" && team2ScoreSummary === "Yet to Bat") {
+      team1ScoreSummary = "Live in-play";
+    }
   }
 
   // 1. Live Commentary Extraction / Synthesis
