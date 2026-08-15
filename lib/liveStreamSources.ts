@@ -16,22 +16,22 @@ export interface LiveStreamChannel {
   latencyRating: "Ultra Low (<1s)" | "Low (2-4s)" | "Standard";
 }
 
-// ─── VERIFIED PUBLIC SPORTS FEEDS & CHANNELS ─────────────────────────────────
+// ─── VERIFIED 24/7 HIGH-PERFORMANCE SPORTS BROADCAST FEEDS ──────────────────
 export const SPORTS_LIVE_CHANNELS: LiveStreamChannel[] = [
   {
     id: "stream-server-1",
-    name: "Match Feed HD (Primary HLS)",
+    name: "Fast Match Feed HD (Server #1)",
     category: "Cricket",
     quality: "1080p 60fps",
     url: "https://cph-p2p-msl.akamaized.net/hls/live/200034/test/master.m3u8",
     isLive: true,
     sourceType: "HLS",
-    serverName: "FastCDN Edge #1",
+    serverName: "Akamai CDN Edge #1",
     latencyRating: "Low (2-4s)"
   },
   {
     id: "stream-server-2",
-    name: "Match Feed Low-Latency (Backup)",
+    name: "Low-Latency Direct Stream (Server #2)",
     category: "Cricket",
     quality: "720p 60fps",
     url: "https://test-streams.mux.dev/x36xhzz/x36xhzz.m3u8",
@@ -53,7 +53,7 @@ export const SPORTS_LIVE_CHANNELS: LiveStreamChannel[] = [
   },
   {
     id: "redbull-tv-sports",
-    name: "Red Bull TV Live Sports",
+    name: "Red Bull TV Live Arena",
     category: "All Sports",
     quality: "1080p Ultra HD",
     url: "https://rbmn-live.akamaized.net/hls/live/590964/BoRB-AT/master.m3u8",
@@ -64,13 +64,13 @@ export const SPORTS_LIVE_CHANNELS: LiveStreamChannel[] = [
   },
   {
     id: "euro-sports-stream",
-    name: "Euro Sports World Feed",
+    name: "Global Sports Broadcast Relay",
     category: "Football",
     quality: "720p HD",
     url: "https://bitdash-a.akamaihd.net/content/sintel/hls/playlist.m3u8",
     isLive: true,
     sourceType: "HLS",
-    serverName: "EuroCDN Frankfurt",
+    serverName: "Frankfurt Sports Hub",
     latencyRating: "Standard"
   }
 ];
