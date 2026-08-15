@@ -100,21 +100,22 @@ export async function POST(request: Request) {
     }
 
     // B. Check against master environment keys
+    const isProd = process.env.NODE_ENV === 'production';
     const validPasscodes = [
       process.env.ADMIN_PASSCODE,
       process.env.ADMIN_HMAC_SECRET,
       process.env.ADMIN_SECRET_KEY,
       process.env.ADMIN_FALLBACK_PASSWORD,
       process.env.ADMIN_DEFAULT_PASSWORD,
-      "aura-dev-admin-secret"
+      !isProd ? "aura-dev-admin-secret" : null
     ].filter(Boolean);
 
     if (validPasscodes.includes(providedPasscode)) {
       isPasscodeMatched = true;
     }
 
-    // C. If user is already authenticated as admin session and uses dev unlock
-    if (!isPasscodeMatched && (providedPasscode === 'aura-dev-admin-secret' || !providedPasscode)) {
+    // C. Dev-mode unlock fallback (strictly disabled in production)
+    if (!isProd && !isPasscodeMatched && (providedPasscode === 'aura-dev-admin-secret' || !providedPasscode)) {
       isPasscodeMatched = true;
     }
 

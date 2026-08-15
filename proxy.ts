@@ -14,10 +14,19 @@ export async function proxy(request: NextRequest) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
-  // 2. Rate Limiting for Auth and Betting APIs (Prevent Brute Force & Spam)
-  if (pathname.startsWith('/api/auth') || pathname.startsWith('/api/casino') || pathname.startsWith('/api/deposit')) {
+  // 2. Rate Limiting for Auth, Betting, Trading, and Financial APIs (Prevent Brute Force, Race Conditions & Spam)
+  if (
+    pathname.startsWith('/api/auth') || 
+    pathname.startsWith('/api/casino') || 
+    pathname.startsWith('/api/deposit') ||
+    pathname.startsWith('/api/sports/bet') ||
+    pathname.startsWith('/api/sports/cashout') ||
+    pathname.startsWith('/api/predictions/trade') ||
+    pathname.startsWith('/api/predictions/cashout') ||
+    pathname.startsWith('/api/support/chat')
+  ) {
     const windowMs = 60 * 1000; // 1 minute
-    const maxRequests = 30; // 30 requests per minute
+    const maxRequests = pathname.startsWith('/api/auth/login') ? 15 : 60; // 15/min for login, 60/min for gameplay/actions
 
     const currentRecord = rateLimitMap.get(ip);
     const now = Date.now();
@@ -29,8 +38,8 @@ export async function proxy(request: NextRequest) {
       } else {
         if (currentRecord.count >= maxRequests) {
           return new NextResponse(
-            JSON.stringify({ error: "Rate limit exceeded. Please wait before trying again." }),
-            { status: 429, headers: { 'Content-Type': 'application/json' } }
+            JSON.stringify({ error: "Rate limit exceeded. Please wait a moment before trying again." }),
+            { status: 429, headers: { 'Content-Type': 'application/json', 'Retry-After': '60' } }
           );
         }
         currentRecord.count += 1;
@@ -196,6 +205,9 @@ export const config = {
     '/api/auth/:path*',
     '/api/casino/:path*',
     '/api/deposit/:path*',
+    '/api/sports/:path*',
+    '/api/predictions/:path*',
+    '/api/support/:path*',
     '/data/:path*',
     '/scripts/:path*',
     '/admin/:path*',
@@ -203,3 +215,4 @@ export const config = {
     '/audit/:path*'
   ],
 };
+
