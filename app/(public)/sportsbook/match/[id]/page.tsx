@@ -6,7 +6,8 @@ import {
   ArrowLeft, Calendar, MapPin, Wind, Droplets, Trophy, 
   TrendingUp, Shield, Clock, Award, Check, AlertCircle, 
   User, ChevronRight, Zap, Info, Users, Activity, Flame, Share2, CheckCircle2, ChevronDown,
-  Pin, Settings, Lock, RefreshCw, X, Receipt, ChevronUp, SlidersHorizontal, Gamepad2, Wallet
+  Pin, Settings, Lock, RefreshCw, X, Receipt, ChevronUp, SlidersHorizontal, Gamepad2, Wallet,
+  Video, Tv, Radio
 } from "lucide-react";
 import { 
   DeepMatchInfo, CrexInningsScorecard, CREX_MATCHES_DATABASE, PLAYERS_DATABASE, PlayerDossier, resolveDeepMatch 
@@ -15,6 +16,7 @@ import { formatOddsByMode, OddsDisplayMode, convertDecimalToBhav } from "@/lib/b
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CricketOddsEngine } from "@/lib/cricketOddsEngine";
+import { LiveStreamPlayer } from "@/components/sportsbook/LiveStreamPlayer";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -33,6 +35,7 @@ export default function MatchDetailPage({ params }: PageProps) {
   const [activeTab, setActiveTab] = useState<"exchange" | "scorecard" | "commentary" | "squads" | "info">("exchange");
   const [fancyCategory, setFancyCategory] = useState<"all" | "fancy" | "ballbyball" | "khadda" | "lottery" | "oddeven">("all");
   const [isPinned, setIsPinned] = useState(false);
+  const [showLiveStream, setShowLiveStream] = useState(false);
 
   // Quick Bet & Bet Slip State
   const [oneClickBet, setOneClickBet] = useState(false);
@@ -230,6 +233,19 @@ export default function MatchDetailPage({ params }: PageProps) {
 
           <div className="flex items-center gap-2">
             <button
+              onClick={() => setShowLiveStream(!showLiveStream)}
+              className={cn(
+                "px-3 py-1.5 rounded-md text-xs font-black uppercase tracking-wider flex items-center gap-1.5 transition-colors cursor-pointer min-h-[36px]",
+                showLiveStream 
+                  ? "bg-red-600 text-white shadow-md shadow-red-900/30" 
+                  : "bg-[#122e22] text-emerald-200 hover:bg-[#255740] border border-[#2d5a45]"
+              )}
+            >
+              <Video className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+              <span>Live Video</span>
+            </button>
+
+            <button
               onClick={() => setIsPinned(!isPinned)}
               className={cn(
                 "p-2 rounded-md border transition-colors cursor-pointer min-h-[36px] min-w-[36px] flex items-center justify-center",
@@ -242,6 +258,20 @@ export default function MatchDetailPage({ params }: PageProps) {
 
         </div>
       </div>
+
+      {/* ═══════════════════════════════════════════════════════════════
+          GENUINE LIVE VIDEO STREAM (HLS.JS / MULTI-SERVER PLAYER)
+      ═══════════════════════════════════════════════════════════════ */}
+      {showLiveStream && (
+        <div className="max-w-[1700px] mx-auto p-2 sm:p-3 animate-in fade-in slide-in-from-top-2 duration-200">
+          <LiveStreamPlayer
+            matchId={matchId}
+            sportType={match.matchType}
+            matchTitle={`${match.team1.name} v ${match.team2.name}`}
+            onClose={() => setShowLiveStream(false)}
+          />
+        </div>
+      )}
 
       {/* ═══════════════════════════════════════════════════════════════
           2. TV SCOREBOARD & LIVE RUN RATE MOMENTUM GRAPH (Exact Video)
