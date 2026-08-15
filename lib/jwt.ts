@@ -1,4 +1,4 @@
-const encoder = new TextEncoder();
+import crypto from 'crypto';
 
 let sessionSecret: string = "";
 
@@ -12,37 +12,25 @@ function getJWTSecret(): string {
   return sessionSecret;
 }
 
-function base64urlEncode(bytes: Uint8Array): string {
-  let binary = "";
-  for (let i = 0; i < bytes.byteLength; i++) {
-    binary += String.fromCharCode(bytes[i]);
-  }
-  return btoa(binary)
-    .replace(/=/g, '')
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_');
-}
-
-function base64urlDecode(s: string): Uint8Array {
-  const parsed = s.replace(/-/g, '+').replace(/_/g, '/');
-  const pad = parsed.length % 4;
-  const padded = pad ? parsed + '='.repeat(4 - pad) : parsed;
-  const binary = atob(padded);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) {
-    bytes[i] = binary.charCodeAt(i);
-  }
-  return bytes;
-}
-
 export async function signJWT(payload: any): Promise<string> {
   const JWT_SECRET = getJWTSecret();
   const header = { alg: "HS256", typ: "JWT" };
-  const encodedHeader = base64urlEncode(encoder.encode(JSON.stringify(header)));
-  const encodedPayload = base64urlEncode(encoder.encode(JSON.stringify(payload)));
+  
+  if (typeof Buffer !== 'undefined') {
+    const encodedHeader = Buffer.from(JSON.stringify(header)).toString('base64url');
+    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const data = `${encodedHeader}.${encodedPayload}`;
+    const signature = crypto.createHmac('sha256', JWT_SECRET).update(data).digest('base64url');
+    return `${data}.${signature}`;
+  }
+
+  // WebCrypto fallback
+  const encoder = new TextEncoder();
+  const encodedHeader = btoa(JSON.stringify(header)).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  const encodedPayload = btoa(unescape(encodeURIComponent(JSON.stringify(payload)))).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
   const data = `${encodedHeader}.${encodedPayload}`;
   
-  const key = await crypto.subtle.importKey(
+  const key = await globalThis.crypto.subtle.importKey(
     "raw",
     encoder.encode(JWT_SECRET),
     { name: "HMAC", hash: "SHA-256" },
@@ -50,66 +38,98 @@ export async function signJWT(payload: any): Promise<string> {
     ["sign"]
   );
   
-  const signature = await crypto.subtle.sign(
+  const sigBuffer = await globalThis.crypto.subtle.sign(
     "HMAC",
     key,
     encoder.encode(data)
   );
   
-  return `${data}.${base64urlEncode(new Uint8Array(signature))}`;
+  const bytes = new Uint8Array(sigBuffer);
+  let binary = "";
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  const signature = btoa(binary).replace(/=/g, '').replace(/\+/g, '-').replace(/\//g, '_');
+  return `${data}.${signature}`;
 }
 
 export async function verifyJWT(token: string): Promise<any> {
   const JWT_SECRET = getJWTSecret();
+  if (!token || typeof token !== 'string') {
+    throw new Error("Invalid JWT token");
+  }
   const parts = token.split('.');
   if (parts.length !== 3) {
     throw new Error("Invalid JWT format");
   }
   
   const [encodedHeader, encodedPayload, encodedSignature] = parts;
-  
-  // Verify JWT header algorithm to prevent algorithm switching attacks
-  try {
-    const headerJson = new TextDecoder().decode(base64urlDecode(encodedHeader));
-    const header = JSON.parse(headerJson);
-    if (header.alg !== "HS256") {
-      throw new Error("Unsupported JWT algorithm: " + header.alg);
+  const data = `${encodedHeader}.${encodedPayload}`;
+
+  if (typeof Buffer !== 'undefined') {
+    const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(data).digest('base64url');
+    const sigBuf = Buffer.from(encodedSignature);
+    const expBuf = Buffer.from(expectedSignature);
+    
+    if (sigBuf.length !== expBuf.length || !crypto.timingSafeEqual(sigBuf, expBuf)) {
+      throw new Error("Invalid JWT signature");
     }
-  } catch (err: any) {
-    throw new Error("Invalid JWT header: " + err.message);
+
+    const payloadJson = Buffer.from(encodedPayload, 'base64url').toString('utf8');
+    const payload = JSON.parse(payloadJson);
+
+    if (!payload.exp) {
+      throw new Error("Invalid JWT: missing expiration claim.");
+    }
+    if (Date.now() / 1000 > payload.exp) {
+      throw new Error("Session expired. Please log in again.");
+    }
+
+    return payload;
   }
 
-  const data = `${encodedHeader}.${encodedPayload}`;
-  const signatureBytes = base64urlDecode(encodedSignature);
-  
-  const key = await crypto.subtle.importKey(
+  // WebCrypto fallback
+  const encoder = new TextEncoder();
+  const key = await globalThis.crypto.subtle.importKey(
     "raw",
     encoder.encode(JWT_SECRET),
     { name: "HMAC", hash: "SHA-256" },
     false,
     ["verify"]
   );
-  
-  const isValid = await crypto.subtle.verify(
+
+  const parsedSig = encodedSignature.replace(/-/g, '+').replace(/_/g, '/');
+  const pad = parsedSig.length % 4;
+  const paddedSig = pad ? parsedSig + '='.repeat(4 - pad) : parsedSig;
+  const binarySig = atob(paddedSig);
+  const sigBytes = new Uint8Array(binarySig.length);
+  for (let i = 0; i < binarySig.length; i++) {
+    sigBytes[i] = binarySig.charCodeAt(i);
+  }
+
+  const isValid = await globalThis.crypto.subtle.verify(
     "HMAC",
     key,
-    signatureBytes as any,
-    encoder.encode(data) as any
+    sigBytes,
+    encoder.encode(data)
   );
-  
+
   if (!isValid) {
     throw new Error("Invalid JWT signature");
   }
-  
-  const payloadJson = new TextDecoder().decode(base64urlDecode(encodedPayload));
-  const payload = JSON.parse(payloadJson);
-  
+
+  const parsedPayload = encodedPayload.replace(/-/g, '+').replace(/_/g, '/');
+  const padP = parsedPayload.length % 4;
+  const paddedPayload = padP ? parsedPayload + '='.repeat(4 - padP) : parsedPayload;
+  const payloadStr = decodeURIComponent(escape(atob(paddedPayload)));
+  const payload = JSON.parse(payloadStr);
+
   if (!payload.exp) {
     throw new Error("Invalid JWT: missing expiration claim.");
   }
   if (Date.now() / 1000 > payload.exp) {
     throw new Error("Session expired. Please log in again.");
   }
-  
+
   return payload;
 }

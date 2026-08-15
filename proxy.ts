@@ -137,9 +137,9 @@ export async function proxy(request: NextRequest) {
 
   // 8. Retrieve session cookies and verify signed JWT
   const emailCookie = request.cookies.get('user_email')?.value;
-  const adminToken = request.cookies.get('admin_auth_token')?.value;
+  const adminToken = request.cookies.get('admin_auth_token')?.value || request.cookies.get('user_auth_token')?.value;
 
-  if (!emailCookie || !adminToken) {
+  if (!adminToken) {
     if (pathname.startsWith('/api/admin')) {
       return NextResponse.json({ error: 'Unauthorized: Session missing' }, { status: 401 });
     }
@@ -153,35 +153,42 @@ export async function proxy(request: NextRequest) {
     // 9. Verify the signed JWT
     const payload = await verifyJWT(adminToken);
 
-    // BOLA defense: Verify JWT has admin role and valid subject
-    if (!payload.sub || payload.role !== 'admin') {
+    // Strict single-admin verification: only authorized admin role or admin email/username
+    const isDedicatedAdmin = 
+      payload.role === 'admin' || 
+      payload.sub?.toLowerCase() === 'twintubrovquattro@gmail.com' || 
+      payload.sub?.toLowerCase() === 'admin';
+
+    if (!payload.sub || !isDedicatedAdmin) {
       throw new Error('Identity mismatch / Unauthorized');
     }
 
-    // 10. Sliding window / Session renewal
+    // 10. Sliding window / Session renewal (7 days)
     const response = NextResponse.next();
-    const newExp = Math.floor(Date.now() / 1000) + 900; // 15 mins sliding duration
+    const newExp = Math.floor(Date.now() / 1000) + 7 * 86400; // 7 days duration
     const newPayload = {
       sub: payload.sub,
-      role: payload.role,
+      role: 'admin',
       exp: newExp,
       iat: Math.floor(Date.now() / 1000)
     };
     const newToken = await signJWT(newPayload);
 
+    const isProd = process.env.NODE_ENV === 'production';
+
     response.cookies.set('admin_auth_token', newToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 900,
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 7 * 86400,
       path: '/'
     });
 
-    response.cookies.set('user_email', emailCookie, {
+    response.cookies.set('user_email', emailCookie || payload.sub, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 900,
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 7 * 86400,
       path: '/'
     });
 
@@ -192,13 +199,14 @@ export async function proxy(request: NextRequest) {
     // Clear cookies on failure
     const response = pathname.startsWith('/api/admin')
       ? NextResponse.json({ error: 'Unauthorized: ' + err.message }, { status: 401 })
-      : NextResponse.redirect(new URL('/admin/login', request.url));
+      : NextResponse.redirect(new URL('/admin', request.url));
 
     response.cookies.set('user_email', '', { maxAge: 0, path: '/' });
     response.cookies.set('admin_auth_token', '', { maxAge: 0, path: '/' });
     return response;
   }
 }
+
 
 export const config = {
   matcher: [

@@ -233,17 +233,21 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     setMounted(true);
   }, []);
 
-  // 1. Role-Based Access Control (RBAC) redirect & auto-auth
+  // 1. Role-Based Access Control (RBAC) redirect & owner admin verification
   useEffect(() => {
     if (!mounted) return;
-    if (!isLoggedIn || !currentUser || currentUser.role !== 'admin') {
+    const isOwnerAdmin = 
+      isLoggedIn && 
+      currentUser && 
+      (currentUser.role === 'admin' || 
+       currentUser.username?.toLowerCase() === 'admin' || 
+       currentUser.email?.toLowerCase() === 'twintubrovquattro@gmail.com');
+
+    if (!isOwnerAdmin) {
       router.push("/");
       return;
     }
-    if (!isAuthenticated) {
-      setAdminSession(currentUser.email, 'auto-session', 'auto-signature');
-    }
-  }, [mounted, isLoggedIn, currentUser, isAuthenticated, setAdminSession, router]);
+  }, [mounted, isLoggedIn, currentUser, router]);
 
   // 2. Sandboxed activity listeners to track idle duration (300 seconds lockdown)
   useEffect(() => {
@@ -410,7 +414,14 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
   ];
 
   // Default redirect loading shell
-  if (!isLoggedIn || !currentUser || currentUser.role !== 'admin') {
+  const isOwnerAdmin = 
+    isLoggedIn && 
+    currentUser && 
+    (currentUser.role === 'admin' || 
+     currentUser.username?.toLowerCase() === 'admin' || 
+     currentUser.email?.toLowerCase() === 'twintubrovquattro@gmail.com');
+
+  if (!isOwnerAdmin) {
     return <div className="min-h-screen bg-slate-50" />;
   }
 

@@ -171,13 +171,13 @@ export async function POST(request: Request) {
     // Reset rate limiter on success
     resetRateLimit(rateLimitKey);
 
-    // 5. Generate secure JWT token
+    // 5. Generate secure JWT token (7-day administrative session)
     const now = Math.floor(Date.now() / 1000);
     const jwtPayload = {
-      sub: email.toLowerCase(),
+      sub: (user.email || user.username || email).toLowerCase(),
       role: 'admin',
       iat: now,
-      exp: now + 900 // 15 minutes expiration
+      exp: now + 7 * 86400 // 7 days expiration
     };
     
     const generatedToken = await signJWT(jwtPayload);
@@ -187,19 +187,27 @@ export async function POST(request: Request) {
       hwSignature: signature
     });
 
-    response.cookies.set('user_email', email.toLowerCase(), {
+    response.cookies.set('user_email', (user.email || user.username || email).toLowerCase(), {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 900,
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 7 * 86400,
       path: '/'
     });
 
     response.cookies.set('admin_auth_token', generatedToken, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'strict',
-      maxAge: 900,
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 7 * 86400,
+      path: '/'
+    });
+
+    response.cookies.set('user_auth_token', generatedToken, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: 'lax',
+      maxAge: 7 * 86400,
       path: '/'
     });
 

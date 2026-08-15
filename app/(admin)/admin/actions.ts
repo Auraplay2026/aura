@@ -57,7 +57,12 @@ async function secureAction(clientAdminEmail?: string, targetUserEmail?: string,
       return { success: false, email: verifiedEmail, error: "Forbidden: Admin parameter mismatch" };
     }
     
-    if (targetUserEmail && targetUserEmail.toLowerCase() === verifiedEmail.toLowerCase() && verifiedEmail.toLowerCase() !== "admin") {
+    if (
+      targetUserEmail && 
+      targetUserEmail.toLowerCase() === verifiedEmail.toLowerCase() && 
+      verifiedEmail.toLowerCase() !== "admin" && 
+      verifiedEmail.toLowerCase() !== "twintubrovquattro@gmail.com"
+    ) {
       return { success: false, email: verifiedEmail, error: "Conflict of Interest: Admins cannot modify their own profiles or transactions" };
     }
     
