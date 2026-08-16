@@ -187,10 +187,53 @@ function getNextCricketDataApiKey(): string {
   const pool = envKeys.length > 0 ? envKeys : [
     primary,
     "0e01087f-c8a9-4d22-a546-7e604e0179dd",
-    "24bbe670-1816-48b0-9f94-5dd33d2355dd"
+    "24bbe670-1816-48b0-9f94-5dd33d2355dd",
+    "8cf7e88e-ac7b-4663-9c65-5b853c9ce668"
   ];
   const key = pool[cricketDataApiKeyIndex % pool.length];
   cricketDataApiKeyIndex++;
+  return key;
+}
+
+let footballDataApiKeyIndex = 0;
+function getNextFootballDataApiKey(): string {
+  const envKeys = (process.env.FOOTBALL_DATA_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
+  const primary = process.env.FOOTBALL_DATA_API_KEY || "7ced108dbd804a13946717f5777f8a23";
+  const pool = envKeys.length > 0 ? envKeys : [
+    primary,
+    "087fef3fafcf4abc906449499f95ddba"
+  ];
+  const key = pool[footballDataApiKeyIndex % pool.length];
+  footballDataApiKeyIndex++;
+  return key;
+}
+
+let apiSportsKeyIndex = 0;
+function getNextApiSportsKey(): string {
+  const envKeys = (process.env.API_SPORTS_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
+  const primary = process.env.API_SPORTS_KEY || "96904f06f16dcd156d0ab2d5b4cce652";
+  const pool = envKeys.length > 0 ? envKeys : [
+    primary,
+    "9ee5a55395a1e3c898f96dcf1325535a"
+  ];
+  const key = pool[apiSportsKeyIndex % pool.length];
+  apiSportsKeyIndex++;
+  return key;
+}
+
+let rapidApiKeyIndex = 0;
+function getNextRapidApiKey(): string {
+  const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
+  const primary = process.env.RAPIDAPI_KEY || "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad";
+  const pool = envKeys.length > 0 ? envKeys : [
+    primary,
+    "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b",
+    "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
+    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
+    "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089"
+  ];
+  const key = pool[rapidApiKeyIndex % pool.length];
+  rapidApiKeyIndex++;
   return key;
 }
 
@@ -307,7 +350,7 @@ async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]
 
 // 1. Football-Data.org API Gateway (Authenticated)
 async function fetchFootballDataOrgMatches(): Promise<ExtendedMatch[]> {
-  const token = process.env.FOOTBALL_DATA_API_KEY || "7ced108dbd804a13946717f5777f8a23";
+  const token = getNextFootballDataApiKey();
   try {
     const res = await fetch("https://api.football-data.org/v4/matches", {
       headers: {
@@ -509,7 +552,7 @@ async function fetchTheSportsDbMatches(sportKey: "soccer" | "cricket" | "basketb
 
 // 3. API-Sports Basketball Gateway (Authenticated)
 async function fetchApiSportsBasketballMatches(): Promise<ExtendedMatch[]> {
-  const apiKey = process.env.API_SPORTS_KEY || "96904f06f16dcd156d0ab2d5b4cce652";
+  const apiKey = getNextApiSportsKey();
   const todayStr = new Date().toISOString().split("T")[0];
   try {
     const res = await fetch(`https://v1.basketball.api-sports.io/games?date=${todayStr}`, {
@@ -692,7 +735,7 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
 
 // 5. Cricbuzz RapidAPI Gateway (Authenticated Multi-Category Ingestion)
 async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
-  const apiKey = process.env.RAPIDAPI_KEY || "5da27ecf52msh8ee940bf053e076p19ec35jsne5919afdb333";
+  const apiKey = getNextRapidApiKey();
   const apiHost = process.env.RAPIDAPI_CRICBUZZ_HOST || "cricbuzz-cricket.p.rapidapi.com";
   
   try {

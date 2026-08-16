@@ -19,7 +19,13 @@ let rapidApiKeyIndex = 0;
 function getNextRapidApiKey(): string {
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
   const primary = process.env.RAPIDAPI_KEY || "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad";
-  const pool = envKeys.length > 0 ? envKeys : [primary];
+  const pool = envKeys.length > 0 ? envKeys : [
+    primary,
+    "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b",
+    "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
+    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
+    "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089"
+  ];
   const key = pool[rapidApiKeyIndex % pool.length];
   rapidApiKeyIndex++;
   return key;
@@ -46,8 +52,10 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
   const primaryKeys = envKeys.length > 0 ? envKeys : [
     "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad",
+    "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b",
     "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
-    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4"
+    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
+    "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089"
   ];
 
   const candidateKey = getNextRapidApiKey();
