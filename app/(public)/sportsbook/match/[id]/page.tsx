@@ -51,6 +51,8 @@ export default function MatchDetailPage({ params }: PageProps) {
 
   const [betFeedback, setBetFeedback] = useState<string | null>(null);
   const [isPlacing, setIsPlacing] = useState(false);
+  const [priceFlashT1, setPriceFlashT1] = useState<'up' | 'down' | null>(null);
+  const [priceFlashT2, setPriceFlashT2] = useState<'up' | 'down' | null>(null);
   const { balance: walletBalance, placeSportsBet, isLoggedIn, currentUser } = useTradingStore();
 
   // Real-time Match Telemetry Sync & Dynamic Bhav Movement
@@ -62,11 +64,27 @@ export default function MatchDetailPage({ params }: PageProps) {
     const applyMatchPayload = (data: any) => {
       if (!isMounted || !data) return;
       if (data.match) {
-        setMatch(prev => ({
-          ...prev,
-          ...data.match,
-          odds: data.match.odds || prev.odds
-        }));
+        setMatch(prev => {
+          const oldT1 = (prev.odds as any)?.team1Back || 1.90;
+          const newT1 = (data.match.odds as any)?.team1Back || oldT1;
+          const oldT2 = (prev.odds as any)?.team2Back || 1.90;
+          const newT2 = (data.match.odds as any)?.team2Back || oldT2;
+
+          if (Math.abs(newT1 - oldT1) >= 0.01) {
+            setPriceFlashT1(newT1 > oldT1 ? 'up' : 'down');
+            setTimeout(() => { if (isMounted) setPriceFlashT1(null); }, 1400);
+          }
+          if (Math.abs(newT2 - oldT2) >= 0.01) {
+            setPriceFlashT2(newT2 > oldT2 ? 'up' : 'down');
+            setTimeout(() => { if (isMounted) setPriceFlashT2(null); }, 1400);
+          }
+
+          return {
+            ...prev,
+            ...data.match,
+            odds: data.match.odds || prev.odds
+          };
+        });
       }
       if (data.gateCheck) setGateCheckInfo(data.gateCheck);
       if (data.cricketTelemetry) setCricketTelemetry(data.cricketTelemetry);
@@ -502,9 +520,21 @@ export default function MatchDetailPage({ params }: PageProps) {
               </div>
 
               {/* BOOKMAKER ZERO COMMISSION MARKET (Indian Bhav) */}
-              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs">
+              <div className="bg-white border border-slate-200 rounded-xl overflow-hidden shadow-xs relative">
+                {((match as any).marketState === 'SUSPENDED' || (match as any).marketState === 'BALL_RUNNING') && (
+                  <div className="absolute inset-0 bg-slate-950/40 backdrop-blur-[1px] z-20 flex flex-col items-center justify-center text-white">
+                    <span className="bg-rose-600 text-white font-black text-xs px-3 py-1 rounded-full uppercase tracking-wider animate-pulse flex items-center gap-1.5 shadow-lg">
+                      <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+                      {(match as any).suspensionReason || "🔒 MARKET SUSPENDED"}
+                    </span>
+                  </div>
+                )}
+
                 <div className="bg-slate-100/80 px-3.5 py-2.5 border-b border-slate-200 flex items-center justify-between text-xs font-black text-slate-800 uppercase tracking-wider">
-                  <span>Bookmaker (Zero Commission Bhav)</span>
+                  <div className="flex items-center gap-2">
+                    <span>Bookmaker (Zero Commission Bhav)</span>
+                    <span className="bg-emerald-100 text-emerald-800 text-[9px] font-black px-1.5 py-0.5 rounded">0% COMM</span>
+                  </div>
                   <span className="text-[10px] text-amber-600 font-mono font-bold">Min: 100 | Max: 50,000</span>
                 </div>
 
@@ -515,16 +545,32 @@ export default function MatchDetailPage({ params }: PageProps) {
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleSelectOdds("Bookmaker", match.team1.name, match.odds?.team1Back || 1.90, 'back')}
-                        className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                        className={cn(
+                          "w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px] transition-all",
+                          priceFlashT1 === 'up' && "ring-2 ring-emerald-500 bg-emerald-100 text-emerald-950 scale-102",
+                          priceFlashT1 === 'down' && "ring-2 ring-rose-500 bg-rose-100 text-rose-950 scale-102"
+                        )}
                       >
-                        <span>{Math.round(((match.odds?.team1Back || 1.90) - 1) * 100)}</span>
+                        <span className="flex items-center gap-0.5">
+                          {(match as any).indianBhav?.team1?.lagai ?? Math.round(((match.odds?.team1Back || 1.90) - 1) * 100)}
+                          {priceFlashT1 === 'up' && <span className="text-[8px] text-emerald-700 font-black">▲</span>}
+                          {priceFlashT1 === 'down' && <span className="text-[8px] text-rose-700 font-black">▼</span>}
+                        </span>
                         <span className="text-[8px] opacity-75 font-mono">Lagai</span>
                       </button>
                       <button
                         onClick={() => handleSelectOdds("Bookmaker", match.team1.name, match.odds?.team1Lay || 1.92, 'lay')}
-                        className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                        className={cn(
+                          "w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px] transition-all",
+                          priceFlashT1 === 'up' && "ring-2 ring-emerald-500 bg-emerald-100 text-emerald-950 scale-102",
+                          priceFlashT1 === 'down' && "ring-2 ring-rose-500 bg-rose-100 text-rose-950 scale-102"
+                        )}
                       >
-                        <span>{Math.round(((match.odds?.team1Lay || 1.92) - 1) * 100)}</span>
+                        <span className="flex items-center gap-0.5">
+                          {(match as any).indianBhav?.team1?.khai ?? Math.round(((match.odds?.team1Lay || 1.92) - 1) * 100)}
+                          {priceFlashT1 === 'up' && <span className="text-[8px] text-emerald-700 font-black">▲</span>}
+                          {priceFlashT1 === 'down' && <span className="text-[8px] text-rose-700 font-black">▼</span>}
+                        </span>
                         <span className="text-[8px] opacity-75 font-mono">Khai</span>
                       </button>
                     </div>
@@ -536,16 +582,32 @@ export default function MatchDetailPage({ params }: PageProps) {
                     <div className="flex items-center gap-1.5">
                       <button
                         onClick={() => handleSelectOdds("Bookmaker", match.team2.name, match.odds?.team2Back || 1.90, 'back')}
-                        className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                        className={cn(
+                          "w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px] transition-all",
+                          priceFlashT2 === 'up' && "ring-2 ring-emerald-500 bg-emerald-100 text-emerald-950 scale-102",
+                          priceFlashT2 === 'down' && "ring-2 ring-rose-500 bg-rose-100 text-rose-950 scale-102"
+                        )}
                       >
-                        <span>{Math.round(((match.odds?.team2Back || 1.90) - 1) * 100)}</span>
+                        <span className="flex items-center gap-0.5">
+                          {(match as any).indianBhav?.team2?.lagai ?? Math.round(((match.odds?.team2Back || 1.90) - 1) * 100)}
+                          {priceFlashT2 === 'up' && <span className="text-[8px] text-emerald-700 font-black">▲</span>}
+                          {priceFlashT2 === 'down' && <span className="text-[8px] text-rose-700 font-black">▼</span>}
+                        </span>
                         <span className="text-[8px] opacity-75 font-mono">Lagai</span>
                       </button>
                       <button
                         onClick={() => handleSelectOdds("Bookmaker", match.team2.name, match.odds?.team2Lay || 1.92, 'lay')}
-                        className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                        className={cn(
+                          "w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px] transition-all",
+                          priceFlashT2 === 'up' && "ring-2 ring-emerald-500 bg-emerald-100 text-emerald-950 scale-102",
+                          priceFlashT2 === 'down' && "ring-2 ring-rose-500 bg-rose-100 text-rose-950 scale-102"
+                        )}
                       >
-                        <span>{Math.round(((match.odds?.team2Lay || 1.92) - 1) * 100)}</span>
+                        <span className="flex items-center gap-0.5">
+                          {(match as any).indianBhav?.team2?.khai ?? Math.round(((match.odds?.team2Lay || 1.92) - 1) * 100)}
+                          {priceFlashT2 === 'up' && <span className="text-[8px] text-emerald-700 font-black">▲</span>}
+                          {priceFlashT2 === 'down' && <span className="text-[8px] text-rose-700 font-black">▼</span>}
+                        </span>
                         <span className="text-[8px] opacity-75 font-mono">Khai</span>
                       </button>
                     </div>

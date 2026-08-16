@@ -2,7 +2,7 @@ import { NextRequest } from "next/server";
 import { getSportMatchesWithSWR, ExtendedMatch } from "@/lib/sportsCache";
 import { resolveCricbuzzMatchDetails } from "@/lib/cricbuzzEngine";
 import { ApexDataEngine } from "@/lib/apexDataEngine";
-import { computeCricketBhav } from "@/lib/cricketBhavEngine";
+import { computeCricketBhav, applyBallEventToBhav } from "@/lib/cricketBhavEngine";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -140,7 +140,15 @@ export async function GET(req: NextRequest) {
             if (isCricket && resolvedMatch) {
               const scoreString = liveMatch?.score || `${resolvedMatch.team1?.scoreSummary || ""} vs ${resolvedMatch.team2?.scoreSummary || ""}`;
               const format = resolvedMatch.matchType || "T20";
-              const bhavData = computeCricketBhav(scoreString, format, 0.50, true);
+              const team1Name = resolvedMatch.team1?.name || "Team 1";
+              const team2Name = resolvedMatch.team2?.name || "Team 2";
+              let bhavData = computeCricketBhav(scoreString, format, 0.50, true, team1Name, team2Name);
+
+              // If telemetry or commentary indicates a recent ball event, apply discrete delta
+              const lastEvent = (telemetry as any)?.lastEvent || (resolvedMatch as any)?.lastBallEvent;
+              if (lastEvent) {
+                bhavData = applyBallEventToBhav(bhavData, String(lastEvent), 1);
+              }
 
               // Apply micro-tick liquidity oscillation
               const drift = Math.sin(tickCount * 0.9) * 0.01;
@@ -159,12 +167,12 @@ export async function GET(req: NextRequest) {
               };
 
               winProbability = bhavData.winProbability;
-              (resolvedMatch as any).indianBhav = {
-                team1: { lagai: Math.round((t1b - 1) * 100), khai: Math.round((t1l - 1) * 100) },
-                team2: { lagai: Math.round((t2b - 1) * 100), khai: Math.round((t2l - 1) * 100) }
-              };
+              (resolvedMatch as any).marketState = bhavData.marketState;
+              (resolvedMatch as any).suspensionReason = bhavData.suspensionReason;
+              (resolvedMatch as any).indianBhav = bhavData.indianBhav;
               (resolvedMatch as any).ladderTeam1 = bhavData.ladderTeam1;
               (resolvedMatch as any).ladderTeam2 = bhavData.ladderTeam2;
+              (resolvedMatch as any).fancyMarkets = bhavData.fancyMarkets;
 
             } else if (synchronizedOdds?.team1Back && synchronizedOdds?.team2Back) {
               const drift = Math.sin(tickCount * 0.8) * 0.02;

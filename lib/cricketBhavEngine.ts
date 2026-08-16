@@ -26,7 +26,22 @@ export interface ParsedCricketScore {
   matchFormat: 'T20' | 'ODI' | 'TEST' | '100BALL';
 }
 
+export interface FancySessionMarket {
+  id: string;
+  cat: "fancy" | "ballbyball" | "khadda" | "oddeven";
+  label: string;
+  noRuns: number | string;
+  noRate: number;
+  yesRuns: number | string;
+  yesRate: number;
+  status: "active" | "suspended" | "ball_running";
+  min: number;
+  max: number;
+}
+
 export interface CricketBhavOutput {
+  marketState: 'ACTIVE' | 'SUSPENDED' | 'BALL_RUNNING';
+  suspensionReason?: string;
   winProbability: {
     team1: number; // 0-100%
     team2: number; // 0-100%
@@ -40,8 +55,8 @@ export interface CricketBhavOutput {
     drawLay?: number;
   };
   indianBhav: {
-    team1: { lagai: number; khai: number };
-    team2: { lagai: number; khai: number };
+    team1: { lagai: number; khai: number; display: string; isFavorite: boolean };
+    team2: { lagai: number; khai: number; display: string; isFavorite: boolean };
   };
   ladderTeam1: {
     back: Array<{ odds: number; volume: string }>;
@@ -51,6 +66,7 @@ export interface CricketBhavOutput {
     back: Array<{ odds: number; volume: string }>;
     lay: Array<{ odds: number; volume: string }>;
   };
+  fancyMarkets: FancySessionMarket[];
 }
 
 /**
@@ -140,7 +156,7 @@ export function calculateInPlayWinProbability(
   parsedScore: ParsedCricketScore,
   preMatchProbTeam1: number = 0.50
 ): { probTeam1: number; probTeam2: number } {
-  const { isChasing, chasingTeam, target, runsNeeded, ballsRemaining, team1Runs, team1Wickets, team1Overs, team2Runs, team2Wickets, team2Overs, matchFormat } = parsedScore;
+  const { isChasing, chasingTeam, target, runsNeeded, ballsRemaining, team1Runs, team1Wickets, team1Overs, team2Runs, team2Wickets, matchFormat } = parsedScore;
 
   // Case 1: Match not started or no score yet -> return pre-match rating
   if (team1Runs === 0 && team2Runs === 0 && team1Overs === 0) {
@@ -203,13 +219,221 @@ export function calculateInPlayWinProbability(
 }
 
 /**
- * Generates dynamic Back & Lay order book ladders, Betfair decimals, and Indian Bhav.
+ * Generates dynamic Indian Fancy / Session Run Lines (6 Over, 10 Over, Lambi, Khadda, Even/Odd).
+ */
+export function generateFancySessionMarkets(
+  parsed: ParsedCricketScore,
+  team1Name: string = "Team 1",
+  team2Name: string = "Team 2"
+): FancySessionMarket[] {
+  const currentRuns = parsed.isChasing ? parsed.team2Runs : parsed.team1Runs;
+  const currentOvers = parsed.isChasing ? parsed.team2Overs : parsed.team1Overs;
+  const wickets = parsed.isChasing ? parsed.team2Wickets : parsed.team1Wickets;
+  const activeTeam = parsed.isChasing ? team2Name : team1Name;
+  const crr = parsed.currentRunRate > 0 ? parsed.currentRunRate : 7.8;
+
+  // 1. 6 Over Powerplay Session
+  let ppBase = Math.round(currentOvers <= 6 
+    ? currentRuns + ((6 - currentOvers) * (crr - wickets * 0.4))
+    : 48 + (crr - 7.5) * 4);
+  ppBase = Math.max(32, Math.min(75, ppBase));
+
+  // 2. 10 Over Mid-Innings Session
+  let midBase = Math.round(currentOvers <= 10
+    ? currentRuns + ((10 - currentOvers) * (crr - wickets * 0.35))
+    : 82 + (crr - 7.5) * 6);
+  midBase = Math.max(55, Math.min(120, midBase));
+
+  // 3. 20 Over Lambi (Total Innings)
+  const resource = Math.max(0.2, (10 - wickets) / 10);
+  let lambiBase = Math.round(currentRuns + (Math.max(0, 20 - currentOvers) * crr * Math.pow(resource, 0.5)));
+  lambiBase = Math.max(120, Math.min(240, lambiBase));
+
+  // Current over ball-by-ball
+  const overNumber = Math.floor(currentOvers) + 1;
+  const ballNumber = Math.round((currentOvers % 1) * 10) + 1;
+
+  return [
+    {
+      id: "f_pp",
+      cat: "fancy",
+      label: `6 Over Runs ${activeTeam}`,
+      noRuns: ppBase - 1,
+      noRate: 100,
+      yesRuns: ppBase + 1,
+      yesRate: 100,
+      status: currentOvers < 6 ? "active" : "suspended",
+      min: 100,
+      max: 25000
+    },
+    {
+      id: "f_mid",
+      cat: "fancy",
+      label: `10 Over Runs ${activeTeam}`,
+      noRuns: midBase - 2,
+      noRate: 100,
+      yesRuns: midBase + 1,
+      yesRate: 100,
+      status: currentOvers < 10 ? "active" : "suspended",
+      min: 100,
+      max: 25000
+    },
+    {
+      id: "f_lambi",
+      cat: "fancy",
+      label: `20 Over Total Runs ${activeTeam}`,
+      noRuns: lambiBase - 2,
+      noRate: 100,
+      yesRuns: lambiBase + 1,
+      yesRate: 100,
+      status: currentOvers < 20 ? "active" : "suspended",
+      min: 100,
+      max: 50000
+    },
+    {
+      id: "f_bbb",
+      cat: "ballbyball",
+      label: `${overNumber}.${ballNumber} Over Runs`,
+      noRuns: 1,
+      noRate: 90,
+      yesRuns: 2,
+      yesRate: 110,
+      status: "active",
+      min: 100,
+      max: 10000
+    },
+    {
+      id: "f_khadda",
+      cat: "khadda",
+      label: `${activeTeam} Fall of ${wickets + 1}th Wicket`,
+      noRuns: currentRuns + 12,
+      noRate: 90,
+      yesRuns: currentRuns + 16,
+      yesRate: 90,
+      status: "active",
+      min: 100,
+      max: 20000
+    },
+    {
+      id: "f_evenodd",
+      cat: "oddeven",
+      label: `20 Over Total Odd/Even`,
+      noRuns: "ODD",
+      noRate: 95,
+      yesRuns: "EVEN",
+      yesRate: 95,
+      status: "active",
+      min: 100,
+      max: 50000
+    }
+  ];
+}
+
+/**
+ * Formats authentic Indian Paise Bhav (e.g. 90-92, 45-47, 12-14, 1.45-1.50).
+ */
+export function formatIndianBhav(decimalBack: number, decimalLay: number): {
+  lagai: number;
+  khai: number;
+  display: string;
+  isFavorite: boolean;
+} {
+  const isFav = decimalBack < 2.00;
+  let lagai: number;
+  let khai: number;
+
+  if (isFav) {
+    lagai = Math.max(1, Math.round((decimalBack - 1) * 100));
+    khai = Math.max(lagai + 1, Math.round((decimalLay - 1) * 100));
+    // Enforce 2-point spread for favorite
+    if (khai - lagai < 2) khai = lagai + 2;
+  } else {
+    // Underdog format: quoted as paise over 100 (e.g. 2.40 -> 140 / 145)
+    lagai = Math.round((decimalBack - 1) * 100);
+    khai = Math.round((decimalLay - 1) * 100);
+    if (khai - lagai < 3) khai = lagai + 3;
+  }
+
+  return {
+    lagai,
+    khai,
+    display: `${lagai} / ${khai}`,
+    isFavorite: isFav
+  };
+}
+
+/**
+ * Applies discrete Ball Event delta to Bhav (Dot, Boundary 4/6, Wicket, DRS).
+ */
+export function applyBallEventToBhav(
+  baseBhav: CricketBhavOutput,
+  ballEvent: string,
+  battingTeam: 1 | 2 = 1
+): CricketBhavOutput {
+  const cleanEvent = ballEvent.toUpperCase().trim();
+  let marketState: 'ACTIVE' | 'SUSPENDED' | 'BALL_RUNNING' = 'ACTIVE';
+  let suspensionReason: string | undefined = undefined;
+
+  let deltaT1 = 0;
+  let deltaT2 = 0;
+
+  if (cleanEvent.includes("W") || cleanEvent.includes("OUT") || cleanEvent.includes("BOWLED") || cleanEvent.includes("CAUGHT")) {
+    // WICKET: Shock against batting team + Temporary Suspension
+    marketState = 'SUSPENDED';
+    suspensionReason = "WICKET FALLEN - RECALIBRATING ODDS";
+    deltaT1 = battingTeam === 1 ? 0.35 : -0.25;
+    deltaT2 = battingTeam === 2 ? 0.35 : -0.25;
+  } else if (cleanEvent.includes("6") || cleanEvent.includes("SIX")) {
+    // SIX: Strong momentum surge
+    marketState = 'BALL_RUNNING';
+    suspensionReason = "MAXIMUM 6! MARKET VOLATILITY";
+    deltaT1 = battingTeam === 1 ? -0.16 : 0.14;
+    deltaT2 = battingTeam === 2 ? -0.16 : 0.14;
+  } else if (cleanEvent.includes("4") || cleanEvent.includes("FOUR")) {
+    // FOUR: Steady surge
+    deltaT1 = battingTeam === 1 ? -0.09 : 0.08;
+    deltaT2 = battingTeam === 2 ? -0.09 : 0.08;
+  } else if (cleanEvent === "0" || cleanEvent.includes("DOT")) {
+    // DOT: Pressure builds
+    deltaT1 = battingTeam === 1 ? 0.03 : -0.02;
+    deltaT2 = battingTeam === 2 ? 0.03 : -0.02;
+  }
+
+  const newT1b = parseFloat(Math.max(1.02, Math.min(45.0, baseBhav.odds.team1Back + deltaT1)).toFixed(2));
+  const newT1l = parseFloat((newT1b + 0.02).toFixed(2));
+  const newT2b = parseFloat(Math.max(1.02, Math.min(45.0, baseBhav.odds.team2Back + deltaT2)).toFixed(2));
+  const newT2l = parseFloat((newT2b + 0.02).toFixed(2));
+
+  const t1Indian = formatIndianBhav(newT1b, newT1l);
+  const t2Indian = formatIndianBhav(newT2b, newT2l);
+
+  return {
+    ...baseBhav,
+    marketState,
+    suspensionReason,
+    odds: {
+      team1Back: newT1b,
+      team1Lay: newT1l,
+      team2Back: newT2b,
+      team2Lay: newT2l
+    },
+    indianBhav: {
+      team1: t1Indian,
+      team2: t2Indian
+    }
+  };
+}
+
+/**
+ * Generates dynamic Back & Lay order book ladders, Betfair decimals, Indian Bhav, and Fancy Session Lines.
  */
 export function computeCricketBhav(
   scoreText: string,
   matchFormatStr: string = "T20",
   preMatchProbTeam1: number = 0.50,
-  isLive: boolean = true
+  isLive: boolean = true,
+  team1Name: string = "Team 1",
+  team2Name: string = "Team 2"
 ): CricketBhavOutput {
   const parsed = parseCricketScore(scoreText, matchFormatStr);
   const { probTeam1, probTeam2 } = calculateInPlayWinProbability(parsed, preMatchProbTeam1);
@@ -224,12 +448,9 @@ export function computeCricketBhav(
   const t2Back = Math.max(1.02, Math.min(45.0, parseFloat((1 / (probTeam2 * margin)).toFixed(2))));
   const t2Lay = parseFloat((t2Back + spread).toFixed(2));
 
-  // Indian Bhav (Lagai/Khai in paise/points)
-  // E.g. 1.90 is 90-92 Bhav | 1.45 is 45-47 Bhav | 2.50 is 150-155 Bhav
-  const t1Lagai = Math.round((t1Back - 1) * 100);
-  const t1Khai = Math.round((t1Lay - 1) * 100);
-  const t2Lagai = Math.round((t2Back - 1) * 100);
-  const t2Khai = Math.round((t2Lay - 1) * 100);
+  // Indian Bhav (Lagai/Khai in paise/points with authentic 2-point spread)
+  const t1Indian = formatIndianBhav(t1Back, t1Lay);
+  const t2Indian = formatIndianBhav(t2Back, t2Lay);
 
   // 3-Depth Order Ladder
   const ladderTeam1 = {
@@ -258,7 +479,11 @@ export function computeCricketBhav(
     ]
   };
 
+  // Fancy Session Markets
+  const fancyMarkets = generateFancySessionMarkets(parsed, team1Name, team2Name);
+
   return {
+    marketState: 'ACTIVE',
     winProbability: {
       team1: Math.round(probTeam1 * 100),
       team2: Math.round(probTeam2 * 100)
@@ -270,10 +495,12 @@ export function computeCricketBhav(
       team2Lay: t2Lay
     },
     indianBhav: {
-      team1: { lagai: t1Lagai, khai: t1Khai },
-      team2: { lagai: t2Lagai, khai: t2Khai }
+      team1: t1Indian,
+      team2: t2Indian
     },
     ladderTeam1,
-    ladderTeam2
+    ladderTeam2,
+    fancyMarkets
   };
 }
+

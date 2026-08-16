@@ -173,7 +173,8 @@ function getNextTheOddsApiKey(): string {
     primary,
     "2b606a45113ec6e302fc09e55c8b12ac",
     "e517f90375315e5baf00a63d14b7b721",
-    "9bd47b2893228bc90a9a08ace8446b78"
+    "9bd47b2893228bc90a9a08ace8446b78",
+    "32dab68e02f15ef900cefa1f3d4c4441"
   ];
   const key = pool[theOddsApiKeyIndex % pool.length];
   theOddsApiKeyIndex++;
