@@ -41,6 +41,22 @@ interface CacheItem<T> {
 const MEMORY_CACHE = new Map<string, CacheItem<any>>();
 const CACHE_TTL_MS = 10_000; // 10 seconds fresh window
 
+const KEY_COOLDOWN_MAP = new Map<string, number>();
+
+function isKeyOnCooldown(key: string): boolean {
+  const expiry = KEY_COOLDOWN_MAP.get(key);
+  if (!expiry) return false;
+  if (Date.now() > expiry) {
+    KEY_COOLDOWN_MAP.delete(key);
+    return false;
+  }
+  return true;
+}
+
+function markKeyCooldown(key: string, durationMs: number = 15 * 60 * 1000) {
+  KEY_COOLDOWN_MAP.set(key, Date.now() + durationMs);
+}
+
 async function fetchCricbuzzEndpoint(path: string): Promise<any> {
   const cacheKey = `cb_${path}`;
   const cached = MEMORY_CACHE.get(cacheKey);
@@ -62,6 +78,8 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
   const attemptKeys = [candidateKey, ...primaryKeys.filter(k => k !== candidateKey)];
 
   for (const key of attemptKeys) {
+    if (isKeyOnCooldown(key)) continue;
+
     try {
       const res = await fetch(`https://${RAPIDAPI_HOST}${path}`, {
         headers: {
@@ -71,6 +89,11 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
         },
         next: { revalidate: 10 }
       });
+
+      if (res.status === 429 || res.status === 403) {
+        markKeyCooldown(key);
+        continue;
+      }
 
       if (res.ok) {
         const data = await res.json();

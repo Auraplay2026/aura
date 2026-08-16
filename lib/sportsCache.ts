@@ -164,7 +164,29 @@ async function fetchESPINScoreboard(url: string, sportKey: string): Promise<Exte
   }
 }
 
-// ── Multi-Key Rotating Load Balancers ──
+// ── Multi-Key Rotating Load Balancers with Anti-Rate-Limit Cooldown ──
+const GLOBAL_KEY_COOLDOWNS = new Map<string, number>();
+
+export function markKeyCooldownGlobal(key: string, durationMs: number = 15 * 60 * 1000) {
+  GLOBAL_KEY_COOLDOWNS.set(key, Date.now() + durationMs);
+}
+
+function isKeyCoolingDown(key: string): boolean {
+  const expiry = GLOBAL_KEY_COOLDOWNS.get(key);
+  if (!expiry) return false;
+  if (Date.now() > expiry) {
+    GLOBAL_KEY_COOLDOWNS.delete(key);
+    return false;
+  }
+  return true;
+}
+
+function selectActiveKeyFromPool(pool: string[], currentIndex: number): string {
+  const activeKeys = pool.filter(k => !isKeyCoolingDown(k));
+  const candidatePool = activeKeys.length > 0 ? activeKeys : pool;
+  return candidatePool[currentIndex % candidatePool.length];
+}
+
 let theOddsApiKeyIndex = 0;
 function getNextTheOddsApiKey(): string {
   const envKeys = (process.env.THE_ODDS_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
@@ -176,7 +198,7 @@ function getNextTheOddsApiKey(): string {
     "9bd47b2893228bc90a9a08ace8446b78",
     "32dab68e02f15ef900cefa1f3d4c4441"
   ];
-  const key = pool[theOddsApiKeyIndex % pool.length];
+  const key = selectActiveKeyFromPool(pool, theOddsApiKeyIndex);
   theOddsApiKeyIndex++;
   return key;
 }
@@ -191,7 +213,7 @@ function getNextCricketDataApiKey(): string {
     "24bbe670-1816-48b0-9f94-5dd33d2355dd",
     "8cf7e88e-ac7b-4663-9c65-5b853c9ce668"
   ];
-  const key = pool[cricketDataApiKeyIndex % pool.length];
+  const key = selectActiveKeyFromPool(pool, cricketDataApiKeyIndex);
   cricketDataApiKeyIndex++;
   return key;
 }
@@ -204,7 +226,7 @@ function getNextFootballDataApiKey(): string {
     primary,
     "087fef3fafcf4abc906449499f95ddba"
   ];
-  const key = pool[footballDataApiKeyIndex % pool.length];
+  const key = selectActiveKeyFromPool(pool, footballDataApiKeyIndex);
   footballDataApiKeyIndex++;
   return key;
 }
@@ -217,7 +239,7 @@ function getNextApiSportsKey(): string {
     primary,
     "9ee5a55395a1e3c898f96dcf1325535a"
   ];
-  const key = pool[apiSportsKeyIndex % pool.length];
+  const key = selectActiveKeyFromPool(pool, apiSportsKeyIndex);
   apiSportsKeyIndex++;
   return key;
 }
@@ -233,7 +255,7 @@ function getNextRapidApiKey(): string {
     "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
     "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089"
   ];
-  const key = pool[rapidApiKeyIndex % pool.length];
+  const key = selectActiveKeyFromPool(pool, rapidApiKeyIndex);
   rapidApiKeyIndex++;
   return key;
 }
@@ -261,6 +283,10 @@ async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]
           headers: { "User-Agent": "AuraPlay-TheOddsApiEngine/3.0" },
           next: { revalidate: 60 }
         });
+        if (res.status === 429 || res.status === 403) {
+          markKeyCooldownGlobal(keyToUse);
+          return [];
+        }
         if (!res.ok) return [];
         const data = await res.json();
         if (!Array.isArray(data)) return [];
@@ -360,6 +386,10 @@ async function fetchFootballDataOrgMatches(): Promise<ExtendedMatch[]> {
       },
       next: { revalidate: 30 }
     });
+    if (res.status === 429 || res.status === 403) {
+      markKeyCooldownGlobal(token);
+      return [];
+    }
     if (!res.ok) return [];
 
     const data = await res.json();
@@ -648,6 +678,10 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
       headers: { "User-Agent": "AuraPlay-LiveCricketEngine/3.0" },
       next: { revalidate: 30 }
     });
+    if (res.status === 429 || res.status === 403) {
+      markKeyCooldownGlobal(apiKey);
+      return [];
+    }
     if (!res.ok) return [];
 
     const data = await res.json();
@@ -750,7 +784,13 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
             "User-Agent": "AuraPlay-CricbuzzRapidEngine/3.0"
           },
           next: { revalidate: 30 }
-        }).then(r => r.ok ? r.json() : null).catch(() => null)
+        }).then(r => {
+          if (r.status === 429 || r.status === 403) {
+            markKeyCooldownGlobal(apiKey);
+            return null;
+          }
+          return r.ok ? r.json() : null;
+        }).catch(() => null)
       )
     );
 
