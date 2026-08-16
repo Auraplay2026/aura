@@ -7,9 +7,25 @@ import { validateResponsibleGaming } from '@/lib/compliance/limits';
 
 export async function POST(request: Request) {
   try {
-    const { email, matchTitle, selection, odds, stake, side, uuid, currentMarketOdds, marketStatus } = await request.json();
+    const body = await request.json();
+    let { email, matchTitle, selection, odds, stake, side, type, uuid, currentMarketOdds, marketStatus, matchId } = body;
 
-    if (!email || !matchTitle || !selection || !odds || !stake) {
+    const normalizedSide = (side || type || 'yes').toLowerCase() === 'lay' || (side || type || 'yes').toLowerCase() === 'no' ? 'no' : 'yes';
+    const effectiveMatchTitle = matchTitle || (matchId ? `Match #${matchId}` : selection);
+
+    if (!email) {
+      try {
+        const { cookies } = await import('next/headers');
+        const cookieStore = await cookies();
+        email = cookieStore.get('user_email')?.value;
+      } catch {}
+    }
+
+    if (!email) {
+      return NextResponse.json({ error: 'Please log in to place a bet.' }, { status: 401 });
+    }
+
+    if (!effectiveMatchTitle || !selection || !odds || !stake) {
       return NextResponse.json({ error: 'Missing required sportsbook bet parameters.' }, { status: 400 });
     }
 
@@ -24,9 +40,9 @@ export async function POST(request: Request) {
     const fraudCheck = await validateBetSecurity({
       userIdOrEmail: email,
       ip: clientIp,
-      matchTitle,
+      matchTitle: effectiveMatchTitle,
       selection,
-      side: side || 'yes',
+      side: normalizedSide,
       stake: Number(stake),
       odds: Number(odds)
     });
@@ -101,7 +117,7 @@ export async function POST(request: Request) {
       // Calculate 15% Platform Service Fee & Liability (Lay bet liability: Stake * (Odds - 1))
       const baseStake = Number(stake);
       const platformFee = Math.round(baseStake * 0.15 * 100) / 100; // 15% platform service fee
-      const potentialLiability = side === 'no' ? baseStake * (odds - 1) : 0;
+      const potentialLiability = normalizedSide === 'no' ? baseStake * (odds - 1) : 0;
       const totalRequired = Math.round((baseStake + potentialLiability + platformFee) * 100) / 100;
 
       if (activeBalance < totalRequired) {
@@ -111,9 +127,9 @@ export async function POST(request: Request) {
       const newBalance = Math.round((activeBalance - totalRequired) * 100) / 100;
 
       // Format transaction details string with immutable LOCKED stamp and transparent fee itemization
-      const detailsStr = side === 'no'
-        ? `[LOCKED] Placed ₹${baseStake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)} + 15% Fee: ₹${platformFee.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${matchTitle})`
-        : `[LOCKED] Placed ₹${baseStake} Back bet on ${selection} @ ${odds.toFixed(2)} (${matchTitle}) [Includes 15% Platform Fee: ₹${platformFee.toFixed(2)}]`;
+      const detailsStr = normalizedSide === 'no'
+        ? `[LOCKED] Placed ₹${baseStake} Lay bet (Liability: ₹${potentialLiability.toFixed(2)} + 15% Fee: ₹${platformFee.toFixed(2)}) on ${selection} @ ${odds.toFixed(2)} (${effectiveMatchTitle})`
+        : `[LOCKED] Placed ₹${baseStake} Back bet on ${selection} @ ${odds.toFixed(2)} (${effectiveMatchTitle}) [Includes 15% Platform Fee: ₹${platformFee.toFixed(2)}]`;
 
       const txId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
       const tx: Transaction = {
@@ -154,16 +170,16 @@ export async function POST(request: Request) {
         updates.demoTransactions = [tx];
       }
 
-      const marketIdGenerated = `SPORT-${(matchTitle || 'MATCH').replace(/[^a-zA-Z0-9]/g, '-').toUpperCase()}`;
-      const positionTitle = `[LOCKED] ${matchTitle}: ${selection} (${odds.toFixed(2)})`;
-      const sharesCount = side === 'no' ? stake : Math.round(stake * odds * 100) / 100;
+      const marketIdGenerated = `SPORT-${(effectiveMatchTitle || 'MATCH').replace(/[^a-zA-Z0-9]/g, '-').toUpperCase()}`;
+      const positionTitle = `[LOCKED] ${effectiveMatchTitle}: ${selection} (${odds.toFixed(2)})`;
+      const sharesCount = normalizedSide === 'no' ? stake : Math.round(stake * odds * 100) / 100;
 
       const createdPosition = await txClient.position.create({
         data: {
           userId: user.id,
           marketId: marketIdGenerated,
           marketTitle: positionTitle,
-          side: side || 'yes',
+          side: normalizedSide,
           shares: sharesCount,
           buyPrice: odds,
           investment: totalRequired,

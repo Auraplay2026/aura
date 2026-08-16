@@ -41,29 +41,34 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
     return cached.data;
   }
 
-  try {
-    const apiKey = getNextRapidApiKey();
-    const res = await fetch(`https://${RAPIDAPI_HOST}${path}`, {
-      headers: {
-        "x-rapidapi-key": apiKey,
-        "x-rapidapi-host": RAPIDAPI_HOST,
-        "User-Agent": "AuraPlay-LiveCricketEngine/3.0"
-      },
-      next: { revalidate: 10 }
-    });
+  // Multi-host failover pool
+  const hosts = [
+    { host: RAPIDAPI_HOST, key: process.env.RAPIDAPI_KEY || "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad" },
+    { host: "free-cricbuzz-cricket-api.p.rapidapi.com", key: "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b" }
+  ];
 
-    if (!res.ok) {
-      console.warn(`Cricbuzz endpoint ${path} returned ${res.status}`);
-      return null;
+  for (const { host, key } of hosts) {
+    try {
+      const res = await fetch(`https://${host}${path}`, {
+        headers: {
+          "x-rapidapi-key": key,
+          "x-rapidapi-host": host,
+          "User-Agent": "AuraPlay-LiveCricketEngine/3.0"
+        },
+        next: { revalidate: 10 }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        MEMORY_CACHE.set(cacheKey, { data, expiresAt: Date.now() + CACHE_TTL_MS });
+        return data;
+      }
+    } catch (err: any) {
+      console.warn(`Cricbuzz fetch failed on ${host} for ${path}:`, err.message);
     }
-
-    const data = await res.json();
-    MEMORY_CACHE.set(cacheKey, { data, expiresAt: Date.now() + CACHE_TTL_MS });
-    return data;
-  } catch (err: any) {
-    console.error(`Cricbuzz fetch error for ${path}:`, err.message);
-    return null;
   }
+
+  return null;
 }
 
 /**

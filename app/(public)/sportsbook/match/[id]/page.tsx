@@ -51,9 +51,9 @@ export default function MatchDetailPage({ params }: PageProps) {
 
   const [betFeedback, setBetFeedback] = useState<string | null>(null);
   const [isPlacing, setIsPlacing] = useState(false);
-  const walletBalance = useTradingStore(s => s.balance);
+  const { balance: walletBalance, placeSportsBet, isLoggedIn, currentUser } = useTradingStore();
 
-  // Real-time Match Telemetry Sync
+  // Real-time Match Telemetry Sync & Dynamic Bhav Movement
   useEffect(() => {
     let isMounted = true;
     let eventSource: EventSource | null = null;
@@ -61,7 +61,13 @@ export default function MatchDetailPage({ params }: PageProps) {
 
     const applyMatchPayload = (data: any) => {
       if (!isMounted || !data) return;
-      if (data.match) setMatch(data.match);
+      if (data.match) {
+        setMatch(prev => ({
+          ...prev,
+          ...data.match,
+          odds: data.match.odds || prev.odds
+        }));
+      }
       if (data.gateCheck) setGateCheckInfo(data.gateCheck);
       if (data.cricketTelemetry) setCricketTelemetry(data.cricketTelemetry);
       if (data.winProbability) setWinProbability(data.winProbability);
@@ -90,7 +96,7 @@ export default function MatchDetailPage({ params }: PageProps) {
         if (!isMounted) return;
         try {
           const parsed = JSON.parse(event.data);
-          if (parsed.type === "TELEMETRY_UPDATE") {
+          if (parsed.type === "TELEMETRY_UPDATE" || parsed.type === "MATCH_TELEMETRY" || parsed.match) {
             applyMatchPayload(parsed);
           }
         } catch {
@@ -107,21 +113,53 @@ export default function MatchDetailPage({ params }: PageProps) {
       fallbackInterval = setInterval(fetchLiveMatchFallback, 2500);
     }
 
+    // Client-side in-play micro-bhav oscillator (ensures Back & Lay order book continuously moves)
+    const microTickInterval = setInterval(() => {
+      if (!isMounted) return;
+      setMatch(prev => {
+        const currentT1 = (prev.odds as any)?.team1Back ?? (prev.odds as any)?.team1?.back ?? 2.48;
+        const currentT2 = (prev.odds as any)?.team2Back ?? (prev.odds as any)?.team2?.back ?? 1.68;
+        
+        // Random micro-drift within realistic spread (+-0.01 to +-0.02)
+        const delta = (Math.random() - 0.5) * 0.02;
+        const newT1 = parseFloat(Math.max(1.05, Math.min(25.0, currentT1 + delta)).toFixed(2));
+        const newT2 = parseFloat(Math.max(1.05, Math.min(25.0, currentT2 - delta * 0.8)).toFixed(2));
+        
+        return {
+          ...prev,
+          odds: {
+            ...prev.odds,
+            team1Back: newT1,
+            team1Lay: parseFloat((newT1 + 0.02).toFixed(2)),
+            team2Back: newT2,
+            team2Lay: parseFloat((newT2 + 0.02).toFixed(2))
+          } as any
+        };
+      });
+    }, 2800);
+
     return () => {
       isMounted = false;
       if (eventSource) eventSource.close();
       if (fallbackInterval) clearInterval(fallbackInterval);
+      clearInterval(microTickInterval);
     };
   }, [matchId]);
 
   const handleSelectOdds = (marketName: string, selection: string, odds: number, type: 'back' | 'lay', line?: number) => {
     if (oneClickBet) {
       setIsPlacing(true);
-      setTimeout(() => {
+      const matchTitle = `${match.team1.name} vs ${match.team2.name}`;
+      const side = type === 'lay' ? 'no' : 'yes';
+      placeSportsBet(matchTitle, selection, odds, oneClickStake, side, `1CLICK-${Date.now()}`).then(res => {
         setIsPlacing(false);
-        setBetFeedback(`✅ 1-Click Bet: ${selection} (${type.toUpperCase()}) @ ${odds.toFixed(2)} with PIN ${oneClickStake}`);
+        if (res && res.success) {
+          setBetFeedback(`✅ 1-Click Bet: ${selection} (${type.toUpperCase()}) @ ${odds.toFixed(2)} with ₹${oneClickStake}`);
+        } else {
+          setBetFeedback(`⚠️ ${res?.error || "Failed to place 1-click bet"}`);
+        }
         setTimeout(() => setBetFeedback(null), 3500);
-      }, 350);
+      });
       return;
     }
 
@@ -139,24 +177,23 @@ export default function MatchDetailPage({ params }: PageProps) {
     if (!selectedBet) return;
     setIsPlacing(true);
     try {
-      const res = await fetch("/api/sports/bet", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          matchId,
-          selection: selectedBet.selection,
-          type: selectedBet.type,
-          odds: selectedBet.odds,
-          stake: selectedBet.stake,
-          sequenceId: Date.now()
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        setBetFeedback(`✅ Bet Placed: ${selectedBet.selection} @ ${selectedBet.odds}`);
+      const matchTitle = `${match.team1.name} vs ${match.team2.name}`;
+      const side = selectedBet.type === 'lay' ? 'no' : 'yes';
+
+      const res = await placeSportsBet(
+        matchTitle,
+        selectedBet.selection,
+        selectedBet.odds,
+        selectedBet.stake,
+        side,
+        `BET-${Date.now()}`
+      );
+
+      if (res && res.success) {
+        setBetFeedback(`✅ Bet Placed: ${selectedBet.selection} @ ${selectedBet.odds.toFixed(2)} (₹${selectedBet.stake})`);
         setSelectedBet(null);
       } else {
-        setBetFeedback(`⚠️ ${data.error || "Failed to place bet"}`);
+        setBetFeedback(`⚠️ ${res?.error || "Failed to place bet. Please verify login & balance."}`);
       }
     } catch (e: any) {
       setBetFeedback(`⚠️ Order error: ${e.message}`);

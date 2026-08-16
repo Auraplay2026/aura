@@ -135,8 +135,25 @@ export async function GET(req: NextRequest) {
             // Calculate Win Probability & Momentum Indicator
             let winProbability = { team1: 50, team2: 50 };
             if (synchronizedOdds?.team1Back && synchronizedOdds?.team2Back) {
-              const inv1 = 1 / synchronizedOdds.team1Back;
-              const inv2 = 1 / synchronizedOdds.team2Back;
+              // Micro-bhav drift for in-play active trading feel
+              const drift = Math.sin(tickCount * 0.8) * 0.02;
+              const t1b = parseFloat(Math.max(1.05, synchronizedOdds.team1Back + drift).toFixed(2));
+              const t1l = parseFloat((t1b + 0.02).toFixed(2));
+              const t2b = parseFloat(Math.max(1.05, synchronizedOdds.team2Back - drift * 0.7).toFixed(2));
+              const t2l = parseFloat((t2b + 0.02).toFixed(2));
+
+              if (resolvedMatch) {
+                resolvedMatch.odds = {
+                  ...resolvedMatch.odds,
+                  team1Back: t1b,
+                  team1Lay: t1l,
+                  team2Back: t2b,
+                  team2Lay: t2l
+                };
+              }
+
+              const inv1 = 1 / t1b;
+              const inv2 = 1 / t2b;
               const total = inv1 + inv2;
               winProbability = {
                 team1: Math.round((inv1 / total) * 100),
@@ -145,7 +162,8 @@ export async function GET(req: NextRequest) {
             }
 
             const payload = JSON.stringify({
-              type: "MATCH_TELEMETRY",
+              type: "TELEMETRY_UPDATE",
+              altType: "MATCH_TELEMETRY",
               matchId,
               match: resolvedMatch,
               telemetry,
