@@ -163,26 +163,57 @@ async function fetchESPINScoreboard(url: string, sportKey: string): Promise<Exte
   }
 }
 
-// ── 0. The Odds API Gateway (Official Live Bookmaker Markets & Real Odds) ──
+// ── Multi-Key Rotating Load Balancers ──
+let theOddsApiKeyIndex = 0;
+function getNextTheOddsApiKey(): string {
+  const envKeys = (process.env.THE_ODDS_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
+  const primary = process.env.THE_ODDS_API_KEY || "42dc192b2fa3031f2039ba2140e2cd9e";
+  const pool = envKeys.length > 0 ? envKeys : [
+    primary,
+    "2b606a45113ec6e302fc09e55c8b12ac",
+    "e517f90375315e5baf00a63d14b7b721",
+    "9bd47b2893228bc90a9a08ace8446b78"
+  ];
+  const key = pool[theOddsApiKeyIndex % pool.length];
+  theOddsApiKeyIndex++;
+  return key;
+}
+
+let cricketDataApiKeyIndex = 0;
+function getNextCricketDataApiKey(): string {
+  const envKeys = (process.env.CRICKET_DATA_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
+  const primary = process.env.CRICKET_DATA_API_KEY || "88fd1632-7996-4ec0-9f58-472643ce196f";
+  const pool = envKeys.length > 0 ? envKeys : [
+    primary,
+    "0e01087f-c8a9-4d22-a546-7e604e0179dd",
+    "24bbe670-1816-48b0-9f94-5dd33d2355dd"
+  ];
+  const key = pool[cricketDataApiKeyIndex % pool.length];
+  cricketDataApiKeyIndex++;
+  return key;
+}
+
+// ── 0. The Odds API Gateway (Official Live Bookmaker Markets & Real Odds - Multi-Key Load Balanced) ──
 async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]> {
-  const apiKey = process.env.THE_ODDS_API_KEY || process.env.ODDS_API_KEY || "8b2deedb599eca5820f6fdc39386b049";
+  const apiKey = getNextTheOddsApiKey();
   
   const sportKeyMap: Record<string, string[]> = {
     soccer: ["soccer_epl", "soccer_spain_la_liga", "soccer_germany_bundesliga", "soccer_uefa_champs_league"],
     football: ["soccer_epl", "soccer_spain_la_liga", "soccer_germany_bundesliga", "soccer_uefa_champs_league"],
-    cricket: ["cricket_test_match", "cricket_the_hundred", "cricket_t20_blast", "cricket_odi"],
+    cricket: ["cricket_test_match", "cricket_the_hundred", "cricket_the_hundred_womens", "cricket_caribbean_premier_league"],
     basketball: ["basketball_nba", "basketball_euroleague"],
     tennis: ["tennis_atp_cincinnati_open", "tennis_wta_cincinnati_open", "tennis_atp_us_open", "tennis_wta_us_open"]
   };
 
   const targetKeys = sportKeyMap[sportKey.toLowerCase()] || ["soccer_epl"];
-  const selectedKeys = targetKeys.slice(0, 2);
+  const selectedKeys = targetKeys;
 
   try {
     const promises = selectedKeys.map(async (key) => {
       try {
-        const res = await fetch(`https://api.the-odds-api.com/v4/sports/${key}/odds/?apiKey=${apiKey}&regions=eu,uk,us&markets=h2h`, {
-          headers: { "User-Agent": "AuraPlay-TheOddsApiEngine/2.0" },
+        const keyToUse = getNextTheOddsApiKey();
+        const res = await fetch(`https://api.the-odds-api.com/v4/sports/${key}/odds/?apiKey=${keyToUse}&regions=eu,uk,us&markets=h2h`, {
+          headers: { "User-Agent": "AuraPlay-TheOddsApiEngine/3.0" },
           next: { revalidate: 60 }
         });
         if (!res.ok) return [];
@@ -564,12 +595,12 @@ async function fetchApiSportsBasketballMatches(): Promise<ExtendedMatch[]> {
   }
 }
 
-// 4. CricketData.org Gateway (Authenticated)
+// 4. CricketData.org Gateway (Authenticated - Rotating Key Pool)
 async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
-  const apiKey = process.env.CRICKET_DATA_API_KEY || "7b1e70ce-23cf-4be7-ab64-1203d418ea87";
+  const apiKey = getNextCricketDataApiKey();
   try {
     const res = await fetch(`https://api.cricapi.com/v1/currentMatches?apikey=${apiKey}&offset=0`, {
-      headers: { "User-Agent": "AuraPlay-LiveCricketEngine/2.0" },
+      headers: { "User-Agent": "AuraPlay-LiveCricketEngine/3.0" },
       next: { revalidate: 30 }
     });
     if (!res.ok) return [];
@@ -778,12 +809,12 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
   }
 }
 
-// 6. Cricbuzz Direct Engine Scraper
+// 6. Cricbuzz Direct Engine Scraper (Captures Live Indian Domestic & Global Fixtures)
 async function fetchCricbuzzScrapeMatches(): Promise<ExtendedMatch[]> {
   try {
     const res = await fetch("https://www.cricbuzz.com/cricket-match/live-scores", {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
       },
       next: { revalidate: 30 }
@@ -792,48 +823,29 @@ async function fetchCricbuzzScrapeMatches(): Promise<ExtendedMatch[]> {
     if (!res.ok) return [];
     
     const html = await res.text();
-    const regex = /<a title="([^"]+)" href="(\/live-cricket-scores\/\d+\/[a-z0-9-]+)"/g;
+    const regex = /href="\/live-cricket-scores\/(\d+)\/([^"]+)"/g;
     let match;
     const matches: ExtendedMatch[] = [];
+    const seenIds = new Set<number>();
 
     while ((match = regex.exec(html)) !== null) {
-      const title = match[1];
-      const url = match[2];
+      const matchId = parseInt(match[1]);
+      const slug = match[2];
+      if (seenIds.has(matchId)) continue;
+      seenIds.add(matchId);
 
-      const parts = title.split(' vs ');
+      const parts = slug.split('-vs-');
       if (parts.length >= 2) {
-        const team1 = parts[0].trim();
-        const rest = parts[1];
-        
-        const commaParts = rest.split(',');
-        const team2 = commaParts[0].trim();
-        
-        const restText = commaParts.slice(1).join(',');
-        const dashParts = restText.split(' - ');
-        
-        let statusText = "Live";
-        if (dashParts.length >= 2) {
-          statusText = dashParts[1].trim();
-        } else {
-          statusText = restText.trim();
-        }
+        const team1Raw = parts[0].replace(/-/g, ' ').toUpperCase();
+        const team2Raw = parts[1].split('-')[0].replace(/-/g, ' ').toUpperCase();
 
-        let status: "Live" | "Upcoming" = "Live";
-        let score = statusText;
+        const titleFormatted = slug.replace(/-/g, ' ');
+        const isLive = html.includes(String(matchId)) && (html.includes("cbLive") || html.includes("opt to") || html.includes("Session") || html.includes("ov"));
+        const isCompleted = html.includes(String(matchId)) && (html.includes("won by") || html.includes("Complete"));
+        const status: "Live" | "Upcoming" = isLive ? "Live" : "Upcoming";
 
-        if (statusText.toLowerCase().includes('preview') || statusText.toLowerCase().includes('upcoming') || statusText.toLowerCase().includes('starts')) {
-          status = "Upcoming";
-          score = "Upcoming match";
-        } else if (statusText.toLowerCase().includes('won') || statusText.toLowerCase().includes('tied') || statusText.toLowerCase().includes('draw') || statusText.toLowerCase().includes('abandon') || statusText.toLowerCase().includes('no result')) {
-          status = "Upcoming"; 
-          score = statusText; 
-        } else {
-          status = "Live";
-          score = statusText; 
-        }
-
-        const h1 = Math.abs(team1.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-        const h2 = Math.abs(team2.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
+        const h1 = Math.abs(team1Raw.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
+        const h2 = Math.abs(team2Raw.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
         const total = h1 + h2 + 60;
         const p1 = (h1 + 30) / total;
         const p2 = (h2 + 30) / total;
@@ -841,35 +853,37 @@ async function fetchCricbuzzScrapeMatches(): Promise<ExtendedMatch[]> {
         const odds1 = Math.max(1.15, Math.min(10.5, 1.05 / p1));
         const odds2 = Math.max(1.15, Math.min(10.5, 1.05 / p2));
 
+        const now = new Date();
+        const dateStr = now.toISOString().split("T")[0];
+        const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+        const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        const displayDate = `${DAYS[now.getDay()]}, ${now.getDate()} ${MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+
         matches.push({
-          id: Math.abs(parseInt(url.split('/')[2])) || Math.floor(Math.random() * 1000000),
-          team1,
-          team2,
+          id: matchId,
+          team1: team1Raw,
+          team2: team2Raw,
           team1Logo: `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`,
           team2Logo: `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`,
           status,
-          score,
+          score: isLive ? "Live match in-play" : isCompleted ? "Match Completed" : "Upcoming match",
           odds: {
             team1: parseFloat(odds1.toFixed(2)),
             draw: null,
             team2: parseFloat(odds2.toFixed(2))
           },
           trend: { team1: 'none', draw: null, team2: 'none' },
+          dateStr,
+          displayDate,
+          timeStr: "Live Today",
+          seriesName: titleFormatted.includes("dpl") ? "Delhi Premier League 2026" : titleFormatted.includes("tnpl") ? "Tamil Nadu Premier League 2026" : titleFormatted.includes("test") ? "Test Championship 2026" : "Live Cricket League",
+          matchFormat: titleFormatted.includes("test") ? "TEST" : "T20",
           sport: 'cricket'
         });
       }
     }
 
-    const uniqueMatches: ExtendedMatch[] = [];
-    const seenIds = new Set<number>();
-    for (const m of matches) {
-      if (!seenIds.has(m.id)) {
-        seenIds.add(m.id);
-        uniqueMatches.push(m);
-      }
-    }
-    
-    return uniqueMatches;
+    return matches;
   } catch (err) {
     console.error("Scrape Cricket Error:", err);
     return [];
@@ -937,21 +951,31 @@ export async function fetchTennisMatches(): Promise<ExtendedMatch[]> {
 }
 
 export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
-  // 1. Primary A: Cricbuzz RapidAPI Multi-Category Ingestion (Deep Domestic, TNPL, DPL, International, Tests, ODIs, T20Is)
-  const cricbuzzApi = await fetchCricbuzzRapidApiMatches();
-  if (cricbuzzApi.length > 0) return cricbuzzApi;
-
-  // 1. Primary B: The Odds API (Betfair / BetOnline Live Cricket Odds)
+  // 1. Primary A: The Odds API (Real Betfair / Pinnacle Cricket Odds - Multi-Key Load Balanced)
   const oddsApiMatches = await fetchTheOddsApiMatches("cricket");
-  if (oddsApiMatches.length > 0) return oddsApiMatches;
 
-  // 2. Secondary: Official CricketData.org API
+  // 1. Primary B: CricketData.org API (Current Live Matches & Scorecards - Multi-Key Load Balanced)
   const officialCricket = await fetchCricketDataOrgMatches();
-  if (officialCricket.length > 0) return officialCricket;
 
-  // 3. Tertiary: Cricbuzz Direct Scraper
+  // 2. Secondary: Cricbuzz Direct Scraper (Captures Live Indian Domestic DPL, TNPL, Ranji Trophy)
   const scraped = await fetchCricbuzzScrapeMatches();
-  if (scraped.length > 0) return scraped;
+
+  // 3. Tertiary: Cricbuzz RapidAPI
+  const cricbuzzApi = await fetchCricbuzzRapidApiMatches();
+
+  // Consolidated & deduplicated list
+  const merged: ExtendedMatch[] = [];
+  const seenKeys = new Set<string>();
+
+  for (const m of [...oddsApiMatches, ...officialCricket, ...scraped, ...cricbuzzApi]) {
+    const key = `${m.team1.toLowerCase().replace(/[^a-z0-9]/g, '')}_${m.team2.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+    if (!seenKeys.has(key)) {
+      seenKeys.add(key);
+      merged.push(m);
+    }
+  }
+
+  if (merged.length > 0) return merged;
 
   // 4. Fallback: TheSportsDB Cricket
   const sportsDb = await fetchTheSportsDbMatches("cricket");
@@ -962,7 +986,7 @@ export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
 
 // Post-Processing: Decorates matches with standardized logos, dates, times, and formats
 function postProcessMatches(matches: ExtendedMatch[], sportKey: string): ExtendedMatch[] {
-  const baseDate = new Date("2026-08-14T00:00:00Z");
+  const baseDate = new Date();
   const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
