@@ -13,6 +13,7 @@
 import { DeepMatchInfo, CrexInningsScorecard, PlayerDossier, PLAYERS_DATABASE } from "./sportsDeepData";
 import { CricketLiveBallState } from "./apexDataEngine";
 import { ExtendedMatch } from "./sportsCache";
+import { computeCricketBhav } from "./cricketBhavEngine";
 
 let rapidApiKeyIndex = 0;
 function getNextRapidApiKey(): string {
@@ -469,7 +470,15 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
     scorecards,
     commentary: parsedCommentary,
     venueStats,
-    winProbabilityTimeline
+    winProbabilityTimeline,
+    odds: {
+      team1Back: computeCricketBhav(`${team1ScoreSummary} vs ${team2ScoreSummary}`, matchFormat, 0.50, !isUpcoming).odds.team1Back,
+      team1Lay: computeCricketBhav(`${team1ScoreSummary} vs ${team2ScoreSummary}`, matchFormat, 0.50, !isUpcoming).odds.team1Lay,
+      team2Back: computeCricketBhav(`${team1ScoreSummary} vs ${team2ScoreSummary}`, matchFormat, 0.50, !isUpcoming).odds.team2Back,
+      team2Lay: computeCricketBhav(`${team1ScoreSummary} vs ${team2ScoreSummary}`, matchFormat, 0.50, !isUpcoming).odds.team2Lay,
+      drawBack: matchFormat === "TEST" ? 3.80 : undefined,
+      drawLay: matchFormat === "TEST" ? 3.85 : undefined
+    }
   };
 
   return {

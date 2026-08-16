@@ -1,4 +1,5 @@
 import { generateMatches, Match } from "./sportsData";
+import { computeCricketBhav } from "./cricketBhavEngine";
 
 // Extended Match type to support optional logos and sport classification
 export type ExtendedMatch = Match & {
@@ -635,15 +636,11 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
         }
       }
 
-      const h1 = Math.abs(team1.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-      const h2 = Math.abs(team2.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-      const total = h1 + h2 + 60;
-      const p1 = (h1 + 30) / total;
-      const p2 = (h2 + 30) / total;
-
-      const o1 = Math.max(1.15, Math.min(10.5, 1.05 / p1));
-      const o2 = Math.max(1.15, Math.min(10.5, 1.05 / p2));
-      const oDraw = m.matchType === "test" ? 3.80 : null;
+      const matchFormat = (m.matchType || "T20").toUpperCase();
+      const bhavData = computeCricketBhav(scoreText, matchFormat, 0.50, isLive);
+      const o1 = bhavData.odds.team1Back;
+      const o2 = bhavData.odds.team2Back;
+      const oDraw = matchFormat === "TEST" ? 3.80 : null;
 
       const matchDateObj = m.dateTimeGMT ? new Date(m.dateTimeGMT + "Z") : new Date();
       const dateStr = matchDateObj.toISOString().split("T")[0];
@@ -681,7 +678,7 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
         displayDate,
         timeStr,
         seriesName: m.name ? m.name.split(',').pop()?.trim() || "International Series" : "CricAPI World Tour",
-        matchFormat: (m.matchType || "T20").toUpperCase(),
+        matchFormat,
         sport: "cricket"
       });
     }
@@ -755,14 +752,11 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
               }
             }
 
-            const h1 = Math.abs(team1.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-            const h2 = Math.abs(team2.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-            const total = h1 + h2 + 60;
-            const p1 = (h1 + 30) / total;
-            const p2 = (h2 + 30) / total;
-
-            const o1 = Math.max(1.15, Math.min(10.5, 1.05 / p1));
-            const o2 = Math.max(1.15, Math.min(10.5, 1.05 / p2));
+            const matchFormat = (info.matchFormat || "T20").toUpperCase();
+            const bhavData = computeCricketBhav(scoreText, matchFormat, 0.50, isLive);
+            const o1 = bhavData.odds.team1Back;
+            const o2 = bhavData.odds.team2Back;
+            const oDraw = matchFormat === "TEST" ? 3.80 : null;
 
             const matchDateObj = info.startDate ? new Date(parseInt(info.startDate)) : new Date();
             const dateStr = matchDateObj.toISOString().split("T")[0];
@@ -786,15 +780,15 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
               score: scoreText,
               odds: {
                 team1: parseFloat(o1.toFixed(2)),
-                draw: null,
+                draw: oDraw ? parseFloat(oDraw.toFixed(2)) : null,
                 team2: parseFloat(o2.toFixed(2))
               },
-              trend: { team1: 'none', draw: null, team2: 'none' },
+              trend: { team1: 'none', draw: oDraw ? 'none' : null, team2: 'none' },
               dateStr,
               displayDate,
               timeStr,
               seriesName: info.seriesName || wrapper.seriesName || (tm.matchType ? `${tm.matchType} Series` : "Cricket Championship"),
-              matchFormat: info.matchFormat || "T20",
+              matchFormat,
               sport: "cricket"
             });
           }
@@ -844,14 +838,12 @@ async function fetchCricbuzzScrapeMatches(): Promise<ExtendedMatch[]> {
         const isCompleted = html.includes(String(matchId)) && (html.includes("won by") || html.includes("Complete"));
         const status: "Live" | "Upcoming" = isLive ? "Live" : "Upcoming";
 
-        const h1 = Math.abs(team1Raw.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-        const h2 = Math.abs(team2Raw.split("").reduce((acc: number, c: string, i: number) => acc + c.charCodeAt(0) * (i + 1), 0)) % 100;
-        const total = h1 + h2 + 60;
-        const p1 = (h1 + 30) / total;
-        const p2 = (h2 + 30) / total;
-
-        const odds1 = Math.max(1.15, Math.min(10.5, 1.05 / p1));
-        const odds2 = Math.max(1.15, Math.min(10.5, 1.05 / p2));
+        const matchFormat = titleFormatted.includes("test") ? "TEST" : "T20";
+        const scoreString = isLive ? "Live match in-play" : isCompleted ? "Match Completed" : "Upcoming match";
+        const bhavData = computeCricketBhav(scoreString, matchFormat, 0.50, isLive);
+        const odds1 = bhavData.odds.team1Back;
+        const odds2 = bhavData.odds.team2Back;
+        const oDraw = matchFormat === "TEST" ? 3.80 : null;
 
         const now = new Date();
         const dateStr = now.toISOString().split("T")[0];
@@ -866,18 +858,18 @@ async function fetchCricbuzzScrapeMatches(): Promise<ExtendedMatch[]> {
           team1Logo: `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`,
           team2Logo: `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`,
           status,
-          score: isLive ? "Live match in-play" : isCompleted ? "Match Completed" : "Upcoming match",
+          score: scoreString,
           odds: {
             team1: parseFloat(odds1.toFixed(2)),
-            draw: null,
+            draw: oDraw ? parseFloat(oDraw.toFixed(2)) : null,
             team2: parseFloat(odds2.toFixed(2))
           },
-          trend: { team1: 'none', draw: null, team2: 'none' },
+          trend: { team1: 'none', draw: oDraw ? 'none' : null, team2: 'none' },
           dateStr,
           displayDate,
           timeStr: "Live Today",
           seriesName: titleFormatted.includes("dpl") ? "Delhi Premier League 2026" : titleFormatted.includes("tnpl") ? "Tamil Nadu Premier League 2026" : titleFormatted.includes("test") ? "Test Championship 2026" : "Live Cricket League",
-          matchFormat: titleFormatted.includes("test") ? "TEST" : "T20",
+          matchFormat,
           sport: 'cricket'
         });
       }

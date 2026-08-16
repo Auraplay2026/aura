@@ -509,27 +509,44 @@ export default function MatchDetailPage({ params }: PageProps) {
                 </div>
 
                 <div className="divide-y divide-slate-100 text-xs">
+                  {/* Team 1 Bhav */}
                   <div className="p-3 flex items-center justify-between">
                     <span className="font-black text-sm text-slate-900">{match.team1.name}</span>
-                    <span className="bg-amber-50 text-amber-700 border border-amber-200 font-black text-[10px] px-3 py-1.5 rounded uppercase">
-                      Suspended
-                    </span>
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleSelectOdds("Bookmaker", match.team1.name, match.odds?.team1Back || 1.90, 'back')}
+                        className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                      >
+                        <span>{Math.round(((match.odds?.team1Back || 1.90) - 1) * 100)}</span>
+                        <span className="text-[8px] opacity-75 font-mono">Lagai</span>
+                      </button>
+                      <button
+                        onClick={() => handleSelectOdds("Bookmaker", match.team1.name, match.odds?.team1Lay || 1.92, 'lay')}
+                        className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                      >
+                        <span>{Math.round(((match.odds?.team1Lay || 1.92) - 1) * 100)}</span>
+                        <span className="text-[8px] opacity-75 font-mono">Khai</span>
+                      </button>
+                    </div>
                   </div>
 
+                  {/* Team 2 Bhav */}
                   <div className="p-3 flex items-center justify-between">
                     <span className="font-black text-sm text-slate-900">{match.team2.name}</span>
                     <div className="flex items-center gap-1.5">
                       <button
-                        onClick={() => handleSelectOdds("Bookmaker", match.team2.name, 66, 'back')}
-                        className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-lg flex items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                        onClick={() => handleSelectOdds("Bookmaker", match.team2.name, match.odds?.team2Back || 1.90, 'back')}
+                        className="w-16 h-11 bg-[#72bbef] hover:bg-[#5db1eb] active:scale-98 text-[#002b49] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
                       >
-                        66
+                        <span>{Math.round(((match.odds?.team2Back || 1.90) - 1) * 100)}</span>
+                        <span className="text-[8px] opacity-75 font-mono">Lagai</span>
                       </button>
                       <button
-                        onClick={() => handleSelectOdds("Bookmaker", match.team2.name, 67, 'lay')}
-                        className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-lg flex items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
+                        onClick={() => handleSelectOdds("Bookmaker", match.team2.name, match.odds?.team2Lay || 1.92, 'lay')}
+                        className="w-16 h-11 bg-[#faa9ba] hover:bg-[#f895a9] active:scale-98 text-[#4a0011] font-black text-sm rounded-lg flex flex-col items-center justify-center cursor-pointer shadow-xs min-h-[44px]"
                       >
-                        67
+                        <span>{Math.round(((match.odds?.team2Lay || 1.92) - 1) * 100)}</span>
+                        <span className="text-[8px] opacity-75 font-mono">Khai</span>
                       </button>
                     </div>
                   </div>

@@ -2,6 +2,7 @@ import { NextRequest } from "next/server";
 import { getSportMatchesWithSWR, ExtendedMatch } from "@/lib/sportsCache";
 import { resolveCricbuzzMatchDetails } from "@/lib/cricbuzzEngine";
 import { ApexDataEngine } from "@/lib/apexDataEngine";
+import { computeCricketBhav } from "@/lib/cricketBhavEngine";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -132,10 +133,40 @@ export async function GET(req: NextRequest) {
               if (synchronizedOdds) resolvedMatch.odds = synchronizedOdds;
             }
 
-            // Calculate Win Probability & Momentum Indicator
+            // 3. Compute Real-Time Event-Driven In-Play Bhav (WASP / DLS Model)
             let winProbability = { team1: 50, team2: 50 };
-            if (synchronizedOdds?.team1Back && synchronizedOdds?.team2Back) {
-              // Micro-bhav drift for in-play active trading feel
+            const isCricket = resolvedMatch?.matchType === "T20" || resolvedMatch?.matchType === "ODI" || resolvedMatch?.matchType === "TEST" || (liveMatch as any)?.sport === "cricket";
+
+            if (isCricket && resolvedMatch) {
+              const scoreString = liveMatch?.score || `${resolvedMatch.team1?.scoreSummary || ""} vs ${resolvedMatch.team2?.scoreSummary || ""}`;
+              const format = resolvedMatch.matchType || "T20";
+              const bhavData = computeCricketBhav(scoreString, format, 0.50, true);
+
+              // Apply micro-tick liquidity oscillation
+              const drift = Math.sin(tickCount * 0.9) * 0.01;
+              const t1b = parseFloat(Math.max(1.02, bhavData.odds.team1Back + drift).toFixed(2));
+              const t1l = parseFloat((t1b + 0.02).toFixed(2));
+              const t2b = parseFloat(Math.max(1.02, bhavData.odds.team2Back - drift).toFixed(2));
+              const t2l = parseFloat((t2b + 0.02).toFixed(2));
+
+              resolvedMatch.odds = {
+                team1Back: t1b,
+                team1Lay: t1l,
+                team2Back: t2b,
+                team2Lay: t2l,
+                drawBack: bhavData.odds.drawBack,
+                drawLay: bhavData.odds.drawLay
+              };
+
+              winProbability = bhavData.winProbability;
+              (resolvedMatch as any).indianBhav = {
+                team1: { lagai: Math.round((t1b - 1) * 100), khai: Math.round((t1l - 1) * 100) },
+                team2: { lagai: Math.round((t2b - 1) * 100), khai: Math.round((t2l - 1) * 100) }
+              };
+              (resolvedMatch as any).ladderTeam1 = bhavData.ladderTeam1;
+              (resolvedMatch as any).ladderTeam2 = bhavData.ladderTeam2;
+
+            } else if (synchronizedOdds?.team1Back && synchronizedOdds?.team2Back) {
               const drift = Math.sin(tickCount * 0.8) * 0.02;
               const t1b = parseFloat(Math.max(1.05, synchronizedOdds.team1Back + drift).toFixed(2));
               const t1l = parseFloat((t1b + 0.02).toFixed(2));
