@@ -41,18 +41,23 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
     return cached.data;
   }
 
-  // Multi-host failover pool
-  const hosts = [
-    { host: RAPIDAPI_HOST, key: process.env.RAPIDAPI_KEY || "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad" },
-    { host: "free-cricbuzz-cricket-api.p.rapidapi.com", key: "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b" }
+  // Multi-key failover pool
+  const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
+  const primaryKeys = envKeys.length > 0 ? envKeys : [
+    "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad",
+    "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
+    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4"
   ];
 
-  for (const { host, key } of hosts) {
+  const candidateKey = getNextRapidApiKey();
+  const attemptKeys = [candidateKey, ...primaryKeys.filter(k => k !== candidateKey)];
+
+  for (const key of attemptKeys) {
     try {
-      const res = await fetch(`https://${host}${path}`, {
+      const res = await fetch(`https://${RAPIDAPI_HOST}${path}`, {
         headers: {
           "x-rapidapi-key": key,
-          "x-rapidapi-host": host,
+          "x-rapidapi-host": RAPIDAPI_HOST,
           "User-Agent": "AuraPlay-LiveCricketEngine/3.0"
         },
         next: { revalidate: 10 }
@@ -64,7 +69,7 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
         return data;
       }
     } catch (err: any) {
-      console.warn(`Cricbuzz fetch failed on ${host} for ${path}:`, err.message);
+      console.warn(`Cricbuzz fetch failed on ${RAPIDAPI_HOST} for ${path}:`, err.message);
     }
   }
 
