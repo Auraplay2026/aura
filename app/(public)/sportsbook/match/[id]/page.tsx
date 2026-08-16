@@ -35,7 +35,7 @@ export default function MatchDetailPage({ params }: PageProps) {
   const [activeTab, setActiveTab] = useState<"exchange" | "scorecard" | "commentary" | "squads" | "info">("exchange");
   const [fancyCategory, setFancyCategory] = useState<"all" | "fancy" | "ballbyball" | "khadda" | "lottery" | "oddeven">("all");
   const [isPinned, setIsPinned] = useState(false);
-  const [showLiveStream, setShowLiveStream] = useState(true);
+  const [showLiveStream, setShowLiveStream] = useState(false);
 
   // Quick Bet & Bet Slip State
   const [oneClickBet, setOneClickBet] = useState(false);
@@ -241,8 +241,8 @@ export default function MatchDetailPage({ params }: PageProps) {
                   : "bg-[#122e22] text-emerald-200 hover:bg-[#255740] border border-[#2d5a45]"
               )}
             >
-              <Video className="w-3.5 h-3.5 text-red-400 animate-pulse" />
-              <span>Live Video</span>
+              <Tv className="w-3.5 h-3.5 text-red-400 animate-pulse" />
+              <span>{showLiveStream ? "Close TV" : "Live TV"}</span>
             </button>
 
             <button
