@@ -197,7 +197,10 @@ function getNextTheOddsApiKey(): string {
     "e517f90375315e5baf00a63d14b7b721",
     "9bd47b2893228bc90a9a08ace8446b78",
     "32dab68e02f15ef900cefa1f3d4c4441",
-    "cbe53b8dfae0dc2218f78dfc37d8b501"
+    "cbe53b8dfae0dc2218f78dfc37d8b501",
+    "c7e97483b18c4c56213b289ca59fa85c",
+    "d9be5e2b804ce010dc36c3ead1adf0b8",
+    "9316234b7af21237fa9b09aeac7810f5"
   ];
   const key = selectActiveKeyFromPool(pool, theOddsApiKeyIndex);
   theOddsApiKeyIndex++;
