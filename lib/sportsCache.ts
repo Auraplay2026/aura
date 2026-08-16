@@ -196,7 +196,8 @@ function getNextTheOddsApiKey(): string {
     "2b606a45113ec6e302fc09e55c8b12ac",
     "e517f90375315e5baf00a63d14b7b721",
     "9bd47b2893228bc90a9a08ace8446b78",
-    "32dab68e02f15ef900cefa1f3d4c4441"
+    "32dab68e02f15ef900cefa1f3d4c4441",
+    "cbe53b8dfae0dc2218f78dfc37d8b501"
   ];
   const key = selectActiveKeyFromPool(pool, theOddsApiKeyIndex);
   theOddsApiKeyIndex++;
@@ -256,7 +257,8 @@ function getNextRapidApiKey(): string {
     "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
     "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
     "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089",
-    "335d4879acmshafd4283adf58d93p1f039djsn3ea3ec67896e"
+    "335d4879acmshafd4283adf58d93p1f039djsn3ea3ec67896e",
+    "2e07fae15amsh48bdcaa2cfd2b30p177f0fjsnb9ca4e10011d"
   ];
   const key = selectActiveKeyFromPool(pool, rapidApiKeyIndex);
   rapidApiKeyIndex++;
