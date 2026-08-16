@@ -221,44 +221,44 @@ export default function MatchDetailPage({ params }: PageProps) {
     }
   };
 
-  // Compute 3-depth order book ladder
-  const baseT1 = (match.odds as any)?.team1Back ?? (match.odds as any)?.team1?.back ?? 2.48;
-  const baseT2 = (match.odds as any)?.team2Back ?? (match.odds as any)?.team2?.back ?? 1.68;
+  // Compute 3-depth order book ladder (Prioritizes Live Betfair Exchange Depth)
+  const baseT1 = (match.odds as any)?.team1Back ?? (match.odds as any)?.team1?.back ?? 1.90;
+  const baseT2 = (match.odds as any)?.team2Back ?? (match.odds as any)?.team2?.back ?? 1.90;
 
-  const backDepthTeam1 = [
-    { odds: parseFloat((baseT1 - 0.04).toFixed(2)), volume: "237.1k" },
-    { odds: parseFloat((baseT1 - 0.02).toFixed(2)), volume: "2.01M" },
-    { odds: baseT1, volume: "352.5k" }
+  type LadderItem = { odds: number; volume: string };
+  const backDepthTeam1: LadderItem[] = (match as any).ladderTeam1?.back || [
+    { odds: parseFloat(Math.max(1.01, baseT1 - 0.04).toFixed(2)), volume: "237.1k" },
+    { odds: parseFloat(Math.max(1.01, baseT1 - 0.02).toFixed(2)), volume: "2.01M" },
+    { odds: parseFloat(baseT1.toFixed(2)), volume: "352.5k" }
   ];
-  const layDepthTeam1 = [
+  const layDepthTeam1: LadderItem[] = (match as any).ladderTeam1?.lay || [
     { odds: parseFloat((baseT1 + 0.02).toFixed(2)), volume: "95.3k" },
     { odds: parseFloat((baseT1 + 0.04).toFixed(2)), volume: "46.1k" },
     { odds: parseFloat((baseT1 + 0.06).toFixed(2)), volume: "187.9k" }
   ];
 
-  const backDepthTeam2 = [
-    { odds: parseFloat((baseT2 - 0.04).toFixed(2)), volume: "115.4k" },
-    { odds: parseFloat((baseT2 - 0.02).toFixed(2)), volume: "840k" },
-    { odds: baseT2, volume: "1.25M" }
+  const backDepthTeam2: LadderItem[] = (match as any).ladderTeam2?.back || [
+    { odds: parseFloat(Math.max(1.01, baseT2 - 0.04).toFixed(2)), volume: "115.4k" },
+    { odds: parseFloat(Math.max(1.01, baseT2 - 0.02).toFixed(2)), volume: "840k" },
+    { odds: parseFloat(baseT2.toFixed(2)), volume: "1.25M" }
   ];
-  const layDepthTeam2 = [
+  const layDepthTeam2: LadderItem[] = (match as any).ladderTeam2?.lay || [
     { odds: parseFloat((baseT2 + 0.02).toFixed(2)), volume: "140.2k" },
     { odds: parseFloat((baseT2 + 0.04).toFixed(2)), volume: "62.8k" },
     { odds: parseFloat((baseT2 + 0.06).toFixed(2)), volume: "210k" }
   ];
 
-  // Fancy Bet Sessions Matrix
-  const fancyMarkets = [
+  // Dynamic Fancy Bet Sessions Matrix
+  const fancyMarkets: any[] = (match as any).fancyMarkets || [
     { id: "f1", cat: "fancy", label: `6 Over Runs ${match.team1.name}`, noRuns: 48, noRate: 100, yesRuns: 50, yesRate: 100, status: "active", min: 100, max: 25000 },
     { id: "f2", cat: "fancy", label: `10 Over Runs ${match.team1.name}`, noRuns: 78, noRate: 100, yesRuns: 80, yesRate: 100, status: "active", min: 100, max: 25000 },
     { id: "f3", cat: "fancy", label: `20 Over Total Runs ${match.team1.name}`, noRuns: 165, noRate: 100, yesRuns: 167, yesRate: 100, status: "ball_running", min: 100, max: 50000 },
-    { id: "f4", cat: "ballbyball", label: `28.3 Over Runs`, noRuns: 1, noRate: 90, yesRuns: 2, yesRate: 110, status: "active", min: 100, max: 10000 },
-    { id: "f5", cat: "ballbyball", label: `28.4 Over Runs`, noRuns: 0, noRate: 85, yesRuns: 1, yesRate: 95, status: "active", min: 100, max: 10000 },
-    { id: "f6", cat: "khadda", label: `${match.team2.name} Fall of 3rd Wicket`, noRuns: 145, noRate: 90, yesRuns: 148, yesRate: 90, status: "active", min: 100, max: 20000 },
+    { id: "f4", cat: "ballbyball", label: `Current Over Runs`, noRuns: 1, noRate: 90, yesRuns: 2, yesRate: 110, status: "active", min: 100, max: 10000 },
+    { id: "f6", cat: "khadda", label: `${match.team2.name} Fall of Next Wicket`, noRuns: 145, noRate: 90, yesRuns: 148, yesRate: 90, status: "active", min: 100, max: 20000 },
     { id: "f7", cat: "oddeven", label: `20 Over Total Odd/Even`, noRuns: "ODD", noRate: 95, yesRuns: "EVEN", yesRate: 95, status: "active", min: 100, max: 50000 }
   ];
 
-  const filteredFancy = fancyMarkets.filter(f => fancyCategory === "all" || f.cat === fancyCategory);
+  const filteredFancy: any[] = fancyMarkets.filter((f: any) => fancyCategory === "all" || f.cat === fancyCategory);
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans select-none pb-20 lg:pb-6">

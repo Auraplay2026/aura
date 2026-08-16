@@ -142,7 +142,16 @@ export async function GET(req: NextRequest) {
               const format = resolvedMatch.matchType || "T20";
               const team1Name = resolvedMatch.team1?.name || "Team 1";
               const team2Name = resolvedMatch.team2?.name || "Team 2";
-              let bhavData = computeCricketBhav(scoreString, format, 0.50, true, team1Name, team2Name);
+              
+              let bhavData = computeCricketBhav(
+                scoreString,
+                format,
+                0.50,
+                true,
+                team1Name,
+                team2Name,
+                synchronizedOdds ? { team1Back: synchronizedOdds.team1Back, team2Back: synchronizedOdds.team2Back, drawBack: (synchronizedOdds as any).drawBack } : undefined
+              );
 
               // If telemetry or commentary indicates a recent ball event, apply discrete delta
               const lastEvent = (telemetry as any)?.lastEvent || (resolvedMatch as any)?.lastBallEvent;

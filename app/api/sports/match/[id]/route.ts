@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { ApexDataEngine } from "@/lib/apexDataEngine";
 import { getSportMatchesWithSWR } from "@/lib/sportsCache";
 import { resolveCricbuzzMatchDetails } from "@/lib/cricbuzzEngine";
+import { computeCricketBhav } from "@/lib/cricketBhavEngine";
 
 export const dynamic = "force-dynamic";
 
@@ -74,24 +75,38 @@ export async function GET(
 
         // CRITICAL: Override with SWR cache data to ensure synchronization
         if (liveMatch) {
-          // Use listing page series name if Cricbuzz returns generic fallback
           if (liveMatch.seriesName) {
             match.series = liveMatch.seriesName;
           }
-          // Use listing page match format
           if (liveMatch.matchFormat) {
             match.matchType = liveMatch.matchFormat.toUpperCase() as any;
           }
-          // Synchronize score status only if Cricbuzz returned empty or generic status
           if (liveMatch.score && (!match.status || match.status === "Live in-play" || match.status === "Upcoming Match")) {
             match.status = liveMatch.score;
           }
         }
 
-        // CRITICAL: Inject synchronized odds
+        // CRITICAL: Inject synchronized market-anchored odds & Indian Bhav
         if (cacheOdds) {
           match.odds = cacheOdds;
         }
+
+        const bhavData = computeCricketBhav(
+          match.status || liveMatch?.score || "",
+          (match.matchType || liveMatch?.matchFormat || "T20").toUpperCase(),
+          0.50,
+          true,
+          match.team1?.name || "Team 1",
+          match.team2?.name || "Team 2",
+          cacheOdds ? { team1Back: cacheOdds.team1Back, team2Back: cacheOdds.team2Back, drawBack: (cacheOdds as any).drawBack } : undefined
+        );
+
+        (match as any).indianBhav = bhavData.indianBhav;
+        (match as any).ladderTeam1 = bhavData.ladderTeam1;
+        (match as any).ladderTeam2 = bhavData.ladderTeam2;
+        (match as any).fancyMarkets = bhavData.fancyMarkets;
+        (match as any).marketState = bhavData.marketState;
+        (match as any).suspensionReason = bhavData.suspensionReason;
 
         return NextResponse.json({
           success: true,
@@ -121,8 +136,6 @@ export async function GET(
 
     // ──────────────────────────────────────────────────
     // STEP 3: ApexDataEngine fallback with SWR cache data.
-    // Pass the full listing-page match data as hint so
-    // the engine uses real teams, series, and odds.
     // ──────────────────────────────────────────────────
     const apexPayload = await ApexDataEngine.getVerifiedMatch(
       matchId,
@@ -138,13 +151,30 @@ export async function GET(
       } : undefined
     );
 
-    // CRITICAL: Inject synchronized odds into ApexDataEngine result
     if (cacheOdds && apexPayload.match) {
       apexPayload.match.odds = cacheOdds;
     }
-    // Synchronize series name from cache
     if (liveMatch?.seriesName && apexPayload.match) {
       apexPayload.match.series = liveMatch.seriesName;
+    }
+
+    if (apexPayload.match) {
+      const bhavData = computeCricketBhav(
+        apexPayload.match.status || liveMatch?.score || "",
+        (apexPayload.match.matchType || liveMatch?.matchFormat || "T20").toUpperCase(),
+        0.50,
+        true,
+        apexPayload.match.team1?.name || "Team 1",
+        apexPayload.match.team2?.name || "Team 2",
+        cacheOdds ? { team1Back: cacheOdds.team1Back, team2Back: cacheOdds.team2Back, drawBack: (cacheOdds as any).drawBack } : undefined
+      );
+
+      (apexPayload.match as any).indianBhav = bhavData.indianBhav;
+      (apexPayload.match as any).ladderTeam1 = bhavData.ladderTeam1;
+      (apexPayload.match as any).ladderTeam2 = bhavData.ladderTeam2;
+      (apexPayload.match as any).fancyMarkets = bhavData.fancyMarkets;
+      (apexPayload.match as any).marketState = bhavData.marketState;
+      (apexPayload.match as any).suspensionReason = bhavData.suspensionReason;
     }
 
     return NextResponse.json({

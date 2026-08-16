@@ -1,5 +1,5 @@
 import { generateMatches, Match } from "./sportsData";
-import { computeCricketBhav } from "./cricketBhavEngine";
+import { computeCricketBhav, normalizeCanonicalTeamName } from "./cricketBhavEngine";
 
 // Extended Match type to support optional logos and sport classification
 export type ExtendedMatch = Match & {
@@ -1111,6 +1111,17 @@ export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
   // 1. Primary A: The Odds API (Real Betfair / Pinnacle Cricket Odds - Multi-Key Load Balanced)
   const oddsApiMatches = await fetchTheOddsApiMatches("cricket");
 
+  // Build canonical Betfair exchange market dictionary
+  const canonicalExchangeOddsMap = new Map<string, { team1: number; team2: number; draw: number | null; marketName?: string }>();
+  for (const om of oddsApiMatches) {
+    const c1 = normalizeCanonicalTeamName(om.team1);
+    const c2 = normalizeCanonicalTeamName(om.team2);
+    if (c1 && c2) {
+      canonicalExchangeOddsMap.set(`${c1}_vs_${c2}`, { team1: om.odds.team1, team2: om.odds.team2, draw: om.odds.draw, marketName: om.seriesName });
+      canonicalExchangeOddsMap.set(`${c2}_vs_${c1}`, { team1: om.odds.team2, team2: om.odds.team1, draw: om.odds.draw, marketName: om.seriesName });
+    }
+  }
+
   // 1. Primary B: CricketData.org API (Current Live Matches & Scorecards - Multi-Key Load Balanced)
   const officialCricket = await fetchCricketDataOrgMatches();
 
@@ -1123,12 +1134,30 @@ export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
   // 4. Quaternary: Cricbuzz RapidAPI
   const cricbuzzApi = await fetchCricbuzzRapidApiMatches();
 
+  // Attach live Betfair Exchange Odds to all matched scorecards
+  const allScorecards = [...officialCricket, ...scraped, ...espnCricket, ...cricbuzzApi].map(m => {
+    const c1 = normalizeCanonicalTeamName(m.team1);
+    const c2 = normalizeCanonicalTeamName(m.team2);
+    const exchangeMatch = canonicalExchangeOddsMap.get(`${c1}_vs_${c2}`);
+    if (exchangeMatch) {
+      return {
+        ...m,
+        odds: {
+          team1: exchangeMatch.team1,
+          team2: exchangeMatch.team2,
+          draw: exchangeMatch.draw
+        }
+      };
+    }
+    return m;
+  });
+
   // Consolidated & deduplicated list
   const merged: ExtendedMatch[] = [];
   const seenKeys = new Set<string>();
 
-  for (const m of [...oddsApiMatches, ...officialCricket, ...scraped, ...espnCricket, ...cricbuzzApi]) {
-    const key = `${m.team1.toLowerCase().replace(/[^a-z0-9]/g, '')}_${m.team2.toLowerCase().replace(/[^a-z0-9]/g, '')}`;
+  for (const m of [...oddsApiMatches, ...allScorecards]) {
+    const key = `${normalizeCanonicalTeamName(m.team1)}_${normalizeCanonicalTeamName(m.team2)}`;
     if (!seenKeys.has(key)) {
       seenKeys.add(key);
       merged.push(m);
