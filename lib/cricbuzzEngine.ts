@@ -14,7 +14,16 @@ import { DeepMatchInfo, CrexInningsScorecard, PlayerDossier, PLAYERS_DATABASE } 
 import { CricketLiveBallState } from "./apexDataEngine";
 import { ExtendedMatch } from "./sportsCache";
 
-const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || "5da27ecf52msh8ee940bf053e076p19ec35jsne5919afdb333";
+let rapidApiKeyIndex = 0;
+function getNextRapidApiKey(): string {
+  const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
+  const primary = process.env.RAPIDAPI_KEY || "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad";
+  const pool = envKeys.length > 0 ? envKeys : [primary];
+  const key = pool[rapidApiKeyIndex % pool.length];
+  rapidApiKeyIndex++;
+  return key;
+}
+
 const RAPIDAPI_HOST = process.env.RAPIDAPI_CRICBUZZ_HOST || "cricbuzz-cricket.p.rapidapi.com";
 
 interface CacheItem<T> {
@@ -33,9 +42,10 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
   }
 
   try {
+    const apiKey = getNextRapidApiKey();
     const res = await fetch(`https://${RAPIDAPI_HOST}${path}`, {
       headers: {
-        "x-rapidapi-key": RAPIDAPI_KEY,
+        "x-rapidapi-key": apiKey,
         "x-rapidapi-host": RAPIDAPI_HOST,
         "User-Agent": "AuraPlay-LiveCricketEngine/3.0"
       },
