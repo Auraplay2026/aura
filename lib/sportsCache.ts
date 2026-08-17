@@ -1,5 +1,5 @@
 import { generateMatches, Match } from "./sportsData";
-import { computeCricketBhav, normalizeCanonicalTeamName } from "./cricketBhavEngine";
+import { computeCricketBhav, normalizeCanonicalTeamName, isFuzzyMatch } from "./cricketBhavEngine";
 
 // Extended Match type to support optional logos and sport classification
 export type ExtendedMatch = Match & {
@@ -1141,7 +1141,21 @@ export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
   const allScorecards = [...officialCricket, ...scraped, ...espnCricket, ...cricbuzzApi].map(m => {
     const c1 = normalizeCanonicalTeamName(m.team1);
     const c2 = normalizeCanonicalTeamName(m.team2);
-    const exchangeMatch = canonicalExchangeOddsMap.get(`${c1}_vs_${c2}`);
+    let exchangeMatch = canonicalExchangeOddsMap.get(`${c1}_vs_${c2}`);
+
+    // If not exact canonical key, execute fuzzy token matching across all exchange matches
+    if (!exchangeMatch) {
+      for (const om of oddsApiMatches) {
+        if (isFuzzyMatch(m.team1, om.team1) && isFuzzyMatch(m.team2, om.team2)) {
+          exchangeMatch = { team1: om.odds.team1, team2: om.odds.team2, draw: om.odds.draw, marketName: om.seriesName };
+          break;
+        } else if (isFuzzyMatch(m.team1, om.team2) && isFuzzyMatch(m.team2, om.team1)) {
+          exchangeMatch = { team1: om.odds.team2, team2: om.odds.team1, draw: om.odds.draw, marketName: om.seriesName };
+          break;
+        }
+      }
+    }
+
     if (exchangeMatch) {
       return {
         ...m,

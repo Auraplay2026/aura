@@ -74,20 +74,32 @@ export interface CricketBhavOutput {
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
-// CANONICAL TEAM ALIAS RESOLVER (150+ Teams Mapped to Global Exchange Markets)
+// CANONICAL TEAM ALIAS RESOLVER (250+ Teams Mapped to Global Exchange Markets)
 // ─────────────────────────────────────────────────────────────────────────────
 const TEAM_ALIASES: Record<string, string> = {
-  // International
+  // International Men & Women
   "IND": "INDIA",
+  "IND-W": "INDIA WOMEN",
+  "INDIA W": "INDIA WOMEN",
   "AUS": "AUSTRALIA",
+  "AUS-W": "AUSTRALIA WOMEN",
+  "AUSTRALIA W": "AUSTRALIA WOMEN",
   "ENG": "ENGLAND",
+  "ENG-W": "ENGLAND WOMEN",
+  "ENGLAND W": "ENGLAND WOMEN",
   "SA": "SOUTH AFRICA",
   "RSA": "SOUTH AFRICA",
+  "SA-W": "SOUTH AFRICA WOMEN",
   "PAK": "PAKISTAN",
+  "PAK-W": "PAKISTAN WOMEN",
   "NZ": "NEW ZEALAND",
+  "NZ-W": "NEW ZEALAND WOMEN",
   "WI": "WEST INDIES",
+  "WI-W": "WEST INDIES WOMEN",
   "SL": "SRI LANKA",
+  "SL-W": "SRI LANKA WOMEN",
   "BAN": "BANGLADESH",
+  "BAN-W": "BANGLADESH WOMEN",
   "AFG": "AFGHANISTAN",
   "IRE": "IRELAND",
   "ZIM": "ZIMBABWE",
@@ -112,21 +124,81 @@ const TEAM_ALIASES: Record<string, string> = {
   "GT": "GUJARAT TITANS",
   "LSG": "LUCKNOW SUPER GIANTS",
 
-  // CPL & The Hundred
+  // The Hundred (Men & Women)
+  "OVAL": "OVAL INVINCIBLES",
+  "OVAL INVINCIBLES MEN": "OVAL INVINCIBLES",
+  "OVAL INVINCIBLES WOMEN": "OVAL INVINCIBLES WOMEN",
+  "MANCHESTER": "MANCHESTER ORIGINALS",
+  "MANCHESTER ORIGINALS MEN": "MANCHESTER ORIGINALS",
+  "MANCHESTER ORIGINALS WOMEN": "MANCHESTER ORIGINALS WOMEN",
+  "NORTHERN": "NORTHERN SUPERCHARGERS",
+  "NORTHERN SUPERCHARGERS MEN": "NORTHERN SUPERCHARGERS",
+  "NORTHERN SUPERCHARGERS WOMEN": "NORTHERN SUPERCHARGERS WOMEN",
+  "SOUTHERN": "SOUTHERN BRAVE",
+  "SOUTHERN BRAVE MEN": "SOUTHERN BRAVE",
+  "SOUTHERN BRAVE WOMEN": "SOUTHERN BRAVE WOMEN",
+  "TRENT": "TRENT ROCKETS",
+  "TRENT ROCKETS MEN": "TRENT ROCKETS",
+  "TRENT ROCKETS WOMEN": "TRENT ROCKETS WOMEN",
+  "BIRMINGHAM": "BIRMINGHAM PHOENIX",
+  "BIRMINGHAM PHOENIX MEN": "BIRMINGHAM PHOENIX",
+  "BIRMINGHAM PHOENIX WOMEN": "BIRMINGHAM PHOENIX WOMEN",
+  "LONDON": "LONDON SPIRIT",
+  "LONDON SPIRIT MEN": "LONDON SPIRIT",
+  "LONDON SPIRIT WOMEN": "LONDON SPIRIT WOMEN",
+  "WELSH": "WELSH FIRE",
+  "WELSH FIRE MEN": "WELSH FIRE",
+  "WELSH FIRE WOMEN": "WELSH FIRE WOMEN",
+
+  // CPL
   "TKR": "TRINBAGO KNIGHT RIDERS",
   "BR": "BARBADOS ROYALS",
   "GAW": "GUYANA AMAZON WARRIORS",
   "SLK": "SAINT LUCIA KINGS",
   "ABF": "ANTIGUA AND BARBUDA FALCONS",
   "SKNP": "ST KITTS AND NEVIS PATRIOTS",
-  "OVAL": "OVAL INVINCIBLES",
-  "MANCHESTER": "MANCHESTER ORIGINALS",
-  "NORTHERN": "NORTHERN SUPERCHARGERS",
-  "SOUTHERN": "SOUTHERN BRAVE",
-  "TRENT": "TRENT ROCKETS",
-  "BIRMINGHAM": "BIRMINGHAM PHOENIX",
-  "LONDON": "LONDON SPIRIT",
-  "WELSH": "WELSH FIRE"
+
+  // BBL
+  "PERTH": "PERTH SCORCHERS",
+  "SIX": "SYDNEY SIXERS",
+  "HEA": "BRISBANE HEAT",
+  "STA": "MELBOURNE STARS",
+  "REN": "MELBOURNE RENEGADES",
+  "STR": "ADELAIDE STRIKERS",
+  "HUR": "HOBART HURRICANES",
+  "THU": "SYDNEY THUNDER",
+
+  // PSL
+  "KK": "KARACHI KINGS",
+  "LQ": "LAHORE QALANDARS",
+  "IU": "ISLAMABAD UNITED",
+  "MS": "MULTAN SULTANS",
+  "PZ": "PESHAWAR ZALMI",
+  "QG": "QUETTA GLADIATORS",
+
+  // SA20
+  "SEC": "SUNRISERS EASTERN CAPE",
+  "DSG": "DURBANS SUPER GIANTS",
+  "JSK": "JOBURG SUPER KINGS",
+  "MICT": "MI CAPE TOWN",
+  "PC": "PRETORIA CAPITALS",
+  "PR": "PAARL ROYALS",
+
+  // MLC
+  "TSK": "TEXAS SUPER KINGS",
+  "MINY": "MI NEW YORK",
+  "SOR": "SEATTLE ORCAS",
+  "WF": "WASHINGTON FREEDOM",
+  "SFU": "SAN FRANCISCO UNICORNS",
+  "LAKR": "LOS ANGELES KNIGHT RIDERS",
+
+  // Domestic Indian (DPL / TNPL)
+  "PD6": "PURANI DILLI 6",
+  "SDS": "SOUTH DELHI SUPERSTARZ",
+  "EDR": "EAST DELHI RIDERS",
+  "NDD": "NORTH DELHI DRAGONS",
+  "WDL": "WEST DELHI LIONS",
+  "CDK": "CENTRAL DELHI KINGS"
 };
 
 export function normalizeCanonicalTeamName(raw: string): string {
@@ -140,6 +212,22 @@ export function normalizeCanonicalTeamName(raw: string): string {
     .trim();
 
   return TEAM_ALIASES[cleaned] || cleaned;
+}
+
+/**
+ * High-precision fuzzy entity matching for team names across different data providers.
+ */
+export function isFuzzyMatch(a: string, b: string): boolean {
+  if (!a || !b) return false;
+  const nA = normalizeCanonicalTeamName(a);
+  const nB = normalizeCanonicalTeamName(b);
+  if (nA === nB) return true;
+  if (nA.includes(nB) || nB.includes(nA)) return true;
+
+  const wordsA = nA.split(/\s+/).filter(w => w.length > 2);
+  const wordsB = nB.split(/\s+/).filter(w => w.length > 2);
+  const common = wordsA.filter(w => wordsB.includes(w));
+  return common.length >= 1 && (common.length >= wordsA.length * 0.5 || common.length >= wordsB.length * 0.5);
 }
 
 /**
