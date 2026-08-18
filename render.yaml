@@ -1,7 +1,7 @@
 services:
   - type: web
     name: auraplay
-    env: node
+    runtime: node
     buildCommand: npm install && npm run build
     startCommand: npm start
     disk:
@@ -9,6 +9,12 @@ services:
       mountPath: /opt/render/project/src/data
       sizeGB: 1
     envVars:
+      - key: NODE_VERSION
+        value: "20.18.0"
+      - key: NPM_CONFIG_PRODUCTION
+        value: "false"
+      - key: NODE_ENV
+        value: production
       - key: DATABASE_URL
         fromDatabase:
           name: auradb
@@ -17,19 +23,41 @@ services:
         generateValue: true
       - key: ADMIN_HMAC_SECRET
         generateValue: true
+      - key: ADMIN_PASSCODE
+        generateValue: true
+      - key: FAIR_RNG_KEY
+        generateValue: true
+      - key: AURA_SERVER_ID
+        value: auraplay-prod-01
+      - key: ENFORCE_ADMIN_MFA
+        value: "false"
       - key: NEXT_PUBLIC_GOOGLE_CLIENT_ID
-        value: 61951094794-ice7e5fabt7indlo6clki10f7093hjiu.apps.googleusercontent.com
+        value: 61951094794-rj86fgkpigssgt7j1j5psuptgloul2e9.apps.googleusercontent.com
       - key: ALLOW_MOCK_GOOGLE_LOGIN
         value: "true"
       - key: NEXT_PUBLIC_ALLOW_MOCK_GOOGLE_LOGIN
         value: "true"
+      - key: NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER
+        value: "+16592210661"
+      - key: WHATSAPP_SUPPORT_NUMBER
+        value: "+16592210661"
+      - key: NEXT_PUBLIC_SENTRY_DSN
+        value: "https://5bbce9cdb32b458171a84f3689468527@o4511904568508416.ingest.us.sentry.io/4511904573947904"
+      - key: SENTRY_DSN
+        value: "https://5bbce9cdb32b458171a84f3689468527@o4511904568508416.ingest.us.sentry.io/4511904573947904"
+      - key: SENTRY_ORG
+        value: "aura-i9"
+      - key: SENTRY_PROJECT
+        value: "javascript-nextjs"
 
   - type: worker
     name: referral-worker
-    env: python
+    runtime: python
     buildCommand: pip install -r scripts/requirements.txt
     startCommand: python scripts/referral_worker.py
     envVars:
+      - key: PYTHON_VERSION
+        value: "3.10.12"
       - key: DATABASE_URL
         fromDatabase:
           name: auradb
@@ -37,3 +65,6 @@ services:
 
 databases:
   - name: auradb
+    databaseName: auradb
+    user: auradb_user
+    ipAllowList: []

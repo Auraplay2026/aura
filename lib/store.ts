@@ -158,8 +158,9 @@ interface TradingState {
 
   // Daily Streak & Spin Actions
   checkDailyStreak: () => void;
+  fetchStreakStatus: () => Promise<void>;
   claimDailyReward: () => Promise<void>;
-  spinWheelClaimed: (prizeAmount: number, prizeName: string) => Promise<void>;
+  spinWheelClaimed: (prizeAmount: number, prizeName: string, prizeIndex?: number) => Promise<void>;
   unlockAchievement: (id: string) => void;
   clearLatestAchievement: () => void;
   clearLatestWinCelebration: () => void;
@@ -415,6 +416,12 @@ export const useTradingStore = create<TradingState>()(
               kycStatus: mapKycStatus(sanitizedUser?.kycStatus),
               geoRestricted: sanitizedUser?.geoRestricted || false,
               verifiedAge: sanitizedUser?.verifiedAge || 0,
+              ...(data.streak ? {
+                streakCount: data.streak.currentStreak,
+                claimedToday: data.streak.streakClaimedToday,
+                spinWheelClaimedToday: data.streak.spinClaimedToday,
+                lastLoginDate: data.streak.todayDate
+              } : {})
             });
           }
         } catch (err) {
@@ -1410,95 +1417,83 @@ export const useTradingStore = create<TradingState>()(
       }),
 
       checkDailyStreak: () => {
-        set((state) => {
-          const streakResult = checkStreak(state.lastLoginDate, state.streakCount || 0);
-          let claimed = state.claimedToday;
-          let spinClaimed = state.spinWheelClaimedToday;
-          let streak = state.streakCount || 0;
+        get().fetchStreakStatus();
+      },
 
-          if (streakResult.status === 'already_claimed') {
-            claimed = true;
-            streak = streakResult.newStreak;
-          } else if (streakResult.status === 'claim_available') {
-            claimed = false;
-            spinClaimed = false;
-            streak = streakResult.newStreak;
-          } else if (streakResult.status === 'streak_broken') {
-            claimed = false;
-            spinClaimed = false;
-            streak = 1;
+      fetchStreakStatus: async () => {
+        const state = get();
+        if (!state.isLoggedIn || !state.currentUser) return;
+        try {
+          const userIdentifier = state.currentUser.email || state.currentUser.username;
+          const res = await fetch('/api/streak/status', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: userIdentifier })
+          });
+          const data = await res.json();
+          if (res.ok && data.success) {
+            set({
+              streakCount: data.currentStreak,
+              claimedToday: data.streakClaimedToday,
+              spinWheelClaimedToday: data.spinClaimedToday,
+              lastLoginDate: data.todayDate
+            });
           }
-          return {
-            streakCount: streak,
-            claimedToday: claimed,
-            spinWheelClaimedToday: spinClaimed
-          };
-        });
+        } catch (err) {
+          console.error("Failed to fetch streak status:", err);
+        }
       },
 
       claimDailyReward: async () => {
         const state = get();
         if (state.claimedToday || !state.isLoggedIn || !state.currentUser) return;
 
-        const DAILY_REWARDS = [50, 100, 200, 350, 500, 1000, 5000];
-        const currentStreak = state.streakCount || 1;
-        const dayIndex = Math.min(6, Math.max(0, currentStreak - 1));
-        const rewardAmount = DAILY_REWARDS[dayIndex] || 50;
-        const todayStr = new Date().toISOString().split('T')[0];
-
         try {
           const userIdentifier = state.currentUser.email || state.currentUser.username;
-          const res = await fetch('/api/rewards/claim', {
+          const res = await fetch('/api/streak/claim', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              email: userIdentifier,
-              rewardType: 'daily',
-              amount: rewardAmount,
-              details: `Claimed Daily Reward (Day ${currentStreak} Streak)`
-            })
+            body: JSON.stringify({ email: userIdentifier })
           });
           const data = await res.json();
           if (res.ok && data.success) {
-            await state.syncFromServer();
             set({
               claimedToday: true,
-              lastLoginDate: todayStr
+              streakCount: data.day || state.streakCount,
             });
-            // Trigger steady earner check
-            if (currentStreak >= 5) {
+            await state.syncFromServer();
+            if ((data.day || state.streakCount) >= 5) {
               get().unlockAchievement('steady_earner');
             }
           } else {
-            console.error(data.error || "Failed to claim daily reward on server");
+            console.error(data.error || "Failed to claim daily streak reward on server");
           }
         } catch (err) {
           console.error("Failed to claim daily reward", err);
         }
       },
 
-      spinWheelClaimed: async (prizeAmount: number, prizeName: string) => {
+      spinWheelClaimed: async (prizeAmount: number, prizeName: string, prizeIndex?: number) => {
         const state = get();
         if (state.spinWheelClaimedToday || !state.isLoggedIn || !state.currentUser) return;
 
         try {
           const userIdentifier = state.currentUser.email || state.currentUser.username;
-          const res = await fetch('/api/rewards/claim', {
+          const pIndex = prizeIndex !== undefined ? prizeIndex : 0;
+          const res = await fetch('/api/streak/spin', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
               email: userIdentifier,
-              rewardType: 'spin',
-              amount: prizeAmount,
-              details: `Spin the Wheel: ${prizeName}`
+              prizeIndex: pIndex
             })
           });
           const data = await res.json();
           if (res.ok && data.success) {
-            await state.syncFromServer();
             set({
               spinWheelClaimedToday: true
             });
+            await state.syncFromServer();
           } else {
             console.error(data.error || "Failed to claim spin wheel reward on server");
           }

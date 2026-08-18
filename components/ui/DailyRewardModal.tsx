@@ -16,6 +16,7 @@ export function DailyRewardModal() {
     streakCount,
     claimedToday,
     spinWheelClaimedToday,
+    fetchStreakStatus,
     claimDailyReward,
     spinWheelClaimed,
     unlockAchievement,
@@ -34,6 +35,12 @@ export function DailyRewardModal() {
 
   const spinIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const spinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (isLoggedIn && currentUser) {
+      fetchStreakStatus();
+    }
+  }, [isLoggedIn, currentUser, fetchStreakStatus]);
 
   useEffect(() => {
     return () => {
@@ -151,7 +158,7 @@ export function DailyRewardModal() {
       if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
 
       // Claim prize
-      spinWheelClaimed(sector.prize, `Won ${sector.label} on Spin Wheel`);
+      spinWheelClaimed(sector.prize, `Won ${sector.label} on Spin Wheel`, prizeIndex);
       if (sector.prize === 0) {
         useTradingStore.setState((s) => ({ xp: (s.xp || 0) + 500 }));
       }

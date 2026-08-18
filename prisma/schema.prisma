@@ -47,6 +47,7 @@ model User {
   transactions           Transaction[]
   notifications          Notification[]
   activityLogs           ActivityLog[]
+  streak                 UserStreak?
 }
 
 model Position {
@@ -157,4 +158,54 @@ model GameSession {
 
   @@index([email])
 }
+
+model UserStreak {
+  id                       String          @id @default(uuid())
+  userId                   String          @unique
+  user                     User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  streakStartDate          String          // 'YYYY-MM-DD'
+  currentStreak            Int             @default(0) // Current consecutive cycle day (1..7)
+  longestStreak            Int             @default(0)
+  totalActiveDays          Int             @default(0)
+
+  lastEligibleActivityDate String?         // 'YYYY-MM-DD'
+  lastStreakClaimDate      String?         // 'YYYY-MM-DD'
+  lastSpinClaimDate        String?         // 'YYYY-MM-DD'
+
+  lastActivityTimestamp    Float           @default(0)
+
+  createdAt                DateTime        @default(now())
+  updatedAt                DateTime        @updatedAt
+
+  history                  StreakHistory[]
+
+  @@index([userId])
+}
+
+model StreakHistory {
+  id             String      @id @default(uuid())
+  userStreakId   String
+  userStreak     UserStreak  @relation(fields: [userStreakId], references: [id], onDelete: Cascade)
+  userId         String
+
+  date           String      // 'YYYY-MM-DD'
+  dayNumber      Int         // Streak day (1..7)
+
+  activityLogged Boolean     @default(true)
+  streakClaimed  Boolean     @default(false)
+  streakReward   Float       @default(0)
+
+  spinClaimed    Boolean     @default(false)
+  spinReward     Float       @default(0)
+  spinPrizeName  String?
+
+  timestamp      Float
+  ip             String?
+
+  @@unique([userId, date])
+  @@index([userId])
+  @@index([date])
+}
+
 

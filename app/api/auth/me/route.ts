@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { findUserByEmailOrUsername, updateUser, sanitizeUserProfile } from '@/lib/userDb';
 import { verifyUserSession } from '@/lib/userAuth';
 import { signJWT } from '@/lib/jwt';
+import { recordUserActivity } from '@/lib/streakEngineServer';
 
 export async function POST(request: Request) {
   try {
@@ -31,8 +32,20 @@ export async function POST(request: Request) {
       }
     }
     
+    // Auto record user daily activity in streak engine
+    const forwardedFor = request.headers.get('x-forwarded-for');
+    const clientIp = forwardedFor ? forwardedFor.split(',')[0].trim() : '127.0.0.1';
+    let streakStatus = null;
+    try {
+      if (user.id) {
+        streakStatus = await recordUserActivity(user.id, clientIp);
+      }
+    } catch (streakErr) {
+      console.error("Streak record failed on /api/auth/me:", streakErr);
+    }
+
     const sanitizedUser = sanitizeUserProfile(user);
-    const response = NextResponse.json({ success: true, user: sanitizedUser }, { status: 200 });
+    const response = NextResponse.json({ success: true, user: sanitizedUser, streak: streakStatus }, { status: 200 });
 
     const isDedicatedAdmin = 
       user.role === 'admin' || 
