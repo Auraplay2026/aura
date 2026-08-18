@@ -77,7 +77,11 @@ async function seedAdmin() {
   const { Pool } = require('pg');
   const { PrismaPg } = require('@prisma/adapter-pg');
 
-  const pool = new Pool({ connectionString });
+  const isLocal = !connectionString || connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+  const pool = new Pool({
+    connectionString,
+    ssl: isLocal ? false : { rejectUnauthorized: false }
+  });
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 

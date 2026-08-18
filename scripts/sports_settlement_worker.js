@@ -1,4 +1,4 @@
-﻿// Automated Sports Settlement & Reconciliation Daemon Worker
+// Automated Sports Settlement & Reconciliation Daemon Worker
 const fs = require('fs');
 const path = require('path');
 
@@ -34,7 +34,12 @@ const { PrismaClient } = require('@prisma/client');
 const { Pool } = require('pg');
 const { PrismaPg } = require('@prisma/adapter-pg');
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const dbUrl = process.env.DATABASE_URL || '';
+const isLocal = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+const pool = new Pool({
+  connectionString: dbUrl,
+  ssl: isLocal ? false : { rejectUnauthorized: false }
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 

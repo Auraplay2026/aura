@@ -38,7 +38,12 @@ const { Pool } = require('pg');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const bcrypt = require('bcryptjs');
 
-const pool = new Pool({ connectionString: process.env.DATABASE_URL });
+const dbUrl = process.env.DATABASE_URL || '';
+const isLocal = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+const pool = new Pool({
+  connectionString: dbUrl,
+  ssl: isLocal ? false : { rejectUnauthorized: false }
+});
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 

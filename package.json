@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "node scripts/initialize-persistent-data.js && next dev",
     "build": "prisma generate && next build",
-    "start": "npx prisma db push --accept-data-loss && node create_admin.js && node scripts/initialize-persistent-data.js && concurrently \"next start\" \"node scripts/generate_hype_bets.js\" \"node scripts/notification_worker.js\" \"node scripts/sports_settlement_worker.js\"",
+    "start": "node scripts/start-production.js",
     "lint": "eslint"
   },
   "dependencies": {
