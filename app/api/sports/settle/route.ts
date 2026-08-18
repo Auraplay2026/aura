@@ -177,3 +177,18 @@ export async function POST(request: Request) {
     }, { status: 500 });
   }
 }
+
+export async function GET() {
+  try {
+    const { runAutoSettlementCycle } = await import('@/lib/autoSettlementEngine');
+    const result = await runAutoSettlementCycle();
+    return NextResponse.json({
+      success: true,
+      timestamp: Date.now(),
+      auditReport: result
+    }, { status: 200 });
+  } catch (err: any) {
+    console.error("Auto Settlement Trigger Error:", err);
+    return NextResponse.json({ success: false, error: err?.message }, { status: 500 });
+  }
+}

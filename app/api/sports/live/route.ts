@@ -12,6 +12,9 @@ export async function GET(req: Request) {
 
     const { matches, isCached, cacheAgeMs } = await getSportMatchesWithSWR(sport);
 
+    // Non-blocking auto-settlement reconciliation pass
+    import("@/lib/autoSettlementEngine").then(m => m.runAutoSettlementCycle()).catch(() => {});
+
     return NextResponse.json({
       success: true,
       matches,
