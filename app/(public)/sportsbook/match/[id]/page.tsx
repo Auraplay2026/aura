@@ -770,15 +770,17 @@ export default function MatchDetailPage({ params }: PageProps) {
                 Live Ball-by-Ball Stream
               </h3>
               <div className="space-y-2">
-                {(match.commentary || [
-                  { over: "28.2", text: "FOUR! Beautiful cover drive piercing through the gap for four.", runs: 4 },
-                  { over: "28.1", text: "Single taken down to mid-on.", runs: 1 },
-                  { over: "27.6", text: "Dot ball. Defended back to the bowler.", runs: 0 },
-                  { over: "27.5", text: "SIX! Smashed over wide long on into the stands!", runs: 6 }
-                ]).map((comm: any, i: number) => (
+                {(Array.isArray(match.commentary) 
+                  ? match.commentary 
+                  : typeof match.commentary === 'string' && match.commentary
+                    ? [{ over: "Live", text: match.commentary, runs: 0 }]
+                    : [
+                        { over: "Live", text: `${match.team1.name} vs ${match.team2.name} in-play. Real-time ball telemetry synchronizing.`, runs: 0 }
+                      ]
+                ).map((comm: any, i: number) => (
                   <div key={i} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-2.5">
                     <span className="bg-emerald-700 text-white font-mono font-black text-xs px-2 py-1 rounded-lg shrink-0">
-                      {comm.over}
+                      {comm.over || "Live"}
                     </span>
                     <p className="text-xs text-slate-800 font-medium flex-1">{comm.text}</p>
                   </div>
@@ -795,17 +797,23 @@ export default function MatchDetailPage({ params }: PageProps) {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <h4 className="font-black text-emerald-800 uppercase mb-2">{match.team1.name} XI</h4>
+                  <h4 className="font-black text-emerald-800 uppercase mb-2">{match.team1.name} Squad</h4>
                   <ul className="space-y-1 font-bold text-slate-700">
-                    {(match.team1.playingXI || ["Paul Stirling (C)", "Andrew Balbirnie", "Harry Tector", "Lorcan Tucker (WK)", "Curtis Campher", "George Dockrell", "Mark Adair", "Andy McBrine", "Craig Young", "Graham Hume", "Barry McCarthy"]).map((p, i) => (
+                    {(match.team1.playingXI && match.team1.playingXI.length > 0
+                      ? match.team1.playingXI 
+                      : [`${match.team1.name} Captain`, `${match.team1.name} Wicketkeeper`, `${match.team1.name} Top-Order Batter`, `${match.team1.name} All-Rounder`, `${match.team1.name} Fast Bowler`, `${match.team1.name} Spinner`]
+                    ).map((p, i) => (
                       <li key={i}>• {p}</li>
                     ))}
                   </ul>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <h4 className="font-black text-teal-800 uppercase mb-2">{match.team2.name} XI</h4>
+                  <h4 className="font-black text-teal-800 uppercase mb-2">{match.team2.name} Squad</h4>
                   <ul className="space-y-1 font-bold text-slate-700">
-                    {(match.team2.playingXI || ["Rahmanullah Gurbaz (WK)", "Ibrahim Zadran", "Rahmat Shah", "Hashmatullah Shahidi (C)", "Azmatullah Omarzai", "Mohammad Nabi", "Ikram Alikhil", "Rashid Khan", "Nangeyalia Kharote", "Allah Ghazanfar", "Fazalhaq Farooqi"]).map((p, i) => (
+                    {(match.team2.playingXI && match.team2.playingXI.length > 0
+                      ? match.team2.playingXI 
+                      : [`${match.team2.name} Captain`, `${match.team2.name} Wicketkeeper`, `${match.team2.name} Top-Order Batter`, `${match.team2.name} All-Rounder`, `${match.team2.name} Fast Bowler`, `${match.team2.name} Spinner`]
+                    ).map((p, i) => (
                       <li key={i}>• {p}</li>
                     ))}
                   </ul>
@@ -824,13 +832,19 @@ export default function MatchDetailPage({ params }: PageProps) {
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                   <span className="text-slate-500 font-bold block mb-0.5">Stadium Venue</span>
                   <strong className="text-slate-900 text-sm">
-                    {typeof match.venue === 'string' ? match.venue : `${match.venue?.stadium || "Civil Service Cricket Club"}, ${match.venue?.city || "Belfast"}`}
+                    {typeof match.venue === 'string' && match.venue 
+                      ? match.venue 
+                      : typeof match.venue === 'object' && match.venue?.stadium
+                        ? `${match.venue.stadium}${match.venue.city ? `, ${match.venue.city}` : ""}`
+                        : `${match.series || "International"} Cricket Stadium`}
                   </strong>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
                   <span className="text-slate-500 font-bold block mb-0.5">Pitch Behavior</span>
                   <strong className="text-emerald-700 text-sm">
-                    {typeof match.venue === 'object' ? match.venue?.pitchReport : "Balanced / Batting Paradise (Avg 1st Inn 265)"}
+                    {typeof match.venue === 'object' && match.venue?.pitchReport
+                      ? match.venue.pitchReport 
+                      : "Standard Sporting Surface • Balanced for Batters & Bowlers"}
                   </strong>
                 </div>
               </div>
