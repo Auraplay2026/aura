@@ -2,7 +2,7 @@
 
 import { BarChart, TrendingUp, Calendar, ArrowUpRight, Wallet, ChevronDown } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const TIMEFRAME_LABELS = {
   '7days': 'Last 7 Days',
@@ -13,9 +13,15 @@ const TIMEFRAME_LABELS = {
 };
 
 export default function PnLPage() {
-  const { transactions } = useTradingStore();
+  const { transactions, syncFromServer, currentUser } = useTradingStore();
   const [timeframe, setTimeframe] = useState<'7days' | '30days' | '6months' | 'annual' | 'all'>('30days');
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    if (currentUser) {
+      syncFromServer().catch(() => {});
+    }
+  }, [currentUser, syncFromServer]);
 
   // Calculate timeframe filter cutoff
   const now = Date.now();

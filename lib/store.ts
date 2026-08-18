@@ -435,7 +435,10 @@ export const useTradingStore = create<TradingState>()(
         });
         // 3. Clear persisted Zustand storage to prevent stale session on reload
         if (typeof window !== 'undefined') {
-          try { localStorage.removeItem('AuraBet-trading-storage'); } catch {}
+          try { 
+            localStorage.removeItem('AuraBet-trading-storage'); 
+            localStorage.removeItem('AuraBet-trading-storage-v2');
+          } catch {}
           (window as any).__AURA_AUTH_DEBUG__ = { event: 'logout', ts: Date.now() };
         }
       },
@@ -1661,7 +1664,41 @@ export const useTradingStore = create<TradingState>()(
       }
     }),
     {
-      name: 'AuraBet-trading-storage', // key in localStorage
+      name: 'AuraBet-trading-storage-v2',
+      version: 2,
+      partialize: (state) => ({
+        currentUser: state.currentUser ? {
+          ...state.currentUser,
+          transactions: [],
+          positions: [],
+          demoTransactions: [],
+          demoPositions: [],
+          realTransactions: [],
+          realPositions: []
+        } : null,
+        isLoggedIn: state.isLoggedIn,
+        kycStatus: state.kycStatus,
+        soundEnabled: state.soundEnabled,
+        sfxVolume: state.sfxVolume,
+        ambientEnabled: state.ambientEnabled,
+        ambientPreset: state.ambientPreset,
+        streakCount: state.streakCount,
+        lastLoginDate: state.lastLoginDate,
+        claimedToday: state.claimedToday,
+        spinWheelClaimedToday: state.spinWheelClaimedToday,
+        dailyModalLastDismissedDate: state.dailyModalLastDismissedDate,
+        unlockedAchievements: state.unlockedAchievements,
+        xp: state.xp,
+        points: state.points
+      })
     }
   )
 );
+
+if (typeof window !== 'undefined') {
+  try {
+    if (localStorage.getItem('AuraBet-trading-storage')) {
+      localStorage.removeItem('AuraBet-trading-storage');
+    }
+  } catch (e) {}
+}
