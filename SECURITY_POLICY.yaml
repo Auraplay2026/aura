@@ -1,0 +1,115 @@
+# AuraBet Automated DevSecOps Governance & Security Policy
+version: "1.0"
+policy_metadata:
+  organization: "AuraBet Engineering"
+  last_updated: "2026-08-18"
+  enforcement_mode: "strict"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 1. QUALITY GATES & DEPLOYMENT BLOCKING THRESHOLDS
+# ─────────────────────────────────────────────────────────────────────────────
+quality_gates:
+  pull_request:
+    block_on:
+      severity: ["CRITICAL", "HIGH"]
+      categories:
+        - "hardcoded-secret"
+        - "sql-injection"
+        - "remote-code-execution"
+        - "authentication-bypass"
+        - "cve-with-known-exploit"
+    warn_on:
+      severity: ["MEDIUM"]
+    info_track:
+      severity: ["LOW", "INFO"]
+
+  build_pipeline:
+    fail_on_docker_root_user: true
+    fail_on_container_cve_severity: ["CRITICAL"]
+    fail_on_unverified_secrets: true
+
+  staging_promotion_to_production:
+    require_zero_unresolved_criticals: true
+    require_zero_unresolved_highs: true
+    allow_mediums_with_sla_days: 14
+    allow_lows_with_sla_days: 30
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 2. ENVIRONMENT TESTING BOUNDARIES (PRODUCTION SAFETY)
+# ─────────────────────────────────────────────────────────────────────────────
+environment_rules:
+  staging:
+    active_dast_allowed: true
+    payload_fuzzing_allowed: true
+    sql_injection_probing_allowed: true
+    xss_fuzzing_allowed: true
+    rate_limiting_stress_allowed: true
+    allowed_hosts:
+      - "staging.auraplay.internal"
+      - "localhost"
+      - "127.0.0.1"
+
+  production:
+    active_dast_allowed: false       # STRICTLY PROHIBITED: Injections could corrupt live wallet ledgers
+    destructive_mutations_allowed: false
+    passive_header_checks_allowed: true
+    ssl_tls_ciphersuite_checks_allowed: true
+    dependency_cve_refresh_allowed: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 3. AUTHENTICATED TESTING ROLE MATRIX
+# ─────────────────────────────────────────────────────────────────────────────
+authenticated_testing:
+  enabled: true
+  roles_to_audit:
+    - role: "anonymous"
+      scope: ["public_routes", "health_checks", "login_page", "catalog"]
+      forbidden_access: ["/api/account/.*", "/api/admin/.*", "/admin/.*"]
+
+    - role: "standard_user"
+      scope: ["/api/streak/.*", "/api/rewards/.*", "/api/casino/bet", "/account/.*"]
+      forbidden_access: ["/api/admin/.*", "/admin/.*"]
+      audit_focus: ["horizontal_privilege_escalation", "idor_on_wallet_id", "csrf"]
+
+    - role: "admin_user"
+      scope: ["/admin/.*", "/api/admin/.*"]
+      audit_focus: ["mfa_enforcement", "audit_logging", "rbac_enforcement"]
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 4. FALSE POSITIVE TRIAGE & REMEDIATION LIFECYCLE
+# ─────────────────────────────────────────────────────────────────────────────
+vulnerability_lifecycle:
+  states:
+    - "DETECTED"       # Ingested from automated scanner
+    - "NORMALIZED"     # Mapped to unified CWE/CVSS scheme in DefectDojo
+    - "DEDUPLICATED"   # Correlated with existing open findings
+    - "TRIAGED"        # Reviewed by security engineer
+    - "IN_REMEDIATION" # Assigned to developer branch
+    - "VALIDATED"      # Re-scanned and confirmed absent
+    - "CLOSED"         # Resolved in main deployment
+
+  false_positive_policy:
+    allow_inline_suppressions: false  # Prohibit arbitrary suppression comments in code without ticket ID
+    require_defectdojo_suppression: true
+    justification_mandatory: true
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 5. FULL-STACK ATTACK SURFACE INVENTORY SPECIFICATION
+# ─────────────────────────────────────────────────────────────────────────────
+attack_surface_inventory:
+  tracked_components:
+    - name: "Next.js Frontend & API Routes"
+      paths: ["app/api/**", "components/**", "hooks/**"]
+      scanners: ["semgrep", "trivy-fs", "gitleaks"]
+
+    - name: "PostgreSQL & Prisma Ledger"
+      paths: ["prisma/schema.prisma", "lib/*Engine*.ts"]
+      scanners: ["semgrep-sql", "trivy-config"]
+
+    - name: "Docker & VPS Host Infrastructure"
+      paths: ["Dockerfile", "render.yaml", "docker-compose.yml"]
+      scanners: ["hadolint", "checkov", "trivy-image"]
+
+    - name: "Dynamic Web & API Endpoints"
+      target: "${STAGING_APP_URL}"
+      scanners: ["owasp-zap", "nuclei"]

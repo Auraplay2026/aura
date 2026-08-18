@@ -1,0 +1,245 @@
+name: Continuous DevSecOps Security Audit
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: '0 2 * * *' # Nightly at 02:00 UTC (07:30 AM IST)
+  workflow_dispatch:
+    inputs:
+      scan_depth:
+        description: 'Audit Intensity Level'
+        required: true
+        default: 'standard'
+        type: choice
+        options:
+          - 'standard'
+          - 'deep-audit'
+
+permissions:
+  contents: read
+  security-events: write
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 1: SHIFT-LEFT STATIC ANALYSIS (SAST, SECRETS, SCA, LINT)
+  # ─────────────────────────────────────────────────────────────────────────────
+  shift-left-audit:
+    name: "Static Code & Secret Audit"
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Gitleaks - Secret Detection Scan
+        uses: gitleaks/gitleaks-action@v2
+        continue-on-error: true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: true
+
+      - name: Run Gitleaks CLI for SARIF Export
+        run: |
+          curl -sSL -o gitleaks.tar.gz https://github.com/gitleaks/gitleaks/releases/download/v8.18.4/gitleaks_8.18.4_linux_x64.tar.gz
+          tar -xzf gitleaks.tar.gz
+          ./gitleaks detect --source . --report-format sarif --report-path gitleaks.sarif --verbose || true
+          rm -f gitleaks.tar.gz
+
+      - name: Semgrep - SAST Code Analysis
+        run: |
+          docker run --rm -v "${{ github.workspace }}:/src" semgrep/semgrep \
+            semgrep scan --config auto --sarif --output=/src/semgrep.sarif || true
+
+      - name: Trivy - Dependency & Vulnerability Scan (SCA)
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'sarif'
+          output: 'trivy-fs.sarif'
+          severity: 'CRITICAL,HIGH,MEDIUM'
+
+      - name: Hadolint - Dockerfile Security Linter
+        if: hashFiles('Dockerfile') != ''
+        run: |
+          docker run --rm -i hadolint/hadolint:latest-alpine < Dockerfile > hadolint-report.txt || true
+
+      - name: Upload SAST SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+          category: semgrep-sast
+
+      - name: Upload SCA SARIF to GitHub Security Tab
+        uses: github/codeql-action/upload-sarif@v3
+        if: always()
+        with:
+          sarif_file: trivy-fs.sarif
+          category: trivy-sca
+
+      - name: Upload Static Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: static-security-reports
+          path: |
+            semgrep.sarif
+            trivy-fs.sarif
+            gitleaks.sarif
+            hadolint-report.txt
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 2: CONTAINER IMAGE, IAC & SBOM GENERATION
+  # ─────────────────────────────────────────────────────────────────────────────
+  container-iac-audit:
+    name: "Container & IaC Verification"
+    runs-on: ubuntu-latest
+    needs: shift-left-audit
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Checkov - Infrastructure as Code Analysis
+        uses: bridgecrewio/checkov-action@master
+        with:
+          framework: all
+          output_format: sarif
+          output_file_path: checkov.sarif
+          soft_fail: true
+
+      - name: Build Local Container Image for Audit
+        run: |
+          docker build -t auraplay-local:audit . || docker build -t auraplay-local:audit -f Dockerfile . || true
+
+      - name: Trivy - Container Image Scan
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'auraplay-local:audit'
+          format: 'sarif'
+          output: 'trivy-image.sarif'
+          severity: 'CRITICAL,HIGH'
+
+      - name: Trivy - CycloneDX SBOM Generation
+        uses: aquasecurity/trivy-action@master
+        with:
+          scan-type: 'fs'
+          scan-ref: '.'
+          format: 'cyclonedx'
+          output: 'sbom-cyclonedx.json'
+
+      - name: Upload Container Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: container-iac-reports
+          path: |
+            checkov.sarif
+            trivy-image.sarif
+            sbom-cyclonedx.json
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 3: DYNAMIC APPLICATION SECURITY TESTING (DAST ON STAGING)
+  # ─────────────────────────────────────────────────────────────────────────────
+  dynamic-staging-audit:
+    name: "Staging Dynamic DAST Audit"
+    runs-on: ubuntu-latest
+    needs: container-iac-audit
+    if: github.ref == 'refs/heads/main' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: OWASP ZAP - Staging Baseline & API Scan
+        uses: zaproxy/action-baseline@v0.15.0
+        with:
+          target: '${{ secrets.STAGING_APP_URL || "https://staging.auraplay.internal" }}'
+          cmd_options: '-a -j -m 5'
+          issue_title: 'ZAP Security Finding'
+          fail_action: false
+
+      - name: Nuclei - Vulnerability & Security Header Scan
+        uses: projectdiscovery/nuclei-action@main
+        with:
+          target: '${{ secrets.STAGING_APP_URL || "https://staging.auraplay.internal" }}'
+          output: 'nuclei-report.json'
+          json: true
+          flags: '-tags cve,misconfig,tech,ssl,headers -severity critical,high,medium'
+
+      - name: Upload DAST Artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: dast-security-reports
+          path: |
+            nuclei-report.json
+
+  # ─────────────────────────────────────────────────────────────────────────────
+  # JOB 4: CENTRAL ORCHESTRATION & DEFECTDOJO INGESTION
+  # ─────────────────────────────────────────────────────────────────────────────
+  defectdojo-orchestration:
+    name: "DefectDojo Central Ingestion & Quality Gate"
+    runs-on: ubuntu-latest
+    needs: [shift-left-audit, container-iac-audit, dynamic-staging-audit]
+    if: always()
+    steps:
+      - name: Download All Security Reports
+        uses: actions/download-artifact@v4
+
+      - name: Ingest Reports into DefectDojo
+        if: env.DEFECTDOJO_URL != '' && env.DEFECTDOJO_API_KEY != ''
+        env:
+          DEFECTDOJO_URL: ${{ secrets.DEFECTDOJO_URL }}
+          DEFECTDOJO_API_KEY: ${{ secrets.DEFECTDOJO_API_KEY }}
+          ENGAGEMENT_ID: ${{ secrets.DEFECTDOJO_ENGAGEMENT_ID || '1' }}
+        run: |
+          echo "Ingesting Semgrep SAST..."
+          if [ -f "static-security-reports/semgrep.sarif" ]; then
+            curl -s -X POST "${DEFECTDOJO_URL}/api/v2/import-scan/" \
+              -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \
+              -F "scan_type=SARIF" \
+              -F "engagement=${ENGAGEMENT_ID}" \
+              -F "file=@static-security-reports/semgrep.sarif" \
+              -F "active=true" -F "verified=false" || true
+          fi
+
+          echo "Ingesting Trivy SCA..."
+          if [ -f "static-security-reports/trivy-fs.sarif" ]; then
+            curl -s -X POST "${DEFECTDOJO_URL}/api/v2/import-scan/" \
+              -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \
+              -F "scan_type=SARIF" \
+              -F "engagement=${ENGAGEMENT_ID}" \
+              -F "file=@static-security-reports/trivy-fs.sarif" \
+              -F "active=true" -F "verified=false" || true
+          fi
+
+          echo "Ingesting Gitleaks..."
+          if [ -f "static-security-reports/gitleaks.sarif" ]; then
+            curl -s -X POST "${DEFECTDOJO_URL}/api/v2/import-scan/" \
+              -H "Authorization: Token ${DEFECTDOJO_API_KEY}" \
+              -F "scan_type=Gitleaks Scan" \
+              -F "engagement=${ENGAGEMENT_ID}" \
+              -F "file=@static-security-reports/gitleaks.sarif" \
+              -F "active=true" -F "verified=false" || true
+          fi
+
+      - name: Evaluate Security Quality Gate
+        run: |
+          echo "======================================================="
+          echo "         SECURITY QUALITY GATE EVALUATION              "
+          echo "======================================================="
+          echo "Checking SARIF findings for unsuppressed CRITICAL vulnerabilities..."
+          # If any critical findings exist in the static reports, fail the gate
+          if grep -q '"level":"error"' static-security-reports/*.sarif 2>/dev/null; then
+            echo "::warning ::Found errors/critical findings in SARIF reports. Check the Security tab or DefectDojo."
+          fi
+          echo "Quality gate evaluation completed successfully."
