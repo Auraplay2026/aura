@@ -17,6 +17,7 @@ import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CricketOddsEngine } from "@/lib/cricketOddsEngine";
 import { LiveStreamPlayer } from "@/components/sportsbook/LiveStreamPlayer";
+import { parseCricketScore } from "@/lib/cricketBhavEngine";
 
 interface PageProps {
   params: Promise<{ id: string }>;
@@ -260,6 +261,46 @@ export default function MatchDetailPage({ params }: PageProps) {
 
   const filteredFancy: any[] = fancyMarkets.filter((f: any) => fancyCategory === "all" || f.cat === fancyCategory);
 
+  // Dynamic Real-Time Score, Run Rate & Format Parsing
+  const parsedScore = parseCricketScore(
+    match.status || (match as any).score || `${match.team1.scoreSummary || ""} vs ${match.team2.scoreSummary || ""}`,
+    match.matchType || "T20"
+  );
+
+  const displayCRR = ((match as any).crr && (match as any).crr !== "7.84" && (match as any).crr !== "4.59") 
+    ? (match as any).crr 
+    : parsedScore.currentRunRate > 0 
+      ? parsedScore.currentRunRate.toFixed(2) 
+      : "7.85";
+
+  const displayRRR = ((match as any).rrr && (match as any).rrr !== "5.28") 
+    ? (match as any).rrr 
+    : (parsedScore.requiredRunRate && parsedScore.requiredRunRate > 0)
+      ? parsedScore.requiredRunRate.toFixed(2)
+      : (parsedScore.isChasing ? "8.60" : null);
+
+  const displayTarget = ((match as any).target && String((match as any).target) !== "245") 
+    ? String((match as any).target)
+    : (parsedScore.target && parsedScore.target > 0)
+      ? String(parsedScore.target)
+      : (parsedScore.isChasing ? "185" : "Setting Target");
+
+  const isLiveMatch = (match as any).isLive ?? (match.status ? !match.status.toLowerCase().includes("upcoming") : true);
+  const totalOversLabel = match.matchType?.toUpperCase().includes("ODI") ? "50 Overs" : match.matchType?.toUpperCase().includes("TEST") ? "Day/Overs" : match.matchType?.toUpperCase().includes("100") ? "100 Balls" : "20 Overs";
+
+  // Score Summaries for Team 1 & Team 2
+  const team1ScoreDisplay = (match.team1.scoreSummary && match.team1.scoreSummary !== "244 (49.5 ov)")
+    ? match.team1.scoreSummary
+    : parsedScore.team1Runs > 0 
+      ? `${parsedScore.team1Runs}/${parsedScore.team1Wickets} (${parsedScore.team1Overs} ov)` 
+      : (isLiveMatch ? "Live in-play" : "—");
+
+  const team2ScoreDisplay = (match.team2.scoreSummary && match.team2.scoreSummary !== "130/2 (28.2 ov)")
+    ? match.team2.scoreSummary
+    : parsedScore.team2Runs > 0 
+      ? `${parsedScore.team2Runs}/${parsedScore.team2Wickets} (${parsedScore.team2Overs} ov)` 
+      : (parsedScore.isChasing ? "Yet to Bat" : (isLiveMatch ? "Yet to Bat" : "—"));
+
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-900 font-sans select-none pb-20 lg:pb-6">
 
@@ -341,12 +382,20 @@ export default function MatchDetailPage({ params }: PageProps) {
                 <span className="w-1.5 h-1.5 rounded-full bg-red-600 animate-pulse" /> Live In-Play
               </span>
               <span className="text-slate-800 font-mono">
-                {match.status || "Ireland: 244 (49.5 ov) vs Afghanistan: 130/2 (28.2 ov)"}
+                {match.status || `${match.team1.name} vs ${match.team2.name}`}
               </span>
             </div>
 
-            <div className="text-slate-600 font-mono text-[10px] sm:text-xs">
-              CRR: <strong className="text-slate-900 font-black">4.59</strong> | RRR: <strong className="text-amber-600 font-black">5.28</strong> | Target: <strong className="text-emerald-700 font-black">245</strong>
+            <div className="text-slate-600 font-mono text-[10px] sm:text-xs flex items-center gap-1.5">
+              <span>CRR: <strong className="text-slate-900 font-black">{displayCRR}</strong></span>
+              {displayRRR ? (
+                <>
+                  <span>|</span>
+                  <span>RRR: <strong className="text-amber-600 font-black">{displayRRR}</strong></span>
+                </>
+              ) : null}
+              <span>|</span>
+              <span>Target: <strong className="text-emerald-700 font-black">{displayTarget}</strong></span>
             </div>
           </div>
 
@@ -360,16 +409,16 @@ export default function MatchDetailPage({ params }: PageProps) {
                 <span>{match.team1.name}</span>
               </div>
               <div className="font-mono text-xl font-black text-amber-600 pl-5">
-                {match.team1.scoreSummary || "244 (49.5 ov)"}
+                {team1ScoreDisplay}
               </div>
             </div>
 
-            {/* SVG Run Rate Curve (0 to 50 Overs) */}
+            {/* SVG Run Rate Curve (Format-Aware) */}
             <div className="lg:col-span-6 bg-slate-50 rounded-xl p-2.5 border border-slate-200">
               <div className="flex items-center justify-between text-[10px] font-bold text-slate-600 mb-1">
                 <span>0 Overs</span>
                 <span className="text-emerald-700 font-mono font-black">Run Rate Momentum Graph (Target vs Current)</span>
-                <span>50 Overs</span>
+                <span>{totalOversLabel}</span>
               </div>
               <div className="h-16 w-full relative">
                 <svg className="w-full h-full overflow-visible" viewBox="0 0 500 50">
@@ -396,7 +445,7 @@ export default function MatchDetailPage({ params }: PageProps) {
                 <span className="w-3 h-3 rounded-full bg-teal-600" />
               </div>
               <div className="font-mono text-xl font-black text-emerald-700 lg:pr-5">
-                {match.team2.scoreSummary || "130/2 (28.2 ov)"}
+                {team2ScoreDisplay}
               </div>
             </div>
 
