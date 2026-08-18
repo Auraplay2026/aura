@@ -236,11 +236,29 @@ export default function SportsbookPage({ params }: { params: Promise<{ sport?: s
     }
   };
 
-  // Filter matches with active Tournament selection
+  // Filter matches with active Tournament selection and Date Tab (In-Play, Today, Tomorrow)
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+  const tomorrowObj = new Date(now);
+  tomorrowObj.setDate(tomorrowObj.getDate() + 1);
+  const tomorrowStr = tomorrowObj.toISOString().split("T")[0];
+  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+  const todayDayName = DAYS[now.getDay()];
+  const tomorrowDayName = DAYS[tomorrowObj.getDay()];
+
   const filteredMatches = matches.filter(m => {
-    if (selectedDateTab === "inplay" && m.status !== "Live") return false;
+    // 1. Date Tab Filtering
+    if (selectedDateTab === "inplay") {
+      if (m.status !== "Live") return false;
+    } else if (selectedDateTab === "today") {
+      const isToday = m.status === "Live" || m.dateStr === todayStr || (m.displayDate && m.displayDate.includes(todayDayName));
+      if (!isToday && m.status !== "Live") return false;
+    } else if (selectedDateTab === "tomorrow") {
+      const isTomorrow = m.dateStr === tomorrowStr || (m.displayDate && m.displayDate.includes(tomorrowDayName)) || (m.status === "Upcoming" && m.dateStr !== todayStr);
+      if (!isTomorrow) return false;
+    }
     
-    // Check specific tournament sidebar selection
+    // 2. Check specific tournament sidebar selection
     if (selectedLeague && !selectedLeague.startsWith("All ")) {
       const lClean = selectedLeague.toLowerCase().replace(/20\d\d|srl/g, "").trim();
       const mSeries = (m.seriesName || "").toLowerCase();
