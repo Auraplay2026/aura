@@ -33,6 +33,12 @@ function runDatabaseSetup() {
   prismaPush.on('close', (code) => {
     if (code === 0) {
       console.log('[Production Runner] Database schema synced successfully.');
+      // Enforce Supabase Row Level Security
+      try {
+        require('./enable-supabase-rls.js');
+      } catch (e) {
+        console.warn('[Production Runner] RLS enforcement note:', e.message);
+      }
       // Run admin seed
       try {
         require('../create_admin.js');
