@@ -135,4 +135,7 @@ async function seedAdmin() {
   }
 }
 
-seedAdmin();
+// Run seedAdmin safely without throwing unhandled rejections
+seedAdmin().catch(err => {
+  console.warn('[Seeder Notice] Non-fatal admin seed warning:', err?.message || err);
+});

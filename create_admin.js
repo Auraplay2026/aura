@@ -38,17 +38,22 @@ const { Pool } = require('pg');
 const { PrismaPg } = require('@prisma/adapter-pg');
 const bcrypt = require('bcryptjs');
 
-const dbUrl = process.env.DATABASE_URL || '';
-const isLocal = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
-const pool = new Pool({
-  connectionString: dbUrl,
-  ssl: isLocal ? false : { rejectUnauthorized: false }
-});
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
-
 async function main() {
-  const existing = await prisma.user.findFirst({
+  if (!process.env.DATABASE_URL) {
+    console.log('[create_admin] DATABASE_URL is not set. Skipping admin user creation.');
+    return;
+  }
+  const dbUrl = process.env.DATABASE_URL;
+  const isLocal = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+  const pool = new Pool({
+    connectionString: dbUrl,
+    ssl: isLocal ? false : { rejectUnauthorized: false }
+  });
+  const adapter = new PrismaPg(pool);
+  const prisma = new PrismaClient({ adapter });
+
+  try {
+    const existing = await prisma.user.findFirst({
     where: {
       OR: [
         { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
@@ -80,16 +85,18 @@ async function main() {
       data: { role: 'admin' }
     });
     console.log(`[create_admin] Verified admin role for ${existing.email || existing.username} without changing password`);
-  }
-}
-
-main()
-  .catch(console.error)
-  .finally(async () => {
+  } catch (err) {
+    console.warn('[create_admin] Notice:', err?.message || err);
+  } finally {
     try {
       await prisma.$disconnect();
     } catch (e) {}
     try {
       await pool.end();
     } catch (e) {}
-  });
+  }
+}
+
+main().catch(err => {
+  console.warn('[create_admin] Non-fatal error:', err?.message || err);
+});

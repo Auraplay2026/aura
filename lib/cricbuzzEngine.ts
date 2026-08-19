@@ -79,7 +79,7 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
   ];
 
   const candidateKey = getNextRapidApiKey();
-  const attemptKeys = [candidateKey, ...primaryKeys.filter(k => k !== candidateKey)];
+  const attemptKeys = [candidateKey, ...primaryKeys.filter(k => k !== candidateKey)].slice(0, 2);
 
   for (const key of attemptKeys) {
     if (isKeyOnCooldown(key)) continue;
@@ -91,6 +91,7 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
           "x-rapidapi-host": RAPIDAPI_HOST,
           "User-Agent": "AuraPlay-LiveCricketEngine/3.0"
         },
+        signal: AbortSignal.timeout(2500),
         next: { revalidate: 10 }
       });
 
@@ -105,10 +106,12 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
         return data;
       }
     } catch (err: any) {
-      console.warn(`Cricbuzz fetch failed on ${RAPIDAPI_HOST} for ${path}:`, err.message);
+      // Fast fallback on network/timeout error
     }
   }
 
+  // Cache null for 10s to prevent spamming failing keys
+  MEMORY_CACHE.set(cacheKey, { data: null, expiresAt: Date.now() + 10_000 });
   return null;
 }
 

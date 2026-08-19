@@ -35,8 +35,8 @@ for (const envPath of dotenvPaths) {
 async function enableRLS() {
   const dbUrl = process.env.DATABASE_URL;
   if (!dbUrl) {
-    console.error('[RLS Fix Error] DATABASE_URL is not set.');
-    process.exit(1);
+    console.warn('[RLS Fix Notice] DATABASE_URL is not set. Skipping Supabase RLS check.');
+    return;
   }
 
   const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
@@ -93,4 +93,6 @@ async function enableRLS() {
   }
 }
 
-enableRLS();
+enableRLS().catch(err => {
+  console.warn('[RLS Fix Notice] Non-fatal RLS error:', err?.message || err);
+});

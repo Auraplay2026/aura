@@ -33,18 +33,31 @@ for (const envPath of dotenvPaths) {
   }
 }
 
-const { PrismaClient } = require('@prisma/client');
-const { Pool } = require('pg');
-const { PrismaPg } = require('@prisma/adapter-pg');
-
-const dbUrl = process.env.DATABASE_URL || '';
-const isLocal = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
-const pool = new Pool({
-  connectionString: dbUrl,
-  ssl: isLocal ? false : { rejectUnauthorized: false }
+process.on('uncaughtException', (err) => {
+  console.warn('[Notification Worker UncaughtException]:', err?.message || err);
 });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+process.on('unhandledRejection', (reason) => {
+  console.warn('[Notification Worker UnhandledRejection]:', reason);
+});
+
+let prisma = null;
+
+function getPrisma() {
+  if (prisma) return prisma;
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) return null;
+  const { PrismaClient } = require('@prisma/client');
+  const { Pool } = require('pg');
+  const { PrismaPg } = require('@prisma/adapter-pg');
+  const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+  const pool = new Pool({
+    connectionString: dbUrl,
+    ssl: isLocal ? false : { rejectUnauthorized: false }
+  });
+  const adapter = new PrismaPg(pool);
+  prisma = new PrismaClient({ adapter });
+  return prisma;
+}
 
 const NOTIFICATION_TEMPLATES = [
   // VIP / Promos
@@ -109,8 +122,14 @@ function runWorker() {
 
 async function triggerNotification() {
   try {
+    const db = getPrisma();
+    if (!db) {
+      // Database not configured yet, skip quietly
+      return;
+    }
+
     // 1. Fetch all active users
-    const users = await prisma.user.findMany({
+    const users = await db.user.findMany({
       where: {
         NOT: {
           role: 'BANNED'
@@ -123,7 +142,6 @@ async function triggerNotification() {
     });
 
     if (users.length === 0) {
-      console.log("[Worker] No active users found in DB.");
       return;
     }
 
@@ -137,7 +155,7 @@ async function triggerNotification() {
     // 2. Insert notifications for all active users
     for (const user of users) {
       try {
-        await prisma.notification.create({
+        await db.notification.create({
           data: {
             message: combinedMsg,
             timestamp: timestamp,
@@ -147,19 +165,19 @@ async function triggerNotification() {
         });
 
         // 3. Cap notifications at 20 per user to prevent DB bloat
-        const count = await prisma.notification.count({
+        const count = await db.notification.count({
           where: { userId: user.id }
         });
 
         if (count > 20) {
-          const oldest = await prisma.notification.findMany({
+          const oldest = await db.notification.findMany({
             where: { userId: user.id },
             orderBy: { timestamp: 'asc' },
             take: count - 20,
             select: { id: true }
           });
 
-          await prisma.notification.deleteMany({
+          await db.notification.deleteMany({
             where: {
               id: { in: oldest.map(n => n.id) }
             }

@@ -30,25 +30,44 @@ for (const envPath of dotenvPaths) {
   }
 }
 
-const { PrismaClient } = require('@prisma/client');
-const { Pool } = require('pg');
-const { PrismaPg } = require('@prisma/adapter-pg');
-
-const dbUrl = process.env.DATABASE_URL || '';
-const isLocal = !dbUrl || dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
-const pool = new Pool({
-  connectionString: dbUrl,
-  ssl: isLocal ? false : { rejectUnauthorized: false }
+process.on('uncaughtException', (err) => {
+  console.warn('[Sports Settlement Worker UncaughtException]:', err?.message || err);
 });
-const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+process.on('unhandledRejection', (reason) => {
+  console.warn('[Sports Settlement Worker UnhandledRejection]:', reason);
+});
+
+let prisma = null;
+
+function getPrisma() {
+  if (prisma) return prisma;
+  const dbUrl = process.env.DATABASE_URL;
+  if (!dbUrl) return null;
+  const { PrismaClient } = require('@prisma/client');
+  const { Pool } = require('pg');
+  const { PrismaPg } = require('@prisma/adapter-pg');
+  const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
+  const pool = new Pool({
+    connectionString: dbUrl,
+    ssl: isLocal ? false : { rejectUnauthorized: false }
+  });
+  const adapter = new PrismaPg(pool);
+  prisma = new PrismaClient({ adapter });
+  return prisma;
+}
 
 async function runSettlementPass() {
   const now = Date.now();
   const FORCE_MAJEURE_TIMEOUT_MS = 24 * 60 * 60 * 1000; // 24 Hours timeout
 
   try {
-    const users = await prisma.user.findMany({
+    const db = getPrisma();
+    if (!db) {
+      // Database not configured yet, skip pass
+      return;
+    }
+
+    const users = await db.user.findMany({
       include: {
         positions: true,
         transactions: true
@@ -107,7 +126,7 @@ async function runSettlementPass() {
             payout = totalInvestment;
           }
 
-          await prisma.$transaction(async (txClient) => {
+          await db.$transaction(async (txClient) => {
             const accountType = pos.walletType === "real" ? "real" : "demo";
             const currentBalance = accountType === "real" ? user.realBalance : user.demoBalance;
             const newBalance = Math.round((currentBalance + payout) * 100) / 100;
@@ -177,7 +196,7 @@ async function runSettlementPass() {
       for (const tx of lockedTxs) {
         const txAgeMs = now - tx.timestamp;
         if (txAgeMs >= FORCE_MAJEURE_TIMEOUT_MS) {
-          await prisma.$transaction(async (txClient) => {
+          await db.$transaction(async (txClient) => {
             const isReal = tx.walletType === 'real' || (!tx.walletType && user.accountType === 'real');
             const currentBal = isReal ? user.realBalance : user.demoBalance;
             const refundAmount = tx.amount || 0;

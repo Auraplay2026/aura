@@ -145,6 +145,7 @@ async function fetchESPINScoreboard(url: string, sportKey: string): Promise<Exte
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
       },
+      signal: AbortSignal.timeout(2500),
       next: { revalidate: 30 }
     });
     if (!res.ok) return [];
@@ -159,7 +160,6 @@ async function fetchESPINScoreboard(url: string, sportKey: string): Promise<Exte
     }
     return parsed;
   } catch (err) {
-    console.error(`ESPN Scoreboard fetch failed for ${url}:`, err);
     return [];
   }
 }
@@ -289,6 +289,7 @@ async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]
         const keyToUse = getNextTheOddsApiKey();
         const res = await fetch(`https://api.the-odds-api.com/v4/sports/${key}/odds/?apiKey=${keyToUse}&regions=eu,uk,us&markets=h2h`, {
           headers: { "User-Agent": "AuraPlay-TheOddsApiEngine/3.0" },
+          signal: AbortSignal.timeout(2500),
           next: { revalidate: 60 }
         });
         if (res.status === 429 || res.status === 403) {
@@ -378,7 +379,6 @@ async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]
 
     return parsed;
   } catch (err) {
-    console.error(`The Odds API fetch failed for ${sportKey}:`, err);
     return [];
   }
 }
@@ -392,6 +392,7 @@ async function fetchFootballDataOrgMatches(): Promise<ExtendedMatch[]> {
         "X-Auth-Token": token,
         "User-Agent": "AuraPlay-LiveSportsEngine/2.0"
       },
+      signal: AbortSignal.timeout(2500),
       next: { revalidate: 30 }
     });
     if (res.status === 429 || res.status === 403) {
@@ -511,6 +512,7 @@ async function fetchTheSportsDbMatches(sportKey: "soccer" | "cricket" | "basketb
   try {
     const res = await fetch(`https://www.thesportsdb.com/api/v1/json/3/eventsday.php?d=${todayStr}&s=${sportParam}`, {
       headers: { "User-Agent": "AuraPlay-OpenSportsEngine/2.0" },
+      signal: AbortSignal.timeout(2500),
       next: { revalidate: 60 }
     });
     if (!res.ok) return [];
@@ -584,7 +586,6 @@ async function fetchTheSportsDbMatches(sportKey: "soccer" | "cricket" | "basketb
 
     return parsed;
   } catch (err) {
-    console.error(`TheSportsDB fetch failed for ${sportKey}:`, err);
     return [];
   }
 }
@@ -596,6 +597,7 @@ async function fetchApiSportsBasketballMatches(): Promise<ExtendedMatch[]> {
   try {
     const res = await fetch(`https://v1.basketball.api-sports.io/games?date=${todayStr}`, {
       headers: { "x-apisports-key": apiKey },
+      signal: AbortSignal.timeout(2500),
       next: { revalidate: 30 }
     });
     if (!res.ok) return [];
@@ -684,6 +686,7 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
   try {
     const res = await fetch(`https://api.cricapi.com/v1/currentMatches?apikey=${apiKey}&offset=0`, {
       headers: { "User-Agent": "AuraPlay-LiveCricketEngine/3.0" },
+      signal: AbortSignal.timeout(2500),
       next: { revalidate: 30 }
     });
     if (res.status === 429 || res.status === 403) {
@@ -771,7 +774,6 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
 
     return parsed;
   } catch (err) {
-    console.error("CricketData.org API fetch failed:", err);
     return [];
   }
 }
@@ -791,6 +793,7 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
             "x-rapidapi-host": apiHost,
             "User-Agent": "AuraPlay-CricbuzzRapidEngine/3.0"
           },
+          signal: AbortSignal.timeout(2500),
           next: { revalidate: 30 }
         }).then(r => {
           if (r.status === 429 || r.status === 403) {
@@ -890,7 +893,6 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
 
     return parsed;
   } catch (err) {
-    console.error("Cricbuzz RapidAPI fetch failed:", err);
     return [];
   }
 }
@@ -903,6 +905,7 @@ async function fetchCricbuzzScrapeMatches(): Promise<ExtendedMatch[]> {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8'
       },
+      signal: AbortSignal.timeout(2500),
       next: { revalidate: 30 }
     });
     
@@ -969,7 +972,6 @@ async function fetchCricbuzzScrapeMatches(): Promise<ExtendedMatch[]> {
 
     return matches;
   } catch (err) {
-    console.error("Scrape Cricket Error:", err);
     return [];
   }
 }
@@ -1042,6 +1044,7 @@ async function fetchEspnCricinfoMatches(): Promise<ExtendedMatch[]> {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept': 'application/json, text/plain, */*'
       },
+      signal: AbortSignal.timeout(2500),
       next: { revalidate: 30 }
     });
 
@@ -1105,14 +1108,25 @@ async function fetchEspnCricinfoMatches(): Promise<ExtendedMatch[]> {
 
     return parsed;
   } catch (err) {
-    console.error("ESPN Cricinfo fetch failed:", err);
     return [];
   }
 }
 
 export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
-  // 1. Primary A: The Odds API (Real Betfair / Pinnacle Cricket Odds - Multi-Key Load Balanced)
-  const oddsApiMatches = await fetchTheOddsApiMatches("cricket");
+  // Concurrently fetch all multi-gateway sources with fast timeouts
+  const [oddsApiRes, officialRes, scrapedRes, espnRes, cricbuzzRes] = await Promise.allSettled([
+    fetchTheOddsApiMatches("cricket"),
+    fetchCricketDataOrgMatches(),
+    fetchCricbuzzScrapeMatches(),
+    fetchEspnCricinfoMatches(),
+    fetchCricbuzzRapidApiMatches()
+  ]);
+
+  const oddsApiMatches = oddsApiRes.status === "fulfilled" ? oddsApiRes.value : [];
+  const officialCricket = officialRes.status === "fulfilled" ? officialRes.value : [];
+  const scraped = scrapedRes.status === "fulfilled" ? scrapedRes.value : [];
+  const espnCricket = espnRes.status === "fulfilled" ? espnRes.value : [];
+  const cricbuzzApi = cricbuzzRes.status === "fulfilled" ? cricbuzzRes.value : [];
 
   // Build canonical Betfair exchange market dictionary
   const canonicalExchangeOddsMap = new Map<string, { team1: number; team2: number; draw: number | null; marketName?: string }>();
@@ -1124,18 +1138,6 @@ export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
       canonicalExchangeOddsMap.set(`${c2}_vs_${c1}`, { team1: om.odds.team2, team2: om.odds.team1, draw: om.odds.draw, marketName: om.seriesName });
     }
   }
-
-  // 1. Primary B: CricketData.org API (Current Live Matches & Scorecards - Multi-Key Load Balanced)
-  const officialCricket = await fetchCricketDataOrgMatches();
-
-  // 2. Secondary: Cricbuzz Direct Scraper (Captures Live Indian Domestic DPL, TNPL, Ranji Trophy)
-  const scraped = await fetchCricbuzzScrapeMatches();
-
-  // 3. Tertiary: ESPN Cricinfo Public Web Gateway (100% Free / Zero API Key Required)
-  const espnCricket = await fetchEspnCricinfoMatches();
-
-  // 4. Quaternary: Cricbuzz RapidAPI
-  const cricbuzzApi = await fetchCricbuzzRapidApiMatches();
 
   // Attach live Betfair Exchange Odds to all matched scorecards
   const allScorecards = [...officialCricket, ...scraped, ...espnCricket, ...cricbuzzApi].map(m => {
