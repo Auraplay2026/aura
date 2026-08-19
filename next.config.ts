@@ -1,15 +1,19 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 
+const isProduction = process.env.NODE_ENV === 'production' && process.env.ENABLE_HSTS === 'true';
+
 const securityHeaders = [
   {
     key: 'X-DNS-Prefetch-Control',
     value: 'on'
   },
-  {
-    key: 'Strict-Transport-Security',
-    value: 'max-age=63072000; includeSubDomains; preload'
-  },
+  ...(isProduction ? [
+    {
+      key: 'Strict-Transport-Security',
+      value: 'max-age=63072000; includeSubDomains; preload'
+    }
+  ] : []),
   {
     key: 'X-XSS-Protection',
     value: '1; mode=block'
@@ -32,7 +36,7 @@ const securityHeaders = [
   },
   {
     key: 'Content-Security-Policy',
-    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://*.sentry.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' https: https://*.sentry.io; frame-src 'self' https://accounts.google.com https:; object-src 'none';"
+    value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://apis.google.com https://accounts.google.com https://*.sentry.io; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https:; font-src 'self' data: https://fonts.gstatic.com; connect-src 'self' http: https: ws: wss: https://*.sentry.io; worker-src 'self' blob:; frame-src 'self' https://accounts.google.com https:; object-src 'none';"
   }
 ];
 

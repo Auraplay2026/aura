@@ -49,7 +49,13 @@ function getPrisma() {
   const isLocal = dbUrl.includes('localhost') || dbUrl.includes('127.0.0.1');
   const pool = new Pool({
     connectionString: dbUrl,
+    max: 2,
+    idleTimeoutMillis: 15000,
+    connectionTimeoutMillis: 10000,
     ssl: isLocal ? false : { rejectUnauthorized: false }
+  });
+  pool.on('error', (err) => {
+    console.warn('[Sports Settlement Worker PG Pool Warning]:', err?.message || err);
   });
   const adapter = new PrismaPg(pool);
   prisma = new PrismaClient({ adapter });

@@ -137,11 +137,11 @@ export default function PromotionsPage() {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-transparent to-transparent opacity-80" />
           
           <div className="absolute inset-0 p-8 sm:p-12 flex flex-col justify-center max-w-3xl z-10">
-            <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/50 text-red-600 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 w-max shadow-[0_0_15px_rgba(239,68,68,0.3)]">
+            <div className="inline-flex items-center gap-2 bg-red-500/20 border border-red-500/50 text-red-400 px-4 py-1.5 rounded-full text-xs font-black uppercase tracking-widest mb-6 w-max shadow-[0_0_15px_rgba(239,68,68,0.3)]">
               <Flame className="w-4 h-4" /> Global Event Live
             </div>
             
-            <h1 className="text-5xl sm:text-7xl font-black text-slate-900 leading-none tracking-tight mb-4 drop-shadow-2xl">
+            <h1 className="text-5xl sm:text-7xl font-black text-white leading-none tracking-tight mb-4 drop-shadow-2xl">
               Win a Custom <br className="hidden sm:block" />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 to-yellow-600">Lamborghini</span>
             </h1>
@@ -164,7 +164,7 @@ export default function PromotionsPage() {
                 className={cn(
                   "font-black text-lg px-8 py-4 rounded-xl hover:scale-105 transition-all flex items-center gap-2",
                   heroOptedIn 
-                    ? "bg-green-500 hover:bg-green-400 text-slate-900 shadow-[0_0_30px_rgba(34,197,94,0.4)]" 
+                    ? "bg-green-500 hover:bg-green-400 text-slate-950 shadow-[0_0_30px_rgba(34,197,94,0.4)]" 
                     : "bg-yellow-500 hover:bg-yellow-400 text-slate-950 shadow-[0_0_30px_rgba(234,179,8,0.4)]"
                 )}
               >
@@ -180,9 +180,9 @@ export default function PromotionsPage() {
                     { label: "M", val: timeLeft.mins },
                     { label: "S", val: timeLeft.secs }
                   ].map((unit, i) => (
-                    <div key={i} className="flex flex-col items-center justify-center bg-white/60 backdrop-blur-md border border-slate-200 rounded-lg w-12 h-12">
-                      <span className="text-lg font-black text-slate-900 leading-none font-mono">{unit.val.toString().padStart(2, '0')}</span>
-                      <span className="text-[10px] text-slate-500 font-bold">{unit.label}</span>
+                    <div key={i} className="flex flex-col items-center justify-center bg-slate-900/80 backdrop-blur-md border border-slate-700 rounded-lg w-12 h-12">
+                      <span className="text-lg font-black text-white leading-none font-mono">{unit.val.toString().padStart(2, '0')}</span>
+                      <span className="text-[10px] text-slate-400 font-bold">{unit.label}</span>
                     </div>
                   ))}
                 </div>
@@ -201,7 +201,7 @@ export default function PromotionsPage() {
                 className={cn(
                   "px-6 py-2.5 rounded-full text-sm font-bold whitespace-nowrap transition-all duration-300 border",
                   activeCategory === cat 
-                    ? "bg-white text-slate-950 border-white shadow-[0_0_15px_rgba(255,255,255,0.3)]" 
+                    ? "bg-slate-900 text-white border-slate-900 shadow-md" 
                     : "bg-white text-slate-600 border-slate-200 hover:bg-slate-50 hover:text-slate-900"
                 )}
               >
@@ -234,10 +234,10 @@ export default function PromotionsPage() {
                     {promo.tags.map((tag, i) => (
                       <span key={i} className={cn(
                         "px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-widest shadow-lg",
-                        tag === "Hot" ? "bg-red-500 text-slate-900" : 
-                        tag === "Crypto" ? "bg-cyan-500 text-slate-900" :
-                        tag === "Ending Soon" ? "bg-orange-500 text-slate-900" :
-                        "bg-white/20 backdrop-blur-md text-slate-900 border border-white/20"
+                        tag === "Hot" ? "bg-red-500 text-white" : 
+                        tag === "Crypto" ? "bg-cyan-500 text-slate-950" :
+                        tag === "Ending Soon" ? "bg-orange-500 text-white" :
+                        "bg-slate-900/80 backdrop-blur-md text-white border border-slate-700"
                       )}>
                         {tag}
                       </span>
@@ -245,7 +245,7 @@ export default function PromotionsPage() {
                   </div>
 
                   {/* Category Pill */}
-                  <div className="absolute top-4 right-4 z-20 bg-white/60 backdrop-blur-md border border-slate-200 px-3 py-1 rounded-full text-[10px] font-bold text-slate-700">
+                  <div className="absolute top-4 right-4 z-20 bg-slate-900/80 backdrop-blur-md border border-slate-700 px-3 py-1 rounded-full text-[10px] font-bold text-slate-200">
                     {promo.category}
                   </div>
                 </div>
@@ -281,7 +281,7 @@ export default function PromotionsPage() {
                             e.stopPropagation();
                             router.push('/account/balance');
                           }}
-                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 transition-all"
+                          className="px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl text-xs font-black uppercase tracking-wider shadow-md hover:scale-105 transition-all"
                         >
                           Deposit
                         </button>
@@ -294,7 +294,7 @@ export default function PromotionsPage() {
                           setToast(`✅ Opted in! Deposit real money to activate ${promo.title}.`);
                           setTimeout(() => setToast(null), 4000);
                         }}
-                        className="font-bold text-sm px-5 py-2 rounded-xl bg-slate-50 group-hover:bg-white text-slate-700 group-hover:text-black hover:scale-105 transition-all shadow-sm"
+                        className="font-bold text-sm px-5 py-2 rounded-xl bg-slate-100 group-hover:bg-slate-900 text-slate-700 group-hover:text-white hover:scale-105 transition-all shadow-sm"
                       >
                         Opt In
                       </button>

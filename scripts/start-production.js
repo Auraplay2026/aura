@@ -125,19 +125,20 @@ workers.forEach(({ name, script }) => {
   const fullPath = path.resolve(process.cwd(), script);
   if (fs.existsSync(fullPath)) {
     console.log(`[Production Runner] Launching background daemon: ${name}`);
-    const workerProc = spawn(process.execPath, [fullPath], {
+    const workerProc = spawn(process.execPath, ['--max-old-space-size=256', fullPath], {
       stdio: ['ignore', 'pipe', 'pipe'],
       env: process.env
     });
 
-    workerProc.stdout.on('data', (d) => {
-      // Worker stdout
-    });
+    workerProc.stdout.on('data', () => {});
     workerProc.stderr.on('data', (d) => {
       console.warn(`[${name} Warning]:`, d.toString().trim());
     });
     workerProc.on('error', (err) => {
       console.warn(`[${name} Process Error]:`, err.message);
+    });
+    workerProc.on('exit', (code, signal) => {
+      console.log(`[${name}] Daemon exited with code ${code}, signal ${signal}`);
     });
 
     spawnedProcesses.push(workerProc);

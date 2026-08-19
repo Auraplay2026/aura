@@ -191,7 +191,7 @@ export default function BlogPage() {
               className={cn(
                 "px-5 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider transition-all duration-200 border whitespace-nowrap",
                 isActive 
-                  ? "bg-red-600 border-red-600 text-slate-900 shadow-md shadow-red-500/10" 
+                  ? "bg-red-600 border-red-600 text-white shadow-md shadow-red-500/20" 
                   : "bg-white border-slate-200 text-slate-600 hover:border-slate-300 hover:text-slate-800"
               )}
             >
@@ -418,7 +418,7 @@ export default function BlogPage() {
             initial={{ opacity: 0, x: 20 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.25 }}
-            className="bg-gradient-to-br from-slate-900 to-slate-950 text-slate-900 rounded-3xl p-6 shadow-xl relative overflow-hidden"
+            className="bg-gradient-to-br from-slate-900 to-slate-950 text-white rounded-3xl p-6 shadow-xl relative overflow-hidden"
           >
             {/* Background elements */}
             <div className="absolute -right-10 -bottom-10 w-32 h-32 bg-red-600/10 rounded-full blur-2xl pointer-events-none" />
@@ -427,7 +427,7 @@ export default function BlogPage() {
             <div className="relative z-10 flex flex-col gap-4">
               <div>
                 <span className="text-red-400 font-bold text-[10px] uppercase tracking-widest">Stay Updated</span>
-                <h3 className="text-lg font-black tracking-tight mt-1">Weekly Betradar Guides</h3>
+                <h3 className="text-lg font-black tracking-tight mt-1 text-white">Weekly Betradar Guides</h3>
                 <p className="text-slate-400 text-xs font-semibold mt-1.5 leading-relaxed">
                   Join 12,000+ traders receiving outright odds value picks and system updates directly in their inbox.
                 </p>
@@ -447,11 +447,11 @@ export default function BlogPage() {
                       placeholder="Enter email address"
                       value={newsletterEmail}
                       onChange={(e) => setNewsletterEmail(e.target.value)}
-                      className="px-4 py-3 bg-white/10 border border-white/10 hover:border-white/20 focus:border-red-600 focus:outline-none transition-all rounded-xl text-xs font-semibold text-slate-900 placeholder-slate-500"
+                      className="px-4 py-3 bg-white/10 border border-white/10 hover:border-white/20 focus:border-red-600 focus:outline-none transition-all rounded-xl text-xs font-semibold text-white placeholder-slate-400"
                     />
                     <button 
                       type="submit"
-                      className="w-full py-3 bg-red-600 hover:bg-red-700 text-slate-900 font-black text-xs uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] shadow-md shadow-red-500/20 flex items-center justify-center gap-1.5"
+                      className="w-full py-3 bg-red-600 hover:bg-red-700 text-white font-black text-xs uppercase tracking-wider rounded-xl transition-all active:scale-[0.98] shadow-md shadow-red-500/20 flex items-center justify-center gap-1.5"
                     >
                       <Send className="w-3 h-3" /> Subscribe
                     </button>

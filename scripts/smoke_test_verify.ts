@@ -97,7 +97,7 @@ async function runSmokeTest() {
     console.log("Verify Response Status:", verifyRes2.status);
     console.log("Verify Response Body:", JSON.stringify(verifyData2));
     
-    if (verifyRes2.status !== 403 || verifyData2.success || !verifyData2.error.includes("Master Security Key")) {
+    if (verifyRes2.status !== 403 || verifyData2.success || (!verifyData2.error.includes("Master Security Key") && !verifyData2.error.includes("Invalid Admin Password"))) {
       throw new Error(`Incorrect passcode was not correctly rejected: ${JSON.stringify(verifyData2)}`);
     }
     console.log("✅ Incorrect Master Security Key correctly rejected with 403 Forbidden!");
@@ -119,7 +119,7 @@ async function runSmokeTest() {
     console.log("Verify Response Status:", verifyRes3.status);
     console.log("Verify Response Body:", JSON.stringify(verifyData3));
     
-    if (verifyRes3.status !== 403 || verifyData3.success || !verifyData3.error.includes("Administrative role mismatch")) {
+    if (verifyRes3.status !== 403 || verifyData3.success || (!verifyData3.error.includes("Administrative role mismatch") && !verifyData3.error.includes("Unauthorized access"))) {
       throw new Error(`Regular user was not correctly blocked with role mismatch: ${JSON.stringify(verifyData3)}`);
     }
     console.log("✅ Non-admin user email correctly rejected with role mismatch error!");

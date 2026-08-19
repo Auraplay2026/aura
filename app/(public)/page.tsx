@@ -513,7 +513,7 @@ export default function GlobalHomepage() {
     <div className="flex flex-col gap-6 max-w-[1400px] mx-auto pb-20 w-full overflow-hidden px-4 sm:px-6 lg:px-8 mt-6">
       
       {/* 1. TOP PROMO BANNER CAROUSEL */}
-      <div className="relative w-full rounded-md overflow-hidden aspect-[16/9] md:aspect-[6/1] lg:aspect-[8/1] flex items-center bg-slate-50 border border-slate-200/60 shadow-sm group">
+      <div className="relative w-full rounded-2xl overflow-hidden min-h-[220px] md:min-h-[250px] lg:h-[270px] flex items-center bg-slate-50 border border-slate-200/80 shadow-sm group">
         <AnimatePresence mode="wait">
           <motion.div
             key={currentSlide}
@@ -530,23 +530,23 @@ export default function GlobalHomepage() {
             />
             <div className="absolute right-0 top-0 bottom-0 w-1/3 bg-gradient-to-l from-transparent to-slate-50 z-10" />
             
-            <div className="relative z-20 flex items-center justify-between w-full px-6 md:px-12">
-              <div className="flex flex-col">
-                <div className="flex items-center gap-2 mb-2">
-                  <Zap className="w-5 h-5 text-indigo-600 fill-indigo-600/10" />
-                  <span className="text-indigo-750 font-black tracking-widest uppercase text-sm md:text-base">
+            <div className="relative z-20 flex items-center justify-between w-full px-6 md:px-12 py-6">
+              <div className="flex flex-col max-w-2xl">
+                <div className="flex items-center gap-2 mb-1.5">
+                  <Zap className="w-4 h-4 md:w-5 md:h-5 text-indigo-600 fill-indigo-600/10" />
+                  <span className="text-indigo-750 font-black tracking-widest uppercase text-xs md:text-sm">
                     {CAROUSEL_SLIDES[currentSlide].title}
                   </span>
                 </div>
-                <h2 className="text-2xl md:text-4xl lg:text-5xl font-black text-slate-900 tracking-tight uppercase italic">
+                <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black text-slate-900 tracking-tight uppercase italic leading-tight">
                   {CAROUSEL_SLIDES[currentSlide].subtitle}
                 </h2>
-                <div className="mt-2 inline-block px-4 py-1 border-2 border-indigo-600 text-indigo-700 bg-indigo-50/50 font-bold text-xs md:text-sm w-max uppercase tracking-wider">
+                <div className="mt-2.5 inline-block px-3 py-1 border-2 border-indigo-600 text-indigo-700 bg-indigo-50/80 rounded-lg font-bold text-[11px] md:text-xs w-max uppercase tracking-wider shadow-xs">
                   {CAROUSEL_SLIDES[currentSlide].accent}
                 </div>
               </div>
-              <Link href={CAROUSEL_SLIDES[currentSlide].link} className="hidden md:flex bg-indigo-650 text-slate-900 font-black px-6 py-3 rounded uppercase items-center gap-2 hover:bg-indigo-600 transition-colors cursor-pointer shadow-md">
-                {CAROUSEL_SLIDES[currentSlide].buttonText} <ChevronRight className="w-5 h-5" />
+              <Link href={CAROUSEL_SLIDES[currentSlide].link} className="hidden md:flex bg-indigo-600 text-white font-black px-6 py-3 rounded-xl uppercase items-center gap-2 hover:bg-indigo-700 transition-all cursor-pointer shadow-md hover:shadow-lg hover:scale-105 active:scale-95 shrink-0 text-xs tracking-wider">
+                {CAROUSEL_SLIDES[currentSlide].buttonText} <ChevronRight className="w-4 h-4" />
               </Link>
             </div>
           </motion.div>

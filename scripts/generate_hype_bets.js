@@ -111,7 +111,9 @@ function main() {
       activePlayers: `${active_streams}`
     }
   };
-  fs.writeFileSync(FILE_PATH, JSON.stringify(payload, null, 2));
+  const tempInitialPath = `${FILE_PATH}.tmp`;
+  fs.writeFileSync(tempInitialPath, JSON.stringify(payload, null, 2));
+  fs.renameSync(tempInitialPath, FILE_PATH);
 
   const SYSTEM_CONFIG_PATH = path.join(__dirname, "..", "data", "system_config.json");
   
@@ -144,7 +146,9 @@ function main() {
     };
     
     try {
-      fs.writeFileSync(FILE_PATH, JSON.stringify(updatePayload, null, 2));
+      const tempPath = `${FILE_PATH}.tmp`;
+      fs.writeFileSync(tempPath, JSON.stringify(updatePayload, null, 2));
+      fs.renameSync(tempPath, FILE_PATH);
       console.log(`Generated item for ${newItem.user}: type=${newItem.type} game=${newItem.game} wager=${newItem.bet} payout=${newItem.win}`);
     } catch (e) {
       console.error(`Error writing to file: ${e}`);

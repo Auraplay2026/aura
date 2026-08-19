@@ -12,11 +12,16 @@ const isLocal = !connectionString || connectionString.includes('localhost') || c
 
 const pool = new Pool({
   connectionString,
-  max: 10,
-  idleTimeoutMillis: 30000,
-  connectionTimeoutMillis: 15000,
+  max: process.env.NODE_ENV === 'production' ? 5 : 2,
+  idleTimeoutMillis: 20000,
+  connectionTimeoutMillis: 10000,
   ssl: isLocal ? false : { rejectUnauthorized: false },
 })
+
+pool.on('error', (err) => {
+  console.warn('[Prisma PG Pool Warning]:', err?.message || err);
+});
+
 const adapter = new PrismaPg(pool)
 
 export const prisma =
@@ -24,3 +29,4 @@ export const prisma =
   new PrismaClient({ adapter })
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma
+

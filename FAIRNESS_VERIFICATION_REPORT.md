@@ -1,6 +1,6 @@
 # Fair Game Simulation Report
 
-**Date:** 2026-06-25T21:26:09.398Z
+**Date:** 2026-08-19T13:52:00.219Z
 **Rounds per game:** 100,000
 **Target RTP:** 97.0%
 **Tolerance:** ±0.50%

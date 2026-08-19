@@ -54,37 +54,38 @@ async function main() {
 
   try {
     const existing = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
-        { username: { equals: 'admin', mode: 'insensitive' } }
-      ]
-    }
-  });
-
-  if (!existing) {
-    const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'AuraBetAdmin2026!';
-    const hashedPassword = await bcrypt.hash(defaultPassword, 10);
-    await prisma.user.create({
-      data: {
-        username: 'admin',
-        email: 'twintubrovquattro@gmail.com',
-        passwordHash: hashedPassword,
-        accountType: 'real',
-        balance: 100000,
-        demoBalance: 100000,
-        realBalance: 100000,
-        hasCompletedOnboarding: true,
-        role: 'admin',
+      where: {
+        OR: [
+          { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
+          { username: { equals: 'admin', mode: 'insensitive' } }
+        ]
       }
     });
-    console.log('[create_admin] Created initial admin account');
-  } else {
-    await prisma.user.update({
-      where: { id: existing.id },
-      data: { role: 'admin' }
-    });
-    console.log(`[create_admin] Verified admin role for ${existing.email || existing.username} without changing password`);
+
+    if (!existing) {
+      const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'AuraBetAdmin2026!';
+      const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+      await prisma.user.create({
+        data: {
+          username: 'admin',
+          email: 'twintubrovquattro@gmail.com',
+          passwordHash: hashedPassword,
+          accountType: 'real',
+          balance: 100000,
+          demoBalance: 100000,
+          realBalance: 100000,
+          hasCompletedOnboarding: true,
+          role: 'admin',
+        }
+      });
+      console.log('[create_admin] Created initial admin account');
+    } else {
+      await prisma.user.update({
+        where: { id: existing.id },
+        data: { role: 'admin' }
+      });
+      console.log(`[create_admin] Verified admin role for ${existing.email || existing.username} without changing password`);
+    }
   } catch (err) {
     console.warn('[create_admin] Notice:', err?.message || err);
   } finally {

@@ -807,7 +807,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 >
                   <span className="text-[10px] font-black text-slate-800 uppercase tracking-wider">Bet Main</span>
                   {bets["main"] && (
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-red-600 text-slate-900 font-black text-xs flex items-center justify-center shadow-md">
+                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-red-600 text-white font-black text-xs flex items-center justify-center shadow-md">
                       ₹{bets["main"]}
                     </div>
                   )}
@@ -819,7 +819,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
                 >
                   <span className="text-[8px] font-black text-red-400 uppercase tracking-widest">Bonus</span>
                   {bets["bonus"] && (
-                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-slate-900 font-black text-[9px] flex items-center justify-center shadow">
+                    <div className="absolute -top-2 -right-2 w-6 h-6 rounded-full bg-red-600 text-white font-black text-[9px] flex items-center justify-center shadow">
                       ₹{bets["bonus"]}
                     </div>
                   )}
@@ -869,7 +869,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
 
                 {pokerHand.length > 0 && (
                   <div className="flex gap-4 relative">
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-slate-900 px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase whitespace-nowrap shadow-md">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-emerald-500 text-white px-3 py-1 rounded-full text-[9px] font-black tracking-widest uppercase whitespace-nowrap shadow-md">
                       Pocket Cards
                     </div>
                     <div className="w-14 h-20 bg-white border border-slate-300 rounded-lg shadow-lg flex items-center justify-center text-base font-black text-slate-800 rotate-[-5deg]">
@@ -885,11 +885,11 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 flex flex-col justify-center gap-4">
                 <span className="text-[9px] font-black text-slate-400 uppercase tracking-widest text-center block mb-2">Simulated Live Action</span>
                 {pokerState === "idle" ? (
-                  <button onClick={startPokerTeaser} className="text-center bg-red-600 hover:bg-red-700 text-slate-900 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                  <button onClick={startPokerTeaser} className="text-center bg-red-600 hover:bg-red-700 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md shadow-red-500/20 cursor-pointer">
                     DEAL HOLE CARDS
                   </button>
                 ) : (
-                  <button onClick={advancePokerTeaser} className="text-center bg-emerald-500 hover:bg-emerald-600 text-slate-900 py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer">
+                  <button onClick={advancePokerTeaser} className="text-center bg-emerald-500 hover:bg-emerald-600 text-white py-3 rounded-xl font-black text-xs uppercase tracking-wider transition-all shadow-md cursor-pointer">
                     {pokerState === "flop" ? "DEAL TURN" : pokerState === "turn" ? "DEAL RIVER" : "SHOWDOWN"}
                   </button>
                 )}
@@ -909,7 +909,7 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
   };
 
   return (
-    <div className="flex flex-col h-[calc(100vh-56px)] w-full bg-slate-50 p-4 sm:p-6 overflow-y-auto">
+    <div className="flex flex-col min-h-full w-full bg-slate-50 p-4 sm:p-6 pb-24">
       <div className="max-w-[1600px] mx-auto w-full space-y-6">
         
 

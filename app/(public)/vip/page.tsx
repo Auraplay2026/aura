@@ -109,12 +109,12 @@ export default function VIPClubPage() {
             {currentUser?.accountType === 'demo' ? (
               <div className="mt-6 bg-amber-50 border border-amber-200 rounded-2xl p-4 text-amber-800 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
                 <span>⚠️ You are currently in DEMO mode. Demo wagers do not count towards VIP rank. Switch to Real Money to earn real cashbacks!</span>
-                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-slate-900 rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit & Play Real</Link>
+                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-amber-600 hover:bg-amber-700 text-white rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit & Play Real</Link>
               </div>
             ) : (
               <div className="mt-6 bg-indigo-50 border border-indigo-200 rounded-2xl p-4 text-indigo-800 text-xs font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 relative z-10">
                 <span>🚀 You are earning <strong>{currentTier.rakeback} Rakeback</strong> and exclusive <strong>{currentTier.bonus} bonuses</strong> on all real wagers! Play more to level up to {nextTier?.name || 'Max rank'}!</span>
-                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-slate-900 rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit / Cashier</Link>
+                <Link href="/account/balance" className="shrink-0 px-4 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl transition-colors text-center w-full sm:w-auto uppercase tracking-wider text-[10px] font-black">Deposit / Cashier</Link>
               </div>
             )}
           </motion.div>
@@ -150,7 +150,7 @@ export default function VIPClubPage() {
                   <div className="absolute -top-12 -right-12 w-32 h-32 bg-white/5 rounded-full blur-2xl group-hover:bg-white/10 transition-colors" />
 
                   {isCurrent && (
-                    <div className="absolute top-4 right-4 bg-white text-slate-900 text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg">
+                    <div className="absolute top-4 right-4 bg-slate-900 text-white text-[9px] font-black uppercase tracking-widest px-2 py-1 rounded-full shadow-lg">
                       Current
                     </div>
                   )}
@@ -163,11 +163,11 @@ export default function VIPClubPage() {
                   </p>
                   
                   <div className="space-y-6 w-full flex-1">
-                    <div className="bg-white/20 rounded-xl p-4 border border-slate-200">
+                    <div className="bg-white/40 rounded-xl p-4 border border-slate-200 shadow-sm">
                       <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Rakeback</p>
                       <p className="font-black text-slate-900 text-2xl">{tier.rakeback}</p>
                     </div>
-                    <div className="bg-white/20 rounded-xl p-4 border border-slate-200">
+                    <div className="bg-white/40 rounded-xl p-4 border border-slate-200 shadow-sm">
                       <p className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">Bonus Frequency</p>
                       <p className="font-bold text-slate-800 text-sm leading-tight">{tier.bonus}</p>
                     </div>
@@ -181,28 +181,28 @@ export default function VIPClubPage() {
 
       {/* Benefits Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 pt-4 sm:pt-8">
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 hover:bg-slate-50 transition-colors group relative overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 hover:bg-slate-50 transition-colors group relative overflow-hidden shadow-sm">
           <div className="absolute top-0 right-0 w-32 h-32 bg-yellow-500/5 blur-[50px] rounded-full group-hover:bg-yellow-500/10 transition-colors pointer-events-none" />
-          <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-200 shadow-lg mb-6 group-hover:scale-110 transition-transform">
-            <Star className="w-6 h-6 text-neon-yellow" />
+          <div className="w-12 h-12 bg-amber-50 rounded-2xl flex items-center justify-center border border-amber-200 shadow-sm mb-6 group-hover:scale-110 transition-transform">
+            <Star className="w-6 h-6 text-amber-600" />
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-3">Dedicated VIP Host</h3>
           <p className="text-slate-600 text-sm leading-relaxed">Diamond tier members receive 24/7 priority support via WhatsApp or Telegram from a personal account manager.</p>
         </div>
         
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 hover:bg-slate-50 transition-colors group relative overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 hover:bg-slate-50 transition-colors group relative overflow-hidden shadow-sm">
           <div className="absolute top-0 right-0 w-32 h-32 bg-purple-500/5 blur-[50px] rounded-full group-hover:bg-purple-500/10 transition-colors pointer-events-none" />
-          <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-200 shadow-lg mb-6 group-hover:scale-110 transition-transform">
-            <Zap className="w-6 h-6 text-neon-purple" />
+          <div className="w-12 h-12 bg-purple-50 rounded-2xl flex items-center justify-center border border-purple-200 shadow-sm mb-6 group-hover:scale-110 transition-transform">
+            <Zap className="w-6 h-6 text-purple-600" />
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-3">Instant Withdrawals</h3>
           <p className="text-slate-600 text-sm leading-relaxed">Skip the queue. Platinum and Diamond members enjoy 0-confirmation crypto withdrawals with zero limits.</p>
         </div>
 
-        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 hover:bg-slate-50 transition-colors group relative overflow-hidden">
+        <div className="bg-white border border-slate-200 rounded-3xl p-6 sm:p-8 hover:bg-slate-50 transition-colors group relative overflow-hidden shadow-sm">
           <div className="absolute top-0 right-0 w-32 h-32 bg-green-500/5 blur-[50px] rounded-full group-hover:bg-green-500/10 transition-colors pointer-events-none" />
-          <div className="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center border border-slate-200 shadow-lg mb-6 group-hover:scale-110 transition-transform">
-            <Gift className="w-6 h-6 text-neon-green" />
+          <div className="w-12 h-12 bg-green-50 rounded-2xl flex items-center justify-center border border-green-200 shadow-sm mb-6 group-hover:scale-110 transition-transform">
+            <Gift className="w-6 h-6 text-green-600" />
           </div>
           <h3 className="text-lg sm:text-xl font-bold text-slate-900 mb-3">Luxury Gifts</h3>
           <p className="text-slate-600 text-sm leading-relaxed">Reach new tiers to unlock physical rewards, from the latest tech to all-expenses-paid trips to our annual VIP gala.</p>

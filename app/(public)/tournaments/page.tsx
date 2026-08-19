@@ -356,7 +356,7 @@ export default function TournamentsPage() {
                 >
                   <div className="h-44 relative overflow-hidden">
                     <div className="absolute top-4 left-4 z-20 flex gap-2">
-                      <span className="bg-red-500 text-slate-900 text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5">
+                      <span className="bg-red-500 text-white text-[9px] font-black uppercase tracking-widest px-3 py-1 rounded-full flex items-center gap-1.5 shadow-sm">
                         <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> Live Now
                       </span>
                     </div>
