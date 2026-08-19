@@ -4,6 +4,11 @@ AuraPlay is a state-of-the-art iGaming ecosystem featuring a premium casino, liv
 
 ![AuraPlay Banner](./public/logo.png)
 
+[![Cron Job Uptime Status](https://api.cron-job.org/jobs/7823707/23abdccf428e8897/status-1.svg)](https://cron-job.org)
+![Production DevSecOps Audit](https://img.shields.io/badge/Security_Audit-Passing-success?style=flat&logo=githubactions)
+![Next.js 16](https://img.shields.io/badge/Next.js-16.2.7-black?style=flat&logo=next.js)
+![PostgreSQL](https://img.shields.io/badge/Database-Supabase_PostgreSQL-3ECF8E?style=flat&logo=supabase)
+
 ## 📁 Project Structure
 
 The codebase is organized cleanly to separate UI components, server logic, and database operations.
