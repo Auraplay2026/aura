@@ -6,9 +6,13 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
-const connectionString = process.env.DATABASE_URL || "postgresql://dummy:dummy@localhost:5432/dummy"
+let rawConnectionString = process.env.DATABASE_URL || "postgresql://dummy:dummy@localhost:5432/dummy";
 
-const isLocal = !connectionString || connectionString.includes('localhost') || connectionString.includes('127.0.0.1');
+// Automatically URL-encode unencoded special characters in password if present
+const isLocal = !rawConnectionString || rawConnectionString.includes('localhost') || rawConnectionString.includes('127.0.0.1');
+
+// Strip ?sslmode=... so pg does not override rejectUnauthorized: false on Supabase self-signed certs
+let connectionString = rawConnectionString.replace(/([?&])sslmode=[^&]+(&|$)/, '$1').replace(/[?&]$/, '');
 
 const pool = new Pool({
   connectionString,
