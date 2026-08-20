@@ -77,9 +77,9 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
     setDemoResetCode(null);
   }, [isOpen, view]);
 
-  // ── Sync initialView prop (Sign up disabled) ──────────────────────────────
+  // ── Sync initialView prop ──────────────────────────────────────────────
   useEffect(() => {
-    setView(initialView === 'signup' ? 'login' : initialView);
+    setView(initialView || 'login');
   }, [initialView]);
 
   const [captchaCode, setCaptchaCode] = useState("");
@@ -125,6 +125,21 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
           setError(res.error || "Login failed. Check your email and password.");
           refreshCaptcha();
           setCaptchaInput("");
+        }
+      } else if (view === 'signup') {
+        const res = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, email, password })
+        });
+        const data = await res.json();
+        setIsLoading(false);
+        if (res.ok && data.success) {
+          useTradingStore.getState().setCurrentUser(data.user);
+          useTradingStore.getState().setIsLoggedIn(true);
+          onClose();
+        } else {
+          setError(data.error || "Failed to create account.");
         }
       } else if (view === 'forgot') {
         const res = await fetch('/api/auth/forgot-password', {
