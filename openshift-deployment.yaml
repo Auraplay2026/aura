@@ -56,7 +56,7 @@ spec:
     spec:
       containers:
         - name: auraplay-app
-          image: quay.io/auraplay/auraplay-web:latest # Or your GitHub/Docker image
+          image: ghcr.io/twintubrovquattro-ship-it/aura:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 3000
