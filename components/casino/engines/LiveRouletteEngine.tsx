@@ -3,9 +3,11 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Coins } from "lucide-react";
-import { playGameSound } from "@/lib/audio";
+import { playGameSound, playDealerVoice } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/fair-casino-math";
 import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
+import { LiveDealerStudio } from "./LiveDealerStudio";
+import { LiveDealerChat } from "../LiveDealerChat";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -121,6 +123,7 @@ export function LiveRouletteEngine({
   
   // HUD & Lobby Simulation States
   const [vips, setVips] = useState<VIPPlayer[]>(INITIAL_VIP_PLAYERS);
+  const [roundTimeLeft, setRoundTimeLeft] = useState(15);
   const [outcomeHistory, setOutcomeHistory] = useState<NumberConfig[]>([
     { n: 17, color: "black", label: "Black" },
     { n: 32, color: "red", label: "Red" },
@@ -146,6 +149,30 @@ export function LiveRouletteEngine({
       onBetAmountChange(totalBetsSum);
     }
   }, [totalBetsSum, onBetAmountChange]);
+
+  // Synchronized 15-second live round countdown timer with vocal dealer announcements
+  useEffect(() => {
+    if (isSpinning) return;
+
+    const interval = setInterval(() => {
+      setRoundTimeLeft(prev => {
+        if (prev <= 1) {
+          if (totalBetsSum > 0 && !isSpinning) {
+            handleSpinInit();
+          }
+          return 15;
+        }
+        if (prev === 15) {
+          try { playGameSound("dealer_place_bets"); } catch {}
+        } else if (prev === 4) {
+          try { playDealerVoice("Bets closing in four seconds"); } catch {}
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isSpinning, totalBetsSum]);
 
   // VIP Bets Placement Simulation before spin
   const generateVIPBets = useCallback(() => {
@@ -518,7 +545,7 @@ export function LiveRouletteEngine({
   const ballTimes = [0, 0.15, 0.3, 0.533, 0.62, 0.71, 0.75, 0.80, 0.83, 0.86, 0.90, 1.0];
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-1 sm:px-4 py-2 sm:py-4 text-slate-900 overflow-visible select-none font-sans relative">
+    <div className="w-full max-w-7xl mx-auto px-1 sm:px-4 py-2 sm:py-4 text-slate-900 overflow-visible select-none font-sans relative">
       
       {/* 3D Gold Coins victory shower overlay */}
       <div className="absolute inset-0 pointer-events-none z-50 overflow-hidden">
@@ -543,62 +570,77 @@ export function LiveRouletteEngine({
         ))}
       </div>
 
-      {/* 1. Sleek Super-Minimalist HUD Header */}
-      <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#02130a]/80 border-b border-emerald-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-800 h-12 select-none z-10 shrink-0">
-        <div className="flex items-center gap-2">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-          </span>
-          <span className="text-xs font-black tracking-wider uppercase text-slate-900 truncate max-w-[120px] sm:max-w-none">
-            Emerald Roulette
-          </span>
-        </div>
-
-        {/* Active Bets & Roadmap merged into one compact container */}
-        <div className="flex items-center gap-4">
-          {/* Balance Display */}
-          <div className="flex items-center gap-1.5 px-2 bg-white/40 rounded border border-slate-200/50 py-0.5">
-            <span className="text-[8px] text-slate-600 uppercase tracking-widest font-bold">Bal:</span>
-            <span className="text-[10px] font-black font-mono text-slate-800">₹{balance.toLocaleString()}</span>
-          </div>
-
-          {/* Active Bets Counter */}
-          <div className="flex items-center gap-1.5 ml-2">
-            <Coins className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
-            <span className="text-[10px] font-black font-mono text-yellow-400">₹{totalBetsSum.toLocaleString()}</span>
-          </div>
-
-          <div className="hidden sm:block w-px h-3 bg-emerald-800/60" />
-
-          {/* Compact Roadmap timeline (only 5 items on mobile, 8 on desktop to save space) */}
-          <div className="flex items-center gap-1 overflow-hidden">
-            {outcomeHistory.slice(0, windowWidth < 640 ? 5 : 8).map((h, i) => (
-              <div 
-                key={`${h.n}-${i}`}
-                className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black font-mono border ${
-                  h.color === "green" 
-                    ? "bg-emerald-600 border-emerald-400 text-slate-900" 
-                    : h.color === "red" 
-                      ? "bg-rose-700 border-rose-500 text-slate-900" 
-                      : "bg-white border-slate-200 text-slate-800"
-                }`}
-              >
-                {h.n}
-              </div>
-            ))}
-          </div>
-        </div>
+      {/* 0. Live Dealer Studio Video Stream & 15s Round Broadcast */}
+      <div className="w-full mb-3 shadow-2xl">
+        <LiveDealerStudio
+          dealerName="Elena"
+          gameTitle="Emerald VIP Live Roulette"
+          roundTimeLeft={roundTimeLeft}
+          isSpinning={isSpinning}
+          activePlayersCount={142}
+          lastOutcome={winningNumber ? `${winningNumber.n} (${winningNumber.label})` : (outcomeHistory[0] ? `${outcomeHistory[0].n} (${outcomeHistory[0].label})` : null)}
+        />
       </div>
 
-      {/* 2. Unified Casino Felt Play Area */}
-      <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
-        
-        {/* Subtle felt texture overlay */}
-        <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
-        
-        {/* Radial spotlight on the wheel */}
-        <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
+      {/* Main Table Layout with Docked Live Chat */}
+      <div className="w-full flex flex-col lg:flex-row gap-4 items-start">
+        <div className="flex-1 w-full min-w-0">
+          {/* 1. Sleek Super-Minimalist HUD Header */}
+          <div className="w-full flex items-center justify-between gap-2 px-3 py-2 bg-[#02130a]/90 border-b border-emerald-500/20 backdrop-blur-md rounded-t-2xl shadow-lg text-slate-800 h-12 select-none z-10 shrink-0">
+            <div className="flex items-center gap-2">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75 bg-emerald-450" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-xs font-black tracking-wider uppercase text-slate-900 truncate max-w-[120px] sm:max-w-none">
+                Emerald Roulette • Table 01
+              </span>
+            </div>
+
+            {/* Active Bets & Roadmap merged into one compact container */}
+            <div className="flex items-center gap-4">
+              {/* Balance Display */}
+              <div className="flex items-center gap-1.5 px-2 bg-white/40 rounded border border-slate-200/50 py-0.5">
+                <span className="text-[8px] text-slate-600 uppercase tracking-widest font-bold">Bal:</span>
+                <span className="text-[10px] font-black font-mono text-slate-800">₹{balance.toLocaleString()}</span>
+              </div>
+
+              {/* Active Bets Counter */}
+              <div className="flex items-center gap-1.5 ml-2">
+                <Coins className="w-3.5 h-3.5 text-yellow-500 shrink-0" />
+                <span className="text-[10px] font-black font-mono text-yellow-400">₹{totalBetsSum.toLocaleString()}</span>
+              </div>
+
+              <div className="hidden sm:block w-px h-3 bg-emerald-800/60" />
+
+              {/* Compact Roadmap timeline (only 5 items on mobile, 8 on desktop to save space) */}
+              <div className="flex items-center gap-1 overflow-hidden">
+                {outcomeHistory.slice(0, windowWidth < 640 ? 5 : 8).map((h, i) => (
+                  <div 
+                    key={`${h.n}-${i}`}
+                    className={`w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-black font-mono border ${
+                      h.color === "green" 
+                        ? "bg-emerald-600 border-emerald-400 text-slate-900" 
+                        : h.color === "red" 
+                          ? "bg-rose-700 border-rose-500 text-slate-900" 
+                          : "bg-white border-slate-200 text-slate-800"
+                    }`}
+                  >
+                    {h.n}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          {/* 2. Unified Casino Felt Play Area */}
+          <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
+            
+            {/* Subtle felt texture overlay */}
+            <div className="absolute inset-0 bg-[radial-gradient(rgba(16,185,129,0.05)_1px,transparent_1px)] [background-size:16px_16px] pointer-events-none opacity-40" />
+            
+            {/* Radial spotlight on the wheel */}
+            <div className="absolute top-[20%] left-1/2 -translate-x-1/2 w-[80%] h-[40%] bg-emerald-500/10 rounded-full blur-[80px] pointer-events-none" />
 
         {/* Playfield Layout: board takes full width when wheel is overlay */}
         <div className="w-full flex flex-col items-center justify-center gap-6 z-10">
@@ -896,13 +938,20 @@ export function LiveRouletteEngine({
               </div>
             </div>
 
+            </div>
+
           </div>
 
         </div>
 
-
-
       </div>
+
+      {/* Live Dealer Interactive Chat Sidebar */}
+      <div className="shrink-0 w-full lg:w-[280px] mt-2 lg:mt-0">
+        <LiveDealerChat dealerName="Elena" dealerTitle="VIP Table Master" tableId="LIVE-ROULETTE-01" />
+      </div>
+
+    </div>
 
       {/* 3. Victory Grand Overlay */}
       <AnimatePresence>

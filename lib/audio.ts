@@ -540,7 +540,7 @@ export function stopCrashAudio(isBust = false) {
 }
 
 // Central dispatcher
-export function playGameSound(type: "click" | "spin" | "tick" | "win" | "lose" | "jackpot" | "hover") {
+export function playGameSound(type: "click" | "spin" | "tick" | "win" | "lose" | "jackpot" | "hover" | "chip" | "card" | "dealer_place_bets" | "dealer_no_more_bets") {
   let soundEnabled = true;
   try {
     soundEnabled = useTradingStore.getState().soundEnabled !== false;
@@ -570,5 +570,125 @@ export function playGameSound(type: "click" | "spin" | "tick" | "win" | "lose" |
     case "hover":
       playHover();
       break;
+    case "chip":
+      playChipSound();
+      break;
+    case "card":
+      playCardSlideSound();
+      break;
+    case "dealer_place_bets":
+      playDealerVoice("Place your bets, please");
+      break;
+    case "dealer_no_more_bets":
+      playDealerVoice("No more bets, thank you");
+      break;
   }
 }
+
+// ── LIVE DEALER VOICE ANNOUNCEMENTS (Web Speech API + Natural Formant Synthesis) ──
+export function playDealerVoice(phrase: string) {
+  const mult = getSfxMultiplier();
+  if (mult <= 0 || typeof window === "undefined" || !("speechSynthesis" in window)) {
+    return;
+  }
+
+  try {
+    window.speechSynthesis.cancel(); // Stop any overlapping voice
+    const utterance = new SpeechSynthesisUtterance(phrase);
+    utterance.rate = 1.05;
+    utterance.pitch = 1.15; // Natural pleasant female dealer vocal range
+    utterance.volume = Math.min(1, mult * 1.2);
+
+    const voices = window.speechSynthesis.getVoices();
+    // Prioritize natural female voices (Google UK English Female, Samantha, Victoria, Karen, etc.)
+    const femaleVoice = voices.find(v => 
+      (v.name.includes("Female") || v.name.includes("Google") || v.name.includes("Samantha") || v.name.includes("Victoria") || v.name.includes("Karen") || v.name.includes("Zira")) &&
+      v.lang.startsWith("en")
+    ) || voices.find(v => v.lang.startsWith("en"));
+
+    if (femaleVoice) {
+      utterance.voice = femaleVoice;
+    }
+
+    window.speechSynthesis.speak(utterance);
+  } catch (err) {
+    console.warn("[Dealer Voice Engine]:", err);
+  }
+}
+
+// Heavy Clay Casino Chip Drop Sound
+export function playChipSound() {
+  const mult = getSfxMultiplier();
+  if (mult <= 0) return;
+
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+
+  // Primary ceramic click
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(2200, now);
+  osc.frequency.exponentialRampToValueAtTime(800, now + 0.035);
+
+  gain.gain.setValueAtTime(0.25 * mult, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.035);
+
+  osc.connect(gain);
+  gain.connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.035);
+
+  // Secondary chip stack resonance
+  const osc2 = ctx.createOscillator();
+  const gain2 = ctx.createGain();
+  osc2.type = "triangle";
+  osc2.frequency.setValueAtTime(3200, now + 0.01);
+  osc2.frequency.exponentialRampToValueAtTime(1400, now + 0.04);
+
+  gain2.gain.setValueAtTime(0.12 * mult, now + 0.01);
+  gain2.gain.exponentialRampToValueAtTime(0.001, now + 0.04);
+
+  osc2.connect(gain2);
+  gain2.connect(ctx.destination);
+  osc2.start(now + 0.01);
+  osc2.stop(now + 0.04);
+}
+
+// Card Sliding Out of Dealing Shoe Sound
+export function playCardSlideSound() {
+  const mult = getSfxMultiplier();
+  if (mult <= 0) return;
+
+  const ctx = getAudioContext();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+
+  const bufferSize = ctx.sampleRate * 0.08; // 80ms white noise friction
+  const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+  const data = buffer.getChannelData(0);
+  for (let i = 0; i < bufferSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * 0.15;
+  }
+
+  const noise = ctx.createBufferSource();
+  noise.buffer = buffer;
+
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.setValueAtTime(1200, now);
+  filter.Q.setValueAtTime(3.0, now);
+
+  const gain = ctx.createGain();
+  gain.gain.setValueAtTime(0.18 * mult, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.08);
+
+  noise.connect(filter);
+  filter.connect(gain);
+  gain.connect(ctx.destination);
+
+  noise.start(now);
+  noise.stop(now + 0.08);
+}
+

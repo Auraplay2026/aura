@@ -127,19 +127,12 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
           setCaptchaInput("");
         }
       } else if (view === 'signup') {
-        const res = await fetch('/api/auth/signup', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, email, password })
-        });
-        const data = await res.json();
+        const signupRes = await useTradingStore.getState().signUp(username, email, password);
         setIsLoading(false);
-        if (res.ok && data.success) {
-          useTradingStore.getState().setCurrentUser(data.user);
-          useTradingStore.getState().setIsLoggedIn(true);
+        if (signupRes.success) {
           onClose();
         } else {
-          setError(data.error || "Failed to create account.");
+          setError(signupRes.error || "Failed to create account.");
         }
       } else if (view === 'forgot') {
         const res = await fetch('/api/auth/forgot-password', {
