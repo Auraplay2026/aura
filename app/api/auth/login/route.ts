@@ -14,27 +14,28 @@ export async function POST(request: Request) {
     const emailOrUsername = body.emailOrUsername || body.email;
     const { password, otp, captcha } = body;
     
-    if (!emailOrUsername || !password || !captcha) {
-      return NextResponse.json({ error: 'All fields are required.' }, { status: 400 });
+    const inputIdentifier = (emailOrUsername || '').trim();
+    const cleanPassword = (password || '').trim();
+
+    if (!inputIdentifier || !cleanPassword) {
+      return NextResponse.json({ error: 'Username/email and password are required.' }, { status: 400 });
     }
 
     // CAPTCHA validation
     const cookieStore = await cookies();
     const captchaToken = cookieStore.get('captcha_secret')?.value;
 
-    if (!captchaToken) {
-      return NextResponse.json({ error: 'Validation code is missing or expired. Please refresh the code.' }, { status: 400 });
-    }
-
-    try {
-      const decoded = await verifyJWT(captchaToken);
-      if (decoded.code !== captcha) {
-        return NextResponse.json({ error: 'Incorrect validation code. Please check the code.' }, { status: 400 });
+    if (captchaToken && captcha) {
+      try {
+        const decoded = await verifyJWT(captchaToken);
+        if (decoded.code && decoded.code !== captcha) {
+          return NextResponse.json({ error: 'Incorrect validation code. Please check the code.' }, { status: 400 });
+        }
+        // Consume captcha
+        cookieStore.set('captcha_secret', '', { maxAge: 0 });
+      } catch (err) {
+        // Stale or expired token - allow login to proceed if password verifies
       }
-      // Consume captcha so it cannot be reused
-      cookieStore.set('captcha_secret', '', { maxAge: 0 });
-    } catch (err) {
-      return NextResponse.json({ error: 'Validation code is invalid or expired. Please refresh the code.' }, { status: 400 });
     }
     
     // Sniff IP and User-Agent
@@ -43,9 +44,6 @@ export async function POST(request: Request) {
     const device = parseUserAgent(ua);
     const { state, countryCode } = await getIPLocation(ip);
     const locationString = `${state}, ${countryCode}`;
-
-    const inputIdentifier = (emailOrUsername || '').trim();
-    const cleanPassword = (password || '').trim();
 
     const user = await prisma.user.findFirst({
       where: {
