@@ -8,6 +8,8 @@ export async function GET() {
   let dbStatus = 'UNKNOWN';
   let dbLatencyMs = -1;
 
+  let dbError: string | null = null;
+
   try {
     const dbStart = Date.now();
     await prisma.$queryRaw`SELECT 1`;
@@ -15,6 +17,7 @@ export async function GET() {
     dbStatus = 'HEALTHY';
   } catch (err: any) {
     dbStatus = 'DEGRADED';
+    dbError = err?.message || String(err);
     console.error('[Health Probe] Database ping failed:', err?.message);
   }
 
@@ -32,7 +35,8 @@ export async function GET() {
       database: {
         status: dbStatus,
         latencyMs: dbLatencyMs,
-        provider: 'PostgreSQL / Prisma PgAdapter'
+        provider: 'PostgreSQL / Prisma PgAdapter',
+        ...(dbError && { error: dbError })
       },
       sseStream: {
         status: 'READY',

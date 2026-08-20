@@ -185,8 +185,8 @@ export async function POST(request: Request) {
   } catch (err: any) {
     console.error("[Login API Error]:", err);
     return NextResponse.json({
-      error: 'Failed to process login request.',
-      ...(process.env.NODE_ENV !== 'production' && { details: err?.message })
+      error: err?.message ? `Authentication Error: ${err.message}` : 'Failed to process login request.',
+      details: err?.message
     }, { status: 500 });
   }
 }
