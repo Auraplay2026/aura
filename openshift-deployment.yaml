@@ -1,0 +1,126 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: auraplay-production
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: auraplay-secrets
+  namespace: auraplay-production
+type: Opaque
+stringData:
+  DATABASE_URL: "postgresql://postgres:CHANGE_THIS_PASSWORD@your-db-host.com:5432/postgres?sslmode=require"
+  JWT_SECRET: "aura_super_secure_jwt_secret_key_2026_production_change_me"
+  NEXTAUTH_SECRET: "aura_nextauth_secret_key_2026_production_change_me"
+  ADMIN_DEFAULT_PASSWORD: "AuraBetAdmin2026!"
+  ADMIN_SECURITY_KEY: "AURAPLAY_MASTER_SECURE_ADMIN_KEY_2026"
+  MASTER_SECURITY_KEY: "AURAPLAY_MASTER_SECURE_ADMIN_KEY_2026"
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: auraplay-config
+  namespace: auraplay-production
+data:
+  NODE_ENV: "production"
+  PORT: "3000"
+  HOSTNAME: "0.0.0.0"
+  NODE_OPTIONS: "--max-old-space-size=1024"
+  ADMIN_EMAIL: "twintubrovquattro@gmail.com"
+  NEXT_PUBLIC_APP_URL: "https://auraplay.apps.your-cluster.openshift.com"
+  NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+1 (659) 221-0661"
+  ENABLE_HSTS: "false"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: auraplay-web
+  namespace: auraplay-production
+  labels:
+    app: auraplay-web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: auraplay-web
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: auraplay-web
+    spec:
+      containers:
+        - name: auraplay-app
+          image: quay.io/auraplay/auraplay-web:latest # Or your GitHub/Docker image
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+              protocol: TCP
+          envFrom:
+            - configMapRef:
+                name: auraplay-config
+            - secretRef:
+                name: auraplay-secrets
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "250m"
+            limits:
+              memory: "1536Mi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 20
+            periodSeconds: 15
+            timeoutSeconds: 5
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: 3000
+            initialDelaySeconds: 10
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 2
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: auraplay-service
+  namespace: auraplay-production
+  labels:
+    app: auraplay-web
+spec:
+  type: ClusterIP
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: auraplay-web
+---
+apiVersion: route.openshift.io/v1
+kind: Route
+metadata:
+  name: auraplay-route
+  namespace: auraplay-production
+  labels:
+    app: auraplay-web
+spec:
+  to:
+    kind: Service
+    name: auraplay-service
+    weight: 100
+  port:
+    targetPort: http
+  tls:
+    termination: edge
+    insecureEdgeTerminationPolicy: Redirect
