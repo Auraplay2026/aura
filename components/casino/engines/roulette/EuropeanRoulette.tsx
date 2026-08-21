@@ -2,11 +2,13 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Coins } from "lucide-react";
-import { playGameSound } from "@/lib/audio";
+import { Coins, Camera, Radio, Eye } from "lucide-react";
+import { playGameSound, playDealerVoice } from "@/lib/audio";
 import { calculateGameOutcome } from "@/lib/fair-casino-math";
 import { evaluateRoulettePayouts, EUROPEAN_NUMBERS, EUROPEAN_CONFIG } from "@/lib/roulette-math";
 import { useTradingStore } from "@/lib/store";
+import { LiveDealerStudio } from "../LiveDealerStudio";
+import { LiveDealerChat } from "../../LiveDealerChat";
 
 // ═══════════════════════════════════════════════
 // TYPES & CONSTANTS
@@ -135,9 +137,24 @@ export function EuropeanRoulette({
     { n: 25, color: "red", label: "Red" },
     { n: 4, color: "black", label: "Black" }
   ]);
+  const [showLiveStudio, setShowLiveStudio] = useState(true);
+  const [roundTimeLeft, setRoundTimeLeft] = useState(15);
   const [showWinOverlay, setShowWinOverlay] = useState(false);
   const [wonAmount, setWonAmount] = useState(0);
   const [coinsShower, setCoinsShower] = useState<{id:number, x:number, rotate:number, duration:number, left:number}[]>([]);
+
+  // Autonomous round countdown timer loop
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setRoundTimeLeft(prev => {
+        if (prev <= 1) {
+          return 15;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   const onCompleteRef = useRef(onComplete);
   useEffect(() => {
@@ -631,8 +648,43 @@ export function EuropeanRoulette({
               </div>
             ))}
           </div>
+
+          {/* Live Studio Camera Switcher Button */}
+          <button
+            onClick={() => setShowLiveStudio(!showLiveStudio)}
+            className={`flex items-center gap-1.5 px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-wider transition-all cursor-pointer ${
+              showLiveStudio 
+                ? "bg-red-600 hover:bg-red-500 text-white shadow-[0_0_15px_rgba(239,68,68,0.5)]" 
+                : "bg-white/40 hover:bg-white/60 text-slate-700 border border-slate-300"
+            }`}
+          >
+            <Radio className="w-3.5 h-3.5" />
+            <span>{showLiveStudio ? "LIVE DEALER ON" : "CAMERA OFF"}</span>
+          </button>
         </div>
       </div>
+
+      {/* Live Dealer 4K Multi-Cam Stream Section */}
+      <AnimatePresence>
+        {showLiveStudio && (
+          <motion.div
+            initial={{ opacity: 0, height: 0 }}
+            animate={{ opacity: 1, height: "auto" }}
+            exit={{ opacity: 0, height: 0 }}
+            className="w-full mb-3"
+          >
+            <LiveDealerStudio 
+              dealerName="Elena"
+              gameTitle="VIP European Live Roulette"
+              roundTimeLeft={roundTimeLeft}
+              maxRoundTime={15}
+              isSpinning={isSpinning}
+              activePlayersCount={168}
+              lastOutcome={winningNumber ? winningNumber.n : outcomeHistory[0]?.n}
+            />
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* 2. Unified Casino Felt Play Area */}
       <div className="w-full bg-gradient-to-b from-[#0b3a20] via-[#052112] to-[#010e08] rounded-b-2xl border-x border-b border-emerald-500/20 shadow-2xl p-3 sm:p-6 flex flex-col items-center gap-4 relative overflow-hidden">
