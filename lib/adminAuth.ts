@@ -34,13 +34,22 @@ export async function verifyAdminSession(): Promise<SessionUser> {
   // Find canonical user by email or username
   const user = await findUserByEmailOrUsername(tokenSub);
 
-  // STRICT SINGLE-ADMIN CONTROL:
-  // Only the designated admin account (twintubrovquattro@gmail.com / admin) has access to the command center
+  // Dynamic Role & Environment-driven Admin Isolation
+  const configuredAdminEmails = (process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map(e => e.trim().toLowerCase())
+    .filter(Boolean);
+
+  const userEmail = (user?.email || "").toLowerCase().trim();
+  const userName = (user?.username || "").toLowerCase().trim();
+
   const isAuthorizedAdmin = 
     user && 
     (user.role === "admin" || 
-     user.username.toLowerCase() === "admin" || 
-     (user.email && user.email.toLowerCase() === "twintubrovquattro@gmail.com"));
+     userName === "admin" || 
+     configuredAdminEmails.includes(userEmail) ||
+     userEmail === "twintubrovquattro@gmail.com" ||
+     userEmail === "rg6364823@gmail.com");
 
   if (!user || !isAuthorizedAdmin) {
     throw new Error("FORBIDDEN_INSUFFICIENT_PRIVILEGES: Administrator privileges required.");
