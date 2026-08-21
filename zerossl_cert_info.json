@@ -1,0 +1,55 @@
+{
+  "id": "f01fcf9d17ff73eac822fab14793e939",
+  "type": "1",
+  "common_name": "auraplay.duckdns.org",
+  "additional_domains": "www.auraplay.duckdns.org",
+  "created": "2026-08-21 16:47:52",
+  "expires": null,
+  "issued_at": null,
+  "invalidated_at": null,
+  "status": "draft",
+  "validation_type": null,
+  "validation_emails": null,
+  "replacement_for": "",
+  "fingerprint_sha1": null,
+  "brand_validation": null,
+  "validation": {
+    "email_validation": {
+      "auraplay.duckdns.org": [
+        "admin@auraplay.duckdns.org",
+        "administrator@auraplay.duckdns.org",
+        "hostmaster@auraplay.duckdns.org",
+        "postmaster@auraplay.duckdns.org",
+        "webmaster@auraplay.duckdns.org"
+      ]
+    },
+    "other_methods": {
+      "auraplay.duckdns.org": {
+        "file_validation_url_http": "http://auraplay.duckdns.org/.well-known/pki-validation/1EAB17E1356BACBE5191DCA6E60A1E5A.txt",
+        "file_validation_url_https": "https://auraplay.duckdns.org/.well-known/pki-validation/1EAB17E1356BACBE5191DCA6E60A1E5A.txt",
+        "file_validation_content": [
+          "B77D1BA3772C0352E09248A98DC16A36EAE20E0DEFCA90AD7AECA70A3A06E923",
+          "comodoca.com",
+          "09ccd875fd9e6ca"
+        ],
+        "cname_validation_p1": "_1EAB17E1356BACBE5191DCA6E60A1E5A.auraplay.duckdns.org",
+        "cname_validation_p2": "B77D1BA3772C0352E09248A98DC16A36.EAE20E0DEFCA90AD7AECA70A3A06E923.09ccd875fd9e6ca.comodoca.com"
+      },
+      "www.auraplay.duckdns.org": {
+        "file_validation_url_http": "http://www.auraplay.duckdns.org/.well-known/pki-validation/1EAB17E1356BACBE5191DCA6E60A1E5A.txt",
+        "file_validation_url_https": "https://www.auraplay.duckdns.org/.well-known/pki-validation/1EAB17E1356BACBE5191DCA6E60A1E5A.txt",
+        "file_validation_content": [
+          "B77D1BA3772C0352E09248A98DC16A36EAE20E0DEFCA90AD7AECA70A3A06E923",
+          "comodoca.com",
+          "09ccd875fd9e6ca"
+        ],
+        "cname_validation_p1": "_1EAB17E1356BACBE5191DCA6E60A1E5A.www.auraplay.duckdns.org",
+        "cname_validation_p2": "B77D1BA3772C0352E09248A98DC16A36.EAE20E0DEFCA90AD7AECA70A3A06E923.09ccd875fd9e6ca.comodoca.com"
+      }
+    }
+  },
+  "signature_algorithm_properties": null,
+  "last_updated": null,
+  "ca_certificate_id": null,
+  "has_private_key": false
+}
