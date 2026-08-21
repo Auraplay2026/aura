@@ -73,9 +73,8 @@ export async function POST(request: Request) {
 
     const isSystemAdminEmail = 
       email.toLowerCase() === 'twintubrovquattro@gmail.com' ||
-      email.toLowerCase() === 'rg6364823@gmail.com' ||
       email.toLowerCase() === 'admin' ||
-      email.toLowerCase() === 'zone';
+      email.toLowerCase() === 'twintubrovquattro';
 
     if (user && isSystemAdminEmail && user.role !== 'admin') {
       try {

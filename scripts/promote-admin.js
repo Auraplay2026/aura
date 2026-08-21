@@ -24,15 +24,23 @@ async function main() {
   const prisma = new PrismaClient({ adapter });
 
   const emailsToPromote = [
-    'rg6364823@gmail.com',
-    'twintubrovquattro@gmail.com',
-    'admin@auraplay.com'
+    'twintubrovquattro@gmail.com'
   ];
   
   const usernamesToPromote = [
-    'zone',
+    'twintubrovquattro',
     'admin'
   ];
+
+  // Demote any previously promoted test emails
+  await prisma.user.updateMany({
+    where: {
+      email: { in: ['rg6364823@gmail.com', 'zone@gmail.com'], mode: 'insensitive' }
+    },
+    data: {
+      role: 'user'
+    }
+  });
 
   const updated = await prisma.user.updateMany({
     where: {

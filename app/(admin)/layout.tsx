@@ -133,37 +133,12 @@ function AdminSecurityGate({
 
         <div className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
-            <label className="text-[10px] font-bold text-slate-300 uppercase">Admin Account</label>
-            <div className="flex gap-2 mb-1.5">
-              <button
-                type="button"
-                onClick={() => setAdminIdentity("twintubrovquattro@gmail.com")}
-                className={`flex-1 py-1 px-2 rounded text-[10px] font-bold border transition-all ${
-                  adminIdentity === "twintubrovquattro@gmail.com" 
-                    ? "bg-indigo-600 text-white border-indigo-500 shadow-sm" 
-                    : "bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700"
-                }`}
-              >
-                twintubrovquattro
-              </button>
-              <button
-                type="button"
-                onClick={() => setAdminIdentity("rg6364823@gmail.com")}
-                className={`flex-1 py-1 px-2 rounded text-[10px] font-bold border transition-all ${
-                  adminIdentity === "rg6364823@gmail.com" 
-                    ? "bg-indigo-600 text-white border-indigo-500 shadow-sm" 
-                    : "bg-slate-800 text-slate-400 border-slate-700 hover:bg-slate-700"
-                }`}
-              >
-                rg6364823 (zone)
-              </button>
-            </div>
+            <label className="text-[10px] font-bold text-slate-300 uppercase">Master Admin Account</label>
             <input
               type="text"
-              value={adminIdentity}
-              onChange={(e) => setAdminIdentity(e.target.value)}
-              placeholder="admin@email.com or username..."
-              className="bg-slate-800 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-white focus:border-indigo-500 focus:outline-none"
+              readOnly
+              value="twintubrovquattro@gmail.com"
+              className="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-indigo-300 focus:outline-none cursor-not-allowed select-none"
             />
           </div>
           

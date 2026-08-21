@@ -47,10 +47,9 @@ export async function verifyAdminSession(): Promise<SessionUser> {
     user && 
     (user.role === "admin" || 
      userName === "admin" || 
-     userName === "zone" ||
+     userName === "twintubrovquattro" ||
      configuredAdminEmails.includes(userEmail) ||
-     userEmail === "twintubrovquattro@gmail.com" ||
-     userEmail === "rg6364823@gmail.com");
+     userEmail === "twintubrovquattro@gmail.com");
 
   if (!user || !isAuthorizedAdmin) {
     throw new Error("FORBIDDEN_INSUFFICIENT_PRIVILEGES: Administrator privileges required.");

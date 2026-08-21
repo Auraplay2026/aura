@@ -82,7 +82,7 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
     { label: "Safe Play", icon: Shield, href: "/rg" },
   ];
 
-  if (currentUser?.role === 'admin' || currentUser?.email === 'rg6364823@gmail.com' || currentUser?.email === 'twintubrovquattro@gmail.com') {
+  if (currentUser?.role === 'admin' || currentUser?.email?.toLowerCase() === 'twintubrovquattro@gmail.com' || currentUser?.username?.toLowerCase() === 'admin') {
     MENU_ITEMS.unshift({ label: "Admin Operations Core", icon: Shield, href: "/admin" });
   }
 
