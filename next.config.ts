@@ -64,6 +64,14 @@ const nextConfig: NextConfig = {
       '@radix-ui/react-icons'
     ],
   },
+  async rewrites() {
+    return [
+      {
+        source: '/.well-known/pki-validation/:file*',
+        destination: '/api/pki-validation',
+      },
+    ];
+  },
   async headers() {
     return [
       {
