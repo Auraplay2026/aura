@@ -80,20 +80,35 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 5. CSRF Protection for state-changing admin APIs
+  // 5. CSRF Protection for state-changing admin APIs (allowing Cloudflare Worker, DuckDNS, and OpenShift origins)
   if (pathname.startsWith('/api/admin')) {
-    const method = request.method;
-    if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
-      const origin = request.headers.get('origin');
-      const host = request.headers.get('host');
-      if (origin && host) {
-        try {
-          const originHost = new URL(origin).host;
-          if (originHost !== host) {
-            return NextResponse.json({ error: 'CSRF validation failed: cross-origin admin request blocked.' }, { status: 403 });
+    const publicAdminAuthPaths = ['/api/admin/auth/challenge', '/api/admin/auth/verify', '/api/admin/auth/logout'];
+    if (!publicAdminAuthPaths.includes(pathname)) {
+      const method = request.method;
+      if (method === 'POST' || method === 'PUT' || method === 'DELETE') {
+        const origin = request.headers.get('origin');
+        const host = request.headers.get('host') || '';
+        const forwardedHost = request.headers.get('x-forwarded-host') || '';
+        const effectiveHost = (forwardedHost || host).toLowerCase();
+        
+        if (origin) {
+          try {
+            const originHost = new URL(origin).host.toLowerCase();
+            const isAllowedOrigin = 
+              originHost === effectiveHost ||
+              originHost === host.toLowerCase() ||
+              originHost.includes('workers.dev') ||
+              originHost.includes('duckdns.org') ||
+              originHost.includes('openshiftapps.com') ||
+              originHost.includes('localhost') ||
+              originHost.includes('127.0.0.1');
+
+            if (!isAllowedOrigin) {
+              return NextResponse.json({ error: 'CSRF validation failed: cross-origin admin request blocked.' }, { status: 403 });
+            }
+          } catch {
+            return NextResponse.json({ error: 'CSRF validation failed: invalid origin.' }, { status: 403 });
           }
-        } catch {
-          return NextResponse.json({ error: 'CSRF validation failed: invalid origin.' }, { status: 403 });
         }
       }
     }
