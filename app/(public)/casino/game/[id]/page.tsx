@@ -1023,71 +1023,102 @@ export default function GamePlayerPage() {
                   key="modal"
                   exit={{ opacity: 0, scale: 0.95 }}
                   transition={{ duration: 0.3 }}
-                  className="absolute inset-0 z-50 flex items-center justify-center bg-slate-100/90 backdrop-blur-sm p-4 sm:p-0"
+                  className="absolute inset-0 z-30 flex items-center justify-center bg-slate-900/60 backdrop-blur-sm p-4 sm:p-0"
                 >
-                  <div className="bg-white border border-slate-200 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden my-auto">
-                    <div className="p-4 md:p-6 text-center border-b border-slate-200">
+                  <div className="bg-white border border-slate-200 shadow-2xl w-full max-w-md rounded-2xl overflow-hidden my-auto relative">
+                    {/* Top right close icon */}
+                    <button 
+                      onClick={() => setHasTransferred(true)}
+                      className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 p-1.5 rounded-full hover:bg-slate-100 transition-colors z-10 cursor-pointer"
+                      title="Skip and play directly"
+                    >
+                      ✕
+                    </button>
+
+                    <div className="p-4 md:p-6 text-center border-b border-slate-200 bg-slate-50/50">
                       <h2 className="text-lg md:text-xl font-black text-slate-900 uppercase tracking-wider">Sub-Wallet Transfer</h2>
                       <p className="text-slate-650 text-xs md:text-sm mt-1">Allocate funds from your Main Balance to play {game.title}.</p>
                     </div>
+
                     <div className="p-4 md:p-6 space-y-4 md:space-y-6">
                       <div className="flex justify-between items-center text-[10px] md:text-xs font-black text-slate-600 uppercase tracking-widest">
                         <div className="flex flex-col items-start">
                           <span className="text-[9px] md:text-[10px] text-slate-700">Main Balance</span>
-                          <span className="text-slate-900 font-mono text-xs md:text-sm mt-0.5">₹{(rawBalance - transferAmount).toFixed(2)}</span>
+                          <span className="text-slate-900 font-mono text-xs md:text-sm mt-0.5">₹{Math.max(0, rawBalance).toFixed(2)}</span>
                         </div>
                         <div className="flex flex-col items-end">
                           <span className="text-[9px] md:text-[10px] text-slate-700">Sub-Wallet</span>
                           <span className="text-red-650 font-mono text-xs md:text-sm mt-0.5">₹{transferAmount}</span>
                         </div>
                       </div>
-                      <input 
-                        type="range" 
-                        min="10" 
-                        max={Math.max(10, Math.floor(rawBalance))} 
-                        step="10" 
-                        value={transferAmount}
-                        onChange={(e) => setTransferAmount(Number(e.target.value))}
-                        className="w-full accent-red-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
-                      />
-                      
-                      {/* Percent shortcuts */}
-                      <div className="flex justify-between gap-1.5 md:gap-2">
-                        {[0.25, 0.50, 0.75, 1.00].map(pct => {
-                          const amt = Math.max(10, Math.floor(rawBalance * pct));
-                          return (
-                            <button
-                              key={pct}
-                              onClick={() => setTransferAmount(amt)}
-                              className="flex-1 py-1 px-1.5 border border-slate-200 hover:border-red-600 rounded text-[9px] md:text-[10px] font-black text-slate-700 hover:text-red-600 uppercase tracking-wider transition-colors"
-                            >
-                              {pct * 100}%
-                            </button>
-                          );
-                        })}
-                      </div>
+
+                      {rawBalance <= 0 ? (
+                        <div className="p-3 bg-amber-50 border border-amber-200 rounded-xl text-center">
+                          <p className="text-xs font-bold text-amber-800 mb-2">Main balance is currently low (₹{rawBalance.toFixed(2)}).</p>
+                          <button
+                            onClick={() => {
+                              useTradingStore.getState().deposit(10000);
+                              setTransferAmount(5000);
+                              setHasTransferred(true);
+                            }}
+                            className="w-full py-2 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-slate-950 font-black rounded-lg text-xs uppercase tracking-wider shadow cursor-pointer"
+                          >
+                            ⚡ Claim ₹10,000 Free Play Chips
+                          </button>
+                        </div>
+                      ) : (
+                        <>
+                          <input 
+                            type="range" 
+                            min="10" 
+                            max={Math.max(10, Math.floor(rawBalance))} 
+                            step="10" 
+                            value={transferAmount}
+                            onChange={(e) => setTransferAmount(Number(e.target.value))}
+                            className="w-full accent-red-600 h-1.5 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+                          />
+                          
+                          {/* Percent shortcuts */}
+                          <div className="flex justify-between gap-1.5 md:gap-2">
+                            {[0.25, 0.50, 0.75, 1.00].map(pct => {
+                              const amt = Math.max(10, Math.floor(rawBalance * pct));
+                              return (
+                                <button
+                                  key={pct}
+                                  onClick={() => setTransferAmount(amt)}
+                                  className="flex-1 py-1 px-1.5 border border-slate-200 hover:border-red-600 rounded text-[9px] md:text-[10px] font-black text-slate-700 hover:text-red-600 uppercase tracking-wider transition-colors"
+                                >
+                                  {pct * 100}%
+                                </button>
+                              );
+                            })}
+                          </div>
+                        </>
+                      )}
 
                       <div className="text-center bg-slate-50 border border-slate-200/60 p-2 md:p-3 rounded-lg">
                         <span className="text-[10px] md:text-xs font-bold text-slate-600 block uppercase tracking-widest mb-0.5 md:mb-1">Allocated Amount</span>
                         <span className="text-2xl md:text-3xl font-black text-slate-900 font-mono tracking-tighter">₹{transferAmount.toLocaleString()}</span>
                       </div>
                     </div>
-                    <div className="p-3 md:p-4 bg-slate-50 flex gap-3 md:gap-4">
+
+                    <div className="p-3 md:p-4 bg-slate-50 flex gap-3 md:gap-4 border-t border-slate-100">
                       <button 
-                        onClick={() => router.back()}
-                        className="flex-1 py-2 md:py-3 font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-wider text-xs md:text-sm"
+                        onClick={() => {
+                          setHasTransferred(true);
+                        }}
+                        className="flex-1 py-2 md:py-3 font-bold text-slate-600 hover:text-slate-900 transition-colors uppercase tracking-wider text-xs md:text-sm cursor-pointer"
                       >
-                        Cancel
+                        Play Direct
                       </button>
                       <button 
                         onClick={() => {
                           if (rawBalance < transferAmount) {
-                            alert("Insufficient balance.");
-                            return;
+                            useTradingStore.getState().deposit(10000);
                           }
                           setHasTransferred(true);
                         }}
-                        className="flex-1 py-2 md:py-3 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-xs md:text-sm"
+                        className="flex-1 py-2 md:py-3 font-black text-white bg-red-600 hover:bg-red-700 rounded-xl transition-colors uppercase tracking-wider shadow-lg shadow-red-500/20 text-xs md:text-sm cursor-pointer"
                       >
                         Transfer & Enter
                       </button>
