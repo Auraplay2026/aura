@@ -165,7 +165,7 @@ jobs:
       - name: OWASP ZAP - Staging Baseline & API Scan
         uses: zaproxy/action-baseline@v0.15.0
         with:
-          target: '${{ secrets.STAGING_APP_URL || "https://staging.auraplay.internal" }}'
+          target: "${{ secrets.STAGING_APP_URL || 'https://staging.auraplay.internal' }}"
           cmd_options: '-a -j -m 5'
           issue_title: 'ZAP Security Finding'
           fail_action: false
@@ -173,7 +173,7 @@ jobs:
       - name: Nuclei - Vulnerability & Security Header Scan
         uses: projectdiscovery/nuclei-action@main
         with:
-          target: '${{ secrets.STAGING_APP_URL || "https://staging.auraplay.internal" }}'
+          target: "${{ secrets.STAGING_APP_URL || 'https://staging.auraplay.internal' }}"
           output: 'nuclei-report.json'
           json: true
           flags: '-tags cve,misconfig,tech,ssl,headers -severity critical,high,medium'
