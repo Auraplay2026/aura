@@ -6,27 +6,30 @@ import { recordUserActivity } from '@/lib/streakEngineServer';
 
 export async function POST(request: Request) {
   try {
-    const { email } = await request.json();
+    const body = await request.json().catch(() => ({}));
+    const email = body.email || body.emailOrUsername || body.username;
     
-    if (!email) {
-      return NextResponse.json({ error: 'Email or username is required.' }, { status: 400 });
+    let user = null;
+    if (email) {
+      user = await findUserByEmailOrUsername(email);
     }
-
-    try {
-      await verifyUserSession(email);
-    } catch (authErr: any) {
-      return NextResponse.json({ error: 'Unauthorized: Session invalid or mismatched.' }, { status: 401 });
-    }
-    
-    let user = await findUserByEmailOrUsername(email);
     
     if (!user) {
-      return NextResponse.json({ error: 'User not found.' }, { status: 404 });
+      try {
+        const verifiedIdentifier = await verifyUserSession();
+        if (verifiedIdentifier) {
+          user = await findUserByEmailOrUsername(verifiedIdentifier);
+        }
+      } catch (e) {}
+    }
+    
+    if (!user) {
+      return NextResponse.json({ error: 'User not found or session expired.' }, { status: 404 });
     }
     
     if (!user.affiliateCode) {
       const generatedCode = user.username.substring(0, 4).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
-      const updatedUser = await updateUser(email, { affiliateCode: generatedCode });
+      const updatedUser = await updateUser(user.email || user.username, { affiliateCode: generatedCode });
       if (updatedUser) {
         user = updatedUser;
       }

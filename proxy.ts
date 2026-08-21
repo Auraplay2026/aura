@@ -114,43 +114,13 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  // 6. Protect Admin UI and Admin APIs with Basic Auth (if configured), but allow the public auth handshake endpoints through locally
+  // 6. Allow all public auth and admin gate UI paths through to Next.js without middleware blocking
   const publicAdminAuthPaths = ['/api/admin/auth/challenge', '/api/admin/auth/verify', '/api/admin/auth/logout'];
-  if (!publicAdminAuthPaths.includes(pathname)) {
-    const secretKey = process.env.ADMIN_SECRET_KEY;
-    if (secretKey) {
-      const basicAuth = request.headers.get('authorization');
-      let hasValidBasicAuth = false;
-
-      if (basicAuth) {
-        const authValue = basicAuth.split(' ')[1];
-        const decoded = atob(authValue);
-        const [user, pwd] = decoded.split(':');
-
-        hasValidBasicAuth = user === 'admin' && pwd === secretKey;
-      }
-
-      if (!hasValidBasicAuth) {
-        return new NextResponse('Unauthorized Admin Access', {
-          status: 401,
-          headers: {
-            'WWW-Authenticate': 'Basic realm="Secure Admin Area"',
-          },
-        });
-      }
-    }
-  }
-
-  // 7. Exclude public admin auth endpoints from JWT session requirement
-  if (
-    pathname === '/api/admin/auth/challenge' ||
-    pathname === '/api/admin/auth/verify' ||
-    pathname === '/api/admin/auth/logout'
-  ) {
+  if (publicAdminAuthPaths.includes(pathname) || pathname.startsWith('/admin')) {
     return NextResponse.next();
   }
 
-  // 8. Retrieve session cookies and verify signed JWT
+  // 7. For internal /api/admin data endpoints, verify session token if present
   const emailCookie = request.cookies.get('user_email')?.value;
   const adminToken = request.cookies.get('admin_auth_token')?.value || request.cookies.get('user_auth_token')?.value;
 
@@ -158,67 +128,30 @@ export async function proxy(request: NextRequest) {
     if (pathname.startsWith('/api/admin')) {
       return NextResponse.json({ error: 'Unauthorized: Session missing' }, { status: 401 });
     }
-    if (pathname.startsWith('/admin')) {
-      return NextResponse.next();
-    }
-    return NextResponse.redirect(new URL('/admin', request.url));
+    return NextResponse.next();
   }
 
   try {
-    // 9. Verify the signed JWT
     const payload = await verifyJWT(adminToken);
 
-    // Strict single-admin verification: only authorized admin role or admin email/username
     const isDedicatedAdmin = 
       payload.role === 'admin' || 
       payload.sub?.toLowerCase() === 'twintubrovquattro@gmail.com' || 
       payload.sub?.toLowerCase() === 'admin';
 
     if (!payload.sub || !isDedicatedAdmin) {
-      throw new Error('Identity mismatch / Unauthorized');
+      if (pathname.startsWith('/api/admin')) {
+        return NextResponse.json({ error: 'Unauthorized: Admin privileges required' }, { status: 403 });
+      }
+      return NextResponse.next();
     }
 
-    // 10. Sliding window / Session renewal (7 days)
-    const response = NextResponse.next();
-    const newExp = Math.floor(Date.now() / 1000) + 7 * 86400; // 7 days duration
-    const newPayload = {
-      sub: payload.sub,
-      role: 'admin',
-      exp: newExp,
-      iat: Math.floor(Date.now() / 1000)
-    };
-    const newToken = await signJWT(newPayload);
-
-    const isProd = process.env.NODE_ENV === 'production';
-
-    response.cookies.set('admin_auth_token', newToken, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'lax',
-      maxAge: 7 * 86400,
-      path: '/'
-    });
-
-    response.cookies.set('user_email', emailCookie || payload.sub, {
-      httpOnly: true,
-      secure: isProd,
-      sameSite: 'lax',
-      maxAge: 7 * 86400,
-      path: '/'
-    });
-
-    return response;
+    return NextResponse.next();
   } catch (err: any) {
-    console.error('Proxy administrative auth rejection:', err.message);
-    
-    // Clear cookies on failure
-    const response = pathname.startsWith('/api/admin')
-      ? NextResponse.json({ error: 'Unauthorized: ' + err.message }, { status: 401 })
-      : NextResponse.redirect(new URL('/admin', request.url));
-
-    response.cookies.set('user_email', '', { maxAge: 0, path: '/' });
-    response.cookies.set('admin_auth_token', '', { maxAge: 0, path: '/' });
-    return response;
+    if (pathname.startsWith('/api/admin')) {
+      return NextResponse.json({ error: 'Unauthorized: ' + err.message }, { status: 401 });
+    }
+    return NextResponse.next();
   }
 }
 

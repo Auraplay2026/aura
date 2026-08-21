@@ -402,6 +402,7 @@ export const useTradingStore = create<TradingState>()(
           const userIdentifier = state.currentUser.email || state.currentUser.username;
           const res = await fetch('/api/auth/me', {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: userIdentifier })
           });
@@ -431,7 +432,7 @@ export const useTradingStore = create<TradingState>()(
 
       logout: () => {
         // 1. Clear server-side httpOnly auth cookies
-        fetch('/api/auth/logout', { method: 'POST' }).catch(() => {});
+        fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
         // 2. Clear client-side state
         set({
           isLoggedIn: false,
@@ -454,6 +455,7 @@ export const useTradingStore = create<TradingState>()(
         try {
           const res = await fetch('/api/auth/signup', {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ username, email, password, accountType, referralCode })
           });
@@ -483,6 +485,7 @@ export const useTradingStore = create<TradingState>()(
         try {
           const res = await fetch('/api/auth/login', {
             method: 'POST',
+            credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ emailOrUsername, password, otp, captcha })
           });

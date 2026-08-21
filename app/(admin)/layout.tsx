@@ -43,7 +43,7 @@ function AdminSecurityGate({
     try {
       // 1. Fetch cryptographic challenge from server
       addLog("Requesting verification challenge from /api/admin/auth/challenge...");
-      const challengeRes = await fetch("/api/admin/auth/challenge");
+      const challengeRes = await fetch("/api/admin/auth/challenge", { credentials: 'include' });
       if (!challengeRes.ok) throw new Error("Challenge handshake failed");
       const challengeData = await challengeRes.json();
       const challenge = challengeData.challenge;
@@ -72,6 +72,7 @@ function AdminSecurityGate({
       addLog("Submitting credentials for dual-key authentication...");
       const verifyRes = await fetch("/api/admin/auth/verify", {
         method: "POST",
+        credentials: 'include',
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           email: targetEmail,
