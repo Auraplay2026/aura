@@ -9,7 +9,8 @@ const csr = fs.readFileSync(path.join(__dirname, '../auraplay.csr'), 'utf8');
 const postData = querystring.stringify({
   certificate_domains: 'auraplay.duckdns.org',
   certificate_validity_days: '90',
-  certificate_csr: csr
+  certificate_csr: csr,
+  strict_domains: 1
 });
 
 const req = https.request({
