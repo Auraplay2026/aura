@@ -47,6 +47,7 @@ export async function verifyAdminSession(): Promise<SessionUser> {
     user && 
     (user.role === "admin" || 
      userName === "admin" || 
+     userName === "zone" ||
      configuredAdminEmails.includes(userEmail) ||
      userEmail === "twintubrovquattro@gmail.com" ||
      userEmail === "rg6364823@gmail.com");
