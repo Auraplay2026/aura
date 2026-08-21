@@ -53,6 +53,17 @@ const gameProxyHeaders = [
 ];
 
 const nextConfig: NextConfig = {
+  compress: true,
+  poweredByHeader: false,
+  reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: [
+      'lucide-react',
+      'framer-motion',
+      'recharts',
+      '@radix-ui/react-icons'
+    ],
+  },
   async headers() {
     return [
       {
@@ -67,6 +78,7 @@ const nextConfig: NextConfig = {
   },
   output: 'standalone',
   images: {
+    formats: ['image/avif', 'image/webp'],
     remotePatterns: [
       {
         protocol: 'https',
