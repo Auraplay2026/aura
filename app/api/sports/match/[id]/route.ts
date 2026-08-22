@@ -73,15 +73,16 @@ export async function GET(
       if (cricbuzzData && cricbuzzData.match) {
         const match = cricbuzzData.match;
 
-        // CRITICAL: Override with SWR cache data to ensure synchronization
+        // WE NOW TRUST CRICBUZZ AS THE GOLD STANDARD FOR MATCH DATA.
+        // We only fall back to liveMatch if Cricbuzz is missing the data.
         if (liveMatch) {
-          if (liveMatch.seriesName) {
+          if (!match.series && liveMatch.seriesName) {
             match.series = liveMatch.seriesName;
           }
-          if (liveMatch.matchFormat) {
+          if (!match.matchType && liveMatch.matchFormat) {
             match.matchType = liveMatch.matchFormat.toUpperCase() as any;
           }
-          if (liveMatch.score && (!match.status || match.status === "Live in-play" || match.status === "Upcoming Match")) {
+          if (!match.status && liveMatch.score) {
             match.status = liveMatch.score;
           }
         }
