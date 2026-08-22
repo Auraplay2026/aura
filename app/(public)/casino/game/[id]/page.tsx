@@ -3,7 +3,7 @@
 import { useEffect, useState, useMemo, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { GAMES } from "@/lib/games";
+import { GAMES, Game } from "@/lib/games";
 import { ArrowLeft, AlertCircle, Zap, Minus, Plus, RefreshCw, Gamepad2, Play, Circle, Power, Clock, Flame, Activity, Users, Coins, Shield, Lock, Hand, BadgeInfo, MessageSquare, Sparkles } from "lucide-react";
 import { recordGameRound } from "@/lib/recordRound";
 import { useTradingStore } from "@/lib/store";
@@ -377,7 +377,22 @@ export default function GamePlayerPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const game = GAMES.find(g => g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === id.toLowerCase() || g.id.toLowerCase() === id.toLowerCase());
+  const rawId = (id || "").toLowerCase();
+  const game: Game | undefined = GAMES.find(g => 
+    g.id.toLowerCase() === rawId ||
+    g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === rawId ||
+    (rawId.includes("live-wheel") && g.id === "live-wheel-studio") ||
+    (rawId.includes("live-dealer") && g.id === "live-wheel-studio")
+  ) || (rawId.includes("live-wheel") || rawId.includes("live-dealer") ? ({
+    id: "live-wheel-studio",
+    title: "AURA Live Dream Wheel (Live Dealer)",
+    provider: "AURA Live Studio",
+    image: "/games/live_cover_crazy.png",
+    categories: ["live", "shows", "originals"],
+    rtp: 98.6,
+    players: 48500,
+    isNew: true
+  } as Game) : undefined);
 
   const isRoyalEngine = useMemo(() => {
     if (!game) return false;
@@ -791,7 +806,7 @@ export default function GamePlayerPage() {
   const showLeftSidebar = false;
 
   // DYNAMIC ROUTER
-  const isArcade = game.categories.some(cat => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat)) &&
+  const isArcade = game.categories.some((cat: string) => ["fps", "driving", "retro", "sports", "action", "puzzle", "racing", "adventure"].includes(cat)) &&
     !game.categories.includes("slots") &&
     !game.categories.includes("live") &&
     !game.categories.includes("shows") &&
