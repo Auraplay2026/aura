@@ -18,11 +18,9 @@ import { computeCricketBhav } from "./cricketBhavEngine";
 let rapidApiKeyIndex = 0;
 function getNextRapidApiKey(): string {
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.RAPIDAPI_KEY || "23b20293e1mshe44fad059a41621p1dbe64jsnd8830e845521";
-  const pool = envKeys.length > 0 ? envKeys : [
-    primary,
-    "b780f47f97msh29f5eaa4af285e8p13ed75jsn13a95482b117"
-  ];
+  const primary = process.env.RAPIDAPI_KEY || "";
+  const pool = envKeys.length > 0 ? envKeys : (primary ? [primary] : []);
+  if (pool.length === 0) return "";
   const key = pool[rapidApiKeyIndex % pool.length];
   rapidApiKeyIndex++;
   return key;
@@ -63,10 +61,9 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
 
   // Multi-key failover pool
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primaryKeys = envKeys.length > 0 ? envKeys : [
-    "23b20293e1mshe44fad059a41621p1dbe64jsnd8830e845521",
-    "b780f47f97msh29f5eaa4af285e8p13ed75jsn13a95482b117"
-  ];
+  const primary = process.env.RAPIDAPI_KEY || "";
+  const primaryKeys = envKeys.length > 0 ? envKeys : (primary ? [primary] : []);
+  if (primaryKeys.length === 0) return null;
 
   const candidateKey = getNextRapidApiKey();
   const attemptKeys = [candidateKey, ...primaryKeys.filter(k => k !== candidateKey)].slice(0, 2);

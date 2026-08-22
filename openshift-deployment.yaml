@@ -13,9 +13,9 @@ stringData:
   DATABASE_URL: "postgresql://postgres:CHANGE_THIS_PASSWORD@your-db-host.com:5432/postgres?sslmode=require"
   JWT_SECRET: "aura_super_secure_jwt_secret_key_2026_production_change_me"
   NEXTAUTH_SECRET: "aura_nextauth_secret_key_2026_production_change_me"
-  ADMIN_DEFAULT_PASSWORD: "AuraBetAdmin2026!"
-  ADMIN_SECURITY_KEY: "AURAPLAY_MASTER_SECURE_ADMIN_KEY_2026"
-  MASTER_SECURITY_KEY: "AURAPLAY_MASTER_SECURE_ADMIN_KEY_2026"
+  ADMIN_DEFAULT_PASSWORD: "CHANGE_THIS_ADMIN_PASSWORD"
+  ADMIN_SECURITY_KEY: "CHANGE_THIS_MASTER_ADMIN_KEY"
+  MASTER_SECURITY_KEY: "CHANGE_THIS_MASTER_ADMIN_KEY"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -54,10 +54,24 @@ spec:
       labels:
         app: auraplay-web
     spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 10001
+        runAsGroup: 10001
+        fsGroup: 10001
+        seccompProfile:
+          type: RuntimeDefault
       containers:
         - name: auraplay-app
-          image: ghcr.io/twintubrovquattro-ship-it/aura:latest
-          imagePullPolicy: Always
+          image: ghcr.io/twintubrovquattro-ship-it/aura:v1.0.0
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: false
+            capabilities:
+              drop:
+                - ALL
           ports:
             - containerPort: 3000
               protocol: TCP

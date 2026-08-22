@@ -190,11 +190,9 @@ function selectActiveKeyFromPool(pool: string[], currentIndex: number): string {
 let theOddsApiKeyIndex = 0;
 function getNextTheOddsApiKey(): string {
   const envKeys = (process.env.THE_ODDS_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.THE_ODDS_API_KEY || "de9bfc4aa8fa9d46c0a1f60953f87ead";
-  const pool = envKeys.length > 0 ? envKeys : [
-    primary,
-    "d6c27296167e5594ffe495a31fa5ae98"
-  ];
+  const primary = process.env.THE_ODDS_API_KEY || "";
+  const pool = envKeys.length > 0 ? envKeys : (primary ? [primary] : []);
+  if (pool.length === 0) return "";
   const key = selectActiveKeyFromPool(pool, theOddsApiKeyIndex);
   theOddsApiKeyIndex++;
   return key;
@@ -203,18 +201,9 @@ function getNextTheOddsApiKey(): string {
 let cricketDataApiKeyIndex = 0;
 function getNextCricketDataApiKey(): string {
   const envKeys = (process.env.CRICKET_DATA_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.CRICKET_DATA_API_KEY || "c3374abd-bb05-428f-a376-5db8c4fe0432";
-  const pool = envKeys.length > 0 ? envKeys : [
-    primary,
-    "1359008b-e864-4fcf-a99a-88ab57b497bc",
-    "7b1e70ce-23cf-4be7-ab64-1203d418ea87",
-    "88fd1632-7996-4ec0-9f58-472643ce196f",
-    "0e01087f-c8a9-4d22-a546-7e604e0179dd",
-    "24bbe670-1816-48b0-9f94-5dd33d2355dd",
-    "8cf7e88e-ac7b-4663-9c65-5b853c9ce668",
-    "9c5c909a-b343-457b-8095-b802ab1f3c97",
-    "35569c71-2371-4ade-ab3c-87e23db7094c"
-  ];
+  const primary = process.env.CRICKET_DATA_API_KEY || "";
+  const pool = envKeys.length > 0 ? envKeys : (primary ? [primary] : []);
+  if (pool.length === 0) return "";
   const key = selectActiveKeyFromPool(pool, cricketDataApiKeyIndex);
   cricketDataApiKeyIndex++;
   return key;
@@ -223,11 +212,9 @@ function getNextCricketDataApiKey(): string {
 let footballDataApiKeyIndex = 0;
 function getNextFootballDataApiKey(): string {
   const envKeys = (process.env.FOOTBALL_DATA_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.FOOTBALL_DATA_API_KEY || "7ced108dbd804a13946717f5777f8a23";
-  const pool = envKeys.length > 0 ? envKeys : [
-    primary,
-    "087fef3fafcf4abc906449499f95ddba"
-  ];
+  const primary = process.env.FOOTBALL_DATA_API_KEY || "";
+  const pool = envKeys.length > 0 ? envKeys : (primary ? [primary] : []);
+  if (pool.length === 0) return "";
   const key = selectActiveKeyFromPool(pool, footballDataApiKeyIndex);
   footballDataApiKeyIndex++;
   return key;
@@ -236,11 +223,9 @@ function getNextFootballDataApiKey(): string {
 let apiSportsKeyIndex = 0;
 function getNextApiSportsKey(): string {
   const envKeys = (process.env.API_SPORTS_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.API_SPORTS_KEY || "96904f06f16dcd156d0ab2d5b4cce652";
-  const pool = envKeys.length > 0 ? envKeys : [
-    primary,
-    "9ee5a55395a1e3c898f96dcf1325535a"
-  ];
+  const primary = process.env.API_SPORTS_KEY || "";
+  const pool = envKeys.length > 0 ? envKeys : (primary ? [primary] : []);
+  if (pool.length === 0) return "";
   const key = selectActiveKeyFromPool(pool, apiSportsKeyIndex);
   apiSportsKeyIndex++;
   return key;
@@ -249,11 +234,9 @@ function getNextApiSportsKey(): string {
 let rapidApiKeyIndex = 0;
 function getNextRapidApiKey(): string {
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.RAPIDAPI_KEY || "23b20293e1mshe44fad059a41621p1dbe64jsnd8830e845521";
-  const pool = envKeys.length > 0 ? envKeys : [
-    primary,
-    "b780f47f97msh29f5eaa4af285e8p13ed75jsn13a95482b117"
-  ];
+  const primary = process.env.RAPIDAPI_KEY || "";
+  const pool = envKeys.length > 0 ? envKeys : (primary ? [primary] : []);
+  if (pool.length === 0) return "";
   const key = selectActiveKeyFromPool(pool, rapidApiKeyIndex);
   rapidApiKeyIndex++;
   return key;
