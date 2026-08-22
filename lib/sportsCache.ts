@@ -1,4 +1,4 @@
-import { generateMatches, Match } from "./sportsData";
+import { Match } from "./sportsData";
 import { computeCricketBhav, normalizeCanonicalTeamName, isFuzzyMatch } from "./cricketBhavEngine";
 
 // Extended Match type to support optional logos and sport classification
@@ -190,17 +190,10 @@ function selectActiveKeyFromPool(pool: string[], currentIndex: number): string {
 let theOddsApiKeyIndex = 0;
 function getNextTheOddsApiKey(): string {
   const envKeys = (process.env.THE_ODDS_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.THE_ODDS_API_KEY || "42dc192b2fa3031f2039ba2140e2cd9e";
+  const primary = process.env.THE_ODDS_API_KEY || "de9bfc4aa8fa9d46c0a1f60953f87ead";
   const pool = envKeys.length > 0 ? envKeys : [
     primary,
-    "2b606a45113ec6e302fc09e55c8b12ac",
-    "e517f90375315e5baf00a63d14b7b721",
-    "9bd47b2893228bc90a9a08ace8446b78",
-    "32dab68e02f15ef900cefa1f3d4c4441",
-    "cbe53b8dfae0dc2218f78dfc37d8b501",
-    "c7e97483b18c4c56213b289ca59fa85c",
-    "d9be5e2b804ce010dc36c3ead1adf0b8",
-    "9316234b7af21237fa9b09aeac7810f5"
+    "d6c27296167e5594ffe495a31fa5ae98"
   ];
   const key = selectActiveKeyFromPool(pool, theOddsApiKeyIndex);
   theOddsApiKeyIndex++;
@@ -210,9 +203,12 @@ function getNextTheOddsApiKey(): string {
 let cricketDataApiKeyIndex = 0;
 function getNextCricketDataApiKey(): string {
   const envKeys = (process.env.CRICKET_DATA_API_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.CRICKET_DATA_API_KEY || "88fd1632-7996-4ec0-9f58-472643ce196f";
+  const primary = process.env.CRICKET_DATA_API_KEY || "c3374abd-bb05-428f-a376-5db8c4fe0432";
   const pool = envKeys.length > 0 ? envKeys : [
     primary,
+    "1359008b-e864-4fcf-a99a-88ab57b497bc",
+    "7b1e70ce-23cf-4be7-ab64-1203d418ea87",
+    "88fd1632-7996-4ec0-9f58-472643ce196f",
     "0e01087f-c8a9-4d22-a546-7e604e0179dd",
     "24bbe670-1816-48b0-9f94-5dd33d2355dd",
     "8cf7e88e-ac7b-4663-9c65-5b853c9ce668",
@@ -253,15 +249,10 @@ function getNextApiSportsKey(): string {
 let rapidApiKeyIndex = 0;
 function getNextRapidApiKey(): string {
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.RAPIDAPI_KEY || "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad";
+  const primary = process.env.RAPIDAPI_KEY || "23b20293e1mshe44fad059a41621p1dbe64jsnd8830e845521";
   const pool = envKeys.length > 0 ? envKeys : [
     primary,
-    "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b",
-    "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
-    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
-    "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089",
-    "335d4879acmshafd4283adf58d93p1f039djsn3ea3ec67896e",
-    "2e07fae15amsh48bdcaa2cfd2b30p177f0fjsnb9ca4e10011d"
+    "b780f47f97msh29f5eaa4af285e8p13ed75jsn13a95482b117"
   ];
   const key = selectActiveKeyFromPool(pool, rapidApiKeyIndex);
   rapidApiKeyIndex++;
@@ -273,11 +264,47 @@ async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]
   const apiKey = getNextTheOddsApiKey();
   
   const sportKeyMap: Record<string, string[]> = {
-    soccer: ["soccer_epl", "soccer_spain_la_liga", "soccer_germany_bundesliga", "soccer_uefa_champs_league"],
-    football: ["soccer_epl", "soccer_spain_la_liga", "soccer_germany_bundesliga", "soccer_uefa_champs_league"],
-    cricket: ["cricket_test_match", "cricket_the_hundred", "cricket_the_hundred_womens", "cricket_caribbean_premier_league"],
-    basketball: ["basketball_nba", "basketball_euroleague"],
-    tennis: ["tennis_atp_cincinnati_open", "tennis_wta_cincinnati_open", "tennis_atp_us_open", "tennis_wta_us_open"]
+    soccer: [
+      "soccer_epl",
+      "soccer_spain_la_liga",
+      "soccer_germany_bundesliga",
+      "soccer_uefa_champs_league",
+      "soccer_italy_serie_a",
+      "soccer_france_ligue_one",
+      "soccer_conmebol_copa_libertadores",
+      "soccer_usa_mls"
+    ],
+    football: [
+      "soccer_epl",
+      "soccer_spain_la_liga",
+      "soccer_germany_bundesliga",
+      "soccer_uefa_champs_league",
+      "soccer_italy_serie_a",
+      "soccer_france_ligue_one",
+      "soccer_conmebol_copa_libertadores",
+      "soccer_usa_mls"
+    ],
+    cricket: [
+      "cricket_test_matches",
+      "cricket_odi",
+      "cricket_t20_blast",
+      "cricket_caribbean_premier_league",
+      "cricket_ipl",
+      "cricket_international_t20",
+      "cricket_psl",
+      "cricket_big_bash",
+      "cricket_the_hundred",
+      "cricket_the_hundred_womens"
+    ],
+    basketball: ["basketball_nba", "basketball_euroleague", "basketball_wnba"],
+    tennis: [
+      "tennis_atp_us_open",
+      "tennis_wta_us_open",
+      "tennis_atp_cincinnati_open",
+      "tennis_wta_cincinnati_open",
+      "tennis_atp_wimbledon",
+      "tennis_wta_wimbledon"
+    ]
   };
 
   const targetKeys = sportKeyMap[sportKey.toLowerCase()] || ["soccer_epl"];
@@ -289,7 +316,7 @@ async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]
         const keyToUse = getNextTheOddsApiKey();
         const res = await fetch(`https://api.the-odds-api.com/v4/sports/${key}/odds/?apiKey=${keyToUse}&regions=eu,uk,us&markets=h2h`, {
           headers: { "User-Agent": "AuraPlay-TheOddsApiEngine/3.0" },
-          signal: AbortSignal.timeout(2500),
+          signal: AbortSignal.timeout(5000),
           next: { revalidate: 60 }
         });
         if (res.status === 429 || res.status === 403) {
@@ -340,15 +367,10 @@ async function fetchTheOddsApiMatches(sportKey: string): Promise<ExtendedMatch[]
       }
 
       const dateStr = commenceTime.toISOString().split("T")[0];
-      const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const displayDate = `${DAYS[commenceTime.getDay()]}, ${commenceTime.getDate()} ${MONTHS[commenceTime.getMonth()]} ${commenceTime.getFullYear()}`;
-      
-      const hr = commenceTime.getHours();
-      const mn = String(commenceTime.getMinutes()).padStart(2, "0");
-      const ampm = hr >= 12 ? "PM" : "AM";
-      const displayHr = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr;
-      const timeStr = `${String(displayHr).padStart(2, "0")}:${mn} ${ampm}`;
+      const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", year: "numeric" };
+      const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true };
+      const displayDate = commenceTime.toLocaleDateString("en-IN", dateOptions);
+      const timeStr = commenceTime.toLocaleTimeString("en-IN", timeOptions);
 
       let numericId = 0;
       const idStr = String(item.id || `${team1}_${team2}_${dateStr}`);
@@ -686,7 +708,7 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
   try {
     const res = await fetch(`https://api.cricapi.com/v1/currentMatches?apikey=${apiKey}&offset=0`, {
       headers: { "User-Agent": "AuraPlay-LiveCricketEngine/3.0" },
-      signal: AbortSignal.timeout(2500),
+      signal: AbortSignal.timeout(5000),
       next: { revalidate: 30 }
     });
     if (res.status === 429 || res.status === 403) {
@@ -731,17 +753,12 @@ async function fetchCricketDataOrgMatches(): Promise<ExtendedMatch[]> {
       const o2 = bhavData.odds.team2Back;
       const oDraw = matchFormat === "TEST" ? 3.80 : null;
 
-      const matchDateObj = m.dateTimeGMT ? new Date(m.dateTimeGMT + "Z") : new Date();
+      const matchDateObj = m.dateTimeGMT ? new Date(m.dateTimeGMT + "Z") : (m.date ? new Date(m.date) : new Date());
       const dateStr = matchDateObj.toISOString().split("T")[0];
-      const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-      const displayDate = `${DAYS[matchDateObj.getDay()]}, ${matchDateObj.getDate()} ${MONTHS[matchDateObj.getMonth()]} ${matchDateObj.getFullYear()}`;
-      
-      const hr = matchDateObj.getHours();
-      const mn = String(matchDateObj.getMinutes()).padStart(2, "0");
-      const ampm = hr >= 12 ? "PM" : "AM";
-      const displayHr = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr;
-      const timeStr = `${String(displayHr).padStart(2, "0")}:${mn} ${ampm}`;
+      const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", year: "numeric" };
+      const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true };
+      const displayDate = matchDateObj.toLocaleDateString("en-IN", dateOptions);
+      const timeStr = matchDateObj.toLocaleTimeString("en-IN", timeOptions);
 
       let numericId = 0;
       const idStr = String(m.id);
@@ -793,7 +810,7 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
             "x-rapidapi-host": apiHost,
             "User-Agent": "AuraPlay-CricbuzzRapidEngine/3.0"
           },
-          signal: AbortSignal.timeout(2500),
+          signal: AbortSignal.timeout(5000),
           next: { revalidate: 30 }
         }).then(r => {
           if (r.status === 429 || r.status === 403) {
@@ -855,15 +872,10 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
 
             const matchDateObj = info.startDate ? new Date(parseInt(info.startDate)) : new Date();
             const dateStr = matchDateObj.toISOString().split("T")[0];
-            const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-            const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-            const displayDate = `${DAYS[matchDateObj.getDay()]}, ${matchDateObj.getDate()} ${MONTHS[matchDateObj.getMonth()]} ${matchDateObj.getFullYear()}`;
-            
-            const hr = matchDateObj.getHours();
-            const mn = String(matchDateObj.getMinutes()).padStart(2, "0");
-            const ampm = hr >= 12 ? "PM" : "AM";
-            const displayHr = hr > 12 ? hr - 12 : hr === 0 ? 12 : hr;
-            const timeStr = `${String(displayHr).padStart(2, "0")}:${mn} ${ampm}`;
+            const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", year: "numeric" };
+            const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true };
+            const displayDate = matchDateObj.toLocaleDateString("en-IN", dateOptions);
+            const timeStr = matchDateObj.toLocaleTimeString("en-IN", timeOptions);
 
             parsed.push({
               id: matchId,
@@ -1192,63 +1204,46 @@ export async function fetchCricketMatches(): Promise<ExtendedMatch[]> {
   return [];
 }
 
-// Post-Processing: Decorates matches with standardized logos, dates, times, and formats
+// Post-Processing: Decorates genuine matches with standardized logos and clean fallbacks without altering real schedules
 function postProcessMatches(matches: ExtendedMatch[], sportKey: string): ExtendedMatch[] {
-  const baseDate = new Date();
-  const DAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const isSoccer = sportKey === "soccer" || sportKey === "football";
+  const isCricket = sportKey === "cricket";
 
-  return matches.map((m, idx) => {
-    const isSoccer = m.sport === "soccer" || sportKey === "soccer" || sportKey === "football";
-    const isCricket = m.sport === "cricket" || sportKey === "cricket";
-    
-    let fallback1 = "";
-    let fallback2 = "";
-    if (isSoccer) {
-      fallback1 = `https://a.espncdn.com/i/teamlogos/soccer/500/default-soccer.png`;
-      fallback2 = `https://a.espncdn.com/i/teamlogos/soccer/500/default-soccer.png`;
-    } else if (isCricket) {
-      fallback1 = `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`;
-      fallback2 = `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`;
-    } else {
-      fallback1 = `https://a.espncdn.com/i/teamlogos/default-team-logo-500.png`;
-      fallback2 = `https://a.espncdn.com/i/teamlogos/default-team-logo-500.png`;
-    }
+  return matches
+    .filter(m => m.team1 && m.team2 && m.team1.trim() !== "" && m.team2.trim() !== "")
+    .map((m) => {
+      let fallback1 = "";
+      let fallback2 = "";
+      if (m.sport === "soccer" || isSoccer) {
+        fallback1 = `https://a.espncdn.com/i/teamlogos/soccer/500/default-soccer.png`;
+        fallback2 = `https://a.espncdn.com/i/teamlogos/soccer/500/default-soccer.png`;
+      } else if (m.sport === "cricket" || isCricket) {
+        fallback1 = `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`;
+        fallback2 = `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`;
+      } else {
+        fallback1 = `https://a.espncdn.com/i/teamlogos/default-team-logo-500.png`;
+        fallback2 = `https://a.espncdn.com/i/teamlogos/default-team-logo-500.png`;
+      }
 
-    const isLive = m.status === "Live";
-    const dayOffset = isLive ? 0 : (idx % 7);
-    const targetDate = new Date(baseDate);
-    targetDate.setDate(baseDate.getDate() + dayOffset);
+      const now = new Date();
+      const dateOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", weekday: "short", day: "numeric", month: "short", year: "numeric" };
+      const timeOptions: Intl.DateTimeFormatOptions = { timeZone: "Asia/Kolkata", hour: "2-digit", minute: "2-digit", hour12: true };
+      const defaultDisplayDate = now.toLocaleDateString("en-IN", dateOptions);
+      const defaultTimeStr = now.toLocaleTimeString("en-IN", timeOptions);
+      const defaultDateStr = now.toISOString().split("T")[0];
 
-    const year = targetDate.getFullYear();
-    const month = String(targetDate.getMonth() + 1).padStart(2, "0");
-    const dayNum = String(targetDate.getDate()).padStart(2, "0");
-    const autoDateStr = `${year}-${month}-${dayNum}`;
-    const autoDisplayDate = `${DAYS[targetDate.getDay()]}, ${targetDate.getDate()} ${MONTHS[targetDate.getMonth()]} ${year}`;
-
-    const hours = [10, 13, 15, 17, 19, 20, 22];
-    const minutes = ["00", "30"];
-    const hour = hours[idx % hours.length];
-    const min = minutes[idx % minutes.length];
-    const ampm = hour >= 12 ? "PM" : "AM";
-    const displayHour = hour > 12 ? hour - 12 : hour === 0 ? 12 : hour;
-    const autoTimeStr = `${String(displayHour).padStart(2, "0")}:${min} ${ampm}`;
-
-    const autoSeries = m.seriesName || (isCricket ? "The Hundred 2026" : isSoccer ? "Premier League 2026" : m.sport === "tennis" ? "ATP Western & Southern Open" : "NBA Championship");
-    const autoFormat = m.matchFormat || (isCricket ? "T20" : isSoccer ? "EPL" : m.sport === "tennis" ? "ATP" : "NBA");
-
-    return {
-      ...m,
-      team1Logo: m.team1Logo || fallback1,
-      team2Logo: m.team2Logo || fallback2,
-      dateStr: m.dateStr || autoDateStr,
-      displayDate: m.displayDate || autoDisplayDate,
-      timeStr: m.timeStr || autoTimeStr,
-      seriesName: autoSeries,
-      matchFormat: autoFormat,
-      sport: m.sport || sportKey
-    };
-  });
+      return {
+        ...m,
+        team1Logo: m.team1Logo || fallback1,
+        team2Logo: m.team2Logo || fallback2,
+        dateStr: m.dateStr || defaultDateStr,
+        displayDate: m.displayDate || (m.status === "Live" ? "Live Today" : defaultDisplayDate),
+        timeStr: m.timeStr || (m.status === "Live" ? "In-Play" : defaultTimeStr),
+        seriesName: m.seriesName || (isCricket ? "International & Domestic Cricket" : isSoccer ? "Premier League / International" : "Live Sports Championship"),
+        matchFormat: m.matchFormat || (isCricket ? "T20" : isSoccer ? "EPL" : m.sport === "tennis" ? "ATP" : "PRO"),
+        sport: m.sport || sportKey
+      };
+    });
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1260,27 +1255,15 @@ async function executeFreshFetch(sport: string): Promise<ExtendedMatch[]> {
 
   if (sport === "soccer" || sport === "football") {
     matches = await fetchSoccerMatches();
-    if (matches.length === 0) {
-      matches = generateMatches("soccer", 15);
-    }
     matches = matches.map(m => ({ ...m, sport: "soccer" }));
   } else if (sport === "basketball") {
     matches = await fetchBasketballMatches();
-    if (matches.length === 0) {
-      matches = generateMatches("basketball", 12);
-    }
     matches = matches.map(m => ({ ...m, sport: "basketball" }));
   } else if (sport === "tennis") {
     matches = await fetchTennisMatches();
-    if (matches.length === 0) {
-      matches = generateMatches("tennis", 10);
-    }
     matches = matches.map(m => ({ ...m, sport: "tennis" }));
   } else if (sport === "cricket") {
     matches = await fetchCricketMatches();
-    if (matches.length === 0) {
-      matches = generateMatches("cricket", 10);
-    }
     matches = matches.map(m => ({ ...m, sport: "cricket" }));
   } else {
     // "all"
@@ -1296,14 +1279,6 @@ async function executeFreshFetch(sport: string): Promise<ExtendedMatch[]> {
       ...ten.map(m => ({ ...m, sport: "tennis" })),
       ...cri.map(m => ({ ...m, sport: "cricket" }))
     ];
-    if (matches.length === 0) {
-      matches = [
-        ...generateMatches("soccer", 5).map(m => ({ ...m, sport: "soccer" })),
-        ...generateMatches("basketball", 5).map(m => ({ ...m, sport: "basketball" })),
-        ...generateMatches("tennis", 5).map(m => ({ ...m, sport: "tennis" })),
-        ...generateMatches("cricket", 5).map(m => ({ ...m, sport: "cricket" }))
-      ];
-    }
   }
 
   return postProcessMatches(matches, sport);

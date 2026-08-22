@@ -18,15 +18,10 @@ import { computeCricketBhav } from "./cricketBhavEngine";
 let rapidApiKeyIndex = 0;
 function getNextRapidApiKey(): string {
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
-  const primary = process.env.RAPIDAPI_KEY || "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad";
+  const primary = process.env.RAPIDAPI_KEY || "23b20293e1mshe44fad059a41621p1dbe64jsnd8830e845521";
   const pool = envKeys.length > 0 ? envKeys : [
     primary,
-    "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b",
-    "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
-    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
-    "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089",
-    "335d4879acmshafd4283adf58d93p1f039djsn3ea3ec67896e",
-    "2e07fae15amsh48bdcaa2cfd2b30p177f0fjsnb9ca4e10011d"
+    "b780f47f97msh29f5eaa4af285e8p13ed75jsn13a95482b117"
   ];
   const key = pool[rapidApiKeyIndex % pool.length];
   rapidApiKeyIndex++;
@@ -69,13 +64,8 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
   // Multi-key failover pool
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
   const primaryKeys = envKeys.length > 0 ? envKeys : [
-    "993b54f1e9msh46b7978eb8fb83dp10055bjsn7c66e8fc81ad",
-    "370864b214mshff1e2476506b9e1p1a1464jsnc8a40a492a6b",
-    "530aad202amshc8ff0f3cc41ec26p16b964jsn5ee93ec4d4f8",
-    "377a3d1ccamsh2896888eb2461d4p1a7aaejsn10be83998bd4",
-    "777c188854mshfb0d83a60641d76p1164f0jsnb0ce5f5ff089",
-    "335d4879acmshafd4283adf58d93p1f039djsn3ea3ec67896e",
-    "2e07fae15amsh48bdcaa2cfd2b30p177f0fjsnb9ca4e10011d"
+    "23b20293e1mshe44fad059a41621p1dbe64jsnd8830e845521",
+    "b780f47f97msh29f5eaa4af285e8p13ed75jsn13a95482b117"
   ];
 
   const candidateKey = getNextRapidApiKey();
@@ -91,7 +81,7 @@ async function fetchCricbuzzEndpoint(path: string): Promise<any> {
           "x-rapidapi-host": RAPIDAPI_HOST,
           "User-Agent": "AuraPlay-LiveCricketEngine/3.0"
         },
-        signal: AbortSignal.timeout(2500),
+        signal: AbortSignal.timeout(5000),
         next: { revalidate: 10 }
       });
 
