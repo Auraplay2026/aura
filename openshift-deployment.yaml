@@ -10,12 +10,12 @@ metadata:
   namespace: auraplay-production
 type: Opaque
 stringData:
-  DATABASE_URL: "postgresql://postgres:CHANGE_THIS_PASSWORD@your-db-host.com:5432/postgres?sslmode=require"
-  JWT_SECRET: "aura_super_secure_jwt_secret_key_2026_production_change_me"
-  NEXTAUTH_SECRET: "aura_nextauth_secret_key_2026_production_change_me"
-  ADMIN_DEFAULT_PASSWORD: "CHANGE_THIS_ADMIN_PASSWORD"
-  ADMIN_SECURITY_KEY: "CHANGE_THIS_MASTER_ADMIN_KEY"
-  MASTER_SECURITY_KEY: "CHANGE_THIS_MASTER_ADMIN_KEY"
+  DATABASE_URL: "postgresql://user:password@localhost:5432/aura"
+  JWT_SECRET: "placeholder-jwt-secret-replace-in-production"
+  NEXTAUTH_SECRET: "placeholder-nextauth-secret-replace-in-production"
+  ADMIN_DEFAULT_PASSWORD: "placeholder-admin-password"
+  ADMIN_SECURITY_KEY: "placeholder-admin-key"
+  MASTER_SECURITY_KEY: "placeholder-master-key"
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -138,3 +138,22 @@ spec:
   tls:
     termination: edge
     insecureEdgeTerminationPolicy: Redirect
+---
+apiVersion: networking.k8s.io/v1
+kind: NetworkPolicy
+metadata:
+  name: auraplay-network-policy
+  namespace: auraplay-production
+spec:
+  podSelector:
+    matchLabels:
+      app: auraplay-web
+  policyTypes:
+    - Ingress
+    - Egress
+  ingress:
+    - ports:
+        - protocol: TCP
+          port: 3000
+  egress:
+    - {}
