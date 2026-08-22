@@ -50,3 +50,27 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
+      - name: Trigger OpenShift Rolling Restart
+        if: success()
+        continue-on-error: true
+        env:
+          OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+          OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+          OPENSHIFT_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE || 'auraplay-production' }}
+        run: |
+          if [ -z "$OPENSHIFT_SERVER" ] || [ -z "$OPENSHIFT_TOKEN" ]; then
+            echo "::warning::OPENSHIFT_SERVER or OPENSHIFT_TOKEN not set. Skipping rollout restart."
+            echo "To enable auto-deploy, add OPENSHIFT_SERVER and OPENSHIFT_TOKEN as GitHub Secrets."
+            exit 0
+          fi
+
+          # Install oc CLI
+          curl -sL https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz | tar xz
+          chmod +x oc
+
+          # Login and restart
+          ./oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify=true
+          ./oc rollout restart deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE"
+          ./oc rollout status deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE" --timeout=120s
+          echo "✅ Rollout restart completed successfully."
+
