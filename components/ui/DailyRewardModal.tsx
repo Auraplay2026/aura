@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTradingStore } from "@/lib/store";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Calendar, Gift, Sparkles, CheckCircle2, RotateCw } from "lucide-react";
+import { X, Calendar, Gift, Sparkles, CheckCircle2, RotateCw, Clock, Trophy, AlertCircle } from "lucide-react";
 import { ConfettiCanvas } from "./ConfettiCanvas";
 import { usePathname } from "next/navigation";
 import { playGameSound } from "@/lib/audio";
@@ -32,9 +32,46 @@ export function DailyRewardModal() {
   const [prizeWon, setPrizeWon] = useState<string | null>(null);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isClaiming, setIsClaiming] = useState(false);
+  const [feedbackNotice, setFeedbackNotice] = useState<string | null>(null);
+  const [timeToNextReset, setTimeToNextReset] = useState("");
 
   const spinIntervalRef = useRef<NodeJS.Timeout | null>(null);
   const spinTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Live countdown to next midnight IST (00:00:00 Asia/Kolkata)
+  useEffect(() => {
+    const updateCountdown = () => {
+      try {
+        const now = new Date();
+        const istFormatter = new Intl.DateTimeFormat('en-US', {
+          timeZone: 'Asia/Kolkata',
+          hour: 'numeric',
+          minute: 'numeric',
+          second: 'numeric',
+          hour12: false
+        });
+        const parts = istFormatter.formatToParts(now);
+        const hours = parseInt(parts.find(p => p.type === 'hour')?.value || '0', 10);
+        const minutes = parseInt(parts.find(p => p.type === 'minute')?.value || '0', 10);
+        const seconds = parseInt(parts.find(p => p.type === 'second')?.value || '0', 10);
+
+        const secondsPassedToday = (hours % 24) * 3600 + minutes * 60 + seconds;
+        const secondsUntilMidnight = (24 * 3600) - secondsPassedToday;
+
+        const h = Math.floor(secondsUntilMidnight / 3600);
+        const m = Math.floor((secondsUntilMidnight % 3600) / 60);
+        const s = secondsUntilMidnight % 60;
+
+        setTimeToNextReset(`${String(h).padStart(2, '0')}h ${String(m).padStart(2, '0')}m ${String(s).padStart(2, '0')}s`);
+      } catch (e) {
+        setTimeToNextReset("Midnight IST");
+      }
+    };
+
+    updateCountdown();
+    const interval = setInterval(updateCountdown, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     if (isLoggedIn && currentUser) {
@@ -57,7 +94,6 @@ export function DailyRewardModal() {
       if (dailyModalLastDismissedDate === todayStr) return;
 
       if (!claimedToday || !spinWheelClaimedToday) {
-        // Delay slightly for premium entrance
         const timer = setTimeout(() => {
           setIsOpen(true);
           if (claimedToday && !spinWheelClaimedToday) {
@@ -73,11 +109,14 @@ export function DailyRewardModal() {
   useEffect(() => {
     const handleOpen = () => {
       setIsOpen(true);
-      setActiveTab("streak");
+      setFeedbackNotice(null);
+      if (isLoggedIn && currentUser) {
+        fetchStreakStatus();
+      }
     };
     window.addEventListener("open-daily-reward", handleOpen);
     return () => window.removeEventListener("open-daily-reward", handleOpen);
-  }, []);
+  }, [isLoggedIn, currentUser, fetchStreakStatus]);
 
   const DAILY_REWARDS = [50, 100, 200, 350, 500, 1000, 5000];
   const WHEEL_SECTORS = [
@@ -117,32 +156,41 @@ export function DailyRewardModal() {
   };
 
   const spinWheel = () => {
-    if (isSpinning || spinWheelClaimedToday) return;
+    if (isSpinning) return;
+    if (spinWheelClaimedToday) {
+      setFeedbackNotice(`You already spun today! Next Lucky Spin unlocks in ${timeToNextReset} (Midnight IST).`);
+      return;
+    }
+    
     setIsSpinning(true);
     setPrizeWon(null);
+    setFeedbackNotice(null);
 
-    // Play arcade tick-tick sound via Web Audio API while spinning
+    // Web Audio tick sound
     if (soundEnabled !== false) {
       try {
-        const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-        let ticks = 0;
-        spinIntervalRef.current = setInterval(() => {
-          if (ticks > 40) {
-            if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
-            return;
-          }
-          ticks++;
-          const osc = audioCtx.createOscillator();
-          const gain = audioCtx.createGain();
-          osc.connect(gain);
-          gain.connect(audioCtx.destination);
-          osc.type = "sine";
-          osc.frequency.setValueAtTime(800 - ticks * 10, audioCtx.currentTime);
-          gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-          osc.start();
-          osc.stop(audioCtx.currentTime + 0.05);
-        }, 120);
+        const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
+        if (AudioContextClass) {
+          const audioCtx = new AudioContextClass();
+          let ticks = 0;
+          spinIntervalRef.current = setInterval(() => {
+            if (ticks > 35) {
+              if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
+              return;
+            }
+            ticks++;
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.type = "sine";
+            osc.frequency.setValueAtTime(800 - ticks * 12, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+          }, 130);
+        }
       } catch (e) {}
     }
 
@@ -153,12 +201,12 @@ export function DailyRewardModal() {
     const newRotation = wheelRotation + 360 * 5 - prizeIndex * sectorAngle - sectorAngle / 2;
     setWheelRotation(newRotation);
 
-    spinTimeoutRef.current = setTimeout(() => {
+    spinTimeoutRef.current = setTimeout(async () => {
       setIsSpinning(false);
       if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
 
-      // Claim prize
-      spinWheelClaimed(sector.prize, `Won ${sector.label} on Spin Wheel`, prizeIndex);
+      // Claim prize on server
+      await spinWheelClaimed(sector.prize, `Won ${sector.label} on Spin Wheel`, prizeIndex);
       if (sector.prize === 0) {
         useTradingStore.setState((s) => ({ xp: (s.xp || 0) + 500 }));
       }
@@ -167,7 +215,6 @@ export function DailyRewardModal() {
       setShowConfetti(true);
       playGameSound(sector.prize >= 1000 ? 'jackpot' : 'win');
 
-      // Achievements triggers
       if (sector.prize >= 5000) {
         unlockAchievement("jackpot_hunter");
       }
@@ -176,7 +223,12 @@ export function DailyRewardModal() {
 
   const handleClaimDaily = async () => {
     if (isClaiming) return;
+    if (claimedToday) {
+      setFeedbackNotice(`Day ${streakCount} reward is already claimed! Next streak reward unlocks in ${timeToNextReset}.`);
+      return;
+    }
     setIsClaiming(true);
+    setFeedbackNotice(null);
     try {
       await claimDailyReward();
       setShowConfetti(true);
@@ -185,11 +237,8 @@ export function DailyRewardModal() {
         setIsClaiming(false);
         if (!spinWheelClaimedToday) {
           setActiveTab("wheel");
-        } else {
-          setIsOpen(false);
-          dismissDailyModal();
         }
-      }, 2500);
+      }, 2000);
     } catch (err) {
       console.error("Daily reward claim failed", err);
       setIsClaiming(false);
@@ -200,15 +249,15 @@ export function DailyRewardModal() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-white/80 backdrop-blur-md">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
         <ConfettiCanvas active={showConfetti} onComplete={() => setShowConfetti(false)} />
 
         <motion.div
-          initial={{ opacity: 0, scale: 0.9, y: 30 }}
+          initial={{ opacity: 0, scale: 0.92, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.9, y: 30 }}
-          transition={{ type: "spring", damping: 20 }}
-          className="w-full max-w-2xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border border-slate-200 rounded-[32px] overflow-hidden shadow-[0_0_80px_rgba(168,85,247,0.15)] relative flex flex-col max-h-[95vh]"
+          exit={{ opacity: 0, scale: 0.92, y: 20 }}
+          transition={{ type: "spring", damping: 22 }}
+          className="w-full max-w-xl bg-slate-900 border border-slate-700/80 rounded-3xl overflow-hidden shadow-[0_15px_60px_rgba(0,0,0,0.8)] relative flex flex-col max-h-[92vh] text-white font-sans"
         >
           {/* Close button */}
           <button
@@ -216,85 +265,111 @@ export function DailyRewardModal() {
               setIsOpen(false);
               dismissDailyModal();
             }}
-            className="absolute top-6 right-6 w-10 h-10 rounded-full bg-slate-50/50 hover:bg-slate-50 text-slate-600 hover:text-slate-900 flex items-center justify-center transition-colors z-10"
+            className="absolute top-5 right-5 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-colors z-20 cursor-pointer border border-slate-700"
+            aria-label="Close daily rewards"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" />
           </button>
 
           {/* Header tabs */}
-          <div className="flex border-b border-slate-200 shrink-0 bg-white/40 p-4 gap-2">
+          <div className="flex border-b border-slate-800 bg-slate-950/70 p-3.5 gap-2 shrink-0">
             <button
-              onClick={() => setActiveTab("streak")}
-              className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+              onClick={() => { setActiveTab("streak"); setFeedbackNotice(null); }}
+              className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "streak"
-                  ? "bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/40"
+                  ? "bg-indigo-600 text-white shadow-lg shadow-indigo-600/30 border border-indigo-400/30"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
               }`}
             >
-              <Calendar className="w-4 h-4" />
-              Daily Streak
+              <Calendar className="w-3.5 h-3.5" />
+              Daily Streak {claimedToday && "✓"}
             </button>
             <button
-              onClick={() => setActiveTab("wheel")}
-              className={`flex-1 py-3 px-4 rounded-xl font-black text-sm uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${
+              onClick={() => { setActiveTab("wheel"); setFeedbackNotice(null); }}
+              className={`flex-1 py-2.5 px-4 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 transition-all cursor-pointer ${
                 activeTab === "wheel"
-                  ? "bg-purple-600 text-slate-900 shadow-[0_0_15px_rgba(168,85,247,0.4)]"
-                  : "text-slate-600 hover:text-slate-900 hover:bg-slate-50/40"
+                  ? "bg-purple-600 text-white shadow-lg shadow-purple-600/30 border border-purple-400/30"
+                  : "text-slate-400 hover:text-white hover:bg-slate-800/60"
               }`}
             >
-              <RotateCw className="w-4 h-4" />
-              Spin The Wheel
+              <RotateCw className="w-3.5 h-3.5" />
+              Spin The Wheel {spinWheelClaimedToday && "✓"}
             </button>
           </div>
 
-          <div className="p-8 overflow-y-auto flex-1 flex flex-col items-center justify-center min-h-[380px]">
+          {/* Live Reset Status Strip */}
+          <div className="bg-slate-950/90 border-b border-slate-800/60 px-5 py-2 flex items-center justify-between text-[11px] font-medium text-slate-400">
+            <div className="flex items-center gap-1.5 text-amber-400 font-bold">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Daily Rewards Hub</span>
+            </div>
+            <div className="flex items-center gap-1.5 font-mono text-[10px] text-slate-300 bg-slate-800/80 px-2.5 py-0.5 rounded-full border border-slate-700">
+              <Clock className="w-3 h-3 text-indigo-400" />
+              <span>Next Reset: <strong className="text-white">{timeToNextReset}</strong></span>
+            </div>
+          </div>
+
+          {/* Body Content */}
+          <div className="p-6 overflow-y-auto flex-1 flex flex-col items-center justify-center">
+            
+            {/* Feedback Alert Notice */}
+            {feedbackNotice && (
+              <motion.div 
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full mb-4 p-3 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold flex items-center gap-2 text-left"
+              >
+                <AlertCircle className="w-4 h-4 shrink-0 text-amber-400" />
+                <span>{feedbackNotice}</span>
+              </motion.div>
+            )}
+
             {activeTab === "streak" ? (
-              <div className="w-full text-center space-y-6">
+              <div className="w-full text-center space-y-5">
                 <div>
-                  <h2 className="text-3xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
-                    <Sparkles className="w-8 h-8 text-yellow-400 animate-pulse" />
+                  <h2 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-2">
+                    <Sparkles className="w-6 h-6 text-amber-400 animate-pulse" />
                     Daily Login Streak
                   </h2>
-                  <p className="text-slate-600 text-sm mt-1">
-                    Claim rewards daily to increase your streak power!
+                  <p className="text-slate-400 text-xs mt-1">
+                    Log in every day to claim cash rewards and build your streak power!
                   </p>
                 </div>
 
                 {/* Streak Calendar Grid */}
-                <div className="grid grid-cols-4 sm:grid-cols-7 gap-3">
+                <div className="grid grid-cols-4 sm:grid-cols-7 gap-2.5">
                   {DAILY_REWARDS.map((reward, idx) => {
                     const day = idx + 1;
                     const isClaimed = day < streakCount || (day === streakCount && claimedToday);
                     const isCurrent = day === streakCount && !claimedToday;
-                    const isFuture = day > streakCount;
 
                     return (
                       <div
                         key={idx}
-                        className={`relative rounded-2xl p-3 border flex flex-col items-center justify-between min-h-[100px] transition-all duration-300 ${
+                        className={`relative rounded-2xl p-2.5 border flex flex-col items-center justify-between min-h-[90px] transition-all duration-300 ${
                           isClaimed
-                            ? "bg-white/40 border-emerald-500/30 text-slate-700"
+                            ? "bg-emerald-950/30 border-emerald-500/40 text-emerald-300"
                             : isCurrent
-                            ? "bg-purple-950/30 border-purple-500 text-slate-900 shadow-[0_0_20px_rgba(168,85,247,0.2)] animate-pulse"
-                            : "bg-white/50 border-slate-200/60 text-slate-600"
+                            ? "bg-indigo-950/50 border-indigo-500 text-white shadow-[0_0_20px_rgba(99,102,241,0.3)] ring-1 ring-indigo-400 animate-pulse"
+                            : "bg-slate-800/40 border-slate-700/60 text-slate-400"
                         }`}
                       >
-                        <span className="text-[10px] font-black uppercase tracking-wider">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-300">
                           Day {day}
                         </span>
-                        <div className="my-2">
+                        <div className="my-1.5">
                           <Gift
-                            className={`w-6 h-6 mx-auto ${
-                              isClaimed ? "text-emerald-500" : isCurrent ? "text-purple-400" : "text-slate-700"
+                            className={`w-5 h-5 mx-auto ${
+                              isClaimed ? "text-emerald-400" : isCurrent ? "text-indigo-400 animate-bounce" : "text-slate-500"
                             }`}
                           />
                         </div>
-                        <span className="text-xs font-extrabold text-slate-900">
+                        <span className={`text-xs font-black font-mono ${isClaimed ? "text-emerald-300" : isCurrent ? "text-amber-300" : "text-slate-300"}`}>
                           ₹{reward.toLocaleString()}
                         </span>
                         {isClaimed && (
                           <div className="absolute top-1 right-1">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-500 fill-slate-950" />
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 fill-emerald-950" />
                           </div>
                         )}
                       </div>
@@ -302,50 +377,60 @@ export function DailyRewardModal() {
                   })}
                 </div>
 
-                <div className="pt-4">
+                <div className="pt-2">
                   <button
-                    disabled={claimedToday || isClaiming}
                     onClick={handleClaimDaily}
-                    className={`w-full py-4 rounded-2xl font-black uppercase tracking-widest text-sm transition-all duration-300 flex items-center justify-center gap-2 ${
+                    disabled={isClaiming}
+                    className={`w-full py-3.5 rounded-xl font-black uppercase tracking-widest text-xs transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer shadow-lg ${
                       claimedToday
-                        ? "bg-slate-50 text-slate-700 cursor-not-allowed"
-                        : "bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-slate-900 shadow-[0_0_25px_rgba(168,85,247,0.4)] hover:shadow-[0_0_35px_rgba(168,85,247,0.6)] disabled:opacity-75 disabled:cursor-not-allowed"
+                        ? "bg-slate-800 hover:bg-slate-750 text-emerald-400 border border-emerald-500/30"
+                        : "bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 text-white shadow-indigo-600/30"
                     }`}
                   >
                     {isClaiming ? (
-                      <span className="w-5 h-5 border-2 border-slate-900/30 border-t-slate-900 rounded-full animate-spin" />
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : claimedToday ? (
+                      <span className="flex items-center gap-1.5">
+                        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                        Day {streakCount} Claimed Today (Next in {timeToNextReset})
+                      </span>
                     ) : (
-                      claimedToday ? "Claimed Today!" : `Claim Day ${streakCount} Reward`
+                      <span>Claim Day {streakCount} Reward (₹{DAILY_REWARDS[streakCount - 1] || 50})</span>
                     )}
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="w-full flex flex-col items-center space-y-6">
-                <div className="text-center">
-                  <h2 className="text-3xl font-black tracking-tight text-slate-900 flex items-center justify-center gap-2">
-                    <RotateCw className="w-8 h-8 text-purple-500 animate-spin-slow" />
+              <div className="w-full flex flex-col items-center space-y-4 text-center">
+                <div>
+                  <h2 className="text-2xl font-black tracking-tight text-white flex items-center justify-center gap-2">
+                    <RotateCw className="w-6 h-6 text-purple-400" />
                     Lucky Spin Wheel
                   </h2>
-                  <p className="text-slate-600 text-sm mt-1">
-                    Spin once per day to win cash prizes or XP boosters!
+                  <p className="text-slate-400 text-xs mt-1">
+                    Spin once every day to win free cash credits or XP boosts!
                   </p>
                 </div>
 
                 {/* Spinning Wheel SVG */}
-                <div className="relative w-[300px] h-[300px] my-4 flex items-center justify-center">
+                <div 
+                  onClick={spinWheel}
+                  className={`relative w-[280px] h-[280px] my-2 flex items-center justify-center select-none ${
+                    !spinWheelClaimedToday && !isSpinning ? "cursor-pointer active:scale-95 transition-transform" : ""
+                  }`}
+                >
                   {/* Outer glow rings */}
-                  <div className="absolute inset-0 rounded-full border border-purple-500/20 shadow-[0_0_40px_rgba(168,85,247,0.1)] pointer-events-none" />
+                  <div className="absolute inset-0 rounded-full border border-purple-500/30 shadow-[0_0_40px_rgba(168,85,247,0.2)] pointer-events-none" />
                   
                   {/* Pointer */}
-                  <div className="absolute -top-3 left-[140px] w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[20px] border-t-yellow-400 z-20 drop-shadow-[0_4px_6px_rgba(0,0,0,0.5)]" />
+                  <div className="absolute -top-3 left-[130px] w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[20px] border-t-yellow-400 z-30 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]" />
 
                   {/* SVG Wheel */}
                   <svg
-                    width="300"
-                    height="300"
+                    width="280"
+                    height="280"
                     viewBox="0 0 300 300"
-                    className="w-full h-full drop-shadow-[0_10px_15px_rgba(0,0,0,0.6)]"
+                    className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]"
                     style={{
                       transform: `rotate(${wheelRotation}deg)`,
                       transition: isSpinning ? "transform 5s cubic-bezier(0.1, 0.8, 0.1, 1)" : "none",
@@ -360,7 +445,6 @@ export function DailyRewardModal() {
                             stroke="#0f172a"
                             strokeWidth="2"
                           />
-                          {/* Rotated text coordinate */}
                           {(() => {
                             const { x, y, angle } = getSectorTextCoords(idx);
                             return (
@@ -368,7 +452,7 @@ export function DailyRewardModal() {
                                 x={x}
                                 y={y}
                                 fill="#ffffff"
-                                fontSize="10"
+                                fontSize="11"
                                 fontWeight="900"
                                 textAnchor="middle"
                                 transform={`rotate(${angle}, ${x}, ${y})`}
@@ -381,20 +465,29 @@ export function DailyRewardModal() {
                       ))}
                     </g>
                     {/* Inner cap */}
-                    <circle cx="150" cy="150" r="30" fill="#090d16" stroke="#4f46e5" strokeWidth="3" />
+                    <circle cx="150" cy="150" r="32" fill="#090d16" stroke="#6366f1" strokeWidth="3" />
                   </svg>
 
                   {/* Spin button center overlay */}
                   <button
-                    disabled={isSpinning || spinWheelClaimedToday}
-                    onClick={spinWheel}
-                    className={`absolute w-14 h-14 rounded-full flex items-center justify-center font-black text-[10px] uppercase tracking-wider z-10 transition-all ${
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      spinWheel();
+                    }}
+                    disabled={isSpinning}
+                    className={`absolute w-14 h-14 rounded-full flex items-center justify-center font-black text-[11px] uppercase tracking-wider z-20 transition-all cursor-pointer shadow-xl ${
                       spinWheelClaimedToday
-                        ? "bg-slate-50 text-slate-700 cursor-not-allowed"
-                        : "bg-purple-600 text-slate-900 hover:bg-purple-500 shadow-[0_0_15px_rgba(168,85,247,0.5)] cursor-pointer"
+                        ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700"
+                        : "bg-gradient-to-tr from-purple-600 to-indigo-600 text-white hover:scale-105 shadow-purple-600/50 border border-purple-400/40"
                     }`}
                   >
-                    {spinWheelClaimedToday ? "Done" : "Spin"}
+                    {isSpinning ? (
+                      <span className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    ) : spinWheelClaimedToday ? (
+                      "Done"
+                    ) : (
+                      "SPIN"
+                    )}
                   </button>
                 </div>
 
@@ -403,16 +496,17 @@ export function DailyRewardModal() {
                   <motion.div
                     initial={{ opacity: 0, scale: 0.8 }}
                     animate={{ opacity: 1, scale: 1 }}
-                    className="p-4 rounded-2xl bg-emerald-950/40 border border-emerald-500/30 text-emerald-400 font-extrabold text-sm text-center"
+                    className="p-3.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-black text-sm text-center"
                   >
                     🎉 Congratulations! You won {prizeWon}!
                   </motion.div>
                 )}
 
                 {spinWheelClaimedToday && !prizeWon && (
-                  <p className="text-xs text-slate-700">
-                    You have already spun the wheel today. Come back tomorrow!
-                  </p>
+                  <div className="bg-slate-800/60 border border-slate-700/60 rounded-xl p-3 text-xs text-slate-300 flex items-center justify-center gap-2">
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                    <span>Lucky spin claimed today! Next spin available in <strong>{timeToNextReset}</strong>.</span>
+                  </div>
                 )}
               </div>
             )}
