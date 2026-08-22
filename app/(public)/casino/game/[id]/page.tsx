@@ -264,7 +264,16 @@ export default function GamePlayerPage() {
   const router = useRouter();
   const rawParamId = params?.id;
   const id = typeof rawParamId === "string" ? rawParamId : Array.isArray(rawParamId) ? rawParamId[0] : "";
-  
+
+  // Direct Unconditional Render for Live Dealer Studio
+  if (id === "live-wheel-studio" || id === "live-studio" || id.toLowerCase().includes("wheel-studio") || id.toLowerCase().includes("live-wheel")) {
+    return (
+      <div className="min-h-screen bg-[#04060B] text-white p-2 sm:p-4 md:p-6 lg:p-8 flex flex-col justify-center">
+        <LiveDealerStudioEngine />
+      </div>
+    );
+  }
+
   const [loadingStep, setLoadingStep] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
   const [tutorialDismissed, setTutorialDismissed] = useState(true);

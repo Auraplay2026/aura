@@ -7,6 +7,7 @@ import {
   Sparkles, Trophy, Coins, RotateCcw, AlertTriangle, ShieldCheck
 } from "lucide-react";
 import Link from "next/link";
+import { useParams } from "next/navigation";
 import { useState, use, useMemo, useEffect, useRef } from "react";
 import { GameCard } from "@/components/casino/GameCard";
 import { useTradingStore } from "@/lib/store";
@@ -17,8 +18,17 @@ const PROVIDERS = ["All", "Originals", "Pragmatic Play", "Evolution", "Spribe", 
 const TOKENS = [100, 500, 1000, 5000, 10000];
 
 export default function CasinoCategoryPage({ params }: { params: Promise<{ category: string }> }) {
-  const unwrappedParams = use(params);
-  const categorySlug = unwrappedParams.category.toLowerCase();
+  const routerParams = useParams();
+  const rawCat = (routerParams?.category as string) || "";
+  let categorySlug = rawCat.toLowerCase();
+  if (!categorySlug) {
+    try {
+      const unwrappedParams = use(params);
+      categorySlug = (unwrappedParams?.category || "").toLowerCase();
+    } catch {
+      categorySlug = "live";
+    }
+  }
 
   if (categorySlug === "live-studio" || categorySlug === "studio" || categorySlug === "live-wheel-studio") {
     return (
