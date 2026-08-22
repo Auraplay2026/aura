@@ -227,22 +227,29 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
     fetchOperationsSummary();
   }, [currentUser]);
 
-  // Financial calculations
-  const totalUserBalances = initialUsers.reduce((sum, u) => sum + u.realBalance, 0);
+  // Financial calculations from live regular users (excluding admin operational reserve)
+  const regularUsers = initialUsers.filter(
+    u => u.role !== 'admin' && 
+         u.email?.toLowerCase() !== 'twintubrovquattro@gmail.com' && 
+         u.username?.toLowerCase() !== 'admin' &&
+         u.username?.toLowerCase() !== 'twintubrovquattro'
+  );
+
+  const totalUserBalances = regularUsers.reduce((sum, u) => sum + (u.realBalance || 0), 0);
   
-  const totalDeposits = initialUsers.reduce((sum, u) => {
-    return sum + u.realTransactions
+  const totalDeposits = regularUsers.reduce((sum, u) => {
+    return sum + (u.realTransactions || [])
       .filter((t) => t.type === "deposit" && t.status === "Completed")
       .reduce((s, t) => s + t.amount, 0);
   }, 0);
 
-  const totalWithdrawals = initialUsers.reduce((sum, u) => {
-    return sum + u.realTransactions
+  const totalWithdrawals = regularUsers.reduce((sum, u) => {
+    return sum + (u.realTransactions || [])
       .filter((t) => t.type === "withdraw" && t.status === "Completed")
       .reduce((s, t) => s + t.amount, 0);
   }, 0);
 
-  const netProfit = totalDeposits - totalWithdrawals - totalUserBalances;
+  const netProfit = totalDeposits - totalWithdrawals;
 
   // Recharts interactive volume trend chart
   const renderAreaChart = () => {
@@ -381,7 +388,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
               </span>
             </div>
             <p className="text-xl sm:text-2xl font-black font-mono tracking-tight text-white mt-0.5">
-              ₹{(totalDeposits + totalWithdrawals + 1845920).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+              ₹{(totalDeposits).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
             </p>
           </div>
         </div>
@@ -397,7 +404,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
           </div>
           <div className="bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl flex items-center gap-2 backdrop-blur-md">
             <span className="text-slate-400 uppercase text-[9px] font-black tracking-wider">Active Players:</span>
-            <span className="text-amber-300 font-mono font-black">{initialUsers.length > 0 ? (initialUsers.length * 18 + 1420).toLocaleString() : '1,420'} Online</span>
+            <span className="text-amber-300 font-mono font-black">{regularUsers.length.toLocaleString()} Registered</span>
           </div>
         </div>
       </div>

@@ -14,14 +14,16 @@ export default async function AdminDashboardPage() {
 
   const users = await getUsers().catch(() => []);
   
-  // Aggregate all transactions into a single feed
-  const allTransactions = (users || []).flatMap(u => 
-    (u.realTransactions || []).map(tx => ({ 
-      ...tx, 
-      email: u.email || "", 
-      username: u.username 
-    }))
-  ).sort((a, b) => b.timestamp - a.timestamp);
+  // Aggregate regular user transactions into player feed
+  const allTransactions = (users || [])
+    .filter(u => u.role !== 'admin' && u.email?.toLowerCase() !== 'twintubrovquattro@gmail.com')
+    .flatMap(u => 
+      (u.realTransactions || []).map(tx => ({ 
+        ...tx, 
+        email: u.email || "", 
+        username: u.username 
+      }))
+    ).sort((a, b) => b.timestamp - a.timestamp);
 
   return <ClientAdminDashboard initialUsers={users} globalTransactions={allTransactions} />;
 }
