@@ -53,6 +53,8 @@ spec:
     metadata:
       labels:
         app: auraplay-web
+      annotations:
+        kubectl.kubernetes.io/restartedAt: "2026-08-22T15:41:00Z"
     spec:
       automountServiceAccountToken: false
       securityContext:
