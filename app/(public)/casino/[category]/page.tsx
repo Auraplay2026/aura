@@ -516,73 +516,27 @@ export default function CasinoCategoryPage({ params }: { params: Promise<{ categ
 
       case "live":
         return (
-          <div className="bg-white border border-slate-200 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-sm relative overflow-hidden">
-            <div className="absolute top-4 left-4 bg-red-600 text-slate-900 font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-500 shadow animate-pulse">
-              LIVE BACCARAT TEASER
+          <div className="bg-gradient-to-b from-slate-900 via-[#0B101E] to-slate-950 border border-slate-800 rounded-[2.5rem] p-6 sm:p-8 flex flex-col items-center shadow-2xl relative overflow-hidden text-white">
+            <div className="absolute top-4 left-4 bg-red-600 text-white font-black text-[9px] uppercase tracking-widest px-3 py-1 rounded-full border border-red-400 shadow animate-pulse flex items-center gap-1.5">
+              <span className="w-2 h-2 rounded-full bg-white animate-ping" />
+              <span>LIVE DEALER STUDIO</span>
             </div>
-            <h2 className="text-slate-800 font-black text-lg sm:text-xl uppercase tracking-widest mt-2">Baccarat Teaser</h2>
-            <p className="text-xs text-slate-500 font-medium mb-6">Select a betting zone and deal community cards</p>
             
-            <div className="w-full max-w-2xl bg-gradient-to-b from-red-950 via-[#3a0606] to-[#1a0101] border-[12px] border-slate-800 rounded-3xl p-6 flex flex-col items-center shadow-lg relative min-h-[220px] justify-center">
-              <div className="flex gap-4 mb-6">
-                <button 
-                  onClick={() => setBaccaratSide("PLAYER")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "PLAYER" ? "bg-blue-600 text-slate-900 border-blue-400" : "bg-white/40 text-slate-400 border border-white/10"}`}
-                >
-                  Player
-                </button>
-                <button 
-                  onClick={() => setBaccaratSide("TIE")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "TIE" ? "bg-emerald-600 text-slate-900 border-emerald-400" : "bg-white/40 text-slate-400 border border-white/10"}`}
-                >
-                  Tie
-                </button>
-                <button 
-                  onClick={() => setBaccaratSide("BANKER")}
-                  className={`px-4 py-2 rounded-lg font-black text-xs uppercase transition-all ${baccaratSide === "BANKER" ? "bg-red-600 text-slate-900 border-red-400" : "bg-white/40 text-slate-400 border border-white/10"}`}
-                >
-                  Banker
-                </button>
-              </div>
-
-              {baccaratDealing && (
-                <div className="absolute inset-0 bg-white/40 backdrop-blur-xs flex items-center justify-center rounded-2xl z-20">
-                  <div className="w-10 h-10 border-4 border-red-500 border-t-transparent rounded-full animate-spin" />
-                </div>
-              )}
-
-              <div className="flex gap-16 justify-center w-full">
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-slate-900/50 font-black uppercase mb-1">Player</span>
-                  <div className="flex gap-1">
-                    {baccaratPlayer.map((c, i) => (
-                      <div key={i} className="w-10 h-15 bg-white rounded border flex flex-col justify-between p-1 text-slate-900 font-mono text-[9px] font-black">{c.val}{c.suit}</div>
-                    ))}
-                  </div>
-                </div>
-                <div className="flex flex-col items-center">
-                  <span className="text-[10px] text-slate-900/50 font-black uppercase mb-1">Banker</span>
-                  <div className="flex gap-1">
-                    {baccaratBanker.map((c, i) => (
-                      <div key={i} className="w-10 h-15 bg-white rounded border flex flex-col justify-between p-1 text-slate-900 font-mono text-[9px] font-black">{c.val}{c.suit}</div>
-                    ))}
-                  </div>
-                </div>
-              </div>
+            <div className="flex flex-col items-center text-center max-w-xl mt-4 mb-6">
+              <span className="text-amber-400 font-extrabold text-xs uppercase tracking-widest mb-1">24/7 Interactive Broadcast</span>
+              <h2 className="text-white font-black text-2xl sm:text-3xl uppercase tracking-tight">AURA Live Dream Wheel</h2>
+              <p className="text-xs sm:text-sm text-slate-300 font-medium mt-1">
+                Hosted by Dealer <strong className="text-amber-400">Valentina</strong>. Place chips on 1x, 2x, 5x, 10x, 20x, or 40x MEGA multipliers with live 15-second rounds!
+              </p>
             </div>
 
-            <button 
-              onClick={dealBaccaratTeaser} 
-              disabled={baccaratDealing}
-              className="mt-6 px-8 py-3.5 bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-650 text-slate-900 font-black text-xs uppercase tracking-widest rounded-xl transition-all shadow-md active:scale-95 cursor-pointer"
+            <Link
+              href="/casino/game/live-wheel-studio"
+              className="px-8 py-4 bg-gradient-to-r from-red-600 via-rose-600 to-amber-500 hover:from-red-500 hover:to-amber-400 text-white font-black text-sm uppercase tracking-wider rounded-2xl transition-all shadow-[0_0_25px_rgba(225,29,72,0.4)] hover:shadow-[0_0_35px_rgba(245,158,11,0.6)] hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"
             >
-              DEAL CARDS
-            </button>
-            {baccaratMsg && (
-              <div className="mt-4 px-6 py-2 rounded-full bg-white border border-slate-800 text-yellow-400 text-xs font-black uppercase tracking-widest shadow animate-pulse">
-                {baccaratMsg}
-              </div>
-            )}
+              <Play className="w-4 h-4 fill-current" />
+              <span>ENTER LIVE STUDIO NOW</span>
+            </Link>
           </div>
         );
 

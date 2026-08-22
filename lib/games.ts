@@ -75,7 +75,8 @@ export const FEATURED_GAMES: Game[] = [
   { id: "slot-18", title: "Hot Heist", provider: "TrueLab", image: "/games/truelab_HotHeist-JcqRnDFiy.jpeg", categories: ["slots"], isNew: true, players: 8400 },
   { id: "slot-19", title: "Wanted Dead or a Wild", provider: "Hacksaw Gaming", image: "/games/hacksaw_1067-tLa7Rl6FW.jpeg", categories: ["slots"], players: 41000 },
 
-  // --- PREMIUM LIVE SHOWS ---
+  // --- PREMIUM LIVE SHOWS & LIVE STUDIOS ---
+  { id: "live-wheel-studio", title: "AURA Live Dream Wheel (Live Dealer)", provider: "AURA Live Studio", image: "/games/live_cover_crazy.png", categories: ["live", "shows", "originals"], rtp: 98.6, players: 48500, isNew: true },
   { id: "live-1", title: "Crazy Time", provider: "Evolution", image: "/games/live_cover_crazy.png", categories: ["live", "shows"], players: 25000 },
   { id: "live-2", title: "Lightning Storm Live", provider: "Evolution", image: "/games/evo_lightning-storm-EuSGqjpLa.jpeg", categories: ["live", "shows"], players: 34000 },
   { id: "live-3", title: "Crazy Pachinko Live", provider: "Evolution", image: "/games/evo_crazy-pachinko-IZFn5hYjG.jpeg", categories: ["live", "shows"], players: 22000 },

@@ -37,6 +37,7 @@ import { DiceEngine } from "@/components/casino/engines/DiceEngine";
 import { BilliardsEngine } from "@/components/casino/engines/BilliardsEngine";
 import { CoinflipEngine } from "@/components/casino/engines/CoinflipEngine";
 import { LiveWheelEngine } from "@/components/casino/engines/LiveWheelEngine";
+import { LiveDealerStudioEngine } from "@/components/casino/engines/LiveDealerStudioEngine";
 import { LimboEngine } from "@/components/casino/engines/LimboEngine";
 import { MinesEngine } from "@/components/casino/engines/MinesEngine";
 import { KenoEngine } from "@/components/casino/engines/KenoEngine";
@@ -826,6 +827,9 @@ export default function GamePlayerPage() {
     }
     if (game.id === "orig-9" || game.title.toLowerCase().includes("coin")) {
       return <CoinflipEngine isPlaying={isSpinning} betAmount={betAmount} onComplete={handleEngineComplete} selectedTarget={selectedTarget} setSelectedTarget={setSelectedTarget} />;
+    }
+    if (game.id === "live-wheel-studio" || game.title.toLowerCase().includes("live dream wheel") || game.title.toLowerCase().includes("live dealer")) {
+      return <LiveDealerStudioEngine onBetPlaced={(amt) => setBetAmount(amt)} />;
     }
     if (game.id === "orig-10" || game.categories.includes("shows") || game.title.toLowerCase().includes("wheel") || game.title.toLowerCase().includes("time") || game.title.toLowerCase().includes("funky") || game.title.toLowerCase().includes("monopoly") || game.title.toLowerCase().includes("dream catcher")) {
       return <LiveWheelEngine isPlaying={isSpinning} onComplete={handleEngineComplete} />;
