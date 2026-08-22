@@ -262,7 +262,8 @@ function SVGProfitChart({ history }: { history: number[] }) {
 export default function GamePlayerPage() {
   const params = useParams();
   const router = useRouter();
-  const id = params.id as string;
+  const rawParamId = params?.id;
+  const id = typeof rawParamId === "string" ? rawParamId : Array.isArray(rawParamId) ? rawParamId[0] : "";
   
   const [loadingStep, setLoadingStep] = useState(0);
   const [isLoading, setIsLoading] = useState(true);
@@ -377,22 +378,43 @@ export default function GamePlayerPage() {
     return () => clearInterval(interval);
   }, []);
 
-  const rawId = (id || "").toLowerCase();
-  const game: Game | undefined = GAMES.find(g => 
-    g.id.toLowerCase() === rawId ||
-    g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-') === rawId ||
-    (rawId.includes("live-wheel") && g.id === "live-wheel-studio") ||
-    (rawId.includes("live-dealer") && g.id === "live-wheel-studio")
-  ) || (rawId.includes("live-wheel") || rawId.includes("live-dealer") ? ({
-    id: "live-wheel-studio",
-    title: "AURA Live Dream Wheel (Live Dealer)",
-    provider: "AURA Live Studio",
-    image: "/games/live_cover_crazy.png",
-    categories: ["live", "shows", "originals"],
-    rtp: 98.6,
-    players: 48500,
-    isNew: true
-  } as Game) : undefined);
+  const rawId = (id || "").toLowerCase().trim();
+  const game: Game | undefined = useMemo(() => {
+    if (!rawId) {
+      return {
+        id: "live-wheel-studio",
+        title: "AURA Live Dream Wheel (Live Dealer)",
+        provider: "AURA Live Studio",
+        image: "/games/live_cover_crazy.png",
+        categories: ["live", "shows", "originals"],
+        rtp: 98.6,
+        players: 48500,
+        isNew: true
+      } as Game;
+    }
+    const cleanRaw = rawId.replace(/[^a-z0-9]+/g, '');
+    const found = GAMES.find(g => {
+      const gId = g.id.toLowerCase();
+      const gTitleSlug = g.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const gClean = g.id.toLowerCase().replace(/[^a-z0-9]+/g, '');
+      const gTitleClean = g.title.toLowerCase().replace(/[^a-z0-9]+/g, '');
+      return gId === rawId || gTitleSlug === rawId || gClean === cleanRaw || gTitleClean === cleanRaw;
+    });
+    if (found) return found;
+    if (rawId.includes("wheel") || rawId.includes("dealer") || rawId.includes("studio") || rawId.includes("dream")) {
+      return {
+        id: "live-wheel-studio",
+        title: "AURA Live Dream Wheel (Live Dealer)",
+        provider: "AURA Live Studio",
+        image: "/games/live_cover_crazy.png",
+        categories: ["live", "shows", "originals"],
+        rtp: 98.6,
+        players: 48500,
+        isNew: true
+      } as Game;
+    }
+    return undefined;
+  }, [rawId]);
 
   const isRoyalEngine = useMemo(() => {
     if (!game) return false;
