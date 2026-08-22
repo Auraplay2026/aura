@@ -13,57 +13,46 @@ import { useTradingStore } from "@/lib/store";
 import { useAdminStore } from "@/lib/adminStore";
 
 function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
-  const [passcode, setPasscode] = useState("");
+  const [adminIdentity, setAdminIdentity] = useState("twintubrovquattro@gmail.com");
+  const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSignIn = async (overridePasscode?: string) => {
+  const handleSignIn = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    if (!password) {
+      setError("Please enter your administrator password.");
+      return;
+    }
     setIsLoading(true);
     setError(null);
-    const effectivePasscode = (overridePasscode !== undefined ? overridePasscode : passcode).trim() || "AuraBetAdmin2026!";
 
     try {
-      // 1. Authenticate directly via unified loginWithCredentials
+      // Authenticate directly via unified login pipeline
       const res = await useTradingStore.getState().loginWithCredentials(
-        "twintubrovquattro@gmail.com",
-        effectivePasscode
+        adminIdentity.trim(),
+        password
       );
 
       if (res.success) {
-        useAdminStore.getState().setAdminSession("twintubrovquattro@gmail.com", "admin-session-active", "admin-hw-verified");
+        useAdminStore.getState().setAdminSession(adminIdentity.trim(), "admin-session-active", "admin-hw-verified");
         onAuthenticated();
       } else {
-        // Fallback check against /api/admin/auth/verify
-        const verifyRes = await fetch("/api/admin/auth/verify", {
-          method: "POST",
-          credentials: "include",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            email: "twintubrovquattro@gmail.com",
-            passcode: effectivePasscode
-          })
-        });
-        const verifyData = await verifyRes.json().catch(() => ({}));
-        if (verifyRes.ok && verifyData.success) {
-          useAdminStore.getState().setAdminSession("twintubrovquattro@gmail.com", "admin-session-active", "admin-hw-verified");
-          onAuthenticated();
-        } else {
-          setError(res.error || verifyData.error || "Authentication failed. Please check your password.");
-        }
+        setError(res.error || "Authentication failed. Invalid administrator credentials.");
       }
     } catch (err: any) {
-      setError(err?.message || "Connection error. Please try again.");
+      setError(err?.message || "Authentication error. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 relative overflow-hidden font-sans">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.15),transparent_70%)]" />
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.03)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.03)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
+    <div className="min-h-screen bg-slate-950 flex items-center justify-center p-4 relative overflow-hidden font-sans">
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(99,102,241,0.12),transparent_70%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(to_bottom,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:3rem_3rem]" />
       
-      <div className="relative max-w-md w-full bg-slate-900/95 border border-slate-700/60 backdrop-blur-xl rounded-2xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.5)] flex flex-col gap-5 text-white">
+      <div className="relative max-w-md w-full bg-slate-900/95 border border-slate-800 backdrop-blur-xl rounded-2xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.6)] flex flex-col gap-5 text-white">
         
         <div className="flex flex-col items-center text-center gap-2">
           <div className="w-14 h-14 rounded-full bg-indigo-500/10 border border-indigo-500/30 flex items-center justify-center shadow-[0_0_25px_rgba(99,102,241,0.25)]">
@@ -80,16 +69,16 @@ function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
         </div>
 
         <p className="text-xs text-slate-400 text-center font-medium leading-relaxed">
-          Authorized Master Administrator access only. Authenticate with your administrator password to unlock the operations dashboard.
+          Authorized Master Administrator access only. Authenticate with your administrator credentials to unlock the operations dashboard.
         </p>
 
-        <form onSubmit={(e) => { e.preventDefault(); handleSignIn(); }} className="flex flex-col gap-3">
+        <form onSubmit={handleSignIn} className="flex flex-col gap-3">
           <div className="flex flex-col gap-1">
             <label className="text-[10px] font-bold text-slate-300 uppercase">Master Admin Account</label>
             <input
               type="text"
               readOnly
-              value="twintubrovquattro@gmail.com"
+              value={adminIdentity}
               className="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 text-xs font-bold text-indigo-300 focus:outline-none cursor-not-allowed select-none"
             />
           </div>
@@ -98,9 +87,9 @@ function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
             <label className="text-[10px] font-bold text-slate-300 uppercase">Administrator Password</label>
             <input
               type="password"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Enter password (e.g. AuraBetAdmin2026!)..."
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="••••••••••••••••"
               className="bg-slate-800 border border-slate-700 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-bold text-white focus:outline-none transition-colors"
             />
           </div>
@@ -111,16 +100,7 @@ function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
               disabled={isLoading}
               className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-700 text-white font-bold py-2.5 rounded-lg text-xs uppercase tracking-wider transition-colors shadow-lg shadow-indigo-600/30 cursor-pointer"
             >
-              {isLoading ? "Authenticating..." : "⚡ Unlock Admin Dashboard"}
-            </button>
-
-            <button
-              type="button"
-              onClick={() => handleSignIn("AuraBetAdmin2026!")}
-              disabled={isLoading}
-              className="w-full bg-slate-800 hover:bg-slate-700 disabled:bg-slate-800 text-emerald-400 font-bold py-2 rounded-lg text-[11px] uppercase tracking-wider transition-colors border border-emerald-500/30 flex items-center justify-center gap-1.5 cursor-pointer"
-            >
-              <span>⚡ One-Click Master Authorization</span>
+              {isLoading ? "Authenticating..." : "Unlock Admin Dashboard"}
             </button>
           </div>
         </form>
@@ -327,6 +307,17 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       glowColor: "rgba(239, 68, 68, 0.15)",
     },
   ];
+
+  if (!mounted) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-slate-950">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-9 h-9 rounded-full border-2 border-indigo-500/20 border-t-indigo-500 animate-spin" />
+          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">Securing Session...</span>
+        </div>
+      </div>
+    );
+  }
 
   const isAuthorized = 
     isAuthenticated || 

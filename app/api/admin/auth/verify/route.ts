@@ -110,11 +110,15 @@ export async function POST(request: Request) {
 
     // 2. Server-side validation of the passcode/password
     const providedPasscode = (passcode || '').trim();
+    if (!providedPasscode) {
+      return NextResponse.json({ success: false, error: "Access Denied: Administrator password is required" }, { status: 400 });
+    }
+
     let isPasscodeMatched = false;
 
-    // A. Check against user's actual database password
+    // A. Check against user's actual database bcrypt password
     const userDbHash = (user.passwordHash || '').trim();
-    if (userDbHash.startsWith('$2') && providedPasscode) {
+    if (userDbHash.startsWith('$2')) {
       try {
         if (await bcrypt.compare(providedPasscode, userDbHash)) {
           isPasscodeMatched = true;
@@ -126,30 +130,19 @@ export async function POST(request: Request) {
       isPasscodeMatched = true;
     }
 
-    // B. Check against master environment & system admin keys
+    // B. Check against configured server environment admin keys
     const validPasscodes = [
-      process.env.ADMIN_PASSCODE,
-      process.env.ADMIN_HMAC_SECRET,
       process.env.ADMIN_SECRET_KEY,
-      process.env.ADMIN_FALLBACK_PASSWORD,
-      process.env.ADMIN_DEFAULT_PASSWORD,
-      "AuraBetAdmin2026!",
-      "AURAPLAY_MASTER_SECURE_ADMIN_KEY_2026",
-      "aura-dev-admin-secret",
-      "Admin@123",
-      "admin123"
+      process.env.ADMIN_PASSCODE,
+      process.env.ADMIN_HMAC_SECRET
     ].filter(Boolean);
 
     if (validPasscodes.includes(providedPasscode)) {
       isPasscodeMatched = true;
     }
 
-    if (!isPasscodeMatched && (providedPasscode === 'aura-dev-admin-secret' || !providedPasscode)) {
-      isPasscodeMatched = true;
-    }
-
     if (!isPasscodeMatched) {
-      return NextResponse.json({ success: false, error: "Access Denied: Invalid Admin Password or Security Key" }, { status: 403 });
+      return NextResponse.json({ success: false, error: "Access Denied: Invalid Administrator Credentials" }, { status: 403 });
     }
 
     // Optional cryptographic signature check if signature was sent
