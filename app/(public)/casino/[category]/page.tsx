@@ -11,15 +11,22 @@ import { useState, use, useMemo, useEffect, useRef } from "react";
 import { GameCard } from "@/components/casino/GameCard";
 import { useTradingStore } from "@/lib/store";
 import { GAMES, getGamesByCategory, CategoryId } from "@/lib/games";
+import { LiveDealerStudioEngine } from "@/components/casino/engines/LiveDealerStudioEngine";
 
 const PROVIDERS = ["All", "Originals", "Pragmatic Play", "Evolution", "Spribe", "NetEnt"];
 const TOKENS = [100, 500, 1000, 5000, 10000];
 
-
-
 export default function CasinoCategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const unwrappedParams = use(params);
   const categorySlug = unwrappedParams.category.toLowerCase();
+
+  if (categorySlug === "live-studio" || categorySlug === "studio" || categorySlug === "live-wheel-studio") {
+    return (
+      <div className="flex flex-col min-h-screen w-full bg-[#04060B] p-2 sm:p-4 md:p-6 pb-24 text-white">
+        <LiveDealerStudioEngine />
+      </div>
+    );
+  }
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvider, setSelectedProvider] = useState("All");

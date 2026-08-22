@@ -34,7 +34,8 @@ const NAV_SECTIONS = [
   {
     title: "Casino Nodes",
     items: [
-      { name: "Live Casino & Shows", href: "/casino/live", icon: Gamepad2, color: "text-red-500", badge: "LIVE" },
+      { name: "Live Studio (Dream Wheel)", href: "/casino/live-studio", icon: Gamepad2, color: "text-amber-500", badge: "LIVE" },
+      { name: "Live Casino & Shows", href: "/casino/live", emoji: "🔴", isSub: true },
       { name: "Desi Live (Teen Patti)", href: "/casino/poker", emoji: "🇮🇳", isSub: true },
       { name: "Table Roulette", href: "/casino/roulette", emoji: "🎡", isSub: true },
       { name: "Live Blackjack", href: "/casino/blackjack", emoji: "🃏", isSub: true },
