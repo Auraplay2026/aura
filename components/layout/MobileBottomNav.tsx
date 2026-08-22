@@ -37,8 +37,8 @@ export function MobileBottomNav() {
       isActive: pathname === "/",
     },
     {
-      label: "Casino",
-      href: "/casino",
+      label: "Live Casino",
+      href: "/casino/live",
       icon: Dices,
       isActive: pathname.startsWith("/casino"),
     },

@@ -34,14 +34,13 @@ const NAV_SECTIONS = [
   {
     title: "Casino Nodes",
     items: [
-      { name: "Casino Lobby", href: "/casino", icon: Gamepad2, color: "text-indigo-500", badge: "HOT" },
-      { name: "Slots & Drops", href: "/casino/slots", emoji: "🎰", isSub: true },
-      { name: "Live Dealers", href: "/casino/live", emoji: "🔴", isSub: true },
-      { name: "Crash Games", href: "/casino/crash", emoji: "🚀", isSub: true },
-      { name: "Dice & Originals", href: "/casino/originals", emoji: "🎲", isSub: true },
+      { name: "Live Casino & Shows", href: "/casino/live", icon: Gamepad2, color: "text-red-500", badge: "LIVE" },
+      { name: "Desi Live (Teen Patti)", href: "/casino/poker", emoji: "🇮🇳", isSub: true },
       { name: "Table Roulette", href: "/casino/roulette", emoji: "🎡", isSub: true },
-      { name: "Blackjack", href: "/casino/blackjack", emoji: "🃏", isSub: true },
-      { name: "Poker Heads Up", href: "/casino/poker", emoji: "♠️", isSub: true },
+      { name: "Live Blackjack", href: "/casino/blackjack", emoji: "🃏", isSub: true },
+      { name: "Crash (Aviator)", href: "/casino/crash", emoji: "🚀", isSub: true },
+      { name: "Slots & Drops", href: "/casino/slots", emoji: "🎰", isSub: true },
+      { name: "Dice & Originals", href: "/casino/originals", emoji: "🎲", isSub: true },
     ]
   },
   {
