@@ -24,12 +24,12 @@ interface BetSpot {
 }
 
 const BET_SPOTS: BetSpot[] = [
-  { id: "1x", label: "1x", multiplier: 1, color: "text-blue-400", bgGradient: "from-blue-600/30 to-blue-900/60", borderColor: "border-blue-500/50", chipColor: "bg-blue-600 text-white", probability: 0.40 },
-  { id: "2x", label: "2x", multiplier: 2, color: "text-emerald-400", bgGradient: "from-emerald-600/30 to-emerald-900/60", borderColor: "border-emerald-500/50", chipColor: "bg-emerald-600 text-white", probability: 0.25 },
-  { id: "5x", label: "5x", multiplier: 5, color: "text-purple-400", bgGradient: "from-purple-600/30 to-purple-900/60", borderColor: "border-purple-500/50", chipColor: "bg-purple-600 text-white", probability: 0.15 },
-  { id: "10x", label: "10x", multiplier: 10, color: "text-amber-400", bgGradient: "from-amber-600/30 to-amber-900/60", borderColor: "border-amber-500/50", chipColor: "bg-amber-600 text-black", probability: 0.10 },
-  { id: "20x", label: "20x", multiplier: 20, color: "text-rose-400", bgGradient: "from-rose-600/30 to-rose-900/60", borderColor: "border-rose-500/50", chipColor: "bg-rose-600 text-white", probability: 0.06 },
-  { id: "40x", label: "40x MEGA", multiplier: 40, color: "text-yellow-300 font-black", bgGradient: "from-yellow-500/30 via-red-600/30 to-purple-900/70", borderColor: "border-yellow-400/80 shadow-[0_0_15px_rgba(234,179,8,0.3)]", chipColor: "bg-yellow-400 text-black font-black", probability: 0.04 }
+  { id: "1x", label: "1x", multiplier: 1, color: "text-blue-700", bgGradient: "from-blue-50 to-blue-100", borderColor: "border-blue-200", chipColor: "bg-blue-600 text-white", probability: 0.40 },
+  { id: "2x", label: "2x", multiplier: 2, color: "text-emerald-700", bgGradient: "from-emerald-50 to-emerald-100", borderColor: "border-emerald-200", chipColor: "bg-emerald-600 text-white", probability: 0.25 },
+  { id: "5x", label: "5x", multiplier: 5, color: "text-purple-700", bgGradient: "from-purple-50 to-purple-100", borderColor: "border-purple-200", chipColor: "bg-purple-600 text-white", probability: 0.15 },
+  { id: "10x", label: "10x", multiplier: 10, color: "text-amber-700", bgGradient: "from-amber-50 to-amber-100", borderColor: "border-amber-200", chipColor: "bg-amber-600 text-white", probability: 0.10 },
+  { id: "20x", label: "20x", multiplier: 20, color: "text-rose-700", bgGradient: "from-rose-50 to-rose-100", borderColor: "border-rose-200", chipColor: "bg-rose-600 text-white", probability: 0.06 },
+  { id: "40x", label: "40x MEGA", multiplier: 40, color: "text-red-700 font-black", bgGradient: "from-yellow-50 via-amber-50 to-red-50", borderColor: "border-amber-300 shadow-[0_0_12px_rgba(245,158,11,0.15)]", chipColor: "bg-amber-500 text-white font-black", probability: 0.04 }
 ];
 
 const WHEEL_SEGMENTS = [
@@ -237,20 +237,20 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
   }, [phase, countdown, roundId, rotation, userBets, playCasino]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto rounded-2xl bg-gradient-to-b from-slate-950 via-[#0B0F19] to-slate-950 border border-slate-800/80 shadow-2xl overflow-hidden text-white select-none">
+    <div className="w-full max-w-7xl mx-auto rounded-3xl bg-white border border-slate-200 shadow-sm overflow-hidden text-slate-900 select-none">
       
       {/* Studio Broadcast Top HUD */}
-      <div className="flex flex-wrap items-center justify-between px-4 py-3 bg-slate-900/90 border-b border-slate-800/80 backdrop-blur-md gap-3">
+      <div className="flex flex-wrap items-center justify-between px-4 py-3 bg-slate-50 border-b border-slate-200 gap-3">
         <div className="flex items-center gap-2.5">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-500/20 border border-red-500/40 text-red-400 font-extrabold text-[11px] uppercase tracking-wider">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-red-50 border border-red-200 text-red-600 font-extrabold text-[11px] uppercase tracking-wider">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-red-500"></span>
             </span>
             <span>1080p 60FPS • LIVE STUDIO</span>
           </div>
-          <span className="text-xs font-bold text-slate-400">Hostess: <strong className="text-amber-400">Valentina</strong></span>
-          <span className="hidden sm:inline-block text-xs font-mono text-slate-500">Table #01</span>
+          <span className="text-xs font-bold text-slate-500">Hostess: <strong className="text-amber-600">Valentina</strong></span>
+          <span className="hidden sm:inline-block text-xs font-mono text-slate-400">Table #01</span>
         </div>
 
         {/* History Bar */}
@@ -263,7 +263,7 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
                 "px-2 py-0.5 rounded-full text-[10px] font-black border font-mono shadow-xs",
                 h === 40 ? "bg-yellow-500 text-black border-yellow-300 animate-pulse" :
                 h === 20 ? "bg-rose-600 text-white border-rose-400" :
-                h === 10 ? "bg-amber-600 text-black border-amber-400" :
+                h === 10 ? "bg-amber-600 text-white border-amber-400" :
                 h === 5 ? "bg-purple-600 text-white border-purple-400" :
                 h === 2 ? "bg-emerald-600 text-white border-emerald-400" :
                 "bg-blue-600 text-white border-blue-400"
@@ -275,14 +275,14 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
         </div>
       </div>
 
-      {/* Main Stage Area */}
-      <div className="relative min-h-[380px] sm:min-h-[440px] flex flex-col md:flex-row items-center justify-between p-4 sm:p-8 bg-gradient-to-b from-[#0e1628] via-[#090d16] to-[#04060b] overflow-hidden">
+      {/* Main Stage Area — Light themed with soft warm tones */}
+      <div className="relative min-h-[380px] sm:min-h-[440px] flex flex-col md:flex-row items-center justify-between p-4 sm:p-8 bg-gradient-to-b from-white via-slate-50 to-amber-50/30 overflow-hidden">
         
-        {/* Dynamic Studio Spotlights */}
-        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-600/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-500/10 rounded-full blur-3xl pointer-events-none" />
+        {/* Soft ambient glow — warm and inviting */}
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-blue-100/40 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-1/4 w-96 h-96 bg-amber-100/40 rounded-full blur-3xl pointer-events-none" />
 
-        {/* Left Side: Photorealistic AI Presenter Stage */}
+        {/* Left Side: AI Presenter Stage */}
         <div className="relative flex flex-col items-center justify-center w-full md:w-1/2 z-10 py-2">
           
           {/* Dealer Speech Bubble */}
@@ -290,19 +290,19 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
             key={dealerSpeech}
             initial={{ opacity: 0, y: -10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mb-4 px-4 py-2 rounded-2xl bg-gradient-to-r from-amber-500/20 via-slate-900/90 to-purple-500/20 border border-amber-400/40 text-amber-200 text-xs sm:text-sm font-semibold text-center max-w-sm backdrop-blur-md shadow-lg"
+            className="mb-4 px-4 py-2.5 rounded-2xl bg-white border border-amber-200 text-slate-700 text-xs sm:text-sm font-semibold text-center max-w-sm shadow-sm"
           >
             {dealerSpeech}
           </motion.div>
 
           {/* AI Virtual Dealer Visual Canvas */}
-          <div className="relative w-48 h-64 sm:w-56 sm:h-72 rounded-3xl overflow-hidden border-2 border-amber-500/30 shadow-[0_0_30px_rgba(245,158,11,0.2)] bg-gradient-to-b from-slate-900 to-black flex items-center justify-center group">
+          <div className="relative w-48 h-64 sm:w-56 sm:h-72 rounded-3xl overflow-hidden border-2 border-amber-200 shadow-md bg-gradient-to-b from-amber-50 to-white flex items-center justify-center group">
             
             <svg viewBox="0 0 200 280" className="w-full h-full object-cover">
               <defs>
                 <radialGradient id="studioGlow" cx="50%" cy="40%" r="60%">
-                  <stop offset="0%" stopColor="#4f46e5" stopOpacity="0.4" />
-                  <stop offset="100%" stopColor="#000000" stopOpacity="0.9" />
+                  <stop offset="0%" stopColor="#eef2ff" stopOpacity="1" />
+                  <stop offset="100%" stopColor="#fefce8" stopOpacity="0.8" />
                 </radialGradient>
                 <linearGradient id="gownGrad" x1="0%" y1="0%" x2="100%" y2="100%">
                   <stop offset="0%" stopColor="#d97706" />
@@ -321,8 +321,8 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
               </defs>
 
               <rect width="200" height="280" fill="url(#studioGlow)" />
-              <path d="M 30 280 Q 100 20 170 280" fill="none" stroke="#f59e0b" strokeWidth="2" opacity="0.3" />
-              <path d="M 45 280 Q 100 40 155 280" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.2" />
+              <path d="M 30 280 Q 100 20 170 280" fill="none" stroke="#f59e0b" strokeWidth="2" opacity="0.15" />
+              <path d="M 45 280 Q 100 40 155 280" fill="none" stroke="#f59e0b" strokeWidth="1" opacity="0.1" />
 
               <g style={{ transform: dealerBlink ? "scale(1.01)" : "scale(1)" }}>
                 <path d="M 40 280 L 60 170 Q 100 185 140 170 L 160 280 Z" fill="url(#gownGrad)" stroke="#fbbf24" strokeWidth="1" />
@@ -363,18 +363,18 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
             </svg>
 
             {/* Live Camera Watermark */}
-            <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-md bg-black/60 backdrop-blur-md border border-white/10 text-[9px] font-mono text-emerald-400">
+            <div className="absolute top-2 left-2 flex items-center gap-1 px-2 py-0.5 rounded-md bg-white/80 backdrop-blur-md border border-slate-200 text-[9px] font-mono text-emerald-600">
               <Radio className="w-2.5 h-2.5 animate-pulse" />
               CAM 01
             </div>
 
-            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-amber-500/80 text-black text-[9px] font-black uppercase tracking-wider">
+            <div className="absolute bottom-2 right-2 px-2 py-0.5 rounded-md bg-amber-500 text-white text-[9px] font-black uppercase tracking-wider">
               VALENTINA
             </div>
           </div>
         </div>
 
-        {/* Right Side: The 3D Wheel Stage */}
+        {/* Right Side: The Wheel Stage */}
         <div className="relative flex flex-col items-center justify-center w-full md:w-1/2 z-10 py-4">
           
           {/* Wheel Pointer */}
@@ -382,12 +382,12 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
             <motion.div 
               animate={{ rotate: pointerTick }}
               transition={{ type: "spring", stiffness: 500, damping: 15 }}
-              className="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[26px] border-t-amber-400 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]"
+              className="w-0 h-0 border-l-[14px] border-l-transparent border-r-[14px] border-r-transparent border-t-[26px] border-t-red-500 drop-shadow-[0_4px_8px_rgba(0,0,0,0.15)]"
             />
           </div>
 
           {/* Spinning Wheel */}
-          <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2 bg-gradient-to-tr from-amber-600 via-yellow-400 to-amber-700 shadow-[0_0_40px_rgba(245,158,11,0.3)] border-4 border-yellow-300/60">
+          <div className="relative w-64 h-64 sm:w-80 sm:h-80 rounded-full p-2 bg-gradient-to-tr from-amber-200 via-yellow-100 to-amber-200 shadow-lg border-4 border-amber-300/60">
             <div 
               className="w-full h-full rounded-full overflow-hidden relative shadow-inner"
               style={{
@@ -419,7 +419,7 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
                       <path
                         d={"M 50 50 L " + x1 + " " + y1 + " A 50 50 0 0 1 " + x2 + " " + y2 + " Z"}
                         fill={seg.color}
-                        stroke="#1E293B"
+                        stroke="#FFFFFF"
                         strokeWidth="0.8"
                       />
                       <text
@@ -440,26 +440,26 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
               </svg>
             </div>
 
-            <div className="absolute inset-0 m-auto w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-gradient-to-tr from-slate-950 via-slate-900 to-slate-950 border-4 border-amber-400 shadow-2xl flex flex-col items-center justify-center text-center">
-              <span className="text-[10px] font-black tracking-widest text-amber-400">AURA</span>
-              <span className="text-[8px] font-extrabold text-white uppercase tracking-tighter">STUDIO</span>
+            <div className="absolute inset-0 m-auto w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-white border-4 border-amber-400 shadow-lg flex flex-col items-center justify-center text-center">
+              <span className="text-[10px] font-black tracking-widest text-amber-600">AURA</span>
+              <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-tighter">STUDIO</span>
             </div>
           </div>
 
           {/* Round Timer HUD */}
           <div className="mt-4 flex items-center gap-3">
             {phase === "BETTING" ? (
-              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold text-sm">
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 font-bold text-sm">
                 <span className="animate-pulse font-mono text-base">⏱️ {countdown}s</span>
                 <span className="text-xs uppercase tracking-wide">Place Your Bets</span>
               </div>
             ) : phase === "SPINNING" ? (
-              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-sm animate-pulse">
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-50 border border-amber-200 text-amber-700 font-bold text-sm animate-pulse">
                 <span>🎡 WHEEL SPINNING...</span>
               </div>
             ) : (
-              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-500/30 border border-yellow-400 text-yellow-300 font-black text-sm animate-bounce">
-                <Trophy className="w-4 h-4 text-yellow-400" />
+              <div className="flex items-center gap-2 px-4 py-1.5 rounded-full bg-yellow-50 border border-yellow-300 text-yellow-700 font-black text-sm animate-bounce">
+                <Trophy className="w-4 h-4 text-yellow-600" />
                 <span>WINNER: {winningSegment?.val}!</span>
               </div>
             )}
@@ -468,7 +468,7 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
       </div>
 
       {/* Interactive Multi-Betting Table Grid */}
-      <div className="p-4 sm:p-6 bg-slate-950/95 border-t border-slate-800">
+      <div className="p-4 sm:p-6 bg-slate-50 border-t border-slate-200">
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-6">
           {BET_SPOTS.map((spot) => {
             const currentBet = userBets[spot.id] || 0;
@@ -480,11 +480,11 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
                 onClick={() => handlePlaceChip(spot.id)}
                 disabled={phase !== "BETTING"}
                 className={cn(
-                  "relative flex flex-col items-center justify-center p-3.5 rounded-xl border transition-all duration-200 cursor-pointer overflow-hidden group",
+                  "relative flex flex-col items-center justify-center p-3.5 rounded-xl border bg-gradient-to-b transition-all duration-200 cursor-pointer overflow-hidden group",
                   spot.bgGradient,
                   spot.borderColor,
-                  phase === "BETTING" ? "hover:scale-105 active:scale-95 hover:brightness-125 shadow-md" : "opacity-85 cursor-not-allowed",
-                  isWinner && "ring-4 ring-yellow-400 ring-offset-2 ring-offset-slate-950 animate-pulse scale-105 brightness-150"
+                  phase === "BETTING" ? "hover:scale-105 active:scale-95 hover:shadow-md shadow-sm" : "opacity-70 cursor-not-allowed",
+                  isWinner && "ring-4 ring-yellow-400 ring-offset-2 ring-offset-white animate-pulse scale-105"
                 )}
               >
                 {isWinner && (
@@ -494,7 +494,7 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
                 <span className={cn("text-lg sm:text-xl font-black mb-0.5", spot.color)}>
                   {spot.label}
                 </span>
-                <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                <span className="text-[10px] font-bold text-slate-500 uppercase tracking-wider">
                   Pays {spot.multiplier}:1
                 </span>
 
@@ -503,7 +503,7 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
                     initial={{ scale: 0 }}
                     animate={{ scale: 1 }}
                     className={cn(
-                      "mt-2 px-2.5 py-0.5 rounded-full text-xs font-black shadow-lg border border-white/20",
+                      "mt-2 px-2.5 py-0.5 rounded-full text-xs font-black shadow-md",
                       spot.chipColor
                     )}
                   >
@@ -516,10 +516,10 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
         </div>
 
         {/* Chip Selector & Quick Action Controls */}
-        <div className="flex flex-wrap items-center justify-between gap-4 pt-2 border-t border-slate-800/80">
+        <div className="flex flex-wrap items-center justify-between gap-4 pt-3 border-t border-slate-200">
           
           <div className="flex items-center gap-2 overflow-x-auto py-1">
-            <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">Chip:</span>
+            <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">Chip:</span>
             {CHIP_VALUES.map((val) => (
               <button
                 key={val}
@@ -528,16 +528,16 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
                   playGameSound("chip");
                 }}
                 className={cn(
-                  "w-10 h-10 sm:w-11 sm:h-11 rounded-full font-black text-xs flex items-center justify-center border-2 transition-all cursor-pointer shadow-md",
+                  "w-10 h-10 sm:w-11 sm:h-11 rounded-full font-black text-xs flex items-center justify-center border-2 transition-all cursor-pointer shadow-sm",
                   selectedChip === val
-                    ? "scale-110 border-yellow-400 ring-2 ring-yellow-400/50 shadow-yellow-500/30"
-                    : "border-slate-700 hover:scale-105 opacity-80",
+                    ? "scale-110 border-amber-400 ring-2 ring-amber-300/50 shadow-amber-200/50"
+                    : "border-slate-300 hover:scale-105 opacity-80",
                   val === 10 ? "bg-blue-600 text-white" :
                   val === 50 ? "bg-emerald-600 text-white" :
                   val === 100 ? "bg-purple-600 text-white" :
-                  val === 500 ? "bg-amber-600 text-black" :
+                  val === 500 ? "bg-amber-600 text-white" :
                   val === 1000 ? "bg-rose-600 text-white" :
-                  "bg-gradient-to-tr from-yellow-400 to-amber-600 text-black font-black"
+                  "bg-gradient-to-tr from-yellow-400 to-amber-500 text-white font-black"
                 )}
               >
                 ₹{val >= 1000 ? (val / 1000) + "k" : val}
@@ -549,21 +549,21 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
             <button
               onClick={handleDoubleBets}
               disabled={phase !== "BETTING" || totalUserBet === 0}
-              className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-bold transition-all border border-slate-700 cursor-pointer"
+              className="px-3 py-2 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-bold text-slate-700 transition-all border border-slate-200 cursor-pointer shadow-sm"
             >
               2X Double
             </button>
             <button
               onClick={handleRepeatBets}
               disabled={phase !== "BETTING" || Object.keys(previousBets).length === 0}
-              className="px-3 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 disabled:opacity-40 text-xs font-bold transition-all border border-slate-700 cursor-pointer"
+              className="px-3 py-2 rounded-lg bg-white hover:bg-slate-50 disabled:opacity-40 text-xs font-bold text-slate-700 transition-all border border-slate-200 cursor-pointer shadow-sm"
             >
               Repeat
             </button>
             <button
               onClick={handleClearBets}
               disabled={phase !== "BETTING" || totalUserBet === 0}
-              className="px-3 py-2 rounded-lg bg-red-900/40 hover:bg-red-800/60 disabled:opacity-40 text-red-300 text-xs font-bold transition-all border border-red-700/50 cursor-pointer"
+              className="px-3 py-2 rounded-lg bg-red-50 hover:bg-red-100 disabled:opacity-40 text-red-600 text-xs font-bold transition-all border border-red-200 cursor-pointer shadow-sm"
             >
               Clear
             </button>
@@ -572,7 +572,7 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
           <div className="flex items-center gap-3">
             <div className="flex flex-col items-end leading-none">
               <span className="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider mb-1">Total Bet</span>
-              <span className="text-sm sm:text-base font-black font-mono text-amber-400">
+              <span className="text-sm sm:text-base font-black font-mono text-amber-600">
                 ₹{totalUserBet.toLocaleString("en-IN")}
               </span>
             </div>
@@ -581,32 +581,32 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
       </div>
 
       {/* Community Stream Ticker & Live Chat Drawer */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-slate-900/70 border-t border-slate-800/80 text-xs">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-4 bg-white border-t border-slate-200 text-xs">
         <div>
-          <div className="flex items-center gap-1.5 font-bold text-slate-400 mb-2 uppercase tracking-wider text-[10px]">
-            <Users className="w-3.5 h-3.5 text-blue-400" />
+          <div className="flex items-center gap-1.5 font-bold text-slate-500 mb-2 uppercase tracking-wider text-[10px]">
+            <Users className="w-3.5 h-3.5 text-blue-500" />
             <span>Live Table Bets (1,248 Online)</span>
           </div>
           <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
             {liveBetFeed.map((bf) => (
-              <div key={bf.id} className="flex items-center justify-between px-2.5 py-1 rounded bg-slate-950/60 border border-slate-800 text-[11px]">
-                <span className="font-semibold text-slate-300">{bf.user}</span>
-                <span className="text-slate-400">bet <strong className="text-amber-400">₹{bf.amount}</strong> on <strong className="text-white">{bf.spot}</strong></span>
+              <div key={bf.id} className="flex items-center justify-between px-2.5 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-[11px]">
+                <span className="font-semibold text-slate-700">{bf.user}</span>
+                <span className="text-slate-500">bet <strong className="text-amber-600">₹{bf.amount}</strong> on <strong className="text-slate-800">{bf.spot}</strong></span>
               </div>
             ))}
           </div>
         </div>
 
         <div>
-          <div className="flex items-center gap-1.5 font-bold text-slate-400 mb-2 uppercase tracking-wider text-[10px]">
-            <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
+          <div className="flex items-center gap-1.5 font-bold text-slate-500 mb-2 uppercase tracking-wider text-[10px]">
+            <MessageSquare className="w-3.5 h-3.5 text-emerald-500" />
             <span>Studio Chat</span>
           </div>
           <div className="space-y-1.5 max-h-24 overflow-y-auto pr-1">
             {chatMessages.map((cm) => (
               <div key={cm.id} className="flex items-start gap-1.5 text-[11px]">
-                <strong className={cm.user.includes("Valentina") ? "text-amber-400" : "text-blue-400"}>{cm.user}:</strong>
-                <span className="text-slate-300">{cm.text}</span>
+                <strong className={cm.user.includes("Valentina") ? "text-amber-600" : "text-blue-600"}>{cm.user}:</strong>
+                <span className="text-slate-600">{cm.text}</span>
               </div>
             ))}
           </div>
