@@ -54,7 +54,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   // Live Telemetry states
   const [telemetryHistory, setTelemetryHistory] = useState<any[]>([]);
   const [riskAlerts, setRiskAlerts] = useState<string[]>([]);
-  const [holdStats, setHoldStats] = useState<{ holdPercent: number; deviationFlag: boolean }>({ holdPercent: 12.5, deviationFlag: false });
+  const [holdStats, setHoldStats] = useState<{ holdPercent: number; deviationFlag: boolean }>({ holdPercent: 0, deviationFlag: false });
   const [isSuspended, setIsSuspended] = useState(false);
   const [isMaintenanceMode, setIsMaintenanceMode] = useState(false);
 
@@ -71,7 +71,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         if (res.ok && data.success) {
           setTelemetryHistory(data.telemetry || []);
           setRiskAlerts(data.riskAlerts || []);
-          setHoldStats(data.holdStats || { holdPercent: 12.5, deviationFlag: false });
+          setHoldStats(data.holdStats || { holdPercent: 0, deviationFlag: false });
           setIsSuspended(!!data.isSuspended);
           setIsMaintenanceMode(!!data.maintenanceMode);
         }
@@ -118,10 +118,10 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         showToast(`Success: Simulated ${res.details} for @${res.user}!`, "success");
         setTimeout(() => window.location.reload(), 1500);
       } else {
-        showToast(`Error: ${res.error}`, "error");
+        showToast(`Simulation failed: ${res.error || 'Unknown error'}`, "error");
       }
     } catch (err: any) {
-      showToast(`Simulation failed: ${err.message}`, "error");
+      showToast(`Simulation error: ${err.message}`, "error");
     } finally {
       setLoading(false);
     }
@@ -133,9 +133,9 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
       setLoading(true);
       const res = await adminTriggerSportsSyncAction(currentUser.email);
       if (res.success) {
-        showToast(`Sync Done! Crawled ${res.cricketCount} Cricket & ${res.tennisCount} Tennis live fixtures.`, "success");
+        showToast("Live match odds synced successfully!", "success");
       } else {
-        showToast(`Sync Error: ${res.error}`, "error");
+        showToast(`Sync failed: ${res.error}`, "error");
       }
     } catch (err: any) {
       showToast(`Sync failed: ${err.message}`, "error");
@@ -150,13 +150,13 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
       setLoading(true);
       const res = await adminClearActivityAction(currentUser.email);
       if (res.success) {
-        showToast(`Success: Purged ${res.clearedCount} simulated transactions from ledger.`, "success");
-        setTimeout(() => window.location.reload(), 1500);
+        showToast("All player audit logs and activity logs cleared!", "success");
+        setTimeout(() => window.location.reload(), 1200);
       } else {
-        showToast(`Error: ${res.error}`, "error");
+        showToast(`Failed: ${res.error}`, "error");
       }
     } catch (err: any) {
-      showToast(`Purge failed: ${err.message}`, "error");
+      showToast(`Failed: ${err.message}`, "error");
     } finally {
       setLoading(false);
     }
@@ -164,18 +164,18 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
 
   const handleBroadcast = async () => {
     if (!currentUser) return;
-    const msg = prompt("Enter the notification message to broadcast to ALL users:");
-    if (!msg) return;
+    const msg = prompt("Enter announcement message to broadcast to all players:");
+    if (!msg || !msg.trim()) return;
     try {
       setLoading(true);
-      const res = await adminBroadcastNotificationAction(currentUser.email, msg);
+      const res = await adminBroadcastNotificationAction(currentUser.email, msg.trim());
       if (res.success) {
-        showToast(`Success: Broadcasted message to ${res.sentCount} users.`, "success");
+        showToast("Announcement broadcasted to all users successfully!", "success");
       } else {
-        showToast(`Error: ${res.error}`, "error");
+        showToast(`Broadcast failed: ${res.error}`, "error");
       }
     } catch (err: any) {
-      showToast(`Broadcast failed: ${err.message}`, "error");
+      showToast(`Broadcast error: ${err.message}`, "error");
     } finally {
       setLoading(false);
     }
@@ -254,18 +254,13 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   // Recharts interactive volume trend chart
   const renderAreaChart = () => {
     const chartData = [
-      { time: '00:00', volume: 15000 },
-      { time: '02:00', volume: 32000 },
-      { time: '04:00', volume: 28000 },
-      { time: '06:00', volume: 54000 },
-      { time: '08:00', volume: 48000 },
-      { time: '10:00', volume: 75000 },
-      { time: '12:00', volume: 92000 },
-      { time: '14:00', volume: 88000 },
-      { time: '16:00', volume: 125000 },
-      { time: '18:00', volume: 110000 },
-      { time: '20:00', volume: 165000 },
-      { time: '22:00', volume: 195000 },
+      { time: '00:00', volume: 0 },
+      { time: '04:00', volume: 0 },
+      { time: '08:00', volume: 0 },
+      { time: '12:00', volume: 0 },
+      { time: '16:00', volume: 0 },
+      { time: '20:00', volume: 0 },
+      { time: '23:59', volume: 0 },
     ];
 
     return (

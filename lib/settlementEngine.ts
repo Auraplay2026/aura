@@ -302,7 +302,7 @@ export function calculatePlatformHoldPercentage(): { holdPercent: number; deviat
     totalPayoutPaise += p;
   });
   
-  if (totalWagerPaise === 0) return { holdPercent: 12.5, deviationFlag: false };
+  if (totalWagerPaise === 0) return { holdPercent: 0, deviationFlag: false };
   
   const netHouseWin = totalWagerPaise - totalPayoutPaise;
   const holdPercent = (netHouseWin / totalWagerPaise) * 100;
