@@ -1,4 +1,4 @@
-export type CategoryId = "fps" | "driving" | "retro" | "sports" | "action" | "puzzle" | "funny" | "boring" | "originals" | "slots" | "live" | "shows" | "table" | "crash" | "poker" | "esports" | "racing" | "adventure" | "casual" | "classic" | "roulette" | "blackjack" | "baccarat" | "aaa" | "3d" | "open-world" | "external" | "board";
+export type CategoryId = "fps" | "driving" | "retro" | "sports" | "action" | "puzzle" | "funny" | "boring" | "originals" | "slots" | "live" | "live-studio" | "shows" | "table" | "crash" | "poker" | "esports" | "racing" | "adventure" | "casual" | "classic" | "roulette" | "blackjack" | "baccarat" | "aaa" | "3d" | "open-world" | "external" | "board";
 
 export interface Game {
   id: string;
@@ -52,7 +52,7 @@ export const FEATURED_GAMES: Game[] = [
   // --- PREMIUM CRASH ---
   { id: "crash-1", title: "Aviator", provider: "Spribe", image: "/games/spribe_aviator-7zuT5hj-B.jpeg", categories: ["crash"], players: 50000 },
   { id: "crash-2", title: "Aviamasters 2", provider: "SoftSwiss", image: "/games/softswiss_Aviamasters2-OPwO5jn6K.jpeg", categories: ["crash"], players: 29000 },
-  { id: "crash-3", title: "Crazy Coin Flip", provider: "Evolution", image: "/games/evo_crazy-coin-flip--5TY4F43O.jpeg", categories: ["crash", "live"], players: 14000 },
+  { id: "crash-3", title: "Crazy Coin Flip", provider: "Evolution", image: "/games/evo_crazy-coin-flip--5TY4F43O.jpeg", categories: ["crash", "live", "live-studio"], players: 14000 },
 
   // --- PREMIUM SLOTS ---
   { id: "slot-1", title: "Sweet Bonanza", provider: "Pragmatic Play", image: "/games/slot_cover_sweet.png", categories: ["slots"], players: 12000 },
@@ -76,43 +76,43 @@ export const FEATURED_GAMES: Game[] = [
   { id: "slot-19", title: "Wanted Dead or a Wild", provider: "Hacksaw Gaming", image: "/games/hacksaw_1067-tLa7Rl6FW.jpeg", categories: ["slots"], players: 41000 },
 
   // --- PREMIUM LIVE SHOWS & LIVE STUDIOS ---
-  { id: "live-wheel-studio", title: "AURA Live Dream Wheel (Live Dealer)", provider: "AURA Live Studio", image: "/games/live_cover_crazy.png", categories: ["live", "shows", "originals"], rtp: 98.6, players: 48500, isNew: true },
-  { id: "live-1", title: "Crazy Time", provider: "Evolution", image: "/games/live_cover_crazy.png", categories: ["live", "shows"], players: 25000 },
-  { id: "live-2", title: "Lightning Storm Live", provider: "Evolution", image: "/games/evo_lightning-storm-EuSGqjpLa.jpeg", categories: ["live", "shows"], players: 34000 },
-  { id: "live-3", title: "Crazy Pachinko Live", provider: "Evolution", image: "/games/evo_crazy-pachinko-IZFn5hYjG.jpeg", categories: ["live", "shows"], players: 22000 },
-  { id: "live-4", title: "Funky Time Disco", provider: "Evolution", image: "/games/evo_funky-time-cxwqMBoVg.jpeg", categories: ["live", "shows"], players: 18500 },
-  { id: "live-5", title: "Monopoly Big Baller", provider: "Evolution", image: "/games/evo_monopoly-big-baller-FK1HI3SZx.jpeg", categories: ["live", "shows"], players: 15400 },
-  { id: "live-6", title: "Balloon Race Game", provider: "Evolution", image: "/games/evo_balloon-race-gpXXccaD0.jpeg", categories: ["live", "shows", "crash"], players: 9600 },
-  { id: "live-7", title: "Dream Catcher Wheel", provider: "Evolution", image: "/games/evo_dream-catcher-TLMUmSOj7.jpeg", categories: ["live", "shows"], players: 11200 },
+  { id: "live-wheel-studio", title: "AURA Live Dream Wheel (Live Dealer)", provider: "AURA Live Studio", image: "/games/live_cover_crazy.png", categories: ["live", "live-studio", "shows", "originals"], rtp: 98.6, players: 48500, isNew: true },
+  { id: "live-1", title: "Crazy Time", provider: "Evolution", image: "/games/live_cover_crazy.png", categories: ["live", "live-studio", "shows"], players: 25000 },
+  { id: "live-2", title: "Lightning Storm Live", provider: "Evolution", image: "/games/evo_lightning-storm-EuSGqjpLa.jpeg", categories: ["live", "live-studio", "shows"], players: 34000 },
+  { id: "live-3", title: "Crazy Pachinko Live", provider: "Evolution", image: "/games/evo_crazy-pachinko-IZFn5hYjG.jpeg", categories: ["live", "live-studio", "shows"], players: 22000 },
+  { id: "live-4", title: "Funky Time Disco", provider: "Evolution", image: "/games/evo_funky-time-cxwqMBoVg.jpeg", categories: ["live", "live-studio", "shows"], players: 18500 },
+  { id: "live-5", title: "Monopoly Big Baller", provider: "Evolution", image: "/games/evo_monopoly-big-baller-FK1HI3SZx.jpeg", categories: ["live", "live-studio", "shows"], players: 15400 },
+  { id: "live-6", title: "Balloon Race Game", provider: "Evolution", image: "/games/evo_balloon-race-gpXXccaD0.jpeg", categories: ["live", "live-studio", "shows", "crash"], players: 9600 },
+  { id: "live-7", title: "Dream Catcher Wheel", provider: "Evolution", image: "/games/evo_dream-catcher-TLMUmSOj7.jpeg", categories: ["live", "live-studio", "shows"], players: 11200 },
 
   // --- PREMIUM TABLE GAMES ---
-  { id: "table-1", title: "Lightning Roulette", provider: "Evolution", image: "/games/live_cover_roulette.png", categories: ["live", "table", "roulette"], players: 32000 },
-  { id: "table-2", title: "Infinite Blackjack", provider: "Evolution", image: "/games/live_cover_blackjack.png", categories: ["live", "table", "blackjack"], players: 15000 },
-  { id: "table-3", title: "Speed Baccarat", provider: "Pragmatic Play Live", image: "/games/evo_roobet-baccarat-A-h7jSd7C.jpeg", categories: ["live", "table", "baccarat"], players: 9500 },
-  { id: "roulette-1", title: "Immersive Roulette", provider: "Evolution", image: "/games/live_cover_roulette.png", categories: ["live", "table", "roulette"], players: 25400 },
-  { id: "roulette-2", title: "Speed Roulette Live", provider: "Evolution", image: "/games/evo_speed-roulette-8a6GEiAUC.jpeg", categories: ["live", "table", "roulette"], players: 19800 },
-  { id: "roulette-3", title: "XXXtreme Lightning Roulette", provider: "Evolution", image: "/games/evo_xxxtreme-lightning-roulette-s2M5fQi64.jpeg", categories: ["live", "table", "roulette"], players: 31200 },
-  { id: "roulette-4", title: "Aura Premium Roulette", provider: "Evolution", image: "/games/evo_roobet-roulette-OdaKlJb02.jpeg", categories: ["live", "table", "roulette"], players: 14200 },
-  { id: "blackjack-1", title: "Free Bet Blackjack", provider: "Evolution", image: "/games/evo_roobet-free-bet-blackjack-lAfMYP-eP.jpeg", categories: ["live", "table", "blackjack"], players: 18500 },
-  { id: "blackjack-2", title: "Aura VIP Blackjack", provider: "Evolution", image: "/games/cyber_blackjack_cover.png", categories: ["live", "table", "blackjack"], players: 11000 },
-  { id: "blackjack-3", title: "VIP Diamond Blackjack", provider: "Evolution", image: "/games/blackjack_pro_cover.png", categories: ["live", "table", "blackjack"], players: 8500 },
-  { id: "blackjack-4", title: "Salon Privé Blackjack", provider: "Evolution", image: "/games/evo_roobet-salon-prive-blackjack-mPa0l_FJl.jpeg", categories: ["live", "table", "blackjack"], players: 6400 },
-  { id: "poker-1", title: "Texas Hold'em Bonus", provider: "Evolution", image: "/games/evo_blackjack-vip-19-eUcYAImJF.jpeg", categories: ["live", "poker", "table"], players: 6000 },
-  { id: "poker-3", title: "Triple Card Poker", provider: "Evolution", image: "/games/evo_blackjack-vip-h-ki4ceE6V_.jpeg", categories: ["live", "table", "poker"], players: 7400 },
-  { id: "poker-4", title: "Gold Bar Poker Deluxe", provider: "Evolution", image: "/games/evo_golden-baron-N07G4x_uW.jpeg", categories: ["live", "table", "poker"], players: 9600 },
+  { id: "table-1", title: "Lightning Roulette", provider: "Evolution", image: "/games/live_cover_roulette.png", categories: ["live", "live-studio", "table", "roulette"], players: 32000 },
+  { id: "table-2", title: "Infinite Blackjack", provider: "Evolution", image: "/games/live_cover_blackjack.png", categories: ["live", "live-studio", "table", "blackjack"], players: 15000 },
+  { id: "table-3", title: "Speed Baccarat", provider: "Pragmatic Play Live", image: "/games/evo_roobet-baccarat-A-h7jSd7C.jpeg", categories: ["live", "live-studio", "table", "baccarat"], players: 9500 },
+  { id: "roulette-1", title: "Immersive Roulette", provider: "Evolution", image: "/games/live_cover_roulette.png", categories: ["live", "live-studio", "table", "roulette"], players: 25400 },
+  { id: "roulette-2", title: "Speed Roulette Live", provider: "Evolution", image: "/games/evo_speed-roulette-8a6GEiAUC.jpeg", categories: ["live", "live-studio", "table", "roulette"], players: 19800 },
+  { id: "roulette-3", title: "XXXtreme Lightning Roulette", provider: "Evolution", image: "/games/evo_xxxtreme-lightning-roulette-s2M5fQi64.jpeg", categories: ["live", "live-studio", "table", "roulette"], players: 31200 },
+  { id: "roulette-4", title: "Aura Premium Roulette", provider: "Evolution", image: "/games/evo_roobet-roulette-OdaKlJb02.jpeg", categories: ["live", "live-studio", "table", "roulette"], players: 14200 },
+  { id: "blackjack-1", title: "Free Bet Blackjack", provider: "Evolution", image: "/games/evo_roobet-free-bet-blackjack-lAfMYP-eP.jpeg", categories: ["live", "live-studio", "table", "blackjack"], players: 18500 },
+  { id: "blackjack-2", title: "Aura VIP Blackjack", provider: "Evolution", image: "/games/cyber_blackjack_cover.png", categories: ["live", "live-studio", "table", "blackjack"], players: 11000 },
+  { id: "blackjack-3", title: "VIP Diamond Blackjack", provider: "Evolution", image: "/games/blackjack_pro_cover.png", categories: ["live", "live-studio", "table", "blackjack"], players: 8500 },
+  { id: "blackjack-4", title: "Salon Privé Blackjack", provider: "Evolution", image: "/games/evo_roobet-salon-prive-blackjack-mPa0l_FJl.jpeg", categories: ["live", "live-studio", "table", "blackjack"], players: 6400 },
+  { id: "poker-1", title: "Texas Hold'em Bonus", provider: "Evolution", image: "/games/evo_blackjack-vip-19-eUcYAImJF.jpeg", categories: ["live", "live-studio", "poker", "table"], players: 6000 },
+  { id: "poker-3", title: "Triple Card Poker", provider: "Evolution", image: "/games/evo_blackjack-vip-h-ki4ceE6V_.jpeg", categories: ["live", "live-studio", "table", "poker"], players: 7400 },
+  { id: "poker-4", title: "Gold Bar Poker Deluxe", provider: "Evolution", image: "/games/evo_golden-baron-N07G4x_uW.jpeg", categories: ["live", "live-studio", "table", "poker"], players: 9600 },
 
   // ==========================================
   // ROYAL GAMING LIVE CASINO FUSION MATRIX
   // ==========================================
-  { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "/games/teen_patti_cover.png", categories: ["live", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
-  { id: "royal-1-20", title: "Teen Patti 20-20", provider: "Royal Gaming", image: "/games/teen_patti_cover.png", categories: ["live", "table", "poker"], rtp: 98.4, players: 24000, isNew: true },
-  { id: "royal-2", title: "Super Over Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 98.8, players: 14000, isNew: true },
-  { id: "royal-3", title: "Andar Bahar Traditional", provider: "Royal Gaming", image: "/games/andar_bahar_cover.png", categories: ["live", "table"], rtp: 97.8, players: 25000, isNew: true },
-  { id: "royal-3-vr", title: "Andar Bahar VR", provider: "Royal Gaming", image: "/games/andar_bahar_cover.png", categories: ["live", "table"], rtp: 97.6, players: 18000, isNew: true },
-  { id: "royal-4", title: "32 Cards Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 96.5, players: 9000, isNew: true },
-  { id: "royal-5", title: "Lightning 7 Up & Down Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600&auto=format&fit=crop", categories: ["live", "table"], rtp: 97.2, players: 18000, isNew: true },
-  { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "/games/dragon_tiger_cover.png", categories: ["live", "table"], rtp: 96.2, players: 41000, isNew: true },
-  { id: "royal-7", title: "European Roulette", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "roulette"], rtp: 97.3, players: 12500, isNew: true },
+  { id: "royal-1", title: "Teen Patti One Day Fusion", provider: "Royal Gaming", image: "/games/teen_patti_cover.png", categories: ["live", "live-studio", "table", "poker"], rtp: 98.5, players: 32000, isNew: true },
+  { id: "royal-1-20", title: "Teen Patti 20-20", provider: "Royal Gaming", image: "/games/teen_patti_cover.png", categories: ["live", "live-studio", "table", "poker"], rtp: 98.4, players: 24000, isNew: true },
+  { id: "royal-2", title: "Super Over Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1531415074968-036ba1b575da?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "table"], rtp: 98.8, players: 14000, isNew: true },
+  { id: "royal-3", title: "Andar Bahar Traditional", provider: "Royal Gaming", image: "/games/andar_bahar_cover.png", categories: ["live", "live-studio", "table"], rtp: 97.8, players: 25000, isNew: true },
+  { id: "royal-3-vr", title: "Andar Bahar VR", provider: "Royal Gaming", image: "/games/andar_bahar_cover.png", categories: ["live", "live-studio", "table"], rtp: 97.6, players: 18000, isNew: true },
+  { id: "royal-4", title: "32 Cards Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "table"], rtp: 96.5, players: 9000, isNew: true },
+  { id: "royal-5", title: "Lightning 7 Up & Down Fusion", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1518609878373-06d740f60d8b?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "table"], rtp: 97.2, players: 18000, isNew: true },
+  { id: "royal-6", title: "Dragon Tiger Fusion", provider: "Royal Gaming", image: "/games/dragon_tiger_cover.png", categories: ["live", "live-studio", "table"], rtp: 96.2, players: 41000, isNew: true },
+  { id: "royal-7", title: "European Roulette", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "table", "roulette"], rtp: 97.3, players: 12500, isNew: true },
 
   // --- AAA CLOUD RENTALS (Premium High Price Tier) ---
   { id: "aaa-1", title: "Cyberpunk 2077", provider: "CD Projekt Red", image: "/games/roobetlabs_vault-tron-deadly-race-BOHwFqEYb.jpeg", categories: ["aaa", "open-world", "3d"], isNew: true, hourlyRate: 399, players: 4500 },
@@ -180,11 +180,11 @@ export const FEATURED_GAMES: Game[] = [
   { id: "slot-24", title: "Cyber Strike Megaways", provider: "Aura Studios", image: "https://images.unsplash.com/photo-1542751371-adc38448a05e?q=80&w=600&auto=format&fit=crop", categories: ["slots", "action", "3d"], isNew: true, players: 25000 },
 
   // Live Shows & Tables
-  { id: "live-8", title: "Mega Wheel Live 3D", provider: "Evolution", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["live", "shows"], isNew: true, players: 32000 },
-  { id: "live-9", title: "Lightning Blackjack 3D", provider: "Evolution", image: "/games/lightning_blackjack_cover.png", categories: ["live", "table", "blackjack"], isNew: true, players: 15000 },
-  { id: "live-10", title: "Teen Patti VR Live", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "poker"], isNew: true, players: 24000 },
-  { id: "live-11", title: "Dream Catcher 3D Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1600861195091-690c92f1d2cc?q=80&w=600&auto=format&fit=crop", categories: ["live", "shows"], isNew: true, players: 19800 },
-  { id: "live-12", title: "Bollywood Roulette Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "table", "roulette"], isNew: true, players: 31200 }
+  { id: "live-8", title: "Mega Wheel Live 3D", provider: "Evolution", image: "https://images.unsplash.com/photo-1596838132731-3301c3fd4317?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "shows"], isNew: true, players: 32000 },
+  { id: "live-9", title: "Lightning Blackjack 3D", provider: "Evolution", image: "/games/lightning_blackjack_cover.png", categories: ["live", "live-studio", "table", "blackjack"], isNew: true, players: 15000 },
+  { id: "live-10", title: "Teen Patti VR Live", provider: "Royal Gaming", image: "https://images.unsplash.com/photo-1622979135225-d2ba269cf1ac?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "table", "poker"], isNew: true, players: 24000 },
+  { id: "live-11", title: "Dream Catcher 3D Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1600861195091-690c92f1d2cc?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "shows"], isNew: true, players: 19800 },
+  { id: "live-12", title: "Bollywood Roulette Live", provider: "Evolution", image: "https://images.unsplash.com/photo-1606167668584-78701c57f13d?q=80&w=600&auto=format&fit=crop", categories: ["live", "live-studio", "table", "roulette"], isNew: true, players: 31200 }
 ];
 
 export const GAMES: Game[] = FEATURED_GAMES;

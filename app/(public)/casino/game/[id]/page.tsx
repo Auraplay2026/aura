@@ -824,6 +824,15 @@ export default function GamePlayerPage() {
     );
   }
 
+  // Direct Live Dealer Studio Full Broadcast Canvas
+  if (game.id === "live-wheel-studio" || game.id === "live-studio" || game.id.includes("wheel-studio")) {
+    return (
+      <div className="min-h-screen bg-[#04060B] text-white p-2 sm:p-4 md:p-6 lg:p-8 flex flex-col justify-center">
+        <LiveDealerStudioEngine onBetPlaced={(amt) => handleEngineComplete(1, true)} />
+      </div>
+    );
+  }
+
   // Inline betting panel — sidebar is disabled; all games use the inline bar below canvas
   const showLeftSidebar = false;
 
