@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import { useState, use, useMemo, useEffect, useRef } from "react";
+import { useState, useMemo, useEffect, useRef } from "react";
 import { GameCard } from "@/components/casino/GameCard";
 import { useTradingStore } from "@/lib/store";
 import { GAMES, getGamesByCategory, CategoryId } from "@/lib/games";
@@ -19,24 +19,8 @@ const TOKENS = [100, 500, 1000, 5000, 10000];
 
 export default function CasinoCategoryPage({ params }: { params: Promise<{ category: string }> }) {
   const routerParams = useParams();
-  const rawCat = (routerParams?.category as string) || "";
-  let categorySlug = rawCat.toLowerCase();
-  if (!categorySlug) {
-    try {
-      const unwrappedParams = use(params);
-      categorySlug = (unwrappedParams?.category || "").toLowerCase();
-    } catch {
-      categorySlug = "live";
-    }
-  }
-
-  if (categorySlug === "live-studio" || categorySlug === "studio" || categorySlug === "live-wheel-studio") {
-    return (
-      <div className="flex flex-col min-h-screen w-full bg-[#04060B] p-2 sm:p-4 md:p-6 pb-24 text-white">
-        <LiveDealerStudioEngine />
-      </div>
-    );
-  }
+  const rawCat = (routerParams?.category as string) || "live";
+  const categorySlug = rawCat.toLowerCase();
   
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProvider, setSelectedProvider] = useState("All");
