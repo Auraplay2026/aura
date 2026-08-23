@@ -60,6 +60,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
   const [newPassword,       setNewPassword]       = useState("");
   const [showNewPassword,   setShowNewPassword]   = useState(false);
   const [demoResetCode,     setDemoResetCode]     = useState<string | null>(null);
+  const [referralStatus,    setReferralStatus]    = useState<'idle' | 'loading' | 'valid' | 'invalid'>('idle');
+  const [referrerName,      setReferrerName]      = useState<string | null>(null);
   const [mounted,           setMounted]           = useState(false);
 
   // ── Mount + reset state on open, ONCE. No view in deps (prevents jump loop) ─
@@ -84,6 +86,25 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
 
   const [captchaCode, setCaptchaCode] = useState("");
   const [captchaInput, setCaptchaInput] = useState("");
+
+  const verifyReferralCode = async () => {
+    if (!referralCode.trim()) return;
+    setReferralStatus('loading');
+    try {
+      const res = await fetch(`/api/auth/verify-referral?code=${referralCode.trim()}`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setReferralStatus('valid');
+        setReferrerName(data.referrer);
+      } else {
+        setReferralStatus('invalid');
+        setReferrerName(null);
+      }
+    } catch (err) {
+      setReferralStatus('invalid');
+      setReferrerName(null);
+    }
+  };
 
   const refreshCaptcha = async () => {
     try {
@@ -130,7 +151,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
           setCaptchaInput("");
         }
       } else if (view === 'signup') {
-        const signupRes = await useTradingStore.getState().signUp(username, email, password);
+        const signupRes = await useTradingStore.getState().signUp(username, email, password, accountType, referralCode.trim());
         setIsLoading(false);
         if (signupRes.success) {
           onClose();
@@ -592,24 +613,48 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                       {/* Referral code (signup) */}
                       {view === 'signup' && (
                         <div>
-                          <label htmlFor="referral" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
-                            Referral Code <span className="text-slate-400 font-normal">(optional)</span>
+                          <label htmlFor="referral" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1 flex justify-between">
+                            <span>Referral Code <span className="text-slate-400 font-normal">(optional)</span></span>
                           </label>
-                          <div className="relative">
-                            <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
-                              <Sparkles className="w-4 h-4" />
+                          <div className="relative flex items-center gap-2">
+                            <div className="relative flex-1">
+                              <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                                <Sparkles className="w-4 h-4" />
+                              </div>
+                              <input
+                                id="referral"
+                                type="text"
+                                autoCapitalize="characters"
+                                autoCorrect="off"
+                                value={referralCode}
+                                onChange={e => {
+                                  setReferralCode(e.target.value);
+                                  setReferralStatus('idle');
+                                  setReferrerName(null);
+                                }}
+                                placeholder="e.g. VIP2024"
+                                className="w-full bg-white border border-slate-300 rounded-xl py-3 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all uppercase"
+                              />
                             </div>
-                            <input
-                              id="referral"
-                              type="text"
-                              autoCapitalize="characters"
-                              autoCorrect="off"
-                              value={referralCode}
-                              onChange={e => setReferralCode(e.target.value)}
-                              placeholder="e.g. VIP2024"
-                              className="w-full bg-white border border-slate-300 rounded-xl py-3.5 pl-10 pr-4 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all uppercase"
-                            />
+                            <button
+                              type="button"
+                              onClick={verifyReferralCode}
+                              disabled={!referralCode.trim() || referralStatus === 'loading'}
+                              className="px-4 py-3 bg-slate-100 hover:bg-slate-200 text-slate-700 text-sm font-bold rounded-xl transition-colors disabled:opacity-50 whitespace-nowrap"
+                            >
+                              {referralStatus === 'loading' ? 'Checking...' : 'Verify'}
+                            </button>
                           </div>
+                          {referralStatus === 'valid' && (
+                            <p className="text-emerald-600 text-xs font-semibold mt-2 ml-1">
+                              ✓ Valid code! Referred by {referrerName}
+                            </p>
+                          )}
+                          {referralStatus === 'invalid' && (
+                            <p className="text-red-500 text-xs font-semibold mt-2 ml-1">
+                              ✗ Invalid referral code
+                            </p>
+                          )}
                         </div>
                       )}
 

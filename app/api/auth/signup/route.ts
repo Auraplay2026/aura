@@ -8,7 +8,7 @@ import { getClientIP, getIPLocation, parseUserAgent } from '@/lib/geo';
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { username, email, password } = body;
+    const { username, email, password, referralCode } = body;
 
     if (!username || !password) {
       return NextResponse.json({ error: 'Username and password are required.' }, { status: 400 });
@@ -40,8 +40,22 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'A user with this username or email already exists.' }, { status: 400 });
     }
 
+    // Validate referral code if provided
+    let referrer = null;
+    if (referralCode?.trim()) {
+      referrer = await prisma.user.findUnique({
+        where: { affiliateCode: referralCode.trim().toUpperCase() }
+      });
+      if (!referrer) {
+        return NextResponse.json({ error: 'Invalid referral code.' }, { status: 400 });
+      }
+    }
+
     // Hash password
     const passwordHash = await bcrypt.hash(cleanPassword, 10);
+
+    // Generate own affiliate code
+    const ownAffiliateCode = cleanUsername.toUpperCase().replace(/[^A-Z0-9]/g, '').substring(0, 8) + Math.random().toString(36).substring(2, 6).toUpperCase();
 
     // Create user in Supabase
     const newUser = await prisma.user.create({
@@ -54,9 +68,18 @@ export async function POST(request: Request) {
         demoBalance: 100000,
         realBalance: 0,
         hasCompletedOnboarding: true,
-        kycStatus: 'NONE'
+        kycStatus: 'NONE',
+        referredBy: referrer ? referrer.username : null,
+        affiliateCode: ownAffiliateCode
       }
     });
+
+    if (referrer) {
+      await prisma.user.update({
+        where: { id: referrer.id },
+        data: { referralCount: { increment: 1 } }
+      });
+    }
 
     // Sniff IP and device for audit log
     const ip = getClientIP(request);
