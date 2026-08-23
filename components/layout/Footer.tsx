@@ -161,7 +161,7 @@ export function Footer() {
               onClick={() => {
                 const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (659) 221-0661";
                 const cleanNumber = rawNumber.replace(/[^0-9]/g, "");
-                const msg = encodeURIComponent("Hi AuraPlay VIP Coordinator! I would like assistance with my account and ID creation.");
+                const msg = encodeURIComponent("I want ID");
                 window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
               }}
               className="px-6 py-3.5 bg-white hover:bg-emerald-50 text-emerald-900 font-black text-xs uppercase tracking-wider rounded-xl shadow-lg transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2 cursor-pointer"

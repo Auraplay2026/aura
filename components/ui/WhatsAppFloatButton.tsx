@@ -21,38 +21,38 @@ export function WhatsAppFloatButton() {
   const quickActions = [
     {
       id: "create_id",
-      icon: "👤",
+      icon: "✨",
       title: "Create Master ID / Account",
       desc: "Manual player ID creation & quick onboarding",
-      text: "Hi AuraPlay Team! I want to create a new betting ID / account on WhatsApp."
+      text: "I want ID"
     },
     {
       id: "deposit",
-      icon: "⚡",
+      icon: "💸",
       title: "Instant UPI Deposit & UTR",
       desc: "Fast balance top-up help & receipt approval",
-      text: "Hi AuraPlay Team! I need instant assistance with my UPI Deposit / UTR verification."
+      text: "I want ID"
     },
     {
       id: "cricket",
       icon: "🏏",
       title: "Live Cricket Bhav & Match ID",
       desc: "Pitch-side 0.2s cricket market queries",
-      text: "Hi AuraPlay Team! I want to get the latest live Cricket Bhav and activate my match betting."
+      text: "I want ID"
     },
     {
       id: "withdrawal",
-      icon: "💰",
+      icon: "🏦",
       title: "15-Sec Fast Withdrawal",
       desc: "Check payout & bank IMPS dispatch",
-      text: "Hi AuraPlay Team! Please check the status of my withdrawal payout."
+      text: "I want ID"
     },
     {
       id: "bonus",
       icon: "🎁",
-      title: "Claim ₹10,000 Welcome Bonus",
+      title: "Claim ₹110,000 Welcome Bonus",
       desc: "100% First Deposit Match & Desi Cashback",
-      text: "Hi AuraPlay Team! I am a new player and want to claim my ₹10,000 First Deposit Welcome Bonus."
+      text: "I want ID"
     }
   ];
 
@@ -208,7 +208,7 @@ export function WhatsAppFloatButton() {
               </div>
 
               <button
-                onClick={() => handleLaunchWhatsApp(customMsg.trim() || "Hi AuraPlay Support, I would like to chat.")}
+                onClick={() => handleLaunchWhatsApp(customMsg.trim() || "I want ID")}
                 className="w-full py-3 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black text-xs uppercase tracking-wider rounded-xl shadow-md flex items-center justify-center gap-2 cursor-pointer transition-all hover:scale-[1.02]"
               >
                 <MessageCircle className="w-4 h-4 fill-white" /> Open Direct WhatsApp Chat
