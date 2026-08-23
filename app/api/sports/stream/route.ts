@@ -1,6 +1,6 @@
 import { NextRequest } from "next/server";
 import { getSportMatchesWithSWR, ExtendedMatch } from "@/lib/sportsCache";
-import { resolveCricbuzzMatchDetails } from "@/lib/cricbuzzEngine";
+import { resolveCricbuzzMatchDetails, translateToCricbuzzId } from "@/lib/cricbuzzEngine";
 import { ApexDataEngine } from "@/lib/apexDataEngine";
 import { computeCricketBhav, applyBallEventToBhav } from "@/lib/cricketBhavEngine";
 
@@ -84,7 +84,6 @@ export async function GET(req: NextRequest) {
             try {
               let finalCricbuzzId = String(matchId);
               if (liveMatch && liveMatch.team1 && liveMatch.team2 && isNaN(parseInt(finalCricbuzzId))) {
-                 const { translateToCricbuzzId } = require("@/lib/cricbuzzEngine");
                  const translated = await translateToCricbuzzId(liveMatch.team1, liveMatch.team2);
                  if (translated) {
                      finalCricbuzzId = translated;
