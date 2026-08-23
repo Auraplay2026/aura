@@ -39,15 +39,17 @@ async function scrapeCricbuzzFallback(matchId: string): Promise<any> {
     const team1Name = matchTitle.split(' vs ')[0] ? matchTitle.split(' vs ')[0].trim() : 'Team 1';
     const team2Name = matchTitle.split(' vs ')[1] ? matchTitle.split(' vs ')[1].trim() : 'Team 2';
 
-    const extractScore = (text: string, tName: string) => {
-        let clean = text.replace(tName, '').replace(tName.slice(0,3).toUpperCase(), '').trim();
-        let m = clean.match(/^(\d+(?:\/\d+)?)(?:\s*\(([^)]+)\))?/);
-        if (m) return m[2] && !m[2].match(/[a-zA-Z]/) ? `${m[1]} (${m[2]} ov)` : m[1];
+    const extractScore = (text: string) => {
+        const m = text.match(/(\d+(?:\/\d+)?(?:d)?(?:\s*&\s*\d+(?:\/\d+)?)?)(?:\s*\(([^)]+)\))?/);
+        if (m) {
+             const overs = m[2] ? m[2].replace(/[a-zA-Z]/g, '').trim() : null;
+             return overs && overs.length > 0 ? `${m[1]} (${overs} ov)` : m[1];
+        }
         return "Yet to Bat";
     };
 
-    let t1ScoreStr = extractScore(teamsScore[0] || '', team1Name);
-    let t2ScoreStr = extractScore(teamsScore[1] || '', team2Name);
+    let t1ScoreStr = extractScore(teamsScore[0] || '');
+    let t2ScoreStr = extractScore(teamsScore[1] || '');
 
     const statusMatch = html.match(/<div[^>]*class="[^"]*cb-text-stumps[^"]*"[^>]*>([^<]+)<\/div>/i) 
                       || html.match(/<div[^>]*class="[^"]*cb-text-complete[^"]*"[^>]*>([^<]+)<\/div>/i)
