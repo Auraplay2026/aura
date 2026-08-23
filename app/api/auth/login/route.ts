@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   try {
     const body = await request.json();
     const emailOrUsername = body.emailOrUsername || body.email;
-    const { password, otp, captcha } = body;
+    const { password, otp, captcha, referralCode } = body;
     
     const inputIdentifier = (emailOrUsername || '').trim();
     const cleanPassword = (password || '').trim();
@@ -145,6 +145,30 @@ export async function POST(request: Request) {
 
     if (user.adminNotes === "FORCE_PASSWORD_CHANGE") {
       return NextResponse.json({ requirePasswordChange: true, email: user.email || user.username }, { status: 200 });
+    }
+
+    // Assign referrer on first login if provided and not already assigned
+    if (referralCode?.trim() && !user.referredBy) {
+      const codeToApply = referralCode.trim().toUpperCase();
+      // Ensure users cannot refer themselves
+      if (codeToApply !== user.affiliateCode) {
+        const referrer = await prisma.user.findUnique({
+          where: { affiliateCode: codeToApply }
+        });
+        if (referrer) {
+          // Link them
+          await prisma.user.update({
+            where: { id: user.id },
+            data: { referredBy: referrer.username }
+          });
+          // Increment referrer's count
+          await prisma.user.update({
+            where: { id: referrer.id },
+            data: { referralCount: { increment: 1 } }
+          });
+          user.referredBy = referrer.username; // update local object
+        }
+      }
     }
 
     // Log successful login

@@ -133,7 +133,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
 
     try {
       if (view === 'login') {
-        const res = await loginWithCredentials(email, password, twoFactorRequired ? otpCode : undefined, captchaInput);
+        const res = await loginWithCredentials(email, password, twoFactorRequired ? otpCode : undefined, captchaInput, referralCode.trim());
         setIsLoading(false);
         if (res.success) {
           setTwoFactorRequired(false);
@@ -610,8 +610,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                         </div>
                       )}
 
-                      {/* Referral code (signup) */}
-                      {view === 'signup' && (
+                      {/* Referral code (signup & login) */}
+                      {(view === 'signup' || view === 'login') && (
                         <div>
                           <label htmlFor="referral" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1 flex justify-between">
                             <span>Referral Code <span className="text-slate-400 font-normal">(optional)</span></span>

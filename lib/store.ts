@@ -130,7 +130,7 @@ interface TradingState {
   login: () => Promise<void>;
   logout: () => void;
   signUp: (username: string, email: string, passwordHash: string, accountType?: 'demo' | 'real', referralCode?: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithCredentials: (emailOrUsername: string, passwordHash: string, otp?: string, captcha?: string) => Promise<{ success: boolean; error?: string; twoFactorRequired?: boolean; requirePasswordChange?: boolean }>;
+  loginWithCredentials: (emailOrUsername: string, passwordHash: string, otp?: string, captcha?: string, referralCode?: string) => Promise<{ success: boolean; error?: string; twoFactorRequired?: boolean; requirePasswordChange?: boolean }>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   setup2fa: () => Promise<{ success: boolean; secret?: string; keyUri?: string; error?: string }>;
   verifyAndEnable2fa: (token: string, secret: string) => Promise<{ success: boolean; error?: string }>;
@@ -481,13 +481,13 @@ export const useTradingStore = create<TradingState>()(
         }
       },
 
-      loginWithCredentials: async (emailOrUsername, password, otp, captcha) => {
+      loginWithCredentials: async (emailOrUsername, password, otp, captcha, referralCode) => {
         try {
           const res = await fetch('/api/auth/login', {
             method: 'POST',
             credentials: 'include',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ emailOrUsername, password, otp, captcha })
+            body: JSON.stringify({ emailOrUsername, password, otp, captcha, referralCode })
           });
           const data = await res.json();
           if (data && data.twoFactorRequired) {
