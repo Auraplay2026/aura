@@ -69,7 +69,18 @@ export async function GET(
     // the SWR cache's odds, series name, and score status.
     // ──────────────────────────────────────────────────
     try {
-      const cricbuzzData = await resolveCricbuzzMatchDetails(matchId);
+      let finalCricbuzzId = String(matchId);
+      
+      // If the ID is an Odds API hash, translate it to a real Cricbuzz integer ID
+      if (liveMatch && liveMatch.team1 && liveMatch.team2 && isNaN(parseInt(finalCricbuzzId))) {
+         const { translateToCricbuzzId } = require("@/lib/cricbuzzEngine");
+         const translated = await translateToCricbuzzId(liveMatch.team1, liveMatch.team2);
+         if (translated) {
+             finalCricbuzzId = translated;
+         }
+      }
+
+      const cricbuzzData = await resolveCricbuzzMatchDetails(finalCricbuzzId);
       if (cricbuzzData && cricbuzzData.match) {
         const match = cricbuzzData.match;
 

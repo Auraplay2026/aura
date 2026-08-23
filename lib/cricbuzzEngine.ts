@@ -61,6 +61,32 @@ async function scrapeCricbuzzFallback(matchId: string): Promise<any> {
   } catch(e) { return null; }
 }
 
+export async function translateToCricbuzzId(team1: string, team2: string): Promise<string | null> {
+    try {
+        const res = await fetch(`https://m.cricbuzz.com/cricket-match/live-scores`, {
+            headers: { 'User-Agent': 'Mozilla/5.0' },
+            signal: AbortSignal.timeout(3000)
+        });
+        if (!res.ok) return null;
+        const html = await res.text();
+        const regex = /<a[^>]*href="\/live-cricket-scores\/(\d+)\/[^"]*"[^>]*title="([^"]+)"[^>]*>/g;
+        let match;
+        const t1 = (team1 || "").toLowerCase().split(' ')[0]; 
+        const t2 = (team2 || "").toLowerCase().split(' ')[0]; 
+        
+        if (!t1 || !t2) return null;
+
+        while ((match = regex.exec(html)) !== null) {
+            const id = match[1];
+            const title = match[2].toLowerCase();
+            if (title.includes(t1) && title.includes(t2)) {
+                return id;
+            }
+        }
+    } catch(e) { }
+    return null;
+}
+
 let rapidApiKeyIndex = 0;
 function getNextRapidApiKey(): string {
   const envKeys = (process.env.RAPIDAPI_KEYS || "").split(",").map(k => k.trim()).filter(Boolean);
