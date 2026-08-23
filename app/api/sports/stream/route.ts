@@ -82,7 +82,16 @@ export async function GET(req: NextRequest) {
             let gateCheck: any = null;
 
             try {
-              const cbResult = await resolveCricbuzzMatchDetails(matchId);
+              let finalCricbuzzId = String(matchId);
+              if (liveMatch && liveMatch.team1 && liveMatch.team2 && isNaN(parseInt(finalCricbuzzId))) {
+                 const { translateToCricbuzzId } = require("@/lib/cricbuzzEngine");
+                 const translated = await translateToCricbuzzId(liveMatch.team1, liveMatch.team2);
+                 if (translated) {
+                     finalCricbuzzId = translated;
+                 }
+              }
+
+              const cbResult = await resolveCricbuzzMatchDetails(finalCricbuzzId);
               if (cbResult && cbResult.match) {
                 resolvedMatch = cbResult.match;
                 telemetry = cbResult.telemetry;
@@ -130,7 +139,9 @@ export async function GET(req: NextRequest) {
             if (resolvedMatch) {
               if (liveMatch?.seriesName) resolvedMatch.series = liveMatch.seriesName;
               if (liveMatch?.score) resolvedMatch.status = liveMatch.score;
-              if (synchronizedOdds) resolvedMatch.odds = synchronizedOdds;
+              if (synchronizedOdds && synchronizedOdds.team1Back !== synchronizedOdds.team2Back) {
+                  resolvedMatch.odds = synchronizedOdds;
+              }
             }
 
             // 3. Compute Real-Time Event-Driven In-Play Bhav (WASP / DLS Model)
