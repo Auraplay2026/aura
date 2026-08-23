@@ -204,7 +204,7 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
         commentary: [],
         venueStats: { avgFirstInnings: 168, avgSecondInnings: 154, highestChased: 194, paceWicketsPct: 58, spinWicketsPct: 42, tossWinBatPct: 48 },
         winProbabilityTimeline: [],
-        odds: { team1Back: 1.95, team2Back: 1.95 } // Overwritten by SWR cache later
+        odds: { team1Back: 1.95, team1Lay: 1.96, team2Back: 1.95, team2Lay: 1.96 } // Overwritten by SWR cache later
       };
       return { match: deepMatch };
     }
