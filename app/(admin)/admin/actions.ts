@@ -317,7 +317,13 @@ export async function adminCreateUser(username: string, password: string, initia
     realPositions: [],
     realTransactions: [],
     role: 'user',
-    kycStatus: 'VERIFIED'
+    kycStatus: 'VERIFIED',
+    gamingState: null,
+    upiId: null,
+    fullName: null,
+    dob: null,
+    address: null,
+    adminNotes: "FORCE_PASSWORD_CHANGE"
   };
 
   await addUser(newUser);

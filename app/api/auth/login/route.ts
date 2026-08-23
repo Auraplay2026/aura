@@ -142,6 +142,11 @@ export async function POST(request: Request) {
     }
     
     const userIdentifier = user.email || user.username;
+
+    if (user.adminNotes === "FORCE_PASSWORD_CHANGE") {
+      return NextResponse.json({ requirePasswordChange: true, email: user.email || user.username }, { status: 200 });
+    }
+
     // Log successful login
     await addActivityLog(userIdentifier, {
       action: "Successful Login",

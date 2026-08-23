@@ -130,7 +130,7 @@ interface TradingState {
   login: () => Promise<void>;
   logout: () => void;
   signUp: (username: string, email: string, passwordHash: string, accountType?: 'demo' | 'real', referralCode?: string) => Promise<{ success: boolean; error?: string }>;
-  loginWithCredentials: (emailOrUsername: string, passwordHash: string, otp?: string, captcha?: string) => Promise<{ success: boolean; error?: string; twoFactorRequired?: boolean }>;
+  loginWithCredentials: (emailOrUsername: string, passwordHash: string, otp?: string, captcha?: string) => Promise<{ success: boolean; error?: string; twoFactorRequired?: boolean; requirePasswordChange?: boolean }>;
   changePassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; error?: string }>;
   setup2fa: () => Promise<{ success: boolean; secret?: string; keyUri?: string; error?: string }>;
   verifyAndEnable2fa: (token: string, secret: string) => Promise<{ success: boolean; error?: string }>;
@@ -492,6 +492,9 @@ export const useTradingStore = create<TradingState>()(
           const data = await res.json();
           if (data && data.twoFactorRequired) {
             return { success: false, twoFactorRequired: true };
+          }
+          if (data && data.requirePasswordChange) {
+            return { success: false, requirePasswordChange: true };
           }
           if (!res.ok) {
             return { success: false, error: data.error || "Login failed." };

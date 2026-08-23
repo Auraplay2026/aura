@@ -7,8 +7,8 @@ import { X, Mail, Lock, User, Sparkles, Eye, EyeOff } from "lucide-react";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: boolean; onClose: () => void; initialView?: 'login' | 'signup' | 'forgot' | 'reset' }) {
-  const [view, setView] = useState<'login' | 'signup' | 'forgot' | 'reset'>(initialView);
+export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: boolean; onClose: () => void; initialView?: 'login' | 'signup' | 'forgot' | 'reset' | 'forceReset' }) {
+  const [view, setView] = useState<'login' | 'signup' | 'forgot' | 'reset' | 'forceReset'>(initialView);
   const modalRef = useRef<HTMLDivElement>(null);
 
   // ── TRAP FOCUS (keyboard only — NOT called on mobile to prevent jump) ──────
@@ -121,6 +121,9 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
         } else if (res.twoFactorRequired) {
           setTwoFactorRequired(true);
           setError(null);
+        } else if (res.requirePasswordChange) {
+          setView('forceReset');
+          setError(null);
         } else {
           setError(res.error || "Login failed. Check your email and password.");
           refreshCaptcha();
@@ -173,6 +176,27 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
         } else {
           setError(data.error || "Failed to reset password.");
         }
+      } else if (view === 'forceReset') {
+        const res = await fetch('/api/auth/force-change-password', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, currentPassword: password, newPassword })
+        });
+        const data = await res.json();
+        setIsLoading(false);
+        if (res.ok && data.success) {
+          setSuccessMessage("Password updated! Logging in...");
+          setTimeout(() => {
+            // Re-login using the new password automatically
+            setPassword(newPassword);
+            setView('login');
+            setSuccessMessage(null);
+            setError(null);
+            handleSubmit(new Event('submit') as any);
+          }, 1500);
+        } else {
+          setError(data.error || "Failed to update password.");
+        }
       }
     } catch {
       setIsLoading(false);
@@ -222,6 +246,7 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                   {view === 'signup' && 'Create Account'}
                   {view === 'forgot' && 'Reset Password'}
                   {view === 'reset'  && 'New Password'}
+                  {view === 'forceReset' && 'Change Password Required'}
                 </h2>
                 <button
                   onClick={onClose}
@@ -399,7 +424,41 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                         </div>
                       </div>
                     </>
-
+                  ) : view === 'forceReset' ? (
+                    <>
+                      <div>
+                        <div className="mb-4 text-sm text-yellow-700 bg-yellow-50 p-3 rounded-lg border border-yellow-200">
+                          <strong>Admin action required:</strong> Your account was created manually by an administrator. Please set a new password to continue.
+                        </div>
+                        <label htmlFor="force-new-password" className="block text-xs font-bold text-slate-600 mb-1.5 ml-1">
+                          Create New Password
+                        </label>
+                        <div className="relative">
+                          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none">
+                            <Lock className="w-4 h-4" />
+                          </div>
+                          <input
+                            id="force-new-password"
+                            type={showNewPassword ? "text" : "password"}
+                            autoComplete="new-password"
+                            required
+                            value={newPassword}
+                            onChange={e => setNewPassword(e.target.value)}
+                            placeholder="Enter a secure password"
+                            className="w-full bg-white border border-slate-300 rounded-xl py-3.5 pl-10 pr-12 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-yellow-500 focus:ring-2 focus:ring-yellow-500/20 transition-all"
+                          />
+                          <button
+                            type="button"
+                            tabIndex={-1}
+                            onClick={() => setShowNewPassword(v => !v)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-700 transition-colors"
+                            aria-label={showNewPassword ? "Hide password" : "Show password"}
+                          >
+                            {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+                    </>
                   ) : (
                     /* Login / Signup fields */
                     <>
@@ -602,7 +661,8 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
                     ) : (
                       view === 'login'  ? (twoFactorRequired ? 'Verify & Sign In' : 'Sign In') :
                       view === 'signup' ? 'Create Account' :
-                      view === 'forgot' ? 'Send Reset Code' : 'Reset Password'
+                      view === 'forgot' ? 'Send Reset Code' : 
+                      view === 'forceReset' ? 'Update Password & Sign In' : 'Reset Password'
                     )}
                   </button>
                 </form>
