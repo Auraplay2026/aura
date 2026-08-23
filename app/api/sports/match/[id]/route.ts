@@ -99,7 +99,8 @@ export async function GET(
         }
 
         // CRITICAL: Inject synchronized market-anchored odds & Indian Bhav
-        if (cacheOdds) {
+        // Only inject if the odds are NOT identical (identical odds = default mock data)
+        if (cacheOdds && cacheOdds.team1Back !== cacheOdds.team2Back) {
           match.odds = cacheOdds;
         }
 

@@ -80,10 +80,15 @@ export default function MatchDetailPage({ params }: PageProps) {
             setTimeout(() => { if (isMounted) setPriceFlashT2(null); }, 1400);
           }
 
+          const incomingOdds = data.match.odds;
+          const isDefaultOdds = incomingOdds?.team1Back === 1.95 && incomingOdds?.team2Back === 1.95;
+          
           return {
             ...prev,
             ...data.match,
-            odds: data.match.odds || prev.odds
+            odds: isDefaultOdds ? prev.odds : { ...prev.odds, ...incomingOdds },
+            team1: { ...prev.team1, ...data.match.team1 },
+            team2: { ...prev.team2, ...data.match.team2 }
           };
         });
       }

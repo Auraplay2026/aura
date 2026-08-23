@@ -27,6 +27,7 @@ async function scrapeCricbuzzFallback(matchId: string): Promise<any> {
     const titleMatch = html.match(/<meta property="og:title" content="([^"]+)"/);
     if (!titleMatch) return null;
     let ogTitle = titleMatch[1].replace(/\n/g, ' ').replace(/\s+/g, ' ');
+    if (ogTitle.includes("Live Cricket Score, Schedule")) return null;
     const [scorePart, detailsPart] = ogTitle.split(' | ');
     if (!scorePart || !detailsPart) return null;
     
@@ -478,6 +479,17 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
   }
   if (t2Scores.length > 0) {
     team2ScoreSummary = t2Scores.map(s => s.totalScore).join(" & ");
+  }
+
+  // ─── CRITICAL SCORE SALVAGE ───
+  // If RapidAPI returns a valid match but the scorecard endpoint is broken/empty,
+  // we use our 100% reliable HTML scraper to salvage the true score.
+  if (!isUpcoming && (team1ScoreSummary === "Yet to Bat" || team2ScoreSummary === "Yet to Bat" || team1ScoreSummary === "" || team2ScoreSummary === "")) {
+      const scraped = await scrapeCricbuzzFallback(id);
+      if (scraped && scraped.t1ScoreStr !== "Yet to Bat" && scraped.t2ScoreStr !== "Yet to Bat") {
+          team1ScoreSummary = scraped.t1ScoreStr;
+          team2ScoreSummary = scraped.t2ScoreStr;
+      }
   }
 
   // If scorecards were empty or not yet completed, check miniscore inningsscores
