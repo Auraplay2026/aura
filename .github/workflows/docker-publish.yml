@@ -43,10 +43,6 @@ jobs:
             ${{ env.IMAGE_NAME }}:v1.0
             ${{ env.IMAGE_NAME }}:v1
             ${{ env.IMAGE_NAME }}:${{ github.sha }}
-            ghcr.io/twintubrovquattro-ship-it/aura:latest
-            ghcr.io/twintubrovquattro-ship-it/aura:v1.0.0
-            ghcr.io/twintubrovquattro-ship-it/aura:v1.0
-            ghcr.io/twintubrovquattro-ship-it/aura:v1
           cache-from: type=gha
           cache-to: type=gha,mode=max
 

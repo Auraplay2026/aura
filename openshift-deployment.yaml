@@ -27,7 +27,7 @@ data:
   PORT: "3000"
   HOSTNAME: "0.0.0.0"
   NODE_OPTIONS: "--max-old-space-size=1024"
-  ADMIN_EMAIL: "twintubrovquattro@gmail.com"
+  ADMIN_EMAIL: "auraplay2026@gmail.com"
   NEXT_PUBLIC_APP_URL: "https://auraplay.apps.your-cluster.openshift.com"
   NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+1 (659) 221-0661"
   ENABLE_HSTS: "false"
@@ -36,7 +36,7 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auraplay-web
-  namespace: auraplay-production
+  namespace: bluesignal5-dev
   labels:
     app: auraplay-web
 spec:
@@ -66,7 +66,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: auraplay-app
-          image: ghcr.io/twintubrovquattro-ship-it/aura:latest
+          image: ghcr.io/auraplay2026/aura:latest
           imagePullPolicy: Always
           securityContext:
             allowPrivilegeEscalation: false
