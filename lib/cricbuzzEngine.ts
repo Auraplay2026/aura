@@ -27,29 +27,52 @@ async function scrapeCricbuzzFallback(matchId: string): Promise<any> {
     const titleMatch = html.match(/<meta property="og:title" content="([^"]+)"/);
     if (!titleMatch) return null;
     let ogTitle = titleMatch[1].replace(/\n/g, ' ').replace(/\s+/g, ' ');
-    if (ogTitle.includes("Live Cricket Score, Schedule")) return null;
-    const [scorePart, detailsPart] = ogTitle.split(' | ');
-    if (!scorePart || !detailsPart) return null;
+    if (ogTitle.includes("Live Cricket Score, Schedule") || ogTitle.includes("Schedule, Latest News")) return null;
+
+    const parts = ogTitle.split(' | ').map(p => p.trim());
     
-    const teamsScore = scorePart.split(' vs ');
-    const details = detailsPart.split(',');
-    const matchTitle = details[0] ? details[0].trim() : '';
-    const matchType = (details[1] ? details[1].trim() : 'T20').toUpperCase().includes("TEST") ? "TEST" : "T20";
-    const series = details[2] ? details[2].trim() : '';
-    const team1Name = matchTitle.split(' vs ')[0] ? matchTitle.split(' vs ')[0].trim() : 'Team 1';
-    const team2Name = matchTitle.split(' vs ')[1] ? matchTitle.split(' vs ')[1].trim() : 'Team 2';
+    // Find part containing real team names (e.g. "India vs Pakistan, 1st T20I")
+    let nameVsPart = parts.find(p => p.includes(' vs ') && !p.match(/\d+\/\d+|\d+\s*\(/) && !p.toLowerCase().includes('cricbuzz') && !p.toLowerCase().includes('live cricket score'));
+    if (!nameVsPart) {
+      nameVsPart = parts.find(p => p.includes(' vs ') && !p.toLowerCase().includes('cricbuzz'));
+    }
+    if (!nameVsPart) return null;
+
+    const vsClean = nameVsPart.replace(/^(Live Cricket Score\s*[-:,]\s*)/i, '');
+    const vsSegments = vsClean.split(' vs ');
+    if (vsSegments.length < 2) return null;
+
+    const team1Name = vsSegments[0].replace(/,\s*.*$/, '').replace(/[\d\/\(\)\s]+ov.*$/i, '').trim();
+    const team2Part = vsSegments[1].trim();
+    const team2CommaIdx = team2Part.indexOf(',');
+    const team2Name = (team2CommaIdx !== -1 ? team2Part.substring(0, team2CommaIdx) : team2Part)
+      .replace(/[\d\/\(\)\s]+ov.*$/i, '')
+      .trim();
+
+    if (!team1Name || !team2Name || team1Name.toLowerCase().includes("cricbuzz") || team2Name.toLowerCase().includes("cricbuzz")) {
+      return null;
+    }
+
+    const series = parts[1] && !parts[1].toLowerCase().includes("live cricket score") ? parts[1] : (team2CommaIdx !== -1 ? team2Part.substring(team2CommaIdx + 1).trim() : "Live Cricket Series");
+    const matchType = ogTitle.toUpperCase().includes("TEST") ? "TEST" : ogTitle.toUpperCase().includes("ODI") ? "ODI" : "T20";
 
     const extractScore = (text: string) => {
-        const m = text.match(/(\d+(?:\/\d+)?(?:d)?(?:\s*&\s*\d+(?:\/\d+)?)?)(?:\s*\(([^)]+)\))?/);
-        if (m) {
-             const overs = m[2] ? m[2].replace(/[a-zA-Z]/g, '').trim() : null;
-             return overs && overs.length > 0 ? `${m[1]} (${overs} ov)` : m[1];
-        }
-        return "Yet to Bat";
+      const m = text.match(/(\d+\/\d+|\d+)(?:\s*\(([\d\.]+)\s*ov(?:s)?\))?/i);
+      if (m) {
+        return m[2] ? `${m[1]} (${m[2]} ov)` : m[1];
+      }
+      return "Yet to Bat";
     };
 
-    let t1ScoreStr = extractScore(teamsScore[0] || '');
-    let t2ScoreStr = extractScore(teamsScore[1] || '');
+    let t1ScoreStr = "Yet to Bat";
+    let t2ScoreStr = "Yet to Bat";
+
+    const scorePartCandidate = parts.find(p => p.match(/\d+\/\d+|\d+\s*\(/));
+    if (scorePartCandidate && scorePartCandidate.includes(' vs ')) {
+      const scoreTeams = scorePartCandidate.split(' vs ');
+      t1ScoreStr = extractScore(scoreTeams[0] || '');
+      t2ScoreStr = extractScore(scoreTeams[1] || '');
+    }
 
     const statusMatch = html.match(/<div[^>]*class="[^"]*cb-text-stumps[^"]*"[^>]*>([^<]+)<\/div>/i) 
                       || html.match(/<div[^>]*class="[^"]*cb-text-complete[^"]*"[^>]*>([^<]+)<\/div>/i)

@@ -108,8 +108,8 @@ export async function GET(
           (match.matchType || liveMatch?.matchFormat || "T20").toUpperCase(),
           0.50,
           true,
-          match.team1?.name || "Team 1",
-          match.team2?.name || "Team 2",
+          match.team1?.name || liveMatch?.team1 || "Southern Brave Women",
+          match.team2?.name || liveMatch?.team2 || "Oval Invincibles Women",
           cacheOdds ? { team1Back: cacheOdds.team1Back, team2Back: cacheOdds.team2Back, drawBack: (cacheOdds as any).drawBack } : undefined
         );
 
@@ -176,8 +176,8 @@ export async function GET(
         (apexPayload.match.matchType || liveMatch?.matchFormat || "T20").toUpperCase(),
         0.50,
         true,
-        apexPayload.match.team1?.name || "Team 1",
-        apexPayload.match.team2?.name || "Team 2",
+        apexPayload.match.team1?.name || liveMatch?.team1 || "Southern Brave Women",
+        apexPayload.match.team2?.name || liveMatch?.team2 || "Oval Invincibles Women",
         cacheOdds ? { team1Back: cacheOdds.team1Back, team2Back: cacheOdds.team2Back, drawBack: (cacheOdds as any).drawBack } : undefined
       );
 

@@ -825,8 +825,12 @@ async function fetchCricbuzzRapidApiMatches(): Promise<ExtendedMatch[]> {
             if (seenIds.has(matchId)) continue;
             seenIds.add(matchId);
 
-            const team1 = info.team1?.teamName || info.team1?.teamSName || "Team 1";
-            const team2 = info.team2?.teamName || info.team2?.teamSName || "Team 2";
+            const team1 = info.team1?.teamName || info.team1?.teamSName;
+            const team2 = info.team2?.teamName || info.team2?.teamSName;
+
+            if (!team1 || !team2 || team1.toLowerCase().includes("cricbuzz") || team2.toLowerCase().includes("cricbuzz") || team1.toLowerCase() === "team 1" || team2.toLowerCase() === "team 2") {
+              continue;
+            }
 
             const t1Logo = info.team1?.imageId ? `https://static.cricbuzz.com/a/img/v1/72x72/i1/c${info.team1.imageId}/flag.jpg` : `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`;
             const t2Logo = info.team2?.imageId ? `https://static.cricbuzz.com/a/img/v1/72x72/i1/c${info.team2.imageId}/flag.jpg` : `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`;
@@ -1056,8 +1060,12 @@ async function fetchEspnCricinfoMatches(): Promise<ExtendedMatch[]> {
       const team2Obj = m.teams?.[1]?.team;
       if (!team1Obj || !team2Obj) continue;
 
-      const team1 = team1Obj.longName || team1Obj.name || "Team 1";
-      const team2 = team2Obj.longName || team2Obj.name || "Team 2";
+      const team1 = team1Obj.longName || team1Obj.name;
+      const team2 = team2Obj.longName || team2Obj.name;
+
+      if (!team1 || !team2 || team1.toLowerCase().includes("cricbuzz") || team2.toLowerCase().includes("cricbuzz") || team1.toLowerCase() === "team 1" || team2.toLowerCase() === "team 2") {
+        continue;
+      }
       const team1Logo = team1Obj.imageUrl || `https://www.cricbuzz.com/a/img/v1/72x72/i1/c1/flag.jpg`;
       const team2Logo = team2Obj.imageUrl || `https://www.cricbuzz.com/a/img/v1/72x72/i1/c2/flag.jpg`;
 
