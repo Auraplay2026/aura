@@ -12,13 +12,20 @@ export async function GET() {
 
   try {
     const dbStart = Date.now();
-    await prisma.$queryRaw`SELECT 1`;
+    await prisma.user.findFirst({ select: { id: true } });
     dbLatencyMs = Date.now() - dbStart;
     dbStatus = 'HEALTHY';
   } catch (err: any) {
-    dbStatus = 'DEGRADED';
-    dbError = err?.message || String(err);
-    console.error('[Health Probe] Database ping failed:', err?.message);
+    try {
+      const dbStart = Date.now();
+      await prisma.$queryRawUnsafe('SELECT 1');
+      dbLatencyMs = Date.now() - dbStart;
+      dbStatus = 'HEALTHY';
+    } catch (innerErr: any) {
+      dbStatus = 'DEGRADED';
+      dbError = innerErr?.message || String(innerErr);
+      console.error('[Health Probe] Database ping failed:', innerErr?.message);
+    }
   }
 
   const memoryUsage = process.memoryUsage();
