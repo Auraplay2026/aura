@@ -21,7 +21,7 @@ stringData:
   ADMIN_DEFAULT_PASSWORD: "AuraBetAdmin2026!"
   ADMIN_SECURITY_KEY: "aura-dev-admin-secret"
   MASTER_SECURITY_KEY: "aura-fair-rng-master-secret-key-2026-matrix-secure"
-  ADMIN_JWT_SECRET: "aura-bet-super-secret-development-jwt-signing-key-2026-matrix-secure"
+  CLOUDFLARE_R2_ENDPOINT: "https://fbadb6a7c5ed96bb85b9a85625a98120.r2.cloudflarestorage.com"
 ---
 apiVersion: v1
 kind: ConfigMap
