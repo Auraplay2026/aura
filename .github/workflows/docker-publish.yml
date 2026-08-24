@@ -52,7 +52,7 @@ jobs:
         env:
           OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
           OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
-          OPENSHIFT_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE || 'auraplay-production' }}
+          OPENSHIFT_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE || 'bluesignal5-dev' }}
         run: |
           if [ -z "$OPENSHIFT_SERVER" ] || [ -z "$OPENSHIFT_TOKEN" ]; then
             echo "::warning::OPENSHIFT_SERVER or OPENSHIFT_TOKEN not set. Skipping rollout restart."
