@@ -15,49 +15,52 @@ export function WhatsAppFloatButton() {
   const [customMsg, setCustomMsg] = useState("");
 
   // Official VIP Customer Support WhatsApp Number
-  const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (659) 221-0661";
-  const cleanNumber = rawNumber.replace(/[^0-9]/g, "");
+  const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (623) 282-2738";
+  const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "16232822738";
 
   const quickActions = [
     {
       id: "create_id",
-      icon: "✨",
-      title: "Create Master ID / Account",
-      desc: "Manual player ID creation & quick onboarding",
-      text: "I want ID"
+      icon: "👑",
+      title: "Get Official Betting ID",
+      desc: "Manual player ID creation & instant verification",
+      text: "👑 *AuraPlay VIP Desk:* Hello, I want ID. Please create and activate my official betting exchange ID."
     },
     {
       id: "deposit",
       icon: "💸",
       title: "Instant UPI Deposit & UTR",
       desc: "Fast balance top-up help & receipt approval",
-      text: "I want ID"
+      text: "💳 *AuraPlay Cashier:* Hello, I want ID & deposit coordination for instant 15-sec UPI balance top-up."
     },
     {
       id: "cricket",
       icon: "🏏",
       title: "Live Cricket Bhav & Match ID",
       desc: "Pitch-side 0.2s cricket market queries",
-      text: "I want ID"
+      text: "🏏 *AuraPlay Cricket:* Hello, I want ID for pitch-side 0.2s radar live cricket exchange betting."
     },
     {
       id: "withdrawal",
       icon: "🏦",
       title: "15-Sec Fast Withdrawal",
       desc: "Check payout & bank IMPS dispatch",
-      text: "I want ID"
+      text: "🏦 *AuraPlay Payouts:* Hello, I want ID withdrawal support for 15-second IMPS dispatch."
     },
     {
       id: "bonus",
       icon: "🎁",
-      title: "Claim ₹110,000 Welcome Bonus",
-      desc: "100% First Deposit Match & Desi Cashback",
-      text: "I want ID"
+      title: "Claim ₹10,000 Welcome Bonus",
+      desc: "100% First Deposit Match & VIP Cashback",
+      text: "🎁 *AuraPlay VIP Bonus:* Hello, I want ID to claim my ₹10,000 first deposit welcome bonus."
     }
   ];
 
+  const defaultVipMsg = "👑 *AuraPlay VIP Exchange Concierge*\n\nHello, I want ID.\n\n✨ *Request:* Official Betting & Casino ID Setup\n⚡ *Access:* 0% Commission Live Cricket Bhav & 15-Sec Instant UPI Payouts\n🎁 *Bonus:* ₹10,000 First Deposit Match\n\nPlease create and activate my official ID.";
+
   const handleLaunchWhatsApp = (messageText: string) => {
-    const encodedText = encodeURIComponent(messageText);
+    const textToSend = messageText.trim() === "I want ID" || !messageText.trim() ? defaultVipMsg : messageText;
+    const encodedText = encodeURIComponent(textToSend);
     const url = `https://wa.me/${cleanNumber}?text=${encodedText}`;
     window.open(url, "_blank", "noopener,noreferrer");
   };

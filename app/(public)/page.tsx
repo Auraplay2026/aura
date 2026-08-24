@@ -792,15 +792,15 @@ export default function GlobalHomepage() {
 
             <button
               onClick={() => {
-                const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (659) 221-0661";
-                const cleanNumber = rawNumber.replace(/[^0-9]/g, "");
-                const msg = encodeURIComponent("Hi AuraPlay VIP Coordinator! I need assistance with my betting ID / account.");
+                const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (623) 282-2738";
+                const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "16232822738";
+                const msg = encodeURIComponent("👑 *AuraPlay VIP Exchange Concierge*\n\nHello, I want ID.\n\n✨ *Service Request:* Official Betting & Casino ID Setup\n⚡ *Access:* 0% Commission Live Cricket Bhav & 15-Sec Instant UPI Payouts\n🎁 *Bonus:* ₹10,000 First Deposit Match\n\nPlease create and activate my official ID.");
                 window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
               }}
               className="w-full py-3 bg-white hover:bg-emerald-50 text-emerald-950 font-black text-xs uppercase tracking-wider rounded-2xl shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer transform hover:scale-[1.02] active:scale-95"
             >
               <MessageCircle className="w-4 h-4 fill-emerald-600 text-emerald-600" />
-              Chat On WhatsApp (+1 659 221-0661)
+              Chat On WhatsApp (+1 623 282-2738)
             </button>
           </div>
 

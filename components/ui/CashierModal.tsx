@@ -671,7 +671,7 @@ const compressImage = (base64Str: string): Promise<string> => {
 
                             {/* 1-Tap WhatsApp Direct Connect Button */}
                             <a
-                              href={`https://wa.me/${(paymentSettings.whatsappNumber || "919876543210").replace(/\D/g, '')}?text=${encodeURIComponent(`Hi Admin, I am depositing ₹${amount.toLocaleString()} on AuraBet.\n\n👤 Username/Email: ${currentUser?.username || currentUser?.email}\n💰 Amount: ₹${amount.toLocaleString()}\n\nKindly verify and release my funds to my account.`)}`}
+                              href={`https://wa.me/${(paymentSettings.whatsappNumber || "16232822738").replace(/\D/g, '') || "16232822738"}?text=${encodeURIComponent(`👑 *AuraPlay VIP Cashier:*\n\nHello, I want ID & deposit verification.\n\n👤 Username/Email: ${currentUser?.username || currentUser?.email || 'Player'}\n💰 Amount: ₹${amount.toLocaleString()}\n\nKindly verify and release my funds to my account.`)}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="w-full py-2.5 px-4 bg-[#25D366]/15 hover:bg-[#25D366]/25 text-[#075E54] border border-[#25D366]/40 rounded-2xl text-xs font-black text-center flex items-center justify-center gap-2 transition-all shadow-xs cursor-pointer active:scale-98"

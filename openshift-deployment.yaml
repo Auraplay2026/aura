@@ -35,7 +35,8 @@ data:
   NODE_OPTIONS: "--max-old-space-size=1024"
   ADMIN_EMAIL: "auraplay2026@gmail.com"
   NEXT_PUBLIC_APP_URL: "https://auraplay.apps.your-cluster.openshift.com"
-  NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+1 (659) 221-0661"
+  NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+1 (623) 282-2738"
+  WHATSAPP_SUPPORT_NUMBER: "+16232822738"
   ENABLE_HSTS: "false"
 ---
 apiVersion: apps/v1
