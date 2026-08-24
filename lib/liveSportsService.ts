@@ -512,7 +512,7 @@ export function generateSanitizedMatch(
 
   const createDynamicSquad = (teamName: string, teamCode: string) => {
     const cleanKey = teamName.toLowerCase().replace(/[^a-z0-9]/g, '_');
-    const defaultStars = [
+    const defaultStars: Array<{ name: string; role: PlayerDossier["role"]; avatar: string }> = [
       { name: "Smriti Mandhana", role: "Top-order Batter", avatar: "🏏" },
       { name: "Danni Wyatt", role: "Top-order Batter", avatar: "🏏" },
       { name: "Meg Lanning", role: "Top-order Batter", avatar: "⭐" },
