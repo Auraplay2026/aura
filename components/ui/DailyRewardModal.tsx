@@ -120,14 +120,14 @@ export function DailyRewardModal() {
 
   const DAILY_REWARDS = [10, 20, 30, 50, 75, 100, 200];
   const WHEEL_SECTORS = [
-    { label: "₹10", prize: 10, weight: 35, color: "#1e1b4b" }, // Indigo 950
-    { label: "₹25", prize: 25, weight: 25, color: "#312e81" }, // Indigo 900
-    { label: "₹50", prize: 50, weight: 20, color: "#3730a3" }, // Indigo 800
-    { label: "₹75", prize: 75, weight: 10, color: "#4f46e5" }, // Indigo 600
-    { label: "₹100", prize: 100, weight: 6, color: "#4338ca" }, // Indigo 700
-    { label: "100 XP", prize: 0, weight: 2, color: "#6d28d9" }, // Purple
-    { label: "2x Boost", prize: 0, weight: 1, color: "#111827" }, // Dark Slate
-    { label: "₹500 MEGA", prize: 500, weight: 1, color: "#b45309" } // Gold Jackpot (1% Ultra-rare)
+    { label: "₹10", prize: 10, weight: 45, color: "#1e1b4b" }, // Indigo 950 (45% common win)
+    { label: "₹10,000", prize: 10, weight: 0, color: "#b45309" }, // Gold Mega Jackpot Teaser (0% real probability)
+    { label: "₹25", prize: 25, weight: 30, color: "#312e81" }, // Indigo 900 (30% common win)
+    { label: "₹5,000", prize: 25, weight: 0, color: "#6d28d9" }, // Purple VIP Teaser (0% real probability)
+    { label: "₹50", prize: 50, weight: 18, color: "#3730a3" }, // Indigo 800 (18% common win)
+    { label: "₹2,500", prize: 50, weight: 0, color: "#047857" }, // Emerald Vault Teaser (0% real probability)
+    { label: "₹75", prize: 75, weight: 5, color: "#4f46e5" }, // Indigo 600 (5% win)
+    { label: "₹100", prize: 100, weight: 2, color: "#4338ca" } // Indigo 700 (2% max cap win)
   ];
 
   const sectorAngle = 360 / WHEEL_SECTORS.length;
@@ -141,7 +141,7 @@ export function DailyRewardModal() {
 
     const x1 = 150 + 150 * Math.cos(radStart);
     const y1 = 150 + 150 * Math.sin(radStart);
-    const x2 = 150 + 150 * Math.cos(radEnd);
+    const x2 = 150 + 150 * Math.cos(endAngle * Math.PI / 180 - Math.PI / 2);
     const y2 = 150 + 150 * Math.sin(radEnd);
 
     return `M 150 150 L ${x1} ${y1} A 150 150 0 0 1 ${x2} ${y2} Z`;
@@ -194,7 +194,7 @@ export function DailyRewardModal() {
       } catch (e) {}
     }
 
-    // Weighted selection for controlled house economics
+    // Controlled low-ball weighted RNG (Always rewards small amounts ₹10-₹50)
     const totalWeight = WHEEL_SECTORS.reduce((sum, s) => sum + s.weight, 0);
     let rand = Math.random() * totalWeight;
     let prizeIndex = 0;
@@ -208,8 +208,9 @@ export function DailyRewardModal() {
 
     const sector = WHEEL_SECTORS[prizeIndex];
 
-    // Align wheel so that prize points towards top pointer (270 degrees)
-    const newRotation = wheelRotation + 360 * 5 - prizeIndex * sectorAngle - sectorAngle / 2;
+    // Near-Miss Illusion: Pointer lands right on the thrilling edge of the ₹10,000 Mega slice
+    const nearMissOffset = (prizeIndex === 0) ? 12 : (prizeIndex === 2) ? -12 : 0;
+    const newRotation = wheelRotation + 360 * 5 - prizeIndex * sectorAngle - sectorAngle / 2 + nearMissOffset;
     setWheelRotation(newRotation);
 
     spinTimeoutRef.current = setTimeout(async () => {
@@ -224,9 +225,9 @@ export function DailyRewardModal() {
 
       setPrizeWon(sector.label);
       setShowConfetti(true);
-      playGameSound(sector.prize >= 500 ? 'jackpot' : 'win');
+      playGameSound('win');
 
-      if (sector.prize >= 500) {
+      if (sector.prize >= 100) {
         unlockAchievement("jackpot_hunter");
       }
     }, 5000);
@@ -419,7 +420,7 @@ export function DailyRewardModal() {
                     Lucky Spin Wheel
                   </h2>
                   <p className="text-slate-400 text-xs mt-1">
-                    Spin once every day to win free cash credits or XP boosts!
+                    Spin once every day — Mega ₹10,000 Jackpot is in play today!
                   </p>
                 </div>
 
