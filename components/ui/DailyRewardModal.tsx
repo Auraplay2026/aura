@@ -120,14 +120,14 @@ export function DailyRewardModal() {
 
   const DAILY_REWARDS = [10, 20, 30, 50, 75, 100, 200];
   const WHEEL_SECTORS = [
-    { label: "₹10", prize: 10, weight: 45, color: "#1e1b4b" }, // Indigo 950 (45% common win)
-    { label: "₹10,000", prize: 10, weight: 0, color: "#b45309" }, // Gold Mega Jackpot Teaser (0% real probability)
-    { label: "₹25", prize: 25, weight: 30, color: "#312e81" }, // Indigo 900 (30% common win)
-    { label: "₹5,000", prize: 25, weight: 0, color: "#6d28d9" }, // Purple VIP Teaser (0% real probability)
-    { label: "₹50", prize: 50, weight: 18, color: "#3730a3" }, // Indigo 800 (18% common win)
-    { label: "₹2,500", prize: 50, weight: 0, color: "#047857" }, // Emerald Vault Teaser (0% real probability)
-    { label: "₹75", prize: 75, weight: 5, color: "#4f46e5" }, // Indigo 600 (5% win)
-    { label: "₹100", prize: 100, weight: 2, color: "#4338ca" } // Indigo 700 (2% max cap win)
+    { label: "₹10", prize: 10, weight: 45, color: "#1e1b4b", glow: false }, // Indigo 950 (45% common win)
+    { label: "₹10,000", prize: 10, weight: 0, color: "#b45309", glow: true }, // Gold Mega Jackpot Teaser (0% real probability)
+    { label: "₹25", prize: 25, weight: 30, color: "#312e81", glow: false }, // Indigo 900 (30% common win)
+    { label: "₹5,000", prize: 25, weight: 0, color: "#6d28d9", glow: true }, // Purple VIP Teaser (0% real probability)
+    { label: "₹50", prize: 50, weight: 18, color: "#3730a3", glow: false }, // Indigo 800 (18% common win)
+    { label: "₹2,500", prize: 50, weight: 0, color: "#047857", glow: true }, // Emerald Vault Teaser (0% real probability)
+    { label: "₹75", prize: 75, weight: 5, color: "#4f46e5", glow: false }, // Indigo 600 (5% win)
+    { label: "₹100", prize: 100, weight: 2, color: "#4338ca", glow: false } // Indigo 700 (2% max cap win)
   ];
 
   const sectorAngle = 360 / WHEEL_SECTORS.length;
@@ -141,7 +141,7 @@ export function DailyRewardModal() {
 
     const x1 = 150 + 150 * Math.cos(radStart);
     const y1 = 150 + 150 * Math.sin(radStart);
-    const x2 = 150 + 150 * Math.cos(endAngle * Math.PI / 180 - Math.PI / 2);
+    const x2 = 150 + 150 * Math.cos(radEnd);
     const y2 = 150 + 150 * Math.sin(radEnd);
 
     return `M 150 150 L ${x1} ${y1} A 150 150 0 0 1 ${x2} ${y2} Z`;
@@ -155,6 +155,14 @@ export function DailyRewardModal() {
     return { x, y, angle: angle + 90 };
   };
 
+  const getSectorPegCoords = (index: number) => {
+    const angle = (index * sectorAngle - 90) * (Math.PI / 180);
+    return {
+      x: 150 + 142 * Math.cos(angle),
+      y: 150 + 142 * Math.sin(angle)
+    };
+  };
+
   const spinWheel = () => {
     if (isSpinning) return;
     if (spinWheelClaimedToday) {
@@ -166,30 +174,39 @@ export function DailyRewardModal() {
     setPrizeWon(null);
     setFeedbackNotice(null);
 
-    // Web Audio tick sound
+    // Realistic Decelerating Mechanical Audio Engine
     if (soundEnabled !== false) {
       try {
         const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
         if (AudioContextClass) {
           const audioCtx = new AudioContextClass();
-          let ticks = 0;
-          spinIntervalRef.current = setInterval(() => {
-            if (ticks > 35) {
-              if (spinIntervalRef.current) clearInterval(spinIntervalRef.current);
-              return;
-            }
-            ticks++;
-            const osc = audioCtx.createOscillator();
-            const gain = audioCtx.createGain();
-            osc.connect(gain);
-            gain.connect(audioCtx.destination);
-            osc.type = "sine";
-            osc.frequency.setValueAtTime(800 - ticks * 12, audioCtx.currentTime);
-            gain.gain.setValueAtTime(0.04, audioCtx.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.05);
-            osc.start();
-            osc.stop(audioCtx.currentTime + 0.05);
-          }, 130);
+          const playClick = (freq = 900, duration = 0.035, vol = 0.04) => {
+            try {
+              const osc = audioCtx.createOscillator();
+              const gain = audioCtx.createGain();
+              osc.connect(gain);
+              gain.connect(audioCtx.destination);
+              osc.type = "sine";
+              osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+              gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+              gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+              osc.start();
+              osc.stop(audioCtx.currentTime + duration);
+            } catch (e) {}
+          };
+
+          // Program realistic physical intervals that slow down exponentially
+          const intervals = [
+            40, 40, 45, 45, 50, 50, 55, 60, 65, 75, 85, 95, 110, 130, 155, 185, 220, 270, 330, 410, 510, 640, 800, 1020
+          ];
+          let accumulatedTime = 0;
+          intervals.forEach((delay, idx) => {
+            accumulatedTime += delay;
+            setTimeout(() => {
+              const pitch = 950 - idx * 18;
+              playClick(pitch, 0.04, idx > 18 ? 0.07 : 0.035);
+            }, accumulatedTime);
+          });
         }
       } catch (e) {}
     }
@@ -210,7 +227,7 @@ export function DailyRewardModal() {
 
     // Near-Miss Illusion: Pointer lands right on the thrilling edge of the ₹10,000 Mega slice
     const nearMissOffset = (prizeIndex === 0) ? 12 : (prizeIndex === 2) ? -12 : 0;
-    const newRotation = wheelRotation + 360 * 5 - prizeIndex * sectorAngle - sectorAngle / 2 + nearMissOffset;
+    const newRotation = wheelRotation + 360 * 6 - prizeIndex * sectorAngle - sectorAngle / 2 + nearMissOffset;
     setWheelRotation(newRotation);
 
     spinTimeoutRef.current = setTimeout(async () => {
@@ -230,7 +247,7 @@ export function DailyRewardModal() {
       if (sector.prize >= 100) {
         unlockAchievement("jackpot_hunter");
       }
-    }, 5000);
+    }, 5200);
   };
 
   const handleClaimDaily = async () => {
@@ -432,22 +449,32 @@ export function DailyRewardModal() {
                   }`}
                 >
                   {/* Outer glow rings */}
-                  <div className="absolute inset-0 rounded-full border border-purple-500/30 shadow-[0_0_40px_rgba(168,85,247,0.2)] pointer-events-none" />
+                  <div className="absolute inset-0 rounded-full border border-purple-500/30 shadow-[0_0_50px_rgba(168,85,247,0.3)] pointer-events-none animate-pulse" />
                   
-                  {/* Pointer */}
-                  <div className="absolute -top-3 left-[130px] w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[20px] border-t-yellow-400 z-30 drop-shadow-[0_4px_8px_rgba(0,0,0,0.8)]" />
+                  {/* Physical Pointer Ticker */}
+                  <div className={`absolute -top-3 left-[130px] w-0 h-0 border-l-[10px] border-l-transparent border-r-[10px] border-r-transparent border-t-[22px] border-t-amber-400 z-30 drop-shadow-[0_4px_10px_rgba(0,0,0,0.9)] transition-transform ${
+                    isSpinning ? "animate-bounce scale-110" : ""
+                  }`} />
 
                   {/* SVG Wheel */}
                   <svg
                     width="280"
                     height="280"
                     viewBox="0 0 300 300"
-                    className="w-full h-full drop-shadow-[0_10px_20px_rgba(0,0,0,0.8)]"
+                    className="w-full h-full drop-shadow-[0_12px_24px_rgba(0,0,0,0.85)] will-change-transform"
                     style={{
                       transform: `rotate(${wheelRotation}deg)`,
-                      transition: isSpinning ? "transform 5s cubic-bezier(0.1, 0.8, 0.1, 1)" : "none",
+                      transition: isSpinning ? "transform 5.2s cubic-bezier(0.12, 0.98, 0.22, 1)" : "none",
                     }}
                   >
+                    <defs>
+                      <radialGradient id="wheelCenterGrad" cx="50%" cy="50%" r="50%">
+                        <stop offset="0%" stopColor="#1e1b4b" />
+                        <stop offset="100%" stopColor="#090d16" />
+                      </radialGradient>
+                    </defs>
+
+                    {/* Sectors */}
                     <g>
                       {WHEEL_SECTORS.map((sector, idx) => (
                         <g key={idx}>
@@ -455,19 +482,30 @@ export function DailyRewardModal() {
                             d={getSectorPath(idx)}
                             fill={sector.color}
                             stroke="#0f172a"
-                            strokeWidth="2"
+                            strokeWidth="2.5"
                           />
+                          {/* Highlight Gold Teaser Slices */}
+                          {sector.glow && (
+                            <path
+                              d={getSectorPath(idx)}
+                              fill="none"
+                              stroke="#facc15"
+                              strokeWidth="1.5"
+                              opacity="0.6"
+                            />
+                          )}
                           {(() => {
                             const { x, y, angle } = getSectorTextCoords(idx);
                             return (
                               <text
                                 x={x}
                                 y={y}
-                                fill="#ffffff"
-                                fontSize="11"
+                                fill={sector.glow ? "#fde047" : "#ffffff"}
+                                fontSize={sector.label.length > 5 ? "9.5" : "11.5"}
                                 fontWeight="900"
                                 textAnchor="middle"
                                 transform={`rotate(${angle}, ${x}, ${y})`}
+                                className="tracking-tight"
                               >
                                 {sector.label}
                               </text>
@@ -476,8 +514,28 @@ export function DailyRewardModal() {
                         </g>
                       ))}
                     </g>
-                    {/* Inner cap */}
-                    <circle cx="150" cy="150" r="32" fill="#090d16" stroke="#6366f1" strokeWidth="3" />
+
+                    {/* Perimeter Metallic Pegs */}
+                    <g>
+                      {WHEEL_SECTORS.map((_, idx) => {
+                        const peg = getSectorPegCoords(idx);
+                        return (
+                          <circle
+                            key={`peg-${idx}`}
+                            cx={peg.x}
+                            cy={peg.y}
+                            r="3.5"
+                            fill="#facc15"
+                            stroke="#713f12"
+                            strokeWidth="1"
+                            className="drop-shadow-sm"
+                          />
+                        );
+                      })}
+                    </g>
+
+                    {/* Inner Center Hub */}
+                    <circle cx="150" cy="150" r="34" fill="url(#wheelCenterGrad)" stroke="#a855f7" strokeWidth="3" />
                   </svg>
 
                   {/* Spin button center overlay */}
@@ -487,10 +545,10 @@ export function DailyRewardModal() {
                       spinWheel();
                     }}
                     disabled={isSpinning}
-                    className={`absolute w-14 h-14 rounded-full flex items-center justify-center font-black text-[11px] uppercase tracking-wider z-20 transition-all cursor-pointer shadow-xl ${
+                    className={`absolute w-14 h-14 rounded-full flex items-center justify-center font-black text-[11px] uppercase tracking-wider z-20 transition-all cursor-pointer shadow-2xl ${
                       spinWheelClaimedToday
                         ? "bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700"
-                        : "bg-gradient-to-tr from-purple-600 to-indigo-600 text-white hover:scale-105 shadow-purple-600/50 border border-purple-400/40"
+                        : "bg-gradient-to-tr from-amber-500 via-purple-600 to-indigo-600 text-white hover:scale-105 shadow-purple-600/50 border-2 border-amber-300/60"
                     }`}
                   >
                     {isSpinning ? (
