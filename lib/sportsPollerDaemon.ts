@@ -57,10 +57,12 @@ class SportsPollerDaemon {
   private async pollLiveMatches() {
     try {
       this.lastLivePollTs = Date.now();
-      // Ingest live cricket and soccer
+      // Ingest live fixtures across all major exchange sports
       await Promise.allSettled([
         getSportMatchesWithSWR("cricket"),
-        getSportMatchesWithSWR("soccer")
+        getSportMatchesWithSWR("soccer"),
+        getSportMatchesWithSWR("tennis"),
+        getSportMatchesWithSWR("basketball")
       ]);
     } catch (e) {
       console.warn("[SportsPollerDaemon] Live poll cycle warning:", e);
