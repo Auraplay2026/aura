@@ -167,29 +167,14 @@ export default function RewardsPage() {
 
         {/* Rewards Conversion Nudges / Hooks */}
         {currentUser?.accountType === 'demo' ? (
-          </div>
-          
-          <div className="flex items-center gap-3 z-10 w-full sm:w-auto">
-            <div className="bg-slate-100 border border-slate-200 rounded-2xl px-5 py-3 flex items-center justify-between sm:justify-start gap-4 w-full sm:w-auto">
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Current Tier</p>
-                <p className="text-sm font-black text-slate-900 flex items-center gap-1.5">
-                  <Crown className="w-4 h-4 text-yellow-500" /> {currentRank.name}
-                </p>
-              </div>
-              <div className="h-8 w-px bg-slate-200" />
-              <div>
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Total Wagered</p>
-                <p className="text-sm font-black text-yellow-600 font-mono">
-                  ₹{totalWager.toLocaleString('en-IN')}
-                </p>
-              </div>
+          <div className="bg-amber-50 border border-amber-200 rounded-3xl p-6 text-amber-800 text-sm font-bold flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 shadow-sm">
+            <div className="space-y-1">
+              <p className="text-base font-black uppercase tracking-wide">⚠️ Demo Mode Active</p>
+              <p className="font-medium text-amber-700 text-xs">Rakeback, daily drop bonuses, and VIP rewards are currently simulated. Deposit real money to claim real rewards!</p>
             </div>
+            <Link href="/account/balance" className="shrink-0 px-6 py-3 bg-amber-600 hover:bg-amber-700 text-slate-900 rounded-xl transition-all text-center w-full sm:w-auto uppercase tracking-wider text-xs font-black shadow-md">Deposit & Unlock Rewards</Link>
           </div>
-        </div>
-
-        {/* Real Mode Notice */}
-        {isClient && isLoggedIn && (
+        ) : (
           <div className="bg-indigo-50 border border-indigo-200 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 text-indigo-900">
             <div className="space-y-0.5 text-center sm:text-left">
               <p className="text-base font-black uppercase tracking-wide">💎 Real Rewards Active</p>
