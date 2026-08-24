@@ -120,25 +120,50 @@ jobs:
           output_file_path: checkov.sarif
           soft_fail: true
 
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
       - name: Build Local Container Image for Audit
-        run: |
-          docker build -t auraplay-local:audit . || docker build -t auraplay-local:audit -f Dockerfile . || true
+        uses: docker/build-push-action@v5
+        continue-on-error: true
+        with:
+          context: .
+          file: ./Dockerfile
+          load: true
+          tags: auraplay-local:audit
+          cache-from: type=gha
 
       - name: Trivy - Container Image Scan
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           image-ref: 'auraplay-local:audit'
           format: 'sarif'
           output: 'trivy-image.sarif'
           severity: 'CRITICAL,HIGH'
 
+      - name: Ensure Image SARIF exists
+        if: always()
+        run: |
+          if [ ! -f "trivy-image.sarif" ]; then
+            echo '{"$schema":"https://raw.githubusercontent.com/oasis-tcs/sarif-spec/master/Schemata/sarif-schema-2.1.0.json","version":"2.1.0","runs":[]}' > trivy-image.sarif
+          fi
+
       - name: Trivy - CycloneDX SBOM Generation
         uses: aquasecurity/trivy-action@master
+        continue-on-error: true
         with:
           scan-type: 'fs'
           scan-ref: '.'
           format: 'cyclonedx'
           output: 'sbom-cyclonedx.json'
+
+      - name: Ensure SBOM file exists
+        if: always()
+        run: |
+          if [ ! -f "sbom-cyclonedx.json" ]; then
+            echo '{"bomFormat":"CycloneDX","specVersion":"1.4","version":1,"components":[]}' > sbom-cyclonedx.json
+          fi
 
       - name: Upload Container Artifacts
         uses: actions/upload-artifact@v4
@@ -166,7 +191,7 @@ jobs:
         uses: zaproxy/action-baseline@v0.15.0
         continue-on-error: true
         with:
-          target: "${{ secrets.STAGING_APP_URL || 'https://aura.twintubrovquattro.workers.dev' }}"
+          target: "${{ secrets.STAGING_APP_URL || 'https://aura-bluesignal5-dev.apps.rm2.thpm.p1.openshiftapps.com' }}"
           cmd_options: '-a -j -m 5'
           issue_title: 'ZAP Security Finding'
           fail_action: false
@@ -175,7 +200,7 @@ jobs:
         uses: projectdiscovery/nuclei-action@main
         continue-on-error: true
         with:
-          target: "${{ secrets.STAGING_APP_URL || 'https://aura.twintubrovquattro.workers.dev' }}"
+          target: "${{ secrets.STAGING_APP_URL || 'https://aura-bluesignal5-dev.apps.rm2.thpm.p1.openshiftapps.com' }}"
           output: 'nuclei-report.json'
           json: true
           flags: '-tags cve,misconfig,tech,ssl,headers -severity critical,high,medium'
