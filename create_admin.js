@@ -52,11 +52,12 @@ async function main() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
+  const adminEmail = process.env.ADMIN_EMAIL || 'auraplay2026@gmail.com';
   try {
     const existing = await prisma.user.findFirst({
       where: {
         OR: [
-          { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
+          { email: { equals: adminEmail, mode: 'insensitive' } },
           { username: { equals: 'admin', mode: 'insensitive' } }
         ]
       }
@@ -68,7 +69,7 @@ async function main() {
       await prisma.user.create({
         data: {
           username: 'admin',
-          email: 'twintubrovquattro@gmail.com',
+          email: adminEmail,
           passwordHash: hashedPassword,
           accountType: 'real',
           balance: 100000,
