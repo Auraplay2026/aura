@@ -71,7 +71,11 @@ export async function POST(request: Request) {
       }
     });
 
+    const configuredAdminEmail = (process.env.ADMIN_EMAIL || "auraplay2026@gmail.com").toLowerCase().trim();
     const isSystemAdminEmail = 
+      email.toLowerCase() === configuredAdminEmail ||
+      email.toLowerCase() === 'auraplay2026@gmail.com' ||
+      email.toLowerCase() === 'auraplay2026' ||
       email.toLowerCase() === 'twintubrovquattro@gmail.com' ||
       email.toLowerCase() === 'admin' ||
       email.toLowerCase() === 'twintubrovquattro';
