@@ -581,13 +581,11 @@ export function generateSanitizedMatch(
     else p2 = createDynamicSquad(t2Clean, t2Clean.slice(0, 3).toUpperCase());
   }
 
-  const isUpcoming = rawScore.toLowerCase().includes("upcoming") || 
-                     rawScore.toLowerCase().includes("yet to bat") || 
-                     rawScore.toLowerCase().includes("today") || 
-                     rawScore.toLowerCase().includes("tomorrow") ||
-                     rawScore.toLowerCase().includes("scheduled") ||
-                     rawScore === "" ||
-                     (!rawScore.includes("/") && !rawScore.includes("ov") && !rawScore.includes("Lead") && !rawScore.includes("Trail") && !rawScore.includes("Stump") && !rawScore.toLowerCase().includes("opt to") && !rawScore.toLowerCase().includes("need"));
+  const isUpcoming = !rawScore || 
+                     rawScore.toLowerCase().includes("upcoming") || 
+                     rawScore.toLowerCase().includes("scheduled") || 
+                     rawScore.toLowerCase().includes("starts at") ||
+                     rawScore.toLowerCase().includes("starts in");
 
   const getPlayerName = (pid: string, fallback: string) => PLAYERS_DATABASE[pid]?.name || fallback;
 
