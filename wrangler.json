@@ -1,0 +1,7 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "aura",
+  "main": "worker.js",
+  "compatibility_date": "2024-08-01",
+  "workers_dev": true
+}
