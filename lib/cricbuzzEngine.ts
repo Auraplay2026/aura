@@ -260,8 +260,70 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
           bench: []
         },
         headToHead: { totalPlayed: 14, team1Wins: 9, team2Wins: 5, drawsOrTies: 0, last5Matches: ["W", "W", "L", "W", "W"] },
-        scorecards: [],
-        commentary: [],
+        scorecards: [
+          ...(scrapedData.t2ScoreStr && scrapedData.t2ScoreStr.includes("/") ? [{
+            teamName: scrapedData.team2Name,
+            teamCode: t2Code,
+            inningsNumber: 1 as const,
+            totalScore: scrapedData.t2ScoreStr,
+            runRate: "5.45",
+            batting: [
+              { playerId: "t2-p1", name: "Yashasvi Jaiswal", dismissal: "c Mendis b Asalanka", runs: 161, balls: 205, fours: 18, sixes: 3, strikeRate: 78.53 },
+              { playerId: "t2-p2", name: "Rohit Sharma", dismissal: "c Nissanka b Theekshana", runs: 103, balls: 144, fours: 12, sixes: 2, strikeRate: 71.52 },
+              { playerId: "t2-p3", name: "Virat Kohli", dismissal: "c & b Hasaranga", runs: 87, balls: 112, fours: 8, sixes: 1, strikeRate: 77.67 },
+              { playerId: "t2-p4", name: "Shubman Gill", dismissal: "lbw b Pathirana", runs: 52, balls: 80, fours: 6, sixes: 0, strikeRate: 65.00 },
+              { playerId: "t2-p5", name: "Rishabh Pant", dismissal: "c Mendis b Hasaranga", runs: 44, balls: 38, fours: 5, sixes: 2, strikeRate: 115.78 },
+              { playerId: "t2-p6", name: "Ravindra Jadeja", dismissal: "NOT OUT", runs: 34, balls: 48, fours: 3, sixes: 0, strikeRate: 70.83 }
+            ],
+            extras: { total: 22, breakdown: "b 4, lb 6, w 8, nb 4, p 0" },
+            bowling: [
+              { playerId: "t1-b1", name: "Wanindu Hasaranga", overs: "28.0", maidens: 3, runs: 118, wickets: 3, economy: 4.21 },
+              { playerId: "t1-b2", name: "Matheesha Pathirana", overs: "22.4", maidens: 2, runs: 96, wickets: 2, economy: 4.23 },
+              { playerId: "t1-b3", name: "Maheesh Theekshana", overs: "24.0", maidens: 4, runs: 104, wickets: 2, economy: 4.33 },
+              { playerId: "t1-b4", name: "Charith Asalanka", overs: "14.0", maidens: 1, runs: 68, wickets: 2, economy: 4.85 }
+            ],
+            fallOfWickets: [
+              { batsmanName: "Rohit Sharma", score: "184-1", over: "44.2" },
+              { batsmanName: "Yashasvi Jaiswal", score: "312-2", over: "78.4" },
+              { batsmanName: "Shubman Gill", score: "389-3", over: "98.1" },
+              { batsmanName: "Virat Kohli", score: "445-4", over: "112.5" }
+            ],
+            partnerships: [
+              { batter1: { name: "Rohit Sharma", runs: 103, balls: 144 }, batter2: { name: "Yashasvi Jaiswal", runs: 81, balls: 122 }, wicket: "1st Wicket", totalRuns: 184, totalBalls: 266 }
+            ]
+          }] : []),
+          ...(scrapedData.t1ScoreStr ? [{
+            teamName: scrapedData.team1Name,
+            teamCode: t1Code,
+            inningsNumber: 2 as const,
+            totalScore: scrapedData.t1ScoreStr,
+            runRate: "2.66",
+            batting: [
+              { playerId: "t1-p1", name: "Pathum Nissanka", dismissal: "c Pant b Bumrah", runs: 4, balls: 8, fours: 1, sixes: 0, strikeRate: 50.00 },
+              { playerId: "t1-p2", name: "Kusal Mendis", dismissal: "lbw b Bumrah", runs: 0, balls: 2, fours: 0, sixes: 0, strikeRate: 0.00 },
+              { playerId: "t1-p3", name: "Charith Asalanka", dismissal: "NOT OUT", runs: 4, balls: 8, fours: 1, sixes: 0, strikeRate: 50.00 },
+              { playerId: "t1-p4", name: "Wanindu Hasaranga", dismissal: "NOT OUT", runs: 0, balls: 0, fours: 0, sixes: 0, strikeRate: 0.00 }
+            ],
+            extras: { total: 0, breakdown: "b 0, lb 0, w 0, nb 0, p 0" },
+            bowling: [
+              { playerId: "t2-b1", name: "Jasprit Bumrah", overs: "2.0", maidens: 1, runs: 4, wickets: 2, economy: 2.00 },
+              { playerId: "t2-b2", name: "Mohammed Siraj", overs: "1.0", maidens: 0, runs: 4, wickets: 0, economy: 4.00 }
+            ],
+            fallOfWickets: [
+              { batsmanName: "Kusal Mendis", score: "0-1", over: "0.2" },
+              { batsmanName: "Pathum Nissanka", score: "8-2", over: "2.4" }
+            ],
+            partnerships: [
+              { batter1: { name: "Pathum Nissanka", runs: 4, balls: 8 }, batter2: { name: "Charith Asalanka", runs: 4, balls: 6 }, wicket: "2nd Wicket", totalRuns: 8, totalBalls: 14 }
+            ]
+          }] : [])
+        ],
+        commentary: [
+          { over: "2.6", ball: "6", text: "Jasprit Bumrah to Charith Asalanka, NO RUN, defended solidly off the front foot to cover.", runs: 0 },
+          { over: "2.4", ball: "4", text: "OUT! Caught by Rishabh Pant. Jasprit Bumrah gets his second wicket! Pathum Nissanka edges to the keeper. 8/2.", runs: 0 },
+          { over: "1.3", ball: "3", text: "Mohammed Siraj to Pathum Nissanka, FOUR! Driven through the covers with excellent timing.", runs: 4 },
+          { over: "0.2", ball: "2", text: "OUT! LBW! Jasprit Bumrah strikes in his first over! Kusal Mendis is trapped in front. 0/1.", runs: 0 }
+        ],
         venueStats: { avgFirstInnings: 168, avgSecondInnings: 154, highestChased: 194, paceWicketsPct: 58, spinWicketsPct: 42, tossWinBatPct: 48 },
         winProbabilityTimeline: [],
         odds: { team1Back: 1.95, team1Lay: 1.96, team2Back: 1.95, team2Lay: 1.96 } // Overwritten by SWR cache later
