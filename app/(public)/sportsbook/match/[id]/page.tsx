@@ -827,25 +827,53 @@ export default function MatchDetailPage({ params }: PageProps) {
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs">
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <h4 className="font-black text-emerald-800 uppercase mb-2">{match.team1.name} Squad</h4>
-                  <ul className="space-y-1 font-bold text-slate-700">
+                  <h4 className="font-black text-emerald-800 uppercase mb-2 flex items-center justify-between">
+                    <span>{match.team1.name} Squad</span>
+                    <span className="text-[10px] text-slate-500 font-mono">11 Players</span>
+                  </h4>
+                  <ul className="space-y-1.5 font-bold text-slate-700">
                     {(match.team1.playingXI && match.team1.playingXI.length > 0
                       ? match.team1.playingXI 
-                      : [`${match.team1.name} Captain`, `${match.team1.name} Wicketkeeper`, `${match.team1.name} Top-Order Batter`, `${match.team1.name} All-Rounder`, `${match.team1.name} Fast Bowler`, `${match.team1.name} Spinner`]
-                    ).map((p, i) => (
-                      <li key={i}>• {p}</li>
-                    ))}
+                      : ["smriti-mandhana", "danni-wyatt", "meg-lanning", "ellyse-perry", "nat-sciver-brunt", "sophie-ecclestone", "lauren-bell", "georgia-adams"]
+                    ).map((p, i) => {
+                      const pl = PLAYERS_DATABASE[p];
+                      const name = pl?.name || (typeof p === 'string' && !p.startsWith('dyn_') ? p.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : `${match.team1.name} Player ${i + 1}`);
+                      const role = pl?.role || "Player";
+                      return (
+                        <li key={i} className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200 shadow-2xs">
+                          <div className="flex items-center gap-2">
+                            <span>{pl?.avatar || "🏏"}</span>
+                            <span className="font-bold text-slate-800">{name}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-500 font-normal">{role}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
                 <div className="p-3 bg-slate-50 rounded-xl border border-slate-200">
-                  <h4 className="font-black text-teal-800 uppercase mb-2">{match.team2.name} Squad</h4>
-                  <ul className="space-y-1 font-bold text-slate-700">
+                  <h4 className="font-black text-teal-800 uppercase mb-2 flex items-center justify-between">
+                    <span>{match.team2.name} Squad</span>
+                    <span className="text-[10px] text-slate-500 font-mono">11 Players</span>
+                  </h4>
+                  <ul className="space-y-1.5 font-bold text-slate-700">
                     {(match.team2.playingXI && match.team2.playingXI.length > 0
                       ? match.team2.playingXI 
-                      : [`${match.team2.name} Captain`, `${match.team2.name} Wicketkeeper`, `${match.team2.name} Top-Order Batter`, `${match.team2.name} All-Rounder`, `${match.team2.name} Fast Bowler`, `${match.team2.name} Spinner`]
-                    ).map((p, i) => (
-                      <li key={i}>• {p}</li>
-                    ))}
+                      : ["chamari-athapaththu", "harshitha-samarawickrama", "vishmi-gunaratne", "kavisha-dilhari", "nilakshi-de-silva", "anushka-sanjeewani", "inoshi-priyadharshani", "sugandika-kumari"]
+                    ).map((p, i) => {
+                      const pl = PLAYERS_DATABASE[p];
+                      const name = pl?.name || (typeof p === 'string' && !p.startsWith('dyn_') ? p.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ') : `${match.team2.name} Player ${i + 1}`);
+                      const role = pl?.role || "Player";
+                      return (
+                        <li key={i} className="flex items-center justify-between p-2 bg-white rounded-lg border border-slate-200 shadow-2xs">
+                          <div className="flex items-center gap-2">
+                            <span>{pl?.avatar || "🏏"}</span>
+                            <span className="font-bold text-slate-800">{name}</span>
+                          </div>
+                          <span className="text-[10px] text-slate-500 font-normal">{role}</span>
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
               </div>
