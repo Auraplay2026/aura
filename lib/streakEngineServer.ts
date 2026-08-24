@@ -1,26 +1,26 @@
-﻿import { prisma } from './prisma';
+import { prisma } from './prisma';
 
 export const APP_TIMEZONE = 'Asia/Kolkata'; // Official timezone (IST, UTC+05:30)
 
 export const DAILY_STREAK_REWARDS: Record<number, number> = {
-  1: 50,
-  2: 100,
-  3: 200,
-  4: 350,
-  5: 500,
-  6: 1000,
-  7: 5000,
+  1: 10,
+  2: 20,
+  3: 30,
+  4: 50,
+  5: 75,
+  6: 100,
+  7: 200,
 };
 
 export const WHEEL_SECTORS = [
-  { label: "₹50", prize: 50, color: "#1e1b4b" },
-  { label: "₹100", prize: 100, color: "#312e81" },
-  { label: "₹250", prize: 250, color: "#3730a3" },
-  { label: "₹500", prize: 500, color: "#4f46e5" },
-  { label: "₹1,000", prize: 1000, color: "#4338ca" },
-  { label: "₹5,000", prize: 5000, color: "#b45309" },
-  { label: "500 XP", prize: 0, xp: 500, color: "#6d28d9" },
-  { label: "₹150", prize: 150, color: "#111827" },
+  { label: "₹10", prize: 10, weight: 35, color: "#1e1b4b" },
+  { label: "₹25", prize: 25, weight: 25, color: "#312e81" },
+  { label: "₹50", prize: 50, weight: 20, color: "#3730a3" },
+  { label: "₹75", prize: 75, weight: 10, color: "#4f46e5" },
+  { label: "₹100", prize: 100, weight: 6, color: "#4338ca" },
+  { label: "100 XP", prize: 0, xp: 100, weight: 2, color: "#6d28d9" },
+  { label: "2x Boost", prize: 0, xp: 50, weight: 1, color: "#111827" },
+  { label: "₹500 MEGA", prize: 500, weight: 1, color: "#b45309" },
 ];
 
 /**

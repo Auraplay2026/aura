@@ -54,7 +54,7 @@ export async function POST(request: Request) {
       let transactionType = 'deposit';
 
       if (rewardType === 'daily') {
-        if (amount > 5000) {
+        if (amount > 200) {
           throw new Error('DAILY_REWARD_EXCEEDED');
         }
         const isStreakClaim = detailsToUse.startsWith('Claimed Daily Reward');
@@ -71,7 +71,7 @@ export async function POST(request: Request) {
           throw new Error('DAILY_ALREADY_CLAIMED');
         }
       } else if (rewardType === 'spin') {
-        if (amount > 10000) {
+        if (amount > 500) {
           throw new Error('SPIN_REWARD_EXCEEDED');
         }
         const existingSpinClaim = await tx.transaction.findFirst({
@@ -85,7 +85,7 @@ export async function POST(request: Request) {
           throw new Error('SPIN_ALREADY_CLAIMED');
         }
       } else if (rewardType === 'weekly') {
-        if (amount > 1500) {
+        if (amount > 250) {
           throw new Error('WEEKLY_REWARD_EXCEEDED');
         }
         const sixDaysAgo = Date.now() - 6 * 24 * 60 * 60 * 1000;
@@ -100,7 +100,7 @@ export async function POST(request: Request) {
           throw new Error('WEEKLY_ALREADY_CLAIMED');
         }
       } else if (rewardType === 'monthly') {
-        if (amount > 5000) {
+        if (amount > 500) {
           throw new Error('MONTHLY_REWARD_EXCEEDED');
         }
         const twentyFiveDaysAgo = Date.now() - 25 * 24 * 60 * 60 * 1000;

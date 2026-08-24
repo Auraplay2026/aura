@@ -118,16 +118,16 @@ export function DailyRewardModal() {
     return () => window.removeEventListener("open-daily-reward", handleOpen);
   }, [isLoggedIn, currentUser, fetchStreakStatus]);
 
-  const DAILY_REWARDS = [50, 100, 200, 350, 500, 1000, 5000];
+  const DAILY_REWARDS = [10, 20, 30, 50, 75, 100, 200];
   const WHEEL_SECTORS = [
-    { label: "₹50", prize: 50, color: "#1e1b4b" }, // Indigo 950
-    { label: "₹100", prize: 100, color: "#312e81" }, // Indigo 900
-    { label: "₹250", prize: 250, color: "#3730a3" }, // Indigo 800
-    { label: "₹500", prize: 500, color: "#4f46e5" }, // Indigo 600
-    { label: "₹1,000", prize: 1000, color: "#4338ca" }, // Indigo 700
-    { label: "₹5,000", prize: 5000, color: "#b45309" }, // Gold
-    { label: "500 XP", prize: 0, color: "#6d28d9" }, // Purple
-    { label: "₹150", prize: 150, color: "#111827" } // Dark Slate
+    { label: "₹10", prize: 10, weight: 35, color: "#1e1b4b" }, // Indigo 950
+    { label: "₹25", prize: 25, weight: 25, color: "#312e81" }, // Indigo 900
+    { label: "₹50", prize: 50, weight: 20, color: "#3730a3" }, // Indigo 800
+    { label: "₹75", prize: 75, weight: 10, color: "#4f46e5" }, // Indigo 600
+    { label: "₹100", prize: 100, weight: 6, color: "#4338ca" }, // Indigo 700
+    { label: "100 XP", prize: 0, weight: 2, color: "#6d28d9" }, // Purple
+    { label: "2x Boost", prize: 0, weight: 1, color: "#111827" }, // Dark Slate
+    { label: "₹500 MEGA", prize: 500, weight: 1, color: "#b45309" } // Gold Jackpot (1% Ultra-rare)
   ];
 
   const sectorAngle = 360 / WHEEL_SECTORS.length;
@@ -194,7 +194,18 @@ export function DailyRewardModal() {
       } catch (e) {}
     }
 
-    const prizeIndex = Math.floor(Math.random() * WHEEL_SECTORS.length);
+    // Weighted selection for controlled house economics
+    const totalWeight = WHEEL_SECTORS.reduce((sum, s) => sum + s.weight, 0);
+    let rand = Math.random() * totalWeight;
+    let prizeIndex = 0;
+    for (let i = 0; i < WHEEL_SECTORS.length; i++) {
+      if (rand < WHEEL_SECTORS[i].weight) {
+        prizeIndex = i;
+        break;
+      }
+      rand -= WHEEL_SECTORS[i].weight;
+    }
+
     const sector = WHEEL_SECTORS[prizeIndex];
 
     // Align wheel so that prize points towards top pointer (270 degrees)
@@ -208,14 +219,14 @@ export function DailyRewardModal() {
       // Claim prize on server
       await spinWheelClaimed(sector.prize, `Won ${sector.label} on Spin Wheel`, prizeIndex);
       if (sector.prize === 0) {
-        useTradingStore.setState((s) => ({ xp: (s.xp || 0) + 500 }));
+        useTradingStore.setState((s) => ({ xp: (s.xp || 0) + 100 }));
       }
 
       setPrizeWon(sector.label);
       setShowConfetti(true);
-      playGameSound(sector.prize >= 1000 ? 'jackpot' : 'win');
+      playGameSound(sector.prize >= 500 ? 'jackpot' : 'win');
 
-      if (sector.prize >= 5000) {
+      if (sector.prize >= 500) {
         unlockAchievement("jackpot_hunter");
       }
     }, 5000);

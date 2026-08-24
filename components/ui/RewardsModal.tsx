@@ -91,13 +91,13 @@ export function RewardsModal() {
         body: JSON.stringify({
           email: currentUser.email,
           rewardType: 'weekly',
-          amount: 500,
+          amount: 250,
           details: 'Weekly VIP Drop'
         })
       });
       const data = await res.json();
       if (res.ok && data.success) {
-        setSuccessMsg("Successfully claimed ₹500 Weekly VIP Drop!");
+        setSuccessMsg("Successfully claimed ₹250 Weekly VIP Drop!");
         await syncFromServer();
       } else {
         setErrorMsg(data.error || "Failed to claim weekly drop.");
