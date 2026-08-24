@@ -10,12 +10,18 @@ metadata:
   namespace: auraplay-production
 type: Opaque
 stringData:
-  DATABASE_URL: "postgresql://user:password@localhost:5432/aura"
-  JWT_SECRET: "placeholder-jwt-secret-replace-in-production"
-  NEXTAUTH_SECRET: "placeholder-nextauth-secret-replace-in-production"
-  ADMIN_DEFAULT_PASSWORD: "placeholder-admin-password"
-  ADMIN_SECURITY_KEY: "placeholder-admin-key"
-  MASTER_SECURITY_KEY: "placeholder-master-key"
+  DATABASE_URL: "postgresql://postgres.ipzqtmbxzoooimbcowcm:Siddiqui%40009@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: "sb_publishable_NJ-hFMrhmU25CSfN2N6vqw_12HtvTBW"
+  FOOTBALL_DATA_API_KEY: "7ced108dbd804a13946717f5777f8a23"
+  CRICKET_DATA_API_KEY: "c3374abd-bb05-428f-a376-5db8c4fe0432"
+  API_SPORTS_KEY: "96904f06f16dcd156d0ab2d5b4cce652"
+  RAPIDAPI_KEY: "23b20293e1mshe44fad059a41621p1dbe64jsnd8830e845521"
+  THE_ODDS_API_KEY: "de9bfc4aa8fa9d46c0a1f60953f87ead"
+  SPORTMONKS_API_KEY: "e7fmSSUhCk6f4vQ9vkZkThxEVBr97lhQgFHX7BLBuqqxagBqQSRa9odS3U67"
+  ADMIN_DEFAULT_PASSWORD: "AuraBetAdmin2026!"
+  ADMIN_SECURITY_KEY: "aura-dev-admin-secret"
+  MASTER_SECURITY_KEY: "aura-fair-rng-master-secret-key-2026-matrix-secure"
+  ADMIN_JWT_SECRET: "aura-bet-super-secret-development-jwt-signing-key-2026-matrix-secure"
 ---
 apiVersion: v1
 kind: ConfigMap
