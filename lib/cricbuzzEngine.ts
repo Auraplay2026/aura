@@ -290,6 +290,11 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
             ],
             partnerships: [
               { batter1: { name: "Rohit Sharma", runs: 103, balls: 144 }, batter2: { name: "Yashasvi Jaiswal", runs: 81, balls: 122 }, wicket: "1st Wicket", totalRuns: 184, totalBalls: 266 }
+            ],
+            yetToBat: [
+              { name: "Axar Patel", role: "All-rounder", average: 28.5 },
+              { name: "Jasprit Bumrah", role: "Fast Bowler", average: 8.2 },
+              { name: "Mohammed Siraj", role: "Fast Bowler", average: 5.4 }
             ]
           }] : []),
           ...(scrapedData.t1ScoreStr ? [{
@@ -315,6 +320,11 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
             ],
             partnerships: [
               { batter1: { name: "Pathum Nissanka", runs: 4, balls: 8 }, batter2: { name: "Charith Asalanka", runs: 4, balls: 6 }, wicket: "2nd Wicket", totalRuns: 8, totalBalls: 14 }
+            ],
+            yetToBat: [
+              { name: "Angelo Mathews", role: "All-rounder", average: 45.2 },
+              { name: "Dhananjaya de Silva", role: "All-rounder", average: 39.8 },
+              { name: "Maheesh Theekshana", role: "Spin Bowler", average: 12.0 }
             ]
           }] : [])
         ],
