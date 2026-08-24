@@ -329,10 +329,10 @@ export async function resolveCricbuzzMatchDetails(matchId: string): Promise<{
           }] : [])
         ],
         commentary: [
-          { over: "2.6", ball: "6", text: "Jasprit Bumrah to Charith Asalanka, NO RUN, defended solidly off the front foot to cover.", runs: 0 },
-          { over: "2.4", ball: "4", text: "OUT! Caught by Rishabh Pant. Jasprit Bumrah gets his second wicket! Pathum Nissanka edges to the keeper. 8/2.", runs: 0 },
-          { over: "1.3", ball: "3", text: "Mohammed Siraj to Pathum Nissanka, FOUR! Driven through the covers with excellent timing.", runs: 4 },
-          { over: "0.2", ball: "2", text: "OUT! LBW! Jasprit Bumrah strikes in his first over! Kusal Mendis is trapped in front. 0/1.", runs: 0 }
+          { over: "2.6", ball: "6", text: "Jasprit Bumrah to Charith Asalanka, NO RUN, defended solidly off the front foot to cover.", runs: 0, isBoundary: false, isWicket: false },
+          { over: "2.4", ball: "4", text: "OUT! Caught by Rishabh Pant. Jasprit Bumrah gets his second wicket! Pathum Nissanka edges to the keeper. 8/2.", runs: 0, isBoundary: false, isWicket: true },
+          { over: "1.3", ball: "3", text: "Mohammed Siraj to Pathum Nissanka, FOUR! Driven through the covers with excellent timing.", runs: 4, isBoundary: true, isWicket: false },
+          { over: "0.2", ball: "2", text: "OUT! LBW! Jasprit Bumrah strikes in his first over! Kusal Mendis is trapped in front. 0/1.", runs: 0, isBoundary: false, isWicket: true }
         ],
         venueStats: { avgFirstInnings: 168, avgSecondInnings: 154, highestChased: 194, paceWicketsPct: 58, spinWicketsPct: 42, tossWinBatPct: 48 },
         winProbabilityTimeline: [],
