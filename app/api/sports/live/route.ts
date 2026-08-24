@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { getSportMatchesWithSWR, ExtendedMatch } from "@/lib/sportsCache";
+import "@/lib/sportsPollerDaemon";
 
 export const dynamic = "force-dynamic";
 
@@ -22,7 +23,7 @@ export async function GET(req: Request) {
       cacheAgeMs
     }, {
       headers: {
-        "Cache-Control": "public, s-maxage=15, stale-while-revalidate=60",
+        "Cache-Control": "public, s-maxage=2, stale-while-revalidate=5",
         "X-Cache-Status": isCached ? "HIT" : "MISS",
         "X-Cache-Age-Ms": String(cacheAgeMs)
       }

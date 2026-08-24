@@ -12,16 +12,112 @@ interface CacheEntry {
   data: ExtendedMatch[];
   timestamp: number;
   isStale: boolean;
+  hasLiveMatches: boolean;
 }
 
-// Global In-Memory SWR Cache
-// Cache TTL: 20 seconds (fresh window)
-// Stale Window: 5 minutes (serve stale while background revalidation occurs)
-const CACHE_TTL_MS = 20_000;
-const STALE_TTL_MS = 300_000;
+// ═══════════════════════════════════════════════════════════════
+// STRATIFIED MULTI-TIER CACHING CONFIGURATION (SUB-SECOND FRESHNESS)
+// ═══════════════════════════════════════════════════════════════
+export const LIVE_CACHE_TTL_MS = 2_500;       // 2.5s for live in-play matches (ball-by-ball freshness)
+export const UPCOMING_CACHE_TTL_MS = 45_000;  // 45s for scheduled / upcoming matches
+export const FINISHED_CACHE_TTL_MS = 300_000; // 5 mins for finished matches
+export const MAX_STALE_TTL_MS = 60_000;       // Max stale window: 1 minute
 
 const GLOBAL_MATCHES_CACHE = new Map<string, CacheEntry>();
 const PENDING_REVALIDATIONS = new Map<string, Promise<ExtendedMatch[]>>();
+
+/**
+ * Instantly busts sports cache entries (used on state transitions or force refresh)
+ */
+export function invalidateSportsCache(sportKey?: string) {
+  if (sportKey) {
+    const key = (sportKey === "football" ? "soccer" : sportKey).toLowerCase();
+    GLOBAL_MATCHES_CACHE.delete(key);
+    GLOBAL_MATCHES_CACHE.delete("all");
+  } else {
+    GLOBAL_MATCHES_CACHE.clear();
+  }
+}
+
+/**
+ * Universal Zero-Ambiguity Match State Normalizer
+ * Accurately categorizes all external provider status codes and strings into canonical states.
+ */
+export function normalizeSportsMatchStatus(
+  rawState?: any,
+  rawScore?: string,
+  commenceTime?: Date | string
+): "Live" | "Upcoming" {
+  const combined = (String(rawState || "") + " " + String(rawScore || "")).toLowerCase().trim();
+
+  // 1. Explicit Finished Indicators
+  if (
+    combined.includes("match ended") ||
+    combined.includes("won by") ||
+    combined.includes("complete") ||
+    combined.includes("finished") ||
+    combined.includes("ft ") ||
+    combined.includes("(ft)") ||
+    combined.includes("post-match") ||
+    combined.includes("abandoned") ||
+    combined.includes("no result")
+  ) {
+    return "Upcoming"; // Treat finished as non-live
+  }
+
+  // 2. Explicit In-Play / Live Game States across Cricket, Football, Tennis & Basketball
+  if (
+    combined.includes("in progress") ||
+    combined.includes("in-play") ||
+    combined.includes("inplay") ||
+    combined.includes("live") ||
+    combined.includes("running") ||
+    combined.includes("toss") ||
+    combined.includes("opt to") ||
+    combined.includes("elected to") ||
+    combined.includes("need ") ||
+    combined.includes("needs ") ||
+    combined.includes("trail by") ||
+    combined.includes("lead by") ||
+    combined.includes("stumps") ||
+    combined.includes("tea") ||
+    combined.includes("lunch") ||
+    combined.includes("innings break") ||
+    combined.includes("super over") ||
+    combined.includes("rain delay") ||
+    combined.includes("1st half") ||
+    combined.includes("2nd half") ||
+    combined.includes("halftime") ||
+    combined.includes("half-time") ||
+    combined.includes("extra time") ||
+    combined.includes("penalties") ||
+    combined.includes("q1") || combined.includes("q2") || combined.includes("q3") || combined.includes("q4") ||
+    combined.includes("set 1") || combined.includes("set 2") || combined.includes("set 3") || combined.includes("set 4") || combined.includes("set 5")
+  ) {
+    return "Live";
+  }
+
+  // 3. Score string contains live deliveries/overs like "145/3 (18.2 ov)" or football clock "2-1 (38')"
+  if (
+    /\d+\/\d+/.test(combined) ||
+    /\(\d+\.?\d*\s*ov/.test(combined) ||
+    /\d+-\d+\s*\(\d+/.test(combined)
+  ) {
+    return "Live";
+  }
+
+  // 4. Time-based heuristic if commence time is past and within match window (without explicit score)
+  if (commenceTime) {
+    const cDate = typeof commenceTime === "string" ? new Date(commenceTime) : commenceTime;
+    const now = Date.now();
+    const cTime = cDate.getTime();
+    if (!isNaN(cTime) && cTime <= now && now - cTime < 3.5 * 3600 * 1000) {
+      return "Live";
+    }
+  }
+
+  return "Upcoming";
+}
 
 // Standardizes ESPN scoreboard data to ExtendedMatch
 function parseESPNEvent(event: any, sportKey: string): ExtendedMatch | null {
@@ -41,7 +137,8 @@ function parseESPNEvent(event: any, sportKey: string): ExtendedMatch | null {
     const team2Logo = awayTeamObj.team?.logo;
 
     const state = event.status?.type?.state; // "pre" | "in" | "post"
-    const status: "Live" | "Upcoming" = state === "in" ? "Live" : "Upcoming";
+    const isLive = state === "in";
+    const status: "Live" | "Upcoming" = isLive ? "Live" : "Upcoming";
 
     let score = "";
     if (state === "in") {
@@ -164,11 +261,18 @@ async function fetchESPINScoreboard(url: string, sportKey: string): Promise<Exte
   }
 }
 
-// ── Multi-Key Rotating Load Balancers with Anti-Rate-Limit Cooldown ──
+// ── Multi-Key Rotating Load Balancers with Progressive Cooldown Backoff ──
 const GLOBAL_KEY_COOLDOWNS = new Map<string, number>();
+const KEY_FAILURE_COUNTS = new Map<string, number>();
 
-export function markKeyCooldownGlobal(key: string, durationMs: number = 15 * 60 * 1000) {
-  GLOBAL_KEY_COOLDOWNS.set(key, Date.now() + durationMs);
+export function markKeyCooldownGlobal(key: string, baseDurationMs: number = 60_000) {
+  const currentFailures = (KEY_FAILURE_COUNTS.get(key) || 0) + 1;
+  KEY_FAILURE_COUNTS.set(key, currentFailures);
+  // Progressive exponential backoff: 1 min -> 4 min -> 9 min -> 15 min max
+  const multiplier = Math.min(15, Math.pow(currentFailures, 2));
+  const duration = baseDurationMs * multiplier;
+  GLOBAL_KEY_COOLDOWNS.set(key, Date.now() + duration);
+  console.warn(`[SportsKeyRotator] Key flagged with ${currentFailures} failure(s). Cooling down for ${duration / 1000}s`);
 }
 
 function isKeyCoolingDown(key: string): boolean {
@@ -1283,9 +1387,11 @@ export async function getSportMatchesWithSWR(
   const now = Date.now();
 
   const cached = GLOBAL_MATCHES_CACHE.get(cacheKey);
+  const hasLive = cached?.hasLiveMatches ?? (cached?.data ? cached.data.some(m => m.status === "Live") : false);
+  const effectiveTtl = hasLive ? LIVE_CACHE_TTL_MS : UPCOMING_CACHE_TTL_MS;
 
-  // 1. FRESH HIT (within 20s): Return immediately (< 1ms)
-  if (cached && (now - cached.timestamp < CACHE_TTL_MS)) {
+  // 1. FRESH HIT: Return immediately (< 1ms) within stratified TTL window
+  if (cached && (now - cached.timestamp < effectiveTtl)) {
     return {
       matches: cached.data,
       isCached: true,
@@ -1293,15 +1399,17 @@ export async function getSportMatchesWithSWR(
     };
   }
 
-  // 2. STALE HIT (between 20s and 5m): Return stale immediately, trigger async revalidation in background
-  if (cached && (now - cached.timestamp < STALE_TTL_MS)) {
+  // 2. STALE HIT (within MAX_STALE_TTL_MS): Return stale immediately, trigger async revalidation in background
+  if (cached && (now - cached.timestamp < MAX_STALE_TTL_MS)) {
     if (!PENDING_REVALIDATIONS.has(cacheKey)) {
       const revalidationPromise = executeFreshFetch(cacheKey)
         .then(freshData => {
+          const liveDetected = freshData.some(m => m.status === "Live");
           GLOBAL_MATCHES_CACHE.set(cacheKey, {
             data: freshData,
             timestamp: Date.now(),
-            isStale: false
+            isStale: false,
+            hasLiveMatches: liveDetected
           });
           return freshData;
         })
@@ -1323,7 +1431,7 @@ export async function getSportMatchesWithSWR(
     };
   }
 
-  // 3. COLD START OR EXPIRED (> 5m): Coalesce requests to a single in-flight promise
+  // 3. COLD START OR EXPIRED: Coalesce requests to a single in-flight promise
   if (PENDING_REVALIDATIONS.has(cacheKey)) {
     const freshData = await PENDING_REVALIDATIONS.get(cacheKey)!;
     return {
@@ -1335,10 +1443,12 @@ export async function getSportMatchesWithSWR(
 
   const fetchPromise = executeFreshFetch(cacheKey)
     .then(freshData => {
+      const liveDetected = freshData.some(m => m.status === "Live");
       GLOBAL_MATCHES_CACHE.set(cacheKey, {
         data: freshData,
         timestamp: Date.now(),
-        isStale: false
+        isStale: false,
+        hasLiveMatches: liveDetected
       });
       return freshData;
     })
