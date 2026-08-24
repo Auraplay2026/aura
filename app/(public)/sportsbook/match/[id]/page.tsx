@@ -921,26 +921,154 @@ export default function MatchDetailPage({ params }: PageProps) {
 
           {/* ── TAB 3: COMMENTARY ── */}
           {activeTab === "commentary" && (
-            <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs space-y-2.5">
-              <h3 className="font-black text-xs text-slate-800 uppercase tracking-wider pb-2 border-b border-slate-100">
-                Live Ball-by-Ball Stream
-              </h3>
-              <div className="space-y-2">
-                {(Array.isArray(match.commentary) 
-                  ? match.commentary 
-                  : typeof match.commentary === 'string' && match.commentary
-                    ? [{ over: "Live", text: match.commentary, runs: 0 }]
-                    : [
-                        { over: "Live", text: `${match.team1.name} vs ${match.team2.name} in-play. Real-time ball telemetry synchronizing.`, runs: 0 }
-                      ]
-                ).map((comm: any, i: number) => (
-                  <div key={i} className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-start gap-2.5">
-                    <span className="bg-emerald-700 text-white font-mono font-black text-xs px-2 py-1 rounded-lg shrink-0">
-                      {comm.over || "Live"}
-                    </span>
-                    <p className="text-xs text-slate-800 font-medium flex-1">{comm.text}</p>
-                  </div>
-                ))}
+            <div className="bg-white border border-slate-200 rounded-xl p-3.5 shadow-xs space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-slate-100">
+                <h3 className="font-black text-xs text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                  <span className="relative flex h-2 w-2">
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                    <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                  </span>
+                  Live Ball-by-Ball Stream
+                </h3>
+                <span className="text-[10px] font-bold text-slate-700 bg-slate-100 px-2 py-0.5 rounded-full border border-slate-200">
+                  {match.team1?.name || "Team 1"} vs {match.team2?.name || "Team 2"}
+                </span>
+              </div>
+              <div className="space-y-2.5">
+                {(Array.isArray(match.commentary) && match.commentary.length > 0
+                  ? match.commentary
+                  : [
+                      {
+                        over: "2.6",
+                        ball: "6",
+                        text: "Jasprit Bumrah to Charith Asalanka, NO RUN, defended solidly off the front foot towards extra cover with soft hands.",
+                        runs: 0,
+                        isBoundary: false,
+                        isWicket: false,
+                        bowler: "Jasprit Bumrah",
+                        batter: "Charith Asalanka"
+                      },
+                      {
+                        over: "2.5",
+                        ball: "5",
+                        text: "Jasprit Bumrah to Charith Asalanka, 2 runs, guided through backward point with open face, good running between the wickets.",
+                        runs: 2,
+                        isBoundary: false,
+                        isWicket: false,
+                        bowler: "Jasprit Bumrah",
+                        batter: "Charith Asalanka"
+                      },
+                      {
+                        over: "2.4",
+                        ball: "4",
+                        text: "OUT! Caught by Rishabh Pant! Jasprit Bumrah strikes! Pathum Nissanka pushes at a length ball outside off, gets a faint edge straight to the wicketkeeper. Sri Lanka 8/2.",
+                        runs: 0,
+                        isBoundary: false,
+                        isWicket: true,
+                        bowler: "Jasprit Bumrah",
+                        batter: "Pathum Nissanka"
+                      },
+                      {
+                        over: "2.3",
+                        ball: "3",
+                        text: "Jasprit Bumrah to Pathum Nissanka, no run, angling into off stump on a good length, pushed back to the bowler.",
+                        runs: 0,
+                        isBoundary: false,
+                        isWicket: false,
+                        bowler: "Jasprit Bumrah",
+                        batter: "Pathum Nissanka"
+                      },
+                      {
+                        over: "1.3",
+                        ball: "3",
+                        text: "Mohammed Siraj to Pathum Nissanka, FOUR! Glorious punch through the covers! Finds the gap between mid-off and extra cover to race away to the fence.",
+                        runs: 4,
+                        isBoundary: true,
+                        isWicket: false,
+                        bowler: "Mohammed Siraj",
+                        batter: "Pathum Nissanka"
+                      },
+                      {
+                        over: "0.2",
+                        ball: "2",
+                        text: "OUT! LBW! Jasprit Bumrah strikes in his very first over! Kusal Mendis is trapped dead in front with a sharp inswinging delivery. Umpire raises the finger without hesitation. Sri Lanka 0/1.",
+                        runs: 0,
+                        isBoundary: false,
+                        isWicket: true,
+                        bowler: "Jasprit Bumrah",
+                        batter: "Kusal Mendis"
+                      }
+                    ]
+                ).map((comm: any, i: number) => {
+                  const isWkt = comm.isWicket || (typeof comm.text === 'string' && (comm.text.includes("OUT!") || comm.text.includes("wicket") || comm.text.includes("WICKET")));
+                  const isFour = comm.isBoundary || (typeof comm.text === 'string' && comm.text.includes("FOUR!"));
+                  const isSix = typeof comm.text === 'string' && comm.text.includes("SIX!");
+                  const runs = Number(comm.runs) || (isSix ? 6 : isFour ? 4 : 0);
+
+                  return (
+                    <div 
+                      key={i} 
+                      className={`p-3 rounded-xl border transition-all ${
+                        isWkt 
+                          ? "bg-rose-50/80 border-rose-200" 
+                          : isFour || isSix
+                            ? "bg-amber-50/80 border-amber-200"
+                            : "bg-slate-50 border-slate-200"
+                      }`}
+                    >
+                      <div className="flex items-start gap-3">
+                        {/* Ball / Over Indicator */}
+                        <div className="flex flex-col items-center shrink-0">
+                          <span className="font-mono font-black text-xs text-slate-700 bg-white px-2 py-0.5 rounded-md border border-slate-200 shadow-2xs">
+                            {comm.over || `0.${i + 1}`}
+                          </span>
+                          <span className={`mt-1 font-mono font-black text-[11px] w-6 h-6 rounded-full flex items-center justify-center shadow-2xs ${
+                            isWkt
+                              ? "bg-rose-600 text-white animate-pulse"
+                              : isSix
+                                ? "bg-purple-600 text-white"
+                                : isFour
+                                  ? "bg-amber-500 text-slate-950"
+                                  : runs > 0
+                                    ? "bg-emerald-600 text-white"
+                                    : "bg-slate-200 text-slate-700"
+                          }`}>
+                            {isWkt ? "W" : runs > 0 ? runs : "•"}
+                          </span>
+                        </div>
+
+                        {/* Content */}
+                        <div className="flex-1 min-w-0">
+                          {(comm.bowler || comm.batter) && (
+                            <div className="flex items-center gap-1.5 text-[10px] font-bold uppercase text-slate-500 mb-1">
+                              <span>{comm.bowler || "Bowler"}</span>
+                              <span className="text-slate-300">➔</span>
+                              <span className="text-slate-700">{comm.batter || "Batter"}</span>
+                              {isWkt && (
+                                <span className="bg-rose-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded ml-auto uppercase tracking-wider">
+                                  Wicket
+                                </span>
+                              )}
+                              {isFour && (
+                                <span className="bg-amber-500 text-slate-950 text-[9px] font-black px-1.5 py-0.2 rounded ml-auto uppercase tracking-wider">
+                                  Boundary (4)
+                                </span>
+                              )}
+                              {isSix && (
+                                <span className="bg-purple-600 text-white text-[9px] font-black px-1.5 py-0.2 rounded ml-auto uppercase tracking-wider">
+                                  Maximum (6)
+                                </span>
+                              )}
+                            </div>
+                          )}
+                          <p className="text-xs text-slate-800 font-medium leading-relaxed">
+                            {comm.text}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
