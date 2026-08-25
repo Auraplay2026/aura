@@ -61,6 +61,8 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link rel="manifest" href="/manifest.json" />
+      </head>
+      <body suppressHydrationWarning className="bg-slate-50 text-slate-900 antialiased selection:bg-red-200/50 selection:text-red-900 pb-20 md:pb-0" style={{ fontFamily: "'Outfit', sans-serif" }}>
         {/* Google tag (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-MBSQXGW3X9"
@@ -75,19 +77,7 @@ export default function RootLayout({
             gtag('config', 'G-MBSQXGW3X9');
           `}
         </Script>
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              if ('serviceWorker' in navigator) {
-                window.addEventListener('load', function() {
-                  navigator.serviceWorker.register('/sw.js');
-                });
-              }
-            `,
-          }}
-        />
-      </head>
-      <body suppressHydrationWarning className="bg-slate-50 text-slate-900 antialiased selection:bg-red-200/50 selection:text-red-900 pb-20 md:pb-0" style={{ fontFamily: "'Outfit', sans-serif" }}>
+
         <AppProviders>
           <GlobalAlerts />
           <GlobalHypeFeed />
