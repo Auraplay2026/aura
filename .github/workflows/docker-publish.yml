@@ -1,4 +1,4 @@
-﻿name: Build, Publish & Deploy Container
+name: Build, Publish & Deploy Container
 
 on:
   push:
@@ -15,6 +15,20 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Setup Node.js for Database Migration
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install DB Dependencies & Execute Clean Slate Purge
+        env:
+          DATABASE_URL: "postgresql://postgres.ipzqtmbxzoooimbcowcm:Siddiqui%40009@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
+          ADMIN_DEFAULT_PASSWORD: "AuraBetAdmin2026!"
+        run: |
+          npm install --no-audit --prefer-offline pg @prisma/client @prisma/adapter-pg bcryptjs dotenv
+          npx prisma generate
+          node scripts/reset-clean-slate.js
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
