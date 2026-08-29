@@ -44,24 +44,32 @@ export async function POST(request: Request) {
       await prisma.userStreak.deleteMany({});
     } catch {}
 
-    // 7. Delete ALL non-admin users (keeping only admin)
+    // 7. Delete ALL users except twintubro
     const delUsers = await prisma.user.deleteMany({
       where: {
         AND: [
-          { username: { notIn: ['admin', 'auraplay2026'] } },
+          { username: { not: 'twintubro' } },
           {
             OR: [
               { email: null },
-              { email: { notIn: ['auraplay2026@gmail.com', 'twintubrovquattro@gmail.com'] } }
+              { email: { not: 'twintubrovquattro@gmail.com' } }
             ]
           }
         ]
       }
     });
 
-    // 8. Reset Admin user to 0 balance & 0 wagers
+    // 8. Reset twintubro admin user to 0 balance & 0 wagers
     await prisma.user.updateMany({
+      where: {
+        OR: [
+          { username: { equals: 'twintubro', mode: 'insensitive' } },
+          { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } }
+        ]
+      },
       data: {
+        username: 'twintubro',
+        email: 'twintubrovquattro@gmail.com',
         role: 'admin',
         balance: 0,
         realBalance: 0,
