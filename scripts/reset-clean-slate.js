@@ -59,36 +59,36 @@ async function main() {
     console.log(` -> Deleted ${delStreakHist.count} streak history items, ${delStreaks.count} streaks.`);
   } catch (e) {}
 
-  console.log('[Clean Slate] 7. Deleting all regular user accounts...');
+  console.log('[Clean Slate] 7. Deleting ALL non-admin users (keeping only admin)...');
   const delUsers = await prisma.user.deleteMany({
     where: {
-      role: { not: 'admin' },
-      email: { not: 'twintubrovquattro@gmail.com' }
+      AND: [
+        { username: { notIn: ['admin', 'auraplay2026'] } },
+        {
+          OR: [
+            { email: null },
+            { email: { notIn: ['auraplay2026@gmail.com', 'twintubrovquattro@gmail.com'] } }
+          ]
+        }
+      ]
     }
   });
   console.log(` -> Deleted ${delUsers.count} regular user accounts.`);
 
-  console.log('[Clean Slate] 8. Setting Master Admin twintubrovquattro@gmail.com with clean operational baseline...');
+  console.log('[Clean Slate] 8. Setting Admin accounts to ZERO balances, 0 turnover, 0 wagers...');
   const resetAdmin = await prisma.user.updateMany({
-    where: {
-      OR: [
-        { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
-        { username: { equals: 'twintubrovquattro', mode: 'insensitive' } },
-        { username: { equals: 'admin', mode: 'insensitive' } }
-      ]
-    },
     data: {
       role: 'admin',
-      balance: 100000,
-      realBalance: 100000,
-      demoBalance: 100000,
+      balance: 0,
+      realBalance: 0,
+      demoBalance: 0,
       totalWagered: 0,
       referralCount: 0,
       affiliateEarnings: 0,
       vipRewardsClaimed: {}
     }
   });
-  console.log(` -> Reset ${resetAdmin.count} admin user(s) to fresh baseline.`);
+  console.log(` -> Reset ${resetAdmin.count} admin user(s) to exact ₹0.`);
 
   // 9. Reset local data json files if present
   console.log('[Clean Slate] 9. Cleaning local json cache files...');
