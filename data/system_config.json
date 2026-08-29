@@ -1,6 +1,10 @@
 {
   "houseEdge": 2,
   "strategyFrequency": 30,
+  "matchStreams": {
+    "default": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "145357": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+  },
   "games": {
     "dice": {
       "disabled": false,
