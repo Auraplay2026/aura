@@ -187,11 +187,26 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
     handleTileClick(randomIdx);
   };
 
-  const cashOut = async () => {
-    if (gameState !== "playing" || !sessionId || clickCount === 0 || isRevealing) return;
-    try {
-      setIsRevealing(true);
-      const res = await fetch('/api/casino/mines/action', {
+  const cashOut = () => {
+    if (gameState !== "playing" || clickCount === 0) return;
+    const finalMult = activeMultiplier;
+    
+    if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.vibrate) {
+      try { navigator.vibrate([25, 35]); } catch {}
+    }
+
+    playGameSound('jackpot');
+    setShowCoinShower(true);
+    setGameState("cashed_out");
+    setRevealed(Array(25).fill(true));
+    onLiveTickRef.current?.(finalMult, 0);
+    
+    // Instant settlement
+    onCompleteRef.current(finalMult, true);
+
+    // Asynchronous background persistence
+    if (sessionId) {
+      fetch('/api/casino/mines/action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -199,23 +214,12 @@ export function MinesEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
           email,
           sessionId
         })
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        playGameSound('jackpot');
-        setShowCoinShower(true);
-        setGameState("cashed_out");
-        setMineLocations(data.mineLocations || []);
-        setRevealed(Array(25).fill(true));
-        onLiveTickRef.current?.(data.activeMultiplier, 0);
-        setTimeout(() => onCompleteRef.current(data.activeMultiplier, true), 1500);
-      } else {
-        alert(data.error || "Cashout failed.");
-      }
-    } catch (err) {
-      console.error("Cashout failed:", err);
-    } finally {
-      setIsRevealing(false);
+      })
+      .then(res => res.json())
+      .then(data => {
+        if (data.mineLocations) setMineLocations(data.mineLocations);
+      })
+      .catch(err => console.error("Async mines cashout sync:", err));
     }
   };
 
