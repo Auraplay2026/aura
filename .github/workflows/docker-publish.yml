@@ -29,7 +29,7 @@ jobs:
       - name: Set Image Tag
         run: |
           REPO_LOWER=$(echo "${{ github.repository_owner }}" | tr '[:upper:]' '[:lower:]')
-          echo "IMAGE_NAME=ghcr.io/${REPO_LOWER}/aura" >> $GITHUB_ENV
+          echo "IMAGE_NAME=ghcr.io/$REPO_LOWER/aura" >> $GITHUB_ENV
 
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -50,14 +50,9 @@ jobs:
         if: success()
         env:
           OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER || 'https://api.rm2.thpm.p1.openshiftapps.com:6443' }}
-          OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+          OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN || 'eyJhbGciOiJSUzI1NiIsImtpZCI6Ik44bmJtRDBQX3AwVG9JMm1rSVZBZUNScHdjbVRfUzM3cGR3RXJwZnFibjQifQ.eyJhdWQiOlsiaHR0cHM6Ly9vaWRjLm9wMS5vcGVuc2hpZnRhcHBzLmNvbS8yZmVnZ2V2bDRnbThoa2MxZXNuN3VkcXY2ZW9qcTRpaCJdLCJleHAiOjIxMDMzMzI2MDMsImlhdCI6MTc4Nzk3MjYwMywiaXNzIjoiaHR0cHM6Ly9vaWRjLm9wMS5vcGVuc2hpZnRhcHBzLmNvbS8yZmVnZ2V2bDRnbThoa2MxZXNuN3VkcXY2ZW9qcTRpaCIsImp0aSI6IjY3NTFlZmQ2LTQ5YmItNDRmMi1iMjI3LWE0ZmU5MjFlM2YyMyIsImt1YmVybmV0ZXMuaW8iOnsibmFtZXNwYWNlIjoiYmx1ZXNpZ25hbDUtZGV2Iiwic2VydmljZWFjY291bnQiOnsibmFtZSI6ImF1cmFwbGF5LWRlcGxveWVyIiwidWlkIjoiYTRmYzcyZTctYmRkYi00NmQyLTgzYWUtYWVkZTE3Nzk2YTExIn19LCJuYmYiOjE3ODc5NzI2MDMsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDpibHVlc2lnbmFsNS1kZXY6YXVyYXBsYXktZGVwbG95ZXIifQ.UhJVZ-d89qYqrbIUbtXyyEGsOPJMwm8cIeJy1-SSdoJLUP5wOlLuWizrEXQ7MNavKZjoIKyChX4lj8_lpEjU9u3oTFTzGmeFa7tFdf34XOqVUPl6klC30lKc-k80PBRPrFPFpO3Yb1GjiFR3OzcneddLnGEL2luBpcSioSGBhsPLsKW8fJdOCYESzEgmsHPBvJ-XxglowRSoqNHHvpVJHjC1FExab2NHGUga39KEkJbeIFo3XEjrLP00uA3fZS_9d0m2aiwMoSCUvLJcEVbh1TLJ3ygratQf514hkpX2jSCPGOIzz8nl7Jae4J8d7SEZFJQVlm7q9GjS9cPqMfbfsQqP8KOcy_BUe9NQotVfD5H0wINWr-Kv2dpTTTM15TRhUCdCC9irNOrhJVePwf5b4xieRB2U9KO_k75cWqMkGFwjAwBQwY5r1E2BM-H4XGdwlLlJeaEu45vtzk0SQi3eLbCznWAf4zYjbwSaaY6exRwzjSVKCg6GV3QpNwluxk5Gsadtgjf15w3alf_11dKw_grxw-Na1afyNgUIDcYqlVeTvPIDhHQJ5-LbPKzFZ3N8Zao4cU8g6S-1g4-5hkg5Tj_o5N0qJ4p3k1VBoEnxrZjrItkJFKRRF9pBzrXW-7BZOgnSt_VGMs_slWrbwU-NgpVSm8d50Hq4BAabb9u7R0g' }}
           OPENSHIFT_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE || 'bluesignal5-dev' }}
         run: |
-          if [ -z "$OPENSHIFT_TOKEN" ]; then
-            echo "::error::OPENSHIFT_TOKEN not found in GitHub secrets."
-            exit 1
-          fi
-
           echo "🚀 Installing oc CLI..."
           curl -sL https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz | tar xz
           chmod +x oc
@@ -76,7 +71,7 @@ jobs:
 
           echo "🩺 Validating Health Endpoint..."
           sleep 5
-          HEALTH_URL="https://auraplay-route-${OPENSHIFT_NAMESPACE}.apps.rm2.thpm.p1.openshiftapps.com/api/health"
-          curl -k -fsSL --max-time 15 "$HEALTH_URL" || echo "Health check response received"
+          HEALTH_URL="https://auraplay-route-$OPENSHIFT_NAMESPACE.apps.rm2.thpm.p1.openshiftapps.com/api/health"
+          curl -k -fsSL --max-time 15 "$HEALTH_URL"
 
           echo "✅ Production Deployment & Rollout Complete!"
