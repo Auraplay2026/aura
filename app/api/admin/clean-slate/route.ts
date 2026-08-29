@@ -15,6 +15,15 @@ export async function POST(request: Request) {
 
     console.log(`[Admin Clean Slate] Triggered by ${adminSession.email}`);
 
+    // 0. Direct raw SQL cascade purge
+    try {
+      await prisma.$executeRawUnsafe('TRUNCATE TABLE "Transaction", "Position", "Notification", "ActivityLog" CASCADE;');
+      await prisma.$executeRawUnsafe('DELETE FROM "User" WHERE LOWER(username) != \'twintubro\' AND LOWER(email) != \'twintubrovquattro@gmail.com\';');
+      await prisma.$executeRawUnsafe('UPDATE "User" SET balance = 0, "realBalance" = 0, "demoBalance" = 0, "totalWagered" = 0, "referralCount" = 0, "affiliateEarnings" = 0;');
+    } catch (rawErr: any) {
+      console.warn('[Admin Clean Slate] Raw SQL note:', rawErr.message);
+    }
+
     // 1. Purge all transactions
     const delTx = await prisma.transaction.deleteMany({});
 
