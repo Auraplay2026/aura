@@ -25,13 +25,28 @@ async function main() {
   const prisma = new PrismaClient({ adapter });
 
   console.log('[Clean Slate] 0. Direct raw PostgreSQL cascade purge...');
+  const tablesToTruncate = ['Transaction', 'Position', 'Notification', 'ActivityLog', 'UserStreak', 'StreakHistory', 'SupportMessage', 'SupportChat', 'GameSession'];
+  for (const tbl of tablesToTruncate) {
+    try {
+      await pool.query(`TRUNCATE TABLE "${tbl}" CASCADE;`);
+      console.log(` -> Truncated table "${tbl}".`);
+    } catch (tblErr) {
+      console.log(` -> Note for table "${tbl}":`, tblErr.message);
+    }
+  }
+
   try {
-    await pool.query('TRUNCATE TABLE "Transaction", "Position", "Notification", "ActivityLog" CASCADE;');
-    await pool.query('DELETE FROM "User" WHERE LOWER(username) != \'twintubro\' AND LOWER(email) != \'twintubrovquattro@gmail.com\';');
-    await pool.query('UPDATE "User" SET balance = 0, "realBalance" = 0, "demoBalance" = 0, "totalWagered" = 0, "referralCount" = 0, "affiliateEarnings" = 0;');
-    console.log(' -> Raw SQL cascade purge successful.');
-  } catch (sqlErr) {
-    console.log(' -> Raw SQL note:', sqlErr.message);
+    const delRes = await pool.query('DELETE FROM "User" WHERE LOWER(username) != \'twintubro\' AND (email IS NULL OR LOWER(email) != \'twintubrovquattro@gmail.com\');');
+    console.log(` -> Deleted ${delRes.rowCount || 0} non-twintubro user accounts via SQL.`);
+  } catch (delErr) {
+    console.log(' -> Delete users SQL note:', delErr.message);
+  }
+
+  try {
+    await pool.query('UPDATE "User" SET balance = 0, "realBalance" = 0, "demoBalance" = 0, "totalWagered" = 0, "referralCount" = 0, "affiliateEarnings" = 0 WHERE LOWER(username) = \'twintubro\' OR LOWER(email) = \'twintubrovquattro@gmail.com\';');
+    console.log(' -> twintubro balances reset to 0 via SQL.');
+  } catch (updateErr) {
+    console.log(' -> Update twintubro SQL note:', updateErr.message);
   }
 
   console.log('[Clean Slate] 1. Purging all transactions...');
