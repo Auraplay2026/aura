@@ -13,6 +13,7 @@ import { formatOddsByMode, OddsDisplayMode } from "@/lib/bhavEngine";
 import { PlayerProfileModal } from "./PlayerProfileModal";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { BestInClassLiveStreamHub } from "./BestInClassLiveStreamHub";
 
 interface CrexCricketMatchCenterProps {
   matchId?: string;
@@ -24,7 +25,7 @@ export function CrexCricketMatchCenter({ matchId = "aus-xi-vs-ban", onClose }: C
   const scorecards = match.scorecards || [];
 
   const [activeInningsIdx, setActiveInningsIdx] = useState(scorecards.length > 0 ? scorecards.length - 1 : 0);
-  const [activeTab, setActiveTab] = useState<"scorecard" | "info" | "squads" | "exchange" | "sessions" | "h2h">("scorecard");
+  const [activeTab, setActiveTab] = useState<"scorecard" | "radar" | "info" | "squads" | "exchange" | "sessions" | "h2h">("scorecard");
   const [selectedPlayerId, setSelectedPlayerId] = useState<string | null>(null);
   const [oddsMode, setOddsMode] = useState<OddsDisplayMode>("decimal");
 
@@ -100,6 +101,7 @@ export function CrexCricketMatchCenter({ matchId = "aus-xi-vs-ban", onClose }: C
       <div className="flex items-center gap-1 p-2 bg-slate-100/90 border-b border-slate-200 overflow-x-auto scrollbar-none select-none">
         {[
           { id: "scorecard", label: "📋 Full Scorecard" },
+          { id: "radar", label: "📺 3D Radar & Live TV" },
           { id: "info", label: "🏟️ Match Info & Pitch" },
           { id: "squads", label: "👥 Playing XI & Squads" },
           { id: "exchange", label: "⚡ Live Exchange (Bhav)" },
@@ -121,6 +123,23 @@ export function CrexCricketMatchCenter({ matchId = "aus-xi-vs-ban", onClose }: C
           </button>
         ))}
       </div>
+
+      {/* ═══ TAB 0: 3D RADAR & LIVE TV BROADCAST ═══ */}
+      {activeTab === "radar" && (
+        <div className="p-3 sm:p-5">
+          <BestInClassLiveStreamHub
+            matchId={match.id}
+            sportType="cricket"
+            matchTitle={`${match.team1.name} vs ${match.team2.name}`}
+            team1Name={match.team1.name}
+            team2Name={match.team2.name}
+            team1Score={match.team1.scoreSummary}
+            team2Score={match.team2.scoreSummary}
+            currentOver="18.4"
+            matchStatus={match.status}
+          />
+        </div>
+      )}
 
       {/* ═══ TAB 1: FULL CREX SCORECARD ═══ */}
       {activeTab === "scorecard" && currentInnings && (
