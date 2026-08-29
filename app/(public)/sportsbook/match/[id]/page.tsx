@@ -17,6 +17,7 @@ import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CricketOddsEngine } from "@/lib/cricketOddsEngine";
 import { LiveStreamPlayer } from "@/components/sportsbook/LiveStreamPlayer";
+import { BestInClassLiveStreamHub } from "@/components/sportsbook/BestInClassLiveStreamHub";
 import { parseCricketScore } from "@/lib/cricketBhavEngine";
 
 interface PageProps {
@@ -376,14 +377,20 @@ export default function MatchDetailPage({ params }: PageProps) {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════
-          GENUINE LIVE VIDEO STREAM (HLS.JS / MULTI-SERVER PLAYER)
+          GENUINE LIVE MATCH STREAM & 3D PITCH RADAR BROADCAST HUB
       ═══════════════════════════════════════════════════════════════ */}
       {showLiveStream && (
         <div className="max-w-[1700px] mx-auto p-2 sm:p-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          <LiveStreamPlayer
+          <BestInClassLiveStreamHub
             matchId={matchId}
-            sportType={match.matchType}
+            sportType="cricket"
             matchTitle={`${match.team1.name} v ${match.team2.name}`}
+            team1Name={match.team1.name}
+            team2Name={match.team2.name}
+            team1Score={formattedTeam1Score}
+            team2Score={formattedTeam2Score}
+            currentOver={String(parsedScore.team1Overs || "18.4")}
+            matchStatus={match.status || "Live In-Play"}
             onClose={() => setShowLiveStream(false)}
           />
         </div>
