@@ -64,6 +64,15 @@ const nextConfig: NextConfig = {
       '@radix-ui/react-icons'
     ],
   },
+  async redirects() {
+    return [
+      {
+        source: '/sports',
+        destination: '/sportsbook',
+        permanent: true,
+      },
+    ];
+  },
   async rewrites() {
     return [
       {
