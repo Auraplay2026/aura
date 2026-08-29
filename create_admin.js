@@ -72,9 +72,9 @@ async function main() {
           email: adminEmail,
           passwordHash: hashedPassword,
           accountType: 'real',
-          balance: 100000,
-          demoBalance: 100000,
-          realBalance: 100000,
+          balance: 0,
+          demoBalance: 0,
+          realBalance: 0,
           hasCompletedOnboarding: true,
           role: 'admin',
         }
