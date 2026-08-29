@@ -625,7 +625,11 @@ export default function GamePlayerPage() {
   }, []);
 
   const handleSidebarCashout = () => {
+    if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.vibrate) {
+      try { navigator.vibrate([25, 35]); } catch {}
+    }
     window.dispatchEvent(new CustomEvent("sidebar-trigger-cashout"));
+    window.dispatchEvent(new CustomEvent("trigger-cashout"));
   };
 
   // Casino Mode Actions
@@ -1941,9 +1945,11 @@ export default function GamePlayerPage() {
                             </button>
                           ) : (
                             <button
+                              type="button"
                               onClick={isSpinning && isCashoutGame ? handleSidebarCashout : handlePlay}
+                              onTouchStart={isSpinning && isCashoutGame ? (e) => { e.preventDefault(); handleSidebarCashout(); } : undefined}
                               disabled={isSpinning && !isCashoutActive}
-                              className={`h-12 px-5 sm:px-8 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 whitespace-nowrap ${
+                              className={`h-12 px-5 sm:px-8 rounded-xl font-black text-sm uppercase tracking-widest transition-all shrink-0 whitespace-nowrap touch-manipulation select-none ${
                                 isSpinning && isCashoutActive
                                   ? 'bg-gradient-to-r from-emerald-400 to-emerald-600 text-black shadow-[0_0_25px_rgba(16,185,129,0.5)] animate-pulse cursor-pointer'
                                   : isSpinning
