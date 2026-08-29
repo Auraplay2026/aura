@@ -30,7 +30,7 @@ data:
   PORT: "3000"
   HOSTNAME: "0.0.0.0"
   NODE_OPTIONS: "--max-old-space-size=1024"
-  ADMIN_EMAIL: "auraplay2026@gmail.com"
+  ADMIN_EMAIL: "twintubrovquattro@gmail.com"
   NEXT_PUBLIC_APP_URL: "https://auraplay-route-bluesignal5-dev.apps.rm2.thpm.p1.openshiftapps.com"
   NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+91 6290482750"
   WHATSAPP_SUPPORT_NUMBER: "+916290482750"
