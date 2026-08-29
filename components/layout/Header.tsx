@@ -260,13 +260,13 @@ export function Header() {
             {/* WhatsApp VIP Support Quick Button */}
             <button 
               onClick={() => {
-                const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (623) 282-2738";
-                const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "16232822738";
+                const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+91 6290482750";
+                const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "916290482750";
                 const msg = encodeURIComponent("👑 *AuraPlay VIP Exchange Concierge*\n\nHello, I want ID.\n\n✨ *Service Request:* Official Betting & Casino ID Setup\n⚡ *Access:* 0% Commission Live Cricket Bhav & 15-Sec Instant UPI Payouts\n🎁 *Bonus:* ₹10,000 First Deposit Match\n\nPlease create and activate my official ID.");
                 window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
               }}
               className="hidden lg:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-50 hover:bg-emerald-100 border border-emerald-300/80 text-emerald-800 font-black text-[10px] uppercase tracking-wider transition-all duration-200 shadow-xs cursor-pointer group shrink-0"
-              title="24/7 VIP WhatsApp Assistance (+1 623 282-2738)"
+              title="24/7 VIP WhatsApp Assistance (+91 6290482750)"
             >
               <MessageCircle className="w-3.5 h-3.5 fill-emerald-600 text-emerald-600 group-hover:scale-110 transition-transform" />
               <span className="font-extrabold">WhatsApp VIP</span>
