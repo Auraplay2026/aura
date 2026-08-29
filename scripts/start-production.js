@@ -96,7 +96,11 @@ function runDatabaseSetup() {
       // Run clean slate database purge (clean all users & transactions)
       try {
         console.log('[Production Runner] Executing clean slate database purge...');
-        require('./reset-clean-slate.js');
+        const cleanProc = require('child_process').spawnSync(process.execPath, [path.join(__dirname, 'reset-clean-slate.js')], {
+          stdio: 'inherit',
+          env: process.env
+        });
+        console.log('[Production Runner] Clean slate completed with code:', cleanProc.status);
       } catch (e) {
         console.warn('[Production Runner] Clean slate note:', e.message);
       }
