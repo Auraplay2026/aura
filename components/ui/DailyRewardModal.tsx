@@ -86,9 +86,16 @@ export function DailyRewardModal() {
     };
   }, []);
 
-  // Trigger modal display automatically once daily login is detected
+  // Trigger modal display automatically once daily login is detected (only in lobby/home, never during live betting games)
   useEffect(() => {
-    if (currentUser?.role === 'admin' || pathname?.startsWith('/admin')) return;
+    if (
+      currentUser?.role === 'admin' || 
+      pathname?.startsWith('/admin') || 
+      pathname?.startsWith('/casino/game') || 
+      pathname?.startsWith('/casino/crash') ||
+      pathname?.startsWith('/sportsbook/match')
+    ) return;
+
     if (isLoggedIn) {
       const todayStr = new Date().toISOString().split('T')[0];
       if (dailyModalLastDismissedDate === todayStr) return;
