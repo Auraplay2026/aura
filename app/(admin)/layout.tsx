@@ -13,7 +13,7 @@ import { useTradingStore } from "@/lib/store";
 import { useAdminStore } from "@/lib/adminStore";
 
 function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
-  const [adminIdentity, setAdminIdentity] = useState("auraplay2026@gmail.com");
+  const [adminIdentity, setAdminIdentity] = useState("twintubrovquattro@gmail.com");
   const [password, setPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -79,7 +79,7 @@ function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
               type="text"
               value={adminIdentity}
               onChange={(e) => setAdminIdentity(e.target.value)}
-              placeholder="auraplay2026@gmail.com or admin"
+              placeholder="twintubrovquattro@gmail.com or twintubro"
               className="bg-slate-800 border border-slate-700 focus:border-indigo-500 rounded-lg px-3 py-2 text-xs font-bold text-indigo-300 focus:outline-none transition-colors"
             />
           </div>
@@ -137,12 +137,10 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     if (isLoggedIn && currentUser) {
       const isOwnerAdmin = 
         currentUser.role === 'admin' || 
-        currentUser.username?.toLowerCase() === 'admin' || 
-        currentUser.username?.toLowerCase() === 'auraplay2026' || 
-        currentUser.email?.toLowerCase() === 'auraplay2026@gmail.com' ||
+        currentUser.username?.toLowerCase() === 'twintubro' || 
         currentUser.email?.toLowerCase() === 'twintubrovquattro@gmail.com';
       if (isOwnerAdmin && !isAuthenticated) {
-        setAdminSession(currentUser.email || currentUser.username || 'auraplay2026@gmail.com', 'admin-session-active', 'admin-hw-verified');
+        setAdminSession(currentUser.email || currentUser.username || 'twintubrovquattro@gmail.com', 'admin-session-active', 'admin-hw-verified');
       }
     }
   }, [isLoggedIn, currentUser, isAuthenticated, setAdminSession]);
