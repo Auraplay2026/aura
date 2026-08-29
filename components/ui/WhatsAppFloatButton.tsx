@@ -15,8 +15,8 @@ export function WhatsAppFloatButton() {
   const [customMsg, setCustomMsg] = useState("");
 
   // Official VIP Customer Support WhatsApp Number
-  const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (623) 282-2738";
-  const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "16232822738";
+  const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+91 6290482750";
+  const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "916290482750";
 
   const quickActions = [
     {
