@@ -93,9 +93,10 @@ export function HiLoEngine({ isPlaying, onLiveTick, onComplete }: HiLoEngineProp
   const handleCashout = () => {
     if (gameState !== "playing") return;
     setGameState("cashed_out");
-    setTimeout(() => {
-      onCompleteRef.current(multiplier, true);
-    }, 1500);
+    if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.vibrate) {
+      try { navigator.vibrate([25, 35]); } catch {}
+    }
+    onCompleteRef.current(multiplier, true);
   };
 
   useEffect(() => {
