@@ -233,8 +233,10 @@ export function WinCelebration() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-[110] pointer-events-none flex flex-col items-center justify-center bg-white/45 select-none">
-        
+      <div 
+        onClick={clearLatestWinCelebration}
+        className="fixed inset-0 z-[110] flex flex-col items-center justify-center bg-slate-950/40 backdrop-blur-[2px] select-none cursor-pointer"
+      >
         {/* Render full screen canvas for coins */}
         <canvas ref={canvasRef} className="absolute inset-0 w-full h-full pointer-events-none" />
 
@@ -243,6 +245,16 @@ export function WinCelebration() {
 
         {/* Full-Screen text animation wrapper */}
         <motion.div
+          drag="y"
+          dragDirectionLock
+          dragElastic={0.6}
+          dragConstraints={{ top: -200, bottom: 200 }}
+          onDragEnd={(event, info) => {
+            if (Math.abs(info.offset.y) > 50 || Math.abs(info.velocity.y) > 300) {
+              clearLatestWinCelebration();
+            }
+          }}
+          onClick={(e) => e.stopPropagation()}
           initial={{ opacity: 0, scale: 0.5 }}
           animate={{
             opacity: 1,
@@ -250,8 +262,8 @@ export function WinCelebration() {
             x: tier === 3 ? [0, -10, 10, -10, 10, 0] : 0, // Screen shake effect for Tier 3!
             transition: { x: { repeat: 5, duration: 0.15 }, scale: { type: "spring", damping: 12 } }
           }}
-          exit={{ opacity: 0, scale: 0.7 }}
-          className="text-center relative pointer-events-auto flex flex-col items-center px-4"
+          exit={{ opacity: 0, scale: 0.7, y: 100 }}
+          className="text-center relative pointer-events-auto flex flex-col items-center px-4 cursor-grab active:cursor-grabbing touch-pan-y"
         >
           {/* Sparkly Background Light */}
           <div className={`absolute w-[200px] sm:w-[400px] h-[200px] sm:h-[400px] rounded-full blur-[100px] -z-10 animate-pulse-slow ${
@@ -259,18 +271,18 @@ export function WinCelebration() {
           }`} />
 
           {/* Trophy Icon */}
-          <div className={`w-24 h-24 rounded-full flex items-center justify-center mb-6 shadow-2xl border ${
+          <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full flex items-center justify-center mb-4 sm:mb-6 shadow-2xl border ${
             tier === 3
               ? "bg-red-600 border-red-400 text-slate-900 shadow-red-500/50 animate-pulse-fast"
               : tier === 2
               ? "bg-purple-600 border-purple-400 text-slate-900 shadow-purple-500/50"
               : "bg-yellow-500 border-yellow-400 text-slate-950 shadow-yellow-500/50"
           }`}>
-            <Trophy className="w-12 h-12" />
+            <Trophy className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
           </div>
 
           {/* Celebration Text */}
-          <h1 className={`text-4xl sm:text-7xl font-black uppercase tracking-wider drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] ${
+          <h1 className={`text-3xl sm:text-6xl font-black uppercase tracking-wider drop-shadow-[0_4px_12px_rgba(0,0,0,0.8)] ${
             tier === 3
               ? "bg-gradient-to-r from-red-500 via-orange-400 to-yellow-500 bg-clip-text text-transparent"
               : tier === 2
@@ -280,24 +292,24 @@ export function WinCelebration() {
             {tier === 3 ? "🔥 EPIC WIN! 🔥" : tier === 2 ? "✨ MEGA WIN! ✨" : "🏆 NICE WIN! 🏆"}
           </h1>
 
-          <p className="text-slate-900 text-lg font-black tracking-widest mt-2 uppercase drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)]">
+          <p className="text-slate-900 text-sm sm:text-lg font-black tracking-widest mt-1 sm:mt-2 uppercase">
             Played {latestWinCelebration.gameTitle}
           </p>
 
           <motion.div
             initial={{ scale: 0.8 }}
-            animate={{ scale: [1, 1.1, 1] }}
+            animate={{ scale: [1, 1.08, 1] }}
             transition={{ repeat: Infinity, duration: 1 }}
-            className="text-5xl sm:text-7xl font-black text-slate-900 tracking-tight drop-shadow-[0_4px_12px_rgba(0,0,0,0.9)] mt-4 animate-float"
+            className="text-4xl sm:text-7xl font-black text-slate-900 tracking-tight mt-3 sm:mt-4"
           >
             ₹{latestWinCelebration.amount.toLocaleString()}
           </motion.div>
 
           <button
             onClick={clearLatestWinCelebration}
-            className="mt-8 px-8 py-3 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 text-slate-900 font-extrabold text-sm tracking-wider uppercase backdrop-blur-md transition-colors cursor-pointer"
+            className="mt-6 sm:mt-8 px-8 py-3 rounded-full bg-slate-900 hover:bg-slate-800 text-white font-extrabold text-xs sm:text-sm tracking-wider uppercase shadow-lg transition-colors cursor-pointer"
           >
-            Collect
+            Collect (Swipe to Dismiss)
           </button>
         </motion.div>
       </div>
