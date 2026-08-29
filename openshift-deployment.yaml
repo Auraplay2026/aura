@@ -1,4 +1,4 @@
-﻿apiVersion: v1
+apiVersion: v1
 kind: Secret
 metadata:
   name: auraplay-secrets
@@ -32,8 +32,8 @@ data:
   NODE_OPTIONS: "--max-old-space-size=1024"
   ADMIN_EMAIL: "auraplay2026@gmail.com"
   NEXT_PUBLIC_APP_URL: "https://auraplay-route-bluesignal5-dev.apps.rm2.thpm.p1.openshiftapps.com"
-  NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+1 (623) 282-2738"
-  WHATSAPP_SUPPORT_NUMBER: "+16232822738"
+  NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+91 6290482750"
+  WHATSAPP_SUPPORT_NUMBER: "+916290482750"
   ENABLE_HSTS: "false"
 ---
 apiVersion: apps/v1
