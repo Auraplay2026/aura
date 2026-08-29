@@ -52,13 +52,13 @@ async function main() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
-  const adminEmail = process.env.ADMIN_EMAIL || 'auraplay2026@gmail.com';
+  const adminEmail = process.env.ADMIN_EMAIL || 'twintubrovquattro@gmail.com';
   try {
     const existing = await prisma.user.findFirst({
       where: {
         OR: [
-          { email: { equals: adminEmail, mode: 'insensitive' } },
-          { username: { equals: 'admin', mode: 'insensitive' } }
+          { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
+          { username: { equals: 'twintubro', mode: 'insensitive' } }
         ]
       }
     });
@@ -68,8 +68,8 @@ async function main() {
       const hashedPassword = await bcrypt.hash(defaultPassword, 10);
       await prisma.user.create({
         data: {
-          username: 'admin',
-          email: adminEmail,
+          username: 'twintubro',
+          email: 'twintubrovquattro@gmail.com',
           passwordHash: hashedPassword,
           accountType: 'real',
           balance: 0,
@@ -79,13 +79,21 @@ async function main() {
           role: 'admin',
         }
       });
-      console.log('[create_admin] Created initial admin account');
+      console.log('[create_admin] Created initial twintubro admin account');
     } else {
       await prisma.user.update({
         where: { id: existing.id },
-        data: { role: 'admin' }
+        data: { 
+          username: 'twintubro',
+          email: 'twintubrovquattro@gmail.com',
+          role: 'admin',
+          balance: 0,
+          demoBalance: 0,
+          realBalance: 0,
+          totalWagered: 0
+        }
       });
-      console.log(`[create_admin] Verified admin role for ${existing.email || existing.username} without changing password`);
+      console.log(`[create_admin] Verified twintubro admin role`);
     }
   } catch (err) {
     console.warn('[create_admin] Notice:', err?.message || err);
