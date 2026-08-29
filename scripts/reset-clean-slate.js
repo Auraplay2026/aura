@@ -59,36 +59,68 @@ async function main() {
     console.log(` -> Deleted ${delStreakHist.count} streak history items, ${delStreaks.count} streaks.`);
   } catch (e) {}
 
-  console.log('[Clean Slate] 7. Deleting ALL non-admin users (keeping only admin)...');
+  console.log('[Clean Slate] 7. Deleting ALL users except twintubro...');
   const delUsers = await prisma.user.deleteMany({
     where: {
       AND: [
-        { username: { notIn: ['admin', 'auraplay2026'] } },
+        { username: { not: 'twintubro' } },
         {
           OR: [
             { email: null },
-            { email: { notIn: ['auraplay2026@gmail.com', 'twintubrovquattro@gmail.com'] } }
+            { email: { not: 'twintubrovquattro@gmail.com' } }
           ]
         }
       ]
     }
   });
-  console.log(` -> Deleted ${delUsers.count} regular user accounts.`);
+  console.log(` -> Deleted ${delUsers.count} non-twintubro user accounts.`);
 
-  console.log('[Clean Slate] 8. Setting Admin accounts to ZERO balances, 0 turnover, 0 wagers...');
-  const resetAdmin = await prisma.user.updateMany({
-    data: {
-      role: 'admin',
-      balance: 0,
-      realBalance: 0,
-      demoBalance: 0,
-      totalWagered: 0,
-      referralCount: 0,
-      affiliateEarnings: 0,
-      vipRewardsClaimed: {}
+  console.log('[Clean Slate] 8. Setting twintubro Admin account to ZERO balances, 0 turnover, 0 wagers...');
+  const existingTwintubro = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { username: { equals: 'twintubro', mode: 'insensitive' } },
+        { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } }
+      ]
     }
   });
-  console.log(` -> Reset ${resetAdmin.count} admin user(s) to exact ₹0.`);
+
+  const bcrypt = require('bcryptjs');
+  const defaultPassword = process.env.ADMIN_DEFAULT_PASSWORD || 'AuraBetAdmin2026!';
+  const hashedPassword = await bcrypt.hash(defaultPassword, 10);
+
+  if (existingTwintubro) {
+    await prisma.user.update({
+      where: { id: existingTwintubro.id },
+      data: {
+        username: 'twintubro',
+        email: 'twintubrovquattro@gmail.com',
+        role: 'admin',
+        balance: 0,
+        realBalance: 0,
+        demoBalance: 0,
+        totalWagered: 0,
+        referralCount: 0,
+        affiliateEarnings: 0,
+        vipRewardsClaimed: {}
+      }
+    });
+  } else {
+    await prisma.user.create({
+      data: {
+        username: 'twintubro',
+        email: 'twintubrovquattro@gmail.com',
+        passwordHash: hashedPassword,
+        role: 'admin',
+        balance: 0,
+        realBalance: 0,
+        demoBalance: 0,
+        totalWagered: 0,
+        hasCompletedOnboarding: true
+      }
+    });
+  }
+  console.log(` -> twintubro admin active with exact ₹0.`);
 
   // 9. Reset local data json files if present
   console.log('[Clean Slate] 9. Cleaning local json cache files...');
