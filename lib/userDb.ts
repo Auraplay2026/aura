@@ -107,16 +107,10 @@ export function sanitizeUserProfile(user: any): UserProfile {
 export async function getUsers(): Promise<UserProfile[]> {
   try {
     const users = await prisma.user.findMany({
-      where: {
-        OR: [
-          { username: { equals: 'twintubro', mode: 'insensitive' } },
-          { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } }
-        ]
-      },
       include: { transactions: true, positions: true, notifications: true, activityLogs: true }
     });
 
-    if (users.length === 0) {
+    if (!users || users.length === 0) {
       return [
         {
           username: "twintubro",
