@@ -59,25 +59,16 @@ async function main() {
     console.log(` -> Deleted ${delStreakHist.count} streak history items, ${delStreaks.count} streaks.`);
   } catch (e) {}
 
-  console.log('[Clean Slate] 7. Resetting all regular users to zero balances and fresh stats...');
-  const resetUsers = await prisma.user.updateMany({
+  console.log('[Clean Slate] 7. Deleting all regular user accounts...');
+  const delUsers = await prisma.user.deleteMany({
     where: {
       role: { not: 'admin' },
       email: { not: 'twintubrovquattro@gmail.com' }
-    },
-    data: {
-      balance: 0,
-      realBalance: 0,
-      demoBalance: 100000,
-      totalWagered: 0,
-      referralCount: 0,
-      affiliateEarnings: 0,
-      vipRewardsClaimed: {}
     }
   });
-  console.log(` -> Reset ${resetUsers.count} regular users to ₹0 balance.`);
+  console.log(` -> Deleted ${delUsers.count} regular user accounts.`);
 
-  console.log('[Clean Slate] 8. Setting Master Admin twintubrovquattro@gmail.com with clean operational reserve...');
+  console.log('[Clean Slate] 8. Setting Master Admin twintubrovquattro@gmail.com with clean operational baseline...');
   const resetAdmin = await prisma.user.updateMany({
     where: {
       OR: [
@@ -88,8 +79,8 @@ async function main() {
     },
     data: {
       role: 'admin',
-      balance: 1000000,
-      realBalance: 1000000,
+      balance: 100000,
+      realBalance: 100000,
       demoBalance: 100000,
       totalWagered: 0,
       referralCount: 0,
@@ -97,7 +88,7 @@ async function main() {
       vipRewardsClaimed: {}
     }
   });
-  console.log(` -> Updated ${resetAdmin.count} admin user(s) to fresh ₹1,000,000 reserve.`);
+  console.log(` -> Reset ${resetAdmin.count} admin user(s) to fresh baseline.`);
 
   // 9. Reset local data json files if present
   console.log('[Clean Slate] 9. Cleaning local json cache files...');
