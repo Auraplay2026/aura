@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -37,15 +37,7 @@ export function BestInClassLiveStreamHub({
   customStreamUrl,
   onClose
 }: BestInClassLiveStreamHubProps) {
-  const [broadcastMode, setBroadcastMode] = useState<"video" | "radar" | "split">("radar");
-  const [selectedChannel, setSelectedChannel] = useState<number>(0);
-
-  const STREAM_CHANNELS = [
-    { name: "⚡ 3D Radar (0-API Standalone)", type: "radar" },
-    { name: "📺 Server HD Stream (1080p)", type: "video" },
-    { name: "📡 Low Latency Stream (0.3s)", type: "video" },
-    { name: "🌐 International Broadcast", type: "video" }
-  ];
+  const [broadcastMode, setBroadcastMode] = useState<"video" | "radar" | "split">("video");
 
   return (
     <div className="w-full bg-slate-950 border-2 border-slate-800 rounded-3xl overflow-hidden shadow-2xl flex flex-col select-none">
@@ -54,7 +46,7 @@ export function BestInClassLiveStreamHub({
         <div className="flex items-center gap-3">
           <div className="flex items-center gap-2 bg-red-600/20 border border-red-500/40 text-red-400 px-2.5 py-1 rounded-xl text-xs font-black uppercase tracking-wider">
             <span className="w-2 h-2 rounded-full bg-red-500 animate-ping" />
-            <span>LIVE MATCH BROADCAST</span>
+            <span>REAL LIVE BROADCAST</span>
           </div>
 
           <h3 className="text-xs sm:text-sm font-black text-white truncate">
@@ -62,36 +54,16 @@ export function BestInClassLiveStreamHub({
           </h3>
         </div>
 
-        {/* Multi-Mode Toggle Switcher */}
-        <div className="flex items-center gap-1.5 bg-slate-900 border border-slate-800 p-1 rounded-2xl">
-          <button
-            onClick={() => setBroadcastMode("radar")}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer",
-              broadcastMode === "radar" 
-                ? "bg-gradient-to-r from-yellow-400 to-amber-500 text-slate-950 shadow-md scale-105" 
-                : "text-slate-400 hover:text-white"
-            )}
-          >
-            <Zap className="w-3.5 h-3.5" /> 3D Virtual Pitch
-          </button>
-
-          <button
-            onClick={() => setBroadcastMode("video")}
-            className={cn(
-              "px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex items-center gap-1.5 cursor-pointer",
-              broadcastMode === "video" 
-                ? "bg-gradient-to-r from-red-600 to-rose-600 text-white shadow-md scale-105" 
-                : "text-slate-400 hover:text-white"
-            )}
-          >
-            <Tv className="w-3.5 h-3.5" /> Live Video Feed
-          </button>
+        {/* Action Controls */}
+        <div className="flex items-center gap-2">
+          <span className="text-[10px] font-black text-emerald-400 bg-emerald-500/10 px-2.5 py-1 rounded-xl border border-emerald-500/20">
+            100% Free Live Stream Active
+          </span>
 
           {onClose && (
             <button
               onClick={onClose}
-              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer ml-1"
+              className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800 transition cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
