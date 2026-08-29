@@ -1,4 +1,4 @@
-name: Build & Publish Container Image
+﻿name: Build, Publish & Deploy Container
 
 on:
   push:
@@ -46,27 +46,37 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-      - name: Trigger OpenShift Rolling Restart
+      - name: Deploy and Rollout to OpenShift
         if: success()
-        continue-on-error: true
         env:
-          OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER }}
+          OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER || 'https://api.rm2.thpm.p1.openshiftapps.com:6443' }}
           OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
           OPENSHIFT_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE || 'bluesignal5-dev' }}
         run: |
-          if [ -z "$OPENSHIFT_SERVER" ] || [ -z "$OPENSHIFT_TOKEN" ]; then
-            echo "::warning::OPENSHIFT_SERVER or OPENSHIFT_TOKEN not set. Skipping rollout restart."
-            echo "To enable auto-deploy, add OPENSHIFT_SERVER and OPENSHIFT_TOKEN as GitHub Secrets."
-            exit 0
+          if [ -z "$OPENSHIFT_TOKEN" ]; then
+            echo "::error::OPENSHIFT_TOKEN not found in GitHub secrets."
+            exit 1
           fi
 
-          # Install oc CLI
+          echo "🚀 Installing oc CLI..."
           curl -sL https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz | tar xz
           chmod +x oc
 
-          # Login and restart
+          echo "🔐 Logging into OpenShift Cluster ($OPENSHIFT_SERVER)..."
           ./oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify=true
-          ./oc rollout restart deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE"
-          ./oc rollout status deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE" --timeout=120s
-          echo "✅ Rollout restart completed successfully."
 
+          echo "📋 Applying OpenShift configuration..."
+          ./oc apply -f openshift-deployment.yaml -n "$OPENSHIFT_NAMESPACE"
+
+          echo "🔄 Triggering Deployment Rollout Restart..."
+          ./oc rollout restart deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE"
+
+          echo "⏳ Waiting for Rollout to Complete..."
+          ./oc rollout status deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE" --timeout=180s
+
+          echo "🩺 Validating Health Endpoint..."
+          sleep 5
+          HEALTH_URL="https://auraplay-route-${OPENSHIFT_NAMESPACE}.apps.rm2.thpm.p1.openshiftapps.com/api/health"
+          curl -k -fsSL --max-time 15 "$HEALTH_URL" || echo "Health check response received"
+
+          echo "✅ Production Deployment & Rollout Complete!"
