@@ -1,0 +1,64 @@
+﻿name: 24/7 Live Keep-Alive & Self-Healing Sentinel
+
+on:
+  schedule:
+    # Run every 10 minutes 24/7 to prevent idling and auto-recover from any downtime
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  health-check-and-heal:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Ping Live Health Endpoint
+        id: ping
+        continue-on-error: true
+        run: |
+          HEALTH_URL="https://auraplay-route-bluesignal5-dev.apps.rm2.thpm.p1.openshiftapps.com/api/health"
+          echo "🔍 Probing $HEALTH_URL..."
+          HTTP_STATUS=$(curl -k -s -o /dev/null -w "%{http_code}" --max-time 15 "$HEALTH_URL" || echo "000")
+          echo "HTTP Status Code: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" -eq 200 ]; then
+            echo "STATUS=HEALTHY" >> $GITHUB_OUTPUT
+            echo "✅ AuraPlay is ONLINE and serving traffic normally."
+          else
+            echo "STATUS=DOWN" >> $GITHUB_OUTPUT
+            echo "⚠️ Health check returned $HTTP_STATUS. Initiating automated recovery..."
+          fi
+
+      - name: Auto-Heal & Restore Pods
+        if: steps.ping.outputs.STATUS != 'HEALTHY'
+        env:
+          OPENSHIFT_SERVER: ${{ secrets.OPENSHIFT_SERVER || 'https://api.rm2.thpm.p1.openshiftapps.com:6443' }}
+          OPENSHIFT_TOKEN: ${{ secrets.OPENSHIFT_TOKEN }}
+          OPENSHIFT_NAMESPACE: ${{ secrets.OPENSHIFT_NAMESPACE || 'bluesignal5-dev' }}
+        run: |
+          if [ -z "$OPENSHIFT_TOKEN" ]; then
+            echo "::error::OPENSHIFT_TOKEN not configured."
+            exit 1
+          fi
+
+          echo "🔧 Installing OpenShift CLI..."
+          curl -sL https://mirror.openshift.com/pub/openshift-v4/clients/oc/latest/linux/oc.tar.gz | tar xz
+          chmod +x oc
+
+          echo "🔐 Authenticating with OpenShift Cluster..."
+          ./oc login "$OPENSHIFT_SERVER" --token="$OPENSHIFT_TOKEN" --insecure-skip-tls-verify=true
+
+          echo "📋 Synchronizing deployment manifests..."
+          ./oc apply -f openshift-deployment.yaml -n "$OPENSHIFT_NAMESPACE"
+
+          echo "🔄 Restarting pods to recover from idle/failure state..."
+          ./oc rollout restart deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE"
+
+          echo "⏳ Waiting for pod readiness..."
+          ./oc rollout status deployment/auraplay-web -n "$OPENSHIFT_NAMESPACE" --timeout=180s
+
+          echo "🩺 Validating recovered health endpoint..."
+          sleep 5
+          HEALTH_URL="https://auraplay-route-${OPENSHIFT_NAMESPACE}.apps.rm2.thpm.p1.openshiftapps.com/api/health"
+          curl -k -fsSL --max-time 15 "$HEALTH_URL"
+          echo "✅ Self-healing cycle completed successfully! AuraPlay is back online."
