@@ -16,9 +16,10 @@ export const viewport = {
   themeColor: "#f8fafc",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  viewportFit: "cover",
+  maximumScale: 5,
+  userScalable: true,
+  viewportFit: "cover" as const,
+  interactiveWidget: "resizes-visual" as const,
 };
 
 export const metadata: Metadata = {
@@ -61,8 +62,13 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
         <link rel="manifest" href="/manifest.json" />
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="AuraPlay" />
+        <meta name="format-detection" content="telephone=no" />
+        <meta name="mobile-web-app-capable" content="yes" />
       </head>
-      <body suppressHydrationWarning className="bg-slate-50 text-slate-900 antialiased selection:bg-red-200/50 selection:text-red-900 pb-20 md:pb-0" style={{ fontFamily: "'Outfit', sans-serif" }}>
+      <body suppressHydrationWarning className="min-h-[100dvh] w-full max-w-[100vw] overflow-x-hidden bg-slate-50 text-slate-900 antialiased selection:bg-red-200/50 selection:text-red-900 pb-[calc(5rem+env(safe-area-inset-bottom,0px))] md:pb-0" style={{ fontFamily: "'Outfit', sans-serif" }}>
         {/* Google tag (gtag.js) */}
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-MBSQXGW3X9"
