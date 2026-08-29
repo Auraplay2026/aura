@@ -5,7 +5,7 @@ import Hls from "hls.js";
 import { 
   Play, Pause, Volume2, VolumeX, Maximize2, Minimize2, 
   ExternalLink, Radio, Tv, RefreshCw, Zap, Sliders, 
-  Settings2, Sparkles, Check, Globe, Youtube, Layers
+  Settings2, Sparkles, Check, Globe, Video, Layers
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -380,7 +380,7 @@ export function LiveStreamPlayer({
             )}
           >
             {chan.type === "youtube" ? (
-              <Youtube className="w-3 h-3 text-red-400" />
+              <Video className="w-3 h-3 text-red-400" />
             ) : (
               <Tv className="w-3 h-3" />
             )}
