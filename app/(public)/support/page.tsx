@@ -432,8 +432,8 @@ export default function SupportPage() {
                   <div className="flex items-center gap-1.5 w-full sm:w-auto justify-end">
                     <button 
                       onClick={() => {
-                        const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+1 (623) 282-2738";
-                        const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "16232822738";
+                        const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+91 6290482750";
+                        const cleanNumber = rawNumber.replace(/[^0-9]/g, "") || "916290482750";
                         const msg = encodeURIComponent(`👑 *AuraPlay VIP Desk:* Hello, I want ID.\n\nAccount/Email: ${chatEmail || 'New Player'}\nPlease assist with official exchange ID setup & instant deposit/withdrawal.`);
                         window.open(`https://wa.me/${cleanNumber}?text=${msg}`, "_blank", "noopener,noreferrer");
                       }}
