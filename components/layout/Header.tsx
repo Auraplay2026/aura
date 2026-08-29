@@ -125,24 +125,24 @@ export function Header() {
   }, [isLoggedIn, syncFromServer]);
 
   return (
-    <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white border-b border-[#E2E8F0] flex items-center justify-between px-4 sm:px-6 transition-all relative">
+    <header className="sticky top-0 z-[45] shrink-0 h-14 w-full bg-white border-b border-[#E2E8F0] flex items-center justify-between px-2.5 sm:px-6 transition-all relative select-none">
       
       {/* Mobile Menu Toggle */}
-      <div className="flex items-center lg:hidden mr-2">
+      <div className="flex items-center lg:hidden mr-1 sm:mr-2">
         <button 
           onClick={() => setIsMobileMenuOpen(true)} 
-          className="p-2.5 text-slate-500 hover:text-slate-900 transition-colors rounded-full hover:bg-slate-100/50 cursor-pointer"
+          className="p-1.5 sm:p-2.5 text-slate-500 hover:text-slate-900 transition-colors rounded-full hover:bg-slate-100/50 cursor-pointer touch-manipulation"
           aria-label="Open navigation menu"
         >
-          <Menu className="w-6 h-6" />
+          <Menu className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
       </div>
 
       {/* Mobile Logo & Search Area */}
-      <div className="flex-1 flex items-center gap-1.5 sm:gap-4">
+      <div className="flex-1 flex items-center gap-1 sm:gap-4 min-w-0">
         {/* Mobile Logo (Only visible when sidebar is hidden) */}
         <div className="lg:hidden flex items-center gap-1 shrink-0">
-          <span className="text-slate-900 bg-white font-black tracking-normal uppercase text-[9px] px-1.5 py-0.5 rounded shadow-sm border border-slate-700 select-none">AP</span>
+          <span className="text-slate-900 bg-white font-black tracking-normal uppercase text-[9px] px-1.5 py-0.5 rounded shadow-xs border border-slate-700 select-none">AP</span>
         </div>
 
         {/* Mobile Search Button (Tiny magnifying glass) */}
