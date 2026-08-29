@@ -86,12 +86,28 @@ export function LiveStreamPlayer({
   const [selectedQualityIndex, setSelectedQualityIndex] = useState<number>(-1);
   const [showQualityMenu, setShowQualityMenu] = useState(false);
 
-  const matchSource = getMatchBroadcastSource(matchTitle);
+  const [activeStreamUrl, setActiveStreamUrl] = useState<string>(customStreamUrl || "");
+  const [showInputDrawer, setShowInputDrawer] = useState(false);
+  const [inputUrl, setInputUrl] = useState("");
+
+  // Load configured stream for this match
+  useEffect(() => {
+    if (!customStreamUrl && matchId) {
+      fetch(`/api/sports/stream-config?matchId=${matchId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data && data.streamUrl) {
+            setActiveStreamUrl(data.streamUrl);
+          }
+        })
+        .catch(() => {});
+    }
+  }, [matchId, customStreamUrl]);
 
   // Build proxied stream feeds through Next.js server proxy to eliminate CORS
   const proxiedStreams = RAW_STREAM_FEEDS.map(raw => `/api/sports/video-proxy?url=${encodeURIComponent(raw)}`);
-  const effectiveStreams = customStreamUrl 
-    ? (customStreamUrl.startsWith("http") ? [`/api/sports/video-proxy?url=${encodeURIComponent(customStreamUrl)}`, ...proxiedStreams] : [customStreamUrl, ...proxiedStreams])
+  const effectiveStreams = activeStreamUrl 
+    ? (activeStreamUrl.startsWith("http") ? [`/api/sports/video-proxy?url=${encodeURIComponent(activeStreamUrl)}`, ...proxiedStreams] : [activeStreamUrl, ...proxiedStreams])
     : proxiedStreams;
 
   // Initialize HLS Player when in "stream" mode
@@ -331,6 +347,15 @@ export function LiveStreamPlayer({
             </button>
           </div>
 
+          <button
+            onClick={() => setShowInputDrawer(!showInputDrawer)}
+            title="Set / Test Live Stream URL"
+            className="text-[11px] font-bold text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-2.5 py-1 rounded-lg border border-slate-700 transition cursor-pointer flex items-center gap-1"
+          >
+            <Video className="w-3 h-3 text-amber-400" />
+            <span className="hidden sm:inline">Set Stream URL</span>
+          </button>
+
           <span className="bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded text-[10px] font-black uppercase tracking-wider">
             HD 1080p • LIVE
           </span>
@@ -345,6 +370,33 @@ export function LiveStreamPlayer({
           )}
         </div>
       </div>
+
+      {/* ── CUSTOM STREAM URL INPUT DRAWER ── */}
+      {showInputDrawer && (
+        <div className="bg-slate-900 px-3 py-2.5 border-b border-slate-800 flex items-center gap-2">
+          <input
+            type="text"
+            placeholder="Paste any live .m3u8 HLS feed URL, RTMP link, or YouTube live match link..."
+            value={inputUrl}
+            onChange={(e) => setInputUrl(e.target.value)}
+            className="flex-1 bg-slate-950 border border-slate-700 rounded-xl px-3 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-rose-500 font-mono"
+          />
+          <button
+            onClick={() => {
+              if (inputUrl.trim()) {
+                setActiveStreamUrl(inputUrl.trim());
+                setShowInputDrawer(false);
+                if (inputUrl.includes("m3u8")) {
+                  setStreamEngine("stream");
+                }
+              }
+            }}
+            className="bg-rose-600 hover:bg-rose-500 text-white px-3 py-1.5 rounded-xl text-xs font-black uppercase tracking-wider cursor-pointer"
+          >
+            Apply Stream
+          </button>
+        </div>
+      )}
 
       {/* ── 2. VIDEO DISPLAY VIEWPORT (100% Guaranteed Live Video - Never Black) ── */}
       <div className="relative aspect-video w-full bg-slate-950 flex items-center justify-center overflow-hidden">
