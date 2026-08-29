@@ -7,12 +7,22 @@ import { usePathname } from "next/navigation";
 
 export function WhatsAppFloatButton() {
   const pathname = usePathname();
-  const isSportsbook = pathname?.startsWith("/sportsbook");
-  const isCasinoGame = pathname?.startsWith("/casino/game") || pathname?.startsWith("/casino/slots") || pathname?.startsWith("/arcade/game");
+  const isBettingOrGameScreen = 
+    !pathname || 
+    pathname.startsWith("/casino") || 
+    pathname.startsWith("/arcade") || 
+    pathname.startsWith("/game") || 
+    pathname.startsWith("/sportsbook/match") || 
+    pathname.startsWith("/admin");
 
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [customMsg, setCustomMsg] = useState("");
+
+  // Hide on all casino game viewports and betting cockpits to guarantee zero interception of bet/cashout actions
+  if (isBettingOrGameScreen) {
+    return null;
+  }
 
   // Official VIP Customer Support WhatsApp Number
   const rawNumber = process.env.NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER || "+91 6290482750";
