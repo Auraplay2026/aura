@@ -41,13 +41,21 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
     onLiveTickRef.current = onLiveTick;
   }, [onLiveTick]);
 
-  const handleCashout = useCallback(async (cashoutMultiplier?: number) => {
-    if (fled || hasCashedOut || !isPlaying || !sessionId) return;
-    const targetMultiplier = cashoutMultiplier || multiplier;
+  const handleCashout = useCallback((cashoutMultiplier?: number) => {
+    if (fled || hasCashedOut || !isPlaying) return;
     setHasCashedOut(true);
+    const targetMultiplier = cashoutMultiplier || multiplier;
 
-    try {
-      const res = await fetch('/api/casino/mines/action', {
+    if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.vibrate) {
+      try { navigator.vibrate([25, 35]); } catch {}
+    }
+
+    // Instant zero-delay client settlement
+    onCompleteRef.current(targetMultiplier, true);
+
+    // Asynchronous non-blocking background server sync
+    if (sessionId) {
+      fetch('/api/casino/mines/action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -56,17 +64,7 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
           sessionId,
           clientMultiplier: targetMultiplier
         })
-      });
-      const data = await res.json();
-      if (res.ok && data.success && !data.isBust) {
-        onCompleteRef.current(targetMultiplier, true);
-      } else {
-        // Reached crash point or server rejected
-        onCompleteRef.current(0, false);
-      }
-    } catch (err) {
-      console.error("Cashout failed", err);
-      onCompleteRef.current(0, false);
+      }).catch(err => console.error("Aviator async cashout sync", err));
     }
   }, [fled, hasCashedOut, isPlaying, sessionId, multiplier, email]);
 
@@ -371,17 +369,22 @@ export function AviatorEngine({ isPlaying, betAmount = 100, autoCashout, onLiveT
       <AnimatePresence>
         {isPlaying && !fled && !hasCashedOut && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={{ opacity: 0, scale: 0.85, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="hidden md:block absolute bottom-8 z-50 w-[90%] max-w-[300px]"
+            exit={{ opacity: 0, scale: 0.85, y: 20 }}
+            className="absolute bottom-4 sm:bottom-8 z-50 w-[92%] max-w-[340px]"
           >
             <button
+              type="button"
               onClick={() => handleCashout()}
-              className="w-full py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 text-slate-950 font-black text-xl md:text-2xl rounded-2xl transition-all uppercase tracking-wider flex items-center justify-center gap-3 cursor-pointer active:scale-95 border border-yellow-300/35 relative overflow-hidden animate-btn-glow"
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleCashout();
+              }}
+              className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 hover:from-yellow-300 hover:to-orange-400 text-slate-950 font-black text-lg sm:text-2xl rounded-2xl transition-all uppercase tracking-wider flex items-center justify-center gap-2.5 sm:gap-3 cursor-pointer active:scale-95 border-2 border-yellow-200 shadow-[0_0_30px_rgba(245,158,11,0.5)] relative overflow-hidden animate-btn-glow touch-manipulation select-none"
             >
               <span>Cashout</span>
-              <span className="bg-white/15 px-3 py-1 rounded-lg font-mono text-base">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+              <span className="bg-white/25 px-2.5 py-0.5 rounded-lg font-mono text-sm sm:text-base font-black">₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
             </button>
           </motion.div>
         )}
