@@ -43,17 +43,15 @@ export async function verifyAdminSession(): Promise<SessionUser> {
   const userEmail = (user?.email || "").toLowerCase().trim();
   const userName = (user?.username || "").toLowerCase().trim();
 
-  const configuredAdminEmail = (process.env.ADMIN_EMAIL || "auraplay2026@gmail.com").toLowerCase().trim();
+  const configuredAdminEmail = (process.env.ADMIN_EMAIL || "twintubrovquattro@gmail.com").toLowerCase().trim();
 
   const isAuthorizedAdmin = 
     user && 
     (user.role === "admin" || 
-     userName === "admin" || 
-     userName === "auraplay2026" ||
-     userName === "twintubrovquattro" ||
+     userName === "twintubro" || 
+     userName === "admin" ||
      configuredAdminEmails.includes(userEmail) ||
      userEmail === configuredAdminEmail ||
-     userEmail === "auraplay2026@gmail.com" ||
      userEmail === "twintubrovquattro@gmail.com");
 
   if (!user || !isAuthorizedAdmin) {
