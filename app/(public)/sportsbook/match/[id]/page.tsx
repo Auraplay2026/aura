@@ -17,7 +17,6 @@ import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
 import { CricketOddsEngine } from "@/lib/cricketOddsEngine";
 import { LiveStreamPlayer } from "@/components/sportsbook/LiveStreamPlayer";
-import { BestInClassLiveStreamHub } from "@/components/sportsbook/BestInClassLiveStreamHub";
 import { parseCricketScore } from "@/lib/cricketBhavEngine";
 
 interface PageProps {
@@ -37,7 +36,7 @@ export default function MatchDetailPage({ params }: PageProps) {
   const [activeTab, setActiveTab] = useState<"exchange" | "scorecard" | "commentary" | "squads" | "info">("exchange");
   const [fancyCategory, setFancyCategory] = useState<"all" | "fancy" | "ballbyball" | "khadda" | "lottery" | "oddeven">("all");
   const [isPinned, setIsPinned] = useState(false);
-  const [showLiveStream, setShowLiveStream] = useState(false);
+  const [showLiveStream, setShowLiveStream] = useState(true);
 
   // Quick Bet & Bet Slip State
   const [oneClickBet, setOneClickBet] = useState(false);
@@ -377,20 +376,14 @@ export default function MatchDetailPage({ params }: PageProps) {
       </div>
 
       {/* ═══════════════════════════════════════════════════════════════
-          GENUINE LIVE MATCH STREAM & 3D PITCH RADAR BROADCAST HUB
+          GENUINE LIVE VIDEO STREAM (HLS.JS / MULTI-SERVER PLAYER)
       ═══════════════════════════════════════════════════════════════ */}
       {showLiveStream && (
         <div className="max-w-[1700px] mx-auto p-2 sm:p-3 animate-in fade-in slide-in-from-top-2 duration-200">
-          <BestInClassLiveStreamHub
+          <LiveStreamPlayer
             matchId={matchId}
-            sportType="cricket"
+            sportType={match.matchType}
             matchTitle={`${match.team1.name} v ${match.team2.name}`}
-            team1Name={match.team1.name}
-            team2Name={match.team2.name}
-            team1Score={formattedTeam1Score}
-            team2Score={formattedTeam2Score}
-            currentOver={String(parsedScore.team1Overs || "18.4")}
-            matchStatus={match.status || "Live In-Play"}
             onClose={() => setShowLiveStream(false)}
           />
         </div>
