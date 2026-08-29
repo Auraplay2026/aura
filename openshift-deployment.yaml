@@ -1,13 +1,9 @@
-apiVersion: v1
-kind: Namespace
-metadata:
-  name: auraplay-production
----
-apiVersion: v1
+﻿apiVersion: v1
 kind: Secret
 metadata:
   name: auraplay-secrets
-  namespace: auraplay-production
+  labels:
+    app: auraplay-web
 type: Opaque
 stringData:
   DATABASE_URL: "postgresql://postgres.ipzqtmbxzoooimbcowcm:Siddiqui%40009@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
@@ -27,14 +23,15 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: auraplay-config
-  namespace: auraplay-production
+  labels:
+    app: auraplay-web
 data:
   NODE_ENV: "production"
   PORT: "3000"
   HOSTNAME: "0.0.0.0"
   NODE_OPTIONS: "--max-old-space-size=1024"
   ADMIN_EMAIL: "auraplay2026@gmail.com"
-  NEXT_PUBLIC_APP_URL: "https://auraplay.apps.your-cluster.openshift.com"
+  NEXT_PUBLIC_APP_URL: "https://auraplay-route-bluesignal5-dev.apps.rm2.thpm.p1.openshiftapps.com"
   NEXT_PUBLIC_WHATSAPP_SUPPORT_NUMBER: "+1 (623) 282-2738"
   WHATSAPP_SUPPORT_NUMBER: "+16232822738"
   ENABLE_HSTS: "false"
@@ -43,7 +40,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: auraplay-web
-  namespace: bluesignal5-dev
   labels:
     app: auraplay-web
 spec:
@@ -60,15 +56,10 @@ spec:
     metadata:
       labels:
         app: auraplay-web
-      annotations:
-        kubectl.kubernetes.io/restartedAt: "2026-08-22T15:41:00Z"
     spec:
       automountServiceAccountToken: false
       securityContext:
         runAsNonRoot: true
-        runAsUser: 10001
-        runAsGroup: 10001
-        fsGroup: 10001
         seccompProfile:
           type: RuntimeDefault
       containers:
@@ -91,8 +82,8 @@ spec:
                 name: auraplay-secrets
           resources:
             requests:
-              memory: "512Mi"
-              cpu: "250m"
+              memory: "256Mi"
+              cpu: "100m"
             limits:
               memory: "1536Mi"
               cpu: "1000m"
@@ -117,7 +108,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: auraplay-service
-  namespace: auraplay-production
   labels:
     app: auraplay-web
 spec:
@@ -134,7 +124,6 @@ apiVersion: route.openshift.io/v1
 kind: Route
 metadata:
   name: auraplay-route
-  namespace: auraplay-production
   labels:
     app: auraplay-web
 spec:
@@ -152,7 +141,8 @@ apiVersion: networking.k8s.io/v1
 kind: NetworkPolicy
 metadata:
   name: auraplay-network-policy
-  namespace: auraplay-production
+  labels:
+    app: auraplay-web
 spec:
   podSelector:
     matchLabels:
