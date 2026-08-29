@@ -1,4 +1,4 @@
-﻿import { NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { verifyAdminSession } from '@/lib/adminAuth';
 import fs from 'fs';
@@ -44,27 +44,28 @@ export async function POST(request: Request) {
       await prisma.userStreak.deleteMany({});
     } catch {}
 
-    // 7. Delete all regular users
+    // 7. Delete ALL non-admin users (keeping only admin)
     const delUsers = await prisma.user.deleteMany({
       where: {
-        role: { not: 'admin' },
-        email: { not: 'twintubrovquattro@gmail.com' }
+        AND: [
+          { username: { notIn: ['admin', 'auraplay2026'] } },
+          {
+            OR: [
+              { email: null },
+              { email: { notIn: ['auraplay2026@gmail.com', 'twintubrovquattro@gmail.com'] } }
+            ]
+          }
+        ]
       }
     });
 
-    // 8. Reset Admin user to fresh baseline
+    // 8. Reset Admin user to 0 balance & 0 wagers
     await prisma.user.updateMany({
-      where: {
-        OR: [
-          { email: { equals: 'twintubrovquattro@gmail.com', mode: 'insensitive' } },
-          { username: { equals: 'admin', mode: 'insensitive' } }
-        ]
-      },
       data: {
         role: 'admin',
-        balance: 100000,
-        realBalance: 100000,
-        demoBalance: 100000,
+        balance: 0,
+        realBalance: 0,
+        demoBalance: 0,
         totalWagered: 0,
         referralCount: 0,
         affiliateEarnings: 0,
