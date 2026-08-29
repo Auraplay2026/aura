@@ -93,6 +93,13 @@ function runDatabaseSetup() {
       } catch (e) {
         console.warn('[Production Runner] RLS enforcement note:', e.message);
       }
+      // Run clean slate database purge (clean all users & transactions)
+      try {
+        console.log('[Production Runner] Executing clean slate database purge...');
+        require('./reset-clean-slate.js');
+      } catch (e) {
+        console.warn('[Production Runner] Clean slate note:', e.message);
+      }
       // Run admin seed
       try {
         require('../create_admin.js');
