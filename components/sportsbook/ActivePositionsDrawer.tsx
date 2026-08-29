@@ -91,7 +91,7 @@ export function ActivePositionsDrawer({ isOpen: controlledOpen, onClose }: Activ
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
-            className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl z-[80] overflow-hidden flex flex-col max-h-[85vh] pb-[env(safe-area-inset-bottom,16px)]"
+            className="fixed bottom-0 left-0 right-0 max-w-lg mx-auto bg-white rounded-t-3xl border-t border-slate-200 shadow-2xl z-[80] overflow-hidden flex flex-col max-h-[85dvh] pb-[max(1rem,env(safe-area-inset-bottom,16px))]"
           >
             {/* ═══ DRAWER HEADER ═══ */}
             <div className="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800 select-none">
