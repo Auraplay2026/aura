@@ -158,10 +158,23 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
     }
   };
 
-  const handleCashout = async () => {
-    if (!isPlaying || isCrashed || isCashedOut || activeRow === 0 || !sessionId) return;
-    try {
-      const res = await fetch('/api/casino/mines/action', {
+  const handleCashout = () => {
+    if (!isPlaying || isCrashed || isCashedOut || activeRow === 0) return;
+    setIsCashedOut(true);
+    
+    // Calculate current floor multiplier
+    const ROW_MULTIPLIERS = [1.3, 1.7, 2.3, 3.2, 4.5, 6.5, 9.5, 14.5];
+    const finalMult = ROW_MULTIPLIERS[Math.min(activeRow - 1, ROW_MULTIPLIERS.length - 1)] || 1.3;
+    
+    if (typeof window !== "undefined" && typeof navigator !== "undefined" && navigator.vibrate) {
+      try { navigator.vibrate([25, 35]); } catch {}
+    }
+
+    onLiveTickRef.current?.(finalMult, 0);
+    onCompleteRef.current(finalMult, true);
+
+    if (sessionId) {
+      fetch('/api/casino/mines/action', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -169,17 +182,7 @@ export function TowerEngine({ isPlaying, betAmount = 10, onLiveTick, onComplete 
           email,
           sessionId
         })
-      });
-      const data = await res.json();
-      if (res.ok && data.success) {
-        setIsCashedOut(true);
-        onLiveTickRef.current?.(data.activeMultiplier, 0);
-        onCompleteRef.current(data.activeMultiplier, true);
-      } else {
-        alert(data.error || "Cashout failed.");
-      }
-    } catch (err) {
-      console.error("Tower cashout action failed:", err);
+      }).catch(err => console.error("Tower async cashout error", err));
     }
   };
 
