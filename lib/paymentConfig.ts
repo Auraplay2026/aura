@@ -30,7 +30,7 @@ const DEFAULT_SETTINGS: PaymentSettings = {
   upiId: "aurabet@okaxis",
   gpayId: "aurabet.gpay@okaxis",
   phonepeId: "aurabet.ybl@okaxis",
-  whatsappNumber: "+16232822738",
+  whatsappNumber: "+91 6290482750",
   upiQrType: "dynamic",
   upiQrImageUrl: "",
   btcAddresses: [
