@@ -130,27 +130,38 @@ export function SmartNotificationBanner() {
     }
   };
 
-  if (!visible || !bannerType || currentUser?.role === 'admin' || pathname?.startsWith('/admin') || pathname?.startsWith('/sportsbook')) return null;
+  const isBettingOrGameRoute = 
+    !pathname || 
+    pathname.startsWith("/admin") || 
+    pathname.startsWith("/casino") || 
+    pathname.startsWith("/sportsbook") || 
+    pathname.startsWith("/game") || 
+    currentUser?.role === 'admin';
+
+  if (!visible || !bannerType || isBettingOrGameRoute) return null;
   const config = getBannerConfig();
 
   return (
     <AnimatePresence>
       <motion.div
         drag="x"
-        dragConstraints={{ left: -200, right: 200 }}
+        dragDirectionLock
+        dragElastic={0.7}
+        dragConstraints={{ left: -250, right: 250 }}
         onDragEnd={(event, info) => {
-          if (Math.abs(info.offset.x) > 100) {
+          if (Math.abs(info.offset.x) > 40 || Math.abs(info.velocity.x) > 300) {
             setVisible(false);
           }
         }}
         initial={{ opacity: 0, y: -50, scale: 0.95 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
-        exit={{ opacity: 0, y: -20, scale: 0.95 }}
-        className={`fixed top-20 right-4 z-40 w-[92%] max-w-sm bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-4 shadow-xl ${config.color} pointer-events-auto cursor-grab active:cursor-grabbing select-none`}
+        exit={{ opacity: 0, scale: 0.9, x: 150, transition: { duration: 0.2 } }}
+        className={`fixed top-16 sm:top-20 right-4 z-[85] w-[92%] max-w-sm bg-white/95 backdrop-blur-md border border-slate-200 rounded-2xl p-4 shadow-xl ${config.color} pointer-events-auto cursor-grab active:cursor-grabbing touch-pan-y select-none`}
       >
         <button
           onClick={() => setVisible(false)}
-          className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 p-1 cursor-pointer"
+          aria-label="Dismiss smart notification"
+          className="absolute top-3 right-3 text-slate-400 hover:text-slate-700 p-1 rounded-full hover:bg-slate-100 transition cursor-pointer"
         >
           <X className="w-4 h-4" />
         </button>
