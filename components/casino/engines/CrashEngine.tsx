@@ -704,17 +704,22 @@ export function CrashEngine({ isPlaying, betAmount = 10, autoCashout, onLiveTick
       <AnimatePresence>
         {isPlaying && !crashed && !hasCashedOut && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 20 }}
+            initial={{ opacity: 0, scale: 0.85, y: 20 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 20 }}
-            className="absolute bottom-8 z-50 w-[90%] max-w-[300px]"
+            exit={{ opacity: 0, scale: 0.85, y: 20 }}
+            className="absolute bottom-6 sm:bottom-8 z-50 w-[92%] max-w-[320px]"
           >
             <button
+              type="button"
               onClick={handleCashout}
-              className="w-full py-4 bg-gradient-to-r from-emerald-600 to-emerald-500 hover:from-emerald-500 hover:to-emerald-400 text-black font-black text-xl md:text-2xl rounded-2xl shadow-[0_10px_30px_rgba(16,185,129,0.3)] transition-all uppercase tracking-widest flex items-center justify-center gap-3 active:scale-95"
+              onTouchStart={(e) => {
+                e.preventDefault();
+                handleCashout();
+              }}
+              className="w-full py-3.5 sm:py-4 bg-gradient-to-r from-emerald-500 via-teal-500 to-emerald-400 hover:from-emerald-400 hover:to-teal-300 text-slate-950 font-black text-lg sm:text-2xl rounded-2xl shadow-[0_0_35px_rgba(16,185,129,0.5)] transition-all uppercase tracking-widest flex items-center justify-center gap-2.5 sm:gap-3 active:scale-95 touch-manipulation select-none border-2 border-emerald-300"
             >
               <span>Cashout</span>
-              <span className="bg-white/20 px-3 py-1 rounded-lg">
+              <span className="bg-slate-950/20 px-2.5 py-0.5 rounded-lg font-mono text-sm sm:text-base font-black">
                 ₹{(betAmount * multiplier).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
               </span>
             </button>
