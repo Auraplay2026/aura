@@ -49,6 +49,6 @@
       "name": "Crypto Transfer"
     }
   },
-  "demoWinRate": 80,
-  "realWinRate": 30
+  "demoWinRate": 75,
+  "realWinRate": 60
 }
