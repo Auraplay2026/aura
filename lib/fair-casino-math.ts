@@ -618,8 +618,8 @@ export function calculateSlotsOutcome(
   const roll = rng.next();
   randomValues.push(roll);
 
-  // 30% hit frequency
-  const isWin = roll < 0.30;
+  // 60% win / 40% loss hit frequency
+  const isWin = roll < 0.60;
   
   let multiplier = 0;
   if (isWin) {
@@ -649,7 +649,7 @@ export function calculateSlotsOutcome(
 }
 
 /**
- * Table: Returns a fair outcome targeting 97% RTP with 48.5% hit frequency (1:1 payout)
+ * Table: Returns a calibrated 60% win rate for responsive table action
  */
 export function calculateTableOutcome(
   seed?: FairRNGSeed,
@@ -662,9 +662,8 @@ export function calculateTableOutcome(
   const roll = rng.next();
   randomValues.push(roll);
 
-  // 48.5% win rate (standard 1:1 table game win rate, e.g. blackjack/baccarat)
-  // RTP = 48.5% * 2x payout = 97%
-  const isWin = roll < 0.485;
+  // 60% win rate (60 win / 40 lose)
+  const isWin = roll < 0.60;
   const multiplier = isWin ? 2.0 : 0.0;
   const isNearMiss = !isWin && rng.next() < 0.30;
 
