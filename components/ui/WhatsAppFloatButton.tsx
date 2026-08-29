@@ -84,7 +84,7 @@ export function WhatsAppFloatButton() {
   return (
     <>
       {/* Floating Trigger Button */}
-      <div className={`fixed ${isCasinoGame ? "bottom-24 right-4" : "bottom-[140px] right-4 md:bottom-6 md:right-20"} z-40 flex items-center gap-3 pointer-events-auto transition-all duration-300`}>
+      <div className="fixed bottom-24 right-4 md:bottom-6 md:right-20 z-40 flex items-center gap-3 pointer-events-auto transition-all duration-300">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
@@ -118,7 +118,7 @@ export function WhatsAppFloatButton() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 30, scale: 0.95 }}
             transition={{ duration: 0.25 }}
-            className={`fixed ${isCasinoGame ? "bottom-28" : "bottom-24 md:bottom-20"} right-4 sm:right-6 z-50 w-[92vw] max-w-[380px] bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-emerald-200/80 overflow-hidden flex flex-col backdrop-blur-xl`}
+            className="fixed bottom-24 md:bottom-20 right-4 sm:right-6 z-50 w-[92vw] max-w-[380px] bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-emerald-200/80 overflow-hidden flex flex-col backdrop-blur-xl"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 text-white p-5 relative">
