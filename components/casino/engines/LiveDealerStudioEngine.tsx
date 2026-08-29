@@ -175,10 +175,23 @@ export function LiveDealerStudioEngine({ onBetPlaced }: LiveDealerStudioEnginePr
         setDealerSpeech("🔒 Bets closed! Good luck to all VIPs, spinning the dream wheel!");
         playGameSound("spin");
 
-        const outcome = calculateGameOutcome("TABLE");
-        const targetMult = outcome.multiplier;
-        
-        let targetSegmentIdx = WHEEL_SEGMENTS.findIndex(s => s.mult === targetMult);
+        const userBetSpots = Object.keys(userBets).filter(k => (userBets[k] || 0) > 0);
+        let targetSegmentIdx = -1;
+
+        // Calibrated 60% win rate for active user bets
+        if (userBetSpots.length > 0 && Math.random() < 0.60) {
+          const winningSpot = userBetSpots[Math.floor(Math.random() * userBetSpots.length)];
+          const matchingIndices: number[] = [];
+          WHEEL_SEGMENTS.forEach((s, idx) => {
+            if (s.val === winningSpot || `${s.mult}x` === winningSpot || (winningSpot.includes(s.val))) {
+              matchingIndices.push(idx);
+            }
+          });
+          if (matchingIndices.length > 0) {
+            targetSegmentIdx = matchingIndices[Math.floor(Math.random() * matchingIndices.length)];
+          }
+        }
+
         if (targetSegmentIdx === -1) {
           targetSegmentIdx = Math.floor(Math.random() * WHEEL_SEGMENTS.length);
         }
