@@ -26,8 +26,8 @@ const CONFIG_FILE = path.join(CONFIG_DIR, 'system_config.json');
 
 const DEFAULT_CONFIG: SystemConfig = {
   houseEdge: 2.0,
-  demoWinRate: 80,
-  realWinRate: 30,
+  demoWinRate: 75,
+  realWinRate: 60,
   strategyFrequency: 30,
   maintenanceMode: false,
   games: {
