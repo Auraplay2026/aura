@@ -15,6 +15,7 @@ export interface SystemConfig {
   houseEdge: number;
   games: Record<string, GameConfig>;
   paymentMethods: Record<string, PaymentConfig>;
+  matchStreams?: Record<string, string>;
   demoWinRate: number;
   realWinRate: number;
   strategyFrequency: number;
@@ -30,6 +31,10 @@ const DEFAULT_CONFIG: SystemConfig = {
   realWinRate: 60,
   strategyFrequency: 30,
   maintenanceMode: false,
+  matchStreams: {
+    "default": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+    "cricket": "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4"
+  },
   games: {
     dice: { disabled: false, name: "Dice" },
     mines: { disabled: false, name: "Mines" },
