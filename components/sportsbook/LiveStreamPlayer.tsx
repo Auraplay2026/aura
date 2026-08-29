@@ -136,16 +136,13 @@ export function LiveStreamPlayer({
               hls.recoverMediaError();
               break;
             case Hls.ErrorTypes.NETWORK_ERROR:
+              hls.startLoad();
+              break;
             default:
-              // Silent failover to next stream in pool without showing black screen or error dialog
-              hls.destroy();
-              streamPoolIndexRef.current += 1;
-              retryCountRef.current += 1;
-              if (retryCountRef.current < streamUrls.length * 2) {
-                setTimeout(() => initPlayer(), 200);
-              } else {
-                setIsLoading(false);
-              }
+              // Silent failover to next stream in pool infinitely without stopping
+              try { hls.destroy(); } catch {}
+              streamPoolIndexRef.current = (streamPoolIndexRef.current + 1) % streamUrls.length;
+              setTimeout(() => initPlayer(), 150);
               break;
           }
         }
@@ -165,13 +162,49 @@ export function LiveStreamPlayer({
       });
 
       video.onerror = () => {
-        streamPoolIndexRef.current += 1;
+        streamPoolIndexRef.current = (streamPoolIndexRef.current + 1) % streamUrls.length;
         setTimeout(() => initPlayer(), 200);
       };
     } else {
       setIsLoading(false);
     }
   }, [streamUrls]);
+
+  // Invincible Stall & Freeze Watchdog
+  useEffect(() => {
+    let lastProgressTime = 0;
+    let stallTicks = 0;
+
+    const watchdog = setInterval(() => {
+      const video = videoRef.current;
+      if (!video) return;
+
+      if (isPlaying) {
+        if (video.paused) {
+          video.play().catch(() => {});
+        }
+
+        if (video.currentTime === lastProgressTime && video.readyState >= 1) {
+          stallTicks++;
+          if (stallTicks >= 3) {
+            // Buffer stalled -> auto-recover
+            stallTicks = 0;
+            if (hlsRef.current) {
+              hlsRef.current.recoverMediaError();
+              hlsRef.current.startLoad();
+            } else {
+              initPlayer();
+            }
+          }
+        } else {
+          stallTicks = 0;
+          lastProgressTime = video.currentTime;
+        }
+      }
+    }, 1200);
+
+    return () => clearInterval(watchdog);
+  }, [isPlaying, initPlayer]);
 
   useEffect(() => {
     initPlayer();
