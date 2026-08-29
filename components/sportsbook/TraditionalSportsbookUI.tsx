@@ -1,8 +1,9 @@
 "use client";
 
 import { useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Activity, Trophy, Search, ChevronRight, TrendingUp, TrendingDown, Star, AlertCircle, Zap } from "lucide-react";
+import { Activity, Trophy, Search, ChevronRight, TrendingUp, TrendingDown, Star, AlertCircle, Zap, Tv } from "lucide-react";
 import { BetslipDrawer, DraftBet } from "./BetslipDrawer";
 import { useLiveMarkets, Market } from "@/hooks/useLiveMarkets";
 import { useTradingStore } from "@/lib/store";
@@ -260,21 +261,26 @@ export function TraditionalSportsbookUI() {
                               <div className="text-[10px] text-slate-600">(21')</div>
                             </div>
 
-                            {/* Middle: Teams */}
-                            <div className="flex-1 px-6 flex flex-col gap-3 w-full">
-                              <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
-                                <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
-                                  {market.team1Logo ? <img src={market.team1Logo} alt={team1Name} className="w-full h-full object-cover" /> : <span className="text-[10px]">T1</span>}
+                            {/* Middle: Teams & Live TV Link */}
+                            <Link href={`/sportsbook/match/${market.id}`} className="flex-1 px-6 flex flex-col gap-2.5 w-full hover:opacity-90 transition group cursor-pointer">
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
+                                  <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
+                                    {market.team1Logo ? <img src={market.team1Logo} alt={team1Name} className="w-full h-full object-cover" /> : <span className="text-[10px]">T1</span>}
+                                  </div>
+                                  <span className="truncate group-hover:text-emerald-700 transition-colors">{team1Name}</span>
                                 </div>
-                                <span className="truncate">{team1Name}</span>
+                                <span className="text-[10px] font-black text-rose-600 bg-rose-50 border border-rose-200 px-2 py-0.5 rounded-full flex items-center gap-1 group-hover:bg-rose-600 group-hover:text-white transition-all">
+                                  <Tv className="w-3 h-3" /> Live TV
+                                </span>
                               </div>
                               <div className="flex items-center gap-3 text-slate-900 font-bold text-sm">
                                 <div className="w-6 h-6 rounded-full overflow-hidden shrink-0 bg-slate-100 flex items-center justify-center">
                                   {market.team2Logo ? <img src={market.team2Logo} alt={team2Name} className="w-full h-full object-cover" /> : <span className="text-[10px]">T2</span>}
                                 </div>
-                                <span className="truncate">{team2Name}</span>
+                                <span className="truncate group-hover:text-emerald-700 transition-colors">{team2Name}</span>
                               </div>
-                            </div>
+                            </Link>
 
                             {/* Right: Odds */}
                             <div className="flex items-center gap-2 mt-4 md:mt-0 w-full md:w-auto">
