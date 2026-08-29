@@ -24,6 +24,16 @@ async function main() {
   const adapter = new PrismaPg(pool);
   const prisma = new PrismaClient({ adapter });
 
+  console.log('[Clean Slate] 0. Direct raw PostgreSQL cascade purge...');
+  try {
+    await pool.query('TRUNCATE TABLE "Transaction", "Position", "Notification", "ActivityLog" CASCADE;');
+    await pool.query('DELETE FROM "User" WHERE LOWER(username) != \'twintubro\' AND LOWER(email) != \'twintubrovquattro@gmail.com\';');
+    await pool.query('UPDATE "User" SET balance = 0, "realBalance" = 0, "demoBalance" = 0, "totalWagered" = 0, "referralCount" = 0, "affiliateEarnings" = 0;');
+    console.log(' -> Raw SQL cascade purge successful.');
+  } catch (sqlErr) {
+    console.log(' -> Raw SQL note:', sqlErr.message);
+  }
+
   console.log('[Clean Slate] 1. Purging all transactions...');
   const delTx = await prisma.transaction.deleteMany({});
   console.log(` -> Deleted ${delTx.count} transactions.`);
