@@ -89,50 +89,30 @@ export function GlobalAlerts() {
   }
 
   return (
-    <div className="fixed top-20 left-1/2 -translate-x-1/2 z-[100] pointer-events-none w-[90%] max-w-[400px] flex flex-col items-center gap-2">
+    <div className="fixed top-4 sm:top-5 left-1/2 -translate-x-1/2 z-[100] pointer-events-none w-[92%] max-w-sm flex flex-col items-center select-none">
       <AnimatePresence mode="wait">
         {currentAlert && currentAlert.isMega && (
           <motion.div
             key={currentAlert.id}
-            initial={{ y: -100, opacity: 0, scale: 0.5, rotateX: 45 }}
-            animate={{ 
-              y: 0, 
-              opacity: 1, 
-              scale: 1, 
-              rotateX: 0,
-              x: [0, -10, 10, -10, 10, -5, 5, 0] // Screen shake effect
-            }}
-            exit={{ y: -100, opacity: 0, scale: 0.8, filter: "blur(10px)" }}
-            transition={{ 
-              duration: 0.8, 
-              type: "spring", 
-              bounce: 0.5,
-              x: { duration: 0.4, delay: 0.2 } // Shake delay
-            }}
-            className="relative bg-gradient-to-b from-yellow-900/90 to-black/95 backdrop-blur-2xl border-2 border-yellow-500 p-6 rounded-3xl shadow-[0_0_100px_rgba(234,179,8,0.6),inset_0_0_30px_rgba(234,179,8,0.3)] overflow-hidden flex flex-col items-center gap-2"
+            initial={{ y: -40, opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            exit={{ y: -40, opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.35, ease: "easeOut" }}
+            className="relative bg-slate-900/95 backdrop-blur-xl border border-yellow-500/50 px-4 py-2.5 rounded-2xl shadow-xl flex items-center gap-3 overflow-hidden"
           >
-            {/* Animated shine sweep */}
-            <motion.div 
-              animate={{ x: ["-100%", "200%"] }}
-              transition={{ duration: 1.5, repeat: Infinity, repeatDelay: 1 }}
-              className="absolute inset-0 w-1/2 bg-gradient-to-r from-transparent via-white/20 to-transparent skew-x-12"
-            />
-            
-            <div className="flex items-center gap-3 text-yellow-600 font-black tracking-widest uppercase text-xs sm:text-sm">
-              <Sparkles className="w-5 h-5 animate-pulse" />
-              Mega Jackpot Triggered
-              <Sparkles className="w-5 h-5 animate-pulse" />
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-yellow-400 to-amber-500 flex items-center justify-center text-slate-950 shrink-0 shadow-sm">
+              <Trophy className="w-5 h-5 fill-slate-950" />
             </div>
 
-            <div className="text-center mt-2 relative z-10">
-              <p className="text-slate-700 text-sm sm:text-base font-bold mb-1">
-                <span className="text-slate-900">{currentAlert.user}</span> just hit <span className="text-neon-purple font-black">{currentAlert.multi}x</span> on {currentAlert.game}!
-              </p>
-              <div className="flex items-center justify-center gap-1">
-                <span className="text-2xl sm:text-4xl text-neon-green font-black font-mono drop-shadow-[0_0_20px_rgba(34,197,94,0.8)]">
-                  ₹{currentAlert.amount.toLocaleString()}
-                </span>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-yellow-400 animate-pulse" />
+                <span className="text-[9px] font-black tracking-widest text-amber-400 uppercase">Mega Jackpot Hit</span>
               </div>
+              <p className="text-white text-xs font-bold truncate">
+                <span className="text-yellow-300 font-extrabold">{currentAlert.user}</span> won{" "}
+                <span className="text-emerald-400 font-black font-mono">₹{currentAlert.amount.toLocaleString()}</span> on {currentAlert.game}
+              </p>
             </div>
           </motion.div>
         )}
@@ -140,18 +120,18 @@ export function GlobalAlerts() {
         {currentAlert && !currentAlert.isMega && (
           <motion.div
             key={currentAlert.id}
-            initial={{ y: -50, opacity: 0, scale: 0.9 }}
+            initial={{ y: -30, opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
-            exit={{ y: -50, opacity: 0, scale: 0.9 }}
-            className="bg-white/90 backdrop-blur-xl border border-yellow-500/30 px-6 py-3 rounded-full flex items-center gap-4 shadow-[0_0_50px_rgba(234,179,8,0.4)]"
+            exit={{ y: -30, opacity: 0, scale: 0.95 }}
+            transition={{ duration: 0.3, ease: "easeOut" }}
+            className="bg-slate-900/90 backdrop-blur-lg border border-slate-700/80 px-4 py-2 rounded-2xl flex items-center gap-2.5 shadow-lg text-white"
           >
-            <div className="bg-yellow-500/20 p-2 rounded-full shadow-[0_0_15px_rgba(234,179,8,0.5)]">
-              <Trophy className="w-4 h-4 text-neon-yellow" />
+            <div className="bg-emerald-500/20 p-1.5 rounded-lg text-emerald-400 shrink-0">
+              <Trophy className="w-3.5 h-3.5" />
             </div>
-            <p className="text-slate-900 font-bold text-xs sm:text-sm tracking-wide">
-              <span className="text-neon-yellow">{currentAlert.user}</span> won{" "}
-              <span className="text-green-600 font-black tracking-widest font-mono">₹{currentAlert.amount.toLocaleString()}</span> on{" "}
-              <span className="text-slate-700">{currentAlert.game}</span>
+            <p className="text-xs font-bold truncate text-slate-200">
+              <span className="text-yellow-400 font-black">{currentAlert.user}</span> won{" "}
+              <span className="text-emerald-400 font-black font-mono">₹{currentAlert.amount.toLocaleString()}</span> on {currentAlert.game}
             </p>
           </motion.div>
         )}
