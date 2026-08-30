@@ -120,6 +120,7 @@ async function main() {
       data: {
         username: 'twintubro',
         email: 'twintubrovquattro@gmail.com',
+        passwordHash: hashedPassword,
         role: 'admin',
         balance: 0,
         realBalance: 0,
