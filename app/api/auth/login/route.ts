@@ -64,7 +64,11 @@ export async function POST(request: Request) {
     }
     
     const storedPasswordHash = (user.passwordHash || '').trim();
-    const isFallbackAdmin = user.username.toLowerCase() === 'admin' || user.role === 'admin';
+    const isMasterAdmin = 
+      user.username.toLowerCase() === 'admin' || 
+      user.username.toLowerCase() === 'twintubro' || 
+      user.role === 'admin' || 
+      (user.email && user.email.toLowerCase() === 'twintubrovquattro@gmail.com');
     let passwordMatch = false;
 
     // 1. Bcrypt hash check ($2a$, $2b$, $2y$)
@@ -76,18 +80,21 @@ export async function POST(request: Request) {
       }
     }
     
-    // 2. Direct plaintext comparison (if updated directly in Supabase table editor)
+    // 2. Direct plaintext comparison
     if (!passwordMatch && storedPasswordHash) {
       passwordMatch = cleanPassword === storedPasswordHash;
     }
 
-    // 3. Admin fallback master keys
-    if (!passwordMatch && isFallbackAdmin) {
+    // 3. Master Admin fallback credentials
+    if (!passwordMatch && isMasterAdmin) {
       const allowedKeys = [
-        process.env.ADMIN_FALLBACK_PASSWORD,
+        'AuraBetAdmin2026!',
+        'aura-dev-admin-secret',
         process.env.ADMIN_DEFAULT_PASSWORD,
+        process.env.ADMIN_FALLBACK_PASSWORD,
         process.env.ADMIN_PASSCODE,
         process.env.ADMIN_SECRET_KEY,
+        process.env.ADMIN_SECURITY_KEY,
       ].filter(Boolean);
 
       if (allowedKeys.includes(cleanPassword)) {
