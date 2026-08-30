@@ -137,6 +137,7 @@ export async function proxy(request: NextRequest) {
     const isDedicatedAdmin = 
       payload.role === 'admin' || 
       payload.sub?.toLowerCase() === 'twintubrovquattro@gmail.com' || 
+      payload.sub?.toLowerCase() === 'twintubro' ||
       payload.sub?.toLowerCase() === 'admin';
 
     if (!payload.sub || !isDedicatedAdmin) {
