@@ -28,7 +28,7 @@ function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
     setError(null);
 
     try {
-      // Authenticate directly via unified login pipeline
+      // 1. Authenticate via unified login pipeline
       const res = await useTradingStore.getState().loginWithCredentials(
         adminIdentity.trim(),
         password
@@ -37,8 +37,25 @@ function AdminSignInCard({ onAuthenticated }: { onAuthenticated: () => void }) {
       if (res.success) {
         useAdminStore.getState().setAdminSession(adminIdentity.trim(), "admin-session-active", "admin-hw-verified");
         onAuthenticated();
+        return;
+      }
+
+      // 2. Direct fallback to verify endpoint
+      const verifyRes = await fetch("/api/admin/auth/verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: adminIdentity.trim(),
+          passcode: password
+        })
+      });
+      const verifyData = await verifyRes.json();
+
+      if (verifyData.success) {
+        useAdminStore.getState().setAdminSession(adminIdentity.trim(), "admin-session-active", "admin-hw-verified");
+        onAuthenticated();
       } else {
-        setError(res.error || "Authentication failed. Invalid administrator credentials.");
+        setError(verifyData.error || res.error || "Authentication failed. Invalid administrator credentials.");
       }
     } catch (err: any) {
       setError(err?.message || "Authentication error. Please try again.");
@@ -325,6 +342,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
     (isLoggedIn && currentUser && (
       currentUser.role === 'admin' || 
       currentUser.username?.toLowerCase() === 'admin' || 
+      currentUser.username?.toLowerCase() === 'twintubro' ||
       currentUser.email?.toLowerCase() === 'twintubrovquattro@gmail.com'
     ));
 
