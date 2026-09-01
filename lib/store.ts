@@ -490,11 +490,11 @@ export const useTradingStore = create<TradingState>()(
             body: JSON.stringify({ emailOrUsername, password, otp, captcha, referralCode })
           });
           const data = await res.json();
-          if (data && data.twoFactorRequired) {
-            return { success: false, twoFactorRequired: true };
-          }
-          if (data && data.requirePasswordChange) {
-            return { success: false, requirePasswordChange: true };
+          if (data && (data.requirePasswordChange || data.mustChangePassword)) {
+            if (typeof window !== 'undefined') {
+              window.dispatchEvent(new CustomEvent("open-force-password-change", { detail: { email: emailOrUsername } }));
+            }
+            return { success: false, requirePasswordChange: true, mustChangePassword: true };
           }
           if (!res.ok) {
             return { success: false, error: data.error || "Login failed." };
