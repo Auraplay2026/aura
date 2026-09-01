@@ -7,6 +7,7 @@ async function seedTestUsers() {
   console.log("Seeding test players and active transactions into PostgreSQL & Supabase Auth...");
   
   const testUsers = [
+    { username: 'kartik2561', email: 'kartik2561@aurabet.io', balance: 10000, deposit: 10000 },
     { username: 'alex99', email: 'alex99@aurabet.io', balance: 5000, deposit: 5000 },
     { username: 'rahul_trader', email: 'rahul_trader@aurabet.io', balance: 12500, deposit: 15000 },
     { username: 'priya_crypto', email: 'priya_crypto@aurabet.io', balance: 25000, deposit: 25000 }
