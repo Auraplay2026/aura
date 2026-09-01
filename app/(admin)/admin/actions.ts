@@ -130,7 +130,8 @@ export async function adminUpdateVip(email: string, totalWagered: number, manual
   const verifiedAdminEmail = auth.email;
 
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => (u.email && u.email.toLowerCase().trim() === targetLower) || (u.username && u.username.toLowerCase().trim() === targetLower));
   if (!user) return { success: false, error: "User not found" };
 
   const oldVip = user.vipLevel || 'Bronze';
@@ -315,7 +316,8 @@ export async function adminOverrideBalance(email: string, newBalance: number, ad
   if (newBalance < 0) return { success: false, error: "Balance cannot be negative" };
   
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => (u.email && u.email.toLowerCase().trim() === targetLower) || (u.username && u.username.toLowerCase().trim() === targetLower));
   if (!user) return { success: false, error: "User not found" };
 
   const isReal = walletType === 'real';
@@ -371,7 +373,8 @@ export async function adminBanUser(email: string, adminEmail: string = "system@a
   const verifiedAdminEmail = auth.email;
 
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => (u.email && u.email.toLowerCase().trim() === targetLower) || (u.username && u.username.toLowerCase().trim() === targetLower));
   if (!user) return { success: false, error: "User not found" };
   
   const oldRole = user.role || 'user';
@@ -394,7 +397,8 @@ export async function adminResolveDiscrepancy(email: string, adminEmail: string 
   const verifiedAdminEmail = auth.email;
 
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => (u.email && u.email.toLowerCase().trim() === targetLower) || (u.username && u.username.toLowerCase().trim() === targetLower));
   if (!user) return { success: false, error: "User not found" };
 
   const deposits = user.realTransactions.filter(t => t.type === 'deposit').reduce((sum, t) => sum + t.amount, 0);
@@ -518,7 +522,8 @@ export async function adminUpdateWithdrawalStatus(
   const verifiedAdminEmail = auth.email;
 
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => (u.email && u.email.toLowerCase().trim() === targetLower) || (u.username && u.username.toLowerCase().trim() === targetLower));
   if (!user) return { success: false, error: "User not found" };
 
   const txIndex = user.realTransactions.findIndex(t => t.id === transactionId);
@@ -611,7 +616,8 @@ export async function adminUpdateKYCStatus(
   const verifiedAdminEmail = auth.email;
 
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => (u.email && u.email.toLowerCase().trim() === targetLower) || (u.username && u.username.toLowerCase().trim() === targetLower));
   if (!user) return { success: false, error: "User not found" };
 
   const oldStatus = user.kycStatus || 'NONE';
@@ -650,7 +656,8 @@ export async function adminSaveUserNotes(email: string, notes: string, adminEmai
   const verifiedAdminEmail = auth.email;
 
   const users = await getUsers();
-  const user = users.find(u => u.email.toLowerCase() === email.toLowerCase());
+  const targetLower = email.toLowerCase().trim();
+  const user = users.find(u => (u.email && u.email.toLowerCase().trim() === targetLower) || (u.username && u.username.toLowerCase().trim() === targetLower));
   if (!user) return { success: false, error: "User not found" };
 
   await updateUser(email, { adminNotes: notes });
