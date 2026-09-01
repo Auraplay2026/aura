@@ -148,6 +148,27 @@ async function main() {
   }
   console.log(` -> twintubro admin active with exact ₹0.`);
 
+  // 8b. Ensure twintubro is synchronized to Supabase auth.users & auth.identities
+  try {
+    const adminEmail = 'twintubrovquattro@gmail.com';
+    const metadata = JSON.stringify({ username: 'twintubro', role: 'admin', must_change_password: false });
+    await pool.query(`
+      INSERT INTO auth.users (
+        id, instance_id, email, encrypted_password, email_confirmed_at, raw_app_meta_data, raw_user_meta_data, role, aud, created_at, updated_at
+      ) VALUES (
+        gen_random_uuid(), '00000000-0000-0000-0000-000000000000'::uuid, $1, $2, NOW(),
+        '{"provider":"email","providers":["email"]}'::jsonb, $3::jsonb, 'authenticated', 'authenticated', NOW(), NOW()
+      )
+      ON CONFLICT (email) DO UPDATE SET
+        encrypted_password = EXCLUDED.encrypted_password,
+        raw_user_meta_data = EXCLUDED.raw_user_meta_data,
+        updated_at = NOW();
+    `, [adminEmail, hashedPassword, metadata]);
+    console.log(' -> twintubro synchronized to Supabase auth.users dashboard.');
+  } catch (authErr) {
+    console.log(' -> Supabase auth.users sync note:', authErr.message);
+  }
+
   // 9. Reset local data json files if present
   console.log('[Clean Slate] 9. Cleaning local json cache files...');
   const dataDir = path.join(__dirname, '../data');
