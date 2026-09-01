@@ -14,7 +14,7 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { username, email, tempPassword, role = 'user', initialBalance = 0, mustChangePassword = true } = body;
+    const { username, email, tempPassword, role = 'user', initialBalance = 0, mustChangePassword = false } = body;
 
     if (!username || !tempPassword) {
       return NextResponse.json({ error: 'Username and temporary password are required.' }, { status: 400 });
