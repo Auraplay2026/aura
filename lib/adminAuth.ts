@@ -58,8 +58,8 @@ export async function verifyAdminSession(): Promise<SessionUser> {
     throw new Error("FORBIDDEN_INSUFFICIENT_PRIVILEGES: Administrator privileges required.");
   }
 
-  // If emailCookie is present, verify identity match
-  if (emailCookie) {
+  // If emailCookie is present and not verified admin, verify identity match
+  if (emailCookie && !isAuthorizedAdmin) {
     const cookieVal = emailCookie.toLowerCase().trim();
     const userEmail = (user.email || "").toLowerCase().trim();
     const userName = (user.username || "").toLowerCase().trim();
