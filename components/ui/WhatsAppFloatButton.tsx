@@ -84,27 +84,27 @@ export function WhatsAppFloatButton() {
   return (
     <>
       {/* Floating Trigger Button */}
-      <div className="fixed bottom-24 right-4 md:bottom-6 md:right-20 z-40 flex items-center gap-3 pointer-events-auto transition-all duration-300">
+      <div className="fixed bottom-20 right-3.5 md:bottom-6 md:right-24 z-40 flex items-center gap-2 pointer-events-auto transition-all duration-300">
         <motion.div
           initial={{ opacity: 0, scale: 0.8 }}
           animate={{ opacity: 1, scale: 1 }}
           className="relative"
         >
           {/* Pulsing Green Aura Rings */}
-          <span className="absolute -inset-2 rounded-full bg-emerald-500/25 animate-ping pointer-events-none" />
-          <span className="absolute -inset-1 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 opacity-75 blur-xs pointer-events-none" />
+          <span className="absolute -inset-1.5 rounded-full bg-emerald-500/25 animate-ping pointer-events-none" />
+          <span className="absolute -inset-0.5 rounded-full bg-gradient-to-r from-emerald-400 to-teal-500 opacity-75 blur-xs pointer-events-none" />
 
           <button
             onClick={() => setIsOpen(!isOpen)}
-            className="relative flex items-center gap-2.5 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black p-3 sm:px-4 sm:py-3.5 rounded-full shadow-[0_10px_30px_rgba(16,185,129,0.35)] transition-all duration-300 transform hover:scale-105 active:scale-95 border border-emerald-300/40 cursor-pointer group"
+            className="relative flex items-center gap-2 bg-gradient-to-r from-emerald-500 via-emerald-600 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-white font-black p-2.5 sm:px-4 sm:py-3 rounded-full shadow-[0_8px_25px_rgba(16,185,129,0.4)] transition-all duration-300 transform hover:scale-105 active:scale-95 border border-emerald-300/40 cursor-pointer group select-none"
             aria-label="Contact VIP WhatsApp Support"
           >
             <div className="relative">
-              <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 fill-white text-emerald-600" />
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-emerald-300 rounded-full border-2 border-emerald-600 animate-pulse" />
+              <MessageCircle className="w-5 h-5 sm:w-5.5 sm:h-5.5 fill-white text-emerald-600" />
+              <span className="absolute -top-0.5 -right-0.5 w-2.5 h-2.5 bg-emerald-300 rounded-full border-2 border-emerald-600 animate-pulse" />
             </div>
             <span className="hidden sm:inline-block text-xs uppercase tracking-wider font-extrabold pr-1">
-              WhatsApp VIP Help
+              WhatsApp VIP
             </span>
           </button>
         </motion.div>
@@ -114,11 +114,11 @@ export function WhatsAppFloatButton() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 30, scale: 0.95 }}
+            initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 30, scale: 0.95 }}
-            transition={{ duration: 0.25 }}
-            className="fixed bottom-24 md:bottom-20 right-4 sm:right-6 z-50 w-[92vw] max-w-[380px] bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.18)] border border-emerald-200/80 overflow-hidden flex flex-col backdrop-blur-xl"
+            exit={{ opacity: 0, y: 20, scale: 0.95 }}
+            transition={{ duration: 0.2 }}
+            className="fixed bottom-20 md:bottom-20 right-3.5 sm:right-6 z-50 w-[92vw] max-w-[380px] bg-white rounded-3xl shadow-[0_25px_60px_rgba(0,0,0,0.22)] border border-emerald-200/80 overflow-hidden flex flex-col backdrop-blur-xl"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-emerald-600 via-emerald-700 to-teal-800 text-white p-5 relative">
