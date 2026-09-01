@@ -9,6 +9,7 @@ import { AIConcierge } from "@/components/AIConcierge";
 import { OnboardingModal } from "@/components/ui/OnboardingModal";
 import { RightSidebarWrapper } from "@/components/layout/RightSidebarWrapper";
 import { BackToTop } from "@/components/ui/BackToTop";
+import MaintenanceOverlay from "@/components/ui/MaintenanceOverlay";
 import { WhatsAppFloatButton } from "@/components/ui/WhatsAppFloatButton";
 
 export default function PublicLayout({
