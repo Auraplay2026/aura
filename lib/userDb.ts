@@ -201,7 +201,7 @@ export async function findUserByEmailOrUsername(identifier: string): Promise<Use
 }
 
 export async function addUser(user: UserProfile): Promise<void> {
-  await prisma.user.create({
+  const created = await prisma.user.create({
     data: {
       username: user.username,
       email: user.email,
@@ -215,6 +215,20 @@ export async function addUser(user: UserProfile): Promise<void> {
       referredBy: user.referredBy || undefined,
     }
   });
+
+  // Automatically sync to Supabase auth.users & auth.identities
+  try {
+    const { syncUserToSupabaseAuth } = await import('./supabaseAuthSync');
+    await syncUserToSupabaseAuth({
+      id: created.id,
+      email: user.email,
+      username: user.username,
+      passwordHash: user.passwordHash,
+      mustChangePassword: user.adminNotes === 'FORCE_PASSWORD_CHANGE'
+    });
+  } catch (e) {
+    console.error("[addUser Supabase Sync Note]:", e);
+  }
 }
 
 export async function updateUser(email: string, updates: Partial<UserProfile>, parentTx?: any): Promise<UserProfile | null> {
