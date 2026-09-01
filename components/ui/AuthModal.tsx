@@ -142,9 +142,6 @@ export function AuthModal({ isOpen, onClose, initialView = 'login' }: { isOpen: 
         } else if (res.twoFactorRequired) {
           setTwoFactorRequired(true);
           setError(null);
-        } else if (res.requirePasswordChange) {
-          setView('forceReset');
-          setError(null);
         } else {
           setError(res.error || "Login failed. Check your email and password.");
           refreshCaptcha();
