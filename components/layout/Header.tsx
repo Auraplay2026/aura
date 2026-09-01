@@ -23,7 +23,12 @@ export function Header() {
   const [isSearchModalOpen, setIsSearchModalOpen] = useState(false);
   const [isAudioOpen, setIsAudioOpen] = useState(false);
 
-  const { balance, positions, isLoggedIn, currentUser, xp, soundEnabled, setSoundEnabled, sfxVolume, setSfxVolume, ambientEnabled, setAmbientEnabled, ambientPreset, setAmbientPreset } = useTradingStore();
+  const { 
+    balance, positions, isLoggedIn, currentUser, xp, 
+    switchAccountType, deposit,
+    soundEnabled, setSoundEnabled, sfxVolume, setSfxVolume, 
+    ambientEnabled, setAmbientEnabled, ambientPreset, setAmbientPreset 
+  } = useTradingStore();
 
   // IST digital clock time string
   const [timeStr, setTimeStr] = useState("");
@@ -201,18 +206,72 @@ export function Header() {
         
         {isLoggedIn ? (
           <>
-            {/* Wallet Balance Widget */}
-            <div className="flex items-center gap-1 sm:gap-3 pr-0.5 sm:pr-2 shrink-0">
-              <div className="flex flex-col items-end leading-none">
-                <span className="text-[7px] font-extrabold text-slate-650 uppercase tracking-[0.15em] mb-0.5">Balance</span>
+            {/* Wallet Balance & 1-Tap Real / Demo Switcher Widget */}
+            <div className="flex items-center gap-1 sm:gap-2.5 pr-0.5 sm:pr-2 shrink-0">
+              
+              {/* 1-Tap Real / Demo Mode Toggle Pill */}
+              <button 
+                onClick={() => {
+                  const nextType = currentUser?.accountType === 'real' ? 'demo' : 'real';
+                  switchAccountType(nextType);
+                }}
+                className={cn(
+                  "flex items-center gap-1 sm:gap-1.5 px-1.5 py-0.5 sm:px-2.5 sm:py-1 rounded-full border text-[9px] sm:text-xs font-black tracking-wider transition-all duration-200 cursor-pointer shadow-xs active:scale-95 select-none",
+                  currentUser?.accountType === 'real'
+                    ? "bg-emerald-50 border-emerald-400 text-emerald-700 hover:bg-emerald-100"
+                    : "bg-amber-50 border-amber-400 text-amber-800 hover:bg-amber-100 animate-pulse"
+                )}
+                title="1-Tap Switch between Real Money and Free Demo practice account"
+              >
+                <span className="relative flex h-2 w-2 shrink-0">
+                  <span className={cn(
+                    "animate-ping absolute inline-flex h-full w-full rounded-full opacity-75",
+                    currentUser?.accountType === 'real' ? "bg-emerald-400" : "bg-amber-400"
+                  )} />
+                  <span className={cn(
+                    "relative inline-flex rounded-full h-2 w-2",
+                    currentUser?.accountType === 'real' ? "bg-emerald-500" : "bg-amber-500"
+                  )} />
+                </span>
+                <span>{currentUser?.accountType === 'real' ? "REAL" : "DEMO"}</span>
+              </button>
+
+              {/* Balance Display with Click-To-Toggle */}
+              <div 
+                onClick={() => {
+                  const nextType = currentUser?.accountType === 'real' ? 'demo' : 'real';
+                  switchAccountType(nextType);
+                }}
+                className="flex flex-col items-end leading-none cursor-pointer group select-none"
+                title="Click to toggle Real / Demo balance"
+              >
+                <span className="text-[7px] font-extrabold text-slate-500 uppercase tracking-[0.15em] mb-0.5">
+                  {currentUser?.accountType === 'real' ? "Real Balance" : "Demo Credits"}
+                </span>
                 <span className={cn(
                   "text-[10px] sm:text-sm font-bold font-mono tabular-nums tracking-tight transition-all duration-300",
                   balanceFlash === "up" ? "text-emerald-600 scale-105" :
-                  balanceFlash === "down" ? "text-rose-600 scale-95" : "text-[#1E293B]"
+                  balanceFlash === "down" ? "text-rose-600 scale-95" : 
+                  currentUser?.accountType === 'real' ? "text-[#1E293B]" : "text-amber-700 font-extrabold"
                 )}>
                   ₹{isClient ? (typeof balance === 'number' ? balance : parseFloat(String(balance)) || 0).toLocaleString('en-IN', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) : "---"}
                 </span>
               </div>
+
+              {/* Free Demo Refill Button (Only in Demo Mode) */}
+              {currentUser?.accountType !== 'real' && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    deposit(10000, "Demo Refill");
+                  }}
+                  className="hidden sm:inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-md bg-amber-100 hover:bg-amber-200 border border-amber-300 text-amber-900 text-[9px] font-black cursor-pointer shadow-xs active:scale-95"
+                  title="Add ₹10,000 Free Demo Practice Credits"
+                >
+                  +Refill
+                </button>
+              )}
+
               <div className="hidden sm:block w-[1px] h-6 bg-slate-200 shrink-0" />
               <div className="hidden sm:flex flex-col items-end leading-none">
                 <span className="text-[7px] font-extrabold text-slate-650 uppercase tracking-[0.15em] mb-0.5">Exposure</span>
@@ -235,7 +294,7 @@ export function Header() {
 
               <button 
                 onClick={() => setIsCashierOpen(true)}
-                className="bg-[#E11D48] hover:bg-[#C0123C] text-slate-900 font-black px-2.5 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-0.5 sm:ml-2 text-[10px] sm:text-xs transition-all shadow-sm shrink-0 cursor-pointer"
+                className="bg-[#E11D48] hover:bg-[#C0123C] text-slate-900 font-black px-2.5 py-1.5 sm:px-4 sm:py-2 uppercase tracking-wide rounded-sm ml-0.5 sm:ml-1 text-[10px] sm:text-xs transition-all shadow-sm shrink-0 cursor-pointer"
                 aria-label="Open cashier deposit modal"
               >
                 DEPOSIT
