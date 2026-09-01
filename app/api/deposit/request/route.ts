@@ -109,8 +109,19 @@ export async function POST(request: Request) {
 
       const user = sanitizeUserProfile(dbUser);
 
-      if (type === 'withdraw' && user.realBalance < parsedAmount) {
-        return { error: 'Insufficient real balance for withdrawal.', status: 400 };
+      if (type === 'withdraw') {
+        const { calculateWageringStatus } = await import('@/lib/wageringEngine');
+        const wagering = calculateWageringStatus(user);
+        if (!wagering.isEligibleForWithdrawal) {
+          return { 
+            error: wagering.blockReason || 'Withdrawal requirements not satisfied. 3x turnover challenge and KYC verification required.', 
+            status: 400 
+          };
+        }
+
+        if (user.realBalance < parsedAmount) {
+          return { error: 'Insufficient real balance for withdrawal.', status: 400 };
+        }
       }
 
       const txnId = `TX-${Math.random().toString(36).substring(2, 8).toUpperCase()}`;
