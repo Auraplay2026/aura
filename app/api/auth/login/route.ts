@@ -187,9 +187,22 @@ export async function POST(request: Request) {
       type: 'success'
     });
 
+    // Check if user has must_change_password flag in Supabase auth.users metadata
+    let mustChangePassword = false;
+    try {
+      const authRows: any[] = await prisma.$queryRaw`
+        SELECT raw_user_meta_data->>'must_change_password' as flag 
+        FROM auth.users 
+        WHERE LOWER(email) = LOWER(${user.email || user.username}) LIMIT 1;
+      `;
+      if (authRows.length > 0 && String(authRows[0].flag) === 'true') {
+        mustChangePassword = true;
+      }
+    } catch (e) {}
+
     const sanitizedUser = sanitizeUserProfile(user);
     const { passwordHash: _unused, ...safeUser } = sanitizedUser;
-    const response = NextResponse.json({ success: true, user: safeUser }, { status: 200 });
+    const response = NextResponse.json({ success: true, user: safeUser, mustChangePassword }, { status: 200 });
     await setUserAuthCookie(response, userIdentifier);
 
     if (user.role === 'admin' || user.username.toLowerCase() === 'admin') {
