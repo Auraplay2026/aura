@@ -489,6 +489,7 @@ export const useTradingStore = create<TradingState>()(
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ emailOrUsername, password, otp, captcha, referralCode })
           });
+          const data = await res.json();
           if (!res.ok) {
             return { success: false, error: data.error || "Login failed." };
           }
