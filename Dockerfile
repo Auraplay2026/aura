@@ -51,8 +51,11 @@ COPY --from=builder /app/data_template ./data_template
 COPY --from=builder /app/create_admin.js ./create_admin.js
 
 # Ensure OpenShift arbitrary UIDs have proper permissions
-RUN chown -R nextjs:nodejs /app && \
-    chmod -R 775 /app/data /app/scripts /app/prisma
+RUN mkdir -p /app/.next/cache && \
+    chown -R nextjs:nodejs /app && \
+    chgrp -R 0 /app && \
+    chmod -R 777 /app/.next /app/data /app/scripts /app/prisma && \
+    chmod -R g=u /app
 
 USER 1001
 
