@@ -14,6 +14,7 @@ interface UserMenuProps {
 export function UserMenu({ onOpenCashier }: UserMenuProps) {
   const [isOpen, setIsOpen] = useState(false);
   const currentUser = useTradingStore(state => state.currentUser);
+  const switchAccountType = useTradingStore(state => state.switchAccountType);
   const logout = useTradingStore(state => state.logout);
 
   const getInitials = (name: string) => {
@@ -122,6 +123,34 @@ export function UserMenu({ onOpenCashier }: UserMenuProps) {
                 <p className="text-[11px] font-semibold text-slate-600 truncate">
                   {currentUser?.email || "demo@aurabet.io"}
                 </p>
+              </div>
+
+              {/* 1-Tap Active Mode Switcher Card */}
+              <div className="mx-2 my-1.5 p-2 bg-slate-50 border border-slate-200 rounded-xl flex items-center justify-between shadow-xs">
+                <div className="flex flex-col">
+                  <span className="text-[8px] font-extrabold text-slate-500 uppercase tracking-wider">Account Mode</span>
+                  <span className="text-[11px] font-black text-slate-900 flex items-center gap-1.5 mt-0.5">
+                    <span className={cn(
+                      "w-2 h-2 rounded-full",
+                      currentUser?.accountType === 'real' ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+                    )} />
+                    {currentUser?.accountType === 'real' ? "Real Money (₹)" : "Free Demo"}
+                  </span>
+                </div>
+                <button
+                  onClick={() => {
+                    const nextType = currentUser?.accountType === 'real' ? 'demo' : 'real';
+                    switchAccountType(nextType);
+                  }}
+                  className={cn(
+                    "px-2.5 py-1 text-[10px] font-black uppercase tracking-wider rounded-lg border shadow-xs transition-all active:scale-95 cursor-pointer",
+                    currentUser?.accountType === 'real'
+                      ? "bg-amber-500 text-slate-950 border-amber-400 hover:bg-amber-400"
+                      : "bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-500"
+                  )}
+                >
+                  Switch to {currentUser?.accountType === 'real' ? "Demo" : "Real"}
+                </button>
               </div>
 
               <div className="flex flex-col">
