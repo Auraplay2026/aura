@@ -74,6 +74,20 @@ export async function POST(request: Request) {
       }
     });
 
+    // Automatically sync new signups into Supabase auth.users & auth.identities
+    try {
+      const { syncUserToSupabaseAuth } = await import('@/lib/supabaseAuthSync');
+      await syncUserToSupabaseAuth({
+        id: newUser.id,
+        email: cleanEmail,
+        username: cleanUsername,
+        passwordHash,
+        mustChangePassword: false
+      });
+    } catch (authSyncErr) {
+      console.error("[Signup Supabase Auth Sync Error]:", authSyncErr);
+    }
+
     if (referrer) {
       await prisma.user.update({
         where: { id: referrer.id },
