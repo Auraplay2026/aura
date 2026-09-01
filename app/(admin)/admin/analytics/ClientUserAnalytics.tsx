@@ -74,11 +74,33 @@ export default function ClientUserAnalytics({
   const router = useRouter();
   const currentUser = useTradingStore((state) => state.currentUser);
   const [searchTerm, setSearchTerm] = useState("");
+  const [usersList, setUsersList] = useState<UserProfile[]>(users || []);
   const [selectedEmail, setSelectedEmail] = useState(initialSelectedEmail || (users[0]?.email || ""));
   const [notesInput, setNotesInput] = useState("");
   const [isPending, startTransition] = useTransition();
   const [toast, setToast] = useState<{ message: string; type: "success" | "error" | "info" } | null>(null);
   const [logsExpanded, setLogsExpanded] = useState(false);
+
+  // Live real-time polling for user directory
+  const fetchUsersDirectory = async () => {
+    try {
+      const res = await fetch(`/api/admin/users?_t=${Date.now()}`, { cache: 'no-store' });
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.users)) {
+        setUsersList(data.users);
+        if (!selectedEmail && data.users.length > 0) {
+          setSelectedEmail(data.users[0].email);
+        }
+      }
+    } catch (err) {}
+  };
+
+  useState(() => {
+    if (typeof window !== 'undefined') {
+      const interval = setInterval(fetchUsersDirectory, 2500);
+      return () => clearInterval(interval);
+    }
+  });
 
   // Quick Action Modal states
   const [creditModalOpen, setCreditModalOpen] = useState(false);
@@ -95,7 +117,7 @@ export default function ClientUserAnalytics({
 
   // Sync input value when user changes
   const [walletSelection, setWalletSelection] = useState<'real' | 'demo'>('real');
-  const activeUser = users.find(u => u.email.toLowerCase() === selectedEmail.toLowerCase());
+  const activeUser = usersList.find(u => (u.email && u.email.toLowerCase() === selectedEmail.toLowerCase()) || (u.username && u.username.toLowerCase() === selectedEmail.toLowerCase())) || usersList[0];
   const [lastSelectedEmail, setLastSelectedEmail] = useState("");
   if (activeUser && activeUser.email !== lastSelectedEmail) {
     setNotesInput(activeUser.adminNotes || "");
@@ -104,9 +126,9 @@ export default function ClientUserAnalytics({
   }
 
   // Filtered users list
-  const filteredUsers = users.filter(u => 
-    u.username.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  const filteredUsers = usersList.filter(u => 
+    (u.username && u.username.toLowerCase().includes(searchTerm.toLowerCase())) ||
+    (u.email && u.email.toLowerCase().includes(searchTerm.toLowerCase()))
   );
 
   // Statistics calculation for the active user
