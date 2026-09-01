@@ -9,7 +9,6 @@ import { RewardsModal } from "@/components/ui/RewardsModal";
 import { AchievementToast } from "@/components/ui/AchievementToast";
 import { WinCelebration } from "@/components/ui/WinCelebration";
 import { SmartNotificationBanner } from "@/components/ui/SmartNotificationBanner";
-import { ForcePasswordChangeModal } from "@/components/ui/ForcePasswordChangeModal";
 
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 
@@ -93,7 +92,6 @@ export default function RootLayout({
           <AchievementToast />
           <WinCelebration />
           <SmartNotificationBanner />
-          <ForcePasswordChangeModal />
           {children}
           <MobileBottomNav />
         </AppProviders>
