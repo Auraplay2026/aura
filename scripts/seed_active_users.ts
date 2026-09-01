@@ -16,27 +16,36 @@ async function seedTestUsers() {
   for (const u of testUsers) {
     const passwordHash = await bcrypt.hash("AuraPass2026!", 10);
     
-    // 1. Upsert into PostgreSQL public.User
-    const user = await prisma.user.upsert({
-      where: { username: u.username },
-      update: {
-        balance: u.balance,
-        realBalance: u.balance,
-        demoBalance: 100000,
-        email: u.email
-      },
-      create: {
-        username: u.username,
-        email: u.email,
-        passwordHash,
-        balance: u.balance,
-        realBalance: u.balance,
-        demoBalance: 100000,
-        role: 'user',
-        hasCompletedOnboarding: true,
-        kycStatus: 'VERIFIED'
+    // 1. Only create if user does not exist. If user already exists, NEVER overwrite their balance or transactions!
+    const existing = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { username: { equals: u.username, mode: 'insensitive' } },
+          { email: { equals: u.email, mode: 'insensitive' } }
+        ]
       }
     });
+
+    let user;
+    if (existing) {
+      user = existing;
+      console.log(`ℹ️ Preserving existing user @${u.username} with live balance ₹${user.realBalance}`);
+    } else {
+      user = await prisma.user.create({
+        data: {
+          username: u.username,
+          email: u.email,
+          passwordHash,
+          balance: u.balance,
+          realBalance: u.balance,
+          demoBalance: 100000,
+          role: 'user',
+          hasCompletedOnboarding: true,
+          kycStatus: 'VERIFIED'
+        }
+      });
+      console.log(`✅ Initialized new user @${u.username}`);
+    }
 
     // 2. Add an initial deposit transaction if not already present
     const existingTx = await prisma.transaction.findFirst({
