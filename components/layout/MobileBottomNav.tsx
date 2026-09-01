@@ -116,6 +116,12 @@ export function MobileBottomNav() {
                     {item.badge}
                   </span>
                 )}
+                {isLoggedIn && item.label === "Account" && (
+                  <span className={cn(
+                    "absolute -top-0.5 -right-1 w-2.5 h-2.5 rounded-full border-2 border-white shadow-xs",
+                    currentUser?.accountType === 'real' ? "bg-emerald-500" : "bg-amber-500 animate-pulse"
+                  )} />
+                )}
               </div>
               <span>{item.label}</span>
             </Link>
