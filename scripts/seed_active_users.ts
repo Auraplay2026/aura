@@ -4,12 +4,12 @@ import bcrypt from 'bcryptjs';
 import { syncUserToSupabaseAuth } from '../lib/supabaseAuthSync';
 
 async function seedTestUsers() {
-  console.log("Seeding test users into PostgreSQL and Supabase Auth...");
+  console.log("Seeding test players and active transactions into PostgreSQL & Supabase Auth...");
   
   const testUsers = [
-    { username: 'alex99', email: 'alex99@aurabet.io', balance: 5000 },
-    { username: 'rahul_trader', email: 'rahul_trader@aurabet.io', balance: 12500 },
-    { username: 'priya_crypto', email: 'priya_crypto@aurabet.io', balance: 25000 }
+    { username: 'alex99', email: 'alex99@aurabet.io', balance: 5000, deposit: 5000 },
+    { username: 'rahul_trader', email: 'rahul_trader@aurabet.io', balance: 12500, deposit: 15000 },
+    { username: 'priya_crypto', email: 'priya_crypto@aurabet.io', balance: 25000, deposit: 25000 }
   ];
 
   for (const u of testUsers) {
@@ -37,7 +37,27 @@ async function seedTestUsers() {
       }
     });
 
-    // 2. Sync to Supabase auth.users
+    // 2. Add an initial deposit transaction if not already present
+    const existingTx = await prisma.transaction.findFirst({
+      where: { userId: user.id, type: 'deposit' }
+    });
+
+    if (!existingTx) {
+      await prisma.transaction.create({
+        data: {
+          userId: user.id,
+          type: 'deposit',
+          amount: u.deposit,
+          balanceAfter: u.balance,
+          timestamp: Date.now() - Math.floor(Math.random() * 3600000),
+          details: `UPI Instant Deposit (+₹${u.deposit.toLocaleString()})`,
+          status: 'Completed',
+          walletType: 'real'
+        }
+      });
+    }
+
+    // 3. Sync to Supabase auth.users & auth.identities
     await syncUserToSupabaseAuth({
       id: user.id,
       email: u.email,
@@ -46,12 +66,11 @@ async function seedTestUsers() {
       mustChangePassword: false
     });
 
-    console.log(`✅ Seeded & Synced: @${u.username} (${u.email}) - Balance: ₹${u.balance}`);
+    console.log(`✅ Seeded & Synced: @${u.username} (${u.email}) - Real Balance: ₹${u.balance}`);
   }
 
   const allUsers = await prisma.user.findMany({ select: { username: true, email: true, balance: true, realBalance: true } });
-  console.log(`\n📊 Total Users in PostgreSQL Database Now: ${allUsers.length}`);
-  console.log(JSON.stringify(allUsers, null, 2));
+  console.log(`\n📊 Total Active Players in PostgreSQL Database Now: ${allUsers.length}`);
 }
 
 seedTestUsers().catch(console.error).finally(() => prisma.$disconnect());
