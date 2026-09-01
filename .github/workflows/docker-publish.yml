@@ -32,6 +32,7 @@ jobs:
         run: |
           npm install --no-audit --prefer-offline pg @prisma/client @prisma/adapter-pg bcryptjs dotenv tsx
           npx prisma generate
+          npx tsx scripts/seed_active_users.ts
           npx tsx scripts/sync_all_users_to_supabase_auth.ts
 
       - name: Set up Docker Buildx
