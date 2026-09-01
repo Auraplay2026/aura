@@ -51,6 +51,47 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   const [newWalletType, setNewWalletType] = useState<'real' | 'demo'>('real');
   const [isCreatingUser, setIsCreatingUser] = useState(false);
 
+  // Live Users Directory State & Background Polling
+  const [usersList, setUsersList] = useState<UserProfile[]>(initialUsers || []);
+  const [userSearchTerm, setUserSearchTerm] = useState("");
+  const [isRefreshingUsers, setIsRefreshingUsers] = useState(false);
+
+  const fetchUsersDirectory = async () => {
+    try {
+      const res = await fetch(`/api/admin/users?_t=${Date.now()}`, { cache: 'no-store' });
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.users)) {
+        setUsersList(data.users);
+      }
+    } catch (err) {}
+  };
+
+  useEffect(() => {
+    fetchUsersDirectory();
+    const interval = setInterval(fetchUsersDirectory, 2500);
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleDeleteUser = async (userId?: string, username?: string) => {
+    if (!username) return;
+    if (!confirm(`Are you sure you want to permanently delete player @${username}?`)) return;
+
+    try {
+      const res = await fetch(`/api/admin/users?username=${encodeURIComponent(username)}`, {
+        method: 'DELETE'
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        showToast(`Player @${username} deleted successfully`, "success");
+        fetchUsersDirectory();
+      } else {
+        showToast(data.error || "Failed to delete user", "error");
+      }
+    } catch (e: any) {
+      showToast("Network error deleting user", "error");
+    }
+  };
+
   // Live Telemetry states
   const [telemetryHistory, setTelemetryHistory] = useState<any[]>([]);
   const [riskAlerts, setRiskAlerts] = useState<string[]>([]);
@@ -228,7 +269,7 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
   }, [currentUser]);
 
   // Financial calculations from live regular users (excluding admin operational reserve)
-  const regularUsers = initialUsers.filter(
+  const regularUsers = usersList.filter(
     u => u.role !== 'admin' && 
          u.email?.toLowerCase() !== 'twintubrovquattro@gmail.com' && 
          u.username?.toLowerCase() !== 'admin' &&
@@ -705,6 +746,134 @@ export default function ClientAdminDashboard({ initialUsers, globalTransactions 
         </div>
 
       </div>
+
+      {/* 👥 Live Registered Players & Supabase Auth Directory Table */}
+      <section className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm relative z-10 flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-200 pb-4">
+          <div>
+            <div className="flex items-center gap-2 text-indigo-700 font-bold text-xs tracking-wider uppercase">
+              <Users className="w-4 h-4 text-indigo-600" />
+              <span>Registered Players & Platform Users</span>
+              <span className="bg-emerald-100 text-emerald-800 text-[10px] font-black px-2 py-0.5 rounded-full border border-emerald-300">
+                {usersList.length} Active Accounts
+              </span>
+            </div>
+            <p className="text-xs text-slate-500 mt-1">
+              Live real-time directory of all registered players and accounts synchronized across PostgreSQL and Supabase Auth.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <input
+                type="text"
+                placeholder="Search username or email..."
+                value={userSearchTerm}
+                onChange={(e) => setUserSearchTerm(e.target.value)}
+                className="bg-slate-50 border border-slate-200 rounded-xl px-3 py-1.5 text-xs text-slate-800 focus:outline-none focus:border-indigo-500 w-48 sm:w-64"
+              />
+            </div>
+            <button
+              type="button"
+              onClick={async () => {
+                setIsRefreshingUsers(true);
+                await fetchUsersDirectory();
+                setIsRefreshingUsers(false);
+                showToast("Users directory refreshed!", "info");
+              }}
+              disabled={isRefreshingUsers}
+              className="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 border border-slate-300 rounded-xl text-xs font-bold text-slate-700 flex items-center gap-1.5 transition cursor-pointer"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${isRefreshingUsers ? 'animate-spin' : ''}`} />
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="border-b border-slate-200 text-slate-600 text-[10px] uppercase font-black tracking-wider bg-slate-50">
+                <th className="py-3 px-3">Player / Username</th>
+                <th className="py-3 px-3">Email (Supabase Auth)</th>
+                <th className="py-3 px-3">Role</th>
+                <th className="py-3 px-3 text-right">Real Balance (₹)</th>
+                <th className="py-3 px-3 text-right">Demo Balance (₹)</th>
+                <th className="py-3 px-3 text-right">Total Wagered</th>
+                <th className="py-3 px-3 text-center">KYC</th>
+                <th className="py-3 px-3 text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-slate-100 text-xs text-slate-700">
+              {usersList
+                .filter(u => {
+                  if (!userSearchTerm.trim()) return true;
+                  const term = userSearchTerm.toLowerCase();
+                  return (
+                    u.username?.toLowerCase().includes(term) ||
+                    u.email?.toLowerCase().includes(term)
+                  );
+                })
+                .map((u, idx) => {
+                  const isPrimaryAdmin = u.username?.toLowerCase() === 'twintubro' || u.email?.toLowerCase() === 'twintubrovquattro@gmail.com';
+                  return (
+                    <tr key={u.id || u.username || idx} className="hover:bg-slate-50 transition">
+                      <td className="py-2.5 px-3 font-bold text-slate-900 flex items-center gap-2">
+                        <div className="w-6 h-6 rounded-full bg-slate-200 text-slate-700 text-[10px] font-black flex items-center justify-center shrink-0">
+                          {u.username ? u.username[0].toUpperCase() : 'U'}
+                        </div>
+                        <span>@{u.username}</span>
+                      </td>
+                      <td className="py-2.5 px-3 font-mono text-[11px] text-slate-600">
+                        {u.email || `${u.username.toLowerCase()}@aurabet.io`}
+                      </td>
+                      <td className="py-2.5 px-3">
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-black uppercase tracking-wider ${
+                          u.role === 'admin' 
+                            ? 'bg-purple-100 text-purple-700 border border-purple-300' 
+                            : 'bg-blue-50 text-blue-700 border border-blue-200'
+                        }`}>
+                          {u.role || 'user'}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono font-black text-emerald-700">
+                        ₹{(u.realBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono font-bold text-amber-700">
+                        ₹{(u.demoBalance || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-right font-mono text-slate-600">
+                        ₹{(u.totalWagered || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="py-2.5 px-3 text-center">
+                        <span className={`px-2 py-0.5 rounded text-[9px] font-bold ${
+                          u.kycStatus === 'VERIFIED' || u.kycStatus === 'APPROVED'
+                            ? 'bg-emerald-100 text-emerald-700'
+                            : 'bg-slate-100 text-slate-600'
+                        }`}>
+                          {u.kycStatus || 'NONE'}
+                        </span>
+                      </td>
+                      <td className="py-2.5 px-3 text-center">
+                        {isPrimaryAdmin ? (
+                          <span className="text-[10px] text-slate-400 font-bold italic">Primary Admin</span>
+                        ) : (
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteUser(u.id, u.username)}
+                            className="px-2.5 py-1 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-lg text-[10px] font-bold transition cursor-pointer"
+                          >
+                            Delete
+                          </button>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
       {/* Live Bets & Wager History Table */}
       <section className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm relative z-10 flex flex-col gap-4">
