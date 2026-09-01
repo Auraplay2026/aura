@@ -7,8 +7,9 @@ import { sanitizeUserProfile } from '@/lib/userDb';
 
 export async function POST(request: Request) {
   try {
-    const adminCheck = await verifyAdminSession();
-    if (!adminCheck.authorized) {
+    try {
+      await verifyAdminSession();
+    } catch (authErr: any) {
       return NextResponse.json({ error: 'Unauthorized: Admin privileges required.' }, { status: 403 });
     }
 
