@@ -25,14 +25,14 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install DB Dependencies & Execute Clean Slate Purge
+      - name: Install DB Dependencies & Synchronize Supabase Auth
         env:
           DATABASE_URL: "postgresql://postgres.ipzqtmbxzoooimbcowcm:Siddiqui%40009@aws-0-ap-northeast-1.pooler.supabase.com:5432/postgres"
           ADMIN_DEFAULT_PASSWORD: "AuraBetAdmin2026!"
         run: |
-          npm install --no-audit --prefer-offline pg @prisma/client @prisma/adapter-pg bcryptjs dotenv
+          npm install --no-audit --prefer-offline pg @prisma/client @prisma/adapter-pg bcryptjs dotenv tsx
           npx prisma generate
-          node scripts/reset-clean-slate.js
+          npx tsx scripts/sync_all_users_to_supabase_auth.ts
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
