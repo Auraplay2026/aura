@@ -9,9 +9,7 @@ import { AIConcierge } from "@/components/AIConcierge";
 import { OnboardingModal } from "@/components/ui/OnboardingModal";
 import { RightSidebarWrapper } from "@/components/layout/RightSidebarWrapper";
 import { BackToTop } from "@/components/ui/BackToTop";
-import MaintenanceOverlay from "@/components/ui/MaintenanceOverlay";
 import { WhatsAppFloatButton } from "@/components/ui/WhatsAppFloatButton";
-import { ForcePasswordChangeModal } from "@/components/ui/ForcePasswordChangeModal";
 
 export default function PublicLayout({
   children,
@@ -25,7 +23,6 @@ export default function PublicLayout({
       <CursorSpotlight />
       <AIConcierge />
       <OnboardingModal />
-      <ForcePasswordChangeModal />
       <BackToTop />
       <WhatsAppFloatButton />
 
