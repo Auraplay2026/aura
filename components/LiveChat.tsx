@@ -205,10 +205,10 @@ export function LiveChat({ isDocked = false, onClose }: LiveChatProps) {
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.8 }}
             onClick={() => setIsOpen(true)}
-            className={`fixed ${isCasinoGame ? "hidden sm:block bottom-24 right-4" : "bottom-20 md:bottom-6"} z-40 p-3.5 sm:p-4 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-xl transition-colors cursor-pointer right-4 sm:right-6`}
+            className={`fixed ${isCasinoGame ? "hidden sm:block bottom-24 right-4" : "bottom-34 right-3.5 md:bottom-6 md:right-6"} z-40 p-2.5 sm:p-3.5 bg-red-600 hover:bg-red-500 text-white rounded-full shadow-[0_8px_25px_rgba(225,29,72,0.4)] transition-all transform hover:scale-105 active:scale-95 cursor-pointer`}
             title="Open Live Chat"
           >
-            <MessageSquare className="w-5 h-5 sm:w-6 sm:h-6" />
+            <MessageSquare className="w-5 h-5 sm:w-5.5 sm:h-5.5" />
           </motion.button>
         )}
       </AnimatePresence>
