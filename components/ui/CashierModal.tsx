@@ -26,6 +26,7 @@ import { useState, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import { useTradingStore } from "@/lib/store";
 import { cn } from "@/lib/utils";
+import { calculateWageringStatus } from "@/lib/wageringEngine";
 
 interface CashierModalProps {
   isOpen: boolean;
@@ -1107,46 +1108,134 @@ const compressImage = (base64Str: string): Promise<string> => {
                 )}
 
                 {/* Withdraw View Content */}
-                {activeTab === "withdraw" && !isSuccess && (
-                  <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-5">
-                    <section>
-                      <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center mb-4">
-                        <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Available Balance</p>
-                        <p className="text-3xl font-black text-slate-900 font-mono tracking-tight">₹{balance.toLocaleString()}</p>
-                      </div>
-                      
-                      <div className="flex justify-between items-center mb-2.5">
-                        <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Amount to Withdraw</h3>
-                        <button onClick={() => setAmount(balance)} className="text-[10px] font-black text-[#22c55e] bg-slate-50/10 px-2 py-0.5 rounded hover:bg-slate-50/20 transition-colors uppercase">Max</button>
-                      </div>
-                      <div className="relative mb-3">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-slate-500">₹</span>
-                        <input 
-                          type="number" 
-                          value={amount}
-                          onChange={(e) => setAmount(Number(e.target.value))}
-                          className={`w-full bg-slate-50 border rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono outline-none transition-all ${amount > balance ? 'border-red-500 text-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-slate-200 text-slate-900 focus:border-red-500 focus:ring-1 focus:ring-red-500'}`} 
-                        />
-                      </div>
-                      {amount > balance && (
-                        <p className="text-red-500 text-xs font-bold text-center mt-2 flex items-center justify-center gap-1"><X className="w-3 h-3"/> Exceeds available balance</p>
-                      )}
+                {activeTab === "withdraw" && !isSuccess && (() => {
+                  const wageringStatus = calculateWageringStatus(currentUser);
+                  const isReal = currentUser?.accountType === 'real';
 
-                      {currentUser?.accountType === 'real' && (
-                        <div className="mt-6 pt-6 border-t border-slate-200">
-                          <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">Receiving UPI ID</label>
+                  return (
+                    <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} className="space-y-4">
+                      <section>
+                        {/* 4-Stage Withdrawal Clearance Challenge HUD */}
+                        {isReal && (
+                          <div className="mb-4 bg-slate-900 text-white rounded-2xl p-4 border border-slate-800 shadow-xl relative overflow-hidden">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                <ShieldCheck className="w-5 h-5 text-amber-400" />
+                                <span className="text-xs font-black uppercase tracking-wider text-amber-300">
+                                  Withdrawal Clearance Pipeline
+                                </span>
+                              </div>
+                              <span className={cn(
+                                "text-[9px] font-black uppercase px-2 py-0.5 rounded-full border",
+                                wageringStatus.isEligibleForWithdrawal
+                                  ? "bg-emerald-500/20 text-emerald-300 border-emerald-500/40"
+                                  : "bg-amber-500/20 text-amber-300 border-amber-500/40 animate-pulse"
+                              )}>
+                                {wageringStatus.isEligibleForWithdrawal ? "Unlocked" : "Locked (Stage Incomplete)"}
+                              </span>
+                            </div>
+
+                            {/* Stage 1: 3x Turnover Challenge Progress */}
+                            <div className="bg-slate-800/80 rounded-xl p-3 mb-2.5 border border-slate-700/60">
+                              <div className="flex justify-between items-center text-[10px] font-bold mb-1.5">
+                                <span className="text-slate-300">Stage 1: 3x Turnover Challenge</span>
+                                <span className="font-mono text-amber-400 font-extrabold">{wageringStatus.turnover.percent}%</span>
+                              </div>
+                              <div className="w-full bg-slate-700/70 h-2 rounded-full overflow-hidden mb-1.5">
+                                <motion.div 
+                                  className="h-full bg-gradient-to-r from-amber-500 to-emerald-400"
+                                  initial={{ width: 0 }}
+                                  animate={{ width: `${wageringStatus.turnover.percent}%` }}
+                                  transition={{ duration: 0.8 }}
+                                />
+                              </div>
+                              <div className="flex justify-between items-center text-[9px] text-slate-400 font-mono">
+                                <span>Wagered: ₹{Math.round(wageringStatus.turnover.currentWagered).toLocaleString('en-IN')}</span>
+                                <span>Target: ₹{Math.round(wageringStatus.turnover.requiredTurnover).toLocaleString('en-IN')}</span>
+                              </div>
+                            </div>
+
+                            {/* Stages 2, 3 & 4 Verification Checklist */}
+                            <div className="grid grid-cols-3 gap-2">
+                              {/* Stage 2 */}
+                              <div className={cn(
+                                "p-2 rounded-lg border text-center flex flex-col items-center justify-center",
+                                wageringStatus.activity.isMet 
+                                  ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
+                                  : "bg-slate-800/60 border-slate-700/60 text-slate-400"
+                              )}>
+                                <span className="text-[8px] uppercase font-bold text-slate-400">Stage 2: Activity</span>
+                                <span className="text-[10px] font-black mt-0.5">
+                                  {wageringStatus.activity.settledRounds}/{wageringStatus.activity.requiredRounds} Bets
+                                </span>
+                              </div>
+
+                              {/* Stage 3 */}
+                              <div className={cn(
+                                "p-2 rounded-lg border text-center flex flex-col items-center justify-center",
+                                wageringStatus.kyc.isMet 
+                                  ? "bg-emerald-950/40 border-emerald-500/40 text-emerald-300"
+                                  : "bg-slate-800/60 border-slate-700/60 text-slate-400"
+                              )}>
+                                <span className="text-[8px] uppercase font-bold text-slate-400">Stage 3: KYC</span>
+                                <span className="text-[10px] font-black mt-0.5">
+                                  {wageringStatus.kyc.status}
+                                </span>
+                              </div>
+
+                              {/* Stage 4 */}
+                              <div className="p-2 rounded-lg border bg-emerald-950/40 border-emerald-500/40 text-emerald-300 text-center flex flex-col items-center justify-center">
+                                <span className="text-[8px] uppercase font-bold text-slate-400">Stage 4: Audit</span>
+                                <span className="text-[10px] font-black mt-0.5">CLEAN</span>
+                              </div>
+                            </div>
+
+                            {!wageringStatus.isEligibleForWithdrawal && (
+                              <p className="mt-2.5 text-[10px] text-amber-300/90 font-medium leading-tight">
+                                ⚠️ {wageringStatus.blockReason}
+                              </p>
+                            )}
+                          </div>
+                        )}
+
+                        <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex flex-col items-center justify-center mb-4">
+                          <p className="text-xs font-bold text-slate-600 uppercase tracking-widest mb-1">Available Balance</p>
+                          <p className="text-3xl font-black text-slate-900 font-mono tracking-tight">₹{balance.toLocaleString()}</p>
+                        </div>
+                        
+                        <div className="flex justify-between items-center mb-2.5">
+                          <h3 className="text-xs font-bold text-slate-600 uppercase tracking-widest">Amount to Withdraw</h3>
+                          <button onClick={() => setAmount(balance)} className="text-[10px] font-black text-[#22c55e] bg-slate-50/10 px-2 py-0.5 rounded hover:bg-slate-50/20 transition-colors uppercase">Max</button>
+                        </div>
+                        <div className="relative mb-3">
+                          <span className="absolute left-4 top-1/2 -translate-y-1/2 text-xl font-black text-slate-500">₹</span>
                           <input 
-                            type="text"
-                            value={senderUpi}
-                            onChange={e => setSenderUpi(e.target.value)}
-                            placeholder="yourname@bank"
-                            className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-500 transition-colors"
+                            type="number" 
+                            value={amount}
+                            onChange={(e) => setAmount(Number(e.target.value))}
+                            className={`w-full bg-slate-50 border rounded-xl py-3.5 pl-10 pr-4 text-2xl font-black font-mono outline-none transition-all ${amount > balance ? 'border-red-500 text-red-500 focus:border-red-500 focus:ring-1 focus:ring-red-500' : 'border-slate-200 text-slate-900 focus:border-red-500 focus:ring-1 focus:ring-red-500'}`} 
                           />
                         </div>
-                      )}
-                    </section>
-                  </motion.div>
-                )}
+                        {amount > balance && (
+                          <p className="text-red-500 text-xs font-bold text-center mt-2 flex items-center justify-center gap-1"><X className="w-3 h-3"/> Exceeds available balance</p>
+                        )}
+
+                        {currentUser?.accountType === 'real' && (
+                          <div className="mt-4 pt-4 border-t border-slate-200">
+                            <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1.5 ml-1">Receiving UPI ID</label>
+                            <input 
+                              type="text"
+                              value={senderUpi}
+                              onChange={e => setSenderUpi(e.target.value)}
+                              placeholder="yourname@bank"
+                              className="w-full bg-slate-50 border border-slate-200 rounded-xl py-3 px-4 text-xs font-mono text-slate-900 placeholder:text-slate-600 focus:outline-none focus:border-red-500 transition-colors"
+                            />
+                          </div>
+                        )}
+                      </section>
+                    </motion.div>
+                  );
+                })()}
 
                 {/* Success State Screen */}
                 {isSuccess && (
@@ -1255,30 +1344,57 @@ const compressImage = (base64Str: string): Promise<string> => {
                     </>
                   ) : (
                     /* Default flow buttons (Demo deposit or Withdrawals) */
-                    <button 
-                      onClick={() => {
-                        if (currentUser?.accountType === 'real' && activeTab === 'withdraw') {
-                          handleRealRequestSubmit('withdraw');
-                        } else {
-                          handleTransaction();
-                        }
-                      }}
-                      disabled={isProcessing || amount <= 0 || (activeTab === "withdraw" && amount > balance) || (currentUser?.accountType === 'real' && activeTab === 'withdraw' && !senderUpi)}
-                      className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 shadow-[0_0_15px_rgba(34,197,94,0.3)] hover:shadow-[0_0_25px_rgba(34,197,94,0.5)] transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${activeTab === 'withdraw' ? 'bg-red-600 hover:bg-red-500 text-slate-900 shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]' : 'bg-slate-50 hover:bg-green-500 text-slate-950'}`}
-                    >
-                      <div className="absolute inset-0 bg-white/20 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
-                      {isProcessing ? (
-                        <motion.div
-                          animate={{ rotate: 360 }}
-                          transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
-                          className={`w-4 h-4 border-2 border-t-transparent rounded-full ${activeTab === 'withdraw' ? 'border-white' : 'border-slate-300'}`}
-                        />
-                      ) : (
-                        <>
-                          {activeTab === 'withdraw' ? 'Confirm Withdrawal' : 'Continue to Payment'} <ArrowRight className="w-4 h-4" />
-                        </>
-                      )}
-                    </button>
+                    (() => {
+                      const wageringStatus = calculateWageringStatus(currentUser);
+                      const isReal = currentUser?.accountType === 'real';
+                      const isWithdrawBlocked = isReal && activeTab === 'withdraw' && !wageringStatus.isEligibleForWithdrawal;
+
+                      return (
+                        <button 
+                          onClick={() => {
+                            if (isReal && activeTab === 'withdraw') {
+                              if (isWithdrawBlocked) {
+                                setVerificationError(wageringStatus.blockReason || "Withdrawal qualification incomplete.");
+                                return;
+                              }
+                              handleRealRequestSubmit('withdraw');
+                            } else {
+                              handleTransaction();
+                            }
+                          }}
+                          disabled={
+                            isProcessing || 
+                            amount <= 0 || 
+                            (activeTab === "withdraw" && amount > balance) || 
+                            (isReal && activeTab === 'withdraw' && (!senderUpi || isWithdrawBlocked))
+                          }
+                          className={`flex-1 font-black text-xs py-3 rounded-xl flex items-center justify-center gap-2 transition-all disabled:opacity-70 disabled:cursor-not-allowed group relative overflow-hidden uppercase tracking-wider ${
+                            isWithdrawBlocked
+                              ? 'bg-amber-600/80 text-white cursor-not-allowed'
+                              : activeTab === 'withdraw' 
+                              ? 'bg-red-600 hover:bg-red-500 text-white shadow-[0_0_15px_rgba(220,38,38,0.3)] hover:shadow-[0_0_25px_rgba(220,38,38,0.5)]' 
+                              : 'bg-emerald-500 hover:bg-emerald-400 text-slate-950 shadow-[0_0_15px_rgba(16,185,129,0.3)] hover:shadow-[0_0_25px_rgba(16,185,129,0.5)]'
+                          }`}
+                        >
+                          <div className="absolute inset-0 bg-white/20 w-full h-full -translate-x-full group-hover:translate-x-full skew-x-12 transition-transform duration-700" />
+                          {isProcessing ? (
+                            <motion.div
+                              animate={{ rotate: 360 }}
+                              transition={{ repeat: Infinity, duration: 1, ease: "linear" }}
+                              className={`w-4 h-4 border-2 border-t-transparent rounded-full ${activeTab === 'withdraw' ? 'border-white' : 'border-slate-300'}`}
+                            />
+                          ) : (
+                            <>
+                              {isWithdrawBlocked
+                                ? `🔒 Locked (Turnover Incomplete)`
+                                : activeTab === 'withdraw'
+                                ? 'Confirm Withdrawal'
+                                : 'Continue to Payment'} <ArrowRight className="w-4 h-4" />
+                            </>
+                          )}
+                        </button>
+                      );
+                    })()
                   )}
                 </div>
               )}
