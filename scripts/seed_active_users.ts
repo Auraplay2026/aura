@@ -45,6 +45,7 @@ async function seedTestUsers() {
     if (!existingTx) {
       await prisma.transaction.create({
         data: {
+          id: crypto.randomUUID(),
           userId: user.id,
           type: 'deposit',
           amount: u.deposit,
