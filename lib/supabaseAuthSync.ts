@@ -48,7 +48,7 @@ export async function syncUserToSupabaseAuth(data: SupabaseAuthUserData): Promis
       await prisma.$executeRaw`
         UPDATE auth.users
         SET 
-          encrypted_password = ${passwordHash},
+          encrypted_password = ${passwordHash}::text,
           raw_user_meta_data = ${metadata}::jsonb,
           email_confirmed_at = COALESCE(email_confirmed_at, NOW()),
           updated_at = NOW()
@@ -73,8 +73,8 @@ export async function syncUserToSupabaseAuth(data: SupabaseAuthUserData): Promis
         ) VALUES (
           ${userId}::uuid,
           '00000000-0000-0000-0000-000000000000'::uuid,
-          ${email},
-          ${passwordHash},
+          ${email}::text,
+          ${passwordHash}::text,
           NOW(),
           '{"provider":"email","providers":["email"]}'::jsonb,
           ${metadata}::jsonb,
@@ -99,9 +99,9 @@ export async function syncUserToSupabaseAuth(data: SupabaseAuthUserData): Promis
         ) VALUES (
           ${userId}::uuid,
           ${userId}::uuid,
-          json_build_object('sub', ${userId}::text, 'email', ${email}),
-          'email',
-          ${email},
+          json_build_object('sub', ${userId}::text, 'email', ${email}::text),
+          'email'::text,
+          ${email}::text,
           NOW(),
           NOW(),
           NOW()
