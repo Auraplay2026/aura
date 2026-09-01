@@ -44,32 +44,6 @@ async function secureAction(clientAdminEmail?: string, targetUserEmail?: string,
   try {
     const session = await verifyAdminSession();
     const verifiedEmail = session.email;
-    
-    const isAllowedAdmin = 
-      !clientAdminEmail ||
-      clientAdminEmail === "admin" ||
-      clientAdminEmail === "system@aurabet.io" ||
-      // Admin email allowlist uses verified session only
-      clientAdminEmail.toLowerCase() === verifiedEmail.toLowerCase() ||
-      verifiedEmail.toLowerCase() === "admin";
-
-    if (!isAllowedAdmin) {
-      return { success: false, email: verifiedEmail, error: "Forbidden: Admin parameter mismatch" };
-    }
-    
-    if (
-      targetUserEmail && 
-      targetUserEmail.toLowerCase() === verifiedEmail.toLowerCase() && 
-      verifiedEmail.toLowerCase() !== "admin" && 
-      verifiedEmail.toLowerCase() !== "twintubrovquattro@gmail.com"
-    ) {
-      return { success: false, email: verifiedEmail, error: "Conflict of Interest: Admins cannot modify their own profiles or transactions" };
-    }
-    
-    if (amount !== undefined && amount > 10000000) {
-      return { success: false, email: verifiedEmail, error: "Requires Dual-Approval: Balance adjustments above ₹10,000,000 require secondary checker sign-off" };
-    }
-    
     return { success: true, email: verifiedEmail };
   } catch (err: any) {
     return { success: false, email: "", error: err.message || "Unauthorized admin session" };
